@@ -1,31 +1,60 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
 
+
 const Login = () => {
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
 
-  const handleLogin = async () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+
+
+  const [loading, setLoading] = useState(false);
+
+
+  const [error, setError] = useState("");
+
+
+
+  const handleChange = (e) => {
+
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+
+  };
+
+
+
+  const handleLogin = async (e) => {
+
+    e.preventDefault();
+
+    setLoading(true);
+    setError("");
+
 
     try {
 
       const response = await axios.post(
         "http://localhost:5000/api/auth/login",
-        {
-          email,
-          password
-        }
+        formData
       );
 
 
       console.log(response.data);
 
 
-      // Save token if returned
+      // Save token
       if(response.data.token)
       {
         localStorage.setItem(
@@ -35,53 +64,101 @@ const Login = () => {
       }
 
 
+      // Save user details
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data)
+      );
+
+
       alert("Login Successful");
 
 
+      navigate("/dashboard");
+
+
     }
-    catch(error){
+    catch(error)
+    {
 
       console.log(error);
-      alert("Login Failed");
 
+
+      setError(
+        error.response?.data?.message ||
+        "Invalid email or password"
+      );
+
+    }
+    finally
+    {
+      setLoading(false);
     }
 
   };
+
 
 
   return (
 
     <div className="login-container">
 
+
       <div className="login-card">
+
 
         <h2>Login</h2>
 
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="login-input"
-          value={email}
-          onChange={(e)=>setEmail(e.target.value)}
-        />
+        {error && (
+          <div className="alert alert-error">
+            {error}
+          </div>
+        )}
 
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="login-input"
-          value={password}
-          onChange={(e)=>setPassword(e.target.value)}
-        />
+
+        <form onSubmit={handleLogin}>
 
 
-        <button 
-          className="login-button"
-          onClick={handleLogin}
-        >
-          Login
-        </button>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            className="login-input"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+
+
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            className="login-input"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+
+
+
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+          >
+
+            {loading ? "Logging in..." : "Login"}
+
+          </button>
+
+
+
+        </form>
+
 
 
         <div className="register-link">
@@ -97,10 +174,12 @@ const Login = () => {
 
       </div>
 
+
     </div>
 
   );
 
 };
+
 
 export default Login;
