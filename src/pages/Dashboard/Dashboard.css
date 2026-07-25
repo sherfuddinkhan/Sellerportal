@@ -1,0 +1,149 @@
+/* Reset and Container Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 250px;
+  background-color: #1e293b;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.brand {
+  padding-bottom: 2rem;
+  padding-left: 0.5rem;
+  border-bottom: 1px solid #334155;
+}
+
+.brand h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+.nav-item.active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+/* Main Content Area */
+.main-content {
+  margin-left: 250px;
+  flex: 1;
+  padding: 2rem;
+}
+
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #dc2626;
+}
+
+/* Dashboard Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card h3 {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.page-body {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
