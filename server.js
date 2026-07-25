@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import axios from "axios";
+import https from "https";
 
 const app = express();
 
@@ -20,7 +21,13 @@ const api = axios.create({
 
     headers: {
         "Content-Type": "application/json"
-    }
+    },
+
+    httpsAgent: new https.Agent({
+
+        rejectUnauthorized: false
+
+    })
 
 });
 
