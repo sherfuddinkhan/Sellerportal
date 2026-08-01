@@ -1,98 +1,118 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Boxes,
-  BarChart3,
-  Users,
-  Settings,
-  LogOut
-} from "lucide-react";
+  Box,
+  Grid,
+  CircularProgress,
+  Alert
+} from "@mui/material";
 
-import "./Dashboard.css";
+import DashboardHeader from "./DashboardHeader";
+import StatisticsCards from "./StatisticsCards";
+import RevenueChart from "./RevenueChart";
+import SalesChart from "./SalesChart";
+import LatestOrders from "./LatestOrders";
+import RecentCustomers from "./RecentCustomers";
+import TopSellingProducts from "./TopSellingProducts";
+import LowStockProducts from "./LowStockProducts";
+
+import dashboardService from "../../services/dashboardService";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const logout = () => {
-    localStorage.clear();
-    navigate("/");
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const loadDashboard = async () => {
+    try {
+      setLoading(true);
+
+      const response = await dashboardService.getDashboardSummary();
+
+      setDashboardData(response.data);
+      setError("");
+    } catch (err) {
+      console.error(err);
+      setError("Unable to load dashboard.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (loading)
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        mt={10}
+      >
+        <CircularProgress />
+      </Box>
+    );
+
+  if (error)
+    return (
+      <Alert severity="error">
+        {error}
+      </Alert>
+    );
+
   return (
-    <div className="dashboard-layout">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">
-          <h2>Seller Portal</h2>
-        </div>
-        <nav className="nav-menu">
-          <NavLink to="/dashboard" className="nav-item">
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </NavLink>
-          <NavLink to="/products" className="nav-item">
-            <Package size={20} />
-            <span>Products</span>
-          </NavLink>
-          <NavLink to="/orders" className="nav-item">
-            <ShoppingCart size={20} />
-            <span>Orders</span>
-          </NavLink>
-          <NavLink to="/inventory" className="nav-item">
-            <Boxes size={20} />
-            <span>Inventory</span>
-          </NavLink>
-          <NavLink to="/reports" className="nav-item">
-            <BarChart3 size={20} />
-            <span>Reports</span>
-          </NavLink>
-          <NavLink to="/customers" className="nav-item">
-            <Users size={20} />
-            <span>Customers</span>
-          </NavLink>
-          <NavLink to="/settings" className="nav-item">
-            <Settings size={20} />
-            <span>Settings</span>
-          </NavLink>
-        </nav>
-      </aside>
+    <Box p={3}>
 
-      {/* Main Content Area */}
-      <div className="main-content">
-        <header className="header">
-          <h1>Dashboard Overview</h1>
-          <button className="logout-btn" onClick={logout}>
-            <LogOut size={18} />
-            Logout
-          </button>
-        </header>
+     <DashboardHeader
+    onRefresh={loadDashboard}
+    onExport={() => console.log("Export Dashboard")}
+/>
 
-        <section className="cards-grid">
-          <div className="card">
-            <h3>Total Products</h3>
-            <p className="card-value">120</p>
-          </div>
-          <div className="card">
-            <h3>Total Orders</h3>
-            <p className="card-value">35</p>
-          </div>
-          <div className="card">
-            <h3>Revenue</h3>
-            <p className="card-value">$25,000</p>
-          </div>
-          <div className="card">
-            <h3>Inventory</h3>
-            <p className="card-value">450</p>
-          </div>
-        </section>
+      <StatisticsCards
+        summary={dashboardData.summary}
+      />
 
-        <section className="page-body">
-          <Outlet />
-        </section>
-      </div>
-    </div>
+      <Grid container spacing={3} mt={1}>
+
+        <Grid item xs={12} md={8}>
+          <RevenueChart
+            data={dashboardData.revenue}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <SalesChart
+            data={dashboardData.sales}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={8}>
+          <LatestOrders
+            orders={dashboardData.latestOrders}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <RecentCustomers
+            customers={dashboardData.recentCustomers}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <TopSellingProducts
+            products={dashboardData.topProducts}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <LowStockProducts
+            products={dashboardData.lowStockProducts}
+          />
+        </Grid>
+
+      </Grid>
+
+    </Box>
   );
 };
 
