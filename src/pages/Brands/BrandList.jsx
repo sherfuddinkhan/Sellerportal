@@ -27,7 +27,10 @@ const BrandList = () => {
     const [searchText, setSearchText] = useState("");
 
     const [statusFilter, setStatusFilter] = useState("All");
+    
+    const [page, setPage] = useState(0);
 
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     useEffect(() => {
 
         loadBrands();
@@ -66,29 +69,39 @@ const BrandList = () => {
 
     useEffect(() => {
 
-        let result = [...brands];
+    let result = [...brands];
 
-        if (searchText !== "") {
+    // Search Filter
+    if (searchText.trim() !== "") {
 
-            result = result.filter(x =>
-                x.brandName
-                    .toLowerCase()
-                    .includes(searchText.toLowerCase())
-            );
+        const search = searchText.toLowerCase();
 
-        }
+        result = result.filter(x =>
 
-        if (statusFilter !== "All") {
+            (x.brandName &&
+                x.brandName.toLowerCase().includes(search))
 
-            const active = statusFilter === "Active";
+            ||
 
-            result = result.filter(x => x.isActive === active);
+            (x.description &&
+                x.description.toLowerCase().includes(search))
 
-        }
+        );
 
-        setFilteredBrands(result);
+    }
 
-    }, [searchText, statusFilter, brands]);
+    // Status Filter
+    if (statusFilter !== "All") {
+
+        const active = statusFilter === "Active";
+
+        result = result.filter(x => x.isActive === active);
+
+    }
+
+    setFilteredBrands(result);
+
+}, [searchText, statusFilter, brands]);
 
     if (loading) {
 
@@ -140,12 +153,35 @@ const BrandList = () => {
                 onChange={setStatusFilter}
             />
 
-            <BrandTable
-                brands={filteredBrands}
-                refresh={loadBrands}
-            />
+          <BrandTable
+    brands={filteredBrands.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+    )}
+    refresh={loadBrands}
+/>
 
-            <BrandPagination />
+           <BrandPagination
+
+    page={page}
+
+    rowsPerPage={rowsPerPage}
+
+    totalRecords={filteredBrands.length}
+
+    onPageChange={(event, newPage) =>
+        setPage(newPage)
+    }
+
+    onRowsPerPageChange={(event) => {
+
+        setRowsPerPage(parseInt(event.target.value, 10));
+
+        setPage(0);
+
+    }}
+
+/>
 
         </Box>
 
