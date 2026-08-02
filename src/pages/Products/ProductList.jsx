@@ -1,405 +1,738 @@
-import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import React, {
+    useEffect,
+    useState
+} from "react";
+
+import {
+    Box
+} from "@mui/material";
+
+import {
+    useNavigate
+} from "react-router-dom";
+
 
 import apiService from "../../services/apiService";
 
-import ProductToolbar from "./ProductToolbar";
-import ProductStatistics from "./ProductStatistics";
-import ProductSearch from "./ProductSearch";
-import ProductFilters from "./ProductFilters";
-import ProductTable from "./ProductTable";
-import ProductPagination from "./ProductPagination";
-import ProductModal from "./ProductModal";
-import DeleteProductDialog from "./DeleteProductDialog";
 
-const ProductList = () => {
+import ProductPriceToolbar from "./ProductPriceToolbar";
+
+import ProductPriceStatistics from "./ProductPriceStatistics";
+
+import ProductPriceSearch from "./ProductPriceSearch";
+
+import ProductPriceTable from "./ProductPriceTable";
+
+import ProductPricePagination from "./ProductPricePagination";
+
+import ProductPriceModal from "./ProductPriceModal";
+
+import DeleteProductPriceDialog from "./DeleteProductPriceDialog";
+
+
+const ProductPriceList = () => {
+
 
     const navigate = useNavigate();
+
 
     // ===========================
     // State
     // ===========================
 
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [
+        productPrices,
+        setProductPrices
+    ] = useState([]);
 
-    const [searchText, setSearchText] = useState("");
 
-    const [statusFilter, setStatusFilter] = useState("All");
+    const [
+        filteredProductPrices,
+        setFilteredProductPrices
+    ] = useState([]);
 
-    const [brandFilter, setBrandFilter] = useState("");
 
-    const [categoryFilter, setCategoryFilter] = useState("");
+    const [
+        loading,
+        setLoading
+    ] = useState(false);
 
-    const [productTypeFilter, setProductTypeFilter] = useState("");
 
-    const [brands, setBrands] = useState([]);
 
-    const [categories, setCategories] = useState([]);
+    const [
+        searchText,
+        setSearchText
+    ] = useState("");
 
-    const [productTypes, setProductTypes] = useState([]);
 
-    const [selectedProduct, setSelectedProduct] = useState(null);
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [
+        statusFilter,
+        setStatusFilter
+    ] = useState("All");
 
-    const [page, setPage] = useState(1);
 
-    const [pageSize, setPageSize] = useState(10);
+
+    const [
+        priceTypeFilter,
+        setPriceTypeFilter
+    ] = useState("");
+
+
+
+    const [
+        currencyFilter,
+        setCurrencyFilter
+    ] = useState("");
+
+
+
+    const [
+        selectedProductPrice,
+        setSelectedProductPrice
+    ] = useState(null);
+
+
+
+    const [
+        deleteOpen,
+        setDeleteOpen
+    ] = useState(false);
+
+
+
+    const [
+        page,
+        setPage
+    ] = useState(1);
+
+
+
+    const [
+        pageSize,
+        setPageSize
+    ] = useState(10);
+
+
 
     // ===========================
-    // Load Products
+    // Load Product Prices
     // ===========================
 
-    const loadProducts = async () => {
+
+    const loadProductPrices = async () => {
+
 
         try {
 
+
             setLoading(true);
 
-            const response = await apiService.getProducts();
 
-            setProducts(response.data);
+            const response =
+                await apiService.getProductPrices();
 
-            setFilteredProducts(response.data);
+
+
+            setProductPrices(
+                response.data
+            );
+
+
+            setFilteredProductPrices(
+                response.data
+            );
+
 
         }
 
         catch (err) {
 
+
             console.log(err);
+
 
         }
 
         finally {
 
+
             setLoading(false);
 
+
         }
+
 
     };
 
-    // ===========================
-    // Load Dropdowns
-    // ===========================
 
-    const loadDropdowns = async () => {
-
-        try {
-
-            const [
-
-                brandRes,
-
-                categoryRes,
-
-                productTypeRes
-
-            ] = await Promise.all([
-
-                apiService.getBrands(),
-
-                apiService.getCategories(),
-
-                apiService.getProductTypes()
-
-            ]);
-
-            setBrands(brandRes.data);
-
-            setCategories(categoryRes.data);
-
-            setProductTypes(productTypeRes.data);
-
-        }
-
-        catch (err) {
-
-            console.log(err);
-
-        }
-
-    };
 
     // ===========================
     // Initial Load
     // ===========================
 
+
     useEffect(() => {
 
-        loadProducts();
 
-        loadDropdowns();
+        loadProductPrices();
+
 
     }, []);
+
+
 
     // ===========================
     // Search & Filter
     // ===========================
 
+
     useEffect(() => {
 
-        let result = [...products];
 
-        if (searchText.trim() !== "") {
+        let result =
+            [
+                ...productPrices
+            ];
 
-            const search = searchText.toLowerCase();
 
-            result = result.filter(item =>
 
-                item.ProductName?.toLowerCase().includes(search) ||
+        if (
+            searchText.trim() !== ""
+        ) {
 
-                item.SKU?.toLowerCase().includes(search) ||
 
-                item.Barcode?.toLowerCase().includes(search) ||
+            const search =
+                searchText.toLowerCase();
 
-                item.HSNCode?.toLowerCase().includes(search)
 
-            );
 
-        }
+            result =
+                result.filter(item =>
 
-        if (statusFilter !== "All") {
 
-            result = result.filter(item =>
+                    item.PriceType
+                        ?.toLowerCase()
+                        .includes(search)
 
-                statusFilter === "Active"
 
-                    ? item.IsActive
+                    ||
 
-                    : !item.IsActive
+                    String(
+                        item.ProductId
+                    )
+                    .includes(search)
 
-            );
 
-        }
+                    ||
 
-        if (brandFilter !== "") {
+                    String(
+                        item.SellerId
+                    )
+                    .includes(search)
 
-            result = result.filter(
 
-                item => item.BrandId === brandFilter
+                    ||
 
-            );
+                    String(
+                        item.Price
+                    )
+                    .includes(search)
 
-        }
 
-        if (categoryFilter !== "") {
+                    ||
 
-            result = result.filter(
+                    item.Currency
+                        ?.toLowerCase()
+                        .includes(search)
 
-                item => item.CategoryId === categoryFilter
 
-            );
+                );
 
-        }
-
-        if (productTypeFilter !== "") {
-
-            result = result.filter(
-
-                item =>
-
-                    item.ProductTypeId === productTypeFilter
-
-            );
 
         }
 
-        setFilteredProducts(result);
+
+
+        if (
+            statusFilter !== "All"
+        ) {
+
+
+            result =
+                result.filter(item =>
+
+
+                    statusFilter === "Active"
+
+                        ?
+
+                        item.IsActive
+
+                        :
+
+                        !item.IsActive
+
+
+                );
+
+
+        }
+
+
+
+        if (
+            priceTypeFilter !== ""
+        ) {
+
+
+            result =
+                result.filter(item =>
+
+
+                    item.PriceType ===
+                    priceTypeFilter
+
+
+                );
+
+
+        }
+
+
+
+        if (
+            currencyFilter !== ""
+        ) {
+
+
+            result =
+                result.filter(item =>
+
+
+                    item.Currency ===
+                    currencyFilter
+
+
+                );
+
+
+        }
+
+
+
+        setFilteredProductPrices(
+            result
+        );
+
 
         setPage(1);
 
+
+
     }, [
 
-        products,
+        productPrices,
 
         searchText,
 
         statusFilter,
 
-        brandFilter,
+        priceTypeFilter,
 
-        categoryFilter,
-
-        productTypeFilter
+        currencyFilter
 
     ]);
+
+
 
     // ===========================
     // Pagination
     // ===========================
 
-    const totalPages = Math.ceil(
 
-        filteredProducts.length / pageSize
+    const totalPages =
+        Math.ceil(
 
-    );
+            filteredProductPrices.length /
+            pageSize
 
-    const pagedProducts = filteredProducts.slice(
+        );
 
-        (page - 1) * pageSize,
 
-        page * pageSize
 
-    );
-      return (
+    const pagedProductPrices =
+        filteredProductPrices.slice(
 
-        <Box sx={{ p: 3 }}>
+            (page - 1) * pageSize,
 
-            <ProductToolbar
+            page * pageSize
+
+        );
+
+
+
+    // ===========================
+    // Save Product Price
+    // ===========================
+
+
+    const handleSave = async (data) => {
+
+
+        try {
+
+
+            if (
+                data.ProductPriceId
+            ) {
+
+
+                await apiService.updateProductPrice(
+
+                    data.ProductPriceId,
+
+                    data
+
+                );
+
+
+            }
+
+            else {
+
+
+                await apiService.createProductPrice(
+
+                    data
+
+                );
+
+
+            }
+
+
+            loadProductPrices();
+
+
+            setSelectedProductPrice(null);
+
+
+
+        }
+
+        catch(err) {
+
+
+            console.log(err);
+
+
+        }
+
+
+    };
+
+
+
+    // ===========================
+    // Delete Product Price
+    // ===========================
+
+
+    const handleDelete = async(id) => {
+
+
+        try {
+
+
+            await apiService.deleteProductPrice(
+                id
+            );
+
+
+            loadProductPrices();
+
+
+
+        }
+
+        catch(err) {
+
+
+            console.log(err);
+
+
+        }
+
+
+    };
+
+
+
+    return (
+
+        <Box
+            sx={{
+                p:3
+            }}
+        >
+
+
+            <ProductPriceToolbar
+
 
                 onAdd={() =>
-                    navigate("/products/create")
+                    setSelectedProductPrice({})
                 }
 
-                onRefresh={loadProducts}
+
+                onRefresh={
+                    loadProductPrices
+                }
+
 
                 onExport={() =>
-                    console.log("Export Products")
+                    console.log(
+                        "Export Product Prices"
+                    )
+                }
+
+
+            />
+
+
+
+            <ProductPriceStatistics
+
+                productPrices={
+                    productPrices
                 }
 
             />
 
-            <ProductStatistics
 
-                products={products}
+
+            <ProductPriceSearch
+
+
+                searchText={
+                    searchText
+                }
+
+
+                setSearchText={
+                    setSearchText
+                }
+
+
+                statusFilter={
+                    statusFilter
+                }
+
+
+                setStatusFilter={
+                    setStatusFilter
+                }
+
+
+                priceTypeFilter={
+                    priceTypeFilter
+                }
+
+
+                setPriceTypeFilter={
+                    setPriceTypeFilter
+                }
+
+
+                currencyFilter={
+                    currencyFilter
+                }
+
+
+                setCurrencyFilter={
+                    setCurrencyFilter
+                }
+
+
+                productPrices={
+                    productPrices
+                }
+
 
             />
 
-            <ProductSearch
 
-                searchText={searchText}
 
-                setSearchText={setSearchText}
+            <ProductPriceTable
 
-                statusFilter={statusFilter}
 
-                setStatusFilter={setStatusFilter}
+                productPrices={
+                    pagedProductPrices
+                }
 
-            />
 
-            <ProductFilters
+                loading={
+                    loading
+                }
 
-                brands={brands}
 
-                categories={categories}
+                onView={(row)=>
 
-                productTypes={productTypes}
+                    setSelectedProductPrice(
+                        row
+                    )
 
-                brandFilter={brandFilter}
+                }
 
-                setBrandFilter={setBrandFilter}
 
-                categoryFilter={categoryFilter}
+                onEdit={(row)=>
 
-                setCategoryFilter={setCategoryFilter}
+                    setSelectedProductPrice(
+                        row
+                    )
 
-                productTypeFilter={productTypeFilter}
+                }
 
-                setProductTypeFilter={setProductTypeFilter}
 
-                statusFilter={statusFilter}
+                onDelete={(row)=>{
 
-                setStatusFilter={setStatusFilter}
 
-            />
-
-            <ProductTable
-
-                products={pagedProducts}
-
-                loading={loading}
-
-                onView={(row) => {
-
-                    setSelectedProduct(row);
-
-                }}
-
-                onEdit={(row) => {
-
-                    navigate(
-
-                        `/products/edit/${row.ProductId}`
-
+                    setSelectedProductPrice(
+                        row
                     );
 
-                }}
 
-                onDelete={(row) => {
+                    setDeleteOpen(
+                        true
+                    );
 
-                    setSelectedProduct(row);
-
-                    setDeleteOpen(true);
 
                 }}
+
 
             />
 
-            <ProductPagination
 
-                page={page}
 
-                totalPages={totalPages}
+            <ProductPricePagination
 
-                pageSize={pageSize}
 
-                totalRecords={filteredProducts.length}
+                page={
+                    page
+                }
 
-                onPageChange={setPage}
 
-                onPageSizeChange={(size) => {
+                totalPages={
+                    totalPages
+                }
 
-                    setPageSize(size);
+
+                pageSize={
+                    pageSize
+                }
+
+
+                totalRecords={
+                    filteredProductPrices.length
+                }
+
+
+                onPageChange={
+                    setPage
+                }
+
+
+                onPageSizeChange={(size)=>{
+
+
+                    setPageSize(
+                        size
+                    );
+
 
                     setPage(1);
 
+
                 }}
+
 
             />
 
-            <ProductModal
 
-                open={Boolean(selectedProduct)}
 
-                product={selectedProduct}
+            <ProductPriceModal
 
-                onClose={() =>
 
-                    setSelectedProduct(null)
+                open={
+                    Boolean(
+                        selectedProductPrice
+                    )
+                }
+
+
+                productPrice={
+                    selectedProductPrice
+                }
+
+
+                onClose={()=>
+
+
+                    setSelectedProductPrice(
+                        null
+                    )
+
 
                 }
 
+
+                onSave={
+                    handleSave
+                }
+
+
             />
 
-            <DeleteProductDialog
 
-                open={deleteOpen}
 
-                product={selectedProduct}
+            <DeleteProductPriceDialog
 
-                onClose={() => {
 
-                    setDeleteOpen(false);
+                open={
+                    deleteOpen
+                }
 
-                    setSelectedProduct(null);
+
+                productPrice={
+                    selectedProductPrice
+                }
+
+
+                onClose={()=>{
+
+
+                    setDeleteOpen(
+                        false
+                    );
+
+
+                    setSelectedProductPrice(
+                        null
+                    );
+
 
                 }}
 
-                onDeleted={() => {
 
-                    loadProducts();
 
-                    setDeleteOpen(false);
+                onDeleted={handleDelete}
 
-                    setSelectedProduct(null);
 
-                }}
 
             />
+
 
         </Box>
 
@@ -407,4 +740,5 @@ const ProductList = () => {
 
 };
 
-export default ProductList;
+
+export default ProductPriceList;
