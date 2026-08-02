@@ -122,6 +122,40 @@ const apiService = {
     deleteProductType: (id) =>
         axios.delete(`${BASE_URL}/producttype/${id}`),
 
+    getProductDropdownData: async () => {
+
+    const [
+
+        brands,
+
+        categories,
+
+        productTypes
+
+    ] = await Promise.all([
+
+        apiService.getBrands(),
+
+        apiService.getCategories(),
+
+        apiService.getProductTypes()
+
+    ]);
+
+    return {
+
+        brands: brands.data,
+
+        categories: categories.data,
+
+        productTypes: productTypes.data
+
+    };
+
+},
+
+deleteProduct: (id) =>
+    axios.delete(`${BASE_URL}/product/${id}`),
 };
 
 export default apiService;
