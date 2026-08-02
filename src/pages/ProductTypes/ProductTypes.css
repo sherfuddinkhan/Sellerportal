@@ -1,0 +1,35 @@
+.product-type-page{
+
+    padding:20px;
+
+}
+
+.product-type-toolbar{
+
+    margin-bottom:20px;
+
+}
+
+.product-type-search{
+
+    margin-bottom:20px;
+
+}
+
+.product-type-table{
+
+    margin-top:20px;
+
+}
+
+.product-type-card{
+
+    transition:.3s;
+
+}
+
+.product-type-card:hover{
+
+    transform:translateY(-4px);
+
+}

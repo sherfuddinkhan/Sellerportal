@@ -38,7 +38,6 @@ const apiService = {
     deleteBrand: (id) =>
         axios.delete(`${BASE_URL}/brand/${id}`),
 
-    // Categories
 
   // ==============================
 // Categories
@@ -102,5 +101,7 @@ importCategories: (formData) =>
     ),
 
 };
+
+
 
 export default apiService;
