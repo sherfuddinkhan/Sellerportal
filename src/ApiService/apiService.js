@@ -153,7 +153,83 @@ const apiService = {
     };
 
 },
+// ==========================================================
+// Products
+// ==========================================================
 
+getProducts: () =>
+    axios.get(`${BASE_URL}/product`),
+
+getProductById: (id) =>
+    axios.get(`${BASE_URL}/product/${id}`),
+
+createProduct: (data) =>
+    axios.post(`${BASE_URL}/product`, data),
+
+updateProduct: (id, data) =>
+    axios.put(`${BASE_URL}/product/${id}`, data),
+
+
+// ==========================================================
+// Product Prices
+// ==========================================================
+
+getProductPrices: () =>
+    axios.get(`${BASE_URL}/productprice`),
+
+
+getProductPriceById: (id) =>
+    axios.get(`${BASE_URL}/productprice/${id}`),
+
+
+createProductPrice: (data) =>
+    axios.post(`${BASE_URL}/productprice`, data),
+
+
+updateProductPrice: (id, data) =>
+    axios.put(`${BASE_URL}/productprice/${id}`, data),
+
+
+deleteProductPrice: (id) =>
+    axios.delete(`${BASE_URL}/productprice/${id}`),
+
+
+getActiveProductPrices: () =>
+    axios.get(`${BASE_URL}/productprice/active`),
+
+
+getInactiveProductPrices: () =>
+    axios.get(`${BASE_URL}/productprice/inactive`),
+
+
+getProductPriceStatistics: () =>
+    axios.get(`${BASE_URL}/productprice/statistics`),
+
+
+searchProductPrices: (searchText) =>
+    axios.get(`${BASE_URL}/productprice/search`, {
+        params: {
+            searchText
+        }
+    }),
+
+
+exportProductPrices: () =>
+    axios.get(`${BASE_URL}/productprice/export`, {
+        responseType: "blob"
+    }),
+
+
+importProductPrices: (formData) =>
+    axios.post(
+        `${BASE_URL}/productprice/import`,
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }
+    ),
 deleteProduct: (id) =>
     axios.delete(`${BASE_URL}/product/${id}`),
 };

@@ -1,0 +1,220 @@
+/* ==============================
+   Product Prices Container
+============================== */
+
+.product-prices-container {
+
+    padding: 24px;
+
+}
+
+
+/* ==============================
+   Toolbar
+============================== */
+
+.product-price-toolbar {
+
+    margin-bottom: 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+/* ==============================
+   Statistics Cards
+============================== */
+
+.product-price-stat-card {
+
+    padding: 16px;
+
+    border-radius: 8px;
+
+    text-align: center;
+
+    height: 100%;
+
+}
+
+
+/* ==============================
+   Search Section
+============================== */
+
+.product-price-search {
+
+    margin-bottom: 24px;
+
+    padding: 16px;
+
+    border-radius: 8px;
+
+}
+
+
+/* ==============================
+   Filter Section
+============================== */
+
+.product-price-filter {
+
+    margin-bottom: 24px;
+
+    padding: 16px;
+
+}
+
+
+/* ==============================
+   Table
+============================== */
+
+.product-price-table {
+
+    width: 100%;
+
+}
+
+
+.product-price-table-header {
+
+    font-weight: bold;
+
+}
+
+
+/* ==============================
+   Cards
+============================== */
+
+.product-price-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+}
+
+
+.product-price-card-title {
+
+    font-weight: bold;
+
+}
+
+
+/* ==============================
+   Status Chips
+============================== */
+
+.product-price-active {
+
+    color: #2e7d32;
+
+}
+
+
+.product-price-inactive {
+
+    color: #d32f2f;
+
+}
+
+
+/* ==============================
+   Modal
+============================== */
+
+.product-price-modal-field {
+
+    margin-bottom: 16px;
+
+}
+
+
+/* ==============================
+   Delete Dialog
+============================== */
+
+.product-price-delete-text {
+
+    margin-top: 16px;
+
+}
+
+
+/* ==============================
+   Pagination
+============================== */
+
+.product-price-pagination {
+
+    margin-top: 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+}
+
+
+/* ==============================
+   Empty State
+============================== */
+
+.product-price-empty {
+
+    padding: 40px;
+
+    text-align: center;
+
+}
+
+
+/* ==============================
+   Responsive
+============================== */
+
+@media (max-width:768px) {
+
+
+    .product-prices-container {
+
+        padding: 12px;
+
+    }
+
+
+    .product-price-toolbar {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+    }
+
+
+    .product-price-pagination {
+
+        flex-direction: column;
+
+        gap: 12px;
+
+    }
+
+
+}
