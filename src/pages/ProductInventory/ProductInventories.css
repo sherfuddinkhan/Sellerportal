@@ -1,0 +1,119 @@
+.product-inventory-container {
+
+    width: 100%;
+
+}
+
+
+
+.product-inventory-card {
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.product-inventory-card:hover {
+
+    transform: translateY(-3px);
+
+}
+
+
+
+.product-inventory-table {
+
+    width: 100%;
+
+}
+
+
+
+.product-inventory-table th {
+
+    font-weight: bold;
+
+}
+
+
+
+.product-inventory-actions {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 8px;
+
+}
+
+
+
+.product-inventory-stat-card {
+
+    padding: 16px;
+
+    border-radius: 8px;
+
+    text-align: center;
+
+}
+
+
+
+.product-inventory-filter-container {
+
+    margin-bottom: 20px;
+
+}
+
+
+
+.product-inventory-search {
+
+    margin-bottom: 20px;
+
+}
+
+
+
+.product-inventory-modal-field {
+
+    margin-bottom: 16px;
+
+}
+
+
+
+.product-inventory-empty {
+
+    text-align: center;
+
+    padding: 40px;
+
+    color: #666;
+
+}
+
+
+
+@media screen and (max-width: 768px) {
+
+
+    .product-inventory-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .product-inventory-card {
+
+        margin-bottom: 15px;
+
+    }
+
+
+}

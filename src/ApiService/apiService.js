@@ -230,8 +230,31 @@ importProductPrices: (formData) =>
             }
         }
     ),
-deleteProduct: (id) =>
-    axios.delete(`${BASE_URL}/product/${id}`),
+    
+    // ==========================================================
+// Product Inventory
+// ==========================================================
+
+getInventories: () =>
+    axios.get(`${BASE_URL}/inventory`),
+
+getInventoryById: (id) =>
+    axios.get(`${BASE_URL}/inventory/${id}`),
+
+createInventory: (data) =>
+    axios.post(`${BASE_URL}/inventory`, data),
+
+updateInventory: (id, data) =>
+    axios.put(`${BASE_URL}/inventory/${id}`, data),
+
+deleteInventory: (id) =>
+    axios.delete(`${BASE_URL}/inventory/${id}`),
+
+getLowStockInventory: () =>
+    axios.get(`${BASE_URL}/inventory/low-stock`),
+
+getInventoryStatistics: () =>
+    axios.get(`${BASE_URL}/inventory/statistics`)
 };
 
 export default apiService;
