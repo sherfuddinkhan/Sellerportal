@@ -40,20 +40,66 @@ const apiService = {
 
     // Categories
 
-    getCategories: () =>
-        axios.get(`${BASE_URL}/category`),
+  // ==============================
+// Categories
+// ==============================
 
-    getCategoryById: (id) =>
-        axios.get(`${BASE_URL}/category/${id}`),
+getCategories: () =>
+    axios.get(`${BASE_URL}/category`),
 
-    createCategory: (data) =>
-        axios.post(`${BASE_URL}/category`, data),
+getCategoryById: (id) =>
+    axios.get(`${BASE_URL}/category/${id}`),
 
-    updateCategory: (id, data) =>
-        axios.put(`${BASE_URL}/category/${id}`, data),
+createCategory: (data) =>
+    axios.post(`${BASE_URL}/category`, data),
 
-    deleteCategory: (id) =>
-        axios.delete(`${BASE_URL}/category/${id}`)
+updateCategory: (id, data) =>
+    axios.put(`${BASE_URL}/category/${id}`, data),
+
+deleteCategory: (id) =>
+    axios.delete(`${BASE_URL}/category/${id}`),
+
+searchCategories: (searchText) =>
+    axios.get(`${BASE_URL}/category/search`, {
+        params: { searchText }
+    }),
+
+getActiveCategories: () =>
+    axios.get(`${BASE_URL}/category/active`),
+
+getInactiveCategories: () =>
+    axios.get(`${BASE_URL}/category/inactive`),
+
+getParentCategories: () =>
+    axios.get(`${BASE_URL}/category/parents`),
+
+getCategoryStatistics: () =>
+    axios.get(`${BASE_URL}/category/statistics`),
+
+activateCategory: (id) =>
+    axios.put(`${BASE_URL}/category/${id}/activate`),
+
+deactivateCategory: (id) =>
+    axios.put(`${BASE_URL}/category/${id}/deactivate`),
+
+bulkDeleteCategories: (ids) =>
+    axios.post(`${BASE_URL}/category/bulk-delete`, ids),
+
+exportCategories: () =>
+    axios.get(`${BASE_URL}/category/export`, {
+        responseType: "blob"
+    }),
+
+importCategories: (formData) =>
+    axios.post(
+        `${BASE_URL}/category/import`,
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }
+    ),
 
 };
 
