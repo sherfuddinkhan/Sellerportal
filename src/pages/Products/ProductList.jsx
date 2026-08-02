@@ -245,6 +245,166 @@ const ProductList = () => {
         page * pageSize
 
     );
-    return{
+      return (
 
-    };
+        <Box sx={{ p: 3 }}>
+
+            <ProductToolbar
+
+                onAdd={() =>
+                    navigate("/products/create")
+                }
+
+                onRefresh={loadProducts}
+
+                onExport={() =>
+                    console.log("Export Products")
+                }
+
+            />
+
+            <ProductStatistics
+
+                products={products}
+
+            />
+
+            <ProductSearch
+
+                searchText={searchText}
+
+                setSearchText={setSearchText}
+
+                statusFilter={statusFilter}
+
+                setStatusFilter={setStatusFilter}
+
+            />
+
+            <ProductFilters
+
+                brands={brands}
+
+                categories={categories}
+
+                productTypes={productTypes}
+
+                brandFilter={brandFilter}
+
+                setBrandFilter={setBrandFilter}
+
+                categoryFilter={categoryFilter}
+
+                setCategoryFilter={setCategoryFilter}
+
+                productTypeFilter={productTypeFilter}
+
+                setProductTypeFilter={setProductTypeFilter}
+
+                statusFilter={statusFilter}
+
+                setStatusFilter={setStatusFilter}
+
+            />
+
+            <ProductTable
+
+                products={pagedProducts}
+
+                loading={loading}
+
+                onView={(row) => {
+
+                    setSelectedProduct(row);
+
+                }}
+
+                onEdit={(row) => {
+
+                    navigate(
+
+                        `/products/edit/${row.ProductId}`
+
+                    );
+
+                }}
+
+                onDelete={(row) => {
+
+                    setSelectedProduct(row);
+
+                    setDeleteOpen(true);
+
+                }}
+
+            />
+
+            <ProductPagination
+
+                page={page}
+
+                totalPages={totalPages}
+
+                pageSize={pageSize}
+
+                totalRecords={filteredProducts.length}
+
+                onPageChange={setPage}
+
+                onPageSizeChange={(size) => {
+
+                    setPageSize(size);
+
+                    setPage(1);
+
+                }}
+
+            />
+
+            <ProductModal
+
+                open={Boolean(selectedProduct)}
+
+                product={selectedProduct}
+
+                onClose={() =>
+
+                    setSelectedProduct(null)
+
+                }
+
+            />
+
+            <DeleteProductDialog
+
+                open={deleteOpen}
+
+                product={selectedProduct}
+
+                onClose={() => {
+
+                    setDeleteOpen(false);
+
+                    setSelectedProduct(null);
+
+                }}
+
+                onDeleted={() => {
+
+                    loadProducts();
+
+                    setDeleteOpen(false);
+
+                    setSelectedProduct(null);
+
+                }}
+
+            />
+
+        </Box>
+
+    );
+
+};
+
+export default ProductList;
