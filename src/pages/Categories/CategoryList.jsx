@@ -38,6 +38,9 @@ const CategoryList = () => {
     const [deleteOpen, setDeleteOpen] = useState(false);
 
     const [viewOpen, setViewOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
+
+const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
 
@@ -107,8 +110,19 @@ const CategoryList = () => {
     return (
 
         <Box>
+<CategoryToolbar
 
-            <CategoryToolbar />
+    onAdd={() => navigate("/categories/create")}
+
+    onRefresh={loadCategories}
+
+    onExport={() => {
+
+        console.log("Export Categories");
+
+    }}
+
+/>
 
             <Grid
                 container

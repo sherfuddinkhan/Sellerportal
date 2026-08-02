@@ -1,0 +1,35 @@
+.category-page{
+
+    padding:20px;
+
+}
+
+.category-toolbar{
+
+    margin-bottom:20px;
+
+}
+
+.category-search{
+
+    margin-bottom:20px;
+
+}
+
+.category-table{
+
+    margin-top:20px;
+
+}
+
+.category-card{
+
+    transition:.3s;
+
+}
+
+.category-card:hover{
+
+    transform:translateY(-4px);
+
+}
