@@ -12,7 +12,8 @@ import {
     Download
 } from "@mui/icons-material";
 
-const SellerCustomerToolbar = ({
+
+const CustomerAddressToolbar = ({
 
     onAdd,
 
@@ -21,6 +22,7 @@ const SellerCustomerToolbar = ({
     onExport
 
 }) => {
+
 
     return (
 
@@ -52,9 +54,10 @@ const SellerCustomerToolbar = ({
 
             >
 
-                Customers
+                Customer Addresses
 
             </Typography>
+
 
 
             <Stack
@@ -67,6 +70,7 @@ const SellerCustomerToolbar = ({
 
             >
 
+
                 <Button
 
                     variant="contained"
@@ -77,9 +81,10 @@ const SellerCustomerToolbar = ({
 
                 >
 
-                    Add Customer
+                    Add Address
 
                 </Button>
+
 
 
                 <Button
@@ -95,6 +100,7 @@ const SellerCustomerToolbar = ({
                     Refresh
 
                 </Button>
+
 
 
                 <Button
@@ -113,6 +119,7 @@ const SellerCustomerToolbar = ({
 
                 </Button>
 
+
             </Stack>
 
 
@@ -122,4 +129,5 @@ const SellerCustomerToolbar = ({
 
 };
 
-export default SellerCustomerToolbar;
+
+export default CustomerAddressToolbar;

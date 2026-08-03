@@ -16,15 +16,15 @@ import {
 } from "@mui/icons-material";
 
 
-const SellerCustomerSearch = ({
+const CustomerAddressSearch = ({
 
     searchText,
 
     setSearchText,
 
-    statusFilter,
+    addressTypeFilter,
 
-    setStatusFilter
+    setAddressTypeFilter
 
 }) => {
 
@@ -53,6 +53,7 @@ const SellerCustomerSearch = ({
 
             >
 
+
                 <Grid
 
                     item
@@ -67,9 +68,9 @@ const SellerCustomerSearch = ({
 
                         fullWidth
 
-                        label="Search Customers"
+                        label="Search Addresses"
 
-                        placeholder="Search by Code, Name, Contact, Email, Phone, GSTIN, City or State"
+                        placeholder="Search by Address Type, Address, City, State, Country or Postal Code"
 
                         value={searchText}
 
@@ -106,6 +107,7 @@ const SellerCustomerSearch = ({
                 </Grid>
 
 
+
                 <Grid
 
                     item
@@ -124,20 +126,21 @@ const SellerCustomerSearch = ({
 
                         <InputLabel>
 
-                            Status
+                            Address Type
 
                         </InputLabel>
 
 
+
                         <Select
 
-                            value={statusFilter}
+                            value={addressTypeFilter}
 
-                            label="Status"
+                            label="Address Type"
 
                             onChange={(e) =>
 
-                                setStatusFilter(
+                                setAddressTypeFilter(
 
                                     e.target.value
 
@@ -154,16 +157,30 @@ const SellerCustomerSearch = ({
                             </MenuItem>
 
 
-                            <MenuItem value="Active">
+                            <MenuItem value="Billing">
 
-                                Active
+                                Billing
 
                             </MenuItem>
 
 
-                            <MenuItem value="Inactive">
+                            <MenuItem value="Shipping">
 
-                                Inactive
+                                Shipping
+
+                            </MenuItem>
+
+
+                            <MenuItem value="Office">
+
+                                Office
+
+                            </MenuItem>
+
+
+                            <MenuItem value="Home">
+
+                                Home
 
                             </MenuItem>
 
@@ -187,4 +204,4 @@ const SellerCustomerSearch = ({
 };
 
 
-export default SellerCustomerSearch;
+export default CustomerAddressSearch;

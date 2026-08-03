@@ -1,68 +1,107 @@
 import React, { useEffect, useState } from "react";
 
-import { Box } from "@mui/material";
+import {
+    Box
+} from "@mui/material";
 
 import apiService from "../../services/apiService";
 
-import SellerCustomerToolbar from "./SellerCustomerToolbar";
-import SellerCustomerStatistics from "./SellerCustomerStatistics";
-import SellerCustomerSearch from "./SellerCustomerSearch";
-import SellerCustomerTable from "./SellerCustomerTable";
-import SellerCustomerPagination from "./SellerCustomerPagination";
-import SellerCustomerModal from "./SellerCustomerModal";
-import SellerCustomerView from "./SellerCustomerView";
-import DeleteSellerCustomerDialog from "./DeleteSellerCustomerDialog";
+import CustomerAddressToolbar from "./CustomerAddressToolbar";
+import CustomerAddressStatistics from "./CustomerAddressStatistics";
+import CustomerAddressSearch from "./CustomerAddressSearch";
+import CustomerAddressTable from "./CustomerAddressTable";
+import CustomerAddressPagination from "./CustomerAddressPagination";
+import CustomerAddressModal from "./CustomerAddressModal";
+import CustomerAddressView from "./CustomerAddressView";
+import DeleteCustomerAddressDialog from "./DeleteCustomerAddressDialog";
 
-const SellerCustomerList = () => {
+
+const CustomerAddressList = () => {
+
 
     // ==========================================
     // State
     // ==========================================
 
-    const [customers, setCustomers] = useState([]);
 
-    const [filteredCustomers, setFilteredCustomers] = useState([]);
+    const [addresses, setAddresses] = useState([]);
+
+
+    const [filteredAddresses, setFilteredAddresses] = useState([]);
+
 
     const [loading, setLoading] = useState(false);
 
+
     const [searchText, setSearchText] = useState("");
 
-    const [statusFilter, setStatusFilter] = useState("All");
 
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [addressTypeFilter, setAddressTypeFilter] =
+
+        useState("All");
+
+
+    const [selectedAddress, setSelectedAddress] = useState(null);
+
 
     const [modalOpen, setModalOpen] = useState(false);
 
+
     const [viewOpen, setViewOpen] = useState(false);
+
 
     const [deleteOpen, setDeleteOpen] = useState(false);
 
+
     const [page, setPage] = useState(1);
+
 
     const [pageSize, setPageSize] = useState(10);
 
+
+
     // ==========================================
-    // Load Customers
+    // Load Customer Addresses
     // ==========================================
 
-    const loadSellerCustomers = async () => {
+
+    const loadCustomerAddresses = async () => {
 
         try {
 
             setLoading(true);
 
+
             const response =
-                await apiService.getSellerCustomers();
 
-            setCustomers(response.data);
+                await apiService.getCustomerAddresses();
 
-            setFilteredCustomers(response.data);
+
+            setAddresses(
+
+                response.data
+
+            );
+
+
+            setFilteredAddresses(
+
+                response.data
+
+            );
+
 
         }
 
-        catch (err) {
+        catch (error) {
 
-            console.log(err);
+            console.log(
+
+                "Load Customer Addresses Error",
+
+                error
+
+            );
 
         }
 
@@ -74,117 +113,174 @@ const SellerCustomerList = () => {
 
     };
 
+
+
     useEffect(() => {
 
-        loadSellerCustomers();
+        loadCustomerAddresses();
 
     }, []);
+
+
 
     // ==========================================
     // Search & Filter
     // ==========================================
 
+
     useEffect(() => {
 
-        let result = [...customers];
 
-        if (searchText.trim() !== "") {
+        let result = [
 
-            const search = searchText.toLowerCase();
+            ...addresses
+
+        ];
+
+
+
+        if (
+
+            searchText.trim() !== ""
+
+        ) {
+
+
+            const search =
+
+                searchText.toLowerCase();
+
+
 
             result = result.filter(item =>
 
-                item.CustomerCode
+
+                item.AddressType
+
                     ?.toLowerCase()
+
                     .includes(search)
+
 
                 ||
 
-                item.CustomerName
+                item.AddressLine1
+
                     ?.toLowerCase()
+
                     .includes(search)
+
 
                 ||
 
-                item.ContactPerson
+                item.AddressLine2
+
                     ?.toLowerCase()
+
                     .includes(search)
 
-                ||
-
-                item.Email
-                    ?.toLowerCase()
-                    .includes(search)
-
-                ||
-
-                item.Phone
-                    ?.toLowerCase()
-                    .includes(search)
-
-                ||
-
-                item.GSTIN
-                    ?.toLowerCase()
-                    .includes(search)
 
                 ||
 
                 item.City
+
                     ?.toLowerCase()
+
                     .includes(search)
+
 
                 ||
 
                 item.State
+
                     ?.toLowerCase()
-                    .includes(search));
 
-        }
+                    .includes(search)
 
-        if (statusFilter !== "All") {
 
-            result = result.filter(item =>
+                ||
 
-                statusFilter === "Active"
+                item.Country
 
-                    ? item.IsActive
+                    ?.toLowerCase()
 
-                    : !item.IsActive
+                    .includes(search)
+
+
+                ||
+
+                item.PostalCode
+
+                    ?.toLowerCase()
+
+                    .includes(search)
 
             );
 
+
         }
 
-        setFilteredCustomers(result);
+
+
+        if (
+
+            addressTypeFilter !== "All"
+
+        ) {
+
+
+            result = result.filter(item =>
+
+
+                item.AddressType ===
+
+                addressTypeFilter
+
+
+            );
+
+
+        }
+
+
+
+        setFilteredAddresses(result);
+
 
         setPage(1);
 
+
+
     }, [
 
-        customers,
+        addresses,
 
         searchText,
 
-        statusFilter
+        addressTypeFilter
 
     ]);
+
+
 
     // ==========================================
     // Pagination
     // ==========================================
 
+
     const totalPages = Math.ceil(
 
-        filteredCustomers.length /
+        filteredAddresses.length /
 
         pageSize
 
     );
 
-    const pagedCustomers =
 
-        filteredCustomers.slice(
+
+    const pagedAddresses =
+
+        filteredAddresses.slice(
 
             (page - 1) * pageSize,
 
@@ -192,102 +288,158 @@ const SellerCustomerList = () => {
 
         );
 
+
+
     // ==========================================
-    // Save Customer
+    // Save Address
     // ==========================================
+
 
     const handleSave = async (data) => {
 
+
         try {
 
-            if (data.CustomerId) {
 
-                await apiService.updateSellerCustomer(
+            if (
 
-                    data.CustomerId,
+                data.CustomerAddressId
+
+            ) {
+
+
+                await apiService.updateCustomerAddress(
+
+                    data.CustomerAddressId,
 
                     data
 
                 );
+
 
             }
 
             else {
 
-                await apiService.createSellerCustomer(
+
+                await apiService.createCustomerAddress(
 
                     data
 
                 );
 
+
             }
 
-            await loadSellerCustomers();
+
+
+            await loadCustomerAddresses();
+
 
             setModalOpen(false);
 
-            setSelectedCustomer(null);
+
+            setSelectedAddress(null);
+
+
 
         }
 
-        catch (err) {
+        catch(error) {
 
-            console.log(err);
 
-        }
+            console.log(
 
-    };
+                "Save Address Error",
 
-    // ==========================================
-    // Delete Customer
-    // ==========================================
+                error
 
-    const handleDelete = async (id) => {
+            );
 
-        try {
-
-            await apiService.deleteSellerCustomer(id);
-
-            await loadSellerCustomers();
-
-            setDeleteOpen(false);
-
-            setSelectedCustomer(null);
 
         }
 
-        catch (err) {
-
-            console.log(err);
-
-        }
 
     };
         // ==========================================
+    // Delete Address
+    // ==========================================
+
+
+    const handleDelete = async (id) => {
+
+
+        try {
+
+
+            await apiService.deleteCustomerAddress(id);
+
+
+
+            await loadCustomerAddresses();
+
+
+
+            setDeleteOpen(false);
+
+
+            setSelectedAddress(null);
+
+
+
+        }
+
+        catch(error) {
+
+
+            console.log(
+
+                "Delete Address Error",
+
+                error
+
+            );
+
+
+        }
+
+
+    };
+
+
+
+    // ==========================================
     // Render
     // ==========================================
+
 
     return (
 
         <Box sx={{ p: 3 }}>
 
-            <SellerCustomerToolbar
+
+            <CustomerAddressToolbar
 
                 onAdd={() => {
 
-                    setSelectedCustomer(null);
+
+                    setSelectedAddress(null);
+
 
                     setModalOpen(true);
 
+
                 }}
 
-                onRefresh={loadSellerCustomers}
+
+                onRefresh={loadCustomerAddresses}
+
 
                 onExport={() =>
 
                     console.log(
 
-                        "Export Seller Customers"
+                        "Export Customer Addresses"
 
                     )
 
@@ -295,133 +447,196 @@ const SellerCustomerList = () => {
 
             />
 
-            <SellerCustomerStatistics
 
-                customers={customers}
+
+            <CustomerAddressStatistics
+
+                addresses={addresses}
 
             />
 
-            <SellerCustomerSearch
+
+
+            <CustomerAddressSearch
 
                 searchText={searchText}
 
                 setSearchText={setSearchText}
 
-                statusFilter={statusFilter}
+                addressTypeFilter={addressTypeFilter}
 
-                setStatusFilter={setStatusFilter}
+                setAddressTypeFilter={
 
-            />
-
-            <SellerCustomerTable
-
-                customers={pagedCustomers}
-
-                loading={loading}
-
-                onView={(row) => {
-
-                    setSelectedCustomer(row);
-
-                    setViewOpen(true);
-
-                }}
-
-                onEdit={(row) => {
-
-                    setSelectedCustomer(row);
-
-                    setModalOpen(true);
-
-                }}
-
-                onDelete={(row) => {
-
-                    setSelectedCustomer(row);
-
-                    setDeleteOpen(true);
-
-                }}
-
-            />
-
-            <SellerCustomerPagination
-
-                page={page}
-
-                totalPages={totalPages}
-
-                pageSize={pageSize}
-
-                totalRecords={
-
-                    filteredCustomers.length
+                    setAddressTypeFilter
 
                 }
 
-                onPageChange={setPage}
+            />
 
-                onPageSizeChange={(size) => {
 
-                    setPageSize(size);
 
-                    setPage(1);
+            <CustomerAddressTable
+
+                addresses={pagedAddresses}
+
+                loading={loading}
+
+
+                onView={(row) => {
+
+
+                    setSelectedAddress(row);
+
+
+                    setViewOpen(true);
+
+
+                }}
+
+
+
+                onEdit={(row) => {
+
+
+                    setSelectedAddress(row);
+
+
+                    setModalOpen(true);
+
+
+                }}
+
+
+
+                onDelete={(row) => {
+
+
+                    setSelectedAddress(row);
+
+
+                    setDeleteOpen(true);
+
 
                 }}
 
             />
 
-            <SellerCustomerModal
+
+
+            <CustomerAddressPagination
+
+
+                page={page}
+
+
+                totalPages={totalPages}
+
+
+                pageSize={pageSize}
+
+
+                totalRecords={
+
+                    filteredAddresses.length
+
+                }
+
+
+                onPageChange={setPage}
+
+
+
+                onPageSizeChange={(size) => {
+
+
+                    setPageSize(size);
+
+
+                    setPage(1);
+
+
+                }}
+
+            />
+
+
+
+            <CustomerAddressModal
 
                 open={modalOpen}
 
-                customer={selectedCustomer}
+                address={selectedAddress}
+
 
                 onClose={() => {
 
+
                     setModalOpen(false);
 
-                    setSelectedCustomer(null);
+
+                    setSelectedAddress(null);
+
 
                 }}
+
+
 
                 onSave={handleSave}
 
             />
 
-            <SellerCustomerView
+
+
+            <CustomerAddressView
 
                 open={viewOpen}
 
-                customer={selectedCustomer}
+
+                address={selectedAddress}
+
+
 
                 onClose={() => {
 
+
                     setViewOpen(false);
 
-                    setSelectedCustomer(null);
+
+                    setSelectedAddress(null);
+
 
                 }}
 
             />
 
-            <DeleteSellerCustomerDialog
+
+
+            <DeleteCustomerAddressDialog
 
                 open={deleteOpen}
 
-                customer={selectedCustomer}
+
+                address={selectedAddress}
+
+
 
                 onClose={() => {
 
+
                     setDeleteOpen(false);
 
-                    setSelectedCustomer(null);
+
+                    setSelectedAddress(null);
+
 
                 }}
+
+
 
                 onDeleted={handleDelete}
 
             />
+
 
         </Box>
 
@@ -429,4 +644,5 @@ const SellerCustomerList = () => {
 
 };
 
-export default SellerCustomerList;
+
+export default CustomerAddressList;

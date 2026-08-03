@@ -11,11 +11,11 @@ import {
 } from "@mui/material";
 
 
-const DeleteSellerCustomerDialog = ({
+const DeleteCustomerAddressDialog = ({
 
     open,
 
-    customer,
+    address,
 
     onClose,
 
@@ -24,21 +24,26 @@ const DeleteSellerCustomerDialog = ({
 }) => {
 
 
-    if (!customer) return null;
+    if (!address) return null;
+
 
 
     const handleDelete = () => {
 
+
         onDeleted(
 
-            customer.CustomerId
+            address.CustomerAddressId
 
         );
+
 
     };
 
 
+
     return (
+
 
         <Dialog
 
@@ -52,14 +57,17 @@ const DeleteSellerCustomerDialog = ({
 
         >
 
+
             <DialogTitle>
 
-                Delete Customer
+                Delete Customer Address
 
             </DialogTitle>
 
 
+
             <Divider />
+
 
 
             <DialogContent
@@ -72,11 +80,13 @@ const DeleteSellerCustomerDialog = ({
 
             >
 
+
                 <Typography>
 
-                    Are you sure you want to delete this customer?
+                    Are you sure you want to delete this customer address?
 
                 </Typography>
+
 
 
                 <Typography
@@ -87,28 +97,61 @@ const DeleteSellerCustomerDialog = ({
 
                 >
 
+                    Address ID :
+
+                    {" "}
+
+                    {
+
+                        address.CustomerAddressId
+
+                    }
+
+                </Typography>
+
+
+
+                <Typography>
+
                     Customer ID :
 
                     {" "}
 
                     {
 
-                        customer.CustomerId
+                        address.CustomerId
 
                     }
 
                 </Typography>
 
 
+
                 <Typography>
 
-                    Customer Code :
+                    Address Type :
 
                     {" "}
 
                     {
 
-                        customer.CustomerCode ||
+                        address.AddressType
+
+                    }
+
+                </Typography>
+
+
+
+                <Typography>
+
+                    Address :
+
+                    {" "}
+
+                    {
+
+                        address.AddressLine1 ||
 
                         "-"
 
@@ -117,89 +160,23 @@ const DeleteSellerCustomerDialog = ({
                 </Typography>
 
 
-                <Typography>
 
-                    Customer Name :
+                {
 
-                    {" "}
+                    address.AddressLine2 &&
 
-                    {
+                    <Typography>
 
-                        customer.CustomerName ||
+                        {
 
-                        "-"
+                            address.AddressLine2
 
-                    }
+                        }
 
-                </Typography>
+                    </Typography>
 
+                }
 
-                <Typography>
-
-                    Contact Person :
-
-                    {" "}
-
-                    {
-
-                        customer.ContactPerson ||
-
-                        "-"
-
-                    }
-
-                </Typography>
-
-
-                <Typography>
-
-                    Email :
-
-                    {" "}
-
-                    {
-
-                        customer.Email ||
-
-                        "-"
-
-                    }
-
-                </Typography>
-
-
-                <Typography>
-
-                    Phone :
-
-                    {" "}
-
-                    {
-
-                        customer.Phone ||
-
-                        "-"
-
-                    }
-
-                </Typography>
-
-
-                <Typography>
-
-                    GSTIN :
-
-                    {" "}
-
-                    {
-
-                        customer.GSTIN ||
-
-                        "-"
-
-                    }
-
-                </Typography>
 
 
                 <Typography>
@@ -210,7 +187,7 @@ const DeleteSellerCustomerDialog = ({
 
                     {
 
-                        customer.City ||
+                        address.City ||
 
                         "-"
 
@@ -219,10 +196,49 @@ const DeleteSellerCustomerDialog = ({
                 </Typography>
 
 
+
+                <Typography>
+
+                    State :
+
+                    {" "}
+
+                    {
+
+                        address.State ||
+
+                        "-"
+
+                    }
+
+                </Typography>
+
+
+
+                <Typography>
+
+                    Postal Code :
+
+                    {" "}
+
+                    {
+
+                        address.PostalCode ||
+
+                        "-"
+
+                    }
+
+                </Typography>
+
+
+
             </DialogContent>
 
 
+
             <DialogActions>
+
 
 
                 <Button
@@ -236,6 +252,7 @@ const DeleteSellerCustomerDialog = ({
                     Cancel
 
                 </Button>
+
 
 
                 <Button
@@ -253,14 +270,16 @@ const DeleteSellerCustomerDialog = ({
                 </Button>
 
 
+
             </DialogActions>
 
 
         </Dialog>
+
 
     );
 
 };
 
 
-export default DeleteSellerCustomerDialog;
+export default DeleteCustomerAddressDialog;

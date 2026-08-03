@@ -9,107 +9,141 @@ import {
 } from "@mui/material";
 
 import {
-    People,
-    CheckCircle,
-    Cancel,
-    AccountBalanceWallet
+    Home,
+    LocationOn,
+    Star,
+    Public
 } from "@mui/icons-material";
 
 
-const SellerCustomerStatistics = ({
+const CustomerAddressStatistics = ({
 
-    customers = []
+    addresses = []
 
 }) => {
 
 
-    const totalCustomers = customers.length;
+    const totalAddresses = addresses.length;
 
 
-    const activeCustomers = customers.filter(
+    const defaultAddresses = addresses.filter(
 
-        customer => customer.IsActive
+        address => address.IsDefault
 
     ).length;
 
 
-    const inactiveCustomers =
+    const nonDefaultAddresses =
 
-        totalCustomers - activeCustomers;
+        totalAddresses - defaultAddresses;
 
 
-    const totalCreditLimit = customers.reduce(
+    const citiesCovered =
 
-        (sum, customer) =>
+        new Set(
 
-            sum +
+            addresses
 
-            Number(
+                .map(
 
-                customer.CreditLimit || 0
+                    item => item.City
 
-            ),
+                )
 
-        0
+                .filter(Boolean)
 
-    );
+        ).size;
+
 
 
     const statistics = [
 
+
         {
 
-            title: "Total Customers",
+            title: "Total Addresses",
 
-            value: totalCustomers,
+            value: totalAddresses,
 
-            icon: <People fontSize="large" />,
+            icon: (
+
+                <Home
+
+                    fontSize="large"
+
+                />
+
+            ),
 
             color: "primary"
 
         },
 
+
         {
 
-            title: "Active Customers",
+            title: "Default Addresses",
 
-            value: activeCustomers,
+            value: defaultAddresses,
 
-            icon: <CheckCircle fontSize="large" />,
+            icon: (
+
+                <Star
+
+                    fontSize="large"
+
+                />
+
+            ),
 
             color: "success"
 
         },
 
+
         {
 
-            title: "Inactive Customers",
+            title: "Other Addresses",
 
-            value: inactiveCustomers,
+            value: nonDefaultAddresses,
 
-            icon: <Cancel fontSize="large" />,
+            icon: (
 
-            color: "error"
+                <LocationOn
+
+                    fontSize="large"
+
+                />
+
+            ),
+
+            color: "warning"
 
         },
 
+
         {
 
-            title: "Credit Limit",
+            title: "Cities Covered",
 
-            value:
+            value: citiesCovered,
 
-                `₹ ${totalCreditLimit.toLocaleString()}`,
+            icon: (
 
-            icon:
+                <Public
 
-                <AccountBalanceWallet fontSize="large" />,
+                    fontSize="large"
 
-            color: "warning"
+                />
+
+            ),
+
+            color: "info"
 
         }
 
     ];
+
 
 
     return (
@@ -182,6 +216,7 @@ const SellerCustomerStatistics = ({
 
                                     <div>
 
+
                                         <Typography
 
                                             variant="subtitle2"
@@ -197,6 +232,7 @@ const SellerCustomerStatistics = ({
                                             }
 
                                         </Typography>
+
 
 
                                         <Typography
@@ -215,7 +251,9 @@ const SellerCustomerStatistics = ({
 
                                         </Typography>
 
+
                                     </div>
+
 
 
                                     <Stack
@@ -239,15 +277,20 @@ const SellerCustomerStatistics = ({
 
                                 </Stack>
 
+
                             </CardContent>
+
 
                         </Card>
 
+
                     </Grid>
+
 
                 ))
 
             }
+
 
         </Grid>
 
@@ -256,4 +299,4 @@ const SellerCustomerStatistics = ({
 };
 
 
-export default SellerCustomerStatistics;
+export default CustomerAddressStatistics;

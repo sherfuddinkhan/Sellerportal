@@ -1,0 +1,330 @@
+/* ==========================================================
+   Seller Customers Module
+========================================================== */
+
+.seller-customer-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.seller-customer-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.seller-customer-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.seller-customer-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+.seller-customer-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+.seller-customer-stat-card:hover {
+
+    transform: translateY(-4px);
+
+}
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.seller-customer-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.seller-customer-table {
+
+    margin-top: 16px;
+
+    overflow-x: auto;
+
+}
+
+
+.seller-customer-table table {
+
+    min-width: 1200px;
+
+}
+
+
+.seller-customer-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+.seller-customer-table td {
+
+    vertical-align: middle;
+
+}
+
+
+/* ==========================================================
+   Customer Cards
+========================================================== */
+
+.seller-customer-card {
+
+    border-radius: 12px;
+
+    height: 100%;
+
+    transition: all 0.3s ease;
+
+}
+
+
+.seller-customer-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+.seller-customer-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+.seller-customer-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+.seller-customer-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+/* ==========================================================
+   Status
+========================================================== */
+
+.customer-status-active {
+
+    color: #2e7d32;
+
+    font-weight: 600;
+
+}
+
+
+.customer-status-inactive {
+
+    color: #d32f2f;
+
+    font-weight: 600;
+
+}
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.seller-customer-pagination {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 24px;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+/* ==========================================================
+   Modal / View Dialog
+========================================================== */
+
+.seller-customer-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+.seller-customer-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+.seller-customer-view-label {
+
+    color: #666;
+
+    font-size: 0.82rem;
+
+}
+
+
+.seller-customer-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 900px) {
+
+
+    .seller-customer-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .seller-customer-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+    .seller-customer-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .seller-customer-table table {
+
+        min-width: 900px;
+
+    }
+
+}
+
+
+
+@media (max-width: 600px) {
+
+
+    .seller-customer-container {
+
+        padding: 16px;
+
+    }
+
+
+    .seller-customer-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+    .seller-customer-card-actions {
+
+        justify-content: center;
+
+    }
+
+
+    .seller-customer-table table {
+
+        min-width: 800px;
+
+    }
+
+}

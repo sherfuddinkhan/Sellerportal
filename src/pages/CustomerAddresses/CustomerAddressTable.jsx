@@ -23,9 +23,9 @@ import {
 } from "@mui/icons-material";
 
 
-const SellerCustomerTable = ({
+const CustomerAddressTable = ({
 
-    customers = [],
+    addresses = [],
 
     loading,
 
@@ -39,6 +39,7 @@ const SellerCustomerTable = ({
 
 
     if (loading) {
+
 
         return (
 
@@ -58,10 +59,13 @@ const SellerCustomerTable = ({
 
         );
 
+
     }
 
 
-    if (customers.length === 0) {
+
+    if (addresses.length === 0) {
+
 
         return (
 
@@ -83,7 +87,7 @@ const SellerCustomerTable = ({
 
                 >
 
-                    No Customers Found
+                    No Customer Addresses Found
 
                 </Typography>
 
@@ -92,10 +96,13 @@ const SellerCustomerTable = ({
 
         );
 
+
     }
 
 
+
     return (
+
 
         <TableContainer
 
@@ -103,13 +110,16 @@ const SellerCustomerTable = ({
 
         >
 
+
             <Table
 
                 size="small"
 
             >
 
+
                 <TableHead>
+
 
                     <TableRow>
 
@@ -121,46 +131,29 @@ const SellerCustomerTable = ({
                         </TableCell>
 
 
+
                         <TableCell>
 
-                            Customer Code
+                            Customer ID
 
                         </TableCell>
 
 
+
                         <TableCell>
 
-                            Customer Name
+                            Address Type
 
                         </TableCell>
 
 
-                        <TableCell>
-
-                            Contact Person
-
-                        </TableCell>
-
 
                         <TableCell>
 
-                            Email
+                            Address
 
                         </TableCell>
 
-
-                        <TableCell>
-
-                            Phone
-
-                        </TableCell>
-
-
-                        <TableCell>
-
-                            GSTIN
-
-                        </TableCell>
 
 
                         <TableCell>
@@ -170,21 +163,44 @@ const SellerCustomerTable = ({
                         </TableCell>
 
 
+
                         <TableCell>
 
-                            Credit Limit
+                            State
 
                         </TableCell>
 
 
+
                         <TableCell>
 
-                            Status
+                            Country
 
                         </TableCell>
 
 
-                        <TableCell align="center">
+
+                        <TableCell>
+
+                            Postal Code
+
+                        </TableCell>
+
+
+
+                        <TableCell>
+
+                            Default
+
+                        </TableCell>
+
+
+
+                        <TableCell
+
+                            align="center"
+
+                        >
 
                             Actions
 
@@ -193,7 +209,9 @@ const SellerCustomerTable = ({
 
                     </TableRow>
 
+
                 </TableHead>
+
 
 
                 <TableBody>
@@ -201,19 +219,33 @@ const SellerCustomerTable = ({
 
                     {
 
-                        customers.map((row) => (
+                        addresses.map((row) => (
+
 
                             <TableRow
 
                                 key={
 
-                                    row.CustomerId
+                                    row.CustomerAddressId
 
                                 }
 
                                 hover
 
                             >
+
+
+
+                                <TableCell>
+
+                                    {
+
+                                        row.CustomerAddressId
+
+                                    }
+
+                                </TableCell>
+
 
 
                                 <TableCell>
@@ -227,80 +259,50 @@ const SellerCustomerTable = ({
                                 </TableCell>
 
 
+
                                 <TableCell>
 
                                     {
 
-                                        row.CustomerCode ||
-
-                                        "-"
+                                        row.AddressType
 
                                     }
 
                                 </TableCell>
 
 
-                                <TableCell>
-
-                                    {
-
-                                        row.CustomerName
-
-                                    }
-
-                                </TableCell>
-
 
                                 <TableCell>
 
-                                    {
-
-                                        row.ContactPerson ||
-
-                                        "-"
-
-                                    }
-
-                                </TableCell>
-
-
-                                <TableCell>
 
                                     {
 
-                                        row.Email ||
-
-                                        "-"
+                                        row.AddressLine1
 
                                     }
 
-                                </TableCell>
-
-
-                                <TableCell>
 
                                     {
 
-                                        row.Phone ||
+                                        row.AddressLine2 &&
 
-                                        "-"
+                                        <>
 
-                                    }
+                                            <br />
 
-                                </TableCell>
+                                            {
 
+                                                row.AddressLine2
 
-                                <TableCell>
+                                            }
 
-                                    {
-
-                                        row.GSTIN ||
-
-                                        "-"
+                                        </>
 
                                     }
 
+
                                 </TableCell>
+
 
 
                                 <TableCell>
@@ -316,46 +318,71 @@ const SellerCustomerTable = ({
                                 </TableCell>
 
 
-                                <TableCell>
 
-                                    ₹{" "}
+                                <TableCell>
 
                                     {
 
-                                        Number(
+                                        row.State ||
 
-                                            row.CreditLimit ||
-
-                                            0
-
-                                        ).toLocaleString()
+                                        "-"
 
                                     }
 
                                 </TableCell>
 
 
+
                                 <TableCell>
+
+                                    {
+
+                                        row.Country ||
+
+                                        "-"
+
+                                    }
+
+                                </TableCell>
+
+
+
+                                <TableCell>
+
+                                    {
+
+                                        row.PostalCode ||
+
+                                        "-"
+
+                                    }
+
+                                </TableCell>
+
+
+
+                                <TableCell>
+
 
                                     <Chip
 
                                         label={
 
-                                            row.IsActive
+                                            row.IsDefault
 
-                                                ? "Active"
+                                                ? "Yes"
 
-                                                : "Inactive"
+                                                : "No"
 
                                         }
 
                                         color={
 
-                                            row.IsActive
+                                            row.IsDefault
 
                                                 ? "success"
 
-                                                : "error"
+                                                : "default"
 
                                         }
 
@@ -363,7 +390,9 @@ const SellerCustomerTable = ({
 
                                     />
 
+
                                 </TableCell>
+
 
 
                                 <TableCell
@@ -371,6 +400,8 @@ const SellerCustomerTable = ({
                                     align="center"
 
                                 >
+
+
 
                                     <Tooltip
 
@@ -394,7 +425,9 @@ const SellerCustomerTable = ({
 
                                         </IconButton>
 
+
                                     </Tooltip>
+
 
 
                                     <Tooltip
@@ -419,7 +452,9 @@ const SellerCustomerTable = ({
 
                                         </IconButton>
 
+
                                     </Tooltip>
+
 
 
                                     <Tooltip
@@ -444,13 +479,17 @@ const SellerCustomerTable = ({
 
                                         </IconButton>
 
+
                                     </Tooltip>
+
 
 
                                 </TableCell>
 
 
+
                             </TableRow>
+
 
                         ))
 
@@ -465,9 +504,10 @@ const SellerCustomerTable = ({
 
         </TableContainer>
 
+
     );
 
 };
 
 
-export default SellerCustomerTable;
+export default CustomerAddressTable;

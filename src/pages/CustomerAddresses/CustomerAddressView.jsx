@@ -13,18 +13,18 @@ import {
 } from "@mui/material";
 
 
-const SellerCustomerView = ({
+const CustomerAddressView = ({
 
     open,
 
-    customer,
+    address,
 
     onClose
 
 }) => {
 
 
-    if (!customer) return null;
+    if (!address) return null;
 
 
 
@@ -59,6 +59,7 @@ const SellerCustomerView = ({
             </Typography>
 
 
+
             <Typography
 
                 variant="body1"
@@ -84,6 +85,7 @@ const SellerCustomerView = ({
 
     return (
 
+
         <Dialog
 
             open={open}
@@ -96,11 +98,13 @@ const SellerCustomerView = ({
 
         >
 
+
             <DialogTitle>
 
-                Customer Details
+                Customer Address Details
 
             </DialogTitle>
+
 
 
             <Divider />
@@ -117,6 +121,7 @@ const SellerCustomerView = ({
 
             >
 
+
                 <Grid
 
                     container
@@ -126,108 +131,47 @@ const SellerCustomerView = ({
                 >
 
 
+
+                    <Field
+
+                        label="Customer Address ID"
+
+                        value={
+
+                            address.CustomerAddressId
+
+                        }
+
+                    />
+
+
+
                     <Field
 
                         label="Customer ID"
 
                         value={
 
-                            customer.CustomerId
+                            address.CustomerId
 
                         }
 
                     />
+
 
 
                     <Field
 
-                        label="Seller ID"
+                        label="Address Type"
 
                         value={
 
-                            customer.SellerId
+                            address.AddressType
 
                         }
 
                     />
 
-
-                    <Field
-
-                        label="Customer Code"
-
-                        value={
-
-                            customer.CustomerCode
-
-                        }
-
-                    />
-
-
-                    <Field
-
-                        label="Customer Name"
-
-                        value={
-
-                            customer.CustomerName
-
-                        }
-
-                    />
-
-
-                    <Field
-
-                        label="Contact Person"
-
-                        value={
-
-                            customer.ContactPerson
-
-                        }
-
-                    />
-
-
-                    <Field
-
-                        label="Email"
-
-                        value={
-
-                            customer.Email
-
-                        }
-
-                    />
-
-
-                    <Field
-
-                        label="Phone"
-
-                        value={
-
-                            customer.Phone
-
-                        }
-
-                    />
-
-
-                    <Field
-
-                        label="GSTIN"
-
-                        value={
-
-                            customer.GSTIN
-
-                        }
-
-                    />
 
 
                     <Field
@@ -236,11 +180,12 @@ const SellerCustomerView = ({
 
                         value={
 
-                            customer.AddressLine1
+                            address.AddressLine1
 
                         }
 
                     />
+
 
 
                     <Field
@@ -249,11 +194,12 @@ const SellerCustomerView = ({
 
                         value={
 
-                            customer.AddressLine2
+                            address.AddressLine2
 
                         }
 
                     />
+
 
 
                     <Field
@@ -262,11 +208,12 @@ const SellerCustomerView = ({
 
                         value={
 
-                            customer.City
+                            address.City
 
                         }
 
                     />
+
 
 
                     <Field
@@ -275,11 +222,12 @@ const SellerCustomerView = ({
 
                         value={
 
-                            customer.State
+                            address.State
 
                         }
 
                     />
+
 
 
                     <Field
@@ -288,11 +236,12 @@ const SellerCustomerView = ({
 
                         value={
 
-                            customer.Country
+                            address.Country
 
                         }
 
                     />
+
 
 
                     <Field
@@ -301,24 +250,7 @@ const SellerCustomerView = ({
 
                         value={
 
-                            customer.PostalCode
-
-                        }
-
-                    />
-
-
-                    <Field
-
-                        label="Credit Limit"
-
-                        value={
-
-                            `₹ ${Number(
-
-                                customer.CreditLimit || 0
-
-                            ).toLocaleString()}`
+                            address.PostalCode
 
                         }
 
@@ -344,9 +276,10 @@ const SellerCustomerView = ({
 
                         >
 
-                            Status
+                            Default Address
 
                         </Typography>
+
 
 
                         <br />
@@ -356,21 +289,21 @@ const SellerCustomerView = ({
 
                             label={
 
-                                customer.IsActive
+                                address.IsDefault
 
-                                    ? "Active"
+                                    ? "Yes"
 
-                                    : "Inactive"
+                                    : "No"
 
                             }
 
                             color={
 
-                                customer.IsActive
+                                address.IsDefault
 
                                     ? "success"
 
-                                    : "error"
+                                    : "default"
 
                             }
 
@@ -387,11 +320,11 @@ const SellerCustomerView = ({
 
                         value={
 
-                            customer.CreatedDate
+                            address.CreatedDate
 
                                 ? new Date(
 
-                                      customer.CreatedDate
+                                    address.CreatedDate
 
                                   ).toLocaleString()
 
@@ -401,26 +334,6 @@ const SellerCustomerView = ({
 
                     />
 
-
-                    <Field
-
-                        label="Updated Date"
-
-                        value={
-
-                            customer.UpdatedDate
-
-                                ? new Date(
-
-                                      customer.UpdatedDate
-
-                                  ).toLocaleString()
-
-                                : "-"
-
-                        }
-
-                    />
 
 
                 </Grid>
@@ -451,9 +364,10 @@ const SellerCustomerView = ({
 
         </Dialog>
 
+
     );
 
 };
 
 
-export default SellerCustomerView;
+export default CustomerAddressView;

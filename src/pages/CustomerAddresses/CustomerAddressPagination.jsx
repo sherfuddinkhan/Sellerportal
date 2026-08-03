@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 
-const SellerCustomerPagination = ({
+const CustomerAddressPagination = ({
 
     page,
 
@@ -50,6 +50,7 @@ const SellerCustomerPagination = ({
 
         >
 
+
             <Typography
 
                 variant="body2"
@@ -71,6 +72,7 @@ const SellerCustomerPagination = ({
             </Typography>
 
 
+
             <Stack
 
                 direction="row"
@@ -80,6 +82,7 @@ const SellerCustomerPagination = ({
                 alignItems="center"
 
             >
+
 
                 <Typography
 
@@ -92,11 +95,13 @@ const SellerCustomerPagination = ({
                 </Typography>
 
 
+
                 <FormControl
 
                     size="small"
 
                 >
+
 
                     <Select
 
@@ -118,11 +123,13 @@ const SellerCustomerPagination = ({
 
                     >
 
+
                         <MenuItem value={5}>
 
                             5
 
                         </MenuItem>
+
 
 
                         <MenuItem value={10}>
@@ -132,11 +139,13 @@ const SellerCustomerPagination = ({
                         </MenuItem>
 
 
+
                         <MenuItem value={20}>
 
                             20
 
                         </MenuItem>
+
 
 
                         <MenuItem value={50}>
@@ -146,11 +155,13 @@ const SellerCustomerPagination = ({
                         </MenuItem>
 
 
+
                         <MenuItem value={100}>
 
                             100
 
                         </MenuItem>
+
 
 
                     </Select>
@@ -159,11 +170,16 @@ const SellerCustomerPagination = ({
                 </FormControl>
 
 
+
+
                 <Pagination
+
 
                     color="primary"
 
+
                     page={page}
+
 
                     count={
 
@@ -171,11 +187,14 @@ const SellerCustomerPagination = ({
 
                     }
 
+
+
                     onChange={(event, value) =>
 
                         onPageChange(value)
 
                     }
+
 
                 />
 
@@ -190,4 +209,4 @@ const SellerCustomerPagination = ({
 };
 
 
-export default SellerCustomerPagination;
+export default CustomerAddressPagination;
