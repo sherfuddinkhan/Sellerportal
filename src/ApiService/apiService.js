@@ -257,4 +257,5 @@ getInventoryStatistics: () =>
     axios.get(`${BASE_URL}/inventory/statistics`)
 };
 
+
 export default apiService;
