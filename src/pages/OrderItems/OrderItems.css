@@ -1,0 +1,362 @@
+/* ==========================================================
+   Order Items Module
+========================================================== */
+
+.order-items-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.order-items-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.order-items-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.order-items-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+.order-items-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.order-items-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.order-items-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.order-items-table {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+
+.order-items-table table {
+
+    min-width: 900px;
+
+}
+
+
+
+.order-items-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.order-items-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ==========================================================
+   Cards
+========================================================== */
+
+.order-item-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.order-item-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+.order-item-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.order-item-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+
+.order-item-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+
+/* ==========================================================
+   Amount Formatting
+========================================================== */
+
+.order-item-price {
+
+    font-weight: 600;
+
+}
+
+
+
+.order-item-total {
+
+    font-weight: 700;
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.order-items-pagination {
+
+    margin-top: 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Dialog
+========================================================== */
+
+.order-item-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+
+.order-item-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+
+/* ==========================================================
+   View Details
+========================================================== */
+
+.order-item-view-label {
+
+    font-size: 0.82rem;
+
+    color: #666;
+
+}
+
+
+
+.order-item-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media(max-width:900px) {
+
+
+    .order-items-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .order-items-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .order-items-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .order-items-table table {
+
+        min-width: 750px;
+
+    }
+
+}
+
+
+
+
+@media(max-width:600px) {
+
+
+    .order-items-container {
+
+        padding: 16px;
+
+    }
+
+
+
+    .order-items-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .order-item-card-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .order-items-table table {
+
+        min-width: 650px;
+
+    }
+
+}
