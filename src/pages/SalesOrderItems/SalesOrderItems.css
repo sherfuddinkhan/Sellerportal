@@ -1,0 +1,159 @@
+/* ==========================================================
+   Sales Order Items
+========================================================== */
+
+.sales-order-items-container {
+    padding: 24px;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    background: #f8f9fb;
+}
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.sales-order-items-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================
+   Statistics
+========================================================== */
+
+.sales-order-item-stat-card {
+    height: 100%;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+}
+
+.sales-order-item-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.sales-order-item-search {
+    margin-bottom: 24px;
+}
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.sales-order-item-table {
+    overflow-x: auto;
+}
+
+.sales-order-item-table table {
+    min-width: 1100px;
+}
+
+.sales-order-item-table th {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.sales-order-item-table td {
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   Card View
+========================================================== */
+
+.sales-order-item-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+}
+
+.sales-order-item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sales-order-item-card .MuiCardContent-root {
+    flex: 1;
+}
+
+.sales-order-item-card .MuiCardActions-root {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+}
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.sales-order-item-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================
+   Dialog
+========================================================== */
+
+.sales-order-item-dialog .MuiDialogContent-root {
+    padding-top: 20px;
+}
+
+.sales-order-item-dialog .MuiTextField-root {
+    margin-bottom: 16px;
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 900px) {
+
+    .sales-order-items-toolbar,
+    .sales-order-item-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sales-order-item-table table {
+        min-width: 900px;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .sales-order-items-container {
+        padding: 16px;
+    }
+
+    .sales-order-item-table table {
+        min-width: 800px;
+    }
+
+    .sales-order-item-card .MuiCardActions-root {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sales-order-item-card .MuiButton-root {
+        width: 100%;
+    }
+
+}
