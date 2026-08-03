@@ -1,0 +1,295 @@
+/* ==========================================================
+   Goods Receipt Notes Container
+========================================================== */
+
+.goods-receipt-notes-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    box-sizing: border-box;
+
+    background: #f8f9fb;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.goods-receipt-note-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.goods-receipt-note-stat-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+
+.goods-receipt-note-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+
+        0 10px 24px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* ==========================================================
+   Search Section
+========================================================== */
+
+.goods-receipt-note-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.goods-receipt-note-table {
+
+    overflow-x: auto;
+
+}
+
+
+
+.goods-receipt-note-table table {
+
+    min-width: 1000px;
+
+}
+
+
+
+.goods-receipt-note-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.goods-receipt-note-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ==========================================================
+   Card View
+========================================================== */
+
+.goods-receipt-note-card {
+
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    border-radius: 12px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+
+.goods-receipt-note-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+
+        0 10px 24px rgba(0,0,0,0.12);
+
+}
+
+
+
+.goods-receipt-note-card .MuiCardContent-root {
+
+    flex: 1;
+
+}
+
+
+
+.goods-receipt-note-card .MuiCardActions-root {
+
+    padding:16px;
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.goods-receipt-note-pagination {
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:16px;
+
+    margin-top:24px;
+
+    flex-wrap:wrap;
+
+}
+
+
+
+/* ==========================================================
+   Modal Dialog
+========================================================== */
+
+.goods-receipt-note-dialog .MuiDialogContent-root {
+
+    padding-top:20px;
+
+}
+
+
+
+.goods-receipt-note-dialog .MuiTextField-root {
+
+    margin-bottom:16px;
+
+}
+
+
+
+/* ==========================================================
+   Status Styling
+========================================================== */
+
+.goods-receipt-note-status {
+
+    font-weight:600;
+
+}
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media(max-width:900px) {
+
+
+    .goods-receipt-note-toolbar,
+
+    .goods-receipt-note-pagination {
+
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+
+    }
+
+
+
+    .goods-receipt-note-table table {
+
+
+        min-width:900px;
+
+
+    }
+
+
+}
+
+
+
+
+
+@media(max-width:600px) {
+
+
+    .goods-receipt-notes-container {
+
+
+        padding:16px;
+
+
+    }
+
+
+
+
+    .goods-receipt-note-card .MuiCardActions-root {
+
+
+        flex-direction:column;
+
+        gap:8px;
+
+
+    }
+
+
+
+
+    .goods-receipt-note-card .MuiButton-root {
+
+
+        width:100%;
+
+
+    }
+
+
+}
