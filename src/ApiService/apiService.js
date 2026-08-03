@@ -47,6 +47,20 @@ const apiService = {
     deleteBrand: (id) =>
         axios.delete(`${BASE_URL}/brand/${id}`),
 
+    // ==========================================================
+// Brand Additional Services
+// ==========================================================
+
+getBrandStatistics: () =>
+    axios.get(`${BASE_URL}/brand/statistics`),
+
+searchBrands: (searchText) =>
+    axios.get(`${BASE_URL}/brand/search`, {
+        params: {
+            searchText
+        }
+    }),
+
 
 
     // ==========================================================
@@ -98,6 +112,19 @@ const apiService = {
 
     deleteProductType: (id) =>
         axios.delete(`${BASE_URL}/producttype/${id}`),
+    // ==========================================================
+// Product Type Additional Services
+// ==========================================================
+
+getProductTypeStatistics: () =>
+    axios.get(`${BASE_URL}/producttype/statistics`),
+
+searchProductTypes: (searchText) =>
+    axios.get(`${BASE_URL}/producttype/search`, {
+        params: {
+            searchText
+        }
+    }),
 
 
 
@@ -120,6 +147,19 @@ const apiService = {
     deleteProduct: (id) =>
         axios.delete(`${BASE_URL}/product/${id}`),
 
+    // ==========================================================
+// Product Additional Services
+// ==========================================================
+
+getProductStatistics: () =>
+    axios.get(`${BASE_URL}/product/statistics`),
+
+searchProducts: (searchText) =>
+    axios.get(`${BASE_URL}/product/search`, {
+        params: {
+            searchText
+        }
+    }),
 
 
     // ==========================================================
@@ -140,6 +180,20 @@ const apiService = {
 
     deleteProductPrice: (id) =>
         axios.delete(`${BASE_URL}/productprice/${id}`),
+
+    // ==========================================================
+// Product Price Additional Services
+// ==========================================================
+
+getProductPriceStatistics: () =>
+    axios.get(`${BASE_URL}/productprice/statistics`),
+
+searchProductPrices: (searchText) =>
+    axios.get(`${BASE_URL}/productprice/search`, {
+        params: {
+            searchText
+        }
+    }),
 
 
 
@@ -168,6 +222,17 @@ const apiService = {
     getInventoryStatistics: () =>
         axios.get(`${BASE_URL}/inventory/statistics`),
 
+    // ==========================================================
+// Inventory Search
+// ==========================================================
+
+searchInventories: (searchText) =>
+    axios.get(`${BASE_URL}/inventory/search`, {
+        params:{
+            searchText
+        }
+    }),
+
 
 
 
@@ -191,7 +256,19 @@ const apiService = {
         axios.delete(`${BASE_URL}/customerpayment/${id}`),
 
 
+// ==========================================================
+// Customer Payment Additional Services
+// ==========================================================
 
+getCustomerPaymentStatistics: () =>
+    axios.get(`${BASE_URL}/customerpayment/statistics`),
+
+searchCustomerPayments: (searchText) =>
+    axios.get(`${BASE_URL}/customerpayment/search`, {
+        params:{
+            searchText
+        }
+    }),
 
     // ==========================================================
     // Customer Returns
@@ -213,7 +290,19 @@ const apiService = {
         axios.delete(`${BASE_URL}/customerreturn/${id}`),
 
 
+// ==========================================================
+// Customer Return Additional Services
+// ==========================================================
 
+getCustomerReturnStatistics: () =>
+    axios.get(`${BASE_URL}/customerreturn/statistics`),
+
+searchCustomerReturns: (searchText) =>
+    axios.get(`${BASE_URL}/customerreturn/search`, {
+        params:{
+            searchText
+        }
+    }),
 
     // ==========================================================
     // Orders
@@ -235,7 +324,19 @@ const apiService = {
         axios.delete(`${BASE_URL}/order/${id}`),
 
 
+// ==========================================================
+// Order Additional Services
+// ==========================================================
 
+getOrderStatistics: () =>
+    axios.get(`${BASE_URL}/order/statistics`),
+
+searchOrders: (searchText) =>
+    axios.get(`${BASE_URL}/order/search`, {
+        params:{
+            searchText
+        }
+    }),
 
     // ==========================================================
     // Order Items
@@ -257,7 +358,19 @@ const apiService = {
         axios.delete(`${BASE_URL}/orderitem/${id}`),
 
 
+// ==========================================================
+// Order Item Additional Services
+// ==========================================================
 
+getOrderItemStatistics: () =>
+    axios.get(`${BASE_URL}/orderitem/statistics`),
+
+searchOrderItems: (searchText) =>
+    axios.get(`${BASE_URL}/orderitem/search`, {
+        params:{
+            searchText
+        }
+    }),
 
     // ==========================================================
     // Order Status History
@@ -297,7 +410,19 @@ const apiService = {
     deleteShipment: (id) =>
         axios.delete(`${BASE_URL}/shipment/${id}`),
 
+// ==========================================================
+// Shipment Additional Services
+// ==========================================================
 
+getShipmentStatistics: () =>
+    axios.get(`${BASE_URL}/shipment/statistics`),
+
+searchShipments: (searchText) =>
+    axios.get(`${BASE_URL}/shipment/search`, {
+        params:{
+            searchText
+        }
+    }),
 
     // ==========================================================
     // Sales Orders
@@ -328,12 +453,6 @@ const apiService = {
             }
         }),
 
-
-
-    // ==========================================================
-    // Purchase Orders
-    // ==========================================================
-
   // ==========================================================
 // Purchase Orders
 // ==========================================================
@@ -362,7 +481,19 @@ searchPurchaseOrders: (searchText) =>
             searchText
         }
     }),
+// ==========================================================
+// Purchase Order Item Additional Services
+// ==========================================================
 
+getPurchaseOrderItemStatistics: () =>
+    axios.get(`${BASE_URL}/purchaseorderitem/statistics`),
+
+searchPurchaseOrderItems: (searchText) =>
+    axios.get(`${BASE_URL}/purchaseorderitem/search`, {
+        params:{
+            searchText
+        }
+    }),
 
 
 // ==========================================================
@@ -474,6 +605,20 @@ searchStockLedgers: (searchText) =>
     axios.get(`${BASE_URL}/stockledger/search`, {
         params: {
             searchText
+        }
+    }),
+
+    getStockLedgerByProduct: (productId) =>
+    axios.get(`${BASE_URL}/stockledger/product/${productId}`),
+
+getStockLedgerByWarehouse: (warehouseId) =>
+    axios.get(`${BASE_URL}/stockledger/warehouse/${warehouseId}`),
+
+getCurrentStockBalance: (productId, warehouseId) =>
+    axios.get(`${BASE_URL}/stockledger/current-stock`, {
+        params:{
+            productId,
+            warehouseId
         }
     }),
 
