@@ -1,0 +1,121 @@
+/* =====================================================
+   Product Attributes
+===================================================== */
+
+.product-attributes-container {
+
+    padding: 24px;
+
+}
+
+/* =====================================================
+   Toolbar
+===================================================== */
+
+.product-attributes-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 24px;
+
+}
+
+/* =====================================================
+   Statistics
+===================================================== */
+
+.product-attribute-stat-card {
+
+    border-radius: 10px;
+
+    transition: all .25s ease-in-out;
+
+}
+
+.product-attribute-stat-card:hover {
+
+    transform: translateY(-2px);
+
+}
+
+/* =====================================================
+   Search
+===================================================== */
+
+.product-attribute-search {
+
+    margin-bottom: 20px;
+
+}
+
+/* =====================================================
+   Table
+===================================================== */
+
+.product-attribute-table {
+
+    width: 100%;
+
+}
+
+.product-attribute-table th {
+
+    font-weight: 600;
+
+}
+
+.product-attribute-table td {
+
+    vertical-align: middle;
+
+}
+
+/* =====================================================
+   Card
+===================================================== */
+
+.product-attribute-card {
+
+    height: 100%;
+
+    transition: all .25s ease;
+
+}
+
+.product-attribute-card:hover {
+
+    transform: translateY(-3px);
+
+}
+
+/* =====================================================
+   Modal
+===================================================== */
+
+.product-attribute-modal .MuiDialog-paper {
+
+    border-radius: 10px;
+
+}
+
+/* =====================================================
+   Responsive
+===================================================== */
+
+@media (max-width:768px) {
+
+    .product-attributes-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 16px;
+
+    }
+
+}
