@@ -1,0 +1,272 @@
+/* ==========================================================
+   Purchase Order Items Container
+========================================================== */
+
+.purchase-order-items-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    box-sizing: border-box;
+
+    background: #f8f9fb;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.purchase-order-item-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.purchase-order-item-stat-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+
+.purchase-order-item-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+
+        0 10px 24px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.purchase-order-item-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.purchase-order-item-table {
+
+    overflow-x: auto;
+
+}
+
+
+
+.purchase-order-item-table table {
+
+    min-width: 1100px;
+
+}
+
+
+
+.purchase-order-item-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.purchase-order-item-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ==========================================================
+   Card View
+========================================================== */
+
+.purchase-order-item-card {
+
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    border-radius: 12px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+
+.purchase-order-item-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+
+        0 10px 24px rgba(0,0,0,0.12);
+
+}
+
+
+
+.purchase-order-item-card .MuiCardContent-root {
+
+    flex: 1;
+
+}
+
+
+
+.purchase-order-item-card .MuiCardActions-root {
+
+    padding: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.purchase-order-item-pagination {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-top: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Modal / Dialog
+========================================================== */
+
+.purchase-order-item-dialog .MuiDialogContent-root {
+
+    padding-top: 20px;
+
+}
+
+
+
+.purchase-order-item-dialog .MuiTextField-root {
+
+    margin-bottom: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width:900px) {
+
+
+    .purchase-order-item-toolbar,
+
+    .purchase-order-item-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .purchase-order-item-table table {
+
+        min-width: 900px;
+
+    }
+
+
+}
+
+
+
+
+
+@media (max-width:600px) {
+
+
+    .purchase-order-items-container {
+
+        padding:16px;
+
+    }
+
+
+
+    .purchase-order-item-card .MuiCardActions-root {
+
+        flex-direction: column;
+
+        gap:8px;
+
+    }
+
+
+
+    .purchase-order-item-card .MuiButton-root {
+
+        width:100%;
+
+    }
+
+
+
+}
