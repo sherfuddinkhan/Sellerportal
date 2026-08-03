@@ -413,7 +413,69 @@ searchGoodsReceiptNotes: (searchText) =>
         params: {
             searchText
         }
-    })
+    }),
+
+
+
+// ==========================================================
+// Goods Receipt Note Items
+// ==========================================================
+
+getGoodsReceiptNoteItems: () =>
+    axios.get(`${BASE_URL}/goodsreceiptnoteitem`),
+
+getGoodsReceiptNoteItemById: (id) =>
+    axios.get(`${BASE_URL}/goodsreceiptnoteitem/${id}`),
+
+createGoodsReceiptNoteItem: (data) =>
+    axios.post(`${BASE_URL}/goodsreceiptnoteitem`, data),
+
+updateGoodsReceiptNoteItem: (id, data) =>
+    axios.put(`${BASE_URL}/goodsreceiptnoteitem/${id}`, data),
+
+deleteGoodsReceiptNoteItem: (id) =>
+    axios.delete(`${BASE_URL}/goodsreceiptnoteitem/${id}`),
+
+getGoodsReceiptNoteItemStatistics: () =>
+    axios.get(`${BASE_URL}/goodsreceiptnoteitem/statistics`),
+
+searchGoodsReceiptNoteItems: (searchText) =>
+    axios.get(`${BASE_URL}/goodsreceiptnoteitem/search`, {
+        params: {
+            searchText
+        }
+    }),
+
+
+
+// ==========================================================
+// Stock Ledger
+// ==========================================================
+
+getStockLedgers: () =>
+    axios.get(`${BASE_URL}/stockledger`),
+
+getStockLedgerById: (id) =>
+    axios.get(`${BASE_URL}/stockledger/${id}`),
+
+createStockLedger: (data) =>
+    axios.post(`${BASE_URL}/stockledger`, data),
+
+updateStockLedger: (id, data) =>
+    axios.put(`${BASE_URL}/stockledger/${id}`, data),
+
+deleteStockLedger: (id) =>
+    axios.delete(`${BASE_URL}/stockledger/${id}`),
+
+getStockLedgerStatistics: () =>
+    axios.get(`${BASE_URL}/stockledger/statistics`),
+
+searchStockLedgers: (searchText) =>
+    axios.get(`${BASE_URL}/stockledger/search`, {
+        params: {
+            searchText
+        }
+    }),
 
 };
 
