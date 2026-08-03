@@ -1,0 +1,165 @@
+/* ==========================================================
+   Sales Invoices
+========================================================== */
+
+.sales-invoices-container {
+    padding: 24px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #f8f9fb;
+    min-height: 100vh;
+}
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.sales-invoices-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.sales-invoice-stat-card {
+    height: 100%;
+    transition: all 0.25s ease;
+    border-radius: 12px;
+}
+
+.sales-invoice-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.sales-invoice-search {
+    margin-bottom: 24px;
+}
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.sales-invoice-table {
+    overflow-x: auto;
+}
+
+.sales-invoice-table table {
+    min-width: 1100px;
+}
+
+.sales-invoice-table th {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.sales-invoice-table td {
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   Card View
+========================================================== */
+
+.sales-invoice-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s ease;
+    border-radius: 12px;
+}
+
+.sales-invoice-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sales-invoice-card .MuiCardContent-root {
+    flex: 1;
+}
+
+.sales-invoice-card .MuiCardActions-root {
+    justify-content: space-between;
+}
+
+/* ==========================================================
+   Status Chips
+========================================================== */
+
+.sales-invoice-chip {
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.sales-invoice-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================
+   Dialogs
+========================================================== */
+
+.sales-invoice-dialog .MuiDialogContent-root {
+    padding-top: 20px;
+}
+
+.sales-invoice-dialog .MuiTextField-root {
+    margin-bottom: 16px;
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 900px) {
+
+    .sales-invoices-toolbar,
+    .sales-invoice-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sales-invoice-table table {
+        min-width: 900px;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .sales-invoices-container {
+        padding: 16px;
+    }
+
+    .sales-invoice-table table {
+        min-width: 800px;
+    }
+
+    .sales-invoice-card .MuiCardActions-root {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .sales-invoice-card .MuiButton-root {
+        width: 100%;
+    }
+}
