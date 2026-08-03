@@ -300,6 +300,33 @@ const apiService = {
     deleteShipment: (id) =>
         axios.delete(`${BASE_URL}/shipment/${id}`)
 
+    // ==========================================================
+// Sales Orders
+// ==========================================================
+
+getSalesOrders: () =>
+    axios.get(`${BASE_URL}/salesorder`),
+
+getSalesOrderById: (id) =>
+    axios.get(`${BASE_URL}/salesorder/${id}`),
+
+createSalesOrder: (data) =>
+    axios.post(`${BASE_URL}/salesorder`, data),
+
+updateSalesOrder: (id, data) =>
+    axios.put(`${BASE_URL}/salesorder/${id}`, data),
+
+deleteSalesOrder: (id) =>
+    axios.delete(`${BASE_URL}/salesorder/${id}`),
+
+getSalesOrderStatistics: () =>
+    axios.get(`${BASE_URL}/salesorder/statistics`),
+
+searchSalesOrders: (searchText) =>
+    axios.get(`${BASE_URL}/salesorder/search`, {
+        params: { searchText }
+    }),
+
 };
 
 
