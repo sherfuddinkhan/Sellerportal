@@ -1,0 +1,405 @@
+/* ==========================================================
+   Shipments Module
+========================================================== */
+
+
+.shipments-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+
+.shipments-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.shipments-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Statistics
+========================================================== */
+
+
+.shipments-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+.shipments-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.shipments-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+
+.shipments-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+
+.shipments-table {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+
+.shipments-table table {
+
+    min-width: 1100px;
+
+}
+
+
+
+.shipments-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.shipments-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Status
+========================================================== */
+
+
+.shipments-status-chip {
+
+    font-weight: 600;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Cards
+========================================================== */
+
+
+.shipments-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.shipments-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+.shipments-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.shipments-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+
+.shipments-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+
+.shipments-pagination {
+
+    margin-top: 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Dialogs
+========================================================== */
+
+
+.shipments-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+
+.shipments-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+
+
+
+/* ==========================================================
+   View Details
+========================================================== */
+
+
+.shipments-view-label {
+
+    font-size: 0.82rem;
+
+    color: #666;
+
+}
+
+
+
+.shipments-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Tracking Number
+========================================================== */
+
+
+.shipments-tracking-number {
+
+    max-width: 250px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+
+@media(max-width:900px) {
+
+
+    .shipments-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .shipments-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .shipments-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .shipments-table table {
+
+        min-width: 900px;
+
+    }
+
+}
+
+
+
+
+
+@media(max-width:600px) {
+
+
+    .shipments-container {
+
+        padding: 16px;
+
+    }
+
+
+
+    .shipments-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .shipments-card-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .shipments-table table {
+
+        min-width: 700px;
+
+    }
+
+}
