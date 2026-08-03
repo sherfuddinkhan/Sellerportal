@@ -1,0 +1,346 @@
+/* ==========================================================
+   Customer Addresses Module
+========================================================== */
+
+.customer-address-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.customer-address-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.customer-address-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.customer-address-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+.customer-address-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+.customer-address-stat-card:hover {
+
+    transform: translateY(-4px);
+
+}
+
+
+/* ==========================================================
+   Search Area
+========================================================== */
+
+.customer-address-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.customer-address-table {
+
+    margin-top: 16px;
+
+    overflow-x: auto;
+
+}
+
+
+.customer-address-table table {
+
+    min-width: 1000px;
+
+}
+
+
+.customer-address-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+.customer-address-table td {
+
+    vertical-align: middle;
+
+}
+
+
+/* ==========================================================
+   Address Cards
+========================================================== */
+
+.customer-address-card {
+
+    border-radius: 12px;
+
+    height: 100%;
+
+    transition: all 0.3s ease;
+
+}
+
+
+.customer-address-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+
+        8px
+
+        8px
+
+        20px
+
+        rgba(0,0,0,0.12);
+
+}
+
+
+.customer-address-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+.customer-address-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+.customer-address-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+/* ==========================================================
+   Default Address Status
+========================================================== */
+
+.default-address {
+
+    color: #2e7d32;
+
+    font-weight: 600;
+
+}
+
+
+.normal-address {
+
+    color: #757575;
+
+    font-weight: 500;
+
+}
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.customer-address-pagination {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 24px;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+/* ==========================================================
+   Dialog / View
+========================================================== */
+
+.customer-address-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+.customer-address-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+.customer-address-view-label {
+
+    color: #666;
+
+    font-size: 0.82rem;
+
+}
+
+
+.customer-address-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 900px) {
+
+
+    .customer-address-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .customer-address-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .customer-address-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .customer-address-table table {
+
+        min-width: 850px;
+
+    }
+
+
+}
+
+
+
+@media (max-width: 600px) {
+
+
+    .customer-address-container {
+
+        padding: 16px;
+
+    }
+
+
+
+    .customer-address-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .customer-address-card-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .customer-address-table table {
+
+        min-width: 750px;
+
+    }
+
+
+}
