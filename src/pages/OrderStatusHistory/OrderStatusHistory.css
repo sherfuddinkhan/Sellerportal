@@ -1,0 +1,372 @@
+/* ==========================================================
+   Order Status History Module
+========================================================== */
+
+.order-status-history-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.order-status-history-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.order-status-history-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.order-status-history-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+.order-status-history-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.order-status-history-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.order-status-history-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.order-status-history-table {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+
+.order-status-history-table table {
+
+    min-width: 1000px;
+
+}
+
+
+
+.order-status-history-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.order-status-history-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ==========================================================
+   Status Chip
+========================================================== */
+
+.order-status-history-status {
+
+    font-weight: 600;
+
+}
+
+
+
+/* ==========================================================
+   Cards
+========================================================== */
+
+.order-status-history-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.order-status-history-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+.order-status-history-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.order-status-history-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+
+.order-status-history-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.order-status-history-pagination {
+
+    margin-top: 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Dialogs
+========================================================== */
+
+.order-status-history-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+
+.order-status-history-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+
+/* ==========================================================
+   Details View
+========================================================== */
+
+.order-status-history-view-label {
+
+    font-size: 0.82rem;
+
+    color: #666;
+
+}
+
+
+
+.order-status-history-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Remarks
+========================================================== */
+
+.order-status-history-remarks {
+
+    max-width: 350px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media(max-width:900px) {
+
+
+    .order-status-history-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .order-status-history-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .order-status-history-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .order-status-history-table table {
+
+        min-width: 800px;
+
+    }
+
+}
+
+
+
+
+@media(max-width:600px) {
+
+
+    .order-status-history-container {
+
+        padding: 16px;
+
+    }
+
+
+
+    .order-status-history-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .order-status-history-card-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .order-status-history-table table {
+
+        min-width: 650px;
+
+    }
+
+}
