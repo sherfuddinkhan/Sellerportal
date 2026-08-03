@@ -1,0 +1,424 @@
+/* ==========================================================
+   Orders Module
+========================================================== */
+
+.orders-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.orders-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.orders-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Statistics
+========================================================== */
+
+.orders-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+.orders-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.orders-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.orders-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.orders-table {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+
+.orders-table table {
+
+    min-width: 1100px;
+
+}
+
+
+
+.orders-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.orders-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ==========================================================
+   Order Cards
+========================================================== */
+
+.order-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.order-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+.order-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.order-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+
+.order-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+
+/* ==========================================================
+   Order Status
+========================================================== */
+
+.order-status-chip {
+
+    font-weight: 600;
+
+}
+
+
+
+.status-pending {
+
+    color: #ed6c02;
+
+}
+
+
+
+.status-confirmed {
+
+    color: #0288d1;
+
+}
+
+
+
+.status-processing {
+
+    color: #1976d2;
+
+}
+
+
+
+.status-packed {
+
+    color: #7b1fa2;
+
+}
+
+
+
+.status-shipped {
+
+    color: #2e7d32;
+
+}
+
+
+
+.status-delivered {
+
+    color: #1b5e20;
+
+}
+
+
+
+.status-cancelled,
+
+.status-returned {
+
+    color: #d32f2f;
+
+}
+
+
+
+/* ==========================================================
+   Amount
+========================================================== */
+
+.order-total-amount {
+
+    font-weight: 700;
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.orders-pagination {
+
+    margin-top: 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Dialogs
+========================================================== */
+
+.order-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+
+.order-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+
+/* ==========================================================
+   View Details
+========================================================== */
+
+.order-view-label {
+
+    font-size: 0.82rem;
+
+    color: #666;
+
+}
+
+
+
+.order-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media(max-width:900px) {
+
+
+    .orders-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .orders-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .orders-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .orders-table table {
+
+        min-width: 900px;
+
+    }
+
+}
+
+
+
+
+@media(max-width:600px) {
+
+
+    .orders-container {
+
+        padding:16px;
+
+    }
+
+
+
+    .orders-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .order-card-actions {
+
+        justify-content:center;
+
+    }
+
+
+
+    .orders-table table {
+
+        min-width:750px;
+
+    }
+
+}
