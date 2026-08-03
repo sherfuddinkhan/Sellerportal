@@ -1,0 +1,199 @@
+/* ===========================================
+   Product Images Module
+=========================================== */
+
+.product-images-container {
+
+    width: 100%;
+
+}
+
+
+
+/* ===========================================
+   Cards
+=========================================== */
+
+.product-image-card {
+
+    transition: all 0.3s ease;
+
+    cursor: pointer;
+
+}
+
+.product-image-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+
+}
+
+
+
+/* ===========================================
+   Statistics
+=========================================== */
+
+.product-image-stat-card {
+
+    padding: 20px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    height: 100%;
+
+}
+
+
+
+/* ===========================================
+   Search
+=========================================== */
+
+.product-image-search {
+
+    margin-bottom: 20px;
+
+}
+
+
+
+/* ===========================================
+   Table
+=========================================== */
+
+.product-image-table {
+
+    width: 100%;
+
+}
+
+.product-image-table th {
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+}
+
+.product-image-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ===========================================
+   Preview Image
+=========================================== */
+
+.product-image-preview {
+
+    width: 80px;
+
+    height: 80px;
+
+    object-fit: cover;
+
+    border-radius: 8px;
+
+    border: 1px solid #ddd;
+
+}
+
+.product-image-preview-large {
+
+    width: 100%;
+
+    max-height: 320px;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+
+    border: 1px solid #ddd;
+
+}
+
+
+
+/* ===========================================
+   Modal
+=========================================== */
+
+.product-image-modal-field {
+
+    margin-bottom: 16px;
+
+}
+
+
+
+/* ===========================================
+   Actions
+=========================================== */
+
+.product-image-actions {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+
+/* ===========================================
+   Empty State
+=========================================== */
+
+.product-image-empty {
+
+    padding: 40px;
+
+    text-align: center;
+
+    color: #777;
+
+}
+
+
+
+/* ===========================================
+   Responsive
+=========================================== */
+
+@media (max-width: 768px) {
+
+    .product-image-actions {
+
+        flex-direction: column;
+
+        gap: 6px;
+
+    }
+
+    .product-image-preview {
+
+        width: 60px;
+
+        height: 60px;
+
+    }
+
+    .product-image-stat-card {
+
+        margin-bottom: 15px;
+
+    }
+
+}
