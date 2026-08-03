@@ -278,9 +278,6 @@ const apiService = {
     deleteOrderStatusHistory: (id) =>
         axios.delete(`${BASE_URL}/orderstatushistory/${id}`),
 
-
-
-
     // ==========================================================
     // Shipments
     // ==========================================================
@@ -298,36 +295,73 @@ const apiService = {
         axios.put(`${BASE_URL}/shipment/${id}`, data),
 
     deleteShipment: (id) =>
-        axios.delete(`${BASE_URL}/shipment/${id}`)
+        axios.delete(`${BASE_URL}/shipment/${id}`),
+
+
 
     // ==========================================================
-// Sales Orders
-// ==========================================================
+    // Sales Orders
+    // ==========================================================
 
-getSalesOrders: () =>
-    axios.get(`${BASE_URL}/salesorder`),
+    getSalesOrders: () =>
+        axios.get(`${BASE_URL}/salesorder`),
 
-getSalesOrderById: (id) =>
-    axios.get(`${BASE_URL}/salesorder/${id}`),
+    getSalesOrderById: (id) =>
+        axios.get(`${BASE_URL}/salesorder/${id}`),
 
-createSalesOrder: (data) =>
-    axios.post(`${BASE_URL}/salesorder`, data),
+    createSalesOrder: (data) =>
+        axios.post(`${BASE_URL}/salesorder`, data),
 
-updateSalesOrder: (id, data) =>
-    axios.put(`${BASE_URL}/salesorder/${id}`, data),
+    updateSalesOrder: (id, data) =>
+        axios.put(`${BASE_URL}/salesorder/${id}`, data),
 
-deleteSalesOrder: (id) =>
-    axios.delete(`${BASE_URL}/salesorder/${id}`),
+    deleteSalesOrder: (id) =>
+        axios.delete(`${BASE_URL}/salesorder/${id}`),
 
-getSalesOrderStatistics: () =>
-    axios.get(`${BASE_URL}/salesorder/statistics`),
+    getSalesOrderStatistics: () =>
+        axios.get(`${BASE_URL}/salesorder/statistics`),
 
-searchSalesOrders: (searchText) =>
-    axios.get(`${BASE_URL}/salesorder/search`, {
-        params: { searchText }
-    }),
+    searchSalesOrders: (searchText) =>
+        axios.get(`${BASE_URL}/salesorder/search`, {
+            params: {
+                searchText
+            }
+        }),
+
+
+
+    // ==========================================================
+    // Purchase Orders
+    // ==========================================================
+
+    getPurchaseOrders: () =>
+        axios.get(`${BASE_URL}/purchaseorder`),
+
+    getPurchaseOrderById: (id) =>
+        axios.get(`${BASE_URL}/purchaseorder/${id}`),
+
+    createPurchaseOrder: (data) =>
+        axios.post(`${BASE_URL}/purchaseorder`, data),
+
+    updatePurchaseOrder: (id, data) =>
+        axios.put(`${BASE_URL}/purchaseorder/${id}`, data),
+
+    deletePurchaseOrder: (id) =>
+        axios.delete(`${BASE_URL}/purchaseorder/${id}`),
+
+    getPurchaseOrderStatistics: () =>
+        axios.get(`${BASE_URL}/purchaseorder/statistics`),
+
+    searchPurchaseOrders: (searchText) =>
+        axios.get(`${BASE_URL}/purchaseorder/search`, {
+            params: {
+                searchText
+            }
+        })
 
 };
+
+
 
 
 export default apiService;

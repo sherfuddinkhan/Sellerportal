@@ -1,0 +1,291 @@
+/* ==========================================================
+   Purchase Orders Container
+========================================================== */
+
+.purchase-orders-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    box-sizing: border-box;
+
+    background: #f8f9fb;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.purchase-order-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.purchase-order-stat-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+
+.purchase-order-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 10px 24px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.purchase-order-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.purchase-order-table {
+
+    overflow-x: auto;
+
+}
+
+
+
+.purchase-order-table table {
+
+    min-width: 1200px;
+
+}
+
+
+
+.purchase-order-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.purchase-order-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ==========================================================
+   Card View
+========================================================== */
+
+.purchase-order-card {
+
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    border-radius: 12px;
+
+    transition: all 0.25s ease;
+
+}
+
+
+
+.purchase-order-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 10px 24px rgba(0,0,0,0.12);
+
+}
+
+
+
+.purchase-order-card .MuiCardContent-root {
+
+    flex: 1;
+
+}
+
+
+
+.purchase-order-card .MuiCardActions-root {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.purchase-order-pagination {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-top: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Dialog
+========================================================== */
+
+.purchase-order-dialog .MuiDialogContent-root {
+
+    padding-top: 20px;
+
+}
+
+
+
+.purchase-order-dialog .MuiTextField-root {
+
+    margin-bottom: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Status Chips
+========================================================== */
+
+.purchase-order-status {
+
+    font-weight: 600;
+
+}
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width:900px) {
+
+
+    .purchase-order-toolbar,
+
+    .purchase-order-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .purchase-order-table table {
+
+        min-width: 900px;
+
+    }
+
+
+}
+
+
+
+@media (max-width:600px) {
+
+
+    .purchase-orders-container {
+
+        padding: 16px;
+
+    }
+
+
+
+    .purchase-order-table table {
+
+        min-width: 800px;
+
+    }
+
+
+
+    .purchase-order-card .MuiCardActions-root {
+
+        flex-direction: column;
+
+        gap: 8px;
+
+    }
+
+
+
+    .purchase-order-card .MuiButton-root {
+
+        width: 100%;
+
+    }
+
+
+}
