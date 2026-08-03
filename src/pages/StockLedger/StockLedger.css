@@ -1,0 +1,301 @@
+/* ==========================================================
+   Stock Ledger Container
+========================================================== */
+
+.stock-ledger-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    box-sizing: border-box;
+
+    background: #f8f9fb;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.stock-ledger-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.stock-ledger-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+.stock-ledger-stat-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.stock-ledger-stat-card:hover {
+
+    transform: translateY(-5px);
+
+    box-shadow:
+
+        0 8px 20px rgba(0,0,0,0.15);
+
+}
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.stock-ledger-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.stock-ledger-table {
+
+    width:100%;
+
+    overflow-x:auto;
+
+}
+
+
+
+.stock-ledger-table table {
+
+    min-width:1200px;
+
+}
+
+
+
+.stock-ledger-table th {
+
+    font-weight:700;
+
+    white-space:nowrap;
+
+}
+
+
+
+.stock-ledger-table td {
+
+    vertical-align:middle;
+
+}
+
+
+
+/* ==========================================================
+   Card View
+========================================================== */
+
+.stock-ledger-card {
+
+    transition:
+
+        transform 0.25s ease,
+
+        box-shadow 0.25s ease;
+
+}
+
+
+
+.stock-ledger-card:hover {
+
+    transform:translateY(-5px);
+
+    box-shadow:
+
+        0 10px 25px rgba(0,0,0,0.15);
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.stock-ledger-pagination {
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    gap:16px;
+
+    margin-top:24px;
+
+}
+
+
+
+/* ==========================================================
+   Dialog Forms
+========================================================== */
+
+.stock-ledger-dialog .MuiTextField-root {
+
+    margin-bottom:16px;
+
+}
+
+
+
+/* ==========================================================
+   Action Buttons
+========================================================== */
+
+.stock-ledger-actions {
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:8px;
+
+}
+
+
+
+/* ==========================================================
+   Empty State
+========================================================== */
+
+.stock-ledger-empty {
+
+    text-align:center;
+
+    padding:40px;
+
+    color:#777;
+
+}
+
+
+
+/* ==========================================================
+   Responsive Design
+========================================================== */
+
+
+@media(max-width:900px){
+
+
+
+    .stock-ledger-toolbar,
+
+    .stock-ledger-pagination {
+
+
+        flex-direction:column;
+
+
+        align-items:stretch;
+
+
+    }
+
+
+
+    .stock-ledger-table table {
+
+
+        min-width:1000px;
+
+
+    }
+
+
+}
+
+
+
+
+
+@media(max-width:600px){
+
+
+
+    .stock-ledger-container {
+
+
+        padding:16px;
+
+
+    }
+
+
+
+    .stock-ledger-card .MuiCardActions-root {
+
+
+        flex-direction:column;
+
+
+        align-items:stretch;
+
+
+    }
+
+
+
+
+    .stock-ledger-card button {
+
+
+        width:100%;
+
+
+    }
+
+
+}
