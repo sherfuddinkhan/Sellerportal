@@ -1,8 +1,11 @@
 import axios from "axios";
 
+
 const BASE_URL = "https://localhost:5001/api";
 
+
 const apiService = {
+
 
     // ==========================================================
     // Dashboard
@@ -23,6 +26,8 @@ const apiService = {
     getLowStockProducts: () =>
         axios.get(`${BASE_URL}/dashboard/low-stock-products`),
 
+
+
     // ==========================================================
     // Brands
     // ==========================================================
@@ -41,6 +46,8 @@ const apiService = {
 
     deleteBrand: (id) =>
         axios.delete(`${BASE_URL}/brand/${id}`),
+
+
 
     // ==========================================================
     // Categories
@@ -63,45 +70,15 @@ const apiService = {
 
     searchCategories: (searchText) =>
         axios.get(`${BASE_URL}/category/search`, {
-            params: { searchText }
+            params: {
+                searchText
+            }
         }),
-
-    getActiveCategories: () =>
-        axios.get(`${BASE_URL}/category/active`),
-
-    getInactiveCategories: () =>
-        axios.get(`${BASE_URL}/category/inactive`),
-
-    getParentCategories: () =>
-        axios.get(`${BASE_URL}/category/parents`),
 
     getCategoryStatistics: () =>
         axios.get(`${BASE_URL}/category/statistics`),
 
-    activateCategory: (id) =>
-        axios.put(`${BASE_URL}/category/${id}/activate`),
 
-    deactivateCategory: (id) =>
-        axios.put(`${BASE_URL}/category/${id}/deactivate`),
-
-    bulkDeleteCategories: (ids) =>
-        axios.post(`${BASE_URL}/category/bulk-delete`, ids),
-
-    exportCategories: () =>
-        axios.get(`${BASE_URL}/category/export`, {
-            responseType: "blob"
-        }),
-
-    importCategories: (formData) =>
-        axios.post(
-            `${BASE_URL}/category/import`,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                }
-            }
-        ),
 
     // ==========================================================
     // Product Types
@@ -122,139 +99,207 @@ const apiService = {
     deleteProductType: (id) =>
         axios.delete(`${BASE_URL}/producttype/${id}`),
 
-    getProductDropdownData: async () => {
-
-    const [
-
-        brands,
-
-        categories,
-
-        productTypes
-
-    ] = await Promise.all([
-
-        apiService.getBrands(),
-
-        apiService.getCategories(),
-
-        apiService.getProductTypes()
-
-    ]);
-
-    return {
-
-        brands: brands.data,
-
-        categories: categories.data,
-
-        productTypes: productTypes.data
-
-    };
-
-},
-// ==========================================================
-// Products
-// ==========================================================
-
-getProducts: () =>
-    axios.get(`${BASE_URL}/product`),
-
-getProductById: (id) =>
-    axios.get(`${BASE_URL}/product/${id}`),
-
-createProduct: (data) =>
-    axios.post(`${BASE_URL}/product`, data),
-
-updateProduct: (id, data) =>
-    axios.put(`${BASE_URL}/product/${id}`, data),
 
 
-// ==========================================================
-// Product Prices
-// ==========================================================
-
-getProductPrices: () =>
-    axios.get(`${BASE_URL}/productprice`),
-
-
-getProductPriceById: (id) =>
-    axios.get(`${BASE_URL}/productprice/${id}`),
-
-
-createProductPrice: (data) =>
-    axios.post(`${BASE_URL}/productprice`, data),
-
-
-updateProductPrice: (id, data) =>
-    axios.put(`${BASE_URL}/productprice/${id}`, data),
-
-
-deleteProductPrice: (id) =>
-    axios.delete(`${BASE_URL}/productprice/${id}`),
-
-
-getActiveProductPrices: () =>
-    axios.get(`${BASE_URL}/productprice/active`),
-
-
-getInactiveProductPrices: () =>
-    axios.get(`${BASE_URL}/productprice/inactive`),
-
-
-getProductPriceStatistics: () =>
-    axios.get(`${BASE_URL}/productprice/statistics`),
-
-
-searchProductPrices: (searchText) =>
-    axios.get(`${BASE_URL}/productprice/search`, {
-        params: {
-            searchText
-        }
-    }),
-
-
-exportProductPrices: () =>
-    axios.get(`${BASE_URL}/productprice/export`, {
-        responseType: "blob"
-    }),
-
-
-importProductPrices: (formData) =>
-    axios.post(
-        `${BASE_URL}/productprice/import`,
-        formData,
-        {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        }
-    ),
-    
     // ==========================================================
-// Product Inventory
-// ==========================================================
+    // Products
+    // ==========================================================
 
-getInventories: () =>
-    axios.get(`${BASE_URL}/inventory`),
+    getProducts: () =>
+        axios.get(`${BASE_URL}/product`),
 
-getInventoryById: (id) =>
-    axios.get(`${BASE_URL}/inventory/${id}`),
+    getProductById: (id) =>
+        axios.get(`${BASE_URL}/product/${id}`),
 
-createInventory: (data) =>
-    axios.post(`${BASE_URL}/inventory`, data),
+    createProduct: (data) =>
+        axios.post(`${BASE_URL}/product`, data),
 
-updateInventory: (id, data) =>
-    axios.put(`${BASE_URL}/inventory/${id}`, data),
+    updateProduct: (id, data) =>
+        axios.put(`${BASE_URL}/product/${id}`, data),
 
-deleteInventory: (id) =>
-    axios.delete(`${BASE_URL}/inventory/${id}`),
+    deleteProduct: (id) =>
+        axios.delete(`${BASE_URL}/product/${id}`),
 
-getLowStockInventory: () =>
-    axios.get(`${BASE_URL}/inventory/low-stock`),
 
-getInventoryStatistics: () =>
-    axios.get(`${BASE_URL}/inventory/statistics`)
+
+    // ==========================================================
+    // Product Prices
+    // ==========================================================
+
+    getProductPrices: () =>
+        axios.get(`${BASE_URL}/productprice`),
+
+    getProductPriceById: (id) =>
+        axios.get(`${BASE_URL}/productprice/${id}`),
+
+    createProductPrice: (data) =>
+        axios.post(`${BASE_URL}/productprice`, data),
+
+    updateProductPrice: (id, data) =>
+        axios.put(`${BASE_URL}/productprice/${id}`, data),
+
+    deleteProductPrice: (id) =>
+        axios.delete(`${BASE_URL}/productprice/${id}`),
+
+
+
+    // ==========================================================
+    // Inventory
+    // ==========================================================
+
+    getInventories: () =>
+        axios.get(`${BASE_URL}/inventory`),
+
+    getInventoryById: (id) =>
+        axios.get(`${BASE_URL}/inventory/${id}`),
+
+    createInventory: (data) =>
+        axios.post(`${BASE_URL}/inventory`, data),
+
+    updateInventory: (id, data) =>
+        axios.put(`${BASE_URL}/inventory/${id}`, data),
+
+    deleteInventory: (id) =>
+        axios.delete(`${BASE_URL}/inventory/${id}`),
+
+    getLowStockInventory: () =>
+        axios.get(`${BASE_URL}/inventory/low-stock`),
+
+    getInventoryStatistics: () =>
+        axios.get(`${BASE_URL}/inventory/statistics`),
+
+
+
+
+    // ==========================================================
+    // Customer Payments
+    // ==========================================================
+
+    getCustomerPayments: () =>
+        axios.get(`${BASE_URL}/customerpayment`),
+
+    getCustomerPaymentById: (id) =>
+        axios.get(`${BASE_URL}/customerpayment/${id}`),
+
+    createCustomerPayment: (data) =>
+        axios.post(`${BASE_URL}/customerpayment`, data),
+
+    updateCustomerPayment: (id, data) =>
+        axios.put(`${BASE_URL}/customerpayment/${id}`, data),
+
+    deleteCustomerPayment: (id) =>
+        axios.delete(`${BASE_URL}/customerpayment/${id}`),
+
+
+
+
+    // ==========================================================
+    // Customer Returns
+    // ==========================================================
+
+    getCustomerReturns: () =>
+        axios.get(`${BASE_URL}/customerreturn`),
+
+    getCustomerReturnById: (id) =>
+        axios.get(`${BASE_URL}/customerreturn/${id}`),
+
+    createCustomerReturn: (data) =>
+        axios.post(`${BASE_URL}/customerreturn`, data),
+
+    updateCustomerReturn: (id, data) =>
+        axios.put(`${BASE_URL}/customerreturn/${id}`, data),
+
+    deleteCustomerReturn: (id) =>
+        axios.delete(`${BASE_URL}/customerreturn/${id}`),
+
+
+
+
+    // ==========================================================
+    // Orders
+    // ==========================================================
+
+    getOrders: () =>
+        axios.get(`${BASE_URL}/order`),
+
+    getOrderById: (id) =>
+        axios.get(`${BASE_URL}/order/${id}`),
+
+    createOrder: (data) =>
+        axios.post(`${BASE_URL}/order`, data),
+
+    updateOrder: (id, data) =>
+        axios.put(`${BASE_URL}/order/${id}`, data),
+
+    deleteOrder: (id) =>
+        axios.delete(`${BASE_URL}/order/${id}`),
+
+
+
+
+    // ==========================================================
+    // Order Items
+    // ==========================================================
+
+    getOrderItems: () =>
+        axios.get(`${BASE_URL}/orderitem`),
+
+    getOrderItemById: (id) =>
+        axios.get(`${BASE_URL}/orderitem/${id}`),
+
+    createOrderItem: (data) =>
+        axios.post(`${BASE_URL}/orderitem`, data),
+
+    updateOrderItem: (id, data) =>
+        axios.put(`${BASE_URL}/orderitem/${id}`, data),
+
+    deleteOrderItem: (id) =>
+        axios.delete(`${BASE_URL}/orderitem/${id}`),
+
+
+
+
+    // ==========================================================
+    // Order Status History
+    // ==========================================================
+
+    getOrderStatusHistory: () =>
+        axios.get(`${BASE_URL}/orderstatushistory`),
+
+    getOrderStatusHistoryById: (id) =>
+        axios.get(`${BASE_URL}/orderstatushistory/${id}`),
+
+    createOrderStatusHistory: (data) =>
+        axios.post(`${BASE_URL}/orderstatushistory`, data),
+
+    updateOrderStatusHistory: (id, data) =>
+        axios.put(`${BASE_URL}/orderstatushistory/${id}`, data),
+
+    deleteOrderStatusHistory: (id) =>
+        axios.delete(`${BASE_URL}/orderstatushistory/${id}`),
+
+
+
+
+    // ==========================================================
+    // Shipments
+    // ==========================================================
+
+    getShipments: () =>
+        axios.get(`${BASE_URL}/shipment`),
+
+    getShipmentById: (id) =>
+        axios.get(`${BASE_URL}/shipment/${id}`),
+
+    createShipment: (data) =>
+        axios.post(`${BASE_URL}/shipment`, data),
+
+    updateShipment: (id, data) =>
+        axios.put(`${BASE_URL}/shipment/${id}`, data),
+
+    deleteShipment: (id) =>
+        axios.delete(`${BASE_URL}/shipment/${id}`)
+
 };
 
 

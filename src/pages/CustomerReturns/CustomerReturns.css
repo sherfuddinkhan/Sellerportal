@@ -1,0 +1,399 @@
+/* ==========================================================
+   Customer Returns Module
+========================================================== */
+
+
+.customer-returns-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+
+.customer-returns-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.customer-returns-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+
+.customer-returns-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+.customer-returns-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.customer-returns-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+
+
+/* ==========================================================
+   Search
+========================================================== */
+
+
+.customer-returns-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Table
+========================================================== */
+
+
+.customer-returns-table {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+
+.customer-returns-table table {
+
+    min-width: 1200px;
+
+}
+
+
+
+.customer-returns-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+
+.customer-returns-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Status Chip
+========================================================== */
+
+
+.customer-return-status-chip {
+
+    font-weight: 600;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Cards
+========================================================== */
+
+
+.customer-return-card {
+
+    height: 100%;
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.customer-return-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+.customer-return-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.customer-return-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+
+.customer-return-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+
+.customer-returns-pagination {
+
+    margin-top: 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Dialogs
+========================================================== */
+
+
+.customer-return-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+
+.customer-return-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+
+
+
+/* ==========================================================
+   View Details
+========================================================== */
+
+
+.customer-return-view-label {
+
+    font-size: 0.82rem;
+
+    color: #666;
+
+}
+
+
+
+.customer-return-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Amount Display
+========================================================== */
+
+
+.customer-return-amount {
+
+    font-weight: 600;
+
+}
+
+
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+
+@media(max-width:900px) {
+
+
+    .customer-returns-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .customer-returns-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .customer-returns-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .customer-returns-table table {
+
+        min-width: 900px;
+
+    }
+
+}
+
+
+
+
+
+@media(max-width:600px) {
+
+
+    .customer-returns-container {
+
+        padding: 16px;
+
+    }
+
+
+
+    .customer-returns-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .customer-return-card-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .customer-returns-table table {
+
+        min-width: 700px;
+
+    }
+
+}
