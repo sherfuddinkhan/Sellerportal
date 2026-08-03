@@ -1,0 +1,385 @@
+/* ==========================================================
+   Customer Payments Module
+========================================================== */
+
+.customer-payment-container {
+
+    padding: 24px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #f5f7fb;
+
+    min-height: 100vh;
+
+}
+
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.customer-payment-toolbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.customer-payment-toolbar-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+/* ==========================================================
+   Statistics Cards
+========================================================== */
+
+.customer-payment-statistics {
+
+    margin-bottom: 24px;
+
+}
+
+
+.customer-payment-stat-card {
+
+    border-radius: 12px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+.customer-payment-stat-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* ==========================================================
+   Search Section
+========================================================== */
+
+.customer-payment-search {
+
+    margin-bottom: 24px;
+
+}
+
+
+
+
+/* ==========================================================
+   Payment Table
+========================================================== */
+
+.customer-payment-table {
+
+    margin-top: 16px;
+
+    overflow-x: auto;
+
+}
+
+
+.customer-payment-table table {
+
+    min-width: 1100px;
+
+}
+
+
+.customer-payment-table th {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+.customer-payment-table td {
+
+    vertical-align: middle;
+
+}
+
+
+
+/* ==========================================================
+   Payment Cards
+========================================================== */
+
+.customer-payment-card {
+
+    border-radius: 12px;
+
+    height: 100%;
+
+    transition: all 0.3s ease;
+
+}
+
+
+.customer-payment-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.12);
+
+}
+
+
+.customer-payment-card-title {
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+}
+
+
+.customer-payment-card-row {
+
+    margin-bottom: 8px;
+
+    color: #555;
+
+}
+
+
+.customer-payment-card-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+}
+
+
+
+/* ==========================================================
+   Payment Mode Styles
+========================================================== */
+
+.payment-mode-chip {
+
+    font-weight: 600;
+
+}
+
+
+.cash-payment {
+
+    color: #2e7d32;
+
+}
+
+
+.bank-payment {
+
+    color: #1565c0;
+
+}
+
+
+.upi-payment {
+
+    color: #6a1b9a;
+
+}
+
+
+.card-payment {
+
+    color: #ef6c00;
+
+}
+
+
+.cheque-payment {
+
+    color: #455a64;
+
+}
+
+
+
+/* ==========================================================
+   Amount Display
+========================================================== */
+
+.payment-amount {
+
+    font-weight: 700;
+
+}
+
+
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.customer-payment-pagination {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 24px;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Dialog
+========================================================== */
+
+.customer-payment-dialog .MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+.customer-payment-dialog-title {
+
+    font-weight: 700;
+
+}
+
+
+.customer-payment-view-label {
+
+    color: #666;
+
+    font-size: 0.82rem;
+
+}
+
+
+.customer-payment-view-value {
+
+    font-weight: 500;
+
+    margin-bottom: 16px;
+
+}
+
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 900px) {
+
+
+    .customer-payment-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .customer-payment-toolbar-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .customer-payment-pagination {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+
+    .customer-payment-table table {
+
+        min-width: 900px;
+
+    }
+
+
+}
+
+
+
+@media (max-width: 600px) {
+
+
+    .customer-payment-container {
+
+        padding: 16px;
+
+    }
+
+
+
+    .customer-payment-toolbar-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .customer-payment-card-actions {
+
+        justify-content: center;
+
+    }
+
+
+
+    .customer-payment-table table {
+
+        min-width: 750px;
+
+    }
+
+
+}
