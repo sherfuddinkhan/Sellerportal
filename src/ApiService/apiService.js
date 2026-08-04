@@ -5,8 +5,6 @@ const BASE_URL = "https://localhost:5001/api";
 
 
 const apiService = {
-
-
     // ==========================================================
     // Dashboard
     // ==========================================================
@@ -621,6 +619,35 @@ getCurrentStockBalance: (productId, warehouseId) =>
             warehouseId
         }
     }),
+// ==========================================================
+// Delivery Challans
+// ==========================================================
+
+getDeliveryChallans: () =>
+    axios.get(`${BASE_URL}/deliverychallan`),
+
+getDeliveryChallanById: (id) =>
+    axios.get(`${BASE_URL}/deliverychallan/${id}`),
+
+createDeliveryChallan: (data) =>
+    axios.post(`${BASE_URL}/deliverychallan`, data),
+
+updateDeliveryChallan: (id, data) =>
+    axios.put(`${BASE_URL}/deliverychallan/${id}`, data),
+
+deleteDeliveryChallan: (id) =>
+    axios.delete(`${BASE_URL}/deliverychallan/${id}`),
+
+getDeliveryChallanStatistics: () =>
+    axios.get(`${BASE_URL}/deliverychallan/statistics`),
+
+searchDeliveryChallans: (searchText) =>
+    axios.get(`${BASE_URL}/deliverychallan/search`, {
+        params: {
+            searchText
+        }
+    }),
+
 
 };
 
