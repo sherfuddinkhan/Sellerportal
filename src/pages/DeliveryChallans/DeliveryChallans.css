@@ -1,0 +1,192 @@
+/* ==========================================================
+   Delivery Challans
+========================================================== */
+
+.delivery-challan-container {
+    padding: 24px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.delivery-challan-toolbar {
+    margin-bottom: 24px;
+}
+
+.delivery-challan-toolbar h5 {
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Statistics
+========================================================== */
+
+.delivery-challan-statistics {
+    margin-bottom: 24px;
+}
+
+.delivery-challan-stat-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.delivery-challan-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.delivery-challan-search {
+    margin-bottom: 20px;
+}
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.delivery-challan-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.delivery-challan-table table {
+    min-width: 1300px;
+}
+
+.delivery-challan-table thead {
+    background: #1976d2;
+}
+
+.delivery-challan-table thead th {
+    color: #ffffff;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.delivery-challan-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+.delivery-challan-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   Card View
+========================================================== */
+
+.delivery-challan-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.delivery-challan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.delivery-challan-pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+/* ==========================================================
+   Dialogs
+========================================================== */
+
+.MuiDialog-paper {
+    border-radius: 12px;
+}
+
+.MuiDialogTitle-root {
+    font-weight: 600;
+}
+
+.MuiDialogContent-root {
+    padding-top: 20px !important;
+}
+
+/* ==========================================================
+   Status Chips
+========================================================== */
+
+.MuiChip-root {
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Buttons
+========================================================== */
+
+.MuiButton-contained {
+    text-transform: none;
+    font-weight: 600;
+}
+
+.MuiButton-outlined {
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 992px) {
+
+    .delivery-challan-container {
+        padding: 16px;
+    }
+
+    .delivery-challan-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .delivery-challan-toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .delivery-challan-table table {
+        min-width: 1000px;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .delivery-challan-container {
+        padding: 12px;
+    }
+
+    .delivery-challan-table table {
+        min-width: 900px;
+    }
+
+    .delivery-challan-card {
+        margin-bottom: 16px;
+    }
+
+}
