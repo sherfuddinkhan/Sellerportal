@@ -1,17 +1,7 @@
 import React from "react";
 import apiService from "../../services/apiService";
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    IconButton,
-    Button,
-    Typography
-} from "@mui/material";
-
+import { Dialog,DialogTitle,DialogContent,DialogActions,IconButton,Button,Typography} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-
 const BrandModal = ({
     open,
     title,
@@ -23,16 +13,13 @@ const BrandModal = ({
     cancelText = "Cancel",
     showSave = true
 }) => {
-
     return (
-
         <Dialog
             open={open}
             onClose={onClose}
             fullWidth
             maxWidth={maxWidth}
         >
-
             <DialogTitle
                 sx={{
                     display: "flex",
@@ -40,7 +27,6 @@ const BrandModal = ({
                     alignItems: "center"
                 }}
             >
-
                 <Typography
                     variant="h6"
                     fontWeight="bold"
@@ -59,13 +45,9 @@ const BrandModal = ({
             <DialogContent
                 dividers
             >
-
                 {children}
-
             </DialogContent>
-
             <DialogActions>
-
                 <Button
                     variant="outlined"
                     color="inherit"
@@ -73,24 +55,17 @@ const BrandModal = ({
                 >
                     {cancelText}
                 </Button>
-
                 {showSave && (
-
                     <Button
                         variant="contained"
                         onClick={onSave}
                     >
                         {saveText}
                     </Button>
-
                 )}
-
             </DialogActions>
-
         </Dialog>
-
     );
-
 };
 
 export default BrandModal;

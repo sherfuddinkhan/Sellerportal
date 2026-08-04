@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
 import apiService from "../../services/apiService";
-import {
-    Box,
-    CircularProgress,
-    Alert
-} from "@mui/material";
-
-import apiService from "../../services/apiService";
-
+import {Box,CircularProgress, Alert} from "@mui/material";
+import apiService from "../../Apiservice/apiService";
 import BrandToolbar from "./BrandToolbar";
 import BrandStatistics from "./BrandStatistics";
 import BrandSearch from "./BrandSearch";
@@ -16,96 +10,54 @@ import BrandTable from "./BrandTable";
 import BrandPagination from "./BrandPagination";
 
 const BrandList = () => {
-
     const [brands, setBrands] = useState([]);
-
     const [filteredBrands, setFilteredBrands] = useState([]);
-
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState("");
-
     const [searchText, setSearchText] = useState("");
-
     const [statusFilter, setStatusFilter] = useState("All");
-    
     const [page, setPage] = useState(0);
-
     const [rowsPerPage, setRowsPerPage] = useState(10);
     useEffect(() => {
-
         loadBrands();
-
     }, []);
-
     const loadBrands = async () => {
-
         try {
-
             setLoading(true);
-
             const response = await apiService.getBrands();
-
             setBrands(response.data);
-
             setFilteredBrands(response.data);
-
             setError("");
-
         }
         catch (err) {
-
             console.error(err);
-
             setError("Unable to load brands.");
-
         }
         finally {
-
             setLoading(false);
-
         }
-
     };
-
     useEffect(() => {
-
     let result = [...brands];
-
     // Search Filter
     if (searchText.trim() !== "") {
-
         const search = searchText.toLowerCase();
-
         result = result.filter(x =>
-
             (x.brandName &&
                 x.brandName.toLowerCase().includes(search))
-
             ||
-
             (x.description &&
                 x.description.toLowerCase().includes(search))
-
         );
-
     }
-
     // Status Filter
     if (statusFilter !== "All") {
-
         const active = statusFilter === "Active";
-
         result = result.filter(x => x.isActive === active);
-
     }
-
     setFilteredBrands(result);
-
 }, [searchText, statusFilter, brands]);
-
     if (loading) {
-
         return (
             <Box
                 display="flex"
@@ -119,7 +71,6 @@ const BrandList = () => {
     }
 
     if (error) {
-
         return (
 
             <Alert severity="error">

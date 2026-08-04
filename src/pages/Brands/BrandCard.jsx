@@ -1,21 +1,7 @@
 import React from "react";
 import apiService from "../../services/apiService";
-import {
-    Card,
-    CardContent,
-    CardActions,
-    Typography,
-    Button,
-    Chip,
-    Stack,
-    Box
-} from "@mui/material";
-
-import {
-    Visibility,
-    Edit,
-    Delete
-} from "@mui/icons-material";
+import {Card,CardContent,CardActions,Typography,Button,Chip,Stack,Box} from "@mui/material";
+import {Visibility,Edit,Delete} from "@mui/icons-material";
 
 const BrandCard = ({
     brand,
@@ -25,7 +11,6 @@ const BrandCard = ({
 }) => {
 
     return (
-
         <Card
             elevation={4}
             sx={{
@@ -34,39 +19,31 @@ const BrandCard = ({
                 display: "flex",
                 flexDirection: "column",
                 transition: "0.3s",
-
                 "&:hover": {
                     boxShadow: 8,
                     transform: "translateY(-3px)"
                 }
             }}
         >
-
             <CardContent
                 sx={{
                     flexGrow: 1
                 }}
             >
-
                 <Typography
                     variant="h6"
                     fontWeight="bold"
                 >
-
                     {brand.brandName}
-
                 </Typography>
-
                 <Typography
                     variant="body2"
                     color="text.secondary"
                     mt={2}
                 >
-
                     {brand.description || "No Description"}
 
                 </Typography>
-
                 <Box mt={3}>
 
                     <Chip
@@ -81,22 +58,16 @@ const BrandCard = ({
                                 : "error"
                         }
                     />
-
                 </Box>
 
                 <Box mt={3}>
-
                     <Typography
                         variant="caption"
                         color="text.secondary"
                     >
-
                         Created
-
                     </Typography>
-
                     <Typography>
-
                         {
                             brand.createdDate
                                 ? new Date(
@@ -108,27 +79,19 @@ const BrandCard = ({
                     </Typography>
 
                 </Box>
-
             </CardContent>
-
             <CardActions>
-
                 <Stack
                     direction="row"
                     spacing={1}
                     width="100%"
                 >
-
                     <Button
 
                         fullWidth
-
                         startIcon={<Visibility />}
-
                         variant="outlined"
-
                         onClick={() => onView(brand)}
-
                     >
 
                         View
@@ -148,7 +111,6 @@ const BrandCard = ({
                         onClick={() => onEdit(brand)}
 
                     >
-
                         Edit
 
                     </Button>
