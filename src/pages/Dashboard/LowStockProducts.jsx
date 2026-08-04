@@ -24,7 +24,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-import apiService from "../../services/apiService";
+import apiService from "../../Apiservice/apiService";
 
 const LowStockProducts = () => {
 
