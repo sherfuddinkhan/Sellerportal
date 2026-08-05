@@ -2,16 +2,7 @@ import React from "react";
 import apiService from "../../services/apiService";
 import { Dialog,DialogTitle,DialogContent,DialogActions,IconButton,Button,Typography} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-const BrandModal = ({
-    open,
-    title,
-    children,
-    maxWidth = "md",
-    onClose,
-    onSave,
-    saveText = "Save",
-    cancelText = "Cancel",
-    showSave = true
+const BrandModal = ({open,title,children,maxWidth = "md",onClose,onSave,saveText = "Save",cancelText = "Cancel",showSave = true
 }) => {
     return (
         <Dialog

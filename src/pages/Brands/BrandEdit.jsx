@@ -1,66 +1,33 @@
 import React, { useEffect, useState } from "react";
 import apiService from "../../services/apiService";
-import {
-    Box,
-    Paper,
-    Typography,
-    CircularProgress,
-    Alert
-} from "@mui/material";
-
+import {Box,Paper,Typography,CircularProgress,Alert} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-
 import BrandForm from "./BrandForm";
-
 import apiService from "../../services/apiService";
-
 const BrandEdit = () => {
-
     const navigate = useNavigate();
-
     const { id } = useParams();
-
     const [brand, setBrand] = useState(null);
-
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState("");
-    
-
     useEffect(() => {
-
         loadBrand();
-
     }, []);
-
     const loadBrand = async () => {
-
         try {
-
             setLoading(true);
-
             const response = await apiService.getBrandById(id);
-
             setBrand(response.data);
-
         }
         catch (err) {
-
             console.error(err);
-
             setError("Unable to load Brand.");
-
         }
         finally {
-
             setLoading(false);
-
         }
-
     };
-
     const handleUpdate = async (values) => {
-
         try {
 
             await apiService.updateBrand(id, values);
