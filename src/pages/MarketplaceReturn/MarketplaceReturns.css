@@ -1,0 +1,189 @@
+/* ==========================================================
+   Marketplace Returns
+========================================================== */
+
+.marketplace-return-container {
+    padding: 24px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.marketplace-return-toolbar {
+    margin-bottom: 24px;
+}
+
+.marketplace-return-toolbar h5 {
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Statistics
+========================================================== */
+
+.marketplace-return-statistics {
+    margin-bottom: 24px;
+}
+
+.marketplace-return-stat-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.marketplace-return-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.marketplace-return-search {
+    margin-bottom: 20px;
+}
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.marketplace-return-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.marketplace-return-table table {
+    min-width: 1400px;
+}
+
+.marketplace-return-table thead {
+    background: #1976d2;
+}
+
+.marketplace-return-table thead th {
+    color: #ffffff;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.marketplace-return-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.marketplace-return-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   Cards
+========================================================== */
+
+.marketplace-return-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.marketplace-return-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.marketplace-return-pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+/* ==========================================================
+   Dialog
+========================================================== */
+
+.MuiDialog-paper {
+    border-radius: 12px;
+}
+
+.MuiDialogTitle-root {
+    font-weight: 600;
+}
+
+.MuiDialogContent-root {
+    padding-top: 20px !important;
+}
+
+/* ==========================================================
+   Buttons
+========================================================== */
+
+.MuiButton-contained,
+.MuiButton-outlined {
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Chips
+========================================================== */
+
+.MuiChip-root {
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 992px) {
+
+    .marketplace-return-container {
+        padding: 16px;
+    }
+
+    .marketplace-return-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .marketplace-return-toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .marketplace-return-table table {
+        min-width: 1100px;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .marketplace-return-container {
+        padding: 12px;
+    }
+
+    .marketplace-return-table table {
+        min-width: 950px;
+    }
+
+    .marketplace-return-card {
+        margin-bottom: 16px;
+    }
+
+}
