@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Grid,
-  CircularProgress,
-  Alert
-} from "@mui/material";
+import {Box,Grid,CircularProgress,Alert} from "@mui/material";
 
 import DashboardHeader from "./DashboardHeader";
-import StatisticsCards from "./StatisticsCards";
+import DashboardCards from "./DashboardCards";
 import RevenueChart from "./RevenueChart";
 import SalesChart from "./SalesChart";
+import InventoryChart from "./InventoryChart";
+import OrderChart from "./OrderChart";
+import StatisticalChart from "./StatisticalChart";
 import LatestOrders from "./LatestOrders";
 import RecentCustomers from "./RecentCustomers";
 import TopSellingProducts from "./TopSellingProducts";
 import LowStockProducts from "./LowStockProducts";
+import QuickActions from "./QuickActions";
+import DashboardSummary from "./DashboardSummary";
 
-import dashboardService from "../../services/dashboardService";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);

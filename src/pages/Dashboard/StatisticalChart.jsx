@@ -1,27 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-    Card,
-    CardContent,
-    Typography,
-    CircularProgress,
-    Alert,
-    Box,
-    ToggleButton,
-    ToggleButtonGroup
-} from "@mui/material";
+import {Card,CardContent,Typography,CircularProgress,Alert,Box,ToggleButton,ToggleButtonGroup} from "@mui/material";
 
-import {
-    ResponsiveContainer,
-    LineChart,
-    Line,
-    CartesianGrid,
-    XAxis,
-    YAxis,
-    Tooltip,
-    Legend
-} from "recharts";
+import {ResponsiveContainer, LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,Legend} from "recharts";
 
-import apiService from "../../services/apiService";
 
 const StatisticalChart = () => {
 

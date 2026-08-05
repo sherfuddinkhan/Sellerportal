@@ -1,29 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-    Card,
-    CardContent,
-    Typography,
-    CircularProgress,
-    Alert
-} from "@mui/material";
-
-import {
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    Legend
-} from "recharts";
-
-import apiService from "../../services/apiService";
-
-const COLORS = [
-    "#4CAF50",
-    "#FF9800",
-    "#F44336",
-    "#2196F3"
-];
+import {Card,CardContent,Typography,CircularProgress,Alert} from "@mui/material";
+import {ResponsiveContainer,PieChart,Pie,Cell,Tooltip,Legend} from "recharts";
+const COLORS = ["#4CAF50", "#FF9800", "#F44336","#2196F3"];
 
 const InventoryChart = () => {
 

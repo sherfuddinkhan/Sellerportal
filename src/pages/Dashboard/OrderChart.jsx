@@ -1,24 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-    Card,
-    CardContent,
-    Typography,
-    CircularProgress,
-    Alert
-} from "@mui/material";
-
-import {
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    CartesianGrid,
-    Legend
-} from "recharts";
-
-import apiService from "../../services/apiService";
+import {Card,CardContent,Typography,CircularProgress,Alert} from "@mui/material";
+import {ResponsiveContainer,BarChart,Bar,XAxis,YAxis,Tooltip,CartesianGrid,Legend} from "recharts";
 
 const OrderChart = () => {
 
