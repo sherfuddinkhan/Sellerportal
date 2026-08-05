@@ -1,0 +1,188 @@
+/* ==========================================================
+   Purchase Returns
+========================================================== */
+
+.purchase-return-container {
+    padding: 24px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.purchase-return-toolbar {
+    margin-bottom: 24px;
+}
+
+.purchase-return-toolbar h5 {
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Statistics
+========================================================== */
+
+.purchase-return-statistics {
+    margin-bottom: 24px;
+}
+
+.purchase-return-stat-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.purchase-return-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.purchase-return-search {
+    margin-bottom: 20px;
+}
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.purchase-return-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.purchase-return-table table {
+    min-width: 1400px;
+}
+
+.purchase-return-table thead {
+    background: #1976d2;
+}
+
+.purchase-return-table thead th {
+    color: #ffffff;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.purchase-return-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+.purchase-return-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   Card
+========================================================== */
+
+.purchase-return-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.purchase-return-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.purchase-return-pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+/* ==========================================================
+   Dialog
+========================================================== */
+
+.MuiDialog-paper {
+    border-radius: 12px;
+}
+
+.MuiDialogTitle-root {
+    font-weight: 600;
+}
+
+.MuiDialogContent-root {
+    padding-top: 20px !important;
+}
+
+/* ==========================================================
+   Buttons
+========================================================== */
+
+.MuiButton-contained,
+.MuiButton-outlined {
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Chips
+========================================================== */
+
+.MuiChip-root {
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 992px) {
+
+    .purchase-return-container {
+        padding: 16px;
+    }
+
+    .purchase-return-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .purchase-return-toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .purchase-return-table table {
+        min-width: 1100px;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .purchase-return-container {
+        padding: 12px;
+    }
+
+    .purchase-return-table table {
+        min-width: 950px;
+    }
+
+    .purchase-return-card {
+        margin-bottom: 16px;
+    }
+
+}
