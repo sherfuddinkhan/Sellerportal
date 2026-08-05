@@ -646,11 +646,27 @@ searchDeliveryChallans: (searchText) =>
         params: {
             searchText
         }
-    }),
+    }
+
+),
 
 
 };
 
+const getMarketplaceOrderItems = () =>
+    axiosInstance.get("/MarketplaceOrderItems");
+
+const getMarketplaceOrderItem = (id) =>
+    axiosInstance.get(`/MarketplaceOrderItems/${id}`);
+
+const createMarketplaceOrderItem = (data) =>
+    axiosInstance.post("/MarketplaceOrderItems", data);
+
+const updateMarketplaceOrderItem = (id, data) =>
+    axiosInstance.put(`/MarketplaceOrderItems/${id}`, data);
+
+const deleteMarketplaceOrderItem = (id) =>
+    axiosInstance.delete(`/MarketplaceOrderItems/${id}`);
 
 
 
