@@ -1,0 +1,189 @@
+/* ==========================================================
+   Marketplace Order Items
+========================================================== */
+
+.marketplace-order-item-container {
+    padding: 24px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+/* ==========================================================
+   Toolbar
+========================================================== */
+
+.marketplace-order-item-toolbar {
+    margin-bottom: 24px;
+}
+
+.marketplace-order-item-toolbar h5 {
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Statistics
+========================================================== */
+
+.marketplace-order-item-statistics {
+    margin-bottom: 24px;
+}
+
+.marketplace-order-item-stat-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.marketplace-order-item-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================
+   Search
+========================================================== */
+
+.marketplace-order-item-search {
+    margin-bottom: 20px;
+}
+
+/* ==========================================================
+   Table
+========================================================== */
+
+.marketplace-order-item-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.marketplace-order-item-table table {
+    min-width: 1800px;
+}
+
+.marketplace-order-item-table thead {
+    background: #1976d2;
+}
+
+.marketplace-order-item-table thead th {
+    color: #ffffff;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.marketplace-order-item-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.marketplace-order-item-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   Cards
+========================================================== */
+
+.marketplace-order-item-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.marketplace-order-item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================
+   Pagination
+========================================================== */
+
+.marketplace-order-item-pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+/* ==========================================================
+   Dialog
+========================================================== */
+
+.MuiDialog-paper {
+    border-radius: 12px;
+}
+
+.MuiDialogTitle-root {
+    font-weight: 600;
+}
+
+.MuiDialogContent-root {
+    padding-top: 20px !important;
+}
+
+/* ==========================================================
+   Buttons
+========================================================== */
+
+.MuiButton-contained,
+.MuiButton-outlined {
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Chips
+========================================================== */
+
+.MuiChip-root {
+    font-weight: 600;
+}
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 992px) {
+
+    .marketplace-order-item-container {
+        padding: 16px;
+    }
+
+    .marketplace-order-item-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .marketplace-order-item-toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .marketplace-order-item-table table {
+        min-width: 1500px;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .marketplace-order-item-container {
+        padding: 12px;
+    }
+
+    .marketplace-order-item-table table {
+        min-width: 1300px;
+    }
+
+    .marketplace-order-item-card {
+        margin-bottom: 16px;
+    }
+
+}
