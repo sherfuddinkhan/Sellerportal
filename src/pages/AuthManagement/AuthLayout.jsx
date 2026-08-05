@@ -1,61 +1,30 @@
 import React from "react";
-
-import {
-    Box,
-    Container,
-    Paper,
-    Typography
-} from "@mui/material";
-
-import {
-    Storefront
-} from "@mui/icons-material";
-
+import {Box,Container,Paper,Typography} from "@mui/material";
+import {Storefront} from "@mui/icons-material";
 import "./AuthManagement.css";
-
-const AuthLayout = ({
-
-    title = "Seller Portal",
-
-    subtitle = "",
-
-    children,
-
-    maxWidth = "sm"
-
-}) => {
-
+const AuthLayout = ({title = "Seller Portal",subtitle = "",children,maxWidth = "sm"}) => {
     return (
-
         <Box className="auth-layout">
-
             {/* Background Overlay */}
-
             <Box className="auth-overlay">
-
                 <Container
                     maxWidth={maxWidth}
                 >
-
                     <Box
                         display="flex"
                         justifyContent="center"
                         alignItems="center"
                         minHeight="100vh"
                     >
-
                         <Paper
                             elevation={8}
                             className="auth-paper"
                         >
-
                             {/* Header */}
-
                             <Box
                                 textAlign="center"
                                 mb={4}
                             >
-
                                 <Storefront
                                     color="primary"
                                     sx={{
@@ -63,26 +32,19 @@ const AuthLayout = ({
                                         mb: 1
                                     }}
                                 />
-
                                 <Typography
                                     variant="h4"
                                     fontWeight="bold"
                                     gutterBottom
                                 >
-
                                     {title}
-
                                 </Typography>
-
                                 {
-
                                     subtitle &&
-
                                     <Typography
                                         variant="body1"
                                         color="text.secondary"
                                     >
-
                                         {subtitle}
 
                                     </Typography>

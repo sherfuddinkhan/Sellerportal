@@ -1,53 +1,16 @@
 import React, { useState } from "react";
-
-import {
-    Alert,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    CircularProgress,
-    IconButton,
-    InputAdornment,
-    Stack,
-    TextField,
-    Typography
-} from "@mui/material";
-
-import {
-    Lock,
-    Visibility,
-    VisibilityOff
-} from "@mui/icons-material";
-
+import {Alert,Box,Button,Card,CardContent,CircularProgress,IconButton,InputAdornment,Stack,TextField,Typography} from "@mui/material";
+import {Lock,Visibility,VisibilityOff} from "@mui/icons-material";
 import authService from "./authService";
-
 import "./AuthManagement.css";
-
 const ChangePassword = () => {
-
     const [loading, setLoading] = useState(false);
-
     const [error, setError] = useState("");
-
     const [success, setSuccess] = useState("");
-
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-
     const [showNewPassword, setShowNewPassword] = useState(false);
-
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    const [formData, setFormData] = useState({
-
-        currentPassword: "",
-
-        newPassword: "",
-
-        confirmPassword: ""
-
-    });
-
+    const [formData, setFormData] = useState({currentPassword: "",newPassword: "",confirmPassword: ""});
     //=========================================
     // Handle Change
     //=========================================

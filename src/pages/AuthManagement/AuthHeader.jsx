@@ -1,34 +1,9 @@
 import React from "react";
-
-import {
-    AppBar,
-    Avatar,
-    Box,
-    Stack,
-    Toolbar,
-    Typography
-} from "@mui/material";
-
-import {
-    Storefront
-} from "@mui/icons-material";
-
+import {AppBar,Avatar,Box,Stack,Toolbar,Typography} from "@mui/material";
+import {Storefront} from "@mui/icons-material";
 import "./AuthManagement.css";
-
-const AuthHeader = ({
-
-    title = "Seller Portal",
-
-    subtitle = "Authentication Management",
-
-    logo,
-
-    showLogo = true
-
-}) => {
-
+const AuthHeader = ({title = "Seller Portal",subtitle = "Authentication Management",logo,showLogo = true}) => {
     return (
-
         <AppBar
             position="static"
             elevation={0}
@@ -38,39 +13,27 @@ const AuthHeader = ({
                 boxShadow: "none"
             }}
         >
-
             <Toolbar
                 sx={{
                     justifyContent: "center",
                     py: 2
                 }}
             >
-
                 <Stack
                     direction="row"
                     spacing={2}
                     alignItems="center"
                 >
-
                     {
 
-                        showLogo && (
-
-                            logo
-
-                                ?
-
-                                <Avatar
-                                    src={logo}
-                                    alt="Logo"
+                        showLogo && ( logo ?
+                    <Avatar src={logo} alt="Logo"
                                     sx={{
                                         width: 60,
                                         height: 60
                                     }}
                                 />
-
                                 :
-
                                 <Avatar
                                     sx={{
                                         width: 60,
@@ -78,7 +41,6 @@ const AuthHeader = ({
                                         bgcolor: "primary.main"
                                     }}
                                 >
-
                                     <Storefront
                                         fontSize="large"
                                     />

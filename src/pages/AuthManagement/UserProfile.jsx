@@ -1,33 +1,8 @@
 import React, { useEffect, useState } from "react";
-
-import {
-    Alert,
-    Avatar,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Chip,
-    CircularProgress,
-    Divider,
-    Grid,
-    Stack,
-    Typography
-} from "@mui/material";
-
-import {
-    AccountCircle,
-    Badge,
-    CalendarMonth,
-    Email,
-    Person,
-    Phone,
-    Refresh,
-    VerifiedUser
-} from "@mui/icons-material";
-
+import {Box,Button,Card,CardContent,Checkbox,CircularProgress,FormControlLabel,IconButton,InputAdornment,Link,TextField,Typography,Alert,Stack} from "@mui/material";
+import {Visibility,VisibilityOff,LockOutlined} from "@mui/icons-material";
+import {AccountCircle,Badge,CalendarMonth,Email,Person,Phone,Refresh,VerifiedUser} from "@mui/icons-material";
 import authService from "./authService";
-
 import "./AuthManagement.css";
 
 const UserProfile = () => {

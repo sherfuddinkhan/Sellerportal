@@ -1,101 +1,42 @@
 import React, { useState } from "react";
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Checkbox,
-    CircularProgress,
-    FormControlLabel,
-    IconButton,
-    InputAdornment,
-    Link,
-    TextField,
-    Typography,
-    Alert,
-    Stack
-} from "@mui/material";
-
-import {
-    Visibility,
-    VisibilityOff,
-    LockOutlined
-} from "@mui/icons-material";
-
+import {Box,Button,Card,CardContent,Checkbox,CircularProgress,FormControlLabel,IconButton,InputAdornment,Link,TextField,Typography,Alert,Stack} from "@mui/material";
+import {Visibility,VisibilityOff,LockOutlined} from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import "./AuthManagement.css";
 
 const Login = () => {
-
     const navigate = useNavigate();
     const { login } = useAuth();
-
-    const [formData, setFormData] = useState({
-
-        email: "",
-
-        password: "",
-
-        rememberMe: false
-
-    });
-
+    const [formData, setFormData] = useState({email: "",password: "",rememberMe: false});
     const [showPassword, setShowPassword] = useState(false);
-
     const [loading, setLoading] = useState(false);
-
     const [error, setError] = useState("");
-
     //===========================================
     // Handle Input Change
     //===========================================
 
     const handleChange = (e) => {
-
         const { name, value, checked, type } = e.target;
-
         setFormData(prev => ({
-
             ...prev,
-
             [name]: type === "checkbox" ? checked : value
-
         }));
-
     };
 
     //===========================================
     // Login
     //===========================================
-
     const handleSubmit = async (e) => {
-
         e.preventDefault();
-
         setLoading(true);
-
         setError("");
-
         try {
-
-            await login({
-
-                email: formData.email,
-
-                password: formData.password,
-
-                rememberMe: formData.rememberMe
-
-            });
-
+            await login({email: formData.email,password: formData.password,rememberMe: formData.rememberMe});
             navigate("/dashboard");
-
         }
         catch (err) {
-
             setError(
-
                 err?.response?.data?.message ||
 
                 "Invalid username or password."

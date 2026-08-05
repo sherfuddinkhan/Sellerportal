@@ -1,25 +1,9 @@
 import React, { useState } from "react";
 
-import {
-    Alert,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    CircularProgress,
-    IconButton,
-    InputAdornment,
-    Link,
-    Stack,
-    TextField,
-    Typography
-} from "@mui/material";
+import {Box,Button,Card,CardContent,Checkbox,CircularProgress,FormControlLabel,IconButton,InputAdornment,Link,TextField,Typography,Alert,Stack} from "@mui/material";
+import {Visibility,VisibilityOff,LockOutlined} from "@mui/icons-material";
 
-import {
-    PersonAdd,
-    Visibility,
-    VisibilityOff
-} from "@mui/icons-material";
+import {PersonAdd,Visibility,VisibilityOff} from "@mui/icons-material";
 
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 

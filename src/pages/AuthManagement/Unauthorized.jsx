@@ -1,47 +1,22 @@
 import React from "react";
 
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Typography
-} from "@mui/material";
-
-import {
-    Block,
-    Home,
-    ArrowBack
-} from "@mui/icons-material";
-
-import {
-    useNavigate
-} from "react-router-dom";
-
+import {Box,Button,Card,CardContent,Typography} from "@mui/material";
+import {Block,Home,ArrowBack} from "@mui/icons-material";
+import {useNavigate} from "react-router-dom";
 import "./AuthManagement.css";
-
 const Unauthorized = () => {
-
     const navigate = useNavigate();
-
     //=========================================
     // Navigation
     //=========================================
-
     const handleGoHome = () => {
-
         navigate("/dashboard");
-
     };
 
     const handleGoBack = () => {
-
         navigate(-1);
-
     };
-
     return (
-
         <Box className="auth-container">
 
             <Card

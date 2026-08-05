@@ -1,27 +1,8 @@
 import React from "react";
 
-import {
-    Avatar,
-    Box,
-    Card,
-    CardContent,
-    Chip,
-    Divider,
-    Grid,
-    Stack,
-    Typography
-} from "@mui/material";
+import {Avatar,Box,Card,CardContent,Chip,Divider,Grid,Stack,Typography} from "@mui/material";
 
-import {
-    AccountCircle,
-    Badge,
-    Business,
-    CalendarMonth,
-    Email,
-    Person,
-    Phone,
-    VerifiedUser
-} from "@mui/icons-material";
+import {AccountCircle,Badge,Business,CalendarMonth,Email,Person,Phone,VerifiedUser} from "@mui/icons-material";
 
 const UserProfileCard = ({
 
@@ -63,13 +44,9 @@ const UserProfileCard = ({
                             fullName
 
                                 ?
-
                                 fullName.charAt(0).toUpperCase()
-
                                 :
-
                                 <AccountCircle />
-
                         }
 
                     </Avatar>
