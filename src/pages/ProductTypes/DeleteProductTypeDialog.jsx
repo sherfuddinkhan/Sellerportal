@@ -1,20 +1,6 @@
 import React, { useState } from "react";
-
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-    Button,
-    Typography,
-    Alert,
-    CircularProgress
-} from "@mui/material";
-
+import {Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions,Button,Typography,Alert,CircularProgress} from "@mui/material";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-
-import apiService from "../../services/apiService";
 
 const DeleteProductTypeDialog = ({
     open,

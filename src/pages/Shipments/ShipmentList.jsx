@@ -1,17 +1,5 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-
-import {
-    Box
-} from "@mui/material";
-
-
-import apiService from "../../services/apiService";
-
-
+import React, {useEffect,useState} from "react";
+import {Box} from "@mui/material";
 import ShipmentToolbar from "./ShipmentToolbar";
 import ShipmentStatistics from "./ShipmentStatistics";
 import ShipmentSearch from "./ShipmentSearch";
@@ -21,16 +9,10 @@ import ShipmentModal from "./ShipmentModal";
 import ShipmentView from "./ShipmentView";
 import DeleteShipmentDialog from "./DeleteShipmentDialog";
 
-
-
 const ShipmentList = () => {
-
-
-
     // ==========================================
     // State
     // ==========================================
-
 
     const [
 

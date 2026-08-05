@@ -1,17 +1,5 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-
-import {
-    Box
-} from "@mui/material";
-
-
-import apiService from "../../services/apiService";
-
-
+import React, {useEffect,useState} from "react";
+import {Box} from "@mui/material";
 import CustomerPaymentToolbar from "./CustomerPaymentToolbar";
 import CustomerPaymentStatistics from "./CustomerPaymentStatistics";
 import CustomerPaymentSearch from "./CustomerPaymentSearch";
@@ -21,16 +9,11 @@ import CustomerPaymentModal from "./CustomerPaymentModal";
 import CustomerPaymentView from "./CustomerPaymentView";
 import DeleteCustomerPaymentDialog from "./DeleteCustomerPaymentDialog";
 
-
-
 const CustomerPaymentList = () => {
-
-
 
     // ==========================================
     // State
     // ==========================================
-
 
     const [
 

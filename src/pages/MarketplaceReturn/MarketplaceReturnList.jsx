@@ -1,41 +1,14 @@
-import React, {
-    useEffect,
-    useMemo,
-    useState
-} from "react";
+import React, {useEffect,useMemo,useState} from "react";
 
-import {
-    Box,
-    CircularProgress,
-    Alert,
-    Snackbar
-} from "@mui/material";
-
-import apiService from "../../services/apiService";
-
-import MarketplaceReturnToolbar
-    from "./MarketplaceReturnToolbar";
-
-import MarketplaceReturnStatistics
-    from "./MarketplaceReturnStatistics";
-
-import MarketplaceReturnSearch
-    from "./MarketplaceReturnSearch";
-
-import MarketplaceReturnTable
-    from "./MarketplaceReturnTable";
-
-import MarketplaceReturnPagination
-    from "./MarketplaceReturnPagination";
-
-import MarketplaceReturnModal
-    from "./MarketplaceReturnModal";
-
-import MarketplaceReturnView
-    from "./MarketplaceReturnView";
-
-import DeleteMarketplaceReturnDialog
-    from "./DeleteMarketplaceReturnDialog";
+import {Box,CircularProgress,Alert,Snackbar} from "@mui/material";
+import MarketplaceReturnToolbar from "./MarketplaceReturnToolbar";
+import MarketplaceReturnStatistics from "./MarketplaceReturnStatistics";
+import MarketplaceReturnSearch from "./MarketplaceReturnSearch";
+import MarketplaceReturnTable from "./MarketplaceReturnTable";
+import MarketplaceReturnPagination from "./MarketplaceReturnPagination";
+import MarketplaceReturnModal from "./MarketplaceReturnModal";
+import MarketplaceReturnView from "./MarketplaceReturnView";
+import DeleteMarketplaceReturnDialog from "./DeleteMarketplaceReturnDialog";
 
 const MarketplaceReturnList = () => {
 
