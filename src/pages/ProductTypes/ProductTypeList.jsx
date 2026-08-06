@@ -1,12 +1,5 @@
-import React, { useEffect, useState } from "react";
-
-import {
-    Box,
-    Grid,
-    Paper
-} from "@mui/material";
-
-import { useNavigate } from "react-router-dom";
+import React, {useEffect,useMemo,useState} from "react";
+import { Box,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
 
 import ProductTypeToolbar from "./ProductTypeToolbar";
 import ProductTypeStatistics from "./ProductTypeStatistics";
@@ -17,7 +10,7 @@ import ProductTypePagination from "./ProductTypePagination";
 import ProductTypeModal from "./ProductTypeModal";
 import DeleteProductTypeDialog from "./DeleteProductTypeDialog";
 
-import apiService from "../../services/apiService";
+
 
 const ProductTypeList = () => {
 

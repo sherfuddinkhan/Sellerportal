@@ -1,10 +1,5 @@
-import React, { useEffect, useState } from "react";
-
-import {
-    Box,
-    Grid,
-    Paper
-} from "@mui/material";
+import React, {useEffect,useMemo,useState} from "react";
+import {Box,Grid,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
 
 import CategoryToolbar from "./CategoryToolbar";
 import CategoryStatistics from "./CategoryStatistics";
@@ -14,9 +9,6 @@ import CategoryTable from "./CategoryTable";
 import CategoryPagination from "./CategoryPagination";
 import DeleteCategoryDialog from "./DeleteCategoryDialog";
 import CategoryModal from "./CategoryModal";
-
-import apiService from "../../services/apiService";
-
 const CategoryList = () => {
 
     const [categories, setCategories] = useState([]);

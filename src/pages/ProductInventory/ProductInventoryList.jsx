@@ -1,311 +1,70 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-import {
-    Box
-} from "@mui/material";
-
-
-import apiService from "../../services/apiService";
-
-
+import React, {useEffect,useMemo,useState} from "react";
+import {Box,Grid,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
 import ProductInventoryToolbar from "./ProductInventoryToolbar";
-
 import ProductInventoryStatistics from "./ProductInventoryStatistics";
-
 import ProductInventorySearch from "./ProductInventorySearch";
-
 import ProductInventoryFilters from "./ProductInventoryFilters";
-
 import ProductInventoryTable from "./ProductInventoryTable";
-
 import ProductInventoryPagination from "./ProductInventoryPagination";
-
 import ProductInventoryModal from "./ProductInventoryModal";
-
 import ProductInventoryView from "./ProductInventoryView";
-
 import DeleteProductInventoryDialog from "./DeleteProductInventoryDialog";
 
 
 
 const ProductInventoryList = () => {
 
-
-
     // ===========================
     // State
     // ===========================
-
-
-
-    const [
-
-        inventories,
-
-        setInventories
-
-    ] = useState([]);
-
-
-
-
-    const [
-
-        filteredInventories,
-
-        setFilteredInventories
-
-    ] = useState([]);
-
-
-
-
-    const [
-
-        loading,
-
-        setLoading
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        searchText,
-
-        setSearchText
-
-    ] = useState("");
-
-
-
-
-    const [
-
-        stockStatusFilter,
-
-        setStockStatusFilter
-
-    ] = useState("");
-
-
-
-
-    const [
-
-        warehouseFilter,
-
-        setWarehouseFilter
-
-    ] = useState("");
-
-
-
-
-    const [
-
-        statusFilter,
-
-        setStatusFilter
-
-    ] = useState("All");
-
-
-
-
-    const [
-
-        quantityFilter,
-
-        setQuantityFilter
-
-    ] = useState("");
-
-
-
-
-    const [
-
-        selectedInventory,
-
-        setSelectedInventory
-
-    ] = useState(null);
-
-
-
-
-    const [
-
-        modalOpen,
-
-        setModalOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        viewOpen,
-
-        setViewOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        deleteOpen,
-
-        setDeleteOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        page,
-
-        setPage
-
-    ] = useState(1);
-
-
-
-
-    const [
-
-        pageSize,
-
-        setPageSize
-
-    ] = useState(10);
-
-
-
-
+    const [inventories,setInventories] = useState([]);
+    const [filteredInventories,setFilteredInventories] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [searchText,setSearchText] = useState("");
+    const [stockStatusFilter,setStockStatusFilter] = useState("");
+    const [warehouseFilter,setWarehouseFilter] = useState("");
+    const [statusFilter,setStatusFilter] = useState("All");
+    const [quantityFilter,setQuantityFilter] = useState("");
+    const [selectedInventory, setSelectedInventory] = useState(null);
+    const [modalOpen,setModalOpen] = useState(false);
+    const [viewOpen,setViewOpen] = useState(false);
+    const [deleteOpen,setDeleteOpen] = useState(false);
+    const [page,setPage] = useState(1);
+    const [pageSize,setPageSize] = useState(10);
 
     // ===========================
     // Load Inventory
     // ===========================
 
-
-
     const loadInventories = async () => {
-
-
         try {
-
-
             setLoading(true);
-
-
-
-            const response =
-
-                await apiService.getInventories();
-
-
-
-
-            setInventories(
-
-                response.data
-
-            );
-
-
-
-            setFilteredInventories(
-
-                response.data
-
-            );
-
-
-
+            const response = await apiService.getInventories();
+            setInventories(response.data);
+            setFilteredInventories(response.data);
         }
-
         catch(err) {
-
-
             console.log(err);
-
-
         }
-
         finally {
-
-
             setLoading(false);
-
-
         }
-
-
     };
-
-
-
-
-
     useEffect(()=>{
-
-
         loadInventories();
-
-
     },[]);
-
-
-
-
-
-
 
     // ===========================
     // Search & Filters
     // ===========================
 
-
-
     useEffect(()=>{
-
-
         let result = [
-
             ...inventories
-
         ];
-
-
-
         if(searchText.trim() !== ""){
-
-
-            const search =
-
-                searchText.toLowerCase();
-
-
-
-            result =
-
-                result.filter(item =>
-
-
-
+            const search = searchText.toLowerCase();
+            result = result.filter(item =>
                     String(
                         item.ProductId
                     )
@@ -328,131 +87,33 @@ const ProductInventoryList = () => {
                         item.WarehouseId
                     )
                     .includes(search)
-
-
-
                     ||
-
                     item.StockStatus
-
                         ?.toLowerCase()
-
                         .includes(search)
-
-
-
                 );
-
-
         }
-
-
-
-
-
         if(statusFilter !== "All"){
-
-
-            result =
-
-                result.filter(item =>
-
-
-                    statusFilter === "Active"
-
-                    ?
-
-                    item.IsActive
-
-                    :
-
-                    !item.IsActive
-
-
-                );
-
-
+            result = result.filter(item => statusFilter === "Active" ? item.IsActive :!item.IsActive);
         }
-
-
-
-
-
         if(stockStatusFilter !== ""){
-
-
-            result =
-
-                result.filter(item =>
-
-
-                    item.StockStatus ===
-
-                    stockStatusFilter
-
-
-                );
-
-
+            result = result.filter(item => item.StockStatus === stockStatusFilter);
         }
-
-
-
-
-
         if(warehouseFilter !== ""){
-
-
-            result =
-
-                result.filter(item =>
-
-
-                    String(
-                        item.WarehouseId
-                    )
-
+            result = result.filter(item =>
+                    String(item.WarehouseId)
                     ===
-
-                    String(
-                        warehouseFilter
-                    )
-
-
+                    String(warehouseFilter)
                 );
-
-
         }
-
-
-
-
-
         if(quantityFilter !== ""){
-
-
-            result =
-
-                result.filter(item=>{
-
-
+            result = result.filter(item=>{
                     const available =
-
                         Number(
-
                             item.AvailableQuantity || 0
-
                         );
-
-
-
                     const reorder =
-
-                        Number(
-
-                            item.ReorderLevel || 0
-
-                        );
+                        Number(item.ReorderLevel || 0);
 
 
 

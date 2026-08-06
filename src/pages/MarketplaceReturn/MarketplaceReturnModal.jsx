@@ -1,81 +1,31 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, {useEffect,useState} from "react";
+import {Dialog,DialogTitle, DialogContent,DialogActions,Grid,TextField,Button,MenuItem} from "@mui/material";
 
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Grid,
-    TextField,
-    Button,
-    MenuItem
-} from "@mui/material";
-
-const MarketplaceReturnModal = ({
-    open,
-    onClose,
-    onSave,
-    marketplaceReturn
+const MarketplaceReturnModal = ({open,onClose,onSave,marketplaceReturn
 }) => {
 
     const initialState = {
-
         MarketplaceReturnId: 0,
-
         MarketplaceOrderItemId: "",
-
         ReturnNumber: "",
-
         ReturnReason: "",
-
         ReturnStatus: "Pending",
-
         QuantityReturned: "",
-
         RefundAmount: "",
-
         ReturnDate: ""
-
     };
-
-    const [formData,
-        setFormData] = useState(initialState);
-
+    const [formData,setFormData] = useState(initialState);
     useEffect(() => {
-
         if (marketplaceReturn) {
-
             setFormData({
-
-                MarketplaceReturnId:
-                    marketplaceReturn.MarketplaceReturnId || 0,
-
-                MarketplaceOrderItemId:
-                    marketplaceReturn.MarketplaceOrderItemId || "",
-
-                ReturnNumber:
-                    marketplaceReturn.ReturnNumber || "",
-
-                ReturnReason:
-                    marketplaceReturn.ReturnReason || "",
-
-                ReturnStatus:
-                    marketplaceReturn.ReturnStatus || "Pending",
-
-                QuantityReturned:
-                    marketplaceReturn.QuantityReturned || "",
-
-                RefundAmount:
-                    marketplaceReturn.RefundAmount || "",
-
-                ReturnDate:
-                    marketplaceReturn.ReturnDate
-                        ? marketplaceReturn.ReturnDate.substring(0, 10)
-                        : ""
-
+                MarketplaceReturnId:marketplaceReturn.MarketplaceReturnId || 0,
+                MarketplaceOrderItemId: marketplaceReturn.MarketplaceOrderItemId || "",
+                ReturnNumber: marketplaceReturn.ReturnNumber || "",
+                ReturnReason: marketplaceReturn.ReturnReason || "",
+                ReturnStatus: marketplaceReturn.ReturnStatus || "Pending",
+                QuantityReturned:marketplaceReturn.QuantityReturned || "",
+                RefundAmount:marketplaceReturn.RefundAmount || "",
+                ReturnDate:marketplaceReturn.ReturnDate? marketplaceReturn.ReturnDate.substring(0, 10): ""
             });
 
         }
@@ -89,43 +39,23 @@ const MarketplaceReturnModal = ({
 
     const handleChange = (e) => {
 
-        const {
-
-            name,
-
-            value
-
-        } = e.target;
+        const {name,value} = e.target;
 
         setFormData(prev => ({
-
             ...prev,
-
             [name]: value
-
         }));
 
     };
 
     const handleSubmit = (e) => {
-
         e.preventDefault();
-
         onSave({
-
             ...formData,
-
-            MarketplaceOrderItemId:
-                Number(formData.MarketplaceOrderItemId),
-
-            QuantityReturned:
-                Number(formData.QuantityReturned),
-
-            RefundAmount:
-                Number(formData.RefundAmount)
-
+            MarketplaceOrderItemId:Number(formData.MarketplaceOrderItemId),
+            QuantityReturned:Number(formData.QuantityReturned),
+            RefundAmount:Number(formData.RefundAmount)
         });
-
     };
 
     return (

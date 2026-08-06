@@ -1,41 +1,13 @@
-import React, {
-    useEffect,
-    useMemo,
-    useState
-} from "react";
-
-import {
-    Box,
-    CircularProgress,
-    Alert,
-    Snackbar
-} from "@mui/material";
-
-import apiService from "../../services/apiService";
-
-import MarketplaceOrderItemToolbar
-    from "./MarketplaceOrderItemToolbar";
-
-import MarketplaceOrderItemStatistics
-    from "./MarketplaceOrderItemStatistics";
-
-import MarketplaceOrderItemSearch
-    from "./MarketplaceOrderItemSearch";
-
-import MarketplaceOrderItemTable
-    from "./MarketplaceOrderItemTable";
-
-import MarketplaceOrderItemPagination
-    from "./MarketplaceOrderItemPagination";
-
-import MarketplaceOrderItemModal
-    from "./MarketplaceOrderItemModal";
-
-import MarketplaceOrderItemView
-    from "./MarketplaceOrderItemView";
-
-import DeleteMarketplaceOrderItemDialog
-    from "./DeleteMarketplaceOrderItemDialog";
+import React, {useEffect,useMemo,useState} from "react";
+import { Box,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
+import MarketplaceOrderItemToolbar from "./MarketplaceOrderItemToolbar";
+import MarketplaceOrderItemStatistics from "./MarketplaceOrderItemStatistics";
+import MarketplaceOrderItemSearch from "./MarketplaceOrderItemSearch";
+import MarketplaceOrderItemTable from "./MarketplaceOrderItemTable";
+import MarketplaceOrderItemPagination from "./MarketplaceOrderItemPagination";
+import MarketplaceOrderItemModal from "./MarketplaceOrderItemModal";
+import MarketplaceOrderItemView from "./MarketplaceOrderItemView";
+import DeleteMarketplaceOrderItemDialog from "./DeleteMarketplaceOrderItemDialog";
 
 const MarketplaceOrderItemList = () => {
 
@@ -43,62 +15,19 @@ const MarketplaceOrderItemList = () => {
     // State
     // ==========================================================
 
-    const [
-        marketplaceOrderItems,
-        setMarketplaceOrderItems
-    ] = useState([]);
-
-    const [
-        loading,
-        setLoading
-    ] = useState(false);
-
-    const [
-        searchText,
-        setSearchText
-    ] = useState("");
-
-    const [
-        page,
-        setPage
-    ] = useState(1);
-
-    const [
-        pageSize,
-        setPageSize
-    ] = useState(10);
-
-    const [
-        selectedMarketplaceOrderItem,
-        setSelectedMarketplaceOrderItem
-    ] = useState(null);
-
-    const [
-        modalOpen,
-        setModalOpen
-    ] = useState(false);
-
-    const [
-        viewOpen,
-        setViewOpen
-    ] = useState(false);
-
-    const [
-        deleteOpen,
-        setDeleteOpen
-    ] = useState(false);
-
-    const [
-        snackbar,
-        setSnackbar
-    ] = useState({
-
+    const [marketplaceOrderItems,setMarketplaceOrderItems] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [searchText,setSearchText] = useState("");
+    const [page,setPage] = useState(1);
+    const [pageSize,setPageSize] = useState(10);
+    const [selectedMarketplaceOrderItem,setSelectedMarketplaceOrderItem] = useState(null);
+    const [modalOpen,setModalOpen] = useState(false);
+    const [viewOpen,setViewOpen] = useState(false);
+    const [deleteOpen,setDeleteOpen ] = useState(false);
+    const [snackbar,setSnackbar] = useState({
         open: false,
-
         message: "",
-
         severity: "success"
-
     });
 
     // ==========================================================

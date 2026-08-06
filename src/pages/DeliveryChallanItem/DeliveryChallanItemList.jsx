@@ -1,129 +1,52 @@
-import React, {
-    useEffect,
-    useMemo,
-    useState
-} from "react";
-
-import {
-    Box,
-    CircularProgress,
-    Alert,
-    Snackbar
-} from "@mui/material";
-
-import apiService from "../../services/apiService";
-
-import DeliveryChallanItemToolbar
-    from "./DeliveryChallanItemToolbar";
-
-import DeliveryChallanItemStatistics
-    from "./DeliveryChallanItemStatistics";
-
-import DeliveryChallanItemSearch
-    from "./DeliveryChallanItemSearch";
-
-import DeliveryChallanItemTable
-    from "./DeliveryChallanItemTable";
-
-import DeliveryChallanItemPagination
-    from "./DeliveryChallanItemPagination";
-
-import DeliveryChallanItemModal
-    from "./DeliveryChallanItemModal";
-
-import DeliveryChallanItemView
-    from "./DeliveryChallanItemView";
-
-import DeleteDeliveryChallanItemDialog
-    from "./DeleteDeliveryChallanItemDialog";
+import React, {useEffect,useMemo,useState} from "react";
+import {Box,CircularProgress,Alert,Snackbar} from "@mui/material";
+import DeliveryChallanItemToolbar from "./DeliveryChallanItemToolbar";
+import DeliveryChallanItemStatistics from "./DeliveryChallanItemStatistics";
+import DeliveryChallanItemSearch from "./DeliveryChallanItemSearch";
+import DeliveryChallanItemTable from "./DeliveryChallanItemTable";
+import DeliveryChallanItemPagination from "./DeliveryChallanItemPagination";
+import DeliveryChallanItemModal from "./DeliveryChallanItemModal";
+import DeliveryChallanItemView from "./DeliveryChallanItemView";
+import DeleteDeliveryChallanItemDialog from "./DeleteDeliveryChallanItemDialog";
 
 const DeliveryChallanItemList = () => {
-
     // ==========================================================
     // State
     // ==========================================================
 
-    const [deliveryChallanItems,
-        setDeliveryChallanItems] = useState([]);
-
-    const [loading,
-        setLoading] = useState(false);
-
-    const [searchText,
-        setSearchText] = useState("");
-
-    const [page,
-        setPage] = useState(1);
-
-    const [pageSize,
-        setPageSize] = useState(10);
-
-    const [selectedDeliveryChallanItem,
-        setSelectedDeliveryChallanItem] = useState(null);
-
-    const [modalOpen,
-        setModalOpen] = useState(false);
-
-    const [viewOpen,
-        setViewOpen] = useState(false);
-
-    const [deleteOpen,
-        setDeleteOpen] = useState(false);
-
-    const [snackbar,
-        setSnackbar] = useState({
-
-            open: false,
-
-            message: "",
-
-            severity: "success"
-
-        });
+    const [deliveryChallanItems,setDeliveryChallanItems] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [searchText,setSearchText] = useState("");
+    const [page,setPage] = useState(1);
+    const [pageSize,setPageSize] = useState(10);
+    const [selectedDeliveryChallanItem,setSelectedDeliveryChallanItem] = useState(null);
+    const [modalOpen,setModalOpen] = useState(false);
+    const [viewOpen,setViewOpen] = useState(false);
+    const [deleteOpen,setDeleteOpen] = useState(false);
+    const [snackbar,setSnackbar] = useState({open: false,message: "",severity: "success"});
 
     // ==========================================================
     // Load Delivery Challan Items
     // ==========================================================
 
     const loadDeliveryChallanItems = async () => {
-
         try {
-
             setLoading(true);
-
-            const response =
-                await apiService.getDeliveryChallanItems();
-
+            const response = await apiService.getDeliveryChallanItems();
             setDeliveryChallanItems(
                 response.data || []
             );
-
         }
         catch (error) {
-
             console.error(
                 "Delivery Challan Item Load Error",
                 error
             );
-
-            setSnackbar({
-
-                open: true,
-
-                message:
-                    "Failed to load Delivery Challan Items.",
-
-                severity: "error"
-
-            });
-
+            setSnackbar({open: true,message:"Failed to load Delivery Challan Items.",severity: "error"});
         }
         finally {
-
             setLoading(false);
-
         }
-
     };
 
     // ==========================================================
@@ -131,50 +54,19 @@ const DeliveryChallanItemList = () => {
     // ==========================================================
 
     useEffect(() => {
-
         loadDeliveryChallanItems();
-
     }, []);
         // ==========================================================
     // Search Filter
     // ==========================================================
 
     const filteredDeliveryChallanItems = useMemo(() => {
-
         if (!searchText.trim())
             return deliveryChallanItems;
-
         const search = searchText.toLowerCase();
-
-        return deliveryChallanItems.filter((item) => (
-
-            String(item.DeliveryChallanItemId)
-                .includes(search)
-
-            ||
-
-            String(item.DeliveryChallanId)
-                .includes(search)
-
-            ||
-
-            String(item.ProductId)
-                .includes(search)
-
-            ||
-
-            String(item.Quantity)
-                .includes(search)
-
-            ||
-
-            String(item.UnitPrice)
-                .includes(search)
-
-            ||
-
-            String(item.Discount)
-                .includes(search)
+return deliveryChallanItems.filter((item) => (String(item.DeliveryChallanItemId).includes(search)||String(item.DeliveryChallanId).includes(search)||String(item.ProductId)
+                .includes(search) || String(item.Quantity).includes(search)|| String(item.UnitPrice).includes(search)
+            ||String(item.Discount) .includes(search)
 
             ||
 

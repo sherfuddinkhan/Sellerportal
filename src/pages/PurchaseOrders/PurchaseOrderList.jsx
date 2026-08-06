@@ -14,43 +14,19 @@ import "./PurchaseOrders.css";
 const DEFAULT_PAGE_SIZE = 10;
 
 const PurchaseOrderList = () => {
-
-    const [items, setItems] =
-        useState([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [searchText, setSearchText] =
-        useState("");
-
-    const [page, setPage] =
-        useState(1);
-
-    const [pageSize, setPageSize] =
-        useState(DEFAULT_PAGE_SIZE);
-
-    const [modalOpen, setModalOpen] =
-        useState(false);
-
-    const [viewOpen, setViewOpen] =
-        useState(false);
-
-    const [deleteOpen, setDeleteOpen] =
-        useState(false);
-
-    const [selectedItem, setSelectedItem] =
-        useState(null);
-
-    const [snackbar, setSnackbar] =
-        useState({
-
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] =useState(true);
+    const [searchText, setSearchText] = useState("");
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [viewOpen, setViewOpen] =useState(false);
+    const [deleteOpen, setDeleteOpen] =useState(false);
+    const [selectedItem, setSelectedItem] =useState(null);
+    const [snackbar, setSnackbar] =useState({
             open: false,
-
             severity: "success",
-
             message: ""
-
         });
 
     const loadItems = async () => {

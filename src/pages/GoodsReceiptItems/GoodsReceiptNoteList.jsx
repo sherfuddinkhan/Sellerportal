@@ -11,16 +11,7 @@ const GoodsReceiptNoteList = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: "",
-        severity: "success"
-    });
-
-
-
-
-
+    const [snackbar, setSnackbar] = useState({open: false,message: "",severity: "success"});
 
     // ==========================================================
     // Load Goods Receipt Notes

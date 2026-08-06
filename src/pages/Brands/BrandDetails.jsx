@@ -3,7 +3,6 @@ import apiService from "../../services/apiService";
 import { Box, Paper,Typography, Grid,Chip,Button,CircularProgress,Alert,Divider} from "@mui/material";
 import {ArrowBack,Edit} from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
-import apiService from "../../services/apiService";
 const BrandDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();

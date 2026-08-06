@@ -1,5 +1,4 @@
 import React, {useEffect,useMemo,useState} from "react";
-
 import {Box,CircularProgress,Alert,Snackbar} from "@mui/material";
 import MarketplaceReturnToolbar from "./MarketplaceReturnToolbar";
 import MarketplaceReturnStatistics from "./MarketplaceReturnStatistics";
@@ -16,43 +15,16 @@ const MarketplaceReturnList = () => {
     // State
     // ==========================================================
 
-    const [marketplaceReturns,
-        setMarketplaceReturns] = useState([]);
-
-    const [loading,
-        setLoading] = useState(false);
-
-    const [searchText,
-        setSearchText] = useState("");
-
-    const [page,
-        setPage] = useState(1);
-
-    const [pageSize,
-        setPageSize] = useState(10);
-
-    const [selectedMarketplaceReturn,
-        setSelectedMarketplaceReturn] = useState(null);
-
-    const [modalOpen,
-        setModalOpen] = useState(false);
-
-    const [viewOpen,
-        setViewOpen] = useState(false);
-
-    const [deleteOpen,
-        setDeleteOpen] = useState(false);
-
-    const [snackbar,
-        setSnackbar] = useState({
-
-            open: false,
-
-            message: "",
-
-            severity: "success"
-
-        });
+    const [marketplaceReturns,setMarketplaceReturns] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [searchText,setSearchText] = useState("");
+    const [page,setPage] = useState(1);
+    const [pageSize,setPageSize] = useState(10);
+    const [selectedMarketplaceReturn,setSelectedMarketplaceReturn] = useState(null);
+    const [modalOpen,setModalOpen] = useState(false);
+    const [viewOpen,setViewOpen] = useState(false);
+    const [deleteOpen,setDeleteOpen] = useState(false);
+    const [snackbar,setSnackbar] = useState({open: false,message: "",severity: "success"});
 
     // ==========================================================
     // Load Marketplace Returns
