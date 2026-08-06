@@ -1,25 +1,10 @@
 import React from "react";
-
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-    Button,
-    Typography
-} from "@mui/material";
-
+import {Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions,Button,Typography} from "@mui/material";
 const DeleteSalesInvoiceDialog = ({
-
     open,
-
     item,
-
     onClose,
-
     onDeleted
-
 }) => {
 
     const handleDelete = () => {
