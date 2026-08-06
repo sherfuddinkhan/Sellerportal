@@ -1,20 +1,6 @@
-import React, {
-    useEffect,
-    useMemo,
-    useState
-} from "react";
-
-import {
-    Box,
-    CircularProgress,
-    Alert,
-    Snackbar
-} from "@mui/material";
-
-import apiService from "../../services/apiService";
-
-import PurchaseReturnToolbar
-    from "./PurchaseReturnToolbar";
+import React, {useEffect,useMemo,useState} from "react";
+import {Box,CircularProgress,Alert,Snackbar} from "@mui/material";
+import PurchaseReturnToolbar from "./PurchaseReturnToolbar";
 
 import PurchaseReturnStatistics
     from "./PurchaseReturnStatistics";
@@ -508,92 +494,22 @@ const PurchaseReturnList = () => {
         searchText
     ]);
 
-
-
-    // ==========================================================
-    // Statistics
-    // ==========================================================
-
-    const statistics = useMemo(() => ({
-
-        totalReturns:
-            purchaseReturns.length,
-
-        totalAmount:
-            purchaseReturns.reduce(
-
-                (sum, item) =>
-                    sum + Number(item.TotalAmount || 0),
-
-                0
-
-            ),
-
-        completedReturns:
-            purchaseReturns.filter(
-
-                item =>
-                    item.Status?.toLowerCase() === "completed"
-
-            ).length,
-
-        pendingReturns:
-            purchaseReturns.filter(
-
-                item =>
-                    item.Status?.toLowerCase() === "pending"
-
-            ).length
-
-    }), [purchaseReturns]);
-
-
-
-    // ==========================================================
-    // Pagination
-    // ==========================================================
-
-    const totalRecords =
-        filteredPurchaseReturns.length;
-
-    const totalPages =
-        Math.ceil(totalRecords / pageSize);
-
-    const paginatedPurchaseReturns =
-        filteredPurchaseReturns.slice(
-
-            (page - 1) * pageSize,
-
-            page * pageSize
-
-        );
-
-
-
     // ==========================================================
     // Add
     // ==========================================================
 
     const handleAdd = () => {
-
         setSelectedPurchaseReturn(null);
-
         setModalOpen(true);
-
     };
-
-
 
     // ==========================================================
     // Edit
     // ==========================================================
 
     const handleEdit = (purchaseReturn) => {
-
         setSelectedPurchaseReturn(purchaseReturn);
-
         setModalOpen(true);
-
     };
 
 
@@ -603,11 +519,8 @@ const PurchaseReturnList = () => {
     // ==========================================================
 
     const handleView = (purchaseReturn) => {
-
         setSelectedPurchaseReturn(purchaseReturn);
-
         setViewOpen(true);
-
     };
 
 
@@ -617,11 +530,8 @@ const PurchaseReturnList = () => {
     // ==========================================================
 
     const handleDelete = (purchaseReturn) => {
-
         setSelectedPurchaseReturn(purchaseReturn);
-
         setDeleteOpen(true);
-
     };
 
 
@@ -631,26 +541,14 @@ const PurchaseReturnList = () => {
     // ==========================================================
 
     const handleSave = async (data) => {
-
         try {
-
             if (data.PurchaseReturnId) {
 
-                await apiService.updatePurchaseReturn(
-
-                    data.PurchaseReturnId,
-
-                    data
-
-                );
-
+                await apiService.updatePurchaseReturn( data.PurchaseReturnId,data);
                 setSnackbar({
-
                     open: true,
-
                     message:
                         "Purchase Return updated successfully.",
-
                     severity: "success"
 
                 });
