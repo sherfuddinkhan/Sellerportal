@@ -88,7 +88,6 @@ const StockLedgerList = () => {
         ledgers,
         searchText
     ]);
-}
 
     // ==========================================================
     // Pagination Data
@@ -155,76 +154,22 @@ const handleDelete = (ledger) => {
                     message: "Stock Ledger created successfully",
                     severity: "success"
                 });
-
-
-
             }
 
-
-
-
-
-
-
             setModalOpen(false);
-
-
-
             loadStockLedgers();
-
-
-
         }
-
         catch(error) {
-
-
-
-            console.error(
-
-                error
-
-            );
-
-
-
+            console.error(error);
             setSnackbar({
-
-
-
                 open:true,
-
-
-
                 message:
-
                     "Save failed",
-
-
-
                 severity:
-
                     "error"
-
-
-
             });
-
-
-
         }
-
-
-
     };
-
-
-
-
-
-
-
-
 
     // ==========================================================
     // Delete Confirm
@@ -232,68 +177,22 @@ const handleDelete = (ledger) => {
 
 
     const handleDeleted = async (id) => {
-
-
-
         try {
-
-
-
             await apiService.deleteStockLedger(
-
                 id
-
             );
-
-
-
-
-
             setSnackbar({
-
-
-
                 open:true,
-
-
-
                 message:
-
                     "Stock Ledger deleted successfully",
-
-
-
                 severity:
-
                     "success"
-
-
-
             });
-
-
-
-
-
             setDeleteOpen(false);
-
-
-
             loadStockLedgers();
-
-
-
         }
-
         catch(error) {
-
-
-
-            console.error(
-
-                error
-
-            );
+            console.error(error);
             setSnackbar({
                 open:true,
                 message:
@@ -310,9 +209,7 @@ const handleDelete = (ledger) => {
     const handleRefresh = () => {
         loadStockLedgers();
     };
-    // ==========================================================
-    // Return UI
-    // ==========================================================
+   
     return (
         <Box
               className="stock-ledger-container"
@@ -416,5 +313,5 @@ const handleDelete = (ledger) => {
             </Snackbar>
         </Box>
     );
-
+}
 export default StockLedgerList;

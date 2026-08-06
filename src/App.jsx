@@ -167,7 +167,7 @@ function App() {
           <Route path="/stock-ledger" element={<StockLedger />} />
 
           {/* Shopping */}
-          <Route path="/shopping-cart" element={<ShoppingCart />} />
+       {/*  <Route path="/shopping-cart" element={<ShoppingCart />} />*/}
           <Route path="/cart-items" element={<CartItems />} />
           <Route path="/wishlists" element={<Wishlists />} />
           <Route path="/wishlist-items" element={<WishlistItems />} />
@@ -187,7 +187,7 @@ function App() {
           <Route path="/my-profile" element={<Profile />} />
 
           {/* Reports */}
-          <Route path="/reports/dashboard" element={<DashboardReport />} />
+           {/*  <Route path="/reports/dashboard" element={<DashboardReport />} />
           <Route path="/reports/sales" element={<SalesReport />} />
           <Route path="/reports/customers" element={<CustomerReport />} />
           <Route path="/reports/inventory" element={<InventoryReport />} />
@@ -202,6 +202,7 @@ function App() {
           <Route path="/reports/suppliers" element={<SupplierReport />} />
           <Route path="/reports/tax" element={<TaxReport />} />
           <Route path="/reports/low-stock" element={<LowStockReport />} />
+          */}
 
         </Route>
 
