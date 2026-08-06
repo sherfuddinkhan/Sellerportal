@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import apiService from "../../services/apiService";
 import {Box,CircularProgress, Alert} from "@mui/material";
-import apiService from "../../Apiservice/apiService";
 import BrandToolbar from "./BrandToolbar";
 import BrandStatistics from "./BrandStatistics";
 import BrandSearch from "./BrandSearch";

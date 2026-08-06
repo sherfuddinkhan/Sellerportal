@@ -1,5 +1,4 @@
 import React from "react";
-import apiService from "../../services/apiService";
 import { Box, FormControl,InputLabel,Select,MenuItem,Grid} from "@mui/material";
 
 const BrandFilters = ({

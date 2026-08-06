@@ -1,12 +1,6 @@
 import React from "react";
-
-import {
-    TextField,
-    InputAdornment
-} from "@mui/material";
-
+import {TextField,InputAdornment} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-
 const CategorySearch = ({
     searchText,
     setSearchText

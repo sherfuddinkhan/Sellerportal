@@ -10,34 +10,18 @@ import CategoryPagination from "./CategoryPagination";
 import DeleteCategoryDialog from "./DeleteCategoryDialog";
 import CategoryModal from "./CategoryModal";
 const CategoryList = () => {
-
     const [categories, setCategories] = useState([]);
-
     const [filteredCategories, setFilteredCategories] = useState([]);
-
     const [loading, setLoading] = useState(false);
-
     const [searchText, setSearchText] = useState("");
-
     const [statusFilter, setStatusFilter] = useState("All");
-
     const [page, setPage] = useState(0);
-
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
     const [selectedCategory, setSelectedCategory] = useState(null);
-
     const [deleteOpen, setDeleteOpen] = useState(false);
-
     const [viewOpen, setViewOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
-
-const [selectedCategory, setSelectedCategory] = useState(null);
-
     useEffect(() => {
-
         loadCategories();
-
     }, []);
 
     useEffect(() => {

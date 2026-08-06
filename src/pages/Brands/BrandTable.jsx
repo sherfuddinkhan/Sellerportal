@@ -1,22 +1,7 @@
 import React from "react";
-import apiService from "../../services/apiService";
-
-import {
-    Box,
-    Chip,
-    IconButton,
-    Tooltip
-} from "@mui/material";
-
-import {
-    DataGrid
-} from "@mui/x-data-grid";
-
-import {
-    Visibility,
-    Edit,
-    Delete
-} from "@mui/icons-material";
+import {Box,Chip,IconButton,Tooltip} from "@mui/material";
+import {DataGrid} from "@mui/x-data-grid";
+import {Visibility,Edit,Delete} from "@mui/icons-material";
 
 const BrandTable = ({
     brands = [],

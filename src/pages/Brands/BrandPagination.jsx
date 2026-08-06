@@ -1,5 +1,4 @@
 import React from "react";
-import apiService from "../../services/apiService";
 import {Box,TablePagination} from "@mui/material";
 const BrandPagination = ({
     page = 0,
