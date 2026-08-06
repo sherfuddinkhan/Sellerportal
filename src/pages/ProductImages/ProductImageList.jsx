@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-
 import { Box } from "@mui/material";
-
-import apiService from "../../services/apiService";
-
 import ProductImageToolbar from "./ProductImageToolbar";
 import ProductImageStatistics from "./ProductImageStatistics";
 import ProductImageSearch from "./ProductImageSearch";
@@ -20,25 +16,15 @@ const ProductImageList = () => {
     // ===========================================
 
     const [images, setImages] = useState([]);
-
     const [filteredImages, setFilteredImages] = useState([]);
-
     const [loading, setLoading] = useState(false);
-
     const [searchText, setSearchText] = useState("");
-
     const [imageTypeFilter, setImageTypeFilter] = useState("");
-
     const [selectedImage, setSelectedImage] = useState(null);
-
     const [modalOpen, setModalOpen] = useState(false);
-
     const [viewOpen, setViewOpen] = useState(false);
-
     const [deleteOpen, setDeleteOpen] = useState(false);
-
     const [page, setPage] = useState(1);
-
     const [pageSize, setPageSize] = useState(10);
 
     // ===========================================

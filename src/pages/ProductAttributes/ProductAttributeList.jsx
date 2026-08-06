@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-
 import { Box } from "@mui/material";
-
-import apiService from "../../services/apiService";
-
 import ProductAttributeToolbar from "./ProductAttributeToolbar";
 import ProductAttributeStatistics from "./ProductAttributeStatistics";
 import ProductAttributeSearch from "./ProductAttributeSearch";

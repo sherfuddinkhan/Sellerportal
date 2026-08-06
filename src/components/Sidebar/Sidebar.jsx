@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import {
-  FaChevronDown,
-  FaChevronRight,
-  FaBars,
-  FaTimes,
-} from "react-icons/fa";
-
+import {FaChevronDown,FaChevronRight,FaBars,FaTimes,} from "react-icons/fa";
 import "./Sidebar.css";
 
 const Sidebar = ({ menuItems = [] }) => {

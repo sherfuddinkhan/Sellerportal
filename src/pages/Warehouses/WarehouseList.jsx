@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-
 import { Box } from "@mui/material";
-
-import apiService from "../../services/apiService";
-
 import WarehouseToolbar from "./WarehouseToolbar";
 import WarehouseStatistics from "./WarehouseStatistics";
 import WarehouseSearch from "./WarehouseSearch";
@@ -20,25 +16,15 @@ const WarehouseList = () => {
     // ==========================================
 
     const [warehouses, setWarehouses] = useState([]);
-
     const [filteredWarehouses, setFilteredWarehouses] = useState([]);
-
     const [loading, setLoading] = useState(false);
-
     const [searchText, setSearchText] = useState("");
-
     const [statusFilter, setStatusFilter] = useState("All");
-
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
-
     const [modalOpen, setModalOpen] = useState(false);
-
     const [viewOpen, setViewOpen] = useState(false);
-
     const [deleteOpen, setDeleteOpen] = useState(false);
-
     const [page, setPage] = useState(1);
-
     const [pageSize, setPageSize] = useState(10);
 
     // ==========================================

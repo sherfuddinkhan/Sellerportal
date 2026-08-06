@@ -1,17 +1,5 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-
-import {
-    Box
-} from "@mui/material";
-
-
-import apiService from "../../services/apiService";
-
-
+import React, {useEffect,useState} from "react";
+import {Box} from "@mui/material";
 import OrderItemToolbar from "./OrderItemToolbar";
 import OrderItemStatistics from "./OrderItemStatistics";
 import OrderItemSearch from "./OrderItemSearch";
@@ -25,134 +13,25 @@ import DeleteOrderItemDialog from "./DeleteOrderItemDialog";
 
 const OrderItemList = () => {
 
-
-
     // ==========================================
     // State
     // ==========================================
-
-
-    const [
-
-        orderItems,
-
-        setOrderItems
-
-    ] = useState([]);
-
-
-
-
-    const [
-
-        filteredItems,
-
-        setFilteredItems
-
-    ] = useState([]);
-
-
-
-
-    const [
-
-        loading,
-
-        setLoading
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        searchText,
-
-        setSearchText
-
-    ] = useState("");
-
-
-
-
-    const [
-
-        selectedItem,
-
-        setSelectedItem
-
-    ] = useState(null);
-
-
-
-
-    const [
-
-        modalOpen,
-
-        setModalOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        viewOpen,
-
-        setViewOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        deleteOpen,
-
-        setDeleteOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        page,
-
-        setPage
-
-    ] = useState(1);
-
-
-
-
-    const [
-
-        pageSize,
-
-        setPageSize
-
-    ] = useState(10);
-
-
-
-
-
-
-
+    const [orderItems,setOrderItems] = useState([]);
+    const [filteredItems,setFilteredItems] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [searchText,setSearchText] = useState("");
+    const [selectedItem,setSelectedItem] = useState(null);
+    const [modalOpen,setModalOpen] = useState(false);
+    const [viewOpen,setViewOpen] = useState(false);
+    const [deleteOpen,setDeleteOpen] = useState(false);
+    const [page,setPage] = useState(1);
+    const [ pageSize,setPageSize] = useState(10);
     // ==========================================
     // Load Order Items
     // ==========================================
 
 
     const loadOrderItems = async () => {
-
-
 
         try {
 
