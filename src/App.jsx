@@ -16,60 +16,49 @@ import Unauthorized from "./pages/AuthManagement/Unauthorized";
 import Dashboard from "./pages/Dashboard/Dashboard";
 
 // Masters
-import Products from "./pages/Products/Products";
-import ProductTypes from "./pages/ProductTypes/ProductTypeList";
-import ProductPrices from "./pages/ProductPrices/ProductPriceList";
-import ProductInventory from "./pages/ProductInventory/ProductInventoryList";
-import ProductImages from "./pages/ProductImages/ProductImageList";
-import ProductAttributes from "./pages/ProductAttributes/ProductAttributeList";
-import Categories from "./pages/Categories/CategoryList";
-import Brands from "./pages/Brands/BrandList";
-import Warehouses from "./pages/Warehouses/WarehouseList";
-
+//import Products from "./pages/Products/Products";
+//import ProductTypes from "./pages/ProductTypes/ProductTypeList";
+//import ProductPrices from "./pages/ProductPrices/ProductPriceList";
+//import ProductInventory from "./pages/ProductInventory/ProductInventoryList";
+//import ProductImages from "./pages/ProductImages/ProductImageList";
+//import ProductAttributes from "./pages/ProductAttributes/ProductAttributeList";
+//import Categories from "./pages/Categories/CategoryList";
+//import Brands from "./pages/Brands/BrandList";
+//import Warehouses from "./pages/Warehouses/WarehouseList";
 // Customers
-import SellerCustomers from "./pages/SellerCustomers/SellerCustomerList";
-import CustomerAddresses from "./pages/CustomerAddresses/CustomerAddressList";
-import CustomerPayments from "./pages/CustomerPayments/CustomerPaymentList";
-import CustomerReturns from "./pages/CustomerReturns/CustomerReturnList";
-
+//import SellerCustomers from "./pages/SellerCustomers/SellerCustomerList";
+//import CustomerAddresses from "./pages/CustomerAddresses/CustomerAddressList";
+//import CustomerPayments from "./pages/CustomerPayments/CustomerPaymentList";
+//import CustomerReturns from "./pages/CustomerReturns/CustomerReturnList";
 // Orders
-import Orders from "./pages/Orders/Orders";
-import OrderItems from "./pages/OrderItems/OrderItemList";
-import OrderStatusHistory from "./pages/OrderStatusHistory/OrderStatusHistoryList";
-
+//import Orders from "./pages/Orders/Orders";
+//import OrderItems from "./pages/OrderItems/OrderItemList";
+//import OrderStatusHistory from "./pages/OrderStatusHistory/OrderStatusHistoryList";
 // Marketplace
-import MarketplaceOrderItems from "./pages/MarketplaceOrderItem/MarketplaceOrderItemList";
-import MarketplaceReturns from "./pages/MarketplaceReturn/MarketplaceReturnList";
-
+//import MarketplaceOrderItems from "./pages/MarketplaceOrderItem/MarketplaceOrderItemList";
+//import MarketplaceReturns from "./pages/MarketplaceReturn/MarketplaceReturnList";
 // Purchase
-import PurchaseOrders from "./pages/PurchaseOrders/PurchaseOrderList";
-import PurchaseOrderItems from "./pages/PurchaseOrderItems/PurchaseOrderItemList";
-import PurchaseReturns from "./pages/PurchaseReturns/PurchaseReturnList";
-
+//import PurchaseOrders from "./pages/PurchaseOrders/PurchaseOrderList";
+//import PurchaseOrderItems from "./pages/PurchaseOrderItems/PurchaseOrderItemList";
+//import PurchaseReturns from "./pages/PurchaseReturns/PurchaseReturnList";
 // Sales
-import SalesOrders from "./pages/SalesOrders/SalesOrderList";
-import SalesOrderItems from "./pages/SalesOrderItems/SalesOrderItemList";
-import SalesInvoices from "./pages/SalesInvoices/SalesInvoiceList";
-
+//import SalesOrders from "./pages/SalesOrders/SalesOrderList";
+//import SalesOrderItems from "./pages/SalesOrderItems/SalesOrderItemList";
+//import SalesInvoices from "./pages/SalesInvoices/SalesInvoiceList";
 // Inventory
-import StockLedger from "./pages/StockLedger/StockLedgerList";
-
+///import StockLedger from "./pages/StockLedger/StockLedgerList";
 // Cart
-import ShoppingCart from "./pages/ShoppingCart/ShoppingCartList";
-import CartItems from "./pages/CartItems/CartItemList";
-
+//import ShoppingCart from "./pages/ShoppingCart/ShoppingCartList";
+//import CartItems from "./pages/CartItems/CartItemList";
 // Wishlist
-import Wishlists from "./pages/Wishlists/WishlistList";
-import WishlistItems from "./pages/WishlistItems/WishlistItemList";
-
+//import Wishlists from "./pages/Wishlists/WishlistList";
+//import WishlistItems from "./pages/WishlistItems/WishlistItemList";
 // Shipment
-import Shipments from "./pages/Shipments/ShipmentList";
-
+//import Shipments from "./pages/Shipments/ShipmentList";
 // Reviews
 import Reviews from "./pages/Reviews/ReviewList";
-
 // Catalog
-import Catalog from "./pages/Catalog/CatalogList";
+//import Catalog from "./pages/Catalog/CatalogList";
 
 // Delivery Challans
 import DeliveryChallans from "./pages/DeliveryChallans/DeliveryChallanList";
@@ -80,33 +69,33 @@ import GoodsReceiptNotes from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemLis
 import GoodsReceiptItems from "./pages/GoodsReceiptItems/GoodsReceiptNoteList";
 
 // Notifications
-import Notifications from "./pages/Notifications/NotificationList";
+//import Notifications from "./pages/Notifications/NotificationList";
 
 // Payment Settings
-import PaymentSettings from "./pages/PaymentsSettings/PaymentSettings";
+//import PaymentSettings from "./pages/PaymentsSettings/PaymentSettings";
 
 // Profile
-import Profile from "./pages/Profile/Profile";
+//import Profile from "./pages/Profile/Profile";
 
 // Reports
-import DashboardReport from "./pages/Reports/DashboardReport/DashboardReportList";
-import SalesReport from "./pages/Reports/SalesReport/SalesReportList";
-import CustomerReport from "./pages/Reports/CustomerReport/CustomerReportList";
-import InventoryReport from "./pages/Reports/InventoryReport/InventoryReportList";
-import MarketplaceReport from "./pages/Reports/MarketplaceReport/MarketplaceReportList";
-import OrderReport from "./pages/Reports/OrderReport/OrderReportList";
-import PaymentReport from "./pages/Reports/PaymentReport/PaymentReportList";
-import ProfitLossReport from "./pages/Reports/ProfitLossReport/ProfitLossReportList";
-import PurchaseReport from "./pages/Reports/PurchaseReport/PurchaseReportList";
-import ReturnReport from "./pages/Reports/ReturnReport/ReturnReportList";
-import StockLedgerReport from "./pages/Reports/StockLedgerReport/StockLedgerReportList";
-import StockMovementReport from "./pages/Reports/StockMovementReport/StockMovementReportList";
-import SupplierReport from "./pages/Reports/Supplier Report/SupplierReportList";
-import TaxReport from "./pages/Reports/TaxReport/TaxReportList";
-import LowStockReport from "./pages/Reports/LowStockReport/LowStockReportList";
+//import DashboardReport from "./pages/Reports/DashboardReport/DashboardReportList";
+//import SalesReport from "./pages/Reports/SalesReport/SalesReportList";
+//import CustomerReport from "./pages/Reports/CustomerReport/CustomerReportList";
+//import InventoryReport from "./pages/Reports/InventoryReport/InventoryReportList";
+//import MarketplaceReport from "./pages/Reports/MarketplaceReport/MarketplaceReportList";
+//import OrderReport from "./pages/Reports/OrderReport/OrderReportList";
+//import PaymentReport from "./pages/Reports/PaymentReport/PaymentReportList";
+//import ProfitLossReport from "./pages/Reports/ProfitLossReport/ProfitLossReportList";
+//import PurchaseReport from "./pages/Reports/PurchaseReport/PurchaseReportList";
+//import ReturnReport from "./pages/Reports/ReturnReport/ReturnReportList";
+//import StockLedgerReport from "./pages/Reports/StockLedgerReport/StockLedgerReportList";
+//import StockMovementReport from "./pages/Reports/StockMovementReport/StockMovementReportList";
+//import SupplierReport from "./pages/Reports/Supplier Report/SupplierReportList";
+//import TaxReport from "./pages/Reports/TaxReport/TaxReportList";
+//import LowStockReport from "./pages/Reports/LowStockReport/LowStockReportList";
 
 // Not Found
-import NotFound from "./pages/NotFound/NotFound";
+//import NotFound from "./pages/NotFound/NotFound";
 
 function App() {
   return (
