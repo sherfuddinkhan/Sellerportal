@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 // Layout
 import MainLayout from "./layouts/MainLayout";
@@ -98,10 +98,8 @@ import GoodsReceiptItems from "./pages/GoodsReceiptItems/GoodsReceiptNoteList";
 //import NotFound from "./pages/NotFound/NotFound";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-
+ return (
+    <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -111,96 +109,13 @@ function App() {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* Protected Routes with Sidebar */}
+        {/* Protected Routes */}
         <Route element={<MainLayout />}>
-
-          <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* Masters */}
-          <Route path="/products" element={<Products />} />
-          <Route path="/product-types" element={<ProductTypes />} />
-          <Route path="/product-prices" element={<ProductPrices />} />
-          <Route path="/product-inventory" element={<ProductInventory />} />
-          <Route path="/product-images" element={<ProductImages />} />
-          <Route path="/product-attributes" element={<ProductAttributes />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/brands" element={<Brands />} />
-          <Route path="/warehouses" element={<Warehouses />} />
-
-          {/* Customers */}
-          <Route path="/customers" element={<SellerCustomers />} />
-          <Route path="/customer-addresses" element={<CustomerAddresses />} />
-          <Route path="/customer-payments" element={<CustomerPayments />} />
-          <Route path="/customer-returns" element={<CustomerReturns />} />
-
-          {/* Orders */}
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/order-items" element={<OrderItems />} />
-          <Route path="/order-status-history" element={<OrderStatusHistory />} />
-
-          {/* Marketplace */}
-          <Route path="/marketplace-order-items" element={<MarketplaceOrderItems />} />
-          <Route path="/marketplace-returns" element={<MarketplaceReturns />} />
-
-          {/* Purchase */}
-          <Route path="/purchase-orders" element={<PurchaseOrders />} />
-          <Route path="/purchase-order-items" element={<PurchaseOrderItems />} />
-          <Route path="/purchase-returns" element={<PurchaseReturns />} />
-
-          {/* Sales */}
-          <Route path="/sales-orders" element={<SalesOrders />} />
-          <Route path="/sales-order-items" element={<SalesOrderItems />} />
-          <Route path="/sales-invoices" element={<SalesInvoices />} />
-
-          {/* Inventory */}
-          <Route path="/stock-ledger" element={<StockLedger />} />
-
-          {/* Shopping */}
-       {/*  <Route path="/shopping-cart" element={<ShoppingCart />} />*/}
-          <Route path="/cart-items" element={<CartItems />} />
-          <Route path="/wishlists" element={<Wishlists />} />
-          <Route path="/wishlist-items" element={<WishlistItems />} />
-
-          {/* Logistics */}
-          <Route path="/shipments" element={<Shipments />} />
-          <Route path="/delivery-challans" element={<DeliveryChallans />} />
-          <Route path="/delivery-challan-items" element={<DeliveryChallanItems />} />
-          <Route path="/goods-receipt-notes" element={<GoodsReceiptNotes />} />
-          <Route path="/goods-receipt-items" element={<GoodsReceiptItems />} />
-
-          {/* Other */}
-          <Route path="/catalog" element={<Catalog />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/payment-settings" element={<PaymentSettings />} />
-          <Route path="/my-profile" element={<Profile />} />
-
-          {/* Reports */}
-           {/*  <Route path="/reports/dashboard" element={<DashboardReport />} />
-          <Route path="/reports/sales" element={<SalesReport />} />
-          <Route path="/reports/customers" element={<CustomerReport />} />
-          <Route path="/reports/inventory" element={<InventoryReport />} />
-          <Route path="/reports/marketplace" element={<MarketplaceReport />} />
-          <Route path="/reports/orders" element={<OrderReport />} />
-          <Route path="/reports/payments" element={<PaymentReport />} />
-          <Route path="/reports/profit-loss" element={<ProfitLossReport />} />
-          <Route path="/reports/purchases" element={<PurchaseReport />} />
-          <Route path="/reports/returns" element={<ReturnReport />} />
-          <Route path="/reports/stock-ledger" element={<StockLedgerReport />} />
-          <Route path="/reports/stock-movement" element={<StockMovementReport />} />
-          <Route path="/reports/suppliers" element={<SupplierReport />} />
-          <Route path="/reports/tax" element={<TaxReport />} />
-          <Route path="/reports/low-stock" element={<LowStockReport />} />
-          */}
-
+            <Route path="/dashboard" element={<Dashboard />} />
+            {/* other routes */}
         </Route>
-
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-
-      </Routes>
-    </BrowserRouter>
-  );
+    </Routes>
+);
 }
 
 export default App;
