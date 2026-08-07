@@ -1,451 +1,99 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, {useEffect,useState} from "react";
+import {Dialog,DialogTitle,DialogContent,DialogActions, Grid,TextField,Button,MenuItem} from "@mui/material";
 
-
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Grid,
-    TextField,
-    Button,
-    MenuItem
-} from "@mui/material";
-
-
-
-const CustomerPaymentModal = ({
-
-    open,
-
-    payment,
-
-    onClose,
-
-    onSave
-
-}) => {
-
-
-
-    const initialState = {
-
-
-        CustomerPaymentId: 0,
-
-
-        SalesInvoiceId: "",
-
-
-        PaymentNumber: "",
-
-
-        PaymentDate: "",
-
-
-        Amount: "",
-
-
-        PaymentMode: "",
-
-
-        ReferenceNumber: "",
-
-
-        Remarks: ""
-
-
-    };
-
-
-
-
-
-    const [
-
-        formData,
-
-        setFormData
-
-    ] = useState(initialState);
-
-
-
-
-
-
-
+const CustomerPaymentModal = ({ open,payment,onClose,onSave}) => {
+const initialState = {CustomerPaymentId: 0,SalesInvoiceId: "",PaymentNumber: "",PaymentDate: "",Amount: "",PaymentMode: "",ReferenceNumber: "",Remarks: ""};
+const [formData,setFormData] = useState(initialState);
     useEffect(() => {
-
-
-
         if (payment) {
-
-
-
             setFormData({
-
-
-
                 CustomerPaymentId:
-
                     payment.CustomerPaymentId || 0,
-
-
-
                 SalesInvoiceId:
-
                     payment.SalesInvoiceId || "",
-
-
-
                 PaymentNumber:
-
                     payment.PaymentNumber || "",
-
-
-
                 PaymentDate:
-
-                    payment.PaymentDate
-
-                        ? payment.PaymentDate.substring(0,10)
-
+                    payment.PaymentDate ? payment.PaymentDate.substring(0,10)
                         : "",
-
-
-
                 Amount:
-
                     payment.Amount || "",
-
-
-
                 PaymentMode:
-
                     payment.PaymentMode || "",
-
-
-
                 ReferenceNumber:
-
                     payment.ReferenceNumber || "",
-
-
-
                 Remarks:
-
                     payment.Remarks || ""
-
-
-
             });
-
-
-
         }
 
         else {
-
-
-
             setFormData(initialState);
-
-
-
         }
-
-
-
     }, [payment, open]);
 
-
-
-
-
-
-
     const handleChange = (e) => {
-
-
-
-        const {
-
-            name,
-
-            value
-
-        } = e.target;
-
-
-
+        const { name,value} = e.target;
         setFormData(prev => ({
-
-
-
             ...prev,
-
-
-
             [name]: value
-
-
-
         }));
-
-
-
     };
-
-
-
-
-
-
 
     const handleSubmit = () => {
-
-
-
         if (
-
-
-
             !formData.SalesInvoiceId ||
-
-
-
             !formData.PaymentNumber ||
-
-
-
             !formData.Amount
-
-
-
         ) {
-
-
-
-            alert(
-
-                "Sales Invoice, Payment Number and Amount are required."
-
-            );
-
-
-
+            alert("Sales Invoice, Payment Number and Amount are required.");
             return;
-
-
-
         }
-
-
-
-
-
-
         onSave({
-
             ...formData,
-
-
-
-            Amount:
-
-                Number(
-
-                    formData.Amount
-
-                )
-
-
-
+            Amount:Number(formData.Amount)
         });
-
-
-
     };
-
-
-
-
-
-
 
     return (
 
-
-
         <Dialog
-
-
-
             open={open}
-
-
-
             onClose={onClose}
-
-
-
             fullWidth
-
-
-
             maxWidth="md"
-
-
-
         >
-
-
-
             <DialogTitle>
-
-
-
                 {
-
-
                     formData.CustomerPaymentId
-
-
-
                         ? "Edit Customer Payment"
-
-
-
                         : "Add Customer Payment"
-
-
-
                 }
-
-
-
             </DialogTitle>
-
-
-
-
-
-
-
             <DialogContent dividers>
-
-
-
                 <Grid
-
-
-
                     container
-
-
-
                     spacing={2}
-
-
-
                     sx={{ mt:1 }}
-
-
-
                 >
-
-
-
-
-
-
-
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                         md={6}
-
-
-
                     >
-
-
-
                         <TextField
-
-
-
                             fullWidth
-
-
-
                             label="Sales Invoice ID"
-
-
-
                             name="SalesInvoiceId"
-
-
-
                             type="number"
-
-
-
-                            value={
-
-                                formData.SalesInvoiceId
-
-                            }
-
-
-
+                            value={formData.SalesInvoiceId}
                             onChange={handleChange}
-
-
-
                         />
-
-
-
                     </Grid>
-
-
-
-
-
-
-
-
-
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                         md={6}
-
-
-
                     >
 
 
