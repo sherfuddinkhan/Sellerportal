@@ -5,6 +5,40 @@ const BASE_URL = "https://localhost:5001/api";
 
 
 const apiService = {
+
+  // ==========================================================
+  // Authentication
+  // ==========================================================
+
+  login: (credentials) =>
+    axios.post(`${BASE_URL}/auth/login`, credentials),
+
+  register: (user) =>
+    axios.post(`${BASE_URL}/auth/register`, user),
+
+  logout: () =>
+    axios.post(`${BASE_URL}/auth/logout`),
+
+  forgotPassword: (email) =>
+    axios.post(`${BASE_URL}/auth/forgot-password`, { email }),
+
+  resetPassword: (model) =>
+    axios.post(`${BASE_URL}/auth/reset-password`, model),
+
+  changePassword: (model) =>
+    axios.post(`${BASE_URL}/auth/change-password`, model),
+
+  getCurrentUser: () =>
+    axios.get(`${BASE_URL}/auth/me`),
+
+  updateProfile: (model) =>
+    axios.put(`${BASE_URL}/auth/profile`, model),
+
+  refreshToken: (refreshToken) =>
+    axios.post(`${BASE_URL}/auth/refresh-token`, {
+      refreshToken,
+    }),
+
     // ==========================================================
     // Dashboard
     // ==========================================================
@@ -647,12 +681,7 @@ searchDeliveryChallans: (searchText) =>
             searchText
         }
     }
-
 ),
-
-
-};
-
 const getMarketplaceOrderItems = () =>
     axiosInstance.get("/MarketplaceOrderItems");
 
@@ -667,6 +696,8 @@ const updateMarketplaceOrderItem = (id, data) =>
 
 const deleteMarketplaceOrderItem = (id) =>
     axiosInstance.delete(`/MarketplaceOrderItems/${id}`);
+};
+
 
 
 

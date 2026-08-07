@@ -1,398 +1,292 @@
 import React, { useState } from "react";
-
-import {Box,Button,Card,CardContent,Checkbox,CircularProgress,FormControlLabel,IconButton,InputAdornment,Link,TextField,Typography,Alert,Stack} from "@mui/material";
-import {Visibility,VisibilityOff,LockOutlined} from "@mui/icons-material";
-
-import {PersonAdd} from "@mui/icons-material";
-
+import {Alert,Box,Button,Card,CardContent,CircularProgress,IconButton,InputAdornment,Link,Stack,TextField,Typography} from "@mui/material";
+import axios from "axios";
+import {PersonAdd,Visibility,VisibilityOff} from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-
-import authService from "./authService";
+import apiService from "../../ApiService/apiService";
 
 import "./AuthManagement.css";
 
 const Register = () => {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  // =========================================
+  // State
+  // =========================================
 
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-    const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState(false);
 
-    const [success, setSuccess] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-    const [showPassword, setShowPassword] = useState(false);
+  // =========================================
+  // Handle Input Change
+  // =========================================
 
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const handleChange = (event) => {
+    const { name, value } = event.target;
 
-    const [formData, setFormData] = useState({
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-        firstName: "",
+  // =========================================
+  // Register
+  // =========================================
 
-        lastName: "",
+ const handleSubmit = async (event) => {
+    event.preventDefault();
 
-        username: "",
+    setLoading(true);
+    setError("");
+    setSuccess("");
 
-        email: "",
+    if (formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match.");
+        setLoading(false);
+        return;
+    }
 
-        phoneNumber: "",
+    try {
 
-        password: "",
-
-        confirmPassword: ""
-
-    });
-
-    //=========================================
-    // Handle Change
-    //=========================================
-
-    const handleChange = (e) => {
-
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-
-            ...prev,
-
-            [name]: value
-
-        }));
-
-    };
-
-    //=========================================
-    // Register
-    //=========================================
-
-    const handleSubmit = async (e) => {
-
-        e.preventDefault();
-
-        setError("");
-
-        setSuccess("");
-
-        if (formData.password !== formData.confirmPassword) {
-
-            setError("Passwords do not match.");
-
-            return;
-
-        }
-
-        try {
-
-            setLoading(true);
-
-            await authService.register({
-
+        const response = await axios.post(
+            "https://localhost:5001/api/auth/register",
+            {
                 firstName: formData.firstName,
-
                 lastName: formData.lastName,
-
                 username: formData.username,
-
                 email: formData.email,
-
                 phoneNumber: formData.phoneNumber,
+                password: formData.password,
+            }
+        );
 
-                password: formData.password
+        setSuccess(
+            response.data.message || "Registration successful."
+        );
 
-            });
+        setTimeout(() => {
+            navigate("/login");
+        }, 1500);
 
-            setSuccess("Registration successful.");
+    } catch (error) {
 
-            setTimeout(() => {
+        setError(
+            error.response?.data?.message ||
+            "Registration failed."
+        );
 
-                navigate("/login");
+    } finally {
 
-            }, 1500);
+        setLoading(false);
 
-        }
-        catch (err) {
+    }
+};
 
-            setError(
+  return (
+    <Box className="auth-container">
+      <Card className="auth-card auth-large-card">
+        <CardContent>
+          <Stack spacing={2} alignItems="center" mb={3}>
+            <PersonAdd
+              color="primary"
+              sx={{ fontSize: 60 }}
+            />
 
-                err?.response?.data?.message ||
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+            >
+              Create Account
+            </Typography>
 
-                "Registration failed."
+            <Typography color="text.secondary">
+              Register to Seller Portal
+            </Typography>
+          </Stack>
 
-            );
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-        }
-        finally {
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
-            setLoading(false);
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="First Name"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
 
-        }
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Last Name"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
 
-    };
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
 
-    return (
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Email Address"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+            />
 
-        <Box className="auth-container">
-
-            <Card className="auth-card auth-large-card">
-
-                <CardContent>
-
-                    <Stack
-                        spacing={2}
-                        alignItems="center"
-                        mb={3}
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Phone Number"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+              autoComplete="tel"
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              required
+              autoComplete="new-password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      edge="end"
+                      onClick={() =>
+                        setShowPassword((prev) => !prev)
+                      }
                     >
-
-                        <PersonAdd
-                            color="primary"
-                            sx={{ fontSize: 60 }}
-                        />
-
-                        <Typography
-                            variant="h4"
-                            fontWeight="bold"
-                        >
-
-                            Create Account
-
-                        </Typography>
-
-                        <Typography
-                            color="text.secondary"
-                        >
-
-                            Register to Seller Portal
-
-                        </Typography>
-
-                    </Stack>
-
-                    {
-
-                        error &&
-
-                        <Alert
-                            severity="error"
-                            sx={{ mb: 2 }}
-                        >
-
-                            {error}
-
-                        </Alert>
-
-                    }
-
-                    {
-
-                        success &&
-
-                        <Alert
-                            severity="success"
-                            sx={{ mb: 2 }}
-                        >
-
-                            {success}
-
-                        </Alert>
-
-                    }
-
-                    <form onSubmit={handleSubmit}>
-
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="First Name"
-                            name="firstName"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Last Name"
-                            name="lastName"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Username"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Phone Number"
-                            name="phoneNumber"
-                            value={formData.phoneNumber}
-                            onChange={handleChange}
-                        />
-
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Password"
-                            name="password"
-                            type={
-                                showPassword
-                                    ? "text"
-                                    : "password"
-                            }
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            InputProps={{
-                                endAdornment:
-                                    <InputAdornment position="end">
-
-                                        <IconButton
-                                            onClick={() =>
-                                                setShowPassword(!showPassword)
-                                            }
-                                        >
-
-                                            {
-
-                                                showPassword
-
-                                                    ?
-
-                                                    <VisibilityOff />
-
-                                                    :
-
-                                                    <Visibility />
-
-                                            }
-
-                                        </IconButton>
-
-                                    </InputAdornment>
-                            }}
-                        />
-
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            type={
-                                showConfirmPassword
-                                    ? "text"
-                                    : "password"
-                            }
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            required
-                            InputProps={{
-                                endAdornment:
-                                    <InputAdornment position="end">
-
-                                        <IconButton
-                                            onClick={() =>
-                                                setShowConfirmPassword(
-                                                    !showConfirmPassword
-                                                )
-                                            }
-                                        >
-
-                                            {
-
-                                                showConfirmPassword
-
-                                                    ?
-
-                                                    <VisibilityOff />
-
-                                                    :
-
-                                                    <Visibility />
-
-                                            }
-
-                                        </IconButton>
-
-                                    </InputAdornment>
-                            }}
-                        />
-
-                        <Button
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3 }}
-                            type="submit"
-                            disabled={loading}
-                        >
-
-                            {
-
-                                loading
-
-                                    ?
-
-                                    <CircularProgress
-                                        size={24}
-                                        color="inherit"
-                                    />
-
-                                    :
-
-                                    "Register"
-
-                            }
-
-                        </Button>
-
-                        <Typography
-                            align="center"
-                            mt={3}
-                        >
-
-                            Already have an account?
-
-                            <Link
-                                component={RouterLink}
-                                to="/login"
-                                sx={{ ml: 1 }}
-                            >
-
-                                Login
-
-                            </Link>
-
-                        </Typography>
-
-                    </form>
-
-                </CardContent>
-
-            </Card>
-
-        </Box>
-
-    );
-
+                      {showPassword ? (
+                        <VisibilityOff />
+                      ) : (
+                        <Visibility />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Confirm Password"
+              name="confirmPassword"
+              type={
+                showConfirmPassword
+                  ? "text"
+                  : "password"
+              }
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              autoComplete="new-password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      edge="end"
+                      onClick={() =>
+                        setShowConfirmPassword(
+                          (prev) => !prev
+                        )
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <VisibilityOff />
+                      ) : (
+                        <Visibility />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Button
+              fullWidth
+              variant="contained"
+              size="large"
+              type="submit"
+              sx={{ mt: 3 }}
+              disabled={loading}
+            >
+              {loading ? (
+                <CircularProgress
+                  size={24}
+                  color="inherit"
+                />
+              ) : (
+                "Register"
+              )}
+            </Button>
+
+            <Typography
+              align="center"
+              sx={{ mt: 3 }}
+            >
+              Already have an account?
+              <Link
+                component={RouterLink}
+                to="/login"
+                sx={{ ml: 1 }}
+              >
+                Login
+              </Link>
+            </Typography>
+          </form>
+        </CardContent>
+      </Card>
+    </Box>
+  );
 };
 
 export default Register;
