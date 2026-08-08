@@ -11,45 +11,20 @@ import DeleteCustomerAddressDialog from "./DeleteCustomerAddressDialog";
 
 
 const CustomerAddressList = () => {
-
-
     // ==========================================
     // State
     // ==========================================
 
-
     const [addresses, setAddresses] = useState([]);
-
-
     const [filteredAddresses, setFilteredAddresses] = useState([]);
-
-
     const [loading, setLoading] = useState(false);
-
-
     const [searchText, setSearchText] = useState("");
-
-
-    const [addressTypeFilter, setAddressTypeFilter] =
-
-        useState("All");
-
-
+    const [addressTypeFilter, setAddressTypeFilter] =useState("All");
     const [selectedAddress, setSelectedAddress] = useState(null);
-
-
     const [modalOpen, setModalOpen] = useState(false);
-
-
     const [viewOpen, setViewOpen] = useState(false);
-
-
     const [deleteOpen, setDeleteOpen] = useState(false);
-
-
     const [page, setPage] = useState(1);
-
-
     const [pageSize, setPageSize] = useState(10);
 
 
@@ -62,345 +37,129 @@ const CustomerAddressList = () => {
     const loadCustomerAddresses = async () => {
 
         try {
-
             setLoading(true);
-
-
-            const response =
-
-                await apiService.getCustomerAddresses();
-
-
-            setAddresses(
-
-                response.data
-
-            );
-
-
-            setFilteredAddresses(
-
-                response.data
-
-            );
-
-
+            const response = await apiService.getCustomerAddresses();
+            setAddresses(response.data);
+            setFilteredAddresses(response.data);
         }
-
         catch (error) {
-
-            console.log(
-
-                "Load Customer Addresses Error",
-
+            console.log("Load Customer Addresses Error",
                 error
-
             );
-
         }
-
         finally {
-
             setLoading(false);
-
         }
-
     };
-
-
-
     useEffect(() => {
-
         loadCustomerAddresses();
-
     }, []);
-
-
-
     // ==========================================
     // Search & Filter
     // ==========================================
-
-
     useEffect(() => {
-
-
         let result = [
-
             ...addresses
-
         ];
-
-
-
         if (
-
             searchText.trim() !== ""
-
         ) {
-
-
-            const search =
-
-                searchText.toLowerCase();
-
-
-
-            result = result.filter(item =>
-
-
-                item.AddressType
-
+            const search = searchText.toLowerCase();
+            result = result.filter(item =>item.AddressType
                     ?.toLowerCase()
-
                     .includes(search)
-
-
                 ||
-
                 item.AddressLine1
-
                     ?.toLowerCase()
-
                     .includes(search)
-
-
                 ||
-
                 item.AddressLine2
-
                     ?.toLowerCase()
-
                     .includes(search)
-
-
                 ||
-
                 item.City
-
                     ?.toLowerCase()
-
                     .includes(search)
-
-
                 ||
-
                 item.State
-
                     ?.toLowerCase()
-
                     .includes(search)
-
-
                 ||
-
                 item.Country
-
                     ?.toLowerCase()
-
                     .includes(search)
-
-
                 ||
-
                 item.PostalCode
-
                     ?.toLowerCase()
-
                     .includes(search)
-
             );
-
-
         }
-
-
-
         if (
-
             addressTypeFilter !== "All"
-
         ) {
-
-
-            result = result.filter(item =>
-
-
-                item.AddressType ===
-
-                addressTypeFilter
-
-
-            );
-
-
+            result = result.filter(item =>item.AddressType ===addressTypeFilter);
         }
-
-
-
         setFilteredAddresses(result);
-
-
         setPage(1);
-
-
-
     }, [
-
         addresses,
-
         searchText,
-
         addressTypeFilter
-
     ]);
-
-
-
     // ==========================================
     // Pagination
     // ==========================================
 
-
     const totalPages = Math.ceil(
-
         filteredAddresses.length /
-
         pageSize
-
     );
-
-
-
     const pagedAddresses =
-
         filteredAddresses.slice(
-
             (page - 1) * pageSize,
-
             page * pageSize
-
         );
-
-
-
     // ==========================================
     // Save Address
     // ==========================================
 
-
     const handleSave = async (data) => {
-
-
         try {
-
-
-            if (
-
-                data.CustomerAddressId
-
-            ) {
-
-
+            if (data.CustomerAddressId) {
                 await apiService.updateCustomerAddress(
-
                     data.CustomerAddressId,
-
                     data
-
                 );
-
-
             }
-
             else {
-
-
-                await apiService.createCustomerAddress(
-
-                    data
-
-                );
-
-
+                await apiService.createCustomerAddress(data);
             }
-
-
-
             await loadCustomerAddresses();
-
-
             setModalOpen(false);
-
-
             setSelectedAddress(null);
-
-
-
         }
-
         catch(error) {
-
-
             console.log(
-
                 "Save Address Error",
-
                 error
-
             );
-
-
         }
-
-
     };
         // ==========================================
     // Delete Address
     // ==========================================
 
-
     const handleDelete = async (id) => {
-
-
         try {
-
-
             await apiService.deleteCustomerAddress(id);
-
-
-
             await loadCustomerAddresses();
-
-
-
             setDeleteOpen(false);
-
-
             setSelectedAddress(null);
-
-
-
         }
-
         catch(error) {
-
-
-            console.log(
-
-                "Delete Address Error",
-
-                error
-
-            );
-
-
+        console.log( "Delete Address Error",error);
         }
-
-
     };
-
-
 
     // ==========================================
     // Render
