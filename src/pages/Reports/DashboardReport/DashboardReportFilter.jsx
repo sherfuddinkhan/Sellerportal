@@ -1,25 +1,7 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
-
+import React, {useEffect,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-} from "@mui/material";
-
-import {
-  Clear,
-  FilterAlt,
-} from "@mui/icons-material";
+import {Box,Button,FormControl,InputLabel,MenuItem,Select,Stack,TextField} from "@mui/material";
+import {Clear,FilterAlt} from "@mui/icons-material";
 
 //======================================================
 // DashboardReportFilter

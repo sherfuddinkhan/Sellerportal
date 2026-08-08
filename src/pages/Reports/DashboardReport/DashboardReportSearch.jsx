@@ -1,22 +1,7 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
-
+import React, {useEffect,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Tooltip,
-} from "@mui/material";
-
-import {
-  Clear,
-  Search,
-} from "@mui/icons-material";
+import {Box,IconButton,InputAdornment,TextField,Tooltip} from "@mui/material";
+import {Clear,Search} from "@mui/icons-material";
 
 //======================================================
 // DashboardReportSearch

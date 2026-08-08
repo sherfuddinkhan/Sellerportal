@@ -1,28 +1,7 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Chip,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  Delete,
-  Visibility,
-} from "@mui/icons-material";
+import {Box,Chip,IconButton,Paper,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Tooltip,Typography} from "@mui/material";
+import {Delete,Visibility} from "@mui/icons-material";
 
 //======================================================
 // DashboardReportTable
