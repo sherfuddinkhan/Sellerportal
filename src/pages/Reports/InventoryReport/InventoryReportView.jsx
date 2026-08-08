@@ -1,40 +1,16 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Chip,
-  Divider,
-  Grid,
-  IconButton,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  Close,
-  Inventory2,
-} from "@mui/icons-material";
+import {Box,Chip,Divider,Grid,IconButton,Paper,Stack,Typography} from "@mui/material";
+import {Close,Inventory2} from "@mui/icons-material";
 
 //======================================================
 // InventoryReportView
 //======================================================
-
-const InventoryReportView = ({
-  open = false,
-  report = null,
-  onClose,
-  loading = false,
+const InventoryReportView = ({open = false,report = null,onClose,loading = false,
 }) => {
-
   //====================================================
   // Report ID
   //====================================================
-
   const reportId = useMemo(
     () =>
       report?.id ??

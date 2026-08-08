@@ -1,28 +1,7 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  CheckCircle,
-  Delete,
-  Edit,
-  Visibility,
-  Block,
-} from "@mui/icons-material";
+import {Box,Chip,Divider,Grid,IconButton,Paper,Stack,Typography} from "@mui/material";
+import {CheckCircle,Delete,Edit,Visibility,Block} from "@mui/icons-material";
 
 //======================================================
 // InventoryReportCard

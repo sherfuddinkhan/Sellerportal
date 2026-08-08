@@ -1,21 +1,7 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  IconButton,
-  InputAdornment,
-  TextField,
-  Tooltip,
-} from "@mui/material";
-
-import {
-  Clear,
-  Search,
-} from "@mui/icons-material";
+import {Box,Chip,Divider,Grid,IconButton,Paper,Stack,Typography} from "@mui/material";
+import {Clear,Search} from "@mui/icons-material";
 
 //======================================================
 // InventoryReportSearch
@@ -246,10 +232,6 @@ InventoryReportSearch.defaultProps = {
 
   placeholder:
     "Search inventory reports...",
-};
-
-//======================================================
-// Export
-//======================================================
-
+    
+}
 export default InventoryReportSearch;
