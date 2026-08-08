@@ -1,0 +1,387 @@
+/*======================================================
+  Inventory Report
+======================================================*/
+
+.inventory-report {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Header
+======================================================*/
+
+.inventory-report-header {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.inventory-report-title {
+  font-weight: 600;
+}
+
+.inventory-report-subtitle {
+  margin-top: 4px;
+  color: #6b7280;
+}
+
+/*======================================================
+  Toolbar
+======================================================*/
+
+.inventory-report-toolbar {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.inventory-report-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Filter
+======================================================*/
+
+.inventory-report-filter {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.inventory-report-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/*======================================================
+  Statistics
+======================================================*/
+
+.inventory-report-statistics {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.inventory-report-stat-card {
+  height: 100%;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.inventory-report-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
+}
+
+.inventory-report-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.inventory-report-stat-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/*======================================================
+  Search
+======================================================*/
+
+.inventory-report-search {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Table Container
+======================================================*/
+
+.inventory-report-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.inventory-report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-report-table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inventory-report-table td {
+  vertical-align: middle;
+}
+
+.inventory-report-table-row {
+  transition:
+    background-color 0.15s ease;
+}
+
+.inventory-report-table-row:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.025
+  );
+}
+
+/*======================================================
+  Report Name
+======================================================*/
+
+.inventory-report-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.inventory-report-id {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/*======================================================
+  Status
+======================================================*/
+
+.inventory-report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+}
+
+/*======================================================
+  Card
+======================================================*/
+
+.inventory-report-card {
+  height: 100%;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.inventory-report-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 5px 16px rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
+}
+
+.inventory-report-card-content {
+  padding: 16px;
+}
+
+/*======================================================
+  View
+======================================================*/
+
+.inventory-report-view {
+  width: 100%;
+}
+
+.inventory-report-view-section {
+  margin-bottom: 20px;
+}
+
+.inventory-report-view-label {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.inventory-report-view-value {
+  font-weight: 500;
+}
+
+/*======================================================
+  Modal
+======================================================*/
+
+.inventory-report-modal {
+  width: 100%;
+}
+
+.inventory-report-modal-content {
+  padding: 24px;
+}
+
+.inventory-report-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+}
+
+/*======================================================
+  Export
+======================================================*/
+
+.inventory-report-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/*======================================================
+  Pagination
+======================================================*/
+
+.inventory-report-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 12px 0;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.inventory-report-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 32px;
+  text-align: center;
+}
+
+.inventory-report-empty-title {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.inventory-report-empty-message {
+  color: #6b7280;
+}
+
+/*======================================================
+  Loading
+======================================================*/
+
+.inventory-report-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  width: 100%;
+}
+
+/*======================================================
+  Error
+======================================================*/
+
+.inventory-report-error {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Responsive
+======================================================*/
+
+@media (max-width: 900px) {
+  .inventory-report-toolbar-actions {
+    width: 100%;
+  }
+
+  .inventory-report-table-container {
+    overflow-x: auto;
+  }
+
+  .inventory-report-stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .inventory-report {
+    padding: 8px;
+  }
+
+  .inventory-report-toolbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inventory-report-filter-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .inventory-report-filter-actions
+    button {
+    width: 100%;
+  }
+
+  .inventory-report-modal-content {
+    padding: 16px;
+  }
+
+  .inventory-report-modal-actions {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inventory-report-modal-actions
+    button {
+    width: 100%;
+  }
+
+  .inventory-report-pagination {
+    justify-content: center;
+  }
+}
+
+/*======================================================
+  Print
+======================================================*/
+
+@media print {
+  .inventory-report-toolbar,
+  .inventory-report-filter,
+  .inventory-report-search,
+  .inventory-report-export,
+  .inventory-report-pagination {
+    display: none !important;
+  }
+
+  .inventory-report {
+    width: 100%;
+    padding: 0;
+  }
+
+  .inventory-report-table-container {
+    overflow: visible;
+  }
+
+  .inventory-report-table {
+    width: 100%;
+  }
+}

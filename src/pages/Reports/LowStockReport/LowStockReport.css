@@ -1,0 +1,440 @@
+/*======================================================
+  Low Stock Report
+======================================================*/
+
+.low-stock-report {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Header
+======================================================*/
+
+.low-stock-report-header {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.low-stock-report-title {
+  font-weight: 600;
+}
+
+.low-stock-report-subtitle {
+  margin-top: 4px;
+  color: #6b7280;
+}
+
+/*======================================================
+  Toolbar
+======================================================*/
+
+.low-stock-report-toolbar {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.low-stock-report-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Search
+======================================================*/
+
+.low-stock-report-search {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Filter
+======================================================*/
+
+.low-stock-report-filter {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.low-stock-report-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Statistics
+======================================================*/
+
+.low-stock-report-statistics {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.low-stock-report-stat-card {
+  height: 100%;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.low-stock-report-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.low-stock-report-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.low-stock-report-stat-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/*======================================================
+  Table
+======================================================*/
+
+.low-stock-report-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.low-stock-report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.low-stock-report-table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.low-stock-report-table td {
+  vertical-align: middle;
+}
+
+.low-stock-report-table-row {
+  transition: background-color 0.15s ease;
+}
+
+.low-stock-report-table-row:hover {
+  background-color: rgba(0, 0, 0, 0.025);
+}
+
+/*======================================================
+  Product
+======================================================*/
+
+.low-stock-product-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.low-stock-product-code {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/*======================================================
+  Stock Quantity
+======================================================*/
+
+.low-stock-quantity {
+  font-weight: 600;
+}
+
+.low-stock-quantity-critical {
+  color: #d32f2f;
+}
+
+.low-stock-quantity-warning {
+  color: #ed6c02;
+}
+
+.low-stock-quantity-normal {
+  color: #2e7d32;
+}
+
+/*======================================================
+  Stock Level
+======================================================*/
+
+.low-stock-level {
+  min-width: 100px;
+}
+
+.low-stock-level-bar {
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #e5e7eb;
+}
+
+.low-stock-level-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s ease;
+}
+
+.low-stock-level-fill.critical {
+  background-color: #d32f2f;
+}
+
+.low-stock-level-fill.warning {
+  background-color: #ed6c02;
+}
+
+.low-stock-level-fill.normal {
+  background-color: #2e7d32;
+}
+
+/*======================================================
+  Status
+======================================================*/
+
+.low-stock-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+/*======================================================
+  Reorder
+======================================================*/
+
+.low-stock-reorder {
+  font-weight: 600;
+}
+
+.low-stock-reorder-required {
+  color: #d32f2f;
+}
+
+.low-stock-reorder-not-required {
+  color: #2e7d32;
+}
+
+/*======================================================
+  Cards
+======================================================*/
+
+.low-stock-report-card {
+  height: 100%;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.low-stock-report-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 5px 16px rgba(0, 0, 0, 0.08);
+}
+
+.low-stock-report-card-content {
+  padding: 16px;
+}
+
+/*======================================================
+  View
+======================================================*/
+
+.low-stock-report-view {
+  width: 100%;
+}
+
+.low-stock-report-view-section {
+  margin-bottom: 20px;
+}
+
+.low-stock-report-view-label {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.low-stock-report-view-value {
+  font-weight: 500;
+}
+
+/*======================================================
+  Modal
+======================================================*/
+
+.low-stock-report-modal {
+  width: 100%;
+}
+
+.low-stock-report-modal-content {
+  padding: 24px;
+}
+
+.low-stock-report-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+}
+
+/*======================================================
+  Export
+======================================================*/
+
+.low-stock-report-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/*======================================================
+  Pagination
+======================================================*/
+
+.low-stock-report-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 12px 0;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.low-stock-report-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 32px;
+  text-align: center;
+}
+
+.low-stock-report-empty-title {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.low-stock-report-empty-message {
+  color: #6b7280;
+}
+
+/*======================================================
+  Loading
+======================================================*/
+
+.low-stock-report-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  width: 100%;
+}
+
+/*======================================================
+  Error
+======================================================*/
+
+.low-stock-report-error {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Responsive
+======================================================*/
+
+@media (max-width: 900px) {
+  .low-stock-report-toolbar-actions {
+    width: 100%;
+  }
+
+  .low-stock-report-table-container {
+    overflow-x: auto;
+  }
+
+  .low-stock-report-stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .low-stock-report {
+    padding: 8px;
+  }
+
+  .low-stock-report-toolbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .low-stock-report-filter-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .low-stock-report-filter-actions button {
+    width: 100%;
+  }
+
+  .low-stock-report-modal-content {
+    padding: 16px;
+  }
+
+  .low-stock-report-modal-actions {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .low-stock-report-modal-actions button {
+    width: 100%;
+  }
+
+  .low-stock-report-pagination {
+    justify-content: center;
+  }
+}
+
+/*======================================================
+  Print
+======================================================*/
+
+@media print {
+  .low-stock-report-toolbar,
+  .low-stock-report-filter,
+  .low-stock-report-search,
+  .low-stock-report-export,
+  .low-stock-report-pagination {
+    display: none !important;
+  }
+
+  .low-stock-report {
+    width: 100%;
+    padding: 0;
+  }
+
+  .low-stock-report-table-container {
+    overflow: visible;
+  }
+
+  .low-stock-report-table {
+    width: 100%;
+  }
+}
