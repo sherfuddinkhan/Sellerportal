@@ -56,6 +56,9 @@ export {
 export {
   default as DashboardReportFilter,
 } from "./DashboardReportFilter";
+export {
+  default as DashboardReportService,
+} from "./DashboardReportService";
 
 //======================================================
 // Helper Functions
