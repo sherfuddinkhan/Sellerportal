@@ -47,9 +47,7 @@ const CategoryList = () => {
             result = result.filter(x =>
 
                 x.isActive === active
-
             );
-
         }
 
         setFilteredCategories(result);

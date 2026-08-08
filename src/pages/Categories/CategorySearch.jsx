@@ -9,37 +9,22 @@ const CategorySearch = ({
     return (
 
         <TextField
-
             fullWidth
-
             size="small"
-
             placeholder="Search Category..."
-
             value={searchText}
-
             onChange={(e) =>
                 setSearchText(e.target.value)
             }
-
             InputProps={{
-
                 startAdornment: (
-
                     <InputAdornment position="start">
-
                         <SearchIcon />
-
                     </InputAdornment>
-
                 )
-
             }}
-
         />
-
     );
-
 };
 
 export default CategorySearch;
