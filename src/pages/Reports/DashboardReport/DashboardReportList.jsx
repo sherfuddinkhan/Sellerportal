@@ -950,3 +950,43 @@ const DashboardReportList = () => {
       {/*================================================
           Part 2A Ends Here
       =================================================*/}
+            {/*================================================
+          Export
+      =================================================*/}
+
+      <Box
+        className="dashboard-report-export"
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          mt: 2,
+        }}
+      >
+        <DashboardReportExport
+          reports={filteredReports}
+          filters={filters}
+          filename="dashboard-report"
+        />
+      </Box>
+
+      {/*================================================
+          Selected Report View
+      =================================================*/}
+
+      {selectedReport && (
+        <DashboardReportView
+          open={viewOpen}
+          report={selectedReport}
+          onClose={handleCloseView}
+        />
+      )}
+
+    </Box>
+  );
+};
+
+//======================================================
+// Export
+//======================================================
+
+export default DashboardReportList;
