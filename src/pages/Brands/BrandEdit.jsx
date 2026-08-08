@@ -29,66 +29,40 @@ const BrandEdit = () => {
     };
     const handleUpdate = async (values) => {
         try {
-
             await apiService.updateBrand(id, values);
-
             alert("Brand Updated Successfully.");
-
             navigate("/brands");
-
         }
         catch (err) {
-
             console.error(err);
-
             alert("Unable to Update Brand.");
-
         }
-
     };
-
     const handleCancel = () => {
-
         navigate("/brands");
-
     };
-
     if (loading) {
-
         return (
-
             <Box
                 display="flex"
                 justifyContent="center"
                 mt={10}
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
-
     }
 
     if (error) {
-
         return (
-
             <Alert severity="error">
-
                 {error}
-
             </Alert>
-
         );
-
     }
 
     return (
-
         <Box p={3}>
-
             <Paper
                 elevation={3}
                 sx={{
@@ -96,32 +70,20 @@ const BrandEdit = () => {
                     borderRadius: 3
                 }}
             >
-
                 <Typography
                     variant="h4"
                     gutterBottom
                 >
-
                     Edit Brand
-
                 </Typography>
-
                 <BrandForm
-
                     initialValues={brand}
-
                     onSubmit={handleUpdate}
-
                     onCancel={handleCancel}
-
                 />
-
             </Paper>
-
         </Box>
-
     );
-
 };
 
 export default BrandEdit;

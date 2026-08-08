@@ -31,7 +31,6 @@ const BrandCreate = () => {
                     borderRadius: 3
                 }}
             >
-
                 <Typography
                     variant="h4"
                     gutterBottom

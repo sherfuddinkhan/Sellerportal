@@ -70,9 +70,7 @@ const BrandCard = ({brand,onView,onEdit,onDelete
                                 ).toLocaleDateString()
                                 : "-"
                         }
-
                     </Typography>
-
                 </Box>
             </CardContent>
             <CardActions>
@@ -82,60 +80,35 @@ const BrandCard = ({brand,onView,onEdit,onDelete
                     width="100%"
                 >
                     <Button
-
                         fullWidth
                         startIcon={<Visibility />}
                         variant="outlined"
                         onClick={() => onView(brand)}
                     >
-
                         View
-
                     </Button>
-
                     <Button
-
                         fullWidth
-
                         startIcon={<Edit />}
-
                         color="warning"
-
                         variant="outlined"
-
                         onClick={() => onEdit(brand)}
-
                     >
                         Edit
-
                     </Button>
-
                     <Button
-
                         fullWidth
-
                         startIcon={<Delete />}
-
                         color="error"
-
                         variant="outlined"
-
                         onClick={() => onDelete(brand)}
-
                     >
-
                         Delete
-
                     </Button>
-
                 </Stack>
-
             </CardActions>
-
         </Card>
-
     );
-
 };
 
 export default BrandCard;

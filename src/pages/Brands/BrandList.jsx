@@ -70,39 +70,27 @@ const BrandList = () => {
 
     if (error) {
         return (
-
             <Alert severity="error">
-
                 {error}
-
             </Alert>
-
         );
-
     }
-
     return (
-
         <Box p={3}>
-
             <BrandToolbar
                 onRefresh={loadBrands}
             />
-
             <BrandStatistics
                 brands={filteredBrands}
             />
-
             <BrandSearch
                 value={searchText}
                 onChange={setSearchText}
             />
-
             <BrandFilters
                 value={statusFilter}
                 onChange={setStatusFilter}
             />
-
           <BrandTable
     brands={filteredBrands.slice(
         page * rowsPerPage,
@@ -110,33 +98,20 @@ const BrandList = () => {
     )}
     refresh={loadBrands}
 />
-
            <BrandPagination
-
     page={page}
-
     rowsPerPage={rowsPerPage}
-
     totalRecords={filteredBrands.length}
-
     onPageChange={(event, newPage) =>
         setPage(newPage)
     }
-
     onRowsPerPageChange={(event) => {
-
         setRowsPerPage(parseInt(event.target.value, 10));
-
         setPage(0);
-
     }}
-
 />
-
         </Box>
-
     );
-
 };
 
 export default BrandList;
