@@ -9,16 +9,18 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-
+import {
+  normalizeCustomers,
+  calculateCustomerStatistics,
+  sortCustomers,
+} from "./CustomerReportHelper";
 import {
   People,
-  Person,
   ShoppingCart,
   CurrencyRupee,
-  Payments,
   AccountBalanceWallet,
   TrendingUp,
-  PersonOff,
+  TrendingDown,
 } from "@mui/icons-material";
 
 //======================================================
@@ -26,23 +28,121 @@ import {
 //======================================================
 
 const CustomerReportStatistics = ({
-  statistics = {},
+  customers = [],
+  loading = false,
 }) => {
 
   //====================================================
-  // Statistics Values
+  // Statistics Calculation
   //====================================================
 
-  const {
-    totalCustomers = 0,
-    activeCustomers = 0,
-    inactiveCustomers = 0,
-    totalOrders = 0,
-    totalSales = 0,
-    totalPaid = 0,
-    totalOutstanding = 0,
-    averageOrderValue = 0,
-  } = statistics;
+  const statistics = useMemo(() => {
+
+    const data = Array.isArray(customers)
+      ? customers
+      : [];
+
+    const totalCustomers =
+      data.length;
+
+    const activeCustomers =
+      data.filter(
+        (customer) =>
+          String(
+            customer?.status || ""
+          ).toLowerCase() === "active"
+      ).length;
+
+    const inactiveCustomers =
+      data.filter(
+        (customer) =>
+          String(
+            customer?.status || ""
+          ).toLowerCase() === "inactive"
+      ).length;
+
+    const blockedCustomers =
+      data.filter(
+        (customer) =>
+          String(
+            customer?.status || ""
+          ).toLowerCase() === "blocked"
+      ).length;
+
+    const totalOrders =
+      data.reduce(
+        (sum, customer) =>
+          sum +
+          Number(
+            customer?.totalOrders ??
+            customer?.orderCount ??
+            0
+          ),
+        0
+      );
+
+    const totalSales =
+      data.reduce(
+        (sum, customer) =>
+          sum +
+          Number(
+            customer?.totalSales ??
+            customer?.totalAmount ??
+            customer?.salesAmount ??
+            0
+          ),
+        0
+      );
+
+    const totalPaid =
+      data.reduce(
+        (sum, customer) =>
+          sum +
+          Number(
+            customer?.totalPaid ??
+            customer?.paidAmount ??
+            0
+          ),
+        0
+      );
+
+    const totalOutstanding =
+      data.reduce(
+        (sum, customer) =>
+          sum +
+          Number(
+            customer?.totalOutstanding ??
+            customer?.outstandingAmount ??
+            customer?.balance ??
+            0
+          ),
+        0
+      );
+
+    const averageOrderValue =
+      totalOrders > 0
+        ? totalSales / totalOrders
+        : 0;
+
+    const averageCustomerValue =
+      totalCustomers > 0
+        ? totalSales / totalCustomers
+        : 0;
+
+    return {
+      totalCustomers,
+      activeCustomers,
+      inactiveCustomers,
+      blockedCustomers,
+      totalOrders,
+      totalSales,
+      totalPaid,
+      totalOutstanding,
+      averageOrderValue,
+      averageCustomerValue,
+    };
+
+  }, [customers]);
 
   //====================================================
   // Currency Formatter
@@ -50,11 +150,14 @@ const CustomerReportStatistics = ({
 
   const formatCurrency = useMemo(
     () => (value) =>
-      new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 2,
-      }).format(Number(value) || 0),
+      new Intl.NumberFormat(
+        "en-IN",
+        {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 2,
+        }
+      ).format(Number(value) || 0),
     []
   );
 
@@ -64,109 +167,105 @@ const CustomerReportStatistics = ({
 
   const formatNumber = useMemo(
     () => (value) =>
-      new Intl.NumberFormat("en-IN").format(
-        Number(value) || 0
-      ),
+      new Intl.NumberFormat(
+        "en-IN"
+      ).format(Number(value) || 0),
     []
-  );
-
-  //====================================================
-  // Statistics Cards
-  //====================================================
-
-  const cards = useMemo(
-    () => [
-      {
-        key: "totalCustomers",
-        title: "Total Customers",
-        value: formatNumber(totalCustomers),
-        icon: <People />,
-        color: "primary",
-      },
-
-      {
-        key: "activeCustomers",
-        title: "Active Customers",
-        value: formatNumber(activeCustomers),
-        icon: <Person />,
-        color: "success",
-      },
-
-      {
-        key: "inactiveCustomers",
-        title: "Inactive Customers",
-        value: formatNumber(inactiveCustomers),
-        icon: <PersonOff />,
-        color: "warning",
-      },
-
-      {
-        key: "totalOrders",
-        title: "Total Orders",
-        value: formatNumber(totalOrders),
-        icon: <ShoppingCart />,
-        color: "info",
-      },
-
-      {
-        key: "totalSales",
-        title: "Total Sales",
-        value: formatCurrency(totalSales),
-        icon: <CurrencyRupee />,
-        color: "success",
-      },
-
-      {
-        key: "totalPaid",
-        title: "Total Paid",
-        value: formatCurrency(totalPaid),
-        icon: <Payments />,
-        color: "primary",
-      },
-
-      {
-        key: "totalOutstanding",
-        title: "Outstanding",
-        value: formatCurrency(totalOutstanding),
-        icon: <AccountBalanceWallet />,
-        color: "error",
-      },
-
-      {
-        key: "averageOrderValue",
-        title: "Average Order Value",
-        value: formatCurrency(
-          averageOrderValue
-        ),
-        icon: <TrendingUp />,
-        color: "secondary",
-      },
-    ],
-    [
-      totalCustomers,
-      activeCustomers,
-      inactiveCustomers,
-      totalOrders,
-      totalSales,
-      totalPaid,
-      totalOutstanding,
-      averageOrderValue,
-      formatCurrency,
-      formatNumber,
-    ]
   );
 
   //====================================================
   // Part 1A Ends Here
   //====================================================
     //====================================================
-  // Statistics Cards JSX
+  // Statistics Card
+  //====================================================
+
+  const StatisticCard = ({
+    title,
+    value,
+    subtitle,
+    icon,
+    iconColor = "primary",
+    valueColor = "text.primary",
+  }) => (
+    <Card
+      variant="outlined"
+      sx={{
+        height: "100%",
+        borderRadius: 2,
+        transition: "box-shadow 0.2s ease",
+        "&:hover": {
+          boxShadow: 3,
+        },
+      }}
+    >
+      <CardContent>
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          justifyContent="space-between"
+        >
+
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              noWrap
+            >
+              {title}
+            </Typography>
+
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color={valueColor}
+              sx={{ mt: 0.5 }}
+            >
+              {loading ? "—" : value}
+            </Typography>
+
+            {subtitle && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
+                {subtitle}
+              </Typography>
+            )}
+          </Box>
+
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              minWidth: 48,
+              borderRadius: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: `${iconColor}.light`,
+            }}
+          >
+            {icon}
+          </Box>
+
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
+  //====================================================
+  // Statistics JSX
   //====================================================
 
   return (
     <Box
       className="customer-report-statistics"
-      sx={{ mb: 3 }}
+      sx={{
+        width: "100%",
+        mb: 2,
+      }}
     >
 
       <Grid
@@ -174,138 +273,204 @@ const CustomerReportStatistics = ({
         spacing={2}
       >
 
-        {cards.map((card) => (
+        {/*==============================================
+            Total Customers
+        ==============================================*/}
 
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={3}
-            key={card.key}
-          >
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+        >
+          <StatisticCard
+            title="Total Customers"
+            value={formatNumber(
+              statistics.totalCustomers
+            )}
+            subtitle={`${formatNumber(
+              statistics.activeCustomers
+            )} active`}
+            icon={
+              <People color="primary" />
+            }
+            iconColor="primary"
+          />
+        </Grid>
 
-            <Card
-              variant="outlined"
-              sx={{
-                height: "100%",
-                borderRadius: 2,
-              }}
-            >
+        {/*==============================================
+            Active Customers
+        ==============================================*/}
 
-              <CardContent>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+        >
+          <StatisticCard
+            title="Active Customers"
+            value={formatNumber(
+              statistics.activeCustomers
+            )}
+            subtitle={`${formatNumber(
+              statistics.inactiveCustomers
+            )} inactive`}
+            icon={
+              <TrendingUp color="success" />
+            }
+            iconColor="success"
+            valueColor="success.main"
+          />
+        </Grid>
 
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  spacing={2}
-                >
+        {/*==============================================
+            Total Orders
+        ==============================================*/}
 
-                  {/*====================================
-                      Text
-                  ====================================*/}
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+        >
+          <StatisticCard
+            title="Total Orders"
+            value={formatNumber(
+              statistics.totalOrders
+            )}
+            subtitle={`Avg. ${formatCurrency(
+              statistics.averageOrderValue
+            )} / order`}
+            icon={
+              <ShoppingCart color="primary" />
+            }
+            iconColor="primary"
+          />
+        </Grid>
 
-                  <Box>
+        {/*==============================================
+            Total Sales
+        ==============================================*/}
 
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      {card.title}
-                    </Typography>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+        >
+          <StatisticCard
+            title="Total Sales"
+            value={formatCurrency(
+              statistics.totalSales
+            )}
+            subtitle={`Avg. ${formatCurrency(
+              statistics.averageCustomerValue
+            )} / customer`}
+            icon={
+              <CurrencyRupee color="success" />
+            }
+            iconColor="success"
+            valueColor="success.main"
+          />
+        </Grid>
 
-                    <Typography
-                      variant="h6"
-                      fontWeight={700}
-                    >
-                      {card.value}
-                    </Typography>
+        {/*==============================================
+            Total Paid
+        ==============================================*/}
 
-                  </Box>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={4}
+        >
+          <StatisticCard
+            title="Total Paid"
+            value={formatCurrency(
+              statistics.totalPaid
+            )}
+            subtitle="Collected from customers"
+            icon={
+              <AccountBalanceWallet
+                color="success"
+              />
+            }
+            iconColor="success"
+            valueColor="success.main"
+          />
+        </Grid>
 
-                  {/*====================================
-                      Icon
-                  ====================================*/}
+        {/*==============================================
+            Outstanding
+        ==============================================*/}
 
-                  <Box
-                    sx={{
-                      width: 46,
-                      height: 46,
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      bgcolor: `${card.color}.lighter`,
-                      color: `${card.color}.main`,
-                    }}
-                  >
-                    {card.icon}
-                  </Box>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={4}
+        >
+          <StatisticCard
+            title="Outstanding"
+            value={formatCurrency(
+              statistics.totalOutstanding
+            )}
+            subtitle="Pending customer balance"
+            icon={
+              <TrendingDown color="error" />
+            }
+            iconColor="error"
+            valueColor={
+              statistics.totalOutstanding > 0
+                ? "error.main"
+                : "success.main"
+            }
+          />
+        </Grid>
 
-                </Stack>
+        {/*==============================================
+            Inactive / Blocked
+        ==============================================*/}
 
-              </CardContent>
-
-            </Card>
-
-          </Grid>
-
-        ))}
+        <Grid
+          item
+          xs={12}
+          sm={12}
+          md={4}
+        >
+          <StatisticCard
+            title="Inactive / Blocked"
+            value={formatNumber(
+              statistics.inactiveCustomers +
+              statistics.blockedCustomers
+            )}
+            subtitle={`${formatNumber(
+              statistics.blockedCustomers
+            )} blocked`}
+            icon={
+              <People color="warning" />
+            }
+            iconColor="warning"
+            valueColor="warning.main"
+          />
+        </Grid>
 
       </Grid>
 
     </Box>
   );
 };
-
-export default CustomerReportStatistics;
 //======================================================
 // PropTypes
 //======================================================
 
 CustomerReportStatistics.propTypes = {
-  statistics: PropTypes.shape({
-    totalCustomers: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
+  customers: PropTypes.arrayOf(
+    PropTypes.object
+  ),
 
-    activeCustomers: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
-
-    inactiveCustomers: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
-
-    totalOrders: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
-
-    totalSales: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
-
-    totalPaid: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
-
-    totalOutstanding: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
-
-    averageOrderValue: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
-  }),
+  loading: PropTypes.bool,
 };
 
 //======================================================
@@ -313,16 +478,9 @@ CustomerReportStatistics.propTypes = {
 //======================================================
 
 CustomerReportStatistics.defaultProps = {
-  statistics: {
-    totalCustomers: 0,
-    activeCustomers: 0,
-    inactiveCustomers: 0,
-    totalOrders: 0,
-    totalSales: 0,
-    totalPaid: 0,
-    totalOutstanding: 0,
-    averageOrderValue: 0,
-  },
+  customers: [],
+
+  loading: false,
 };
 
 //======================================================

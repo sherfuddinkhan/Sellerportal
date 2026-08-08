@@ -1,0 +1,176 @@
+/*======================================================
+  Customer Report
+======================================================*/
+
+.customer-report {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Statistics
+======================================================*/
+
+.customer-report-statistics {
+  width: 100%;
+}
+
+.customer-report-statistics .MuiCard-root {
+  width: 100%;
+}
+
+/*======================================================
+  Toolbar
+======================================================*/
+
+.customer-report-toolbar {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.customer-report-toolbar .MuiButton-root {
+  text-transform: none;
+}
+
+/*======================================================
+  Search
+======================================================*/
+
+.customer-report-search {
+  width: 100%;
+}
+
+.customer-report-search .MuiTextField-root {
+  width: 100%;
+}
+
+/*======================================================
+  Table
+======================================================*/
+
+.customer-report-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.customer-report-table .MuiDataGrid-root {
+  border-radius: 8px;
+}
+
+/*======================================================
+  Customer Card
+======================================================*/
+
+.customer-report-card {
+  width: 100%;
+  height: 100%;
+}
+
+.customer-report-card .MuiCard-root {
+  height: 100%;
+}
+
+/*======================================================
+  Customer View
+======================================================*/
+
+.customer-report-view {
+  width: 100%;
+}
+
+.customer-report-view .MuiPaper-root {
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Modal
+======================================================*/
+
+.customer-report-modal {
+  width: 100%;
+}
+
+/*======================================================
+  Pagination
+======================================================*/
+
+.customer-report-pagination {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/*======================================================
+  Export
+======================================================*/
+
+.customer-report-export {
+  display: flex;
+  align-items: center;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.customer-report-empty {
+  width: 100%;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/*======================================================
+  Responsive
+======================================================*/
+
+@media (max-width: 900px) {
+  .customer-report-toolbar {
+    gap: 12px;
+  }
+
+  .customer-report-table {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .customer-report-toolbar {
+    width: 100%;
+  }
+
+  .customer-report-toolbar .MuiButton-root {
+    width: 100%;
+  }
+
+  .customer-report-pagination {
+    overflow-x: auto;
+  }
+
+  .customer-report-card {
+    margin-bottom: 12px;
+  }
+}
+
+/*======================================================
+  Print
+======================================================*/
+
+@media print {
+  .customer-report-toolbar,
+  .customer-report-search,
+  .customer-report-pagination,
+  .customer-report-export {
+    display: none !important;
+  }
+
+  .customer-report {
+    width: 100%;
+  }
+
+  .customer-report-table {
+    overflow: visible;
+  }
+
+  body {
+    background: #fff !important;
+  }
+}

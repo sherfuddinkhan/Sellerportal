@@ -4,7 +4,17 @@ import React, {
   useMemo,
   useState,
 } from "react";
-
+import {
+  DEFAULT_CUSTOMER_REPORT_FILTERS,
+  filterCustomers,
+  resetCustomerReportFilters,
+  getCustomerReportFilterCount,
+} from "./CustomerReportFilter";
+import {
+  normalizeCustomers,
+  calculateCustomerStatistics,
+  sortCustomers,
+} from "./CustomerReportHelper";
 import {
   Alert,
   Box,
