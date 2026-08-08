@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-
 import {Alert,Box,Button,Card,CardContent,CircularProgress,IconButton,InputAdornment,Stack,TextField,Typography} from "@mui/material";
-
 import {Lock,Visibility,VisibilityOff} from "@mui/icons-material";
-
 const ChangePasswordForm = ({
     onSubmit,
     loading = false,
@@ -12,39 +9,19 @@ const ChangePasswordForm = ({
     title = "Change Password",
     subtitle = "Update your account password."
 }) => {
-
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-
     const [showNewPassword, setShowNewPassword] = useState(false);
-
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    const [formData, setFormData] = useState({
-
-        currentPassword: "",
-
-        newPassword: "",
-
-        confirmPassword: ""
-
-    });
-
+    const [formData, setFormData] = useState({currentPassword: "",newPassword: "",confirmPassword: ""});
     //=========================================
     // Handle Change
     //=========================================
-
     const handleChange = (e) => {
-
         const { name, value } = e.target;
-
         setFormData(prev => ({
-
             ...prev,
-
             [name]: value
-
         }));
-
     };
 
     //=========================================
@@ -54,91 +31,58 @@ const ChangePasswordForm = ({
     const handleSubmit = (e) => {
 
         e.preventDefault();
-
         if (formData.newPassword !== formData.confirmPassword) {
-
             return;
-
         }
-
         if (onSubmit) {
-
             onSubmit({
-
                 currentPassword: formData.currentPassword,
-
                 newPassword: formData.newPassword
-
             });
-
         }
-
     };
-
     return (
-
         <Box
             component="form"
             onSubmit={handleSubmit}
         >
-
             <Stack
                 spacing={1}
                 mb={3}
             >
-
                 <Typography
                     variant="h4"
                     fontWeight="bold"
                     align="center"
                 >
-
                     {title}
-
                 </Typography>
-
                 <Typography
                     variant="body2"
                     color="text.secondary"
                     align="center"
                 >
-
                     {subtitle}
-
                 </Typography>
-
             </Stack>
-
             {
-
                 error &&
-
                 <Alert
                     severity="error"
                     sx={{ mb: 2 }}
                 >
-
                     {error}
-
                 </Alert>
-
             }
-
             {
-
                 success &&
-
                 <Alert
                     severity="success"
                     sx={{ mb: 2 }}
                 >
-
                     {success}
-
                 </Alert>
-
             }
-
             <TextField
                 fullWidth
                 required
@@ -165,27 +109,17 @@ const ChangePasswordForm = ({
                                     )
                                 }
                             >
-
                                 {
-
                                     showCurrentPassword
-
                                         ?
-
                                         <VisibilityOff />
-
                                         :
-
                                         <Visibility />
-
                                 }
-
                             </IconButton>
-
                         </InputAdornment>
                 }}
             />
-
             <TextField
                 fullWidth
                 required
@@ -201,9 +135,7 @@ const ChangePasswordForm = ({
                 onChange={handleChange}
                 InputProps={{
                     endAdornment:
-
                         <InputAdornment position="end">
-
                             <IconButton
                                 edge="end"
                                 onClick={() =>
@@ -212,27 +144,17 @@ const ChangePasswordForm = ({
                                     )
                                 }
                             >
-
                                 {
-
                                     showNewPassword
-
                                         ?
-
                                         <VisibilityOff />
-
                                         :
-
                                         <Visibility />
-
                                 }
-
                             </IconButton>
-
                         </InputAdornment>
                 }}
             />
-
             <TextField
                 fullWidth
                 required
@@ -258,9 +180,7 @@ const ChangePasswordForm = ({
                 }
                 InputProps={{
                     endAdornment:
-
                         <InputAdornment position="end">
-
                             <IconButton
                                 edge="end"
                                 onClick={() =>
@@ -269,27 +189,17 @@ const ChangePasswordForm = ({
                                     )
                                 }
                             >
-
                                 {
-
                                     showConfirmPassword
-
                                         ?
-
                                         <VisibilityOff />
-
                                         :
-
                                         <Visibility />
-
                                 }
-
                             </IconButton>
-
                         </InputAdornment>
                 }}
             />
-
             <Button
                 fullWidth
                 variant="contained"
@@ -303,30 +213,19 @@ const ChangePasswordForm = ({
                     )
                 }
             >
-
                 {
-
                     loading
-
                         ?
-
                         <CircularProgress
                             size={24}
                             color="inherit"
                         />
-
                         :
-
                         "Change Password"
-
                 }
-
             </Button>
-
         </Box>
-
     );
-
 };
 
 export default ChangePasswordForm;

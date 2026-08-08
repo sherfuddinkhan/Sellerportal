@@ -7,21 +7,15 @@ const authServices = {
     //=========================================
 
     login: async (credentials) => {
-
         return await authService.login(credentials);
-
     },
 
     register: async (user) => {
-
         return await authService.register(user);
-
     },
 
     logout: async () => {
-
         return await authService.logout();
-
     },
 
     //=========================================
@@ -29,21 +23,15 @@ const authServices = {
     //=========================================
 
     forgotPassword: async (email) => {
-
         return await authService.forgotPassword(email);
-
     },
 
     resetPassword: async (model) => {
-
         return await authService.resetPassword(model);
-
     },
 
     changePassword: async (model) => {
-
         return await authService.changePassword(model);
-
     },
 
     //=========================================
@@ -51,15 +39,11 @@ const authServices = {
     //=========================================
 
     getCurrentUser: async () => {
-
         return await authService.getCurrentUser();
-
     },
 
     updateProfile: async (model) => {
-
         return await authService.updateProfile(model);
-
     },
 
     //=========================================
@@ -67,9 +51,7 @@ const authServices = {
     //=========================================
 
     refreshToken: async (refreshToken) => {
-
         return await authService.refreshToken(refreshToken);
-
     },
 
     //=========================================
@@ -77,29 +59,20 @@ const authServices = {
     //=========================================
 
     getToken: () => {
-
         return authService.getToken();
-
     },
 
     getUser: () => {
-
         return authService.getUser();
-
     },
 
     isAuthenticated: () => {
-
         return authService.isAuthenticated();
-
     },
 
     clearStorage: () => {
-
         authService.clearStorage();
-
     }
-
 };
 
 export default authServices;
