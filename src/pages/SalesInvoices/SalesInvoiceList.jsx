@@ -18,171 +18,96 @@ const SalesInvoiceList = () => {
 
     const [salesInvoices, setSalesInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [searchText, setSearchText] = useState("");
-
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-
     const [modalOpen, setModalOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
-
     const [selectedInvoice, setSelectedInvoice] = useState(null);
-
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        severity: "success",
-        message: ""
-    });
-
+    const [snackbar, setSnackbar] = useState({open: false,severity: "success",message: ""});
     const loadSalesInvoices = async () => {
-
         try {
-
             setLoading(true);
-
-            const response =
-                await apiService.getSalesInvoices();
-
-            setSalesInvoices(
-                response.data || []
-            );
-
+            const response = await apiService.getSalesInvoices();
+            setSalesInvoices(response.data || []);
         }
         catch (error) {
-
             console.error(error);
-
             setSnackbar({
                 open: true,
                 severity: "error",
                 message: "Failed to load Sales Invoices."
             });
-
         }
         finally {
-
             setLoading(false);
-
         }
-
     };
-
     useEffect(() => {
-
         loadSalesInvoices();
-
     }, []);
-
     const filteredInvoices = useMemo(() => {
-
         if (!searchText.trim())
             return salesInvoices;
-
         const value = searchText.toLowerCase();
-
         return salesInvoices.filter((invoice) =>
-
             invoice.InvoiceNumber
                 ?.toLowerCase()
                 .includes(value)
-
             ||
-
             invoice.PaymentStatus
                 ?.toLowerCase()
                 .includes(value)
-
             ||
-
             invoice.Status
                 ?.toLowerCase()
                 .includes(value)
-
             ||
-
             invoice.Remarks
                 ?.toLowerCase()
                 .includes(value)
-
             ||
-
             String(invoice.SalesInvoiceId)
                 .includes(value)
-
             ||
-
             String(invoice.SalesOrderId)
                 .includes(value)
-
         );
-
     }, [salesInvoices, searchText]);
-
-    const totalRecords =
-        filteredInvoices.length;
-
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(totalRecords / pageSize)
+    const totalRecords =  filteredInvoices.length;
+    const totalPages = Math.max(1,Math.ceil(totalRecords / pageSize)
         );
-
-    const pagedInvoices =
-        filteredInvoices.slice(
-            (page - 1) * pageSize,
-            page * pageSize
-        );
-
+    const pagedInvoices = filteredInvoices.slice((page - 1) * pageSize,page * pageSize );
     useEffect(() => {
-
         if (page > totalPages) {
-
             setPage(1);
-
         }
-
     }, [totalPages, page]);
-
     const handleAdd = () => {
-
         setSelectedInvoice(null);
         setModalOpen(true);
-
     };
-
     const handleEdit = (invoice) => {
-
         setSelectedInvoice(invoice);
         setModalOpen(true);
-
     };
-
     const handleView = (invoice) => {
-
         setSelectedInvoice(invoice);
         setViewOpen(true);
-
     };
 
     const handleDelete = (invoice) => {
-
         setSelectedInvoice(invoice);
         setDeleteOpen(true);
-
     };
         const handleSave = async (invoice) => {
-
         try {
-
             if (invoice.SalesInvoiceId) {
-
                 await apiService.updateSalesInvoice(
                     invoice.SalesInvoiceId,
                     invoice
                 );
-
                 setSnackbar({
                     open: true,
                     severity: "success",
@@ -204,121 +129,64 @@ const SalesInvoiceList = () => {
             }
 
             setModalOpen(false);
-
             loadSalesInvoices();
-
         }
         catch (error) {
-
             console.error(error);
-
             setSnackbar({
                 open: true,
                 severity: "error",
                 message: "Unable to save Sales Invoice."
             });
-
         }
-
     };
-
-
-
     const handleDeleteConfirm = async (id) => {
 
         try {
 
             await apiService.deleteSalesInvoice(id);
-
             setDeleteOpen(false);
-
             setSnackbar({
                 open: true,
                 severity: "success",
                 message: "Sales Invoice deleted successfully."
             });
-
             loadSalesInvoices();
-
         }
         catch (error) {
-
             console.error(error);
-
             setSnackbar({
                 open: true,
                 severity: "error",
                 message: "Unable to delete Sales Invoice."
             });
-
         }
-
     };
 
 
-
     const statistics = useMemo(() => {
-
-        const totalInvoices =
-            salesInvoices.length;
-
-        const totalAmount =
-            salesInvoices.reduce(
-                (sum, item) =>
-                    sum + Number(item.TotalAmount || 0),
-                0
-            );
-
-        const paidAmount =
-            salesInvoices.reduce(
-                (sum, item) =>
-                    sum + Number(item.PaidAmount || 0),
-                0
-            );
-
-        const balanceAmount =
-            salesInvoices.reduce(
-                (sum, item) =>
-                    sum + Number(item.BalanceAmount || 0),
-                0
-            );
-
+        const totalInvoices = salesInvoices.length;
+        const totalAmount = salesInvoices.reduce( (sum, item) => sum + Number(item.TotalAmount || 0),0);
+        const paidAmount = salesInvoices.reduce( (sum, item) => sum + Number(item.PaidAmount || 0),0);
+        const balanceAmount =salesInvoices.reduce((sum, item) => sum + Number(item.BalanceAmount || 0),0);
         return {
-
             totalInvoices,
-
             totalAmount,
-
             paidAmount,
-
             balanceAmount
-
         };
-
     }, [salesInvoices]);
-
-
-
     if (loading) {
-
         return (
-
             <Box
                 display="flex"
                 justifyContent="center"
                 mt={5}
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
-
     }
-
-
-
     return (
 
         <Box className="sales-invoices-container">
