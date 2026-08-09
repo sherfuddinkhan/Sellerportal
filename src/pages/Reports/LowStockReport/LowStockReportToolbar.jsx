@@ -1,897 +1,313 @@
 import React, {
-  useMemo,
+  useCallback,
 } from "react";
 
 import PropTypes from "prop-types";
 
 import {
   Box,
-  Checkbox,
-  Chip,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Button,
+  Divider,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 
 import {
-  Visibility,
-  Edit,
+  Add,
   Delete,
-  Inventory2,
-  Warning,
-  ErrorOutline,
+  FilterAlt,
+  Refresh,
 } from "@mui/icons-material";
 
 //======================================================
-// LowStockReportTable
+// LowStockReportToolbar
 //======================================================
 
-const LowStockReportTable = ({
-  reports = [],
+const LowStockReportToolbar = ({
   selectedRows = [],
+  totalRecords = 0,
   loading = false,
-  onSelectRow,
-  onSelectAll,
-  onView,
-  onEdit,
-  onDelete,
+  onRefresh,
+  onAdd,
+  onDeleteSelected,
+  onToggleFilter,
+  filterOpen = false,
 }) => {
 
   //====================================================
-  // Safe Reports
+  // Selected Count
   //====================================================
 
-  const safeReports = useMemo(
-    () =>
-      Array.isArray(reports)
-        ? reports
-        : [],
-    [reports]
-  );
+  const selectedCount =
+    Array.isArray(selectedRows)
+      ? selectedRows.length
+      : 0;
 
   //====================================================
-  // Selected IDs
+  // Handle Refresh
   //====================================================
 
-  const safeSelectedRows = useMemo(
-    () =>
-      Array.isArray(selectedRows)
-        ? selectedRows
-        : [],
-    [selectedRows]
-  );
+  const handleRefresh =
+    useCallback(() => {
+      if (
+        typeof onRefresh ===
+        "function"
+      ) {
+        onRefresh();
+      }
+    }, [onRefresh]);
 
   //====================================================
-  // Normalize Report
+  // Handle Add
   //====================================================
 
-  const normalizeReport = (
-    report
-  ) => {
-
-    const currentStock =
-      Number(
-        report?.currentStock ??
-        report?.stockQuantity ??
-        report?.quantity ??
-        0
-      );
-
-    const minimumStock =
-      Number(
-        report?.minimumStock ??
-        report?.minStock ??
-        report?.reorderLevel ??
-        0
-      );
-
-    let severity = "normal";
-
-    if (
-      currentStock <= 0
-    ) {
-      severity = "critical";
-    } else if (
-      currentStock <
-      minimumStock
-    ) {
-      severity = "warning";
-    }
-
-    return {
-      ...report,
-
-      id:
-        report?.id ??
-        report?.reportId ??
-        report?.inventoryId ??
-        "",
-
-      productName:
-        report?.productName ??
-        report?.itemName ??
-        report?.name ??
-        "Unknown Product",
-
-      productCode:
-        report?.productCode ??
-        report?.itemCode ??
-        report?.sku ??
-        "-",
-
-      category:
-        report?.categoryName ??
-        report?.category ??
-        "-",
-
-      currentStock,
-
-      minimumStock,
-
-      reorderQuantity:
-        Number(
-          report?.reorderQuantity ??
-          report?.reorderQty ??
-          0
-        ),
-
-      unit:
-        report?.unit ??
-        report?.uom ??
-        "Units",
-
-      warehouse:
-        report?.warehouseName ??
-        report?.warehouse ??
-        "-",
-
-      status:
-        report?.status ??
-        (
-          severity === "critical"
-            ? "Out of Stock"
-            : severity === "warning"
-            ? "Low Stock"
-            : "Stock OK"
-        ),
-
-      severity,
-    };
-  };
+  const handleAdd =
+    useCallback(() => {
+      if (
+        typeof onAdd ===
+        "function"
+      ) {
+        onAdd();
+      }
+    }, [onAdd]);
 
   //====================================================
-  // Normalized Reports
+  // Handle Delete Selected
   //====================================================
 
-  const normalizedReports =
-    useMemo(
-      () =>
-        safeReports.map(
-          normalizeReport
-        ),
-      [safeReports]
-    );
+  const handleDeleteSelected =
+    useCallback(() => {
+      if (
+        selectedCount === 0
+      ) {
+        return;
+      }
+
+      if (
+        typeof onDeleteSelected ===
+        "function"
+      ) {
+        onDeleteSelected(
+          selectedRows
+        );
+      }
+    }, [
+      selectedCount,
+      selectedRows,
+      onDeleteSelected,
+    ]);
 
   //====================================================
-  // Select All State
+  // Handle Filter
   //====================================================
 
-  const allSelected =
-    normalizedReports.length > 0 &&
-    normalizedReports.every(
-      (report) =>
-        safeSelectedRows.includes(
-          report.id
-        )
-    );
-
-  const someSelected =
-    normalizedReports.some(
-      (report) =>
-        safeSelectedRows.includes(
-          report.id
-        )
-    ) &&
-    !allSelected;
+  const handleToggleFilter =
+    useCallback(() => {
+      if (
+        typeof onToggleFilter ===
+        "function"
+      ) {
+        onToggleFilter();
+      }
+    }, [
+      onToggleFilter,
+    ]);
 
   //====================================================
   // Part 1A Ends Here
   //====================================================
-    //====================================================
-  // Handlers
-  //====================================================
-
-  const handleSelectAll = (
-    event
-  ) => {
-    if (
-      typeof onSelectAll ===
-      "function"
-    ) {
-      onSelectAll(
-        event.target.checked,
-        normalizedReports
-      );
-    }
-  };
-
-  //====================================================
-  // Select Single Row
-  //====================================================
-
-  const handleSelectRow = (
-    report
-  ) => {
-    if (
-      typeof onSelectRow ===
-      "function"
-    ) {
-      onSelectRow(
-        report.id,
-        report
-      );
-    }
-  };
-
-  //====================================================
-  // View
-  //====================================================
-
-  const handleView = (
-    report
-  ) => {
-    if (
-      typeof onView ===
-      "function"
-    ) {
-      onView(report);
-    }
-  };
-
-  //====================================================
-  // Edit
-  //====================================================
-
-  const handleEdit = (
-    report
-  ) => {
-    if (
-      typeof onEdit ===
-      "function"
-    ) {
-      onEdit(report);
-    }
-  };
-
-  //====================================================
-  // Delete
-  //====================================================
-
-  const handleDelete = (
-    report
-  ) => {
-    if (
-      typeof onDelete ===
-      "function"
-    ) {
-      onDelete(report);
-    }
-  };
-
-  //====================================================
-  // Severity Color
-  //====================================================
-
-  const getSeverityColor = (
-    severity
-  ) => {
-
-    if (
-      severity === "critical"
-    ) {
-      return "error";
-    }
-
-    if (
-      severity === "warning"
-    ) {
-      return "warning";
-    }
-
-    return "success";
-  };
-
-  //====================================================
-  // Severity Icon
-  //====================================================
-
-  const getSeverityIcon = (
-    severity
-  ) => {
-
-    if (
-      severity === "critical"
-    ) {
-      return (
-        <ErrorOutline
-          fontSize="small"
-        />
-      );
-    }
-
-    if (
-      severity === "warning"
-    ) {
-      return (
-        <Warning
-          fontSize="small"
-        />
-      );
-    }
-
-    return (
-      <Inventory2
-        fontSize="small"
-      />
-    );
-  };
-
-  //====================================================
-  // Stock Percentage
-  //====================================================
-
-  const getStockPercentage = (
-    report
-  ) => {
-
-    if (
-      report.minimumStock <= 0
-    ) {
-      return report.currentStock > 0
-        ? 100
-        : 0;
-    }
-
-    return Math.min(
-      100,
-      Math.max(
-        0,
-        (
-          report.currentStock /
-          report.minimumStock
-        ) * 100
-      )
-    );
-  };
-
-  //====================================================
-  // JSX
-  //====================================================
+  //======================================================
+// JSX
+//======================================================
 
   return (
-    <TableContainer
-      component={Paper}
-      className="low-stock-report-table-container"
-      elevation={0}
+    <Box
+      className="low-stock-report-toolbar"
       sx={{
         width: "100%",
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
+        mb: 2,
       }}
     >
-      <Table
-        className="low-stock-report-table"
-        size="small"
+      <Stack
+        direction={{
+          xs: "column",
+          md: "row",
+        }}
+        spacing={2}
+        alignItems={{
+          xs: "stretch",
+          md: "center",
+        }}
+        justifyContent="space-between"
       >
-
         {/*================================================
-            Table Header
+            Title / Summary
         =================================================*/}
 
-        <TableHead>
-          <TableRow>
+        <Box>
+          <Typography
+            variant="h6"
+            fontWeight={700}
+          >
+            Low Stock Report
+          </Typography>
 
-            {/*============================================
-                Select All
-            ============================================*/}
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            {totalRecords.toLocaleString(
+              "en-IN"
+            )}{" "}
+            {totalRecords === 1
+              ? "product"
+              : "products"}{" "}
+            found
+            {selectedCount > 0 &&
+              ` • ${selectedCount} selected`}
+          </Typography>
+        </Box>
 
-            <TableCell
-              padding="checkbox"
+        {/*================================================
+            Toolbar Actions
+        =================================================*/}
+
+        <Stack
+          direction={{
+            xs: "column",
+            sm: "row",
+          }}
+          spacing={1}
+          alignItems={{
+            xs: "stretch",
+            sm: "center",
+          }}
+        >
+          {/*==============================================
+              Filter
+          ==============================================*/}
+
+          <Tooltip
+            title={
+              filterOpen
+                ? "Hide filters"
+                : "Show filters"
+            }
+          >
+            <Button
+              variant={
+                filterOpen
+                  ? "contained"
+                  : "outlined"
+              }
+              color="primary"
+              startIcon={
+                <FilterAlt />
+              }
+              onClick={
+                handleToggleFilter
+              }
+              disabled={loading}
             >
-              <Checkbox
-                checked={
-                  allSelected
+              Filters
+            </Button>
+          </Tooltip>
+
+          {/*==============================================
+              Refresh
+          ==============================================*/}
+
+          <Tooltip
+            title="Refresh report"
+          >
+            <span>
+              <Button
+                variant="outlined"
+                color="inherit"
+                startIcon={
+                  <Refresh />
                 }
-                indeterminate={
-                  someSelected
+                onClick={
+                  handleRefresh
                 }
-                onChange={
-                  handleSelectAll
+                disabled={loading}
+              >
+                Refresh
+              </Button>
+            </span>
+          </Tooltip>
+
+          {/*==============================================
+              Add
+          ==============================================*/}
+
+          <Tooltip
+            title="Add low stock report"
+          >
+            <span>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={
+                  <Add />
                 }
-                disabled={
-                  loading ||
-                  normalizedReports.length ===
-                    0
+                onClick={
+                  handleAdd
                 }
-                inputProps={{
-                  "aria-label":
-                    "Select all low stock reports",
+                disabled={loading}
+              >
+                Add
+              </Button>
+            </span>
+          </Tooltip>
+
+          {/*==============================================
+              Delete Selected
+          ==============================================*/}
+
+          {selectedCount > 0 && (
+            <>
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{
+                  display: {
+                    xs: "none",
+                    sm: "block",
+                  },
                 }}
               />
-            </TableCell>
 
-            {/*============================================
-                Product
-            ============================================*/}
-
-            <TableCell>
-              Product
-            </TableCell>
-
-            {/*============================================
-                Category
-            ============================================*/}
-
-            <TableCell>
-              Category
-            </TableCell>
-
-            {/*============================================
-                Warehouse
-            ============================================*/}
-
-            <TableCell>
-              Warehouse
-            </TableCell>
-
-            {/*============================================
-                Current Stock
-            ============================================*/}
-
-            <TableCell align="right">
-              Current Stock
-            </TableCell>
-
-            {/*============================================
-                Minimum Stock
-            ============================================*/}
-
-            <TableCell align="right">
-              Minimum Stock
-            </TableCell>
-
-            {/*============================================
-                Stock Level
-            ============================================*/}
-
-            <TableCell
-              align="center"
-              sx={{
-                minWidth: 120,
-              }}
-            >
-              Stock Level
-            </TableCell>
-
-            {/*============================================
-                Reorder
-            ============================================*/}
-
-            <TableCell align="right">
-              Reorder Qty
-            </TableCell>
-
-            {/*============================================
-                Status
-            ============================================*/}
-
-            <TableCell align="center">
-              Status
-            </TableCell>
-
-            {/*============================================
-                Actions
-            ============================================*/}
-
-            <TableCell
-              align="center"
-              sx={{
-                minWidth: 130,
-              }}
-            >
-              Actions
-            </TableCell>
-
-          </TableRow>
-        </TableHead>
-
-        {/*================================================
-            Table Body
-        =================================================*/}
-
-        <TableBody>
-
-          {normalizedReports.length ===
-          0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={10}
-                align="center"
+              <Tooltip
+                title={`Delete ${selectedCount} selected ${
+                  selectedCount === 1
+                    ? "report"
+                    : "reports"
+                }`}
               >
-                <Box
-                  className="low-stock-report-empty"
-                  sx={{
-                    py: 6,
-                  }}
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={
+                    <Delete />
+                  }
+                  onClick={
+                    handleDeleteSelected
+                  }
+                  disabled={
+                    loading
+                  }
                 >
-                  <Inventory2
-                    sx={{
-                      fontSize: 48,
-                      color:
-                        "text.disabled",
-                      mb: 1,
-                    }}
-                  />
-
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight={600}
-                  >
-                    No Low Stock Reports
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                  >
-                    No products currently
-                    match the low stock
-                    criteria.
-                  </Typography>
-                </Box>
-              </TableCell>
-            </TableRow>
-          ) : (
-            normalizedReports.map(
-              (report) => {
-
-                const selected =
-                  safeSelectedRows.includes(
-                    report.id
-                  );
-
-                const percentage =
-                  getStockPercentage(
-                    report
-                  );
-
-                const severityColor =
-                  getSeverityColor(
-                    report.severity
-                  );
-
-                return (
-                  <TableRow
-                    key={
-                      report.id ||
-                      `${report.productCode}-${report.productName}`
-                    }
-                    hover
-                    selected={
-                      selected
-                    }
-                    className="low-stock-report-table-row"
-                  >
-
-                    {/*======================================
-                        Selection
-                    ======================================*/}
-
-                    <TableCell
-                      padding="checkbox"
-                    >
-                      <Checkbox
-                        checked={
-                          selected
-                        }
-                        onChange={() =>
-                          handleSelectRow(
-                            report
-                          )
-                        }
-                        disabled={
-                          loading
-                        }
-                        inputProps={{
-                          "aria-label":
-                            `Select ${report.productName}`,
-                        }}
-                      />
-                    </TableCell>
-
-                    {/*======================================
-                        Product
-                    ======================================*/}
-
-                    <TableCell>
-                      <Box>
-                        <Typography
-                          variant="body2"
-                          fontWeight={600}
-                          className="low-stock-product-name"
-                        >
-                          {
-                            report.productName
-                          }
-                        </Typography>
-
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          className="low-stock-product-code"
-                        >
-                          {
-                            report.productCode
-                          }
-                        </Typography>
-                      </Box>
-                    </TableCell>
-
-                    {/*======================================
-                        Category
-                    ======================================*/}
-
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                      >
-                        {
-                          report.category
-                        }
-                      </Typography>
-                    </TableCell>
-
-                    {/*======================================
-                        Warehouse
-                    ======================================*/}
-
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                      >
-                        {
-                          report.warehouse
-                        }
-                      </Typography>
-                    </TableCell>
-
-                    {/*======================================
-                        Current Stock
-                    ======================================*/}
-
-                    <TableCell align="right">
-                      <Typography
-                        variant="body2"
-                        fontWeight={700}
-                        className={
-                          report.severity ===
-                          "critical"
-                            ? "low-stock-quantity-critical"
-                            : report.severity ===
-                              "warning"
-                            ? "low-stock-quantity-warning"
-                            : "low-stock-quantity-normal"
-                        }
-                      >
-                        {
-                          report.currentStock
-                        }{" "}
-                        {
-                          report.unit
-                        }
-                      </Typography>
-                    </TableCell>
-
-                    {/*======================================
-                        Minimum Stock
-                    ======================================*/}
-
-                    <TableCell align="right">
-                      <Typography
-                        variant="body2"
-                      >
-                        {
-                          report.minimumStock
-                        }{" "}
-                        {
-                          report.unit
-                        }
-                      </Typography>
-                    </TableCell>
-
-                    {/*======================================
-                        Stock Level
-                    ======================================*/}
-
-                    <TableCell>
-                      <Box
-                        className="low-stock-level"
-                      >
-                        <Box
-                          sx={{
-                            display:
-                              "flex",
-                            justifyContent:
-                              "space-between",
-                            mb: 0.5,
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            {Math.round(
-                              percentage
-                            )}
-                            %
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          className="low-stock-level-bar"
-                        >
-                          <Box
-                            className={`low-stock-level-fill ${report.severity}`}
-                            sx={{
-                              width: `${percentage}%`,
-                            }}
-                          />
-                        </Box>
-                      </Box>
-                    </TableCell>
-
-                    {/*======================================
-                        Reorder Quantity
-                    ======================================*/}
-
-                    <TableCell align="right">
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                      >
-                        {
-                          report.reorderQuantity
-                        }{" "}
-                        {
-                          report.unit
-                        }
-                      </Typography>
-                    </TableCell>
-
-                    {/*======================================
-                        Status
-                    ======================================*/}
-
-                    <TableCell align="center">
-                      <Chip
-                        size="small"
-                        color={
-                          severityColor
-                        }
-                        icon={
-                          getSeverityIcon(
-                            report.severity
-                          )
-                        }
-                        label={
-                          report.status
-                        }
-                      />
-                    </TableCell>
-
-                    {/*======================================
-                        Actions
-                    ======================================*/}
-
-                    <TableCell align="center">
-                      <Box
-                        sx={{
-                          display:
-                            "flex",
-                          justifyContent:
-                            "center",
-                          alignItems:
-                            "center",
-                          gap: 0.5,
-                        }}
-                      >
-
-                        <Tooltip
-                          title="View"
-                        >
-                          <IconButton
-                            size="small"
-                            color="primary"
-                            onClick={() =>
-                              handleView(
-                                report
-                              )
-                            }
-                            disabled={
-                              loading
-                            }
-                          >
-                            <Visibility
-                              fontSize="small"
-                            />
-                          </IconButton>
-                        </Tooltip>
-
-                        <Tooltip
-                          title="Edit"
-                        >
-                          <IconButton
-                            size="small"
-                            color="warning"
-                            onClick={() =>
-                              handleEdit(
-                                report
-                              )
-                            }
-                            disabled={
-                              loading
-                            }
-                          >
-                            <Edit
-                              fontSize="small"
-                            />
-                          </IconButton>
-                        </Tooltip>
-
-                        <Tooltip
-                          title="Delete"
-                        >
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() =>
-                              handleDelete(
-                                report
-                              )
-                            }
-                            disabled={
-                              loading
-                            }
-                          >
-                            <Delete
-                              fontSize="small"
-                            />
-                          </IconButton>
-                        </Tooltip>
-
-                      </Box>
-                    </TableCell>
-
-                  </TableRow>
-                );
-              }
-            )
+                  Delete Selected
+                </Button>
+              </Tooltip>
+            </>
           )}
-
-        </TableBody>
-
-      </Table>
-    </TableContainer>
+        </Stack>
+      </Stack>
+    </Box>
   );
-};
 
 //======================================================
 // Part 1B Ends Here
@@ -900,11 +316,7 @@ const LowStockReportTable = ({
 // PropTypes
 //======================================================
 
-LowStockReportTable.propTypes = {
-  reports: PropTypes.arrayOf(
-    PropTypes.object
-  ),
-
+LowStockReportToolbar.propTypes = {
   selectedRows: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.string,
@@ -912,43 +324,45 @@ LowStockReportTable.propTypes = {
     ])
   ),
 
+  totalRecords: PropTypes.number,
+
   loading: PropTypes.bool,
 
-  onSelectRow: PropTypes.func,
+  onRefresh: PropTypes.func,
 
-  onSelectAll: PropTypes.func,
+  onAdd: PropTypes.func,
 
-  onView: PropTypes.func,
+  onDeleteSelected: PropTypes.func,
 
-  onEdit: PropTypes.func,
+  onToggleFilter: PropTypes.func,
 
-  onDelete: PropTypes.func,
+  filterOpen: PropTypes.bool,
 };
 
 //======================================================
 // Default Props
 //======================================================
 
-LowStockReportTable.defaultProps = {
-  reports: [],
-
+LowStockReportToolbar.defaultProps = {
   selectedRows: [],
+
+  totalRecords: 0,
 
   loading: false,
 
-  onSelectRow: () => {},
+  onRefresh: () => {},
 
-  onSelectAll: () => {},
+  onAdd: () => {},
 
-  onView: () => {},
+  onDeleteSelected: () => {},
 
-  onEdit: () => {},
+  onToggleFilter: () => {},
 
-  onDelete: () => {},
+  filterOpen: false,
 };
 
 //======================================================
 // Export
 //======================================================
-
-export default LowStockReportTable;
+}
+export default LowStockReportToolbar;

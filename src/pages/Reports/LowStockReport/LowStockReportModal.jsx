@@ -294,3 +294,759 @@ const LowStockReportModal = ({
   //====================================================
   // Part 1A Ends Here
   //====================================================
+    //====================================================
+  // Save Report
+  //====================================================
+
+  const handleSave = useCallback(
+    async () => {
+      const validationError =
+        validateForm();
+
+      if (validationError) {
+        setError(
+          validationError
+        );
+        return;
+      }
+
+      setSaving(true);
+      setError("");
+
+      try {
+        const payload = {
+          ...formData,
+
+          currentStock:
+            Number(
+              formData.currentStock
+            ),
+
+          minimumStock:
+            Number(
+              formData.minimumStock
+            ),
+
+          reorderQuantity:
+            formData.reorderQuantity ===
+            ""
+              ? 0
+              : Number(
+                  formData.reorderQuantity
+                ),
+        };
+
+        const reportId =
+          report?.id ??
+          report?.reportId ??
+          report?.inventoryId;
+
+        if (
+          mode === "edit" &&
+          reportId !==
+            undefined &&
+          reportId !== null &&
+          reportId !== ""
+        ) {
+          await updateLowStockReport(
+            reportId,
+            payload
+          );
+        } else {
+          await createLowStockReport(
+            payload
+          );
+        }
+
+        if (
+          typeof onSaved ===
+          "function"
+        ) {
+          await onSaved(
+            payload
+          );
+        } else if (
+          typeof onClose ===
+          "function"
+        ) {
+          onClose();
+        }
+      } catch (err) {
+        console.error(
+          "Failed to save low stock report:",
+          err
+        );
+
+        setError(
+          err?.response?.data?.message ??
+          err?.message ??
+          "Failed to save low stock report."
+        );
+      } finally {
+        setSaving(false);
+      }
+    },
+    [
+      formData,
+      mode,
+      report,
+      validateForm,
+      onSaved,
+      onClose,
+    ]
+  );
+
+  //====================================================
+  // Delete
+  //====================================================
+
+  const handleDelete =
+    useCallback(() => {
+      if (
+        typeof onConfirmDelete ===
+        "function"
+      ) {
+        onConfirmDelete(
+          report
+        );
+      }
+    }, [
+      onConfirmDelete,
+      report,
+    ]);
+
+  //====================================================
+  // Dialog Title
+  //====================================================
+
+  const dialogTitle =
+    mode === "view"
+      ? "Low Stock Report Details"
+      : mode === "edit"
+      ? "Edit Low Stock Report"
+      : mode === "delete"
+      ? "Delete Low Stock Report"
+      : "Low Stock Report";
+
+  //====================================================
+  // View Mode
+  //====================================================
+
+  const isViewMode =
+    mode === "view";
+
+  //====================================================
+  // Delete Mode
+  //====================================================
+
+  const isDeleteMode =
+    mode === "delete";
+
+  //====================================================
+  // Edit Mode
+  //====================================================
+
+  const isEditMode =
+    mode === "edit";
+
+  //====================================================
+  // JSX
+  //====================================================
+
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="md"
+      scroll="paper"
+    >
+      {/*================================================
+          Dialog Title
+      =================================================*/}
+
+      <DialogTitle>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography
+            variant="h6"
+            fontWeight={700}
+          >
+            {dialogTitle}
+          </Typography>
+
+          <Button
+            onClick={handleClose}
+            color="inherit"
+            size="small"
+            disabled={saving}
+            startIcon={<Close />}
+          >
+            Close
+          </Button>
+        </Stack>
+      </DialogTitle>
+
+      <Divider />
+
+      {/*================================================
+          Dialog Content
+      =================================================*/}
+
+      <DialogContent>
+        {/*==============================================
+            Error
+        ==============================================*/}
+
+        {error && (
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2,
+            }}
+            onClose={() =>
+              setError("")
+            }
+          >
+            {error}
+          </Alert>
+        )}
+
+        {/*==============================================
+            Delete Confirmation
+        ==============================================*/}
+
+        {isDeleteMode ? (
+          <Box
+            sx={{
+              py: 3,
+              textAlign: "center",
+            }}
+          >
+            <Delete
+              color="error"
+              sx={{
+                fontSize: 52,
+                mb: 1,
+              }}
+            />
+
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              gutterBottom
+            >
+              Delete this report?
+            </Typography>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              You are about to delete the
+              low stock report for{" "}
+              <strong>
+                {formData.productName ||
+                  "this product"}
+              </strong>
+              . This action cannot be
+              undone.
+            </Typography>
+          </Box>
+        ) : (
+          <Grid
+            container
+            spacing={2}
+            sx={{
+              pt: 1,
+            }}
+          >
+            {/*==========================================
+                Product Name
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <TextField
+                fullWidth
+                label="Product Name"
+                name="productName"
+                value={
+                  formData.productName
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+                required
+              />
+            </Grid>
+
+            {/*==========================================
+                Product Code
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              md={6}
+            >
+              <TextField
+                fullWidth
+                label="Product Code / SKU"
+                name="productCode"
+                value={
+                  formData.productCode
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+              />
+            </Grid>
+
+            {/*==========================================
+                Category
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              md={4}
+            >
+              <TextField
+                fullWidth
+                label="Category"
+                name="category"
+                value={
+                  formData.category
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+              />
+            </Grid>
+
+            {/*==========================================
+                Warehouse
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              md={4}
+            >
+              <TextField
+                fullWidth
+                label="Warehouse"
+                name="warehouse"
+                value={
+                  formData.warehouse
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+              />
+            </Grid>
+
+            {/*==========================================
+                Supplier
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              md={4}
+            >
+              <TextField
+                fullWidth
+                label="Supplier"
+                name="supplierName"
+                value={
+                  formData.supplierName
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+              />
+            </Grid>
+
+            {/*==========================================
+                Current Stock
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+            >
+              <TextField
+                fullWidth
+                type="number"
+                label="Current Stock"
+                name="currentStock"
+                value={
+                  formData.currentStock
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+                required
+                inputProps={{
+                  min: 0,
+                }}
+              />
+            </Grid>
+
+            {/*==========================================
+                Minimum Stock
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+            >
+              <TextField
+                fullWidth
+                type="number"
+                label="Minimum Stock"
+                name="minimumStock"
+                value={
+                  formData.minimumStock
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+                required
+                inputProps={{
+                  min: 0,
+                }}
+              />
+            </Grid>
+
+            {/*==========================================
+                Reorder Quantity
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+            >
+              <TextField
+                fullWidth
+                type="number"
+                label="Reorder Quantity"
+                name="reorderQuantity"
+                value={
+                  formData.reorderQuantity
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+                inputProps={{
+                  min: 0,
+                }}
+              />
+            </Grid>
+
+            {/*==========================================
+                Unit
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+            >
+              <TextField
+                fullWidth
+                label="Unit"
+                name="unit"
+                value={
+                  formData.unit
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+              />
+            </Grid>
+
+            {/*==========================================
+                Notes
+            ==========================================*/}
+
+            <Grid
+              item
+              xs={12}
+            >
+              <TextField
+                fullWidth
+                multiline
+                minRows={3}
+                label="Notes"
+                name="notes"
+                value={
+                  formData.notes
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isViewMode ||
+                  saving
+                }
+              />
+            </Grid>
+          </Grid>
+        )}
+      </DialogContent>
+
+      {/*================================================
+          Dialog Actions
+      =================================================*/}
+
+      <DialogActions
+        sx={{
+          px: 3,
+          py: 2,
+        }}
+      >
+        <Button
+          onClick={handleClose}
+          disabled={saving}
+          color="inherit"
+        >
+          Cancel
+        </Button>
+
+        {isDeleteMode ? (
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={
+              saving ? (
+                <CircularProgress
+                  size={18}
+                  color="inherit"
+                />
+              ) : (
+                <Delete />
+              )
+            }
+            onClick={
+              handleDelete
+            }
+            disabled={saving}
+          >
+            Delete
+          </Button>
+        ) : isEditMode ? (
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={
+              saving ? (
+                <CircularProgress
+                  size={18}
+                  color="inherit"
+                />
+              ) : (
+                <Save />
+              )
+            }
+            onClick={
+              handleSave
+            }
+            disabled={saving}
+          >
+            {saving
+              ? "Saving..."
+              : "Save Changes"}
+          </Button>
+        ) : null}
+      </DialogActions>
+    </Dialog>
+  );
+
+  //====================================================
+  // Part 1B Ends Here
+  //====================================================
+  //======================================================
+// PropTypes
+//======================================================
+
+LowStockReportModal.propTypes = {
+  open: PropTypes.bool,
+
+  mode: PropTypes.oneOf([
+    "view",
+    "edit",
+    "delete",
+    "create",
+  ]),
+
+  report: PropTypes.shape({
+    id: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    reportId: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    inventoryId: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    productName: PropTypes.string,
+
+    itemName: PropTypes.string,
+
+    name: PropTypes.string,
+
+    productCode: PropTypes.string,
+
+    itemCode: PropTypes.string,
+
+    sku: PropTypes.string,
+
+    categoryName: PropTypes.string,
+
+    category: PropTypes.string,
+
+    warehouseName: PropTypes.string,
+
+    warehouse: PropTypes.string,
+
+    currentStock: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    stockQuantity: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    quantity: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    minimumStock: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    minStock: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    reorderLevel: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    reorderQuantity: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    reorderQty: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+
+    unit: PropTypes.string,
+
+    uom: PropTypes.string,
+
+    supplierName: PropTypes.string,
+
+    supplier: PropTypes.string,
+
+    notes: PropTypes.string,
+
+    remarks: PropTypes.string,
+  }),
+
+  onClose: PropTypes.func,
+
+  onConfirmDelete: PropTypes.func,
+
+  onSaved: PropTypes.func,
+};
+
+//======================================================
+// Default Props
+//======================================================
+
+LowStockReportModal.defaultProps = {
+  open: false,
+
+  mode: "view",
+
+  report: null,
+
+  onClose: () => {},
+
+  onConfirmDelete: () => {},
+
+  onSaved: () => {},
+};
+
+//======================================================
+// Export
+//======================================================
+}
+export default LowStockReportModal;
