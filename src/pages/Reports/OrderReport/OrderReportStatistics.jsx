@@ -1,36 +1,11 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo,} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Assessment,
-  CheckCircle,
-  CurrencyRupee,
-  LocalShipping,
-  PendingActions,
-  ShoppingCart,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Skeleton,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  formatCurrency,
-} from "./OrderReportHelpers";
-
+import {Assessment,CheckCircle,CurrencyRupee,LocalShipping,PendingActions,ShoppingCart} from "@mui/icons-material";
+import {Box,Card,CardContent,Grid,Skeleton,Stack,Typography} from "@mui/material";
+import {formatCurrency} from "./OrderReportHelpers";
 //======================================================
 // OrderReportStatistics
 //======================================================
-
 const OrderReportStatistics = ({
   statistics = {},
   loading = false,
@@ -38,14 +13,11 @@ const OrderReportStatistics = ({
   //====================================================
   // Safe Statistics
   //====================================================
-
   const safeStatistics =
     statistics || {};
-
   //====================================================
   // Statistic Values
   //====================================================
-
   const totalOrders =
     safeStatistics.totalOrders ??
     safeStatistics.totalOrderCount ??
@@ -93,7 +65,6 @@ const OrderReportStatistics = ({
       ) {
         return 0;
       }
-
       return (
         (Number(
           completedOrders
@@ -107,11 +78,9 @@ const OrderReportStatistics = ({
       totalOrders,
       completedOrders,
     ]);
-
   //====================================================
   // Statistic Cards
   //====================================================
-
   const statisticCards =
     useMemo(
       () => [
@@ -192,8 +161,7 @@ const OrderReportStatistics = ({
           color: "secondary",
         },
       ],
-      [
-        totalOrders,
+      [ totalOrders,
         totalQuantity,
         totalSales,
         completedOrders,
@@ -201,10 +169,6 @@ const OrderReportStatistics = ({
         shippedOrders,
       ]
     );
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
     //====================================================
   // Render
   //====================================================

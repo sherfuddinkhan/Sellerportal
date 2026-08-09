@@ -1,19 +1,6 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import React, {useCallback,useEffect,useMemo,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Stack,
-} from "@mui/material";
-
+import {Alert,Box,CircularProgress,Stack} from "@mui/material";
 import OrderReportToolbar from "./OrderReportToolbar";
 import OrderReportStatistics from "./OrderReportStatistics";
 import OrderReportSearch from "./OrderReportSearch";
@@ -23,19 +10,8 @@ import OrderReportPagination from "./OrderReportPagination";
 import OrderReportModal from "./OrderReportModal";
 import OrderReportExport from "./OrderReportExport";
 
-import {
-  getOrderReports,
-  getOrderReportStatistics,
-  getOrderStatuses,
-  getOrderChannels,
-} from "./OrderReportService";
-
-import {
-  filterOrderReports,
-  searchOrderReports,
-  sortOrderReports,
-  calculateOrderStatistics,
-} from "./OrderReportHelpers";
+import {getOrderReports,getOrderReportStatistics,getOrderStatuses,getOrderChannels} from "./OrderReportService";
+import {filterOrderReports,searchOrderReports,sortOrderReports,calculateOrderStatistics} from "./OrderReportHelpers";
 
 //======================================================
 // OrderReportView
@@ -50,44 +26,31 @@ const OrderReportView = ({
   // Report Data
   //====================================================
 
-  const [reports, setReports] =
-    useState([]);
+  const [reports, setReports] = useState([]);
 
   //====================================================
   // Loading
   //====================================================
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   //====================================================
   // Error
   //====================================================
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
   //====================================================
   // Search
   //====================================================
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   //====================================================
   // Filters
   //====================================================
 
-  const [filters, setFilters] =
-    useState({
-      status: "",
-      channel: "",
-      paymentStatus: "",
-      fulfillmentStatus: "",
-      dateFrom: "",
-      dateTo: "",
-      minAmount: "",
-      maxAmount: "",
+  const [filters, setFilters] = useState({status: "",channel: "",paymentStatus: "",fulfillmentStatus: "",dateFrom: "",dateTo: "",minAmount: "",maxAmount: "",
       ...initialFilters,
     });
 
@@ -95,48 +58,30 @@ const OrderReportView = ({
   // Pagination
   //====================================================
 
-  const [page, setPage] =
-    useState(
-      Number(initialPage) || 1
-    );
-
-  const [pageSize, setPageSize] =
-    useState(
-      Number(initialPageSize) || 10
-    );
+  const [page, setPage] = useState(Number(initialPage) || 1);
+  const [pageSize, setPageSize] =useState(Number(initialPageSize) || 10);
 
   //====================================================
   // Sorting
   //====================================================
 
-  const [sortBy, setSortBy] =
-    useState("orderDate");
-
-  const [sortOrder, setSortOrder] =
-    useState("desc");
+  const [sortBy, setSortBy] = useState("orderDate");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   //====================================================
   // Modal
   //====================================================
 
-  const [modalOpen, setModalOpen] =
-    useState(false);
-
-  const [modalMode, setModalMode] =
-    useState("view");
-
-  const [selectedOrder, setSelectedOrder] =
-    useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("view");
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   //====================================================
   // Filter Options
   //====================================================
 
-  const [statuses, setStatuses] =
-    useState([]);
-
-  const [channels, setChannels] =
-    useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [channels, setChannels] = useState([]);
 
   //====================================================
   // Load Order Reports
@@ -146,36 +91,26 @@ const OrderReportView = ({
     useCallback(async () => {
       setLoading(true);
       setError("");
-
       try {
-        const response =
-          await getOrderReports();
-
+        const response = await getOrderReports();
         const data =
           response?.reports ??
           response?.data ??
           response?.items ??
           response?.results ??
           [];
-
-        setReports(
-          Array.isArray(data)
-            ? data
-            : []
-        );
+        setReports( Array.isArray(data) ? data : [] );
       } catch (loadError) {
         console.error(
           "OrderReportView load error:",
           loadError
         );
-
         setError(
           loadError?.response?.data
             ?.message ??
             loadError?.message ??
             "Unable to load order reports."
         );
-
         setReports([]);
       } finally {
         setLoading(false);
@@ -185,7 +120,6 @@ const OrderReportView = ({
   //====================================================
   // Load Filter Options
   //====================================================
-
   const loadFilterOptions =
     useCallback(async () => {
       try {
@@ -202,7 +136,6 @@ const OrderReportView = ({
             ? statusData
             : []
         );
-
         setChannels(
           Array.isArray(channelData)
             ? channelData
@@ -245,23 +178,9 @@ const OrderReportView = ({
           result,
           searchTerm
         );
-
-      result =
-        sortOrderReports(
-          result,
-          sortBy,
-          sortOrder
-        );
-
+      result = sortOrderReports( result, sortBy, sortOrder );
       return result;
-    }, [
-      reports,
-      filters,
-      searchTerm,
-      sortBy,
-      sortOrder,
-    ]);
-
+    }, [ reports, filters, searchTerm, sortBy,sortOrder,]);
   //====================================================
   // Statistics
   //====================================================
@@ -269,22 +188,14 @@ const OrderReportView = ({
   const statistics =
     useMemo(
       () =>
-        calculateOrderStatistics(
-          processedReports
-        ),
+        calculateOrderStatistics(processedReports),
       [processedReports]
     );
-
   //====================================================
   // Pagination Calculation
   //====================================================
-
-  const totalRecords =
-    processedReports.length;
-
-  const totalPages =
-    Math.max(
-      1,
+  const totalRecords = processedReports.length;
+  const totalPages = Math.max( 1,
       Math.ceil(
         totalRecords /
           pageSize
@@ -392,7 +303,6 @@ const OrderReportView = ({
         minAmount: "",
         maxAmount: "",
       });
-
       setPage(1);
     }, []);
 
@@ -443,7 +353,6 @@ const OrderReportView = ({
         setSortOrder(
           direction
         );
-
         setPage(1);
       },
       []
@@ -452,21 +361,17 @@ const OrderReportView = ({
   //====================================================
   // View Order
   //====================================================
-
   const handleView =
     useCallback((order) => {
       setSelectedOrder(
         order
       );
-
       setModalMode("view");
       setModalOpen(true);
     }, []);
-
   //====================================================
   // Edit Order
   //====================================================
-
   const handleEdit =
     useCallback((order) => {
       setSelectedOrder(
@@ -656,10 +561,6 @@ const OrderReportView = ({
       },
       []
     );
-
-  //====================================================
-  // Part 1B Ends Here
-  //====================================================
   //====================================================
   // Render
   //====================================================
