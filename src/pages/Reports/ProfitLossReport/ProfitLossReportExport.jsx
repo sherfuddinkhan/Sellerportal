@@ -1,32 +1,8 @@
-
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
-
+import React, {useCallback,useMemo,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Download,
-  PictureAsPdf,
-  TableView,
-} from "@mui/icons-material";
-
-import {
-  Alert,
-  Box,
-  Button,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  exportProfitLossReport,
-} from "./ProfitLossReportService";
+import {Download,PictureAsPdf,TableView} from "@mui/icons-material";
+import {Alert,Box,Button,MenuItem,Paper,Select,Stack,Typography} from "@mui/material";
+import {exportProfitLossReport} from "./ProfitLossReportService";
 
 //======================================================
 // ProfitLossReportExport
@@ -43,15 +19,9 @@ const ProfitLossReportExport = ({
   // State
   //====================================================
 
-  const [exportFormat, setExportFormat] =
-    useState("excel");
-
-  const [exporting, setExporting] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
+  const [exportFormat, setExportFormat] = useState("excel");
+  const [exporting, setExporting] = useState(false);
+  const [error, setError] = useState("");
   //====================================================
   // Source Data
   //====================================================
@@ -97,13 +67,11 @@ const ProfitLossReportExport = ({
       setExporting(true);
 
       try {
-        const result =
-          await exportProfitLossReport({
+        const result = await exportProfitLossReport({
             reports: reportData,
             filters,
             format: exportFormat,
           });
-
         if (onExport) {
           onExport(
             result,
@@ -115,7 +83,6 @@ const ProfitLossReportExport = ({
           "ProfitLossReportExport error:",
           exportError
         );
-
         setError(
           exportError?.message ||
             "Unable to export profit and loss report."

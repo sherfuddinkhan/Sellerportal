@@ -1,25 +1,7 @@
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  Add,
-  Refresh,
-} from "@mui/icons-material";
-
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  Typography,
-} from "@mui/material";
-
+import React, {useCallback,useEffect,useMemo,useState} from "react";
+import {Add,Refresh} from "@mui/icons-material";
+import {Alert,Box,Button,CircularProgress,Stack,Typography} from "@mui/material";
 import ProfitLossReportCard from "./ProfitLossReportCard";
 import ProfitLossReportList from "./ProfitLossReportList";
 import ProfitLossReportTable from "./ProfitLossReportTable";
@@ -30,22 +12,8 @@ import ProfitLossReportFilter from "./ProfitLossReportFilter";
 import ProfitLossReportPagination from "./ProfitLossReportPagination";
 import ProfitLossReportModal from "./ProfitLossReportModal";
 import ProfitLossReportExport from "./ProfitLossReportExport";
-
-import {
-  getProfitLossReports,
-  getProfitLossReportSummary,
-  deleteProfitLossReport,
-} from "./ProfitLossReportService";
-
-import {
-  normalizeProfitLossReports,
-  calculateProfitLossStatistics,
-  filterProfitLossReports,
-  searchProfitLossReports,
-  sortProfitLossReports,
-  paginateProfitLossReports,
-} from "./ProfitLossReportHelpers";
-
+import {getProfitLossReports,getProfitLossReportSummary,deleteProfitLossReport} from "./ProfitLossReportService";
+import {normalizeProfitLossReports,calculateProfitLossStatistics,filterProfitLossReports,searchProfitLossReports,sortProfitLossReports,paginateProfitLossReports} from "./ProfitLossReportHelpers";
 import "./ProfitLossReport.css";
 
 //======================================================
@@ -103,41 +71,29 @@ const ProfitLossReportView = () => {
   // Pagination
   //====================================================
 
-  const [page, setPage] =
-    useState(1);
-
-  const [pageSize, setPageSize] =
-    useState(10);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   //====================================================
   // Sorting
   //====================================================
 
-  const [sortField, setSortField] =
-    useState("date");
-
-  const [sortDirection, setSortDirection] =
-    useState("desc");
+  const [sortField, setSortField] =  useState("date");
+  const [sortDirection, setSortDirection] = useState("desc");
 
   //====================================================
   // Modal
   //====================================================
 
-  const [modalOpen, setModalOpen] =
-    useState(false);
-
-  const [modalMode, setModalMode] =
-    useState("view");
-
-  const [selectedReport, setSelectedReport] =
-    useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("view");
+  const [selectedReport, setSelectedReport] = useState(null);
 
   //====================================================
   // Summary
   //====================================================
 
-  const [summary, setSummary] =
-    useState(null);
+  const [summary, setSummary] = useState(null);
 
   //====================================================
   // Load Reports
@@ -325,10 +281,6 @@ const ProfitLossReportView = () => {
 
       setPage(1);
     }, []);
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
   //====================================================
   // Filter Handler
   //====================================================

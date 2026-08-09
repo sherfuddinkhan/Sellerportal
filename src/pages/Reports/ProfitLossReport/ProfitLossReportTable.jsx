@@ -1,44 +1,8 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Delete,
-  Edit,
-  Visibility,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Chip,
-  CircularProgress,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  Typography,
-} from "@mui/material";
-
-import {
-  formatCurrency,
-  formatDate,
-  getStatusColor,
-  getProfitLossId,
-  getReportDate,
-  getMarketplaceName,
-  getProductName,
-  getRevenue,
-  getTotalCost,
-  getGrossProfit,
-  getNetProfit,
-} from "./ProfitLossReportHelpers";
+import {Delete,Edit,Visibility} from "@mui/icons-material";
+import {Box,Chip,CircularProgress,IconButton,Paper,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,TableSortLabel,Typography} from "@mui/material";
+import {formatCurrency,formatDate,getStatusColor,getProfitLossId,getReportDate,getMarketplaceName,getProductName,getRevenue,getTotalCost,getGrossProfit,getNetProfit} from "./ProfitLossReportHelpers";
 
 //======================================================
 // ProfitLossReportTable

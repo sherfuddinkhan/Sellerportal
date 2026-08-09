@@ -1,38 +1,8 @@
 import React from "react";
-
 import PropTypes from "prop-types";
-
-import {
-  Edit,
-  Visibility,
-  Delete,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Divider,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  formatCurrency,
-  formatDate,
-  getStatusColor,
-  getProfitLossId,
-  getReportDate,
-  getMarketplaceName,
-  getProductName,
-  getRevenue,
-  getTotalCost,
-  getGrossProfit,
-  getNetProfit,
-} from "./ProfitLossReportHelpers";
+import {Edit,Visibility,Delete} from "@mui/icons-material";
+import {Box,Card,CardContent,Chip,CircularProgress,Divider,IconButton,Stack,Typography} from "@mui/material";
+import {formatCurrency,formatDate,getStatusColor,getProfitLossId,getReportDate,getMarketplaceName,getProductName,getRevenue,getTotalCost,getGrossProfit,getNetProfit,} from "./ProfitLossReportHelpers";
 
 //======================================================
 // ProfitLossReportList

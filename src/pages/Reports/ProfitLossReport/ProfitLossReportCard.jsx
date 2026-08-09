@@ -1,29 +1,8 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  AccountBalance,
-  AttachMoney,
-  TrendingDown,
-  TrendingUp,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  formatCurrency,
-  formatNumber,
-} from "./ProfitLossReportHelpers";
+import {AccountBalance,AttachMoney,TrendingDown,TrendingUp} from "@mui/icons-material";
+import {Box,Card,CardContent,Grid,Stack,Typography} from "@mui/material";
+import {formatCurrency,formatNumber} from "./ProfitLossReportHelpers";
 
 //======================================================
 // ProfitLossReportCard

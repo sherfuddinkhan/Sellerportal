@@ -187,7 +187,6 @@ export const formatDateForInput = (
   const day = String(
     date.getDate()
   ).padStart(2, "0");
-
   return `${year}-${month}-${day}`;
 };
 
@@ -272,15 +271,12 @@ export const getProfitStatus = (
 ) => {
   const value =
     toNumber(profit);
-
   if (value > 0) {
     return "profit";
   }
-
   if (value < 0) {
     return "loss";
   }
-
   return "break-even";
 };
 
@@ -291,8 +287,7 @@ export const getProfitStatus = (
 export const getProfitStatusColor = (
   profit
 ) => {
-  const status =
-    getProfitStatus(profit);
+  const status = getProfitStatus(profit);
 
   if (status === "profit") {
     return "success";
@@ -312,11 +307,7 @@ export const getProfitStatusColor = (
 export const getStatusColor = (
   status
 ) => {
-  const normalized =
-    toSafeString(
-      status
-    ).toLowerCase();
-
+  const normalized = toSafeString(status).toLowerCase();
   switch (normalized) {
     case "completed":
     case "complete":
@@ -326,13 +317,11 @@ export const getStatusColor = (
     case "approved":
     case "profit":
       return "success";
-
     case "pending":
     case "processing":
     case "draft":
     case "warning":
       return "warning";
-
     case "cancelled":
     case "canceled":
     case "failed":
@@ -340,7 +329,6 @@ export const getStatusColor = (
     case "rejected":
     case "loss":
       return "error";
-
     default:
       return "default";
   }
@@ -356,7 +344,6 @@ export const getProfitLossId = (
   if (!report) {
     return null;
   }
-
   return (
     report.id ??
     report.reportId ??
@@ -393,7 +380,6 @@ export const normalizeProfitLossReport = (
       revenue,
       totalCost
     );
-
   const grossProfit =
     report.grossProfit !==
       undefined &&
@@ -411,13 +397,7 @@ export const normalizeProfitLossReport = (
         report.expenses ??
         report.totalExpenses
     );
-
-  const calculatedNetProfit =
-    calculateNetProfit(
-      grossProfit,
-      operatingExpenses
-    );
-
+  const calculatedNetProfit = calculateNetProfit(grossProfit,operatingExpenses);
   const netProfit =
     report.netProfit !==
       undefined &&

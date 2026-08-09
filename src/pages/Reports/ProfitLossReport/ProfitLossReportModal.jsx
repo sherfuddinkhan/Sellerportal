@@ -1,47 +1,9 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import React, {useCallback,useEffect,useMemo,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Close,
-  Edit,
-  Save,
-} from "@mui/icons-material";
-
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-
-import {
-  createProfitLossReport,
-  updateProfitLossReport,
-} from "./ProfitLossReportService";
-
-import {
-  formatCurrency,
-  formatDate,
-  getProfitLossId,
-  normalizeProfitLossReport,
-} from "./ProfitLossReportHelpers";
+import {Close,Edit,Save} from "@mui/icons-material";
+import {Alert,Box,Button,CircularProgress,Dialog,DialogActions,DialogContent,DialogTitle,Divider,Grid,IconButton,MenuItem,Stack,TextField,Typography} from "@mui/material";
+import {createProfitLossReport,updateProfitLossReport} from "./ProfitLossReportService";
+import {formatCurrency,formatDate,getProfitLossId,normalizeProfitLossReport} from "./ProfitLossReportHelpers";
 
 //======================================================
 // ProfitLossReportModal
@@ -300,8 +262,6 @@ const ProfitLossReportModal = ({
     getProfitLossId(
       report
     );
-
-  ```jsx id="v8j4qp"
   //====================================================
   // Submit
   //====================================================

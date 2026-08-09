@@ -1,25 +1,7 @@
-import React, {
-  useCallback,
-} from "react";
+import React, {useCallback} from "react";
 import PropTypes from "prop-types";
-import {
-  ChevronLeft,
-  ChevronRight,
-  FirstPage,
-  LastPage,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  Typography,
-} from "@mui/material";
+import {ChevronLeft,ChevronRight,FirstPage,LastPage} from "@mui/icons-material";
+import {Box,FormControl,IconButton,InputLabel,MenuItem,Paper,Select,Stack,Typography} from "@mui/material";
 
 //======================================================
 // ProfitLossReportPagination
@@ -110,12 +92,10 @@ const ProfitLossReportPagination = ({
     useCallback(
       (event) => {
         if (loading) return;
-
         const nextPageSize =
           Number(
             event?.target?.value
           ) || 10;
-
         onPageSizeChange?.(
           nextPageSize
         );

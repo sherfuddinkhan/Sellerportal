@@ -1,19 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import {
-  Add,
-  FilterAlt,
-  Refresh,
-  RestartAlt,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Button,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import {Add,FilterAlt,Refresh,RestartAlt} from "@mui/icons-material";
+import {Box,Button,Paper,Stack,Typography} from "@mui/material";
 
 //======================================================
 // ProfitLossReportToolbar
@@ -196,31 +184,22 @@ ProfitLossReportToolbar.propTypes =
   {
     onAdd:
       PropTypes.func,
-
     onRefresh:
       PropTypes.func,
-
     onFilter:
       PropTypes.func,
-
     onReset:
       PropTypes.func,
-
     loading:
       PropTypes.bool,
-
     title:
       PropTypes.string,
-
     showAdd:
       PropTypes.bool,
-
     showRefresh:
       PropTypes.bool,
-
     showFilter:
       PropTypes.bool,
-
     showReset:
       PropTypes.bool,
   };
@@ -232,24 +211,14 @@ ProfitLossReportToolbar.propTypes =
 ProfitLossReportToolbar.defaultProps =
   {
     onAdd: () => {},
-
     onRefresh: () => {},
-
     onFilter: () => {},
-
     onReset: () => {},
-
     loading: false,
-
-    title:
-      "Profit & Loss Reports",
-
+    title: "Profit & Loss Reports",
     showAdd: true,
-
     showRefresh: true,
-
     showFilter: true,
-
     showReset: true,
   };
 

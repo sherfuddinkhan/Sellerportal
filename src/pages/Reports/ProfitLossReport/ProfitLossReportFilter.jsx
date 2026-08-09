@@ -1,27 +1,7 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, {useCallback,useEffect,useState} from "react";
 import PropTypes from "prop-types";
-import {
-  FilterAlt,
-  RestartAlt,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Button,
-  Collapse,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { FilterAlt,RestartAlt} from "@mui/icons-material";
+import {Box,Button,Collapse,FormControl,Grid,InputLabel,MenuItem,Paper,Select,Stack,TextField} from "@mui/material";
 
 //======================================================
 // ProfitLossReportFilter
@@ -39,7 +19,6 @@ const ProfitLossReportFilter = ({
   //====================================================
   // Local Filter State
   //====================================================
-
   const [localFilters, setLocalFilters] =
     useState({
       dateFrom:
@@ -68,8 +47,7 @@ const ProfitLossReportFilter = ({
   // Expanded State
   //====================================================
 
-  const [expanded, setExpanded] =
-    useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   //====================================================
   // Sync External Filters
@@ -154,11 +132,9 @@ const ProfitLossReportFilter = ({
         minProfit: "",
         maxProfit: "",
       };
-
       setLocalFilters(
         emptyFilters
       );
-
       onReset?.();
     }, [onReset]);
   //====================================================
@@ -178,7 +154,6 @@ const ProfitLossReportFilter = ({
       {/*==============================================
           Filter Header
       ==============================================*/}
-
       <Box
         sx={{
           display: "flex",
@@ -230,11 +205,9 @@ const ProfitLossReportFilter = ({
           </Button>
         </Stack>
       </Box>
-
       {/*==============================================
           Filter Fields
       ==============================================*/}
-
       <Collapse in={expanded}>
         <Box sx={{ pt: 2 }}>
           <Grid
