@@ -11,14 +11,13 @@ import {
   Alert,
   Box,
   CircularProgress,
-  Paper,
   Stack,
 } from "@mui/material";
 
 import MarketplaceReportToolbar from "./MarketplaceReportToolbar";
+import MarketplaceReportStatistics from "./MarketplaceReportStatistics";
 import MarketplaceReportSearch from "./MarketplaceReportSearch";
 import MarketplaceReportFilter from "./MarketplaceReportFilter";
-import MarketplaceReportStatistics from "./MarketplaceReportStatistics";
 import MarketplaceReportTable from "./MarketplaceReportTable";
 import MarketplaceReportPagination from "./MarketplaceReportPagination";
 import MarketplaceReportModal from "./MarketplaceReportModal";
@@ -26,7 +25,18 @@ import MarketplaceReportExport from "./MarketplaceReportExport";
 
 import {
   getMarketplaceReports,
+  getMarketplaces,
+  getMarketplaceReportStatuses,
+  getMarketplaceReportCategories,
+  deleteMarketplaceReport,
 } from "./MarketplaceReportService";
+
+import {
+  filterMarketplaceReports,
+  searchMarketplaceReports,
+  sortMarketplaceReports,
+  calculateMarketplaceStatistics,
+} from "./MarketplaceReportHelpers";
 
 //======================================================
 // MarketplaceReportView
@@ -34,27 +44,15 @@ import {
 
 const MarketplaceReportView = ({
   initialFilters = {},
+  initialPage = 1,
+  initialPageSize = 10,
 }) => {
-
   //====================================================
-  // Reports State
+  // Data State
   //====================================================
 
   const [reports, setReports] =
     useState([]);
-
-  //====================================================
-  // Statistics State
-  //====================================================
-
-  const [statistics, setStatistics] =
-    useState({
-      totalOrders: 0,
-      totalSales: 0,
-      totalProducts: 0,
-      totalQuantity: 0,
-      totalReturns: 0,
-    });
 
   //====================================================
   // Loading State
@@ -74,7 +72,7 @@ const MarketplaceReportView = ({
   // Search State
   //====================================================
 
-  const [search, setSearch] =
+  const [searchTerm, setSearchTerm] =
     useState("");
 
   //====================================================
@@ -88,6 +86,8 @@ const MarketplaceReportView = ({
       category: "",
       dateFrom: "",
       dateTo: "",
+      minAmount: "",
+      maxAmount: "",
       ...initialFilters,
     });
 
@@ -96,176 +96,137 @@ const MarketplaceReportView = ({
   //====================================================
 
   const [page, setPage] =
-    useState(1);
+    useState(initialPage);
 
   const [pageSize, setPageSize] =
-    useState(10);
-
-  const [totalRecords, setTotalRecords] =
-    useState(0);
-
-  const [totalPages, setTotalPages] =
-    useState(1);
+    useState(initialPageSize);
 
   //====================================================
-  // Selection State
+  // Sort State
   //====================================================
 
-  const [selectedRows, setSelectedRows] =
-    useState([]);
+  const [sortBy, setSortBy] =
+    useState("reportDate");
 
-  //====================================================
-  // Filter Visibility
-  //====================================================
-
-  const [filterOpen, setFilterOpen] =
-    useState(false);
+  const [sortOrder, setSortOrder] =
+    useState("desc");
 
   //====================================================
   // Modal State
   //====================================================
 
-  const [modal, setModal] =
-    useState({
-      open: false,
-      mode: "view",
-      report: null,
-    });
+  const [modalOpen, setModalOpen] =
+    useState(false);
+
+  const [modalMode, setModalMode] =
+    useState("view");
+
+  const [selectedReport, setSelectedReport] =
+    useState(null);
 
   //====================================================
-  // Request Parameters
+  // Filter Options
   //====================================================
 
-  const requestParams = useMemo(
-    () => ({
-      page,
-      pageSize,
-      search: search.trim(),
-      ...filters,
-    }),
-    [
-      page,
-      pageSize,
-      search,
-      filters,
-    ]
-  );
+  const [marketplaces, setMarketplaces] =
+    useState([]);
+
+  const [statuses, setStatuses] =
+    useState([]);
+
+  const [categories, setCategories] =
+    useState([]);
 
   //====================================================
   // Load Reports
   //====================================================
 
   const loadReports =
-    useCallback(
-      async (
-        params = requestParams
-      ) => {
-        setLoading(true);
-        setError("");
+    useCallback(async () => {
+      setLoading(true);
+      setError("");
 
-        try {
-          const response =
-            await getMarketplaceReports(
-              params
-            );
+      try {
+        const response =
+          await getMarketplaceReports();
 
-          const data =
-            response?.data ??
-            response;
+        const data =
+          response?.reports ??
+          response?.data ??
+          response?.items ??
+          [];
 
-          const reportList =
-            Array.isArray(data)
-              ? data
-              : data?.reports ??
-                data?.items ??
-                data?.rows ??
-                [];
+        setReports(
+          Array.isArray(data)
+            ? data
+            : []
+        );
+      } catch (loadError) {
+        console.error(
+          "MarketplaceReportView load error:",
+          loadError
+        );
 
-          setReports(
-            reportList
-          );
+        setError(
+          loadError?.response
+            ?.data?.message ??
+            loadError?.message ??
+            "Unable to load marketplace reports."
+        );
 
-          setStatistics({
-            totalOrders:
-              data?.statistics
-                ?.totalOrders ??
-              data?.totalOrders ??
-              0,
+        setReports([]);
+      } finally {
+        setLoading(false);
+      }
+    }, []);
 
-            totalSales:
-              data?.statistics
-                ?.totalSales ??
-              data?.totalSales ??
-              0,
+  //====================================================
+  // Load Filter Options
+  //====================================================
 
-            totalProducts:
-              data?.statistics
-                ?.totalProducts ??
-              data?.totalProducts ??
-              0,
+  const loadFilterOptions =
+    useCallback(async () => {
+      try {
+        const [
+          marketplaceData,
+          statusData,
+          categoryData,
+        ] = await Promise.all([
+          getMarketplaces(),
+          getMarketplaceReportStatuses(),
+          getMarketplaceReportCategories(),
+        ]);
 
-            totalQuantity:
-              data?.statistics
-                ?.totalQuantity ??
-              data?.totalQuantity ??
-              0,
+        setMarketplaces(
+          Array.isArray(
+            marketplaceData
+          )
+            ? marketplaceData
+            : []
+        );
 
-            totalReturns:
-              data?.statistics
-                ?.totalReturns ??
-              data?.totalReturns ??
-              0,
-          });
+        setStatuses(
+          Array.isArray(
+            statusData
+          )
+            ? statusData
+            : []
+        );
 
-          const recordCount =
-            Number(
-              data?.totalRecords ??
-              data?.totalCount ??
-              data?.count ??
-              reportList.length
-            ) || 0;
-
-          setTotalRecords(
-            recordCount
-          );
-
-          setTotalPages(
-            Number(
-              data?.totalPages
-            ) ||
-              Math.max(
-                1,
-                Math.ceil(
-                  recordCount /
-                    pageSize
-                )
-              )
-          );
-
-          setSelectedRows([]);
-        } catch (err) {
-          console.error(
-            "Failed to load marketplace reports:",
-            err
-          );
-
-          setReports([]);
-
-          setError(
-            err?.response?.data
-              ?.message ??
-            err?.message ??
-            "Failed to load marketplace reports."
-          );
-        } finally {
-          setLoading(false);
-        }
-      },
-      [
-        requestParams,
-        pageSize,
-      ]
-    );
+        setCategories(
+          Array.isArray(
+            categoryData
+          )
+            ? categoryData
+            : []
+        );
+      } catch (optionError) {
+        console.warn(
+          "Unable to load marketplace report filter options:",
+          optionError
+        );
+      }
+    }, []);
 
   //====================================================
   // Initial Load
@@ -273,51 +234,162 @@ const MarketplaceReportView = ({
 
   useEffect(() => {
     loadReports();
-  }, [loadReports]);
+    loadFilterOptions();
+  }, [
+    loadReports,
+    loadFilterOptions,
+  ]);
 
   //====================================================
-  // Part 1A Ends Here
-  //====================================================
-    //====================================================
-  // Search Handler
+  // Process Reports
   //====================================================
 
-  const handleSearchChange =
-    useCallback((value) => {
-      setSearch(value ?? "");
-      setPage(1);
-    }, []);
+  const processedReports =
+    useMemo(() => {
+      let result =
+        filterMarketplaceReports(
+          reports,
+          filters
+        );
+
+      result =
+        searchMarketplaceReports(
+          result,
+          searchTerm
+        );
+
+      result =
+        sortMarketplaceReports(
+          result,
+          sortBy,
+          sortOrder
+        );
+
+      return result;
+    }, [
+      reports,
+      filters,
+      searchTerm,
+      sortBy,
+      sortOrder,
+    ]);
+
+  //====================================================
+  // Total Pages
+  //====================================================
+
+  const totalRecords =
+    processedReports.length;
+
+  const totalPages =
+    Math.max(
+      1,
+      Math.ceil(
+        totalRecords /
+          pageSize
+      )
+    );
+
+  //====================================================
+  // Keep Page Valid
+  //====================================================
+
+  useEffect(() => {
+    if (
+      page > totalPages
+    ) {
+      setPage(totalPages);
+    }
+  }, [
+    page,
+    totalPages,
+  ]);
+
+  //====================================================
+  // Paginated Reports
+  //====================================================
+
+  const paginatedReports =
+    useMemo(() => {
+      const start =
+        (page - 1) *
+        pageSize;
+
+      return processedReports.slice(
+        start,
+        start + pageSize
+      );
+    }, [
+      processedReports,
+      page,
+      pageSize,
+    ]);
+
+  //====================================================
+  // Statistics
+  //====================================================
+
+  const statistics =
+    useMemo(
+      () =>
+        calculateMarketplaceStatistics(
+          processedReports
+        ),
+      [processedReports]
+    );
+
+  //====================================================
+  // Search
+  //====================================================
 
   const handleSearch =
-    useCallback((value) => {
-      setSearch(value ?? "");
+    useCallback(
+      (value) => {
+        setSearchTerm(
+          value ?? ""
+        );
+
+        setPage(1);
+      },
+      []
+    );
+
+  //====================================================
+  // Clear Search
+  //====================================================
+
+  const handleClearSearch =
+    useCallback(() => {
+      setSearchTerm("");
       setPage(1);
     }, []);
 
   //====================================================
-  // Filter Handlers
+  // Apply Filters
   //====================================================
-
-  const handleFilterChange =
-    useCallback((nextFilters) => {
-      setFilters((previous) => ({
-        ...previous,
-        ...nextFilters,
-      }));
-
-      setPage(1);
-    }, []);
 
   const handleApplyFilters =
-    useCallback((nextFilters) => {
-      setFilters((previous) => ({
-        ...previous,
-        ...nextFilters,
-      }));
+    useCallback(
+      (nextFilters) => {
+        setFilters({
+          marketplace: "",
+          status: "",
+          category: "",
+          dateFrom: "",
+          dateTo: "",
+          minAmount: "",
+          maxAmount: "",
+          ...(nextFilters || {}),
+        });
 
-      setPage(1);
-      setFilterOpen(false);
-    }, []);
+        setPage(1);
+      },
+      []
+    );
+
+  //====================================================
+  // Reset Filters
+  //====================================================
 
   const handleResetFilters =
     useCallback(() => {
@@ -327,169 +399,339 @@ const MarketplaceReportView = ({
         category: "",
         dateFrom: "",
         dateTo: "",
+        minAmount: "",
+        maxAmount: "",
       });
 
-      setSearch("");
       setPage(1);
     }, []);
 
   //====================================================
-  // Pagination Handlers
+  // Page Change
   //====================================================
 
   const handlePageChange =
-    useCallback((nextPage) => {
-      setPage(
-        Math.max(
-          1,
+    useCallback(
+      (nextPage) => {
+        setPage(
           Number(nextPage) || 1
-        )
-      );
-    }, []);
+        );
+      },
+      []
+    );
+
+  //====================================================
+  // Page Size Change
+  //====================================================
 
   const handlePageSizeChange =
-    useCallback((nextPageSize) => {
-      const size =
-        Number(nextPageSize) || 10;
+    useCallback(
+      (nextPageSize) => {
+        setPageSize(
+          Number(
+            nextPageSize
+          ) || 10
+        );
 
-      setPageSize(size);
-      setPage(1);
+        setPage(1);
+      },
+      []
+    );
+
+  //====================================================
+  // View Report
+  //====================================================
+
+  const handleView =
+    useCallback(
+      (report) => {
+        setSelectedReport(
+          report
+        );
+
+        setModalMode("view");
+        setModalOpen(true);
+      },
+      []
+    );
+
+  //====================================================
+  // Edit Report
+  //====================================================
+
+  const handleEdit =
+    useCallback(
+      (report) => {
+        setSelectedReport(
+          report
+        );
+
+        setModalMode("edit");
+        setModalOpen(true);
+      },
+      []
+    );
+
+  //====================================================
+  // Add Report
+  //====================================================
+
+  const handleAdd =
+    useCallback(() => {
+      setSelectedReport(null);
+
+      setModalMode("create");
+      setModalOpen(true);
     }, []);
 
   //====================================================
-  // Selection Handlers
+  // Close Modal
   //====================================================
 
-  const handleSelectRow =
-    useCallback((id) => {
-      setSelectedRows((previous) => {
-        if (previous.includes(id)) {
-          return previous.filter(
-            (rowId) => rowId !== id
+  const handleCloseModal =
+    useCallback(() => {
+      setModalOpen(false);
+      setSelectedReport(null);
+    }, []);
+
+  //====================================================
+  // Saved Report
+  //====================================================
+
+  const handleSaved =
+    useCallback(async () => {
+      await loadReports();
+
+      setModalOpen(false);
+      setSelectedReport(null);
+    }, [
+      loadReports,
+    ]);
+
+  //====================================================
+  // Delete Report
+  //====================================================
+
+  const handleDelete =
+    useCallback(
+      async (report) => {
+        const reportId =
+          report?.id ??
+          report?.reportId ??
+          report?.orderId;
+
+        if (
+          reportId ===
+            undefined ||
+          reportId === null ||
+          reportId === ""
+        ) {
+          setError(
+            "Unable to delete report: report ID is missing."
           );
+
+          return;
         }
 
-        return [
-          ...previous,
-          id,
-        ];
-      });
-    }, []);
+        const confirmed =
+          window.confirm(
+            "Are you sure you want to delete this marketplace report?"
+          );
 
-  const handleSelectAll =
-    useCallback((ids) => {
-      if (!Array.isArray(ids)) {
-        setSelectedRows([]);
-        return;
-      }
+        if (!confirmed) {
+          return;
+        }
 
-      setSelectedRows(ids);
-    }, []);
+        setLoading(true);
+        setError("");
+
+        try {
+          await deleteMarketplaceReport(
+            reportId
+          );
+
+          await loadReports();
+        } catch (deleteError) {
+          console.error(
+            "Marketplace report delete error:",
+            deleteError
+          );
+
+          setError(
+            deleteError?.response
+              ?.data?.message ??
+              deleteError?.message ??
+              "Unable to delete marketplace report."
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+      [loadReports]
+    );
 
   //====================================================
   // Refresh
   //====================================================
 
   const handleRefresh =
-    useCallback(() => {
-      loadReports();
-    }, [loadReports]);
-
-  //====================================================
-  // Filter Toggle
-  //====================================================
-
-  const handleToggleFilter =
-    useCallback(() => {
-      setFilterOpen(
-        (previous) => !previous
-      );
-    }, []);
-
-  //====================================================
-  // Modal Handlers
-  //====================================================
-
-  const handleView =
-    useCallback((report) => {
-      setModal({
-        open: true,
-        mode: "view",
-        report,
-      });
-    }, []);
-
-  const handleEdit =
-    useCallback((report) => {
-      setModal({
-        open: true,
-        mode: "edit",
-        report,
-      });
-    }, []);
-
-  const handleAdd =
-    useCallback(() => {
-      setModal({
-        open: true,
-        mode: "create",
-        report: null,
-      });
-    }, []);
-
-  const handleCloseModal =
-    useCallback(() => {
-      setModal({
-        open: false,
-        mode: "view",
-        report: null,
-      });
-    }, []);
-
-  const handleSaved =
     useCallback(async () => {
-      handleCloseModal();
       await loadReports();
     }, [
-      handleCloseModal,
       loadReports,
     ]);
 
   //====================================================
-  // Delete Selected
+  // Sort Handler
   //====================================================
 
-  const handleDeleteSelected =
-    useCallback(() => {
-      if (
-        selectedRows.length === 0
-      ) {
-        return;
-      }
+  const handleSort =
+    useCallback(
+      (
+        column,
+        direction
+      ) => {
+        setSortBy(
+          column ||
+            "reportDate"
+        );
 
-      setError(
-        "Delete action is not configured yet."
-      );
-    }, [selectedRows]);
+        setSortOrder(
+          direction ||
+            "desc"
+        );
+
+        setPage(1);
+      },
+      []
+    );
 
   //====================================================
-  // Export
+  // Export Handler
   //====================================================
 
-  const exportData = useMemo(
-    () => ({
-      reports,
-      filters,
-      search,
-      totalRecords,
-    }),
-    [
-      reports,
-      filters,
-      search,
-      totalRecords,
-    ]
-  );
+  const handleExport =
+    useCallback(
+      async ({
+        format,
+        data,
+      }) => {
+        if (
+          !Array.isArray(
+            data
+          ) ||
+          data.length === 0
+        ) {
+          setError(
+            "There are no records to export."
+          );
+
+          return;
+        }
+
+        try {
+          if (
+            format === "csv"
+          ) {
+            const headers =
+              Object.keys(
+                data[0]
+              );
+
+            const escapeValue =
+              (value) => {
+                const text =
+                  String(
+                    value ?? ""
+                  );
+
+                if (
+                  /[",\n]/.test(
+                    text
+                  )
+                ) {
+                  return `"${text.replace(
+                    /"/g,
+                    '""'
+                  )}"`;
+                }
+
+                return text;
+              };
+
+            const csv = [
+              headers
+                .map(
+                  escapeValue
+                )
+                .join(","),
+
+              ...data.map(
+                (row) =>
+                  headers
+                    .map(
+                      (header) =>
+                        escapeValue(
+                          row[
+                            header
+                          ]
+                        )
+                    )
+                    .join(",")
+              ),
+            ].join("\n");
+
+            const blob =
+              new Blob(
+                [csv],
+                {
+                  type:
+                    "text/csv;charset=utf-8;",
+                }
+              );
+
+            const url =
+              URL.createObjectURL(
+                blob
+              );
+
+            const link =
+              document.createElement(
+                "a"
+              );
+
+            link.href = url;
+
+            link.download =
+              "marketplace-report.csv";
+
+            document.body.appendChild(
+              link
+            );
+
+            link.click();
+
+            document.body.removeChild(
+              link
+            );
+
+            URL.revokeObjectURL(
+              url
+            );
+          }
+        } catch (exportError) {
+          console.error(
+            "Marketplace report export error:",
+            exportError
+          );
+
+          setError(
+            "Unable to export marketplace report."
+          );
+        }
+      },
+      []
+    );
 
   //====================================================
   // JSX
@@ -507,223 +749,199 @@ const MarketplaceReportView = ({
         },
       }}
     >
-      {/*================================================
-          Error
-      =================================================*/}
+      <Stack spacing={2}>
+        {/*================================================
+            Error
+        =================================================*/}
 
-      {error && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-          }}
-          onClose={() =>
-            setError("")
+        {error && (
+          <Alert
+            severity="error"
+            onClose={() =>
+              setError("")
+            }
+          >
+            {error}
+          </Alert>
+        )}
+
+        {/*================================================
+            Toolbar
+        =================================================*/}
+
+        <MarketplaceReportToolbar
+          loading={loading}
+          onAdd={handleAdd}
+          onRefresh={
+            handleRefresh
           }
-        >
-          {error}
-        </Alert>
-      )}
+        />
 
-      {/*================================================
-          Main Container
-      =================================================*/}
+        {/*================================================
+            Statistics
+        =================================================*/}
 
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={{
-          p: {
-            xs: 1.5,
-            sm: 2,
-          },
-          borderRadius: 2,
-        }}
-      >
-        <Stack spacing={2}>
+        <MarketplaceReportStatistics
+          statistics={
+            statistics
+          }
+          loading={loading}
+        />
 
-          {/*==============================================
-              Toolbar
-          ==============================================*/}
+        {/*================================================
+            Search
+        =================================================*/}
 
-          <MarketplaceReportToolbar
-            selectedRows={
-              selectedRows
-            }
-            totalRecords={
-              totalRecords
-            }
-            loading={loading}
-            onRefresh={
-              handleRefresh
-            }
-            onAdd={handleAdd}
-            onDeleteSelected={
-              handleDeleteSelected
-            }
-            onToggleFilter={
-              handleToggleFilter
-            }
-            filterOpen={
-              filterOpen
-            }
-          />
+        <MarketplaceReportSearch
+          value={searchTerm}
+          loading={loading}
+          onChange={
+            handleSearch
+          }
+          onSearch={
+            handleSearch
+          }
+          onClear={
+            handleClearSearch
+          }
+        />
 
-          {/*==============================================
-              Search
-          ==============================================*/}
+        {/*================================================
+            Filters
+        =================================================*/}
 
-          <MarketplaceReportSearch
-            value={search}
-            onChange={
-              handleSearchChange
-            }
-            onSearch={
-              handleSearch
-            }
-            loading={loading}
-          />
+        <MarketplaceReportFilter
+          filters={filters}
+          marketplaces={
+            marketplaces
+          }
+          statuses={statuses}
+          categories={categories}
+          loading={loading}
+          onApply={
+            handleApplyFilters
+          }
+          onReset={
+            handleResetFilters
+          }
+        />
 
-          {/*==============================================
-              Filter
-          ==============================================*/}
+        {/*================================================
+            Export
+        =================================================*/}
 
-          {filterOpen && (
-            <MarketplaceReportFilter
-              filters={filters}
-              onChange={
-                handleFilterChange
-              }
-              onApply={
-                handleApplyFilters
-              }
-              onReset={
-                handleResetFilters
-              }
-              loading={loading}
-            />
-          )}
-
-          {/*==============================================
-              Statistics
-          ==============================================*/}
-
-          <MarketplaceReportStatistics
-            statistics={
-              statistics
-            }
-            loading={loading}
-          />
-
-          {/*==============================================
-              Export
-          ==============================================*/}
-
-          <MarketplaceReportExport
-            reports={reports}
-            data={exportData}
-            loading={loading}
-          />
-
-          {/*==============================================
-              Table
-          ==============================================*/}
-
-          <MarketplaceReportTable
-            reports={reports}
-            selectedRows={
-              selectedRows
-            }
-            loading={loading}
-            onSelectRow={
-              handleSelectRow
-            }
-            onSelectAll={
-              handleSelectAll
-            }
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleView}
-          />
-
-          {/*==============================================
-              Pagination
-          ==============================================*/}
-
-          <MarketplaceReportPagination
-            page={page}
-            pageSize={pageSize}
-            totalRecords={
-              totalRecords
-            }
-            totalPages={
-              totalPages
-            }
-            onPageChange={
-              handlePageChange
-            }
-            onPageSizeChange={
-              handlePageSizeChange
-            }
-            loading={loading}
-          />
-
-        </Stack>
-      </Paper>
-
-      {/*================================================
-          Modal
-      =================================================*/}
-
-      <MarketplaceReportModal
-        open={modal.open}
-        mode={modal.mode}
-        report={modal.report}
-        onClose={
-          handleCloseModal
-        }
-        onSaved={handleSaved}
-      />
-
-      {/*================================================
-          Loading Overlay
-      =================================================*/}
-
-      {loading && (
         <Box
-          sx={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 1200,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-          }}
+          display="flex"
+          justifyContent="flex-end"
         >
-          <CircularProgress
-            size={28}
+          <MarketplaceReportExport
+            reports={
+              processedReports
+            }
+            loading={loading}
+            onExport={
+              handleExport
+            }
           />
         </Box>
-      )}
+
+        {/*================================================
+            Table
+        =================================================*/}
+
+        {loading ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight={250}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <MarketplaceReportTable
+            reports={
+              paginatedReports
+            }
+            loading={loading}
+            onView={
+              handleView
+            }
+            onEdit={
+              handleEdit
+            }
+            onDelete={
+              handleDelete
+            }
+            onSort={
+              handleSort
+          }
+          />
+        )}
+
+        {/*================================================
+            Pagination
+        =================================================*/}
+
+        <MarketplaceReportPagination
+          page={page}
+          pageSize={pageSize}
+          totalRecords={
+            totalRecords
+          }
+          totalPages={
+            totalPages
+          }
+          loading={loading}
+          onPageChange={
+            handlePageChange
+          }
+          onPageSizeChange={
+            handlePageSizeChange
+          }
+        />
+
+        {/*================================================
+            Modal
+        =================================================*/}
+
+        <MarketplaceReportModal
+          open={modalOpen}
+          mode={modalMode}
+          report={
+            selectedReport
+          }
+          onClose={
+            handleCloseModal
+          }
+          onSaved={
+            handleSaved
+          }
+        />
+      </Stack>
     </Box>
   );
+};
 
-  //====================================================
-  // Part 1B Ends Here
-  //====================================================
-  //======================================================
+//======================================================
 // PropTypes
 //======================================================
 
 MarketplaceReportView.propTypes = {
-  initialFilters: PropTypes.shape({
-    marketplace: PropTypes.string,
-    status: PropTypes.string,
-    category: PropTypes.string,
-    dateFrom: PropTypes.string,
-    dateTo: PropTypes.string,
-  }),
+  initialFilters:
+    PropTypes.object,
+
+  initialPage:
+    PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
+    ]),
+
+  initialPageSize:
+    PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
+    ]),
 };
 
 //======================================================
@@ -732,10 +950,14 @@ MarketplaceReportView.propTypes = {
 
 MarketplaceReportView.defaultProps = {
   initialFilters: {},
+
+  initialPage: 1,
+
+  initialPageSize: 10,
 };
 
 //======================================================
 // Export
 //======================================================
-}
+
 export default MarketplaceReportView;

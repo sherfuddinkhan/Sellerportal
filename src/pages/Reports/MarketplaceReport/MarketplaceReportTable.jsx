@@ -1,17 +1,12 @@
-import React, {
-  useCallback,
-  useMemo,
-} from "react";
+import React, {useCallback,useMemo} from "react";
 
 import PropTypes from "prop-types";
 
 import {
   Box,
-  Checkbox,
   Chip,
   IconButton,
   Paper,
-  Skeleton,
   Stack,
   Table,
   TableBody,
@@ -24,11 +19,26 @@ import {
 } from "@mui/material";
 
 import {
-  Visibility,
-  Edit,
   Delete,
-  Storefront,
+  Edit,
+  Visibility,
 } from "@mui/icons-material";
+
+import {
+  formatCurrency,
+  formatDate,
+  getCategory,
+  getMarketplaceName,
+  getOrderNumber,
+  getProductName,
+  getQuantity,
+  getSalesAmount,
+  getShipmentStatus,
+  getShipmentStatusColor,
+  getSku,
+  getStatus,
+  getStatusColor,
+} from "./MarketplaceReportHelpers";
 
 //======================================================
 // MarketplaceReportTable
@@ -36,15 +46,12 @@ import {
 
 const MarketplaceReportTable = ({
   reports = [],
-  selectedRows = [],
   loading = false,
-  onSelectRow,
-  onSelectAll,
   onView,
   onEdit,
   onDelete,
+  onSort,
 }) => {
-
   //====================================================
   // Safe Reports
   //====================================================
@@ -58,834 +65,478 @@ const MarketplaceReportTable = ({
   );
 
   //====================================================
-  // Safe Selected Rows
+  // Sort Handler
   //====================================================
 
-  const safeSelectedRows =
-    useMemo(
-      () =>
-        Array.isArray(selectedRows)
-          ? selectedRows
-          : [],
-      [selectedRows]
-    );
-
-  //====================================================
-  // Get Report ID
-  //====================================================
-
-  const getReportId =
-    useCallback(
-      (report) =>
-        report?.id ??
-        report?.reportId ??
-        report?.orderId ??
-        report?.orderNumber ??
-        null,
-      []
-    );
-
-  //====================================================
-  // Get Marketplace
-  //====================================================
-
-  const getMarketplace =
-    useCallback(
-      (report) =>
-        report?.marketplaceName ??
-        report?.marketplace ??
-        report?.channelName ??
-        report?.channel ??
-        "—",
-      []
-    );
-
-  //====================================================
-  // Get Order Number
-  //====================================================
-
-  const getOrderNumber =
-    useCallback(
-      (report) =>
-        report?.orderNumber ??
-        report?.orderNo ??
-        report?.orderId ??
-        "—",
-      []
-    );
-
-  //====================================================
-  // Get Product Name
-  //====================================================
-
-  const getProductName =
-    useCallback(
-      (report) =>
-        report?.productName ??
-        report?.itemName ??
-        report?.product ??
-        report?.name ??
-        "—",
-      []
-    );
-
-  //====================================================
-  // Get SKU
-  //====================================================
-
-  const getSku =
-    useCallback(
-      (report) =>
-        report?.sku ??
-        report?.productCode ??
-        report?.itemCode ??
-        "—",
-      []
-    );
-
-  //====================================================
-  // Get Quantity
-  //====================================================
-
-  const getQuantity =
-    useCallback(
-      (report) =>
-        Number(
-          report?.quantity ??
-          report?.qty ??
-          report?.totalQuantity ??
-          0
-        ) || 0,
-      []
-    );
-
-  //====================================================
-  // Get Sales Amount
-  //====================================================
-
-  const getSalesAmount =
-    useCallback(
-      (report) =>
-        Number(
-          report?.totalAmount ??
-          report?.salesAmount ??
-          report?.orderAmount ??
-          report?.amount ??
-          report?.total ??
-          0
-        ) || 0,
-      []
-    );
-
-  //====================================================
-  // Get Status
-  //====================================================
-
-  const getStatus =
-    useCallback(
-      (report) =>
-        report?.status ??
-        report?.orderStatus ??
-        report?.paymentStatus ??
-        "—",
-      []
-    );
-
-  //====================================================
-  // Get Shipment Status
-  //====================================================
-
-  const getShipmentStatus =
-    useCallback(
-      (report) =>
-        report?.shipmentStatus ??
-        report?.shippingStatus ??
-        report?.deliveryStatus ??
-        "—",
-      []
-    );
-
-  //====================================================
-  // Format Number
-  //====================================================
-
-  const formatNumber =
-    useCallback(
-      (value) => {
-        const numericValue =
-          Number(value);
-
-        if (
-          !Number.isFinite(
-            numericValue
-          )
-        ) {
-          return "0";
-        }
-
-        return numericValue.toLocaleString(
-          "en-IN"
-        );
-      },
-      []
-    );
-
-  //====================================================
-  // Format Currency
-  //====================================================
-
-  const formatCurrency =
-    useCallback(
-      (value) =>
-        Number(value).toLocaleString(
-          "en-IN",
-          {
-            style: "currency",
-            currency: "INR",
-            maximumFractionDigits: 2,
-          }
-        ),
-      []
-    );
-
-  //====================================================
-  // Selected Count
-  //====================================================
-
-  const selectedCount =
-    useMemo(
-      () =>
-        safeReports.filter(
-          (report) =>
-            safeSelectedRows.includes(
-              getReportId(report)
-            )
-        ).length,
-      [
-        safeReports,
-        safeSelectedRows,
-        getReportId,
-      ]
-    );
-
-  //====================================================
-  // All Selected
-  //====================================================
-
-  const allSelected =
-    safeReports.length > 0 &&
-    selectedCount ===
-      safeReports.length;
-
-  //====================================================
-  // Some Selected
-  //====================================================
-
-  const someSelected =
-    selectedCount > 0 &&
-    !allSelected;
-
-  //====================================================
-  // Handle Select Row
-  //====================================================
-
-  const handleSelectRow =
-    useCallback(
-      (report) => {
-        const id =
-          getReportId(report);
-
-        if (
-          id === null ||
-          id === undefined
-        ) {
-          return;
-        }
-
-        if (
-          typeof onSelectRow ===
-          "function"
-        ) {
-          onSelectRow(id);
-        }
-      },
-      [
-        getReportId,
-        onSelectRow,
-      ]
-    );
-
-  //====================================================
-  // Handle Select All
-  //====================================================
-
-  const handleSelectAll =
-    useCallback(() => {
+  const handleSort = useCallback(
+    (field) => {
       if (
-        typeof onSelectAll ===
+        typeof onSort !==
         "function"
       ) {
-        onSelectAll(
-          safeReports
-            .map(
-              getReportId
-            )
-            .filter(
-              (id) =>
-                id !== null &&
-                id !== undefined
-            )
-        );
+        return;
       }
-    }, [
-      safeReports,
-      getReportId,
-      onSelectAll,
-    ]);
+
+      onSort(
+        field,
+        "asc"
+      );
+    },
+    [onSort]
+  );
 
   //====================================================
-  // Status Color
+  // Empty State
   //====================================================
 
-  const getStatusColor =
-    useCallback(
-      (status) => {
-        const normalized =
-          String(status)
-            .toLowerCase()
-            .trim();
-
-        if (
-          [
-            "cancelled",
-            "canceled",
-            "failed",
-            "rejected",
-          ].includes(normalized)
-        ) {
-          return "error";
-        }
-
-        if (
-          [
-            "pending",
-            "processing",
-            "packed",
-          ].includes(normalized)
-        ) {
-          return "warning";
-        }
-
-        if (
-          [
-            "completed",
-            "delivered",
-            "confirmed",
-            "paid",
-        ].includes(normalized)
-        ) {
-          return "success";
-        }
-
-        return "default";
-      },
-      []
-    );
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
-  //======================================================
-// JSX
-//======================================================
-
-  return (
-    <TableContainer
-      component={Paper}
-      elevation={0}
-      variant="outlined"
-      className="marketplace-report-table"
-      sx={{
-        borderRadius: 2,
-        overflowX: "auto",
-      }}
-    >
-      <Table
-        size="small"
-        stickyHeader
+  if (
+    !loading &&
+    safeReports.length === 0
+  ) {
+    return (
+      <Paper
+        variant="outlined"
         sx={{
-          minWidth: 1200,
+          width: "100%",
+          borderRadius: 2,
         }}
       >
-        {/*================================================
-            Table Header
-        =================================================*/}
-
-        <TableHead>
-          <TableRow>
-            {/*==============================================
-                Select All
-            ==============================================*/}
-
-            <TableCell
-              padding="checkbox"
+        <Box
+          sx={{
+            minHeight: 220,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 3,
+          }}
+        >
+          <Stack
+            spacing={1}
+            alignItems="center"
+          >
+            <Typography
+              variant="h6"
+              fontWeight={600}
             >
-              <Checkbox
-                checked={
-                  allSelected
-                }
-                indeterminate={
-                  someSelected
-                }
-                onChange={
-                  handleSelectAll
-                }
-                disabled={
-                  loading ||
-                  safeReports.length ===
-                    0
-                }
-                inputProps={{
-                  "aria-label":
-                    "Select all marketplace reports",
-                }}
-              />
-            </TableCell>
+              No Marketplace Reports
+            </Typography>
 
-            {/*==============================================
-                Marketplace
-            ==============================================*/}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              No marketplace report
+              records were found.
+            </Typography>
+          </Stack>
+        </Box>
+      </Paper>
+    );
+  }
 
-            <TableCell>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Marketplace
-              </Typography>
-            </TableCell>
+  //====================================================
+  // JSX
+  //====================================================
 
-            {/*==============================================
-                Order
-            ==============================================*/}
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        width: "100%",
+        borderRadius: 2,
+        overflow: "hidden",
+      }}
+    >
+      <TableContainer
+        sx={{
+          maxHeight: 650,
+          overflowX: "auto",
+        }}
+      >
+        <Table
+          stickyHeader
+          size="small"
+          sx={{
+            minWidth: 1200,
+          }}
+        >
+          {/*================================================
+              Table Header
+          =================================================*/}
 
-            <TableCell>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Order
-              </Typography>
-            </TableCell>
-
-            {/*==============================================
-                Product
-            ==============================================*/}
-
-            <TableCell>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Product
-              </Typography>
-            </TableCell>
-
-            {/*==============================================
-                SKU
-            ==============================================*/}
-
-            <TableCell>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                SKU
-              </Typography>
-            </TableCell>
-
-            {/*==============================================
-                Quantity
-            ==============================================*/}
-
-            <TableCell align="right">
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Quantity
-              </Typography>
-            </TableCell>
-
-            {/*==============================================
-                Sales
-            ==============================================*/}
-
-            <TableCell align="right">
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Sales
-              </Typography>
-            </TableCell>
-
-            {/*==============================================
-                Status
-            ==============================================*/}
-
-            <TableCell>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Status
-              </Typography>
-            </TableCell>
-
-            {/*==============================================
-                Shipment
-            ==============================================*/}
-
-            <TableCell>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Shipment
-              </Typography>
-            </TableCell>
-
-            {/*==============================================
-                Actions
-            ==============================================*/}
-
-            <TableCell align="center">
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-              >
-                Actions
-              </Typography>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-
-        {/*================================================
-            Table Body
-        =================================================*/}
-
-        <TableBody>
-          {loading ? (
-            Array.from({
-              length: 6,
-            }).map(
-              (_, rowIndex) => (
-                <TableRow
-                  key={`loading-${rowIndex}`}
-                >
-                  <TableCell
-                    padding="checkbox"
-                  >
-                    <Skeleton
-                      variant="rectangular"
-                      width={20}
-                      height={20}
-                    />
-                  </TableCell>
-
-                  {Array.from({
-                    length: 9,
-                  }).map(
-                    (_, cellIndex) => (
-                      <TableCell
-                        key={`loading-${rowIndex}-${cellIndex}`}
-                      >
-                        <Skeleton
-                          variant="text"
-                          width={
-                            cellIndex ===
-                            2
-                              ? "85%"
-                              : "60%"
-                          }
-                        />
-                      </TableCell>
-                    )
-                  )}
-
-                  <TableCell align="center">
-                    <Skeleton
-                      variant="text"
-                      width={80}
-                    />
-                  </TableCell>
-                </TableRow>
-              )
-            )
-          ) : safeReports.length ===
-            0 ? (
-            /*============================================
-                Empty State
-            ============================================*/
-
+          <TableHead>
             <TableRow>
               <TableCell
-                colSpan={11}
-                align="center"
                 sx={{
-                  py: 6,
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
                 }}
               >
-                <Stack
-                  spacing={1}
-                  alignItems="center"
-                >
-                  <Storefront
-                    sx={{
-                      fontSize: 42,
-                    }}
-                    color="disabled"
-                  />
+                S.No
+              </TableCell>
 
-                  <Typography
-                    variant="h6"
-                    fontWeight={600}
-                  >
-                    No Marketplace Reports
-                  </Typography>
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  handleSort(
+                    "marketplace"
+                  )
+                }
+              >
+                Marketplace
+              </TableCell>
 
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                  >
-                    There are no marketplace
-                    reports matching the
-                    current criteria.
-                  </Typography>
-                </Stack>
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  handleSort(
+                    "orderNumber"
+                  )
+                }
+              >
+                Order Number
+              </TableCell>
+
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                }}
+              >
+                Product
+              </TableCell>
+
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                }}
+              >
+                SKU
+              </TableCell>
+
+              <TableCell
+                align="right"
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  handleSort(
+                    "quantity"
+                  )
+                }
+              >
+                Quantity
+              </TableCell>
+
+              <TableCell
+                align="right"
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  handleSort(
+                    "salesAmount"
+                  )
+                }
+              >
+                Sales Amount
+              </TableCell>
+
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                }}
+              >
+                Status
+              </TableCell>
+
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                }}
+              >
+                Shipment
+              </TableCell>
+
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                }}
+              >
+                Category
+              </TableCell>
+
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                }}
+              >
+                Date
+              </TableCell>
+
+              <TableCell
+                align="center"
+                sx={{
+                  fontWeight: 700,
+                  whiteSpace:
+                    "nowrap",
+                }}
+              >
+                Actions
               </TableCell>
             </TableRow>
-          ) : (
-            safeReports.map(
-              (report) => {
-                const id =
-                  getReportId(
+          </TableHead>
+
+          {/*================================================
+              Table Body
+          =================================================*/}
+
+          <TableBody>
+            {safeReports.map(
+              (report, index) => {
+                const marketplace =
+                  getMarketplaceName(
+                    report
+                  );
+
+                const orderNumber =
+                  getOrderNumber(
+                    report
+                  );
+
+                const productName =
+                  getProductName(
+                    report
+                  );
+
+                const sku =
+                  getSku(report);
+
+                const quantity =
+                  getQuantity(
+                    report
+                  );
+
+                const salesAmount =
+                  getSalesAmount(
                     report
                   );
 
                 const status =
-                  getStatus(
-                    report
-                  );
+                  getStatus(report);
 
                 const shipmentStatus =
                   getShipmentStatus(
                     report
                   );
 
-                const statusColor =
-                  getStatusColor(
-                    status
+                const category =
+                  getCategory(
+                    report
                   );
 
-                const shipmentColor =
-                  getStatusColor(
-                    shipmentStatus
-                  );
-
-                const isSelected =
-                  safeSelectedRows.includes(
-                    id
-                  );
+                const reportDate =
+                  report?.reportDate ??
+                  report?.date ??
+                  report?.orderDate;
 
                 return (
                   <TableRow
-                    key={id}
-                    hover
-                    selected={
-                      isSelected
+                    key={
+                      report?.id ??
+                      report?.reportId ??
+                      report?.orderId ??
+                      index
                     }
+                    hover
                   >
-                    {/*====================================
-                        Checkbox
-                    ====================================*/}
+                    {/* S.No */}
+
+                    <TableCell>
+                      {index + 1}
+                    </TableCell>
+
+                    {/* Marketplace */}
+
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        fontWeight={600}
+                        noWrap
+                      >
+                        {
+                          marketplace
+                        }
+                      </Typography>
+                    </TableCell>
+
+                    {/* Order Number */}
+
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        fontWeight={600}
+                        noWrap
+                      >
+                        {
+                          orderNumber
+                        }
+                      </Typography>
+                    </TableCell>
+
+                    {/* Product */}
 
                     <TableCell
-                      padding="checkbox"
+                      sx={{
+                        maxWidth: 220,
+                      }}
                     >
-                      <Checkbox
-                        checked={
-                          isSelected
-                        }
-                        onChange={() =>
-                          handleSelectRow(
-                            report
-                          )
-                        }
-                        disabled={
-                          loading
-                        }
-                        inputProps={{
-                          "aria-label": `Select marketplace report ${id}`,
-                        }}
-                      />
-                    </TableCell>
-
-                    {/*====================================
-                        Marketplace
-                    ====================================*/}
-
-                    <TableCell>
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        alignItems="center"
-                      >
-                        <Storefront
-                          fontSize="small"
-                          color="primary"
-                        />
-
-                        <Typography
-                          variant="body2"
-                          fontWeight={600}
-                        >
-                          {getMarketplace(
-                            report
-                          )}
-                        </Typography>
-                      </Stack>
-                    </TableCell>
-
-                    {/*====================================
-                        Order
-                    ====================================*/}
-
-                    <TableCell>
                       <Typography
                         variant="body2"
-                        fontWeight={600}
+                        noWrap
+                        title={
+                          productName
+                        }
                       >
-                        {getOrderNumber(
-                          report
-                        )}
+                        {
+                          productName
+                        }
                       </Typography>
                     </TableCell>
 
-                    {/*====================================
-                        Product
-                    ====================================*/}
-
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                      >
-                        {getProductName(
-                          report
-                        )}
-                      </Typography>
-                    </TableCell>
-
-                    {/*====================================
-                        SKU
-                    ====================================*/}
+                    {/* SKU */}
 
                     <TableCell>
                       <Typography
                         variant="body2"
                         color="text.secondary"
+                        noWrap
                       >
-                        {getSku(
-                          report
-                        )}
+                        {sku}
                       </Typography>
                     </TableCell>
 
-                    {/*====================================
-                        Quantity
-                    ====================================*/}
+                    {/* Quantity */}
 
-                    <TableCell align="right">
+                    <TableCell
+                      align="right"
+                    >
+                      {Number(
+                        quantity
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+                    </TableCell>
+
+                    {/* Sales Amount */}
+
+                    <TableCell
+                      align="right"
+                    >
                       <Typography
                         variant="body2"
                         fontWeight={600}
-                      >
-                        {formatNumber(
-                          getQuantity(
-                            report
-                          )
-                        )}
-                      </Typography>
-                    </TableCell>
-
-                    {/*====================================
-                        Sales
-                    ====================================*/}
-
-                    <TableCell align="right">
-                      <Typography
-                        variant="body2"
-                        fontWeight={700}
+                        noWrap
                       >
                         {formatCurrency(
-                          getSalesAmount(
-                            report
-                          )
+                          salesAmount
                         )}
                       </Typography>
                     </TableCell>
 
-                    {/*====================================
-                        Status
-                    ====================================*/}
+                    {/* Status */}
 
                     <TableCell>
                       <Chip
+                        size="small"
                         label={
                           status
                         }
-                        size="small"
                         color={
-                          statusColor
+                          getStatusColor(
+                            status
+                          )
                         }
-                        variant={
-                          statusColor ===
-                          "default"
-                            ? "outlined"
-                            : "filled"
-                        }
+                        variant="outlined"
                       />
                     </TableCell>
 
-                    {/*====================================
-                        Shipment
-                    ====================================*/}
+                    {/* Shipment Status */}
 
                     <TableCell>
                       <Chip
+                        size="small"
                         label={
                           shipmentStatus
                         }
-                        size="small"
                         color={
-                          shipmentColor
+                          getShipmentStatusColor(
+                            shipmentStatus
+                          )
                         }
-                        variant={
-                          shipmentColor ===
-                          "default"
-                            ? "outlined"
-                            : "filled"
-                        }
+                        variant="outlined"
                       />
                     </TableCell>
 
-                    {/*====================================
-                        Actions
-                    ====================================*/}
+                    {/* Category */}
 
-                    <TableCell align="center">
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                      >
+                        {
+                          category
+                        }
+                      </Typography>
+                    </TableCell>
+
+                    {/* Date */}
+
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                      >
+                        {formatDate(
+                          reportDate
+                        )}
+                      </Typography>
+                    </TableCell>
+
+                    {/* Actions */}
+
+                    <TableCell
+                      align="center"
+                    >
                       <Stack
                         direction="row"
                         spacing={0.5}
@@ -900,13 +551,8 @@ const MarketplaceReportTable = ({
                                 report
                               )
                             }
-                            disabled={
-                              loading
-                            }
                           >
-                            <Visibility
-                              fontSize="small"
-                            />
+                            <Visibility fontSize="small" />
                           </IconButton>
                         </Tooltip>
 
@@ -919,13 +565,8 @@ const MarketplaceReportTable = ({
                                 report
                               )
                             }
-                            disabled={
-                              loading
-                            }
                           >
-                            <Edit
-                              fontSize="small"
-                            />
+                            <Edit fontSize="small" />
                           </IconButton>
                         </Tooltip>
 
@@ -938,13 +579,8 @@ const MarketplaceReportTable = ({
                                 report
                               )
                             }
-                            disabled={
-                              loading
-                            }
                           >
-                            <Delete
-                              fontSize="small"
-                            />
+                            <Delete fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       </Stack>
@@ -952,43 +588,38 @@ const MarketplaceReportTable = ({
                   </TableRow>
                 );
               }
-            )
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
+};
 
-//======================================================
-// Part 1B Ends Here
-//======================================================
 //======================================================
 // PropTypes
 //======================================================
 
 MarketplaceReportTable.propTypes = {
-  reports: PropTypes.arrayOf(
-    PropTypes.object
-  ),
+  reports:
+    PropTypes.arrayOf(
+      PropTypes.object
+    ),
 
-  selectedRows: PropTypes.arrayOf(
-    PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ])
-  ),
+  loading:
+    PropTypes.bool,
 
-  loading: PropTypes.bool,
+  onView:
+    PropTypes.func,
 
-  onSelectRow: PropTypes.func,
+  onEdit:
+    PropTypes.func,
 
-  onSelectAll: PropTypes.func,
+  onDelete:
+    PropTypes.func,
 
-  onView: PropTypes.func,
-
-  onEdit: PropTypes.func,
-
-  onDelete: PropTypes.func,
+  onSort:
+    PropTypes.func,
 };
 
 //======================================================
@@ -998,23 +629,14 @@ MarketplaceReportTable.propTypes = {
 MarketplaceReportTable.defaultProps = {
   reports: [],
 
-  selectedRows: [],
-
   loading: false,
-
-  onSelectRow: () => {},
-
-  onSelectAll: () => {},
 
   onView: () => {},
 
   onEdit: () => {},
 
   onDelete: () => {},
-};
 
-//======================================================
-// Export
-//======================================================
-}
+  onSort: () => {},
+};
 export default MarketplaceReportTable;
