@@ -1,0 +1,364 @@
+
+/* =====================================================
+   OrderReport.css
+   ===================================================== */
+
+.order-report-view {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   Header
+   ===================================================== */
+
+.order-report-view .order-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* =====================================================
+   Toolbar
+   ===================================================== */
+
+.order-report-view .order-report-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* =====================================================
+   Search
+   ===================================================== */
+
+.order-report-view .order-report-search {
+  width: 100%;
+}
+
+.order-report-view
+  .order-report-search-input {
+  width: 100%;
+}
+
+/* =====================================================
+   Filter
+   ===================================================== */
+
+.order-report-view .order-report-filter {
+  width: 100%;
+}
+
+.order-report-view
+  .order-report-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* =====================================================
+   Statistics
+   ===================================================== */
+
+.order-report-view
+  .order-report-statistics {
+  width: 100%;
+}
+
+.order-report-view
+  .order-report-statistics-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.order-report-view
+  .order-report-stat-card {
+  width: 100%;
+  min-height: 120px;
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   Report Cards
+   ===================================================== */
+
+.order-report-view
+  .order-report-card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.order-report-view
+  .order-report-card:hover {
+  transform: translateY(-2px);
+}
+
+/* =====================================================
+   Table
+   ===================================================== */
+
+.order-report-view
+  .order-report-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.order-report-view
+  .order-report-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.order-report-view
+  .order-report-table th {
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.order-report-view
+  .order-report-table td {
+  vertical-align: middle;
+}
+
+.order-report-view
+  .order-report-table-row {
+  transition:
+    background-color 0.15s ease;
+}
+
+.order-report-view
+  .order-report-table-row:hover {
+  background-color:
+    rgba(0, 0, 0, 0.025);
+}
+
+/* =====================================================
+   Status
+   ===================================================== */
+
+.order-report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+/* =====================================================
+   Amount
+   ===================================================== */
+
+.order-report-amount {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* =====================================================
+   Pagination
+   ===================================================== */
+
+.order-report-view
+  .order-report-pagination {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* =====================================================
+   Export
+   ===================================================== */
+
+.order-report-view
+  .order-report-export {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* =====================================================
+   Empty State
+   ===================================================== */
+
+.order-report-empty {
+  width: 100%;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.order-report-empty-title {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.order-report-empty-message {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* =====================================================
+   Loading State
+   ===================================================== */
+
+.order-report-loading {
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =====================================================
+   Modal
+   ===================================================== */
+
+.order-report-modal {
+  width: 100%;
+}
+
+.order-report-modal-section {
+  margin-bottom: 24px;
+}
+
+.order-report-modal-section:last-child {
+  margin-bottom: 0;
+}
+
+/* =====================================================
+   Responsive - Tablet
+   ===================================================== */
+
+@media (max-width: 1024px) {
+  .order-report-view {
+    padding: 16px;
+  }
+
+  .order-report-view
+    .order-report-statistics-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .order-report-view
+    .order-report-toolbar {
+    align-items: stretch;
+  }
+}
+
+/* =====================================================
+   Responsive - Mobile
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .order-report-view {
+    padding: 12px;
+  }
+
+  .order-report-view
+    .order-report-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .order-report-view
+    .order-report-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-report-view
+    .order-report-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-report-view
+    .order-report-statistics-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .order-report-view
+    .order-report-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-report-view
+    .order-report-export {
+    justify-content: flex-start;
+  }
+}
+
+/* =====================================================
+   Responsive - Small Mobile
+   ===================================================== */
+
+@media (max-width: 480px) {
+  .order-report-view {
+    padding: 8px;
+  }
+
+  .order-report-empty {
+    padding: 30px 12px;
+  }
+
+  .order-report-view
+    .order-report-table {
+    min-width: 760px;
+  }
+}
+
+/* =====================================================
+   Print
+   ===================================================== */
+
+@media print {
+  .order-report-view {
+    padding: 0;
+  }
+
+  .order-report-view
+    .order-report-toolbar,
+  .order-report-view
+    .order-report-search,
+  .order-report-view
+    .order-report-filter,
+  .order-report-view
+    .order-report-export,
+  .order-report-view
+    .order-report-pagination {
+    display: none !important;
+  }
+
+  .order-report-view
+    .order-report-table-container {
+    overflow: visible;
+  }
+
+  .order-report-view
+    .order-report-table {
+    min-width: 100%;
+  }
+
+  .order-report-view
+    .order-report-table-row:hover {
+    background: transparent;
+  }
+}
+
