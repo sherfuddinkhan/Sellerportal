@@ -1,21 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Grid,
-  MenuItem,
-  Paper,
-  Stack,
-  TextField,
-  Button,
-  InputAdornment,
-} from "@mui/material";
-
-import {
-  Search,
-  Clear,
-} from "@mui/icons-material";
+import {Box,Grid,MenuItem,Paper,Stack,TextField,Button,InputAdornment} from "@mui/material";
+import {Search,Clear} from "@mui/icons-material";
 
 //====================================================
 // Filter Options
@@ -51,28 +37,21 @@ const MARKETPLACE_OPTIONS = [
 
 const ReviewSearch = ({
   filters,
-
   onFilterChange,
   onSearch,
   onClear,
 }) => {
-
   const handleChange = (event) => {
-
     const { name, value } = event.target;
-
     if (onFilterChange) {
       onFilterChange(name, value);
     }
-
   };
-
   const handleSearch = () => {
     if (onSearch) {
       onSearch(filters);
     }
   };
-
   const handleClear = () => {
     if (onClear) {
       onClear();
@@ -88,11 +67,9 @@ const ReviewSearch = ({
       }}
     >
       <Grid container spacing={2}>
-
         {/* ==========================================
             Search Text
         ========================================== */}
-
         <Grid item xs={12} md={4}>
           <TextField
             fullWidth
@@ -110,7 +87,6 @@ const ReviewSearch = ({
             }}
           />
         </Grid>
-
         {/* ==========================================
             Status
         ========================================== */}
@@ -134,11 +110,9 @@ const ReviewSearch = ({
             ))}
           </TextField>
         </Grid>
-
         {/* ==========================================
             Rating
         ========================================== */}
-
         <Grid item xs={12} sm={6} md={2}>
           <TextField
             select
@@ -158,11 +132,9 @@ const ReviewSearch = ({
             ))}
           </TextField>
         </Grid>
-
         {/* ==========================================
             Marketplace
         ========================================== */}
-
         <Grid item xs={12} sm={6} md={2}>
           <TextField
             select
@@ -182,11 +154,9 @@ const ReviewSearch = ({
             ))}
           </TextField>
         </Grid>
-
         {/* ==========================================
             Verified Buyer
         ========================================== */}
-
         <Grid item xs={12} sm={6} md={2}>
           <TextField
             select
@@ -201,11 +171,9 @@ const ReviewSearch = ({
             <MenuItem value="No">Guest</MenuItem>
           </TextField>
         </Grid>
-
         {/* ==========================================
             Action Buttons
         ========================================== */}
-
         <Grid item xs={12}>
           <Stack
             direction="row"
@@ -230,7 +198,6 @@ const ReviewSearch = ({
             </Button>
           </Stack>
         </Grid>
-
       </Grid>
     </Paper>
   );
@@ -238,7 +205,6 @@ const ReviewSearch = ({
 //====================================================
 // PropTypes
 //====================================================
-
 ReviewSearch.propTypes = {
   filters: PropTypes.shape({
     search: PropTypes.string,

@@ -1,41 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  IconButton,
-  ImageList,
-  ImageListItem,
-  Rating,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  CheckCircle,
-  Cancel,
-  Close,
-  Delete,
-  Reply,
-  Store,
-  ThumbUp,
-  Verified,
-  Visibility,
-  Image,
-} from "@mui/icons-material";
+import {Avatar,Box,Button,Card,CardContent,CardHeader,Chip,Dialog,DialogActions,DialogContent,DialogTitle,Divider,Grid,IconButton,ImageList,ImageListItem,Rating,Stack,Tooltip,Typography} from "@mui/material";
+import {CheckCircle,Cancel,Close,Delete,Reply,Store,ThumbUp,Verified,Visibility,Image} from "@mui/icons-material";
 
 //====================================================
 // Date Formatter
@@ -94,40 +60,28 @@ const ReviewView = ({
   open = false,
   review = null,
   onClose,
-
   onReply,
   onApprove,
   onReject,
   onDelete,
 }) => {
-
   if (!review) return null;
-
   const {
     reviewId,
-
     customerName,
     customerImage,
     verifiedBuyer,
-
     productName,
     productSku,
     productImage,
-
     marketplace,
-
     rating,
     reviewTitle,
     reviewText,
-
     helpfulCount,
-
     status,
-
     reviewImages = [],
-
     sellerReply,
-
     createdDate,
   } = review;
 
@@ -146,95 +100,73 @@ const ReviewView = ({
       onReply(review);
     }
   };
-
   const handleApprove = () => {
     if (onApprove) {
       onApprove(review);
     }
   };
-
   const handleReject = () => {
     if (onReject) {
       onReject(review);
     }
   };
-
   const handleDelete = () => {
     if (onDelete) {
       onDelete(review);
     }
   };
-
   //====================================================
   // JSX
   //====================================================
-
   return (
-
     <Dialog
       open={open}
       onClose={handleClose}
       fullWidth
       maxWidth="lg"
     >
-
       <DialogTitle>
-
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
         >
-
           <Stack spacing={0.5}>
-
             <Typography
               variant="h5"
               fontWeight={700}
             >
               Review Details
             </Typography>
-
             <Typography
               variant="body2"
               color="text.secondary"
             >
               Review ID : {reviewId}
             </Typography>
-
           </Stack>
-
           <IconButton
             onClick={handleClose}
           >
             <Close />
           </IconButton>
-
         </Stack>
-
       </DialogTitle>
-
       <Divider />
-
       <DialogContent dividers>
-
         <Grid
           container
           spacing={3}
         >
-
           {/* ==========================
               Customer Information
           ========================== */}
-
           <Grid
             item
             xs={12}
             md={4}
           >
-
             <Card variant="outlined">
-
               <CardHeader
                 avatar={
                   <Avatar
@@ -255,58 +187,42 @@ const ReviewView = ({
                     {customerName}
                   </Typography>
                 }
-
                 subheader={
                   verifiedBuyer
                     ? "Verified Buyer"
                     : "Guest Customer"
                 }
               />
-
               <Divider />
-
               <CardContent>
-
                 <Stack spacing={2}>
-
                   {verifiedBuyer && (
-
                     <Chip
                       color="success"
                       icon={<Verified />}
                       label="Verified Buyer"
                     />
-
                   )}
-
                   <MarketplaceChip
                     marketplace={marketplace}
                   />
-
                   <StatusChip
                     status={status}
                   />
-
                   <Stack
                     direction="row"
                     spacing={1}
                     alignItems="center"
                   >
-
                     <ThumbUp
                       color="primary"
                     />
-
                     <Typography>
-
                       Helpful :
                       {" "}
                       {helpfulCount || 0}
-
                     </Typography>
-
                   </Stack>
-
                   <Typography
                     variant="body2"
                     color="text.secondary"
@@ -315,36 +231,25 @@ const ReviewView = ({
                     {" "}
                     {formatDate(createdDate)}
                   </Typography>
-
                 </Stack>
-
               </CardContent>
-
             </Card>
-
           </Grid>
-
           {/* ==========================
               Product & Review
           ========================== */}
-
           <Grid
             item
             xs={12}
             md={8}
           >
-
             <Card variant="outlined">
-
               <CardContent>
-
                 <Stack spacing={2}>
-
                   <Stack
                     direction="row"
                     spacing={2}
                   >
-
                     <Avatar
                       src={productImage}
                       variant="rounded"
@@ -355,41 +260,32 @@ const ReviewView = ({
                     >
                       <Image />
                     </Avatar>
-
                     <Box>
-
                       <Typography
                         variant="h6"
                         fontWeight={700}
                       >
                         {productName}
                       </Typography>
-
                       <Typography
                         color="text.secondary"
                       >
                         SKU : {productSku}
                       </Typography>
-
                       <Rating
                         value={rating}
                         precision={0.5}
                         readOnly
                       />
-
                     </Box>
-
                   </Stack>
-
                   <Divider />
-
                   <Typography
                     variant="h6"
                     fontWeight={700}
                   >
                     {reviewTitle}
                   </Typography>
-
                   <Typography
                     variant="body1"
                     sx={{
@@ -401,13 +297,10 @@ const ReviewView = ({
                                     {/* ==========================================
                       Review Images
                   ========================================== */}
-
                   {reviewImages.length > 0 && (
                     <>
                       <Divider />
-
                       <Box>
-
                         <Typography
                           variant="h6"
                           fontWeight={700}
@@ -415,18 +308,15 @@ const ReviewView = ({
                         >
                           Review Images
                         </Typography>
-
                         <ImageList
                           cols={3}
                           gap={10}
                           rowHeight={180}
                         >
                           {reviewImages.map((image, index) => (
-
                             <ImageListItem
                               key={index}
                             >
-
                               <img
                                 src={image}
                                 alt={`Review ${index + 1}`}
@@ -439,38 +329,30 @@ const ReviewView = ({
                                   height: "100%",
                                 }}
                               />
-
                             </ImageListItem>
-
                           ))}
                         </ImageList>
-
                       </Box>
                     </>
                   )}
-
                   {/* ==========================================
                       Seller Reply
                   ========================================== */}
-
                   {sellerReply && (
                     <>
                       <Divider />
-
                       <Card
                         variant="outlined"
                         sx={{
                           bgcolor: "#f9f9f9",
                         }}
                       >
-
                         <CardHeader
                           avatar={
                             <Avatar>
                               <Store />
                             </Avatar>
                           }
-
                           title={
                             <Typography
                               fontWeight={700}
@@ -478,18 +360,14 @@ const ReviewView = ({
                               Seller Reply
                             </Typography>
                           }
-
                           subheader={
                             formatDate(
                               sellerReply.replyDate
                             )
                           }
                         />
-
                         <Divider />
-
                         <CardContent>
-
                           <Typography
                             variant="body1"
                             sx={{
@@ -498,23 +376,15 @@ const ReviewView = ({
                           >
                             {sellerReply.replyText}
                           </Typography>
-
                         </CardContent>
-
                       </Card>
                     </>
                   )}
-
                 </Stack>
-
               </CardContent>
-
             </Card>
-
           </Grid>
-
         </Grid>
-
       </DialogContent>
             <DialogActions
         sx={{
@@ -525,7 +395,6 @@ const ReviewView = ({
         }}
       >
         {/* Left Actions */}
-
         <Stack
           direction="row"
           spacing={1}
@@ -537,7 +406,6 @@ const ReviewView = ({
           >
             Reply
           </Button>
-
           <Button
             variant="contained"
             color="success"
@@ -546,7 +414,6 @@ const ReviewView = ({
           >
             Approve
           </Button>
-
           <Button
             variant="contained"
             color="warning"
@@ -555,7 +422,6 @@ const ReviewView = ({
           >
             Reject
           </Button>
-
           <Button
             variant="contained"
             color="error"
@@ -580,7 +446,6 @@ const ReviewView = ({
           </Button>
         </Stack>
       </DialogActions>
-
     </Dialog>
   );
 };
@@ -591,38 +456,27 @@ const ReviewView = ({
 
 ReviewView.propTypes = {
   open: PropTypes.bool,
-
   review: PropTypes.shape({
     reviewId: PropTypes.oneOfType([
       PropTypes.number,
       PropTypes.string,
     ]),
-
     customerName: PropTypes.string,
     customerImage: PropTypes.string,
     verifiedBuyer: PropTypes.bool,
-
     productName: PropTypes.string,
     productSku: PropTypes.string,
     productImage: PropTypes.string,
-
     marketplace: PropTypes.string,
-
     rating: PropTypes.number,
-
     reviewTitle: PropTypes.string,
     reviewText: PropTypes.string,
-
     helpfulCount: PropTypes.number,
-
     status: PropTypes.string,
-
     createdDate: PropTypes.string,
-
     reviewImages: PropTypes.arrayOf(
       PropTypes.string
     ),
-
     sellerReply: PropTypes.shape({
       replyText: PropTypes.string,
       replyDate: PropTypes.string,
@@ -639,11 +493,9 @@ ReviewView.propTypes = {
 //====================================================
 // Default Props
 //====================================================
-
 ReviewView.defaultProps = {
   open: false,
   review: null,
-
   onClose: () => {},
   onReply: () => {},
   onApprove: () => {},

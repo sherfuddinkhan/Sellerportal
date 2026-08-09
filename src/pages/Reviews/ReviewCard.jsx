@@ -1,42 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  CardActions,
-  Chip,
-  Divider,
-  Grid,
-  IconButton,
-  ImageList,
-  ImageListItem,
-  Rating,
-  Stack,
-  Tooltip,
-  Typography,
-  Button,
-} from "@mui/material";
-
-import {
-  CheckCircle,
-  Cancel,
-  Delete,
-  Reply,
-  Visibility,
-  Verified,
-  ThumbUp,
-  Store,
-  Image,
-} from "@mui/icons-material";
+import {Avatar,Box,Card,CardContent,CardHeader,CardActions,Chip,Divider,Grid,IconButton,ImageList,ImageListItem,Rating,Stack,Tooltip,Typography,Button} from "@mui/material";
+import {CheckCircle,Cancel,Delete,Reply,Visibility,Verified,ThumbUp,Store,Image} from "@mui/icons-material";
 
 //======================================================
 // Date Formatter
 //======================================================
-
 const formatDate = (date) => {
   if (!date) return "-";
 
@@ -52,7 +21,6 @@ const formatDate = (date) => {
 //======================================================
 
 const StatusChip = ({ status }) => {
-
   const color =
     status === "Approved"
       ? "success"
@@ -74,7 +42,6 @@ const StatusChip = ({ status }) => {
 //======================================================
 
 const MarketplaceChip = ({ marketplace }) => (
-
   <Chip
     size="small"
     color="primary"

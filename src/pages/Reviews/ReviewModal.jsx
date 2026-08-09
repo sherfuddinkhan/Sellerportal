@@ -99,24 +99,17 @@ const ReviewModal = ({
 
   const {
     reviewId,
-
     customerName,
     customerImage,
     verifiedBuyer,
-
     productName,
     productSku,
     productImage,
-
     rating,
-
     reviewTitle,
     reviewText,
-
     marketplace,
-
     status,
-
     createdDate,
   } = review;
 
@@ -125,23 +118,17 @@ const ReviewModal = ({
   //====================================================
 
   const handleChange = (event) => {
-
     const { name, value } = event.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-
     if (errors[name]) {
-
       setErrors((prev) => ({
         ...prev,
         [name]: "",
       }));
-
     }
-
   };
 
   //====================================================
@@ -149,36 +136,26 @@ const ReviewModal = ({
   //====================================================
 
   const validate = () => {
-
     const validationErrors = {};
-
     if (
       (mode === "reply" ||
         mode === "approve") &&
       !formData.sellerReply.trim()
     ) {
-
       validationErrors.sellerReply =
         "Seller reply is required.";
-
     }
-
     if (
       mode === "reject" &&
       !formData.rejectionReason.trim()
     ) {
-
       validationErrors.rejectionReason =
         "Rejection reason is required.";
-
     }
-
     setErrors(validationErrors);
-
     return (
       Object.keys(validationErrors).length === 0
     );
-
   };
 
   //====================================================
@@ -186,42 +163,29 @@ const ReviewModal = ({
   //====================================================
 
   const handleSubmit = () => {
-
     if (!validate()) return;
-
     if (onSubmit) {
-
       onSubmit({
         reviewId,
-
         action: mode,
-
         sellerReply:
           formData.sellerReply,
-
         rejectionReason:
           formData.rejectionReason,
-
         internalRemarks:
           formData.internalRemarks,
       });
-
     }
-
   };
-
   //====================================================
   // Close
   //====================================================
 
   const handleClose = () => {
-
     setErrors({});
-
     if (onClose) {
       onClose();
     }
-
   };
 
   //====================================================
@@ -229,84 +193,64 @@ const ReviewModal = ({
   //====================================================
 
   return (
-
     <Dialog
       open={open}
       onClose={handleClose}
       maxWidth="md"
       fullWidth
     >
-
       <DialogTitle>
-
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
         >
-
           <Typography
             variant="h5"
             fontWeight={700}
           >
             {mode === "reply" && "Reply to Review"}
-
             {mode === "approve" &&
               "Approve Review"}
-
             {mode === "reject" &&
               "Reject Review"}
-
             {mode === "delete" &&
               "Delete Review"}
           </Typography>
-
           <IconButton
             onClick={handleClose}
           >
             <Close />
           </IconButton>
-
         </Stack>
-
       </DialogTitle>
-
       <Divider />
-
       <DialogContent dividers>
-
       </DialogContent>
               {/*==================================================
             Review Details
         ==================================================*/}
-
         <Card
           variant="outlined"
           sx={{ mb: 3 }}
         >
-
           <CardContent>
-
             <Grid
               container
               spacing={3}
             >
-
               {/*==========================================
                   Customer Information
               ==========================================*/}
-
               <Grid
                 item
                 xs={12}
                 md={4}
               >
-
                 <Stack
                   spacing={2}
                   alignItems="center"
                 >
-
                   <Avatar
                     src={customerImage}
                     sx={{
@@ -316,7 +260,6 @@ const ReviewModal = ({
                   >
                     {customerName?.charAt(0)}
                   </Avatar>
-
                   <Typography
                     variant="h6"
                     fontWeight={700}
@@ -324,7 +267,6 @@ const ReviewModal = ({
                   >
                     {customerName}
                   </Typography>
-
                   {verifiedBuyer && (
                     <Chip
                       color="success"
@@ -332,17 +274,14 @@ const ReviewModal = ({
                       label="Verified Buyer"
                     />
                   )}
-
                   <StatusChip
                     status={status}
                   />
-
                   <Chip
                     color="primary"
                     icon={<Store />}
                     label={marketplace}
                   />
-
                   <Typography
                     variant="caption"
                     color="text.secondary"
@@ -350,28 +289,21 @@ const ReviewModal = ({
                   >
                     {formatDate(createdDate)}
                   </Typography>
-
                 </Stack>
-
               </Grid>
-
               {/*==========================================
                   Product & Review
               ==========================================*/}
-
               <Grid
                 item
                 xs={12}
                 md={8}
               >
-
                 <Stack spacing={2}>
-
                   <Stack
                     direction="row"
                     spacing={2}
                   >
-
                     <Avatar
                       src={productImage}
                       variant="rounded"
@@ -380,43 +312,34 @@ const ReviewModal = ({
                         height: 90,
                       }}
                     />
-
                     <Box>
-
                       <Typography
                         variant="h6"
                         fontWeight={700}
                       >
                         {productName}
                       </Typography>
-
                       <Typography
                         variant="body2"
                         color="text.secondary"
                       >
                         SKU : {productSku}
                       </Typography>
-
                       <Rating
                         value={rating}
                         precision={0.5}
                         readOnly
                         sx={{ mt: 1 }}
                       />
-
                     </Box>
-
                   </Stack>
-
                   <Divider />
-
                   <Typography
                     variant="h6"
                     fontWeight={700}
                   >
                     {reviewTitle}
                   </Typography>
-
                   <Typography
                     variant="body1"
                     sx={{
@@ -425,7 +348,6 @@ const ReviewModal = ({
                   >
                     {reviewText}
                   </Typography>
-
                   <Alert
                     severity={
                       mode === "approve"
@@ -440,43 +362,29 @@ const ReviewModal = ({
                   >
                     {mode === "reply" &&
                       "Reply to the customer's review."}
-
                     {mode === "approve" &&
                       "Approving this review will make it publicly visible."}
-
                     {mode === "reject" &&
                       "Rejected reviews will not be displayed publicly."}
-
                     {mode === "delete" &&
                       "Deleting a review is permanent and cannot be undone."}
                   </Alert>
-
                 </Stack>
-
               </Grid>
-
             </Grid>
-
           </CardContent>
-
         </Card>
                 {/*==================================================
             Moderation Form
         ==================================================*/}
-
         <Card variant="outlined">
-
           <CardContent>
-
             <Stack spacing={3}>
-
               {/*==========================================
                   Seller Reply
               ==========================================*/}
-
               {(mode === "reply" ||
                 mode === "approve") && (
-
                 <TextField
                   fullWidth
                   multiline
@@ -490,15 +398,11 @@ const ReviewModal = ({
                   error={!!errors.sellerReply}
                   helperText={errors.sellerReply}
                 />
-
               )}
-
               {/*==========================================
                   Rejection Reason
               ==========================================*/}
-
               {mode === "reject" && (
-
                 <TextField
                   select
                   fullWidth
@@ -509,51 +413,38 @@ const ReviewModal = ({
                   error={!!errors.rejectionReason}
                   helperText={errors.rejectionReason}
                 >
-
                   <MenuItem value="">
                     Select Reason
                   </MenuItem>
-
                   <MenuItem value="Spam">
                     Spam
                   </MenuItem>
-
                   <MenuItem value="Offensive Content">
                     Offensive Content
                   </MenuItem>
-
                   <MenuItem value="Fake Review">
                     Fake Review
                   </MenuItem>
-
                   <MenuItem value="Duplicate Review">
                     Duplicate Review
                   </MenuItem>
-
                   <MenuItem value="Irrelevant">
                     Irrelevant
                   </MenuItem>
-
                   <MenuItem value="Policy Violation">
                     Policy Violation
                   </MenuItem>
-
                   <MenuItem value="Other">
                     Other
                   </MenuItem>
-
                 </TextField>
-
               )}
-
               {/*==========================================
                   Internal Remarks
               ==========================================*/}
-
               {(mode === "reply" ||
                 mode === "approve" ||
                 mode === "reject") && (
-
                 <TextField
                   fullWidth
                   multiline
@@ -565,15 +456,11 @@ const ReviewModal = ({
                   value={formData.internalRemarks}
                   onChange={handleChange}
                 />
-
               )}
-
               {/*==========================================
                   Delete Confirmation
               ==========================================*/}
-
               {mode === "delete" && (
-
                 <Alert
                   severity="error"
                   variant="filled"
@@ -582,18 +469,13 @@ const ReviewModal = ({
                   this review. This action cannot be
                   undone.
                 </Alert>
-
               )}
-
             </Stack>
-
           </CardContent>
-
         </Card>
     {/*==================================================
           Dialog Actions
       ==================================================*/}
-
       <DialogActions
         sx={{
           px: 3,
@@ -603,14 +485,11 @@ const ReviewModal = ({
           gap: 2,
         }}
       >
-
         {/* Left Side */}
-
         <Stack
           direction="row"
           spacing={1}
         >
-
           <Button
             variant="outlined"
             color="inherit"
@@ -619,18 +498,13 @@ const ReviewModal = ({
           >
             Cancel
           </Button>
-
         </Stack>
-
         {/* Right Side */}
-
         <Stack
           direction="row"
           spacing={1}
         >
-
           {mode === "reply" && (
-
             <Button
               variant="contained"
               color="primary"
@@ -642,11 +516,8 @@ const ReviewModal = ({
                 ? "Sending..."
                 : "Send Reply"}
             </Button>
-
           )}
-
           {mode === "approve" && (
-
             <Button
               variant="contained"
               color="success"
@@ -658,11 +529,8 @@ const ReviewModal = ({
                 ? "Approving..."
                 : "Approve Review"}
             </Button>
-
           )}
-
           {mode === "reject" && (
-
             <Button
               variant="contained"
               color="warning"
@@ -674,11 +542,8 @@ const ReviewModal = ({
                 ? "Rejecting..."
                 : "Reject Review"}
             </Button>
-
           )}
-
           {mode === "delete" && (
-
             <Button
               variant="contained"
               color="error"
@@ -690,20 +555,14 @@ const ReviewModal = ({
                 ? "Deleting..."
                 : "Delete Review"}
             </Button>
-
           )}
-
         </Stack>
-
       </DialogActions>
-
     </Dialog>
         )
-
 //======================================================
 // StatusChip PropTypes
 //======================================================
-
 StatusChip.propTypes = {
   status: PropTypes.oneOf([
     "Pending",
@@ -737,29 +596,21 @@ ReviewModal.propTypes = {
       PropTypes.number,
       PropTypes.string,
     ]),
-
     customerName: PropTypes.string,
     customerImage: PropTypes.string,
     verifiedBuyer: PropTypes.bool,
-
     productName: PropTypes.string,
     productSku: PropTypes.string,
     productImage: PropTypes.string,
-
     marketplace: PropTypes.string,
-
     rating: PropTypes.number,
-
     reviewTitle: PropTypes.string,
     reviewText: PropTypes.string,
-
     status: PropTypes.string,
-
     createdDate: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.instanceOf(Date),
     ]),
-
     sellerReply: PropTypes.shape({
       replyText: PropTypes.string,
       replyDate: PropTypes.oneOfType([
@@ -768,7 +619,6 @@ ReviewModal.propTypes = {
       ]),
     }),
   }),
-
   onClose: PropTypes.func,
   onSubmit: PropTypes.func,
 };
@@ -779,20 +629,15 @@ ReviewModal.propTypes = {
 
 ReviewModal.defaultProps = {
   open: false,
-
   mode: "reply",
-
   loading: false,
-
   review: null,
-
   onClose: () => {},
-
   onSubmit: () => {},
 };
 
 //======================================================
 // Export
 //======================================================
-
+}
 export default ReviewModal;

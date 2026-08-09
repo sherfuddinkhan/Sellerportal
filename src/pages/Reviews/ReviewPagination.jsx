@@ -1,16 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Pagination,
-  Stack,
-  Typography,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
+import {Box,Pagination,Stack,Typography,FormControl,InputLabel,MenuItem,Select} from "@mui/material";
 
 //======================================================
 // ReviewPagination Component
@@ -20,7 +10,6 @@ const ReviewPagination = ({
   page = 1,
   pageSize = 10,
   totalItems = 0,
-
   onPageChange,
   onPageSizeChange,
 }) => {
@@ -56,19 +45,16 @@ const ReviewPagination = ({
     if (onPageChange) {
       onPageChange(value);
     }
-
   };
 
   const handlePageSizeChange = (
     event
   ) => {
-
     if (onPageSizeChange) {
       onPageSizeChange(
         Number(event.target.value)
       );
     }
-
   };
     return (
     <Box
@@ -122,43 +108,32 @@ const ReviewPagination = ({
           justifyContent="flex-end"
           flexWrap="wrap"
         >
-
           {/* Page Size */}
-
           <FormControl
             size="small"
             sx={{
               minWidth: 120,
             }}
           >
-
             <InputLabel>
               Rows
             </InputLabel>
-
             <Select
               label="Rows"
               value={pageSize}
               onChange={handlePageSizeChange}
             >
-
               {[10, 25, 50, 100].map((size) => (
-
                 <MenuItem
                   key={size}
                   value={size}
                 >
                   {size} / page
                 </MenuItem>
-
               ))}
-
             </Select>
-
           </FormControl>
-
           {/* Pagination */}
-
           <Pagination
             page={page}
             count={totalPages}
@@ -170,11 +145,8 @@ const ReviewPagination = ({
             boundaryCount={1}
             onChange={handlePageChange}
           />
-
         </Stack>
-
       </Stack>
-
     </Box>
   );
 };

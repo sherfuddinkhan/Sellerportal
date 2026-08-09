@@ -1,27 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Stack,
-  Typography,
-  LinearProgress,
-} from "@mui/material";
-
-import {
-  Reviews,
-  Star,
-  CheckCircle,
-  Pending,
-  Cancel,
-  Image,
-  Verified,
-  TrendingUp,
-} from "@mui/icons-material";
-
+import {Box,Card,CardContent,Grid,Stack,Typography,LinearProgress} from "@mui/material";
+import {Reviews,Star,CheckCircle,Pending,Cancel,Image,Verified,TrendingUp} from "@mui/icons-material";
 //======================================================
 // Statistic Card
 //======================================================
@@ -39,7 +19,6 @@ const StatisticCard = ({
       height: "100%",
       borderRadius: 3,
       transition: "0.25s",
-
       "&:hover": {
         transform: "translateY(-3px)",
         boxShadow: 6,
@@ -47,22 +26,18 @@ const StatisticCard = ({
     }}
   >
     <CardContent>
-
       <Stack
         direction="row"
         justifyContent="space-between"
         alignItems="center"
       >
-
         <Box>
-
           <Typography
             variant="body2"
             color="text.secondary"
           >
             {title}
           </Typography>
-
           <Typography
             variant="h4"
             fontWeight={700}
@@ -70,9 +45,7 @@ const StatisticCard = ({
           >
             {value}
           </Typography>
-
         </Box>
-
         <Box
           sx={{
             bgcolor: `${color}.light`,
@@ -86,9 +59,7 @@ const StatisticCard = ({
         >
           {icon}
         </Box>
-
       </Stack>
-
       {progress !== undefined && (
         <LinearProgress
           variant="determinate"
@@ -100,41 +71,30 @@ const StatisticCard = ({
           }}
         />
       )}
-
     </CardContent>
   </Card>
 );
-
 //======================================================
 // ReviewStatistics Component
 //======================================================
-
 const ReviewStatistics = ({
   statistics,
 }) => {
-
   if (!statistics) return null;
-
   const {
     totalReviews = 0,
     averageRating = 0,
-
     pendingReviews = 0,
     approvedReviews = 0,
     rejectedReviews = 0,
-
     fiveStarReviews = 0,
-
     verifiedBuyerReviews = 0,
     reviewsWithImages = 0,
   } = statistics;
     return (
     <Box sx={{ mb: 3 }}>
-
       <Grid container spacing={3}>
-
         {/* Total Reviews */}
-
         <Grid item xs={12} sm={6} md={3}>
           <StatisticCard
             title="Total Reviews"
@@ -143,9 +103,7 @@ const ReviewStatistics = ({
             icon={<Reviews fontSize="large" />}
           />
         </Grid>
-
         {/* Average Rating */}
-
         <Grid item xs={12} sm={6} md={3}>
           <StatisticCard
             title="Average Rating"
