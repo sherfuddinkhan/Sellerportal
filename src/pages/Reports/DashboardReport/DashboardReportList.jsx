@@ -8,22 +8,9 @@ import DashboardReportPagination from "./DashboardReportPagination";
 import DashboardReportCard from "./DashboardReportCard";
 import DashboardReportView from "./DashboardReportView";
 import DashboardReportExport from "./DashboardReportExport";
-
-import {
-  getDashboardReports,
-  getDashboardReportStatistics,
-  deleteDashboardReport,
-} from "./DashboardReportService";
-
-import {
-  filterDashboardReports,
-  DEFAULT_DASHBOARD_REPORT_FILTERS,
-} from "./DashboardReportFilter";
-
-import {
-  normalizeDashboardReports,
-} from "./DashboardReportHelpers";
-
+import {getDashboardReports,getDashboardReportStatistics,deleteDashboardReport} from "./DashboardReportService";
+import {filterDashboardReports,DEFAULT_DASHBOARD_REPORT_FILTERS} from "./DashboardReportFilter";
+import {normalizeDashboardReports} from "./DashboardReportHelpers";
 import "./DashboardReport.css";
 
 //======================================================

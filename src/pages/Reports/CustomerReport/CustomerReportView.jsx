@@ -1,29 +1,7 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-
-import {
-  Avatar,
-  Box,
-  Chip,
-  Divider,
-  Grid,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  Person,
-  Email,
-  Phone,
-  LocationOn,
-  Store,
-  ShoppingCart,
-  CurrencyRupee,
-  CalendarToday,
-  Business,
-  ReceiptLong,
-} from "@mui/icons-material";
+import {Avatar,Box,Chip,Divider,Grid,Paper,Stack,Typography} from "@mui/material";
+import {Person,Email,Phone,LocationOn,Store,ShoppingCart,CurrencyRupee,CalendarToday,Business,ReceiptLong} from "@mui/icons-material";
 
 //======================================================
 // CustomerReportView
@@ -50,54 +28,38 @@ const CustomerReportView = ({
     customerId,
     customerName,
     name,
-
     email,
     customerEmail,
-
     phone,
     mobile,
     mobileNumber,
-
     customerType,
-
     marketplace,
-
     status,
-
     gstin,
     pan,
-
     address,
     address1,
     address2,
-
     city,
     state,
     stateCode,
     pincode,
     postalCode,
-
     country,
-
     totalOrders,
     orderCount,
-
     totalSales,
     totalAmount,
-
     totalPaid,
     paidAmount,
-
     totalOutstanding,
     outstandingAmount,
     balance,
-
     lastOrderDate,
     lastOrder,
-
     createdDate,
     createdAt,
-
     avatar,
     profileImage,
   } = customer;
@@ -206,7 +168,6 @@ const CustomerReportView = ({
   //====================================================
   // Number Formatter
   //====================================================
-
   const formatNumber = useMemo(
     () => (value) =>
       new Intl.NumberFormat(
@@ -214,20 +175,15 @@ const CustomerReportView = ({
       ).format(Number(value) || 0),
     []
   );
-
   //====================================================
   // Date Formatter
   //====================================================
-
   const formatDate = useMemo(
     () => (value) => {
-
       if (!value) {
         return "-";
       }
-
       const date = new Date(value);
-
       if (
         Number.isNaN(
           date.getTime()
@@ -235,7 +191,6 @@ const CustomerReportView = ({
       ) {
         return String(value);
       }
-
       return date.toLocaleDateString(
         "en-IN",
         {
@@ -251,20 +206,14 @@ const CustomerReportView = ({
   //====================================================
   // Status Color
   //====================================================
-
   const statusColor =
     String(displayStatus)
       .toLowerCase() === "active"
       ? "success"
       : "warning";
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
     //====================================================
   // JSX
   //====================================================
-
   return (
     <Box
       className="customer-report-view"
@@ -272,11 +221,9 @@ const CustomerReportView = ({
         width: "100%",
       }}
     >
-
       {/*================================================
           Customer Header
       =================================================*/}
-
       <Paper
         variant="outlined"
         sx={{
@@ -285,7 +232,6 @@ const CustomerReportView = ({
           borderRadius: 2,
         }}
       >
-
         <Stack
           direction={{
             xs: "column",
@@ -298,13 +244,11 @@ const CustomerReportView = ({
           }}
           justifyContent="space-between"
         >
-
           <Stack
             direction="row"
             spacing={2}
             alignItems="center"
           >
-
             <Avatar
               src={image}
               alt={displayName}
@@ -319,16 +263,13 @@ const CustomerReportView = ({
                   .charAt(0)
                   .toUpperCase()}
             </Avatar>
-
             <Box>
-
               <Typography
                 variant="h5"
                 fontWeight={700}
               >
                 {displayName}
               </Typography>
-
               <Typography
                 variant="body2"
                 color="text.secondary"
@@ -337,63 +278,49 @@ const CustomerReportView = ({
                 Customer ID:{" "}
                 {customerId || "-"}
               </Typography>
-
               <Stack
                 direction="row"
                 spacing={1}
                 sx={{ mt: 1 }}
                 flexWrap="wrap"
               >
-
                 <Chip
                   size="small"
                   label={displayStatus}
                   color={statusColor}
                   variant="outlined"
                 />
-
                 <Chip
                   size="small"
                   label={displayCustomerType}
                   variant="outlined"
                 />
-
                 <Chip
                   size="small"
                   icon={<Store />}
                   label={displayMarketplace}
                   variant="outlined"
                 />
-
               </Stack>
-
             </Box>
-
           </Stack>
-
         </Stack>
-
       </Paper>
-
       {/*================================================
           Contact + Business Information
       =================================================*/}
-
       <Grid
         container
         spacing={2}
       >
-
         {/*================================================
             Contact Information
         =================================================*/}
-
         <Grid
           item
           xs={12}
           md={6}
         >
-
           <Paper
             variant="outlined"
             sx={{
@@ -402,42 +329,32 @@ const CustomerReportView = ({
               borderRadius: 2,
             }}
           >
-
             <Stack
               direction="row"
               spacing={1}
               alignItems="center"
               sx={{ mb: 2 }}
             >
-
               <Person color="primary" />
-
               <Typography
                 variant="h6"
                 fontWeight={700}
               >
                 Contact Information
               </Typography>
-
             </Stack>
-
             <Divider sx={{ mb: 2 }} />
-
             <Stack spacing={2}>
-
               {/* Email */}
-
               <Stack
                 direction="row"
                 spacing={1.5}
                 alignItems="center"
               >
-
                 <Email
                   color="action"
                   fontSize="small"
                 />
-
                 <Box>
                   <Typography
                     variant="caption"
@@ -445,27 +362,21 @@ const CustomerReportView = ({
                   >
                     Email
                   </Typography>
-
                   <Typography variant="body2">
                     {displayEmail}
                   </Typography>
                 </Box>
-
               </Stack>
-
               {/* Phone */}
-
               <Stack
                 direction="row"
                 spacing={1.5}
                 alignItems="center"
               >
-
                 <Phone
                   color="action"
                   fontSize="small"
                 />
-
                 <Box>
                   <Typography
                     variant="caption"
@@ -473,29 +384,22 @@ const CustomerReportView = ({
                   >
                     Phone
                   </Typography>
-
                   <Typography variant="body2">
                     {displayPhone}
                   </Typography>
                 </Box>
-
               </Stack>
-
               {/* Address */}
-
               <Stack
                 direction="row"
                 spacing={1.5}
                 alignItems="flex-start"
               >
-
                 <LocationOn
                   color="action"
                   fontSize="small"
                 />
-
                 <Box>
-
                   <Typography
                     variant="caption"
                     color="text.secondary"
@@ -506,7 +410,6 @@ const CustomerReportView = ({
                   <Typography variant="body2">
                     {displayAddress}
                   </Typography>
-
                   <Typography
                     variant="body2"
                     color="text.secondary"
@@ -524,15 +427,10 @@ const CustomerReportView = ({
                   >
                     {displayCountry}
                   </Typography>
-
                 </Box>
-
               </Stack>
-
             </Stack>
-
           </Paper>
-
         </Grid>
 
         {/*================================================

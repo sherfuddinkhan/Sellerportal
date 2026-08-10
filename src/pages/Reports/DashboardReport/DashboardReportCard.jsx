@@ -1,22 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  Delete,
-  Visibility,
-} from "@mui/icons-material";
+import {Box,Card,CardContent,Chip,Divider,IconButton,Stack,Tooltip,Typography} from "@mui/material";
+import {Delete,Visibility} from "@mui/icons-material";
 
 //======================================================
 // DashboardReportCard

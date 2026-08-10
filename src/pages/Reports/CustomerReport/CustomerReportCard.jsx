@@ -1,25 +1,7 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  ShoppingCart,
-  CurrencyRupee,
-  CalendarToday,
-  Email,
-  Phone,
-  Store,
-} from "@mui/icons-material";
+import {Avatar,Box,Card,CardContent,Chip,Divider,Stack,Typography} from "@mui/material";
+import {ShoppingCart,CurrencyRupee,CalendarToday,Email,Phone,Store} from "@mui/icons-material";
 
 //======================================================
 // CustomerReportCard
@@ -27,7 +9,6 @@ import {
 
 const CustomerReportCard = ({
   customer = null,
-
   onView,
   onEdit,
   onDelete,
@@ -36,15 +17,12 @@ const CustomerReportCard = ({
   //====================================================
   // No Customer
   //====================================================
-
   if (!customer) {
     return null;
   }
-
   //====================================================
   // Customer Values
   //====================================================
-
   const {
     customerId,
     customerName,
@@ -70,11 +48,9 @@ const CustomerReportCard = ({
     avatar,
     profileImage,
   } = customer;
-
   //====================================================
   // Normalized Values
   //====================================================
-
   const displayName =
     customerName ||
     name ||
@@ -147,7 +123,6 @@ const CustomerReportCard = ({
   //====================================================
   // Number Formatter
   //====================================================
-
   const formatNumber = useMemo(
     () => (value) =>
       new Intl.NumberFormat(
@@ -155,20 +130,15 @@ const CustomerReportCard = ({
       ).format(Number(value) || 0),
     []
   );
-
   //====================================================
   // Date Formatter
   //====================================================
-
   const formatDate = useMemo(
     () => (value) => {
-
       if (!value) {
         return "-";
       }
-
       const date = new Date(value);
-
       if (
         Number.isNaN(
           date.getTime()
@@ -176,7 +146,6 @@ const CustomerReportCard = ({
       ) {
         return String(value);
       }
-
       return date.toLocaleDateString(
         "en-IN",
         {
@@ -188,20 +157,14 @@ const CustomerReportCard = ({
     },
     []
   );
-
   //====================================================
   // Status Color
   //====================================================
-
   const statusColor =
     String(displayStatus)
       .toLowerCase() === "active"
       ? "success"
       : "warning";
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
     //====================================================
   // Card JSX
   //====================================================
@@ -220,20 +183,16 @@ const CustomerReportCard = ({
         },
       }}
     >
-
       <CardContent>
-
         {/*================================================
             Customer Header
         =================================================*/}
-
         <Stack
           direction="row"
           spacing={2}
           alignItems="center"
           justifyContent="space-between"
         >
-
           <Stack
             direction="row"
             spacing={1.5}
@@ -256,13 +215,11 @@ const CustomerReportCard = ({
                   .charAt(0)
                   .toUpperCase()}
             </Avatar>
-
             <Box
               sx={{
                 minWidth: 0,
               }}
             >
-
               <Typography
                 variant="subtitle1"
                 fontWeight={700}
@@ -270,7 +227,6 @@ const CustomerReportCard = ({
               >
                 {displayName}
               </Typography>
-
               <Typography
                 variant="caption"
                 color="text.secondary"
@@ -278,41 +234,31 @@ const CustomerReportCard = ({
               >
                 ID: {customerId || "-"}
               </Typography>
-
             </Box>
-
           </Stack>
-
           <Chip
             size="small"
             label={displayStatus}
             color={statusColor}
             variant="outlined"
           />
-
         </Stack>
-
         <Divider sx={{ my: 2 }} />
-
         {/*================================================
             Customer Contact Information
         =================================================*/}
-
         <Stack
           spacing={1}
         >
-
           <Stack
             direction="row"
             spacing={1}
             alignItems="center"
           >
-
             <Email
               fontSize="small"
               color="action"
             />
-
             <Typography
               variant="body2"
               noWrap

@@ -1,36 +1,7 @@
-import React, {
-  useMemo,
-  useState,
-} from "react";
-
+import React, {useMemo,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Badge,
-  Box,
-  Button,
-  Chip,
-  Divider,
-  IconButton,
-  Menu,
-  MenuItem,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  Refresh,
-  Download,
-  Print,
-  Delete,
-  CheckCircle,
-  Block,
-  MoreVert,
-  FileDownload,
-  PictureAsPdf,
-  TableChart,
-} from "@mui/icons-material";
+import {Badge,Box,Button,Chip,Divider,IconButton,Menu,MenuItem,Stack,Tooltip,Typography} from "@mui/material";
+import {Refresh,Download,Print,Delete,CheckCircle,Block,MoreVert,FileDownload,PictureAsPdf,TableChart} from "@mui/icons-material";
 
 //======================================================
 // CustomerReportToolbar
@@ -38,16 +9,12 @@ import {
 
 const CustomerReportToolbar = ({
   searchText = "",
-
   selectedRows = [],
-
   loading = false,
-
   onRefresh,
   onExportExcel,
   onExportPdf,
   onPrint,
-
   onActivateSelected,
   onDeactivateSelected,
   onDeleteSelected,
@@ -56,17 +23,11 @@ const CustomerReportToolbar = ({
   //====================================================
   // Export Menu
   //====================================================
-
-  const [exportAnchor, setExportAnchor] =
-    useState(null);
-
+  const [exportAnchor, setExportAnchor] = useState(null);
   //====================================================
   // Bulk Action Menu
   //====================================================
-
-  const [bulkAnchor, setBulkAnchor] =
-    useState(null);
-
+  const [bulkAnchor, setBulkAnchor] = useState(null);
   //====================================================
   // Selected Count
   //====================================================
@@ -105,9 +66,7 @@ const CustomerReportToolbar = ({
   //====================================================
 
   const handleExportExcel = () => {
-
     handleCloseExport();
-
     if (onExportExcel) {
       onExportExcel();
     }
@@ -116,11 +75,8 @@ const CustomerReportToolbar = ({
   //====================================================
   // Export PDF
   //====================================================
-
   const handleExportPdf = () => {
-
     handleCloseExport();
-
     if (onExportPdf) {
       onExportPdf();
     }
@@ -131,7 +87,6 @@ const CustomerReportToolbar = ({
   //====================================================
 
   const handlePrint = () => {
-
     if (onPrint) {
       onPrint();
     }
@@ -142,7 +97,6 @@ const CustomerReportToolbar = ({
   //====================================================
 
   const handleRefresh = () => {
-
     if (onRefresh) {
       onRefresh();
     }
@@ -153,9 +107,7 @@ const CustomerReportToolbar = ({
   //====================================================
 
   const handleActivateSelected = () => {
-
     handleCloseBulk();
-
     if (onActivateSelected) {
       onActivateSelected();
     }
@@ -166,9 +118,7 @@ const CustomerReportToolbar = ({
   //====================================================
 
   const handleDeactivateSelected = () => {
-
     handleCloseBulk();
-
     if (onDeactivateSelected) {
       onDeactivateSelected();
     }
@@ -177,19 +127,12 @@ const CustomerReportToolbar = ({
   //====================================================
   // Bulk Delete
   //====================================================
-
   const handleDeleteSelected = () => {
-
     handleCloseBulk();
-
     if (onDeleteSelected) {
       onDeleteSelected();
     }
   };
-
-  //====================================================
-  // Component continues in Part 1B
-  //====================================================
     //====================================================
   // Toolbar JSX
   //====================================================
@@ -330,17 +273,13 @@ const CustomerReportToolbar = ({
               >
                 Bulk Actions
               </Button>
-
             </span>
-
           </Tooltip>
-
           <Menu
             anchorEl={bulkAnchor}
             open={Boolean(bulkAnchor)}
             onClose={handleCloseBulk}
           >
-
             <MenuItem
               onClick={handleActivateSelected}
             >
@@ -349,10 +288,8 @@ const CustomerReportToolbar = ({
                 color="success"
                 sx={{ mr: 1 }}
               />
-
               Activate Selected
             </MenuItem>
-
             <MenuItem
               onClick={handleDeactivateSelected}
             >
@@ -361,12 +298,9 @@ const CustomerReportToolbar = ({
                 color="warning"
                 sx={{ mr: 1 }}
               />
-
               Deactivate Selected
             </MenuItem>
-
             <Divider />
-
             <MenuItem
               onClick={handleDeleteSelected}
               sx={{
@@ -377,16 +311,12 @@ const CustomerReportToolbar = ({
                 fontSize="small"
                 sx={{ mr: 1 }}
               />
-
               Delete Selected
             </MenuItem>
-
           </Menu>
-
           {/*============================================
               Export
           ============================================*/}
-
           <Button
             variant="outlined"
             startIcon={<Download />}
@@ -395,13 +325,11 @@ const CustomerReportToolbar = ({
           >
             Export
           </Button>
-
           <Menu
             anchorEl={exportAnchor}
             open={Boolean(exportAnchor)}
             onClose={handleCloseExport}
           >
-
             <MenuItem
               onClick={handleExportExcel}
             >
@@ -409,10 +337,8 @@ const CustomerReportToolbar = ({
                 fontSize="small"
                 sx={{ mr: 1 }}
               />
-
               Export Excel
             </MenuItem>
-
             <MenuItem
               onClick={handleExportPdf}
             >
@@ -420,20 +346,14 @@ const CustomerReportToolbar = ({
                 fontSize="small"
                 sx={{ mr: 1 }}
               />
-
               Export PDF
             </MenuItem>
-
           </Menu>
-
           {/*============================================
               Print
           ============================================*/}
-
           <Tooltip title="Print customer report">
-
             <span>
-
               <IconButton
                 onClick={handlePrint}
                 disabled={loading}
@@ -441,15 +361,10 @@ const CustomerReportToolbar = ({
               >
                 <Print />
               </IconButton>
-
             </span>
-
           </Tooltip>
-
         </Stack>
-
       </Stack>
-
     </Box>
   );
 };
