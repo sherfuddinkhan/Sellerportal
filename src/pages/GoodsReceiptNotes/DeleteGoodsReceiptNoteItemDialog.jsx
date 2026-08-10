@@ -1,62 +1,25 @@
 import React from "react";
-
-
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-    Button,
-    Typography
-} from "@mui/material";
+import {Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions,Button,Typography} from "@mui/material";
 
 
 
 const formatCurrency = (value) =>
-
     `₹ ${Number(value || 0).toLocaleString(undefined, {
-
         minimumFractionDigits: 2,
-
         maximumFractionDigits: 2
-
     })}`;
 
-
-
 const DeleteGoodsReceiptNoteItemDialog = ({
-
     open,
-
     item,
-
     onClose,
-
     onDeleted
-
 }) => {
 
-
-
-
-
     const handleDelete = () => {
-
-
-
         if (!item)
-
             return;
-
-
-
-
-        onDeleted(
-
-            item.GoodsReceiptNoteItemId
-
-        );
+        onDeleted(item.GoodsReceiptNoteItemId);
     };
     return (
         <Dialog
@@ -69,19 +32,12 @@ const DeleteGoodsReceiptNoteItemDialog = ({
                 Delete Goods Receipt Note Item
             </DialogTitle>
             <DialogContent>
-
                 <DialogContentText
-
                     sx={{
-
                         mb:2
-
                     }}
-
                 >
-
                     Are you sure you want to delete this Goods Receipt Note Item?
-
                     This action cannot be undone.
                 </DialogContentText>
                 {
@@ -101,18 +57,11 @@ const DeleteGoodsReceiptNoteItemDialog = ({
                                     GRN ID:
                                 </strong>
                                 {" "}
-                                {
-                                    item.GoodsReceiptNoteId
-                                }
+                                {item.GoodsReceiptNoteId}
                             </Typography>
                             <Typography>
-
-
-
                                 <strong>
-
                                     Product ID:
-
                                 </strong>
                                 {" "}
                                 {
@@ -143,10 +92,7 @@ const DeleteGoodsReceiptNoteItemDialog = ({
                                 </strong>
                                 {" "}
                                 {
-                                    formatCurrency(
-                                       item.TotalAmount
-
-                                    )
+                                    formatCurrency(item.TotalAmount)
                                 }
                             </Typography>
                         </>
