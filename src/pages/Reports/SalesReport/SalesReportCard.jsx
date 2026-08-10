@@ -1,19 +1,45 @@
-import React, {useMemo} from "react";
+//======================================================
+// SalesReportCard.jsx
+// Part 1A
+//======================================================
+
+import React, {
+  useMemo,
+} from "react";
+
 import PropTypes from "prop-types";
-import {Assessment,CurrencyRupee,Inventory2,ShoppingCart,TrendingUp} from "@mui/icons-material";
-import {Card,CardContent,Grid,Skeleton,Stack,Typography} from "@mui/material";
-import {formatCurrency,formatNumber} from "./SalesReportHelpers";
+
+import {
+  Assessment,
+  CurrencyRupee,
+  ShoppingCart,
+  TrendingUp,
+} from "@mui/icons-material";
+
+import {
+  Card,
+  CardContent,
+  Grid,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
+
+import {
+  formatCurrency,
+  formatNumber,
+} from "./SalesReportHelpers";
 
 //======================================================
-// SalesReportStatistics
+// SalesReportCard
 //======================================================
 
-const SalesReportStatistics = ({
+const SalesReportCard = ({
   statistics = {},
   loading = false,
 }) => {
   //====================================================
-  // Normalize Statistics
+  // Safe Statistics
   //====================================================
 
   const safeStatistics = useMemo(
@@ -22,7 +48,6 @@ const SalesReportStatistics = ({
         statistics?.totalSales ??
         statistics?.totalSalesAmount ??
         statistics?.salesAmount ??
-        statistics?.totalAmount ??
         0,
 
       totalOrders:
@@ -37,12 +62,6 @@ const SalesReportStatistics = ({
         statistics?.soldQuantity ??
         0,
 
-      totalProducts:
-        statistics?.totalProducts ??
-        statistics?.productCount ??
-        statistics?.products ??
-        0,
-
       averageOrderValue:
         statistics?.averageOrderValue ??
         statistics?.avgOrderValue ??
@@ -53,7 +72,7 @@ const SalesReportStatistics = ({
   );
 
   //====================================================
-  // Statistics Cards
+  // Card Configuration
   //====================================================
 
   const cards = useMemo(
@@ -89,18 +108,6 @@ const SalesReportStatistics = ({
           0
         ),
         icon: (
-          <Inventory2 />
-        ),
-      },
-
-      {
-        key: "totalProducts",
-        title: "Products",
-        value: formatNumber(
-          safeStatistics.totalProducts,
-          0
-        ),
-        icon: (
           <Assessment />
         ),
       },
@@ -118,7 +125,6 @@ const SalesReportStatistics = ({
     ],
     [safeStatistics]
   );
-
   //====================================================
   // Render
   //====================================================
@@ -127,20 +133,19 @@ const SalesReportStatistics = ({
     <Grid
       container
       spacing={2}
-      className="sales-report-statistics"
+      className="sales-report-card"
     >
       {cards.map((card) => (
         <Grid
           item
           xs={12}
           sm={6}
-          md={4}
-          lg={2.4}
+          md={3}
           key={card.key}
         >
           <Card
-            variant="outlined"
             className="sales-report-statistics-card"
+            variant="outlined"
             sx={{
               height: "100%",
               borderRadius: 2,
@@ -149,21 +154,18 @@ const SalesReportStatistics = ({
             <CardContent>
               <Stack
                 direction="row"
+                spacing={2}
                 alignItems="center"
                 justifyContent="space-between"
-                spacing={2}
               >
                 {/*======================================
-                    Statistics Information
+                    Card Information
                 ======================================*/}
 
-                <Box>
+                <Stack spacing={0.5}>
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{
-                      mb: 0.5,
-                    }}
                   >
                     {card.title}
                   </Typography>
@@ -171,41 +173,37 @@ const SalesReportStatistics = ({
                   {loading ? (
                     <Skeleton
                       variant="text"
-                      width={110}
-                      height={36}
+                      width={120}
+                      height={38}
                     />
                   ) : (
                     <Typography
-                      variant="h6"
+                      variant="h5"
                       fontWeight={700}
                     >
                       {card.value}
                     </Typography>
                   )}
-                </Box>
+                </Stack>
 
                 {/*======================================
-                    Statistics Icon
+                    Card Icon
                 ======================================*/}
 
-                <Box
+                <Stack
+                  alignItems="center"
+                  justifyContent="center"
                   sx={{
-                    width: 42,
-                    height: 42,
-                    borderRadius:
-                      "50%",
-                    display: "flex",
-                    alignItems:
-                      "center",
-                    justifyContent:
-                      "center",
-                    flexShrink: 0,
+                    width: 44,
+                    height: 44,
+                    borderRadius: "50%",
                     bgcolor:
                       "action.hover",
+                    flexShrink: 0,
                   }}
                 >
                   {card.icon}
-                </Box>
+                </Stack>
               </Stack>
             </CardContent>
           </Card>
@@ -219,7 +217,7 @@ const SalesReportStatistics = ({
 // PropTypes
 //======================================================
 
-SalesReportStatistics.propTypes = {
+SalesReportCard.propTypes = {
   statistics:
     PropTypes.object,
 
@@ -231,7 +229,7 @@ SalesReportStatistics.propTypes = {
 // Default Props
 //======================================================
 
-SalesReportStatistics.defaultProps = {
+SalesReportCard.defaultProps = {
   statistics: {},
 
   loading: false,
@@ -241,6 +239,5 @@ SalesReportStatistics.defaultProps = {
 // Export
 //======================================================
 
-export default SalesReportStatistics;
-
+export default SalesReportCard;
 

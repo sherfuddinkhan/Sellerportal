@@ -129,4 +129,145 @@ const ReturnReportStatistics = ({
       totalRefundAmount,
     ]
   );
+  //====================================================
+  // Render
+  //====================================================
+
+  return (
+    <Box
+      className="return-report-statistics"
+      sx={{
+        width: "100%",
+        mb: 2,
+      }}
+    >
+      <Grid
+        container
+        spacing={2}
+      >
+        {cards.map((card) => (
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={3}
+            key={card.key}
+          >
+            <Card
+              className="return-report-statistics-card"
+              variant="outlined"
+              sx={{
+                height: "100%",
+              }}
+            >
+              <CardContent>
+                {loading ? (
+                  <Stack
+                    spacing={1}
+                  >
+                    <Skeleton
+                      variant="text"
+                      width="55%"
+                      height={22}
+                    />
+
+                    <Skeleton
+                      variant="text"
+                      width="75%"
+                      height={34}
+                    />
+
+                    <Skeleton
+                      variant="circular"
+                      width={36}
+                      height={36}
+                    />
+                  </Stack>
+                ) : (
+                  <Stack
+                    spacing={1.5}
+                  >
+                    {/*================================
+                        Icon
+                    =================================*/}
+
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        display: "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        borderRadius: 2,
+                        backgroundColor:
+                          "action.hover",
+                        color:
+                          "primary.main",
+                      }}
+                    >
+                      {card.icon}
+                    </Box>
+
+                    {/*================================
+                        Label
+                    =================================*/}
+
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {card.label}
+                    </Typography>
+
+                    {/*================================
+                        Value
+                    =================================*/}
+
+                    <Typography
+                      variant="h6"
+                      fontWeight={700}
+                      noWrap
+                    >
+                      {card.value}
+                    </Typography>
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+};
+
+//======================================================
+// PropTypes
+//======================================================
+
+ReturnReportStatistics.propTypes = {
+  statistics:
+    PropTypes.object,
+
+  loading:
+    PropTypes.bool,
+};
+
+//======================================================
+// Default Props
+//======================================================
+
+ReturnReportStatistics.defaultProps = {
+  statistics: {},
+
+  loading: false,
+};
+
+//======================================================
+// Export
+//======================================================
+
+export default ReturnReportStatistics;
 

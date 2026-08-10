@@ -1,34 +1,8 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  AssignmentReturn,
-  Inventory2,
-  ShoppingCart,
-  TrendingDown,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Grid,
-  Skeleton,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  formatCurrency,
-  formatNumber,
-  getStatusColor,
-  normalizeReturnReport,
-  toNumber,
-} from "./ReturnReportHelpers";
+import {AssignmentReturn,Inventory2,ShoppingCart,TrendingDown} from "@mui/icons-material";
+import {Box,Card,CardContent,Chip,Grid,Skeleton,Stack,Typography} from "@mui/material";
+import {formatCurrency,formatNumber,getStatusColor,normalizeReturnReport,toNumber} from "./ReturnReportHelpers";
 
 //======================================================
 // ReturnReportCard

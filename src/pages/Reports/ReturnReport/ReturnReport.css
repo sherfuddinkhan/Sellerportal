@@ -1,0 +1,318 @@
+
+/*======================================================
+  ReturnReport.css
+======================================================*/
+
+/*======================================================
+  Main Container
+======================================================*/
+
+.return-report {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Statistics
+======================================================*/
+
+.return-report-statistics {
+  width: 100%;
+}
+
+.return-report-statistics-card {
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.return-report-statistics-card:hover {
+  transform: translateY(-2px);
+}
+
+/*======================================================
+  Toolbar
+======================================================*/
+
+.return-report-toolbar {
+  width: 100%;
+}
+
+.return-report-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Search
+======================================================*/
+
+.return-report-search {
+  width: 100%;
+}
+
+.return-report-search .MuiOutlinedInput-root {
+  background-color: #fff;
+}
+
+/*======================================================
+  Filter
+======================================================*/
+
+.return-report-filter {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+/*======================================================
+  Table
+======================================================*/
+
+.return-report-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.return-report-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.return-report-table th {
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.return-report-table td {
+  vertical-align: middle;
+}
+
+/*======================================================
+  Table Row
+======================================================*/
+
+.return-report-table-row {
+  transition:
+    background-color 0.15s ease;
+}
+
+.return-report-table-row:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.02
+  );
+}
+
+/*======================================================
+  Return Status
+======================================================*/
+
+.return-report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+/*======================================================
+  Amount
+======================================================*/
+
+.return-report-amount {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/*======================================================
+  Quantity
+======================================================*/
+
+.return-report-quantity {
+  font-weight: 600;
+  text-align: center;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.return-report-empty {
+  width: 100%;
+  padding: 48px 24px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.return-report-empty-icon {
+  margin-bottom: 12px;
+  opacity: 0.55;
+}
+
+/*======================================================
+  Loading State
+======================================================*/
+
+.return-report-loading {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+/*======================================================
+  Error State
+======================================================*/
+
+.return-report-error {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Pagination
+======================================================*/
+
+.return-report-pagination {
+  width: 100%;
+}
+
+.return-report-pagination button {
+  white-space: nowrap;
+}
+
+/*======================================================
+  Modal
+======================================================*/
+
+.return-report-modal .MuiDialog-paper {
+  width: 100%;
+  max-width: 900px;
+  margin: 16px;
+}
+
+/*======================================================
+  Export
+======================================================*/
+
+.return-report-export {
+  display: inline-flex;
+  align-items: center;
+}
+
+/*======================================================
+  Card
+======================================================*/
+
+.return-report-card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  List
+======================================================*/
+
+.return-report-list {
+  width: 100%;
+}
+
+.return-report-list-item {
+  transition:
+    background-color 0.15s ease;
+}
+
+.return-report-list-item:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.02
+  );
+}
+
+/*======================================================
+  Responsive
+======================================================*/
+
+@media (max-width: 900px) {
+  .return-report-filter {
+    padding: 12px;
+  }
+
+  .return-report-toolbar-actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .return-report {
+    padding: 0;
+  }
+
+  .return-report-filter {
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .return-report-empty {
+    padding: 32px 16px;
+  }
+
+  .return-report-loading {
+    padding: 32px 16px;
+  }
+
+  .return-report-modal
+    .MuiDialog-paper {
+    margin: 8px;
+    max-width: calc(
+      100% - 16px
+    );
+  }
+
+  .return-report-toolbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .return-report-toolbar-actions
+    > * {
+    width: 100%;
+  }
+}
+
+/*======================================================
+  Print
+======================================================*/
+
+@media print {
+  .return-report-toolbar,
+  .return-report-filter,
+  .return-report-pagination,
+  .return-report-export {
+    display: none !important;
+  }
+
+  .return-report {
+    width: 100%;
+  }
+
+  .return-report-table {
+    overflow: visible;
+  }
+
+  .return-report-table table {
+    width: 100%;
+  }
+}
