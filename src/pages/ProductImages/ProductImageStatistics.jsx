@@ -1,123 +1,43 @@
 import React from "react";
-
-import {
-    Grid,
-    Paper,
-    Typography
-} from "@mui/material";
-
+import {Grid,Paper,Typography} from "@mui/material";
 
 const ProductImageStatistics = ({
-
     images = []
-
 }) => {
-
-
-
-    const totalImages =
-
-        images.length;
-
-
-
-
-    const activeImages =
-
-        images.filter(
-
-            item => item.IsActive
-
-        ).length;
-
-
-
-
-    const inactiveImages =
-
-        totalImages - activeImages;
-
-
-
-
-    const primaryImages =
-
-        images.filter(
-
-            item => item.IsPrimary
-
-        ).length;
-
-
-
+    const totalImages = images.length;
+    const activeImages = images.filter(item => item.IsActive).length;
+    const inactiveImages = totalImages - activeImages;
+    const primaryImages = images.filter(item => item.IsPrimary).length;
 
     const cards = [
-
-
         {
-
             title: "Total Images",
-
             value: totalImages
-
         },
 
-
         {
-
             title: "Active",
-
             value: activeImages
-
         },
-
-
         {
-
             title: "Inactive",
-
             value: inactiveImages
-
         },
-
-
         {
-
             title: "Primary Images",
-
             value: primaryImages
-
         }
-
-
     ];
 
-
-
-
     return (
-
-
         <Grid
-
-
             container
-
-
             spacing={2}
-
-
             sx={{ mb:3 }}
-
-
         >
-
-
-
             {
 
-
-                cards.map(
+                 cards.map(
 
                     (card,index)=>(
 
