@@ -1,0 +1,381 @@
+/* =====================================================
+   Purchase Report
+   ===================================================== */
+
+.purchase-report {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   Header
+   ===================================================== */
+
+.purchase-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.purchase-report-header-content {
+  min-width: 0;
+}
+
+.purchase-report-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.purchase-report-subtitle {
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* =====================================================
+   Search
+   ===================================================== */
+
+.purchase-report-search {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.purchase-report-search .MuiTextField-root {
+  width: 100%;
+}
+
+/* =====================================================
+   Filter
+   ===================================================== */
+
+.purchase-report-filter {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.purchase-report-filter .MuiFormControl-root,
+.purchase-report-filter .MuiTextField-root {
+  width: 100%;
+}
+
+/* =====================================================
+   Statistics
+   ===================================================== */
+
+.purchase-report-statistics {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.purchase-report-statistics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.purchase-report-statistics-card {
+  min-width: 0;
+}
+
+/* =====================================================
+   Cards
+   ===================================================== */
+
+.purchase-report-card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.purchase-report-card-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.purchase-report-card-label {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+/* =====================================================
+   List
+   ===================================================== */
+
+.purchase-report-list {
+  width: 100%;
+}
+
+.purchase-report-list-item {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   Table
+   ===================================================== */
+
+.purchase-report-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.purchase-report-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+}
+
+.purchase-report-table th,
+.purchase-report-table td {
+  white-space: nowrap;
+}
+
+.purchase-report-table th {
+  font-weight: 700;
+}
+
+.purchase-report-table .amount-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.purchase-report-table .quantity-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =====================================================
+   Toolbar
+   ===================================================== */
+
+.purchase-report-toolbar {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.purchase-report-toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* =====================================================
+   Export
+   ===================================================== */
+
+.purchase-report-export {
+  display: flex;
+  align-items: center;
+}
+
+/* =====================================================
+   Pagination
+   ===================================================== */
+
+.purchase-report-pagination {
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* =====================================================
+   Empty State
+   ===================================================== */
+
+.purchase-report-empty {
+  width: 100%;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.purchase-report-empty-title {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.purchase-report-empty-message {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* =====================================================
+   Loading
+   ===================================================== */
+
+.purchase-report-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  width: 100%;
+}
+
+/* =====================================================
+   Error
+   ===================================================== */
+
+.purchase-report-error {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* =====================================================
+   Modal
+   ===================================================== */
+
+.purchase-report-modal {
+  width: 100%;
+}
+
+.purchase-report-modal-section {
+  margin-bottom: 24px;
+}
+
+.purchase-report-modal-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.purchase-report-modal-summary-item {
+  min-width: 0;
+}
+
+.purchase-report-modal-summary-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.purchase-report-modal-summary-value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* =====================================================
+   Status
+   ===================================================== */
+
+.purchase-report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* =====================================================
+   Responsive - Tablet
+   ===================================================== */
+
+@media (max-width: 900px) {
+  .purchase-report {
+    padding: 20px;
+  }
+
+  .purchase-report-statistics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .purchase-report-modal-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =====================================================
+   Responsive - Mobile
+   ===================================================== */
+
+@media (max-width: 600px) {
+  .purchase-report {
+    padding: 12px;
+  }
+
+  .purchase-report-header {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 16px;
+  }
+
+  .purchase-report-title {
+    font-size: 1.4rem;
+  }
+
+  .purchase-report-statistics-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .purchase-report-modal-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-report-toolbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .purchase-report-toolbar-actions > button {
+    flex: 1;
+  }
+
+  .purchase-report-pagination {
+    overflow-x: auto;
+  }
+}
+
+/* =====================================================
+   Small Mobile
+   ===================================================== */
+
+@media (max-width: 400px) {
+  .purchase-report {
+    padding: 8px;
+  }
+
+  .purchase-report-title {
+    font-size: 1.25rem;
+  }
+
+  .purchase-report-subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+/* =====================================================
+   Print
+   ===================================================== */
+
+@media print {
+  .purchase-report {
+    padding: 0;
+  }
+
+  .purchase-report-toolbar,
+  .purchase-report-search,
+  .purchase-report-filter,
+  .purchase-report-pagination,
+  .purchase-report-export {
+    display: none !important;
+  }
+
+  .purchase-report-table {
+    min-width: 100%;
+  }
+
+  .purchase-report-table-container {
+    overflow: visible;
+  }
+}
