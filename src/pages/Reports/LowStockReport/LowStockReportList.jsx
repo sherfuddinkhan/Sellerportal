@@ -1,22 +1,6 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import React, { useCallback,useEffect,useMemo,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Paper,
-  Snackbar,
-  Stack,
-  Typography,
-} from "@mui/material";
-
+import {Alert,Box,CircularProgress,Paper,Snackbar,Stack,Typography} from "@mui/material";
 import LowStockReportSearch from "./LowStockReportSearch";
 import LowStockReportToolbar from "./LowStockReportToolbar";
 import LowStockReportStatistics from "./LowStockReportStatistics";
@@ -26,13 +10,7 @@ import LowStockReportModal from "./LowStockReportModal";
 import LowStockReportPagination from "./LowStockReportPagination";
 import LowStockReportCard from "./LowStockReportCard";
 import LowStockReportTable from "./LowStockReportTable";
-
-import {
-  getLowStockReports,
-  deleteLowStockReport,
-  deleteLowStockReports,
-  getLowStockReportStatistics,
-} from "./LowStockReportService";
+import {getLowStockReports,deleteLowStockReport,deleteLowStockReports,getLowStockReportStatistics} from "./LowStockReportService";
 
 //======================================================
 // LowStockReportList
@@ -48,23 +26,12 @@ const LowStockReportList = ({
   // State
   //====================================================
 
-  const [reports, setReports] =
-    useState([]);
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [statisticsLoading, setStatisticsLoading] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
-  const [success, setSuccess] =
-    useState("");
-
-  const [filters, setFilters] =
-    useState({
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [filters, setFilters] = useState({
       search: "",
       status: "Low",
       category: "",
@@ -91,21 +58,11 @@ const LowStockReportList = ({
       ...initialFilters,
     });
 
-  const [selectedRows, setSelectedRows] =
-    useState([]);
-
-  const [page, setPage] =
-    useState(1);
-
-  const [pageSize, setPageSize] =
-    useState(initialPageSize);
-
-  const [totalRecords, setTotalRecords] =
-    useState(0);
-
-  const [viewMode, setViewMode] =
-    useState(initialViewMode);
-
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(initialPageSize);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [viewMode, setViewMode] = useState(initialViewMode);
   const [statistics, setStatistics] =
     useState({
       totalProducts: 0,
@@ -114,7 +71,6 @@ const LowStockReportList = ({
       totalStock: 0,
       totalReorderQuantity: 0,
     });
-
   const [modal, setModal] =
     useState({
       open: false,
@@ -133,70 +89,28 @@ const LowStockReportList = ({
     async () => {
       setLoading(true);
       setError("");
-
       try {
-        const response =
-          await getLowStockReports({
+        const response =  await getLowStockReports({
             ...appliedFilters,
             page,
             pageSize,
           });
 
-        const responseData =
-          response?.data ??
-          response ??
-          {};
-
-        const reportData =
-          Array.isArray(responseData)
-            ? responseData
-            : responseData?.reports ??
-              responseData?.items ??
-              responseData?.data ??
-              [];
-
-        const total =
-          Number(
-            responseData?.totalRecords ??
-            responseData?.total ??
-            responseData?.count ??
-            reportData.length
-          );
-
-        setReports(
-          Array.isArray(reportData)
-            ? reportData
-            : []
-        );
-
-        setTotalRecords(
-          Number.isFinite(total)
-            ? total
-            : 0
-        );
+        const responseData = response?.data ?? response ?? {};
+        const reportData = Array.isArray(responseData) ? responseData : responseData?.reports ?? responseData?.items ?? responseData?.data ?? [];
+        const total = Number( responseData?.totalRecords ??  responseData?.total ?? responseData?.count ?? reportData.length);
+        setReports( Array.isArray(reportData) ? reportData : [] );
+        setTotalRecords( Number.isFinite(total) ? total : 0 );
       } catch (err) {
-        console.error(
-          "Failed to load low stock reports:",
-          err
-        );
-
+        console.error( "Failed to load low stock reports:",err);
         setReports([]);
         setTotalRecords(0);
-
-        setError(
-          err?.response?.data?.message ??
-          err?.message ??
-          "Failed to load low stock reports."
-        );
+        setError( err?.response?.data?.message ?? err?.message ?? "Failed to load low stock reports.");
       } finally {
         setLoading(false);
       }
     },
-    [
-      appliedFilters,
-      page,
-      pageSize,
-    ]
+    [appliedFilters,page,pageSize]
   );
 
   //====================================================
@@ -212,74 +126,25 @@ const LowStockReportList = ({
 
         try {
           const response =
-            await getLowStockReportStatistics(
-              appliedFilters
-            );
-
-          const responseData =
-            response?.data ??
-            response ??
-            {};
-
-          const statisticsData =
-            responseData?.statistics ??
-            responseData?.data ??
-            responseData ??
-            {};
-
+            await getLowStockReportStatistics(appliedFilters);
+          const responseData =response?.data ??response ??{};
+          const statisticsData = responseData?.statistics ?? responseData?.data ??  responseData ?? {};
           setStatistics({
-            totalProducts:
-              Number(
-                statisticsData?.totalProducts ??
-                statisticsData?.totalItems ??
-                statisticsData?.total ??
-                0
-              ),
-
-            lowStockProducts:
-              Number(
-                statisticsData?.lowStockProducts ??
-                statisticsData?.lowStock ??
-                0
-              ),
-
-            outOfStockProducts:
-              Number(
-                statisticsData?.outOfStockProducts ??
-                statisticsData?.outOfStock ??
-                0
-              ),
-
-            totalStock:
-              Number(
-                statisticsData?.totalStock ??
-                statisticsData?.totalQuantity ??
-                0
-              ),
-
-            totalReorderQuantity:
-              Number(
-                statisticsData?.totalReorderQuantity ??
-                statisticsData?.reorderQuantity ??
-                statisticsData?.reorderQty ??
-                0
-              ),
+            totalProducts: Number( statisticsData?.totalProducts ?? statisticsData?.totalItems ??statisticsData?.total ?? 0 ),
+            lowStockProducts: Number( statisticsData?.lowStockProducts ?? statisticsData?.lowStock ?? 0 ),
+            outOfStockProducts: Number( statisticsData?.outOfStockProducts ?? statisticsData?.outOfStock ?? 0 ),
+            totalStock: Number( statisticsData?.totalStock ?? statisticsData?.totalQuantity ?? 0),
+            totalReorderQuantity: Number( statisticsData?.totalReorderQuantity ?? statisticsData?.reorderQuantity ?? statisticsData?.reorderQty ?? 0),
           });
         } catch (err) {
-          console.error(
-            "Failed to load low stock statistics:",
-            err
-          );
-
+          console.error("Failed to load low stock statistics:",err);
           /*
            * Statistics failure should not
            * prevent the report table from
            * being displayed.
            */
         } finally {
-          setStatisticsLoading(
-            false
-          );
+          setStatisticsLoading(false);
         }
       },
       [appliedFilters]
@@ -307,11 +172,9 @@ const LowStockReportList = ({
         setAppliedFilters({
           ...nextFilters,
         });
-
         setPage(1);
         setSelectedRows([]);
-      },
-      [filters]
+      },[filters]
     );
 
   //====================================================
@@ -348,15 +211,8 @@ const LowStockReportList = ({
         minStock: "",
         maxStock: "",
       };
-
-      setFilters(
-        resetFilters
-      );
-
-      setAppliedFilters(
-        resetFilters
-      );
-
+      setFilters(resetFilters);
+      setAppliedFilters(resetFilters);
       setPage(1);
       setSelectedRows([]);
     }, []);
@@ -373,15 +229,8 @@ const LowStockReportList = ({
           search:
             searchValue ?? "",
         };
-
-        setFilters(
-          nextFilters
-        );
-
-        setAppliedFilters(
-          nextFilters
-        );
-
+        setFilters(nextFilters);
+        setAppliedFilters(nextFilters);
         setPage(1);
         setSelectedRows([]);
       },
@@ -397,9 +246,7 @@ const LowStockReportList = ({
       (id) => {
         setSelectedRows(
           (previous) => {
-            if (
-              previous.includes(id)
-            ) {
+            if (previous.includes(id)) {
               return previous.filter(
                 (item) =>
                   item !== id
@@ -431,24 +278,9 @@ const LowStockReportList = ({
           return;
         }
 
-        const ids = (
-          Array.isArray(rows)
-            ? rows
-            : []
-        )
-          .map(
-            (row) =>
-              row?.id ??
-              row?.reportId ??
-              row?.inventoryId
-          )
-          .filter(
-            (id) =>
-              id !== undefined &&
-              id !== null &&
-              id !== ""
-          );
-
+        const ids = (Array.isArray(rows)? rows : [])
+          .map((row) => row?.id ??  row?.reportId ?? row?.inventoryId)
+      .filter( (id) => id !== undefined && id !== null && id !== "");
         setSelectedRows(ids);
       },
       [reports]
@@ -514,10 +346,6 @@ const LowStockReportList = ({
         report: null,
       });
     }, []);
-
-  //====================================================
-  // Part 1B Ends Here
-  //====================================================
     //====================================================
   // Confirm Delete
   //====================================================
@@ -532,36 +360,17 @@ const LowStockReportList = ({
           return;
         }
 
-        const id =
-          report?.id ??
-          report?.reportId ??
-          report?.inventoryId;
-
-        if (
-          id === undefined ||
-          id === null ||
-          id === ""
-        ) {
-          setError(
-            "Unable to delete report: report ID is missing."
-          );
-
+        const id = report?.id ?? report?.reportId ?? report?.inventoryId;
+        if ( id === undefined || id === null || id === "") {
+          setError("Unable to delete report: report ID is missing.");
           handleCloseModal();
           return;
         }
-
         setLoading(true);
         setError("");
-
         try {
-          await deleteLowStockReport(
-            id
-          );
-
-          setSuccess(
-            "Low stock report deleted successfully."
-          );
-
+          await deleteLowStockReport(id);
+          setSuccess("Low stock report deleted successfully.");
           setSelectedRows(
             (previous) =>
               previous.filter(
@@ -569,32 +378,17 @@ const LowStockReportList = ({
                   item !== id
               )
           );
-
           handleCloseModal();
-
           await loadReports();
           await loadStatistics();
         } catch (err) {
-          console.error(
-            "Failed to delete low stock report:",
-            err
-          );
-
-          setError(
-            err?.response?.data?.message ??
-            err?.message ??
-            "Failed to delete low stock report."
-          );
+          console.error("Failed to delete low stock report:",err);
+          setError(err?.response?.data?.message ??err?.message ?? "Failed to delete low stock report.");
         } finally {
           setLoading(false);
         }
       },
-      [
-        modal,
-        handleCloseModal,
-        loadReports,
-        loadStatistics,
-      ]
+      [modal,handleCloseModal,loadReports,loadStatistics]
     );
 
   //====================================================
@@ -618,10 +412,7 @@ const LowStockReportList = ({
         setError("");
 
         try {
-          await deleteLowStockReports(
-            selectedRows
-          );
-
+          await deleteLowStockReports(selectedRows);
           setSuccess(
             `${selectedRows.length} report${
               selectedRows.length > 1
@@ -649,11 +440,7 @@ const LowStockReportList = ({
           setLoading(false);
         }
       },
-      [
-        selectedRows,
-        loadReports,
-        loadStatistics,
-      ]
+      [selectedRows,loadReports,loadStatistics,]
     );
 
   //====================================================
@@ -665,7 +452,6 @@ const LowStockReportList = ({
       (nextPage) => {
         const numericPage =
           Number(nextPage);
-
         if (
           !Number.isFinite(
             numericPage
@@ -745,19 +531,10 @@ const LowStockReportList = ({
   const handleRefresh =
     useCallback(async () => {
       setSelectedRows([]);
-
-      await Promise.all([
-        loadReports(),
-        loadStatistics(),
+      await Promise.all([loadReports(),loadStatistics(),
       ]);
-
-      setSuccess(
-        "Low stock report refreshed successfully."
-      );
-    }, [
-      loadReports,
-      loadStatistics,
-    ]);
+      setSuccess("Low stock report refreshed successfully.");
+    }, [loadReports,loadStatistics,]);
 
   //====================================================
   // Close Snackbar
@@ -783,41 +560,21 @@ const LowStockReportList = ({
 
   const totalPages =
     useMemo(() => {
-      if (
-        totalRecords <= 0 ||
-        pageSize <= 0
-      ) {
+      if ( totalRecords <= 0 || pageSize <= 0) {
         return 1;
       }
-
-      return Math.max(
-        1,
-        Math.ceil(
-          totalRecords /
-            pageSize
-        )
-      );
-    }, [
-      totalRecords,
-      pageSize,
-    ]);
+      return Math.max(1, Math.ceil(totalRecords /pageSize));
+    }, [totalRecords,pageSize]);
 
   //====================================================
   // Ensure Valid Page
   //====================================================
 
   useEffect(() => {
-    if (
-      page > totalPages
-    ) {
-      setPage(
-        totalPages
-      );
+    if (page > totalPages) {
+      setPage(totalPages);
     }
-  }, [
-    page,
-    totalPages,
-  ]);
+  }, [page,totalPages]);
 
   //====================================================
   // Export Data
@@ -826,12 +583,7 @@ const LowStockReportList = ({
   const exportData =
     useMemo(
       () =>
-        Array.isArray(
-          reports
-        )
-          ? reports
-          : [],
-      [reports]
+        Array.isArray(reports) ? reports : [], [reports]
     );
 
   //====================================================
@@ -853,7 +605,6 @@ const LowStockReportList = ({
       {/*================================================
           Header
       =================================================*/}
-
       <Stack
         direction={{
           xs: "column",

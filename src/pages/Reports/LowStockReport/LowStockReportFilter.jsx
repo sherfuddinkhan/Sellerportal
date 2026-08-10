@@ -1,35 +1,7 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import React, {useCallback,useEffect,useMemo,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Collapse,
-  Divider,
-  Grid,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  FilterAlt,
-  FilterAltOff,
-  Refresh,
-  ExpandMore,
-  ExpandLess,
-} from "@mui/icons-material";
+import {Box, Button,Card,CardContent,Collapse,Divider,Grid,IconButton,MenuItem,Stack,TextField,Tooltip,Typography} from "@mui/material";
+import {FilterAlt,FilterAltOff,Refresh,ExpandMore,ExpandLess} from "@mui/icons-material";
 
 //======================================================
 // LowStockReportFilter
@@ -75,23 +47,16 @@ const LowStockReportFilter = ({
   //====================================================
   // Expanded State
   //====================================================
-
-  const [expanded, setExpanded] =
-    useState(false);
-
+  const [expanded, setExpanded] = useState(false);
   //====================================================
   // Sync External Filters
   //====================================================
-
   useEffect(() => {
     setLocalFilters({
       ...defaultFilters,
       ...filters,
     });
-  }, [
-    filters,
-    defaultFilters,
-  ]);
+  }, [filters,defaultFilters]);
 
   //====================================================
   // Handle Field Change
@@ -100,11 +65,7 @@ const LowStockReportFilter = ({
   const handleChange =
     useCallback(
       (event) => {
-        const {
-          name,
-          value,
-        } = event.target;
-
+        const { name, value} = event.target;
         setLocalFilters(
           (previous) => ({
             ...previous,
@@ -118,31 +79,21 @@ const LowStockReportFilter = ({
   //====================================================
   // Apply Filters
   //====================================================
-
   const handleApply =
     useCallback(() => {
       if (
-        typeof onApply ===
-        "function"
+        typeof onApply === "function"
       ) {
         onApply(
           localFilters
         );
       }
-
       if (
-        typeof onChange ===
-        "function"
+        typeof onChange ===  "function"
       ) {
-        onChange(
-          localFilters
-        );
+        onChange(localFilters);
       }
-    }, [
-      localFilters,
-      onApply,
-      onChange,
-    ]);
+    }, [localFilters,onApply,onChange]);
 
   //====================================================
   // Reset Filters
@@ -153,33 +104,18 @@ const LowStockReportFilter = ({
       const resetValues = {
         ...defaultFilters,
       };
-
-      setLocalFilters(
-        resetValues
-      );
-
+      setLocalFilters(resetValues);
       if (
-        typeof onReset ===
-        "function"
+        typeof onReset ==="function"
       ) {
-        onReset(
-          resetValues
-        );
+        onReset(resetValues);
       }
-
       if (
-        typeof onChange ===
-        "function"
+        typeof onChange === "function"
       ) {
-        onChange(
-          resetValues
-        );
+        onChange(resetValues);
       }
-    }, [
-      defaultFilters,
-      onReset,
-      onChange,
-    ]);
+    }, [defaultFilters,onReset,onChange]);
 
   //====================================================
   // Toggle Expanded
@@ -243,10 +179,6 @@ const LowStockReportFilter = ({
       label: "All Statuses",
     },
   ];
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
     //====================================================
   // JSX
   //====================================================

@@ -1,28 +1,7 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  Inventory2,
-  MoreVert,
-  Warning,
-  ErrorOutline,
-  TrendingDown,
-} from "@mui/icons-material";
+import {Box,Card,CardContent,Chip,Divider,IconButton,Stack,Tooltip,Typography} from "@mui/material";
+import {Inventory2,MoreVert,Warning,ErrorOutline,TrendingDown} from "@mui/icons-material";
 
 //======================================================
 // LowStockReportCard
@@ -43,75 +22,18 @@ const LowStockReportCard = ({
 
   const data = useMemo(
     () => ({
-      id:
-        report?.id ??
-        report?.reportId ??
-        report?.inventoryId ??
-        "",
-
-      productName:
-        report?.productName ??
-        report?.itemName ??
-        report?.name ??
-        "Unknown Product",
-
-      productCode:
-        report?.productCode ??
-        report?.itemCode ??
-        report?.sku ??
-        "-",
-
-      category:
-        report?.categoryName ??
-        report?.category ??
-        "-",
-
-      currentStock:
-        Number(
-          report?.currentStock ??
-          report?.stockQuantity ??
-          report?.quantity ??
-          0
-        ),
-
-      minimumStock:
-        Number(
-          report?.minimumStock ??
-          report?.minStock ??
-          report?.reorderLevel ??
-          0
-        ),
-
-      reorderQuantity:
-        Number(
-          report?.reorderQuantity ??
-          report?.reorderQty ??
-          0
-        ),
-
-      unit:
-        report?.unit ??
-        report?.uom ??
-        "Units",
-
-      warehouse:
-        report?.warehouseName ??
-        report?.warehouse ??
-        "-",
-
-      status:
-        String(
-          report?.status ??
-          "Low"
-        ),
-
-      lastUpdated:
-        report?.lastUpdated ??
-        report?.updatedAt ??
-        report?.updatedDate ??
-        "",
-    }),
-    [report]
+      id: report?.id ?? report?.reportId ?? report?.inventoryId ?? "",
+      productName: report?.productName ?? report?.itemName ?? report?.name ?? "Unknown Product",
+      productCode: report?.productCode ?? report?.itemCode ?? report?.sku ?? "-",
+      category: report?.categoryName ?? report?.category ?? "-",
+      currentStock: Number(report?.currentStock ?? report?.stockQuantity ?? report?.quantity ?? 0),
+      minimumStock: Number(report?.minimumStock ?? report?.minStock ?? report?.reorderLevel ?? 0),
+      reorderQuantity: Number( report?.reorderQuantity ?? report?.reorderQty ?? 0 ),
+      unit: report?.unit ?? report?.uom ?? "Units",
+      warehouse: report?.warehouseName ?? report?.warehouse ?? "-",
+      status: String( report?.status ?? "Low" ),
+      lastUpdated: report?.lastUpdated ?? report?.updatedAt ?? report?.updatedDate ?? "",
+    }),[report]
   );
 
   //====================================================
@@ -120,19 +42,13 @@ const LowStockReportCard = ({
 
   const stockPercentage =
     useMemo(() => {
-
-      if (
-        data.minimumStock <= 0
-      ) {
+      if (data.minimumStock <= 0) {
         return data.currentStock > 0
           ? 100
           : 0;
       }
-
-      return Math.min(
-        100,
-        Math.max(
-          0,
+      return Math.min(100,
+        Math.max(0,
           (
             data.currentStock /
             data.minimumStock
@@ -140,10 +56,7 @@ const LowStockReportCard = ({
         )
       );
 
-    }, [
-      data.currentStock,
-      data.minimumStock,
-    ]);
+    }, [data.currentStock,data.minimumStock]);
 
   //====================================================
   // Stock Severity
@@ -151,13 +64,9 @@ const LowStockReportCard = ({
 
   const severity =
     useMemo(() => {
-
-      if (
-        data.currentStock <= 0
-      ) {
+      if (data.currentStock <= 0) {
         return "critical";
       }
-
       if (
         data.currentStock <
         data.minimumStock
