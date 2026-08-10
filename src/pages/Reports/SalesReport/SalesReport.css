@@ -1,0 +1,378 @@
+/*======================================================
+  SalesReport.css
+======================================================*/
+
+/*======================================================
+  Main Sales Report Container
+======================================================*/
+
+.sales-report {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Sales Report View
+======================================================*/
+
+.sales-report-view {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-view .sales-report-header {
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Sales Report Card
+======================================================*/
+
+.sales-report-card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sales-report-card:hover {
+  transform: translateY(-1px);
+}
+
+/*======================================================
+  Sales Report List
+======================================================*/
+
+.sales-report-list {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-list .sales-report-item {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Sales Report Table
+======================================================*/
+
+.sales-report-table {
+  width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+.sales-report-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sales-report-table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sales-report-table td {
+  vertical-align: middle;
+}
+
+.sales-report-table tbody tr {
+  transition:
+    background-color 0.15s ease;
+}
+
+.sales-report-table tbody tr:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.025
+  );
+}
+
+/*======================================================
+  Sales Report Toolbar
+======================================================*/
+
+.sales-report-toolbar {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-toolbar .MuiButton-root {
+  white-space: nowrap;
+}
+
+/*======================================================
+  Sales Report Statistics
+======================================================*/
+
+.sales-report-statistics {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-statistics .stat-card {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-statistics .stat-value {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sales-report-statistics .stat-label {
+  color: #6b7280;
+}
+
+/*======================================================
+  Sales Report Search
+======================================================*/
+
+.sales-report-search {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-search .MuiTextField-root {
+  width: 100%;
+}
+
+/*======================================================
+  Sales Report Filter
+======================================================*/
+
+.sales-report-filter {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-filter .MuiFormControl-root,
+.sales-report-filter .MuiTextField-root {
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Sales Report Pagination
+======================================================*/
+
+.sales-report-pagination {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-report-pagination .MuiIconButton-root {
+  flex-shrink: 0;
+}
+
+/*======================================================
+  Sales Report Modal
+======================================================*/
+
+.sales-report-modal {
+  width: 100%;
+}
+
+.sales-report-modal
+  .MuiDialog-paper {
+  border-radius: 12px;
+}
+
+.sales-report-modal
+  .MuiDialogTitle-root {
+  padding-bottom: 12px;
+}
+
+.sales-report-modal
+  .MuiDialogContent-root {
+  padding-top: 24px;
+}
+
+.sales-report-modal
+  .MuiDialogActions-root {
+  border-top: 1px solid
+    rgba(0, 0, 0, 0.08);
+}
+
+/*======================================================
+  Sales Report Export
+======================================================*/
+
+.sales-report-export {
+  display: flex;
+  align-items: center;
+}
+
+/*======================================================
+  Status Styling
+======================================================*/
+
+.sales-report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.sales-report-status.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.sales-report-status.warning {
+  background-color: #fff8e1;
+  color: #ed6c02;
+}
+
+.sales-report-status.error {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.sales-report-status.info {
+  background-color: #e3f2fd;
+  color: #0288d1;
+}
+
+.sales-report-status.default {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.sales-report-empty {
+  width: 100%;
+  padding: 40px 20px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.sales-report-empty-icon {
+  margin-bottom: 12px;
+  opacity: 0.55;
+}
+
+/*======================================================
+  Loading State
+======================================================*/
+
+.sales-report-loading {
+  width: 100%;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*======================================================
+  Error State
+======================================================*/
+
+.sales-report-error {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Responsive Styles
+======================================================*/
+
+@media (max-width: 900px) {
+  .sales-report-toolbar {
+    gap: 12px;
+  }
+
+  .sales-report-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sales-report-table table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sales-report {
+    padding: 0;
+  }
+
+  .sales-report-toolbar {
+    width: 100%;
+  }
+
+  .sales-report-export {
+    width: 100%;
+  }
+
+  .sales-report-export .MuiButton-root {
+    width: 100%;
+  }
+
+  .sales-report-pagination {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .sales-report-modal
+    .MuiDialog-paper {
+    margin: 8px;
+    width: calc(100% - 16px);
+  }
+
+  .sales-report-modal
+    .MuiDialogContent-root {
+    padding: 16px;
+  }
+
+  .sales-report-modal
+    .MuiDialogActions-root {
+    padding: 12px 16px;
+  }
+}
+
+/*======================================================
+  Print Styles
+======================================================*/
+
+@media print {
+  .sales-report-toolbar,
+  .sales-report-search,
+  .sales-report-filter,
+  .sales-report-pagination,
+  .sales-report-export {
+    display: none !important;
+  }
+
+  .sales-report-table {
+    overflow: visible;
+  }
+
+  .sales-report-table table {
+    min-width: 0;
+  }
+
+  .sales-report-table th,
+  .sales-report-table td {
+    font-size: 10px;
+  }
+
+  .sales-report-card {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+}
+
