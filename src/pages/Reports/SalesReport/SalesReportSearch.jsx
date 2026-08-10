@@ -19,14 +19,10 @@ const SalesReportSearch = ({
   //====================================================
   // Local Search State
   //====================================================
-
-  const [searchValue, setSearchValue] =
-    useState(value || "");
-
+  const [searchValue, setSearchValue] = useState(value || "");
   //====================================================
   // Sync External Value
   //====================================================
-
   useEffect(() => {
     setSearchValue(
       value || ""
@@ -41,7 +37,6 @@ const SalesReportSearch = ({
     (event) => {
       const nextValue =
         event.target.value;
-
       setSearchValue(nextValue);
     },
     []
@@ -55,22 +50,15 @@ const SalesReportSearch = ({
     const timer =
       setTimeout(() => {
         if (
-          typeof onChange ===
-          "function"
+          typeof onChange === "function"
         ) {
-          onChange(
-            searchValue
-          );
+          onChange(searchValue);
         }
       }, debounceMs);
 
     return () =>
       clearTimeout(timer);
-  }, [
-    searchValue,
-    debounceMs,
-    onChange,
-  ]);
+  }, [searchValue,debounceMs,onChange]);
 
   //====================================================
   // Clear Handler
@@ -79,17 +67,14 @@ const SalesReportSearch = ({
   const handleClear = useCallback(
     () => {
       setSearchValue("");
-
       if (
-        typeof onClear ===
-        "function"
+        typeof onClear === "function"
       ) {
         onClear();
       }
 
       if (
-        typeof onChange ===
-        "function"
+        typeof onChange === "function"
       ) {
         onChange("");
       }
@@ -107,22 +92,16 @@ export default SalesReportSearch;
 SalesReportSearch.propTypes = {
   value:
     PropTypes.string,
-
   placeholder:
     PropTypes.string,
-
   loading:
     PropTypes.bool,
-
   disabled:
     PropTypes.bool,
-
   debounceMs:
     PropTypes.number,
-
   onChange:
     PropTypes.func,
-
   onClear:
     PropTypes.func,
 };
