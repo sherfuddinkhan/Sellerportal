@@ -1,22 +1,5 @@
-//======================================================
-// SuppliesReportCard.jsx
-// Part 1A
-//======================================================
-
 import React from "react";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
+import {Box,Card,CardContent,Chip,Divider,IconButton,Stack,Tooltip,Typography} from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 
@@ -30,16 +13,13 @@ const getValue = (
 ) => {
   for (const field of fields) {
     if (
-      report?.[field] !==
-        undefined &&
-      report?.[field] !==
-        null &&
+      report?.[field] !== undefined &&
+      report?.[field] !== null &&
       report?.[field] !== ""
     ) {
       return report[field];
     }
   }
-
   return "";
 };
 
@@ -50,19 +30,13 @@ const getValue = (
 const formatNumber = (
   value
 ) => {
-  const number =
-    Number(value);
-
-  if (
-    !Number.isFinite(
-      number
-    )
+  const number = Number(value);
+  if ( !Number.isFinite(number)
   ) {
     return "0";
   }
 
-  return new Intl.NumberFormat(
-    "en-IN",
+  return new Intl.NumberFormat("en-IN",
     {
       maximumFractionDigits: 2,
     }
@@ -76,19 +50,12 @@ const formatNumber = (
 const formatCurrency = (
   value
 ) => {
-  const number =
-    Number(value);
-
-  if (
-    !Number.isFinite(
-      number
-    )
+  const number = Number(value);
+  if (!Number.isFinite(number)
   ) {
     return "₹0.00";
   }
-
-  return new Intl.NumberFormat(
-    "en-IN",
+  return new Intl.NumberFormat("en-IN",
     {
       style: "currency",
       currency: "INR",
@@ -107,20 +74,12 @@ const formatDate = (
   if (!value) {
     return "-";
   }
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())
   ) {
     return String(value);
   }
-
-  return date.toLocaleDateString(
-    "en-IN",
+  return date.toLocaleDateString("en-IN",
     {
       day: "2-digit",
       month: "2-digit",
@@ -136,13 +95,8 @@ const formatDate = (
 const getStatusColor = (
   status
 ) => {
-  const value =
-    String(
-      status || ""
-    ).toLowerCase();
-
-  if (
-    value === "active" ||
+  const value = String( status || "").toLowerCase();
+  if ( value === "active" ||
     value === "approved" ||
     value === "completed" ||
     value === "success"
@@ -156,7 +110,6 @@ const getStatusColor = (
   ) {
     return "warning";
   }
-
   if (
     value === "cancelled" ||
     value === "rejected" ||
@@ -165,7 +118,6 @@ const getStatusColor = (
   ) {
     return "error";
   }
-
   return "default";
 };
 
@@ -182,107 +134,18 @@ const SuppliesReportCard = ({
   //====================================================
   // Report Values
   //====================================================
-
-  const date =
-    getValue(
-      report,
-      "date",
-      "supplyDate",
-      "transactionDate",
-      "voucherDate"
-    );
-
-  const supplier =
-    getValue(
-      report,
-      "supplier",
-      "supplierName",
-      "partyName",
-      "vendorName"
-    );
-
-  const stockItem =
-    getValue(
-      report,
-      "stockItem",
-      "itemName",
-      "stockItemName",
-      "item"
-    );
-
-  const category =
-    getValue(
-      report,
-      "category",
-      "categoryName",
-      "itemCategory"
-    );
-
-  const voucherNumber =
-    getValue(
-      report,
-      "voucherNumber",
-      "voucherNo",
-      "documentNumber",
-      "docNo"
-    );
-
-  const voucherType =
-    getValue(
-      report,
-      "voucherType",
-      "documentType",
-      "docType"
-    );
-
-  const warehouse =
-    getValue(
-      report,
-      "warehouse",
-      "warehouseName",
-      "godown",
-      "location"
-    );
-
-  const quantity =
-    getValue(
-      report,
-      "quantity",
-      "qty",
-      "supplyQuantity"
-    );
-
-  const rate =
-    getValue(
-      report,
-      "rate",
-      "unitRate",
-      "price"
-    );
-
-  const amount =
-    getValue(
-      report,
-      "amount",
-      "totalAmount",
-      "value",
-      "totalValue"
-    );
-
-  const status =
-    getValue(
-      report,
-      "status",
-      "state"
-    );
-
-  const remarks =
-    getValue(
-      report,
-      "remarks",
-      "notes",
-      "comment"
-    );
+  const date = getValue(report,"date","supplyDate","transactionDate","voucherDate");
+  const supplier = getValue(report,"supplier","supplierName","partyName","vendorName");
+  const stockItem = getValue(report,"stockItem","itemName","stockItemName","item");
+  const category = getValue(report,"category","categoryName","itemCategory");
+  const voucherNumber = getValue(report,"voucherNumber","voucherNo","documentNumber","docNo");
+  const voucherType = getValue(report,"voucherType","documentType","docType");
+  const warehouse = getValue(report,"warehouse","warehouseName","godown","location");
+  const quantity = getValue(report,"quantity","qty","supplyQuantity");
+  const rate = getValue(report,"rate","unitRate","price");
+  const amount = getValue(report,"amount","totalAmount","value","totalValue");
+  const status = getValue(report,"status","state");
+  const remarks =getValue(report,"remarks","notes","comment");
 
   //====================================================
   // Handlers
@@ -290,20 +153,13 @@ const SuppliesReportCard = ({
 
   const handleView =
     () => {
-      if (
-        typeof onView ===
-        "function"
-      ) {
+      if (typeof onView ==="function") {
         onView(report);
       }
     };
-
   const handleEdit =
     () => {
-      if (
-        typeof onEdit ===
-        "function"
-      ) {
+      if (typeof onEdit === "function") {
         onEdit(report);
       }
     };

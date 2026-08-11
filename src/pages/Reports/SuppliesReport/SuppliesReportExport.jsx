@@ -1,29 +1,9 @@
-//======================================================
-// SuppliesReportExport.jsx
-// Part 1A
-//======================================================
-
-import React, {
-  useState,
-} from "react";
-
-import {
-  Box,
-  Button,
-  MenuItem,
-  Paper,
-  Stack,
-  TextField,
-  Tooltip,
-} from "@mui/material";
-
+import React, {useState} from "react";
+import {Box,Button,MenuItem,Paper,Stack,TextField,Tooltip} from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import TableViewIcon from "@mui/icons-material/TableView";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-
-import {
-  downloadSupplyReportsCSV,
-} from "./SuppliesReportHelpers";
+import {downloadSupplyReportsCSV} from "./SuppliesReportHelpers";
 
 //======================================================
 // SuppliesReportExport
@@ -39,123 +19,63 @@ const SuppliesReportExport = ({
   // State
   //====================================================
 
-  const [
-    exportFormat,
-    setExportFormat,
-  ] = useState("csv");
-
-  const [
-    exporting,
-    setExporting,
-  ] = useState(false);
-
+  const [exportFormat,setExportFormat] = useState("csv");
+  const [exporting,setExporting] = useState(false);
   //====================================================
   // Safe Reports
   //====================================================
-
-  const reportList =
-    Array.isArray(reports)
-      ? reports
-      : [];
-
+  const reportList = Array.isArray(reports) ? reports : [];
   //====================================================
   // File Name
   //====================================================
-
   const createFileName =
     () => {
-      const date =
-        new Date()
-          .toISOString()
-          .split("T")[0];
-
+      const date = new Date() .toISOString().split("T")[0];
       return `supplies-report-${date}`;
     };
 
   //====================================================
   // CSV Export
   //====================================================
-
   const handleCSVExport =
     async () => {
-      if (
-        reportList.length ===
-        0
-      ) {
+      if (reportList.length === 0) {
         return;
       }
-
       setExporting(true);
-
       try {
-        if (
-          typeof onExport ===
-          "function"
-        ) {
-          const result =
-            await onExport(
-              "csv",
-              reportList,
-              filters
-            );
-
+        if (typeof onExport === "function") {
+          const result = await onExport("csv",reportList,filters);
           // If parent handled the export,
           // do not download another file.
-          if (
-            result === true
-          ) {
+          if (result === true) {
             return;
           }
         }
-
-        downloadSupplyReportsCSV(
-          reportList,
-          `${createFileName()}.csv`
-        );
+        downloadSupplyReportsCSV(reportList,`${createFileName()}.csv`);
       } catch (error) {
-        console.error(
-          "CSV export failed:",
-          error
-        );
+        console.error("CSV export failed:",error);
       } finally {
         setExporting(false);
       }
     };
-
   //====================================================
   // Export Handler
   //====================================================
-
   const handleExport =
     async () => {
-      if (
-        exportFormat ===
-        "csv"
-      ) {
+      if (exportFormat ==="csv") {
         await handleCSVExport();
         return;
       }
-
-      if (
-        typeof onExport !==
-        "function"
-      ) {
+      if (typeof onExport !=="function") {
         return;
       }
-
       setExporting(true);
-
       try {
-        await onExport(
-          exportFormat,
-          reportList,
-          filters
-        );
+        await onExport(exportFormat,reportList,filters);
       } catch (error) {
-        console.error(
-          `${exportFormat.toUpperCase()} export failed:`,
-          error
-        );
+        console.error(`${exportFormat.toUpperCase()} export failed:`,error);
       } finally {
         setExporting(false);
       }
