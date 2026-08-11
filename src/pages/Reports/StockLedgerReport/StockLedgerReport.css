@@ -1,0 +1,595 @@
+/*======================================================
+  StockLedgerReport.css
+  Part 1A
+======================================================*/
+
+/*======================================================
+  Main Report Container
+======================================================*/
+
+.stock-ledger-report {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+}
+
+/*======================================================
+  Report Header
+======================================================*/
+
+.stock-ledger-report__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.stock-ledger-report__header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.stock-ledger-report__header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Report Title
+======================================================*/
+
+.stock-ledger-report__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1f2937;
+}
+
+.stock-ledger-report__subtitle {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/*======================================================
+  Report Content
+======================================================*/
+
+.stock-ledger-report__content {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stock-ledger-report__section {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Statistics Section
+======================================================*/
+
+.stock-ledger-report__statistics {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(180px, 1fr)
+    );
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Statistics Card
+======================================================*/
+
+.stock-ledger-report__stat-card {
+  width: 100%;
+  min-height: 110px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.stock-ledger-report__stat-label {
+  margin: 0 0 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.stock-ledger-report__stat-value {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #111827;
+}
+
+.stock-ledger-report__stat-description {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/*======================================================
+  Toolbar
+======================================================*/
+
+.stock-ledger-report__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.stock-ledger-report__toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.stock-ledger-report__toolbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Search Section
+======================================================*/
+
+.stock-ledger-report__search {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.stock-ledger-report__search-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.stock-ledger-report__search-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/*======================================================
+  Filter Section
+======================================================*/
+
+.stock-ledger-report__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.stock-ledger-report__filter {
+  min-width: 160px;
+}
+
+.stock-ledger-report__filter--date {
+  min-width: 150px;
+}
+
+/*======================================================
+  Table Container
+======================================================*/
+
+.stock-ledger-report__table-container {
+  width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+/*======================================================
+  Table
+======================================================*/
+
+.stock-ledger-report__table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.stock-ledger-report__table th {
+  padding: 12px 14px;
+  border-bottom: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.stock-ledger-report__table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+.stock-ledger-report__table tbody tr {
+  transition:
+    background-color 0.15s ease;
+}
+
+.stock-ledger-report__table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.stock-ledger-report__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/*======================================================
+  Table Alignment
+======================================================*/
+
+.stock-ledger-report__table
+  .text-center {
+  text-align: center;
+}
+
+.stock-ledger-report__table
+  .text-right {
+  text-align: right;
+}
+
+.stock-ledger-report__table
+  .text-left {
+  text-align: left;
+}
+
+/*======================================================
+  Quantity Columns
+======================================================*/
+
+.stock-ledger-report__quantity {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.stock-ledger-report__quantity--inward {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.stock-ledger-report__quantity--outward {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.stock-ledger-report__quantity--closing {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+/*======================================================
+  Transaction Type
+======================================================*/
+
+.stock-ledger-report__transaction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.stock-ledger-report__transaction--inward {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.stock-ledger-report__transaction--outward {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.stock-ledger-report__transaction--transfer {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.stock-ledger-report__transaction--adjustment {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+/*======================================================
+  Status
+======================================================*/
+
+.stock-ledger-report__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.stock-ledger-report__status--success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.stock-ledger-report__status--warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.stock-ledger-report__status--error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.stock-ledger-report__status--info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.stock-ledger-report__status--default {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.stock-ledger-report__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 32px 16px;
+  box-sizing: border-box;
+  text-align: center;
+  color: #6b7280;
+}
+
+.stock-ledger-report__empty-title {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.stock-ledger-report__empty-description {
+  max-width: 500px;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/*======================================================
+  Loading State
+======================================================*/
+
+.stock-ledger-report__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  width: 100%;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Error State
+======================================================*/
+
+.stock-ledger-report__error {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/*======================================================
+  Pagination
+======================================================*/
+
+.stock-ledger-report__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 4px;
+  margin-top: 12px;
+  box-sizing: border-box;
+}
+
+.stock-ledger-report__pagination-info {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.stock-ledger-report__pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/*======================================================
+  Action Buttons
+======================================================*/
+
+.stock-ledger-report__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/*======================================================
+  Responsive - Tablet
+======================================================*/
+
+@media (max-width: 900px) {
+  .stock-ledger-report {
+    padding: 12px;
+  }
+
+  .stock-ledger-report__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stock-ledger-report__header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .stock-ledger-report__toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stock-ledger-report__toolbar-left,
+  .stock-ledger-report__toolbar-right {
+    width: 100%;
+  }
+
+  .stock-ledger-report__filters {
+    align-items: stretch;
+  }
+
+  .stock-ledger-report__filter,
+  .stock-ledger-report__filter--date {
+    flex: 1 1 180px;
+  }
+}
+
+/*======================================================
+  Responsive - Mobile
+======================================================*/
+
+@media (max-width: 600px) {
+  .stock-ledger-report {
+    padding: 8px;
+  }
+
+  .stock-ledger-report__title {
+    font-size: 1.25rem;
+  }
+
+  .stock-ledger-report__subtitle {
+    font-size: 0.8125rem;
+  }
+
+  .stock-ledger-report__statistics {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stock-ledger-report__stat-card {
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .stock-ledger-report__search-container {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stock-ledger-report__filters {
+    flex-direction: column;
+  }
+
+  .stock-ledger-report__filter,
+  .stock-ledger-report__filter--date {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .stock-ledger-report__pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stock-ledger-report__pagination-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .stock-ledger-report__header-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stock-ledger-report__header-right button {
+    width: 100%;
+  }
+}
+
+/*======================================================
+  Part 1A Ends Here
+======================================================*/
