@@ -1,29 +1,8 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-} from "@mui/material";
-
-import {
-  Download,
-  FileDownload,
-  PictureAsPdf,
-  Print,
-  TableChart,
-} from "@mui/icons-material";
-
-import {
-  customersToExportRows,
-} from "./CustomerReportHelper";
-
+import {Box,Button,CircularProgress,Menu,MenuItem,ListItemIcon,ListItemText,Tooltip,} from "@mui/material";
+import {Download,FileDownload,PictureAsPdf,Print,TableChart} from "@mui/icons-material";
+import {customersToExportRows} from "./CustomerReportHelper";
 //======================================================
 // CustomerReportExport
 //======================================================
@@ -31,9 +10,7 @@ import {
 const CustomerReportExport = ({
   customers = [],
   filename = "customer-report",
-
   loading = false,
-
   onExportExcel,
   onExportCsv,
   onExportPdf,
@@ -43,160 +20,91 @@ const CustomerReportExport = ({
   //====================================================
   // Menu State
   //====================================================
-
-  const [anchorEl, setAnchorEl] =
-    useState(null);
-
-  const [exporting, setExporting] =
-    useState(false);
+  const [anchorEl, setAnchorEl] =useState(null);
+  const [exporting, setExporting] =useState(false);
 
   //====================================================
   // Menu Status
   //====================================================
 
-  const menuOpen =
-    Boolean(anchorEl);
+  const menuOpen = Boolean(anchorEl);
 
   //====================================================
   // Open Menu
   //====================================================
 
   const handleOpenMenu = (event) => {
-
-    setAnchorEl(
-      event.currentTarget
-    );
-
+    setAnchorEl(event.currentTarget);
   };
 
   //====================================================
   // Close Menu
   //====================================================
-
   const handleCloseMenu = () => {
-
     setAnchorEl(null);
-
   };
-
   //====================================================
   // Prepare Export Data
   //====================================================
-
   const getExportData = () => {
-
     return customersToExportRows(
       customers
     );
-
   };
-
   //====================================================
   // Excel Export
   //====================================================
-
   const handleExcelExport = async () => {
-
     handleCloseMenu();
-
-    const rows =
-      getExportData();
-
+    const rows = getExportData();
     if (!rows.length) {
       return;
     }
-
     try {
-
       setExporting(true);
-
-      if (onExportExcel) {
-
-        await onExportExcel(
-          rows,
-          filename
-        );
-
+      if (onExportExcel) {await onExportExcel(rows,filename);
       }
-
     } finally {
-
       setExporting(false);
-
     }
-
   };
 
   //====================================================
   // CSV Export
   //====================================================
-
   const handleCsvExport = async () => {
-
     handleCloseMenu();
-
-    const rows =
-      getExportData();
-
+    const rows = getExportData();
     if (!rows.length) {
       return;
     }
-
     try {
-
       setExporting(true);
-
       if (onExportCsv) {
-
-        await onExportCsv(
-          rows,
-          filename
-        );
-
+        await onExportCsv(rows,filename);
       }
-
     } finally {
-
       setExporting(false);
-
     }
-
   };
 
   //====================================================
   // PDF Export
   //====================================================
-
   const handlePdfExport = async () => {
-
     handleCloseMenu();
-
-    const rows =
-      getExportData();
-
+    const rows = getExportData();
     if (!rows.length) {
       return;
     }
-
     try {
-
       setExporting(true);
-
       if (onExportPdf) {
-
-        await onExportPdf(
-          rows,
-          filename
-        );
-
+        await onExportPdf(rows,filename);
       }
-
     } finally {
-
       setExporting(false);
-
     }
-
   };
 
   //====================================================
@@ -204,54 +112,26 @@ const CustomerReportExport = ({
   //====================================================
 
   const handlePrint = async () => {
-
     handleCloseMenu();
-
-    const rows =
-      getExportData();
-
+    const rows = getExportData();
     if (!rows.length) {
       return;
     }
-
     try {
-
       setExporting(true);
-
       if (onPrint) {
-
-        await onPrint(
-          rows,
-          filename
-        );
-
+        await onPrint(rows,filename);
       } else {
-
         window.print();
-
       }
-
     } finally {
-
       setExporting(false);
-
     }
-
   };
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
     //====================================================
   // Export Button + Menu
   //====================================================
-
-  const isDisabled =
-    loading ||
-    exporting ||
-    !Array.isArray(customers) ||
-    customers.length === 0;
-
+  const isDisabled = loading || exporting || !Array.isArray(customers) || customers.length === 0;
   return (
     <Box>
       {/*================================================
@@ -331,7 +211,6 @@ const CustomerReportExport = ({
         {/*==============================================
             CSV
         ==============================================*/}
-
         <MenuItem
           onClick={handleCsvExport}
           disabled={exporting}
@@ -342,7 +221,6 @@ const CustomerReportExport = ({
               color="primary"
             />
           </ListItemIcon>
-
           <ListItemText
             primary="Export to CSV"
             secondary="Download .csv report"
@@ -352,7 +230,6 @@ const CustomerReportExport = ({
         {/*==============================================
             PDF
         ==============================================*/}
-
         <MenuItem
           onClick={handlePdfExport}
           disabled={exporting}
@@ -363,7 +240,6 @@ const CustomerReportExport = ({
               color="error"
             />
           </ListItemIcon>
-
           <ListItemText
             primary="Export to PDF"
             secondary="Generate PDF report"
@@ -373,7 +249,6 @@ const CustomerReportExport = ({
         {/*==============================================
             Print
         ==============================================*/}
-
         <MenuItem
           onClick={handlePrint}
           disabled={exporting}
@@ -384,15 +259,12 @@ const CustomerReportExport = ({
               color="action"
             />
           </ListItemIcon>
-
           <ListItemText
             primary="Print Report"
             secondary="Print customer report"
           />
         </MenuItem>
-
       </Menu>
-
     </Box>
   );
 };
@@ -405,20 +277,12 @@ const CustomerReportExport = ({
 //======================================================
 
 CustomerReportExport.propTypes = {
-  customers: PropTypes.arrayOf(
-    PropTypes.object
-  ),
-
+  customers: PropTypes.arrayOf(PropTypes.object),
   filename: PropTypes.string,
-
   loading: PropTypes.bool,
-
   onExportExcel: PropTypes.func,
-
   onExportCsv: PropTypes.func,
-
   onExportPdf: PropTypes.func,
-
   onPrint: PropTypes.func,
 };
 
@@ -428,17 +292,11 @@ CustomerReportExport.propTypes = {
 
 CustomerReportExport.defaultProps = {
   customers: [],
-
   filename: "customer-report",
-
   loading: false,
-
   onExportExcel: null,
-
   onExportCsv: null,
-
   onExportPdf: null,
-
   onPrint: null,
 };
 

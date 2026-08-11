@@ -1,197 +1,93 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Button,
-  FormControl,
-  Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Tooltip,
-} from "@mui/material";
-
-import {
-  Search,
-  Clear,
-  FilterList,
-} from "@mui/icons-material";
-
+import {Box,Button,FormControl,Grid,IconButton,InputAdornment,InputLabel,MenuItem,Select,Stack,TextField,Tooltip,} from "@mui/material";
+import {Search,Clear,FilterList,} from "@mui/icons-material";
 //======================================================
 // Filter Options
 //======================================================
-
-const STATUS_OPTIONS = [
-  "All",
-  "Active",
-  "Inactive",
-];
-
-const MARKETPLACE_OPTIONS = [
-  "All",
-  "Amazon",
-  "Flipkart",
-  "Meesho",
-  "Shopify",
-  "Walmart",
-  "eBay",
-];
-
-const CUSTOMER_TYPE_OPTIONS = [
-  "All",
-  "Individual",
-  "Business",
-  "Wholesale",
-  "Retail",
-];
-
+const STATUS_OPTIONS = ["All","Active","Inactive",];
+const MARKETPLACE_OPTIONS = ["All","Amazon","Flipkart","Meesho","Shopify","Walmart","eBay",];
+const CUSTOMER_TYPE_OPTIONS = ["All","Individual","Business","Wholesale","Retail",];
 //======================================================
 // CustomerReportSearch Component
 //======================================================
-
 const CustomerReportSearch = ({
   filters = {},
-
   onFilterChange,
   onSearch,
   onClear,
 }) => {
-
   //====================================================
   // Local Search State
   //====================================================
-
-  const [searchText, setSearchText] =
-    useState(filters.search || "");
-
+  const [searchText, setSearchText] = useState(filters.search || "");
   //====================================================
   // Filter Visibility
   //====================================================
-
-  const [showFilters, setShowFilters] =
-    useState(true);
-
+  const [showFilters, setShowFilters] = useState(true);
   //====================================================
   // Current Filter Values
   //====================================================
-
-  const status =
-    filters.status || "All";
-
-  const marketplace =
-    filters.marketplace || "All";
-
-  const customerType =
-    filters.customerType || "All";
-
-  const dateFrom =
-    filters.dateFrom || "";
-
-  const dateTo =
-    filters.dateTo || "";
-
+  const status = filters.status || "All";
+  const marketplace = filters.marketplace || "All";
+  const customerType = filters.customerType || "All";
+  const dateFrom = filters.dateFrom || "";
+  const dateTo = filters.dateTo || "";
   //====================================================
   // Search Input
   //====================================================
-
   const handleSearchChange = (event) => {
-
     const value = event.target.value;
-
     setSearchText(value);
-
     if (onFilterChange) {
-      onFilterChange(
-        "search",
-        value
-      );
+      onFilterChange("search",value);
     }
   };
-
   //====================================================
   // Search Submit
   //====================================================
-
   const handleSearchSubmit = () => {
-
     if (onSearch) {
-
       onSearch({
         ...filters,
         search: searchText,
       });
-
     }
   };
-
   //====================================================
   // Enter Key Search
   //====================================================
-
   const handleSearchKeyDown = (event) => {
-
     if (event.key === "Enter") {
       handleSearchSubmit();
     }
-
   };
-
   //====================================================
   // Generic Filter Change
   //====================================================
-
-  const handleFilterChange = (
-    name,
-    value
-  ) => {
-
+  const handleFilterChange = (name,value) => {
     if (onFilterChange) {
-      onFilterChange(
-        name,
-        value
-      );
+      onFilterChange(name,value);
     }
-
   };
-
   //====================================================
   // Clear Filters
   //====================================================
-
   const handleClear = () => {
-
     setSearchText("");
-
     if (onClear) {
       onClear();
     }
-
   };
-
   //====================================================
   // Toggle Filters
   //====================================================
-
   const handleToggleFilters = () => {
-
-    setShowFilters(
-      (previous) => !previous
-    );
-
+    setShowFilters((previous) => !previous);
   };
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
     //====================================================
   // JSX
   //====================================================
-
   return (
     <Box
       className="customer-report-search"
@@ -204,11 +100,9 @@ const CustomerReportSearch = ({
         backgroundColor: "background.paper",
       }}
     >
-
       {/*================================================
           Search Header
       =================================================*/}
-
       <Stack
         direction="row"
         alignItems="center"
@@ -216,15 +110,12 @@ const CustomerReportSearch = ({
         spacing={2}
         sx={{ mb: 2 }}
       >
-
         <Stack
           direction="row"
           spacing={1}
           alignItems="center"
         >
-
           <FilterList color="primary" />
-
           <Box
             component="span"
             sx={{
@@ -234,39 +125,30 @@ const CustomerReportSearch = ({
           >
             Customer Search & Filters
           </Box>
-
         </Stack>
-
         <Button
           size="small"
           variant="text"
           onClick={handleToggleFilters}
           startIcon={<FilterList />}
         >
-          {showFilters
-            ? "Hide Filters"
-            : "Show Filters"}
+          {showFilters ? "Hide Filters" : "Show Filters"}
         </Button>
-
       </Stack>
-
       {/*================================================
           Search Field
       =================================================*/}
-
       <Grid
         container
         spacing={2}
         alignItems="center"
       >
-
         <Grid
           item
           xs={12}
           md={7}
           lg={8}
         >
-
           <TextField
             fullWidth
             size="small"
@@ -281,16 +163,13 @@ const CustomerReportSearch = ({
                   <Search />
                 </InputAdornment>
               ),
-
               endAdornment: searchText && (
                 <InputAdornment position="end">
                   <Tooltip title="Clear search">
-
                     <IconButton
                       size="small"
                       onClick={() => {
                         setSearchText("");
-
                         if (onFilterChange) {
                           onFilterChange(
                             "search",
@@ -301,22 +180,18 @@ const CustomerReportSearch = ({
                     >
                       <Clear fontSize="small" />
                     </IconButton>
-
                   </Tooltip>
                 </InputAdornment>
               ),
             }}
           />
-
         </Grid>
-
         <Grid
           item
           xs={12}
           md={5}
           lg={4}
         >
-
           <Stack
             direction="row"
             spacing={1}
@@ -325,7 +200,6 @@ const CustomerReportSearch = ({
               md: "flex-end",
             }}
           >
-
             <Button
               fullWidth
               variant="contained"
@@ -334,7 +208,6 @@ const CustomerReportSearch = ({
             >
               Search
             </Button>
-
             <Button
               fullWidth
               variant="outlined"
@@ -343,45 +216,34 @@ const CustomerReportSearch = ({
             >
               Clear
             </Button>
-
           </Stack>
-
         </Grid>
-
       </Grid>
-
       {/*================================================
           Advanced Filters
       =================================================*/}
-
       {showFilters && (
-
         <Grid
           container
           spacing={2}
           sx={{ mt: 0.5 }}
         >
-
           {/*============================================
               Status
           ============================================*/}
-
           <Grid
             item
             xs={12}
             sm={6}
             md={3}
           >
-
             <FormControl
               fullWidth
               size="small"
             >
-
               <InputLabel>
                 Status
               </InputLabel>
-
               <Select
                 label="Status"
                 value={status}
@@ -392,7 +254,6 @@ const CustomerReportSearch = ({
                   )
                 }
               >
-
                 {STATUS_OPTIONS.map(
                   (option) => (
                     <MenuItem
@@ -403,33 +264,25 @@ const CustomerReportSearch = ({
                     </MenuItem>
                   )
                 )}
-
               </Select>
-
             </FormControl>
-
           </Grid>
-
           {/*============================================
               Marketplace
           ============================================*/}
-
           <Grid
             item
             xs={12}
             sm={6}
             md={3}
           >
-
             <FormControl
               fullWidth
               size="small"
             >
-
               <InputLabel>
                 Marketplace
               </InputLabel>
-
               <Select
                 label="Marketplace"
                 value={marketplace}
@@ -440,7 +293,6 @@ const CustomerReportSearch = ({
                   )
                 }
               >
-
                 {MARKETPLACE_OPTIONS.map(
                   (option) => (
                     <MenuItem
@@ -451,33 +303,25 @@ const CustomerReportSearch = ({
                     </MenuItem>
                   )
                 )}
-
               </Select>
-
             </FormControl>
-
           </Grid>
-
           {/*============================================
               Customer Type
           ============================================*/}
-
           <Grid
             item
             xs={12}
             sm={6}
             md={3}
           >
-
             <FormControl
               fullWidth
               size="small"
             >
-
               <InputLabel>
                 Customer Type
               </InputLabel>
-
               <Select
                 label="Customer Type"
                 value={customerType}
@@ -488,7 +332,6 @@ const CustomerReportSearch = ({
                   )
                 }
               >
-
                 {CUSTOMER_TYPE_OPTIONS.map(
                   (option) => (
                     <MenuItem
@@ -499,24 +342,18 @@ const CustomerReportSearch = ({
                     </MenuItem>
                   )
                 )}
-
               </Select>
-
             </FormControl>
-
           </Grid>
-
           {/*============================================
               Date From
           ============================================*/}
-
           <Grid
             item
             xs={12}
             sm={6}
             md={3}
           >
-
             <TextField
               fullWidth
               size="small"
@@ -533,13 +370,10 @@ const CustomerReportSearch = ({
                 shrink: true,
               }}
             />
-
           </Grid>
-
           {/*============================================
               Date To
           ============================================*/}
-
           <Grid
             item
             xs={12}
@@ -563,13 +397,9 @@ const CustomerReportSearch = ({
                 shrink: true,
               }}
             />
-
           </Grid>
-
         </Grid>
-
       )}
-
     </Box>
   );
 };
@@ -589,16 +419,13 @@ CustomerReportSearch.propTypes = {
     dateFrom: PropTypes.string,
     dateTo: PropTypes.string,
   }),
-
   onFilterChange: PropTypes.func,
   onSearch: PropTypes.func,
   onClear: PropTypes.func,
 };
-
 //======================================================
 // Default Props
 //======================================================
-
 CustomerReportSearch.defaultProps = {
   filters: {
     search: "",

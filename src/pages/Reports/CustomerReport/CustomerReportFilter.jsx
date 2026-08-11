@@ -1,10 +1,3 @@
-//======================================================
-// Customer Report Filter Configuration
-//======================================================
-
-//------------------------------------------------------
-// Default Filters
-//------------------------------------------------------
 
 export const DEFAULT_CUSTOMER_REPORT_FILTERS = {
   search: "",
@@ -232,24 +225,14 @@ export const matchesCustomerType = (
   ) {
     return true;
   }
-
-  return (
-    normalizeValue(
-      customer?.customerType
-    ) === normalizeValue(
-      customerType
-    )
-  );
+  return (normalizeValue(customer?.customerType) === normalizeValue(customerType));
 };
 
 //------------------------------------------------------
 // Date Helper
 //------------------------------------------------------
 
-const getCustomerDate = (
-  customer
-) => {
-
+const getCustomerDate = (customer) => {
   return (
     customer?.createdDate ??
     customer?.createdAt ??
@@ -263,37 +246,22 @@ const getCustomerDate = (
 // From Date Filter
 //------------------------------------------------------
 
-export const matchesDateFrom = (
-  customer,
-  dateFrom
-) => {
-
+export const matchesDateFrom = (customer,dateFrom) => {
   if (!dateFrom) {
     return true;
   }
-
-  const customerDate =
-    getCustomerDate(customer);
-
+  const customerDate = getCustomerDate(customer);
   if (!customerDate) {
     return false;
   }
-
-  const customerTime =
-    new Date(customerDate)
-      .getTime();
-
-  const fromTime =
-    new Date(`${dateFrom}T00:00:00`)
-      .getTime();
-
+  const customerTime =new Date(customerDate).getTime();
+  const fromTime =new Date(`${dateFrom}T00:00:00`).getTime();
   if (
     Number.isNaN(customerTime) ||
     Number.isNaN(fromTime)
   ) {
     return true;
   }
-
   return customerTime >= fromTime;
 };
 
@@ -305,33 +273,21 @@ export const matchesDateTo = (
   customer,
   dateTo
 ) => {
-
   if (!dateTo) {
     return true;
   }
-
-  const customerDate =
-    getCustomerDate(customer);
-
+  const customerDate = getCustomerDate(customer);
   if (!customerDate) {
     return false;
   }
-
-  const customerTime =
-    new Date(customerDate)
-      .getTime();
-
-  const toTime =
-    new Date(`${dateTo}T23:59:59`)
-      .getTime();
-
+  const customerTime = new Date(customerDate).getTime();
+  const toTime = new Date(`${dateTo}T23:59:59`).getTime();
   if (
     Number.isNaN(customerTime) ||
     Number.isNaN(toTime)
   ) {
     return true;
   }
-
   return customerTime <= toTime;
 };
 
@@ -343,55 +299,20 @@ export const filterCustomers = (
   customers = [],
   filters = {}
 ) => {
-
   if (!Array.isArray(customers)) {
     return [];
   }
-
-  const {
-    search = "",
-    status = "All",
-    marketplace = "All",
-    customerType = "All",
-    dateFrom = "",
-    dateTo = "",
-  } = filters;
-
+  const {search = "",status = "All",marketplace = "All",customerType = "All",dateFrom = "",dateTo = "",} = filters;
   return customers.filter(
     (customer) => {
-
       return (
-        matchesCustomerSearch(
-          customer,
-          search
-        ) &&
-
-        matchesCustomerStatus(
-          customer,
-          status
-        ) &&
-
-        matchesCustomerMarketplace(
-          customer,
-          marketplace
-        ) &&
-
-        matchesCustomerType(
-          customer,
-          customerType
-        ) &&
-
-        matchesDateFrom(
-          customer,
-          dateFrom
-        ) &&
-
-        matchesDateTo(
-          customer,
-          dateTo
-        )
+        matchesCustomerSearch(customer,search) &&
+        matchesCustomerStatus(customer,status) &&
+        matchesCustomerMarketplace(customer,marketplace) &&
+        matchesCustomerType(customer,customerType) &&
+        matchesDateFrom(customer,dateFrom) &&
+        matchesDateTo(customer,dateTo)
       );
-
     }
   );
 };
@@ -406,24 +327,10 @@ export const hasCustomerReportFilters = (
 
   return (
     Boolean(filters.search) ||
-
-    Boolean(
-      filters.status &&
-      filters.status !== "All"
-    ) ||
-
-    Boolean(
-      filters.marketplace &&
-      filters.marketplace !== "All"
-    ) ||
-
-    Boolean(
-      filters.customerType &&
-      filters.customerType !== "All"
-    ) ||
-
+    Boolean( filters.status && filters.status !== "All") ||
+    Boolean( filters.marketplace && filters.marketplace !== "All") ||
+    Boolean( filters.customerType &&filters.customerType !== "All") ||
     Boolean(filters.dateFrom) ||
-
     Boolean(filters.dateTo)
   );
 };
@@ -443,41 +350,33 @@ export const resetCustomerReportFilters = () => ({
 export const getCustomerReportFilterCount = (
   filters = {}
 ) => {
-
   let count = 0;
-
   if (filters.search) {
     count += 1;
   }
-
   if (
     filters.status &&
     filters.status !== "All"
   ) {
     count += 1;
   }
-
   if (
     filters.marketplace &&
     filters.marketplace !== "All"
   ) {
     count += 1;
   }
-
   if (
     filters.customerType &&
     filters.customerType !== "All"
   ) {
     count += 1;
   }
-
   if (filters.dateFrom) {
     count += 1;
   }
-
   if (filters.dateTo) {
     count += 1;
   }
-
   return count;
 };
