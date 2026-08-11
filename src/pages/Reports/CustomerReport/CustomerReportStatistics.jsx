@@ -1,134 +1,30 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
-import {
-  normalizeCustomers,
-  calculateCustomerStatistics,
-  sortCustomers,
-} from "./CustomerReportHelper";
-import {
-  People,
-  ShoppingCart,
-  CurrencyRupee,
-  AccountBalanceWallet,
-  TrendingUp,
-  TrendingDown,
-} from "@mui/icons-material";
-
+import {Box,Card,CardContent,Grid,Stack,Typography} from "@mui/material";
+import {normalizeCustomers,calculateCustomerStatistics,sortCustomers} from "./CustomerReportHelper";
+import {People,ShoppingCart,CurrencyRupee,AccountBalanceWallet,TrendingUp,TrendingDown} from "@mui/icons-material";
 //======================================================
 // CustomerReportStatistics
 //======================================================
-
 const CustomerReportStatistics = ({
   customers = [],
   loading = false,
 }) => {
-
   //====================================================
   // Statistics Calculation
   //====================================================
-
   const statistics = useMemo(() => {
-
-    const data = Array.isArray(customers)
-      ? customers
-      : [];
-
-    const totalCustomers =
-      data.length;
-
-    const activeCustomers =
-      data.filter(
-        (customer) =>
-          String(
-            customer?.status || ""
-          ).toLowerCase() === "active"
-      ).length;
-
-    const inactiveCustomers =
-      data.filter(
-        (customer) =>
-          String(
-            customer?.status || ""
-          ).toLowerCase() === "inactive"
-      ).length;
-
-    const blockedCustomers =
-      data.filter(
-        (customer) =>
-          String(
-            customer?.status || ""
-          ).toLowerCase() === "blocked"
-      ).length;
-
-    const totalOrders =
-      data.reduce(
-        (sum, customer) =>
-          sum +
-          Number(
-            customer?.totalOrders ??
-            customer?.orderCount ??
-            0
-          ),
-        0
-      );
-
-    const totalSales =
-      data.reduce(
-        (sum, customer) =>
-          sum +
-          Number(
-            customer?.totalSales ??
-            customer?.totalAmount ??
-            customer?.salesAmount ??
-            0
-          ),
-        0
-      );
-
-    const totalPaid =
-      data.reduce(
-        (sum, customer) =>
-          sum +
-          Number(
-            customer?.totalPaid ??
-            customer?.paidAmount ??
-            0
-          ),
-        0
-      );
-
-    const totalOutstanding =
-      data.reduce(
-        (sum, customer) =>
-          sum +
-          Number(
-            customer?.totalOutstanding ??
-            customer?.outstandingAmount ??
-            customer?.balance ??
-            0
-          ),
-        0
-      );
-
-    const averageOrderValue =
-      totalOrders > 0
-        ? totalSales / totalOrders
-        : 0;
-
-    const averageCustomerValue =
-      totalCustomers > 0
-        ? totalSales / totalCustomers
-        : 0;
-
+    const data = Array.isArray(customers) ? customers : [];
+    const totalCustomers = data.length;
+    const activeCustomers = data.filter((customer) => String(customer?.status || "").toLowerCase() === "active").length;
+    const inactiveCustomers = data.filter((customer) => String(customer?.status || "").toLowerCase() === "inactive").length;
+    const blockedCustomers = data.filter( (customer) => String(customer?.status || "").toLowerCase() === "blocked").length;
+    const totalOrders = data.reduce((sum, customer) => sum + Number(customer?.totalOrders ?? customer?.orderCount ?? 0 ), 0);
+    const totalSales = data.reduce( (sum, customer) => sum + Number( customer?.totalSales ?? customer?.totalAmount ?? customer?.salesAmount ?? 0 ),0);
+    const totalPaid = data.reduce((sum, customer) => sum + Number(customer?.totalPaid ?? customer?.paidAmount ?? 0 ),0);
+    const totalOutstanding = data.reduce( (sum, customer) => sum + Number( customer?.totalOutstanding ?? customer?.outstandingAmount ?? customer?.balance ?? 0),0);
+    const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+    const averageCustomerValue = totalCustomers > 0 ? totalSales / totalCustomers : 0;
     return {
       totalCustomers,
       activeCustomers,
@@ -164,7 +60,6 @@ const CustomerReportStatistics = ({
   //====================================================
   // Number Formatter
   //====================================================
-
   const formatNumber = useMemo(
     () => (value) =>
       new Intl.NumberFormat(
@@ -172,10 +67,6 @@ const CustomerReportStatistics = ({
       ).format(Number(value) || 0),
     []
   );
-
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
     //====================================================
   // Statistics Card
   //====================================================
@@ -215,7 +106,6 @@ const CustomerReportStatistics = ({
             >
               {title}
             </Typography>
-
             <Typography
               variant="h5"
               fontWeight={700}
@@ -224,7 +114,6 @@ const CustomerReportStatistics = ({
             >
               {loading ? "—" : value}
             </Typography>
-
             {subtitle && (
               <Typography
                 variant="caption"
@@ -234,7 +123,6 @@ const CustomerReportStatistics = ({
               </Typography>
             )}
           </Box>
-
           <Box
             sx={{
               width: 48,
@@ -249,16 +137,13 @@ const CustomerReportStatistics = ({
           >
             {icon}
           </Box>
-
         </Stack>
       </CardContent>
     </Card>
   );
-
   //====================================================
   // Statistics JSX
   //====================================================
-
   return (
     <Box
       className="customer-report-statistics"
@@ -272,11 +157,9 @@ const CustomerReportStatistics = ({
         container
         spacing={2}
       >
-
         {/*==============================================
             Total Customers
         ==============================================*/}
-
         <Grid
           item
           xs={12}
@@ -297,11 +180,9 @@ const CustomerReportStatistics = ({
             iconColor="primary"
           />
         </Grid>
-
         {/*==============================================
             Active Customers
         ==============================================*/}
-
         <Grid
           item
           xs={12}
