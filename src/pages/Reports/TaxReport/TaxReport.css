@@ -1,0 +1,333 @@
+/*======================================================
+  TaxReport.css
+  Part 1A
+======================================================*/
+
+/*======================================================
+  Main Container
+======================================================*/
+
+.tax-report {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Header
+======================================================*/
+
+.tax-report__header {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.tax-report__title {
+  font-weight: 700;
+}
+
+.tax-report__subtitle {
+  color: #6b7280;
+}
+
+/*======================================================
+  Toolbar
+======================================================*/
+
+.tax-report__toolbar {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.tax-report__toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Search
+======================================================*/
+
+.tax-report__search {
+  width: 100%;
+}
+
+.tax-report__search-input {
+  width: 100%;
+}
+
+/*======================================================
+  Filter
+======================================================*/
+
+.tax-report__filter {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.tax-report__filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/*======================================================
+  Statistics
+======================================================*/
+
+.tax-report__statistics {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.tax-report__stat-card {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.tax-report__stat-value {
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.tax-report__stat-label {
+  color: #6b7280;
+}
+
+/*======================================================
+  Chart
+======================================================*/
+
+.tax-report__chart {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.tax-report__chart-container {
+  width: 100%;
+  min-height: 300px;
+}
+
+/*======================================================
+  List
+======================================================*/
+
+.tax-report__list {
+  width: 100%;
+}
+
+.tax-report__list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+/*======================================================
+  Table
+======================================================*/
+
+.tax-report__table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tax-report__table {
+  width: 100%;
+  min-width: 1000px;
+  border-collapse: collapse;
+}
+
+.tax-report__table th {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tax-report__table td {
+  white-space: nowrap;
+}
+
+.tax-report__table-row {
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease;
+}
+
+.tax-report__table-row:hover {
+  background-color: rgba(0, 0, 0, 0.025);
+}
+
+/*======================================================
+  Amount Columns
+======================================================*/
+
+.tax-report__amount {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tax-report__total-tax {
+  font-weight: 700;
+}
+
+/*======================================================
+  Status
+======================================================*/
+
+.tax-report__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 75px;
+}
+
+/*======================================================
+  Pagination
+======================================================*/
+
+.tax-report__pagination {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/*======================================================
+  Modal
+======================================================*/
+
+.tax-report__modal {
+  width: 100%;
+}
+
+.tax-report__modal-content {
+  width: 100%;
+}
+
+.tax-report__modal-section {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.tax-report__modal-section-title {
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/*======================================================
+  Export
+======================================================*/
+
+.tax-report__export {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.tax-report__empty {
+  width: 100%;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.tax-report__empty-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.tax-report__empty-message {
+  color: #6b7280;
+}
+
+/*======================================================
+  Loading
+======================================================*/
+
+.tax-report__loading {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+/*======================================================
+  Error
+======================================================*/
+
+.tax-report__error {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Responsive
+======================================================*/
+
+@media (max-width: 1200px) {
+  .tax-report__table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 900px) {
+  .tax-report__toolbar-actions {
+    width: 100%;
+  }
+
+  .tax-report__filter-actions {
+    width: 100%;
+  }
+
+  .tax-report__list-header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .tax-report__header {
+    margin-bottom: 12px;
+  }
+
+  .tax-report__toolbar {
+    margin-bottom: 12px;
+  }
+
+  .tax-report__filter {
+    margin-bottom: 12px;
+  }
+
+  .tax-report__statistics {
+    margin-bottom: 12px;
+  }
+
+  .tax-report__chart {
+    margin-bottom: 12px;
+  }
+
+  .tax-report__export {
+    margin-bottom: 12px;
+  }
+
+  .tax-report__empty {
+    padding: 32px 16px;
+  }
+
+  .tax-report__pagination {
+    justify-content: center;
+  }
+}
+
+/*======================================================
+  Part 1A Ends Here
+======================================================*/
