@@ -1,0 +1,443 @@
+/*======================================================
+  SuppliesReport.css
+======================================================*/
+
+/*======================================================
+  Main Report Container
+======================================================*/
+
+.supplies-report {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Header
+======================================================*/
+
+.supplies-report__header {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.supplies-report__title {
+  font-weight: 700;
+}
+
+.supplies-report__subtitle {
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/*======================================================
+  Toolbar
+======================================================*/
+
+.supplies-report__toolbar {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.supplies-report__toolbar
+.MuiButton-root {
+  white-space: nowrap;
+}
+
+/*======================================================
+  Search
+======================================================*/
+
+.supplies-report__search {
+  width: 100%;
+}
+
+.supplies-report__search
+.MuiTextField-root {
+  width: 100%;
+}
+
+/*======================================================
+  Filter
+======================================================*/
+
+.supplies-report__filter {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.supplies-report__filter
+.MuiGrid-container {
+  width: 100%;
+}
+
+/*======================================================
+  Statistics
+======================================================*/
+
+.supplies-report__statistics {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.supplies-report__statistics-card {
+  height: 100%;
+  min-height: 120px;
+}
+
+/*======================================================
+  Report Cards
+======================================================*/
+
+.supplies-report__card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.supplies-report__card:hover {
+  box-shadow:
+    0 4px 14px
+    rgba(0, 0, 0, 0.08);
+}
+
+/*======================================================
+  Report List
+======================================================*/
+
+.supplies-report__list {
+  width: 100%;
+}
+
+.supplies-report__list-item {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/*======================================================
+  Report Table
+======================================================*/
+
+.supplies-report__table {
+  width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+.supplies-report__table
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.supplies-report__table
+th {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.supplies-report__table
+td {
+  white-space: nowrap;
+}
+
+.supplies-report__table
+tbody tr {
+  transition:
+    background-color 0.15s ease;
+}
+
+.supplies-report__table
+tbody tr:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.025
+  );
+}
+
+/*======================================================
+  Numeric Table Cells
+======================================================*/
+
+.supplies-report__numeric {
+  text-align: right;
+  font-variant-numeric:
+    tabular-nums;
+}
+
+/*======================================================
+  Status
+======================================================*/
+
+.supplies-report__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: capitalize;
+}
+
+.supplies-report__status--active,
+.supplies-report__status--approved,
+.supplies-report__status--completed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.supplies-report__status--pending,
+.supplies-report__status--draft {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.supplies-report__status--cancelled,
+.supplies-report__status--rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/*======================================================
+  Charts
+======================================================*/
+
+.supplies-report__charts {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.supplies-report__chart {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.supplies-report__charts
+.MuiCard-root {
+  overflow: hidden;
+}
+
+/*======================================================
+  Pagination
+======================================================*/
+
+.supplies-report__pagination {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 16px;
+}
+
+.supplies-report__pagination
+.MuiPagination-root {
+  display: flex;
+  justify-content: center;
+}
+
+/*======================================================
+  Modal
+======================================================*/
+
+.supplies-report__modal {
+  width: 100%;
+}
+
+.supplies-report__modal-content {
+  width: 100%;
+}
+
+.supplies-report__modal-section {
+  width: 100%;
+}
+
+/*======================================================
+  Empty State
+======================================================*/
+
+.supplies-report__empty {
+  width: 100%;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 32px 16px;
+}
+
+.supplies-report__empty-title {
+  font-weight: 600;
+}
+
+.supplies-report__empty-description {
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+/*======================================================
+  Loading State
+======================================================*/
+
+.supplies-report__loading {
+  width: 100%;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*======================================================
+  Error State
+======================================================*/
+
+.supplies-report__error {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/*======================================================
+  Export Section
+======================================================*/
+
+.supplies-report__export {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.supplies-report__export
+.MuiButton-root {
+  white-space: nowrap;
+}
+
+/*======================================================
+  Additional Information
+======================================================*/
+
+.supplies-report__remarks {
+  width: 100%;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/*======================================================
+  Responsive - Tablet
+======================================================*/
+
+@media (max-width: 960px) {
+  .supplies-report__toolbar {
+    margin-bottom: 12px;
+  }
+
+  .supplies-report__table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling:
+      touch;
+  }
+
+  .supplies-report__table
+  table {
+    min-width: 900px;
+  }
+}
+
+/*======================================================
+  Responsive - Mobile
+======================================================*/
+
+@media (max-width: 600px) {
+  .supplies-report {
+    padding: 0;
+  }
+
+  .supplies-report__header {
+    margin-bottom: 12px;
+  }
+
+  .supplies-report__toolbar {
+    margin-bottom: 12px;
+  }
+
+  .supplies-report__filter {
+    padding: 12px;
+  }
+
+  .supplies-report__pagination {
+    padding-top: 8px;
+  }
+
+  .supplies-report__pagination
+  .MuiPagination-root {
+    justify-content: center;
+  }
+
+  .supplies-report__export {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .supplies-report__export
+  .MuiButton-root {
+    width: 100%;
+  }
+}
+
+/*======================================================
+  Print
+======================================================*/
+
+@media print {
+  .supplies-report__toolbar,
+  .supplies-report__search,
+  .supplies-report__filter,
+  .supplies-report__pagination,
+  .supplies-report__export {
+    display: none !important;
+  }
+
+  .supplies-report__table {
+    overflow: visible;
+  }
+
+  .supplies-report__table
+  table {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .supplies-report__table
+  th,
+  .supplies-report__table
+  td {
+    font-size: 10px;
+  }
+
+  .supplies-report__card {
+    box-shadow: none !important;
+  }
+}
+
+/*======================================================
+  Accessibility
+======================================================*/
+
+.supplies-report button:focus-visible,
+.supplies-report input:focus-visible,
+.supplies-report select:focus-visible {
+  outline: 2px solid
+    currentColor;
+  outline-offset: 2px;
+}
+
+/*======================================================
+  Part 1A Ends Here
+======================================================*/
