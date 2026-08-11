@@ -1,11 +1,3 @@
-//======================================================
-// ReturnReportHelpers.js
-//======================================================
-
-//======================================================
-// Number Helpers
-//======================================================
-
 export const toNumber = (
   value,
   fallback = 0
@@ -17,35 +9,19 @@ export const toNumber = (
   ) {
     return fallback;
   }
-
-  const number =
-    typeof value === "number"
-      ? value
-      : Number(
-          String(value)
-            .replace(/,/g, "")
-            .replace(/[₹$€£]/g, "")
-            .trim()
-        );
-
-  return Number.isFinite(number)
-    ? number
-    : fallback;
+  const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, "").replace(/[₹$€£]/g, "").trim());
+  return Number.isFinite(number) ? number : fallback;
 };
-
 //======================================================
 // Currency Formatter
 //======================================================
-
 export const formatCurrency = (
   value,
   currency = "INR"
 ) => {
   const amount = toNumber(value);
-
   try {
-    return new Intl.NumberFormat(
-      "en-IN",
+    return new Intl.NumberFormat("en-IN",
       {
         style: "currency",
         currency,
@@ -66,9 +42,7 @@ export const formatNumber = (
   maximumFractionDigits = 2
 ) => {
   const number = toNumber(value);
-
-  return new Intl.NumberFormat(
-    "en-IN",
+  return new Intl.NumberFormat( "en-IN",
     {
       maximumFractionDigits,
     }
@@ -89,19 +63,11 @@ export const formatDate = (
   ) {
     return "-";
   }
-
   const date = new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
+  if (Number.isNaN(date.getTime())) {
     return String(value);
   }
-
-  return date.toLocaleDateString(
-    "en-IN",
+  return date.toLocaleDateString("en-IN",
     {
       day: "2-digit",
       month: "2-digit",
@@ -113,17 +79,10 @@ export const formatDate = (
 //======================================================
 // Status Color
 //======================================================
-
 export const getStatusColor = (
   status
 ) => {
-  const normalized =
-    String(
-      status || ""
-    )
-      .trim()
-      .toLowerCase();
-
+  const normalized = String(status || "") .trim() .toLowerCase();
   switch (normalized) {
     case "approved":
     case "completed":
@@ -132,23 +91,19 @@ export const getStatusColor = (
     case "refund completed":
     case "received":
       return "success";
-
     case "pending":
     case "processing":
     case "requested":
     case "under review":
       return "warning";
-
     case "rejected":
     case "cancelled":
     case "canceled":
     case "failed":
       return "error";
-
     case "partial":
     case "partially refunded":
       return "info";
-
     default:
       return "default";
   }
@@ -161,125 +116,29 @@ export const getStatusColor = (
 export const normalizeReturnReport = (
  report = {}
 ) => {
-  if (
-    !report ||
-    typeof report !== "object"
-  ) {
+  if ( !report || typeof report !== "object") {
     return {};
   }
-
   return {
     ...report,
-
-    id:
-      report.id ??
-      report.reportId ??
-      report.returnId ??
-      null,
-
-    returnNumber:
-      report.returnNumber ??
-      report.returnOrderNumber ??
-      report.returnNo ??
-      report.return_id ??
-      "",
-
-    returnOrderNumber:
-      report.returnOrderNumber ??
-      report.returnNumber ??
-      report.returnNo ??
-      "",
-
-    orderNumber:
-      report.orderNumber ??
-      report.orderNo ??
-      report.orderId ??
-      "",
-
-    orderId:
-      report.orderId ??
-      report.orderNumber ??
-      "",
-
-    date:
-      report.date ??
-      report.returnDate ??
-      report.returnedDate ??
-      report.createdAt ??
-      "",
-
-    customerName:
-      report.customerName ??
-      report.customer ??
-      report.buyerName ??
-      report.buyer ??
-      "",
-
-    customer:
-      report.customer ??
-      report.customerName ??
-      "",
-
-    productName:
-      report.productName ??
-      report.product ??
-      report.itemName ??
-      report.item ??
-      "",
-
-    product:
-      report.product ??
-      report.productName ??
-      "",
-
-    quantity:
-      toNumber(
-        report.quantity ??
-          report.returnedQuantity ??
-          report.returnQty
-      ),
-
-    returnAmount:
-      toNumber(
-        report.returnAmount ??
-          report.totalReturnAmount ??
-          report.totalAmount ??
-          report.amount
-      ),
-
-    refundAmount:
-      toNumber(
-        report.refundAmount ??
-          report.refundedAmount ??
-          report.refund
-      ),
-
-    reason:
-      report.reason ??
-      report.returnReason ??
-      report.reasonName ??
-      "",
-
-    status:
-      report.status ??
-      report.returnStatus ??
-      "Pending",
-
-    marketplace:
-      report.marketplace ??
-      report.marketplaceName ??
-      "",
-
-    category:
-      report.category ??
-      report.categoryName ??
-      "",
-
-    notes:
-      report.notes ??
-      report.note ??
-      report.remarks ??
-      "",
+    id: report.id ?? report.reportId ?? report.returnId ?? null,
+    returnNumber: report.returnNumber ?? report.returnOrderNumber ?? report.returnNo ?? report.return_id ?? "",
+    returnOrderNumber: report.returnOrderNumber ?? report.returnNumber ?? report.returnNo ?? "",
+    orderNumber: report.orderNumber ?? report.orderNo ?? report.orderId ?? "",
+    orderId: report.orderId ?? report.orderNumber ?? "",
+    date: report.date ?? report.returnDate ?? report.returnedDate ?? report.createdAt ?? "",
+    customerName: report.customerName ?? report.customer ?? report.buyerName ?? report.buyer ?? "",
+    customer: report.customer ?? report.customerName ?? "",
+    productName: report.productName ?? report.product ?? report.itemName ?? report.item ??  "",
+    product: report.product ?? report.productName ?? "",
+    quantity: toNumber(report.quantity ?? report.returnedQuantity ??report.returnQty),
+    returnAmount: toNumber( report.returnAmount ?? report.totalReturnAmount ?? report.totalAmount ??report.amount),
+    refundAmount:toNumber(report.refundAmount ??report.refundedAmount ??report.refund),
+    reason: report.reason ?? report.returnReason ??report.reasonName ?? "",
+    status: report.status ?? report.returnStatus ?? "Pending",
+    marketplace: report.marketplace ?? report.marketplaceName ?? "",
+    category: report.category ?? report.categoryName ?? "",
+    notes: report.notes ?? report.note ?? report.remarks ?? "",
   };
 };
 
@@ -291,29 +150,16 @@ export const searchReturnReports = (
   reports = [],
   search = ""
 ) => {
-  if (
-    !Array.isArray(reports)
-  ) {
+  if (!Array.isArray(reports)) {
     return [];
   }
-
-  const query = String(
-    search || ""
-  )
-    .trim()
-    .toLowerCase();
-
+  const query = String(search || "").trim().toLowerCase();
   if (!query) {
     return reports;
   }
-
   return reports.filter(
     (report) => {
-      const item =
-        normalizeReturnReport(
-          report
-        );
-
+      const item = normalizeReturnReport(report);
       const searchableValues = [
         item.returnNumber,
         item.returnOrderNumber,
@@ -329,14 +175,9 @@ export const searchReturnReports = (
         item.category,
         item.notes,
       ];
-
       return searchableValues.some(
         (value) =>
-          String(
-            value ?? ""
-          )
-            .toLowerCase()
-            .includes(query)
+          String(value ?? "").toLowerCase().includes(query)
       );
     }
   );
@@ -350,44 +191,18 @@ export const filterReturnReports = (
   reports = [],
   filters = {}
 ) => {
-  if (
-    !Array.isArray(reports)
-  ) {
+  if (!Array.isArray(reports)) {
     return [];
   }
-
-  const {
-    marketplace = "",
-    category = "",
-    status = "",
-    reason = "",
-    customer = "",
-    startDate = "",
-    endDate = "",
-    search = "",
-  } = filters || {};
-
-  let result =
-    searchReturnReports(
-      reports,
-      search
-    );
-
+  const {marketplace = "",category = "",status = "",reason = "",customer = "",startDate = "",endDate = "",search = ""} = filters || {};
+  let result = searchReturnReports(reports,search);
   result = result.filter(
     (report) => {
-      const item =
-        normalizeReturnReport(
-          report
-        );
-
+      const item = normalizeReturnReport(report);
       if (
         marketplace &&
-        String(
-          item.marketplace
-        ).toLowerCase() !==
-          String(
-            marketplace
-          ).toLowerCase()
+        String(item.marketplace).toLowerCase() !==
+        String(marketplace).toLowerCase()
       ) {
         return false;
       }
@@ -416,95 +231,31 @@ export const filterReturnReports = (
         return false;
       }
 
-      if (
-        reason &&
-        String(
-          item.reason
-        ).toLowerCase() !==
-          String(
-            reason
-          ).toLowerCase()
-      ) {
+      if (reason && String(item.reason).toLowerCase() !== String(reason).toLowerCase()) {
         return false;
       }
-
-      if (
-        customer &&
-        !String(
-          item.customerName
-        )
-          .toLowerCase()
-          .includes(
-            String(
-              customer
-            ).toLowerCase()
-          )
-      ) {
+      if (customer && !String(item.customerName).toLowerCase().includes( String(customer).toLowerCase())) {
         return false;
       }
-
-      if (
-        startDate &&
-        item.date
-      ) {
-        const reportDate =
-          new Date(
-            item.date
-          );
-
-        const fromDate =
-          new Date(
-            startDate
-          );
-
-        fromDate.setHours(
-          0,
-          0,
-          0,
-          0
-        );
-
-        if (
-          reportDate <
-          fromDate
-        ) {
+      if (startDate &&item.date) {
+        const reportDate = new Date(item.date);
+        const fromDate = new Date(startDate);
+        fromDate.setHours(0,0,0,0);
+        if (reportDate <fromDate) {
           return false;
         }
       }
-
-      if (
-        endDate &&
-        item.date
-      ) {
-        const reportDate =
-          new Date(
-            item.date
-          );
-
-        const toDate =
-          new Date(
-            endDate
-          );
-
-        toDate.setHours(
-          23,
-          59,
-          59,
-          999
-        );
-
-        if (
-          reportDate >
-          toDate
-        ) {
+      if (endDate && item.date) {
+        const reportDate =new Date(item.date);
+        const toDate = new Date(endDate);
+        toDate.setHours(23,59,59,999);
+        if (reportDate >toDate) {
           return false;
         }
       }
-
       return true;
     }
   );
-
   return result;
 };
 
@@ -517,64 +268,37 @@ export const sortReturnReports = (
   field = "date",
   direction = "desc"
 ) => {
-  if (
-    !Array.isArray(reports)
-  ) {
+  if (!Array.isArray(reports)) {
     return [];
   }
-
-  const multiplier =
-    direction === "asc"
-      ? 1
-      : -1;
-
+  const multiplier = direction === "asc" ? 1  : -1;
   return [
     ...reports,
   ].sort((a, b) => {
-    const first =
-      normalizeReturnReport(a);
-
-    const second =
-      normalizeReturnReport(b);
-
-    let valueA =
-      first[field];
-
-    let valueB =
-      second[field];
-
+    const first = normalizeReturnReport(a);
+    const second = normalizeReturnReport(b);
+    let valueA = first[field];
+    let valueB = second[field];
     if (
-      field ===
-        "quantity" ||
-      field ===
-        "returnAmount" ||
-      field ===
-        "refundAmount"
+      field === "quantity" ||
+      field === "returnAmount" ||
+      field === "refundAmount"
     ) {
-      valueA =
-        toNumber(valueA);
-
-      valueB =
-        toNumber(valueB);
+      valueA = toNumber(valueA);
+      valueB = toNumber(valueB);
     }
-
     if (field === "date") {
       valueA = new Date(
         valueA || 0
       ).getTime();
-
-      valueB = new Date(
-        valueB || 0
-      ).getTime();
+      valueB = new Date(valueB || 0).getTime();
     }
-
     if (
       valueA ===
       valueB
     ) {
       return 0;
     }
-
     if (
       valueA === null ||
       valueA === undefined ||
@@ -582,7 +306,6 @@ export const sortReturnReports = (
     ) {
       return 1 * multiplier;
     }
-
     if (
       valueB === null ||
       valueB === undefined ||
@@ -590,25 +313,13 @@ export const sortReturnReports = (
     ) {
       return -1 * multiplier;
     }
-
     if (
-      typeof valueA ===
-        "number" &&
-      typeof valueB ===
-        "number"
+      typeof valueA === "number" &&
+      typeof valueB === "number"
     ) {
-      return (
-        (valueA - valueB) *
-        multiplier
-      );
+      return ((valueA - valueB) *multiplier);
     }
-
-    return String(
-      valueA
-    )
-      .localeCompare(
-        String(valueB),
-        undefined,
+    return String(valueA).localeCompare(String(valueB),undefined,
         {
           numeric: true,
           sensitivity:
@@ -627,63 +338,21 @@ export const paginateReturnReports = (
   page = 1,
   pageSize = 10
 ) => {
-  const safeReports =
-    Array.isArray(reports)
-      ? reports
-      : [];
-
-  const safePage = Math.max(
-    1,
-    Number(page) || 1
-  );
-
-  const safePageSize =
-    Math.max(
-      1,
-      Number(pageSize) || 10
-    );
-
-  const totalRecords =
-    safeReports.length;
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(
-      totalRecords /
-        safePageSize
-    )
-  );
-
-  const currentPage = Math.min(
-    safePage,
-    totalPages
-  );
-
-  const startIndex =
-    (currentPage - 1) *
-    safePageSize;
-
-  const endIndex =
-    startIndex +
-    safePageSize;
-
+  const safeReports = Array.isArray(reports) ? reports : [];
+  const safePage = Math.max(1,Number(page) || 1);
+  const safePageSize = Math.max(1,Number(pageSize) || 10);
+  const totalRecords = safeReports.length;
+  const totalPages = Math.max(1,Math.ceil(totalRecords /safePageSize));
+  const currentPage = Math.min(safePage,totalPages);
+  const startIndex =(currentPage - 1) *safePageSize;
+  const endIndex =startIndex +safePageSize;
   return {
-    data: safeReports.slice(
-      startIndex,
-      endIndex
-    ),
-
+    data: safeReports.slice(startIndex,endIndex),
     page: currentPage,
-
-    pageSize:
-      safePageSize,
-
+    pageSize:safePageSize,
     totalRecords,
-
     totalPages,
-
     startIndex,
-
     endIndex,
   };
 };
@@ -694,131 +363,46 @@ export const paginateReturnReports = (
 
 export const calculateReturnReportStatistics =
   (reports = []) => {
-    const safeReports =
-      Array.isArray(reports)
-        ? reports
-        : [];
-
+    const safeReports = Array.isArray(reports) ? reports : [];
     let totalQuantity = 0;
     let totalReturnAmount = 0;
     let totalRefundAmount = 0;
-
     const statusCounts = {};
     const reasonCounts = {};
     const marketplaceCounts = {};
     const categoryCounts = {};
-
     safeReports.forEach(
       (report) => {
-        const item =
-          normalizeReturnReport(
-            report
-          );
-
-        totalQuantity +=
-          toNumber(
-            item.quantity
-          );
-
-        totalReturnAmount +=
-          toNumber(
-            item.returnAmount
-          );
-
-        totalRefundAmount +=
-          toNumber(
-            item.refundAmount
-          );
-
-        const status =
-          item.status ||
-          "Pending";
-
-        const reason =
-          item.reason ||
-          "Not specified";
-
-        const marketplace =
-          item.marketplace ||
-          "Not specified";
-
-        const category =
-          item.category ||
-          "Not specified";
-
-        statusCounts[
-          status
-        ] =
-          (statusCounts[
-            status
-          ] || 0) + 1;
-
-        reasonCounts[
-          reason
-        ] =
-          (reasonCounts[
-            reason
-          ] || 0) + 1;
-
-        marketplaceCounts[
-          marketplace
-        ] =
-          (marketplaceCounts[
-            marketplace
-          ] || 0) + 1;
-
-        categoryCounts[
-          category
-        ] =
-          (categoryCounts[
-            category
-          ] || 0) + 1;
+        const item = normalizeReturnReport(report);
+        totalQuantity += toNumber(item.quantity);
+        totalReturnAmount += toNumber(item.returnAmount);
+        totalRefundAmount +=toNumber(item.refundAmount);
+        const status = item.status || "Pending";
+        const reason = item.reason || "Not specified";
+        const marketplace = item.marketplace || "Not specified";
+        const category = item.category || "Not specified";
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+        reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
+        marketplaceCounts[marketplace] = (marketplaceCounts[marketplace] || 0) + 1;
+        categoryCounts[category] =(categoryCounts[category] || 0) + 1;
       }
     );
-
     return {
-      totalReturns:
-        safeReports.length,
-
-      totalReturnCount:
-        safeReports.length,
-
-      returnCount:
-        safeReports.length,
-
+      totalReturns: safeReports.length,
+      totalReturnCount:safeReports.length,
+      returnCount: safeReports.length,
       totalQuantity,
-
       returnedQuantity:
-        totalQuantity,
-
+      totalQuantity,
       totalReturnAmount,
-
-      returnAmount:
-        totalReturnAmount,
-
+      returnAmount:totalReturnAmount,
       totalRefundAmount,
-
-      refundAmount:
-        totalRefundAmount,
-
-      averageReturnAmount:
-        safeReports.length
-          ? totalReturnAmount /
-            safeReports.length
-          : 0,
-
-      averageRefundAmount:
-        safeReports.length
-          ? totalRefundAmount /
-            safeReports.length
-          : 0,
-
+      refundAmount:totalRefundAmount,
+      averageReturnAmount:safeReports.length ? totalReturnAmount /safeReports.length : 0,
+      averageRefundAmount:safeReports.length ? totalRefundAmount / safeReports.length: 0,
       statusCounts,
-
       reasonCounts,
-
       marketplaceCounts,
-
       categoryCounts,
     };
   };
@@ -832,44 +416,13 @@ export const getUniqueReturnReportValues =
     reports = [],
     field
   ) => {
-    if (
-      !Array.isArray(
-        reports
-      ) ||
-      !field
-    ) {
+    if (!Array.isArray(reports) || !field) {
       return [];
     }
-
-    const values =
-      reports
-        .map(
-          (report) =>
-            normalizeReturnReport(
-              report
-            )[field]
-        )
-        .filter(
-          (value) =>
-            value !==
-              null &&
-            value !==
-              undefined &&
-            value !== ""
-        );
-
+    const values = reports.map((report) => normalizeReturnReport(report)[field]).filter((value) =>value !==null && value !== undefined && value !== "");
     return [
-      ...new Set(
-        values.map(
-          (value) =>
-            String(value)
-        )
-      ),
-    ].sort(
-      (a, b) =>
-        a.localeCompare(
-          b,
-          undefined,
+      ...new Set(values.map((value) =>String(value))),
+    ].sort((a, b) =>a.localeCompare(b,undefined,
           {
             numeric: true,
             sensitivity:
@@ -886,11 +439,7 @@ export const getUniqueReturnReportValues =
 export const returnReportsToCSV = (
   reports = []
 ) => {
-  const safeReports =
-    Array.isArray(reports)
-      ? reports
-      : [];
-
+  const safeReports = Array.isArray(reports)? reports : [];
   const headers = [
     "Return Number",
     "Date",
@@ -906,39 +455,16 @@ export const returnReportsToCSV = (
     "Status",
   ];
 
-  const rows =
-    safeReports.map(
-      (report) => {
-        const item =
-          normalizeReturnReport(
-            report
-          );
-
-        return [
-          item.returnNumber,
-          item.date,
-          item.orderNumber,
-          item.customerName,
-          item.marketplace,
-          item.category,
-          item.productName,
-          item.quantity,
-          item.returnAmount,
-          item.refundAmount,
-          item.reason,
-          item.status,
-        ];
+  const rows = safeReports.map( (report) => {
+  const item = normalizeReturnReport( report);
+  return [item.returnNumber,item.date,item.orderNumber,item.customerName,item.marketplace,item.category,item.productName,item.quantity,item.returnAmount,item.refundAmount,item.reason,item.status,];
       }
     );
 
   const escapeCSV = (
     value
   ) => {
-    const text =
-      String(
-        value ?? ""
-      );
-
+    const text = String( value ?? "");
     if (
       /[",\n]/.test(
         text
@@ -949,21 +475,11 @@ export const returnReportsToCSV = (
         '""'
       )}"`;
     }
-
     return text;
   };
 
-  return [
-    headers
-      .map(escapeCSV)
-      .join(","),
-
-    ...rows.map(
-      (row) =>
-        row
-          .map(escapeCSV)
-          .join(",")
-    ),
+  return [headers.map(escapeCSV).join(","),
+    ...rows.map((row) => row .map(escapeCSV).join(",")),
   ].join("\n");
 };
 
@@ -976,48 +492,16 @@ export const downloadReturnReportsCSV =
     reports = [],
     fileName = "return-report"
   ) => {
-    const csv =
-      returnReportsToCSV(
-        reports
-      );
-
-    const blob =
-      new Blob(
-        [csv],
-        {
-          type:
-            "text/csv;charset=utf-8;",
-        }
-      );
-
-    const url =
-      URL.createObjectURL(
-        blob
-      );
-
-    const link =
-      document.createElement(
-        "a"
-      );
-
+    const csv = returnReportsToCSV(reports);
+    const blob = new Blob([csv],{type:"text/csv;charset=utf-8;",});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
     link.href = url;
-
-    link.download =
-      `${fileName}.csv`;
-
-    document.body.appendChild(
-      link
-    );
-
+    link.download = `${fileName}.csv`;
+    document.body.appendChild(link);
     link.click();
-
-    document.body.removeChild(
-      link
-    );
-
-    URL.revokeObjectURL(
-      url
-    );
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
 //======================================================

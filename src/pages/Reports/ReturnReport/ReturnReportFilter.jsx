@@ -1,34 +1,11 @@
-
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import React, {useCallback,useEffect,useMemo,useState} from "react";
 import PropTypes from "prop-types";
-
-import {
-  FilterAlt,
-  RestartAlt,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import {FilterAlt,RestartAlt} from "@mui/icons-material";
+import {Box,Button,FormControl,InputLabel,MenuItem,Select,Stack,TextField,Typography} from "@mui/material";
 
 //======================================================
 // ReturnReportFilter
 //======================================================
-
 const ReturnReportFilter = ({
   filters = {},
   marketplaces = [],
@@ -42,29 +19,14 @@ const ReturnReportFilter = ({
   //====================================================
   // Local Filter State
   //====================================================
-
-  const [localFilters, setLocalFilters] =
-    useState({
-      marketplace:
-        filters?.marketplace || "",
-
-      category:
-        filters?.category || "",
-
-      status:
-        filters?.status || "",
-
-      reason:
-        filters?.reason || "",
-
-      customer:
-        filters?.customer || "",
-
-      startDate:
-        filters?.startDate || "",
-
-      endDate:
-        filters?.endDate || "",
+  const [localFilters, setLocalFilters] = useState({
+      marketplace: filters?.marketplace || "",
+      category: filters?.category || "",
+      status: filters?.status || "",
+      reason: filters?.reason || "",
+      customer: filters?.customer || "",
+      startDate: filters?.startDate || "",
+      endDate: filters?.endDate || "",
     });
 
   //====================================================
@@ -73,26 +35,13 @@ const ReturnReportFilter = ({
 
   useEffect(() => {
     setLocalFilters({
-      marketplace:
-        filters?.marketplace || "",
-
-      category:
-        filters?.category || "",
-
-      status:
-        filters?.status || "",
-
-      reason:
-        filters?.reason || "",
-
-      customer:
-        filters?.customer || "",
-
-      startDate:
-        filters?.startDate || "",
-
-      endDate:
-        filters?.endDate || "",
+      marketplace: filters?.marketplace || "",
+      category: filters?.category || "",
+      status: filters?.status || "",
+      reason: filters?.reason || "",
+      customer: filters?.customer || "",
+      startDate: filters?.startDate || "",
+      endDate: filters?.endDate || "",
     });
   }, [filters]);
 
@@ -100,51 +49,19 @@ const ReturnReportFilter = ({
   // Normalize Options
   //====================================================
 
-  const marketplaceList = useMemo(
-    () =>
-      Array.isArray(
-        marketplaces
-      )
-        ? marketplaces
-        : [],
-    [marketplaces]
-  );
-
-  const categoryList = useMemo(
-    () =>
-      Array.isArray(categories)
-        ? categories
-        : [],
-    [categories]
-  );
-
-  const statusList = useMemo(
-    () =>
-      Array.isArray(statuses)
-        ? statuses
-        : [],
-    [statuses]
-  );
-
-  const reasonList = useMemo(
-    () =>
-      Array.isArray(reasons)
-        ? reasons
-        : [],
-    [reasons]
-  );
-
+  const marketplaceList = useMemo(() => Array.isArray(marketplaces) ? marketplaces : [],[marketplaces]);
+  const categoryList = useMemo(() => Array.isArray(categories) ? categories : [],[categories]);
+  const statusList = useMemo(() => Array.isArray(statuses)? statuses : [],[statuses]);
+  const reasonList = useMemo(() => Array.isArray(reasons) ? reasons: [],[reasons]);
   //====================================================
   // Change Handler
   //====================================================
-
   const handleChange = useCallback(
     (field) => (event) => {
       setLocalFilters(
         (previous) => ({
           ...previous,
-          [field]:
-            event.target.value,
+          [field]: event.target.value,
         })
       );
     },
@@ -159,10 +76,7 @@ const ReturnReportFilter = ({
     if (onApply) {
       onApply(localFilters);
     }
-  }, [
-    localFilters,
-    onApply,
-  ]);
+  }, [localFilters,onApply,]);
 
   //====================================================
   // Reset Handler
@@ -178,11 +92,7 @@ const ReturnReportFilter = ({
       startDate: "",
       endDate: "",
     };
-
-    setLocalFilters(
-      emptyFilters
-    );
-
+    setLocalFilters(emptyFilters);
     if (onReset) {
       onReset();
     }
@@ -205,7 +115,6 @@ const ReturnReportFilter = ({
         {/*==============================================
             Filter Header
         ==============================================*/}
-
         <Stack
           direction="row"
           alignItems="center"
