@@ -39,7 +39,7 @@ try {
 /* =====================================================
 1. AUTHENTICATION
 ===================================================== */
-const BASE_URL = "https://localhost:5000/api";
+const BASE_URL = "https://localhost:7203/api";
 // Login
 app.post("/api/auth/login", async (req, res) => {
     try {
@@ -64,28 +64,40 @@ app.post("/api/auth/login", async (req, res) => {
     }
 });
 
+// =========================================
 // Register
-app.post("/api/auth/register", async (req, res) => {
-    try {
-        const response = await axios.post(
-            `${BASE_URL}/auth/register`,
-            req.body,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+// =========================================
 
-        res.status(201).json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
+app.post("/api/AuthManagement/register", async (req, res) => {
+  try {
+    console.log("REGISTER REQUEST RECEIVED");
+    console.log(req.body);
 
-        res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Registration failed" }
-        );
-    }
+    const response = await axios.post(
+      `${BASE_URL}/AuthManagement/register`,
+      req.body,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    res.status(response.status).json(response.data);
+
+  } catch (err) {
+    console.error(
+      "Registration Error:",
+      err.response?.data || err.message
+    );
+
+    res.status(err.response?.status || 500).json(
+      err.response?.data || {
+        message: "Registration failed",
+      }
+    );
+  }
 });
 
 // Logout

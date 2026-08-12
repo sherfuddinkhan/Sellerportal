@@ -6,9 +6,6 @@ import MainLayout from "./layouts/MainLayout";
 // Auth
 import Login from "./pages/AuthManagement/Login";
 import Register from "./pages/AuthManagement/Register";
-import ForgotPassword from "./pages/AuthManagement/ForgotPassword";
-import ResetPassword from "./pages/AuthManagement/ResetPassword";
-import ChangePassword from "./pages/AuthManagement/ChangePassword";
 import UserProfile from "./pages/AuthManagement/UserProfile";
 import Unauthorized from "./pages/AuthManagement/Unauthorized";
 
@@ -103,9 +100,6 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 

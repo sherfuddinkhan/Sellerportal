@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import {Alert,Box,Button,Card,CardContent,Checkbox,CircularProgress,FormControlLabel,IconButton,InputAdornment,Link,Stack,TextField,Typography} from "@mui/material";
+import {Alert,Box,Button,Card,CardContent,Checkbox,CircularProgress,FormControlLabel,IconButton,MenuItem,InputAdornment,Link,Stack,TextField,Typography} from "@mui/material";
 import {LockOutlined,Visibility,VisibilityOff} from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./AuthManagement.css";
 
 const Login = () => {
@@ -28,10 +29,8 @@ const Login = () => {
 
 const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
     setError("");
-
     try {
         const response = await axios.post(
             "http://localhost:5000/api/auth/login",

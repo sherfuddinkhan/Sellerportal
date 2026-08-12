@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {Alert,Box,Button,Card,CardContent,CircularProgress,IconButton,InputAdornment,Link,Stack,TextField,Typography} from "@mui/material";
+import {Alert,Box,Button,Card,CardContent,CircularProgress,IconButton,InputAdornment,MenuItem,Link,Stack,TextField,Typography} from "@mui/material";
 import axios from "axios";
 import {PersonAdd,Visibility,VisibilityOff} from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({firstName: "",lastName: "",username: "",email: "",phoneNumber: "",password: "",confirmPassword: "",});
+  const [formData, setFormData] = useState({firstName: "",lastName: "",username: "",email: "",phoneNumber: "",password: "",confirmPassword: "", role: "Seller",});
 
   // =========================================
   // Handle Input Change
@@ -27,11 +27,6 @@ const Register = () => {
       [name]: value,
     }));
   };
-
-  // =========================================
-  // Register
-  // =========================================
-
 // =========================================
 // Register
 // =========================================
@@ -52,7 +47,7 @@ const handleSubmit = async (e) => {
 
     try {
         const response = await axios.post(
-            "http://localhost:5001/api/AuthManagement/register",
+            "http://localhost:7203/api/AuthManagement/register",
             {
                 sellerId: 0,
                 fullName: formData.fullName,
