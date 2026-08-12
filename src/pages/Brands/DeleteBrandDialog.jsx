@@ -4,8 +4,7 @@ import {Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions,Button,
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import apiService from "../../services/apiService";
 
-const DeleteBrandDialog = ({open,brand,onClose,onDeleted
-}) => {
+const DeleteBrandDialog = ({open,brand,onClose,onDeleted}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const handleDelete = async () => {

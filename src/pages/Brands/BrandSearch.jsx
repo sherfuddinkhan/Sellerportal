@@ -1,22 +1,11 @@
 import React from "react";
 import {Box, TextField,InputAdornment,IconButton} from "@mui/material";
-
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
-
-const BrandSearch = ({
-    value,
-    onChange
-}) => {
-
-    const handleClear = () => {
-        onChange("");
-    };
-
+const BrandSearch = ({value,onChange}) => {
+    const handleClear = () => {onChange("");};
     return (
-
         <Box mb={3}>
-
             <TextField
                 fullWidth
                 variant="outlined"
@@ -42,11 +31,8 @@ const BrandSearch = ({
                     )
                 }}
             />
-
         </Box>
-
     );
-
 };
 
 export default BrandSearch;

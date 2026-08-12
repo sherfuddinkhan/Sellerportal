@@ -1,0 +1,44 @@
+/*======================================================
+  CartItems.css
+======================================================*/
+
+.cart-items-page {
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.cart-items-toolbar {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.cart-items-loading {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-items-page
+  .MuiTableContainer-root {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.cart-items-page
+  .MuiTableCell-head {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cart-items-page
+  .MuiTableCell-body {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .cart-items-page {
+    padding: 16px;
+  }
+}

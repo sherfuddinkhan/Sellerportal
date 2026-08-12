@@ -1,10 +1,7 @@
 import React from "react";
 import { Box, FormControl,InputLabel,Select,MenuItem,Grid} from "@mui/material";
 
-const BrandFilters = ({
-    value,
-    onChange
-}) => {
+const BrandFilters = ({value,onChange}) => {
     return (
         <Box mb={3}>
             <Grid container spacing={2}>

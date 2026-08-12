@@ -5,12 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 const BrandModal = ({open,title,children,maxWidth = "md",onClose,onSave,saveText = "Save",cancelText = "Cancel",showSave = true
 }) => {
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            fullWidth
-            maxWidth={maxWidth}
-        >
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth={maxWidth} >
             <DialogTitle
                 sx={{
                     display: "flex",
@@ -32,7 +27,6 @@ const BrandModal = ({open,title,children,maxWidth = "md",onClose,onSave,saveText
                 </IconButton>
 
             </DialogTitle>
-
             <DialogContent
                 dividers
             >

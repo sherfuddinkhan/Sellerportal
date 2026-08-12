@@ -4,21 +4,11 @@ import {Add,Refresh,PictureAsPdf,FileDownload,Print} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 const BrandToolbar = ({ onRefresh }) => {
     const navigate = useNavigate();
-    const handleAddBrand = () => {
-        navigate("/brands/create");
-    };
-    const handleExportExcel = () => {
-        console.log("Export Excel");
-    };
-    const handleExportPDF = () => {
-        console.log("Export PDF");
-    };
-    const handlePrint = () => {
-        window.print();
-    };
-
+    const handleAddBrand = () => {navigate("/brands/create");};
+    const handleExportExcel = () => {console.log("Export Excel");};
+    const handleExportPDF = () => {console.log("Export PDF");};
+    const handlePrint = () => {window.print();};
     return (
-
         <Box
             sx={{
                 display: "flex",
@@ -29,30 +19,24 @@ const BrandToolbar = ({ onRefresh }) => {
                 gap: 2
             }}
         >
-
             <Box>
-
                 <Typography
                     variant="h4"
                     fontWeight="bold"
                 >
                     Brands
                 </Typography>
-
                 <Typography
                     color="text.secondary"
                 >
                     Manage Product Brands
                 </Typography>
-
             </Box>
-
             <Stack
                 direction="row"
                 spacing={2}
                 flexWrap="wrap"
             >
-
                 <Button
                     variant="contained"
                     startIcon={<Add />}
@@ -60,7 +44,6 @@ const BrandToolbar = ({ onRefresh }) => {
                 >
                     Add Brand
                 </Button>
-
                 <Button
                     variant="outlined"
                     startIcon={<Refresh />}
@@ -68,7 +51,6 @@ const BrandToolbar = ({ onRefresh }) => {
                 >
                     Refresh
                 </Button>
-
                 <Button
                     variant="outlined"
                     color="success"
@@ -77,7 +59,6 @@ const BrandToolbar = ({ onRefresh }) => {
                 >
                     Excel
                 </Button>
-
                 <Button
                     variant="outlined"
                     color="error"
@@ -86,7 +67,6 @@ const BrandToolbar = ({ onRefresh }) => {
                 >
                     PDF
                 </Button>
-
                 <Button
                     variant="outlined"
                     color="secondary"
@@ -95,13 +75,9 @@ const BrandToolbar = ({ onRefresh }) => {
                 >
                     Print
                 </Button>
-
             </Stack>
-
         </Box>
-
     );
-
 };
 
 export default BrandToolbar;

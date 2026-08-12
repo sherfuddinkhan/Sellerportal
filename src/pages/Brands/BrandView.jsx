@@ -40,16 +40,8 @@ const BrandView = ({ brand }) => {
                         Status
                     </Typography>
                     <Chip
-                        label={
-                            brand.isActive
-                                ? "Active"
-                                : "Inactive"
-                        }
-                        color={
-                            brand.isActive
-                                ? "success"
-                                : "error"
-                        }
+                        label={ brand.isActive ? "Active" : "Inactive" }
+                        color={ brand.isActive ? "success" : "error"}
                     />
                 </Grid>
                 <Grid item xs={12}>
@@ -71,13 +63,7 @@ const BrandView = ({ brand }) => {
                         Created Date
                     </Typography>
                     <Typography>
-                        {
-                            brand.createdDate
-                                ? new Date(
-                                      brand.createdDate
-                                  ).toLocaleString()
-                                : "-"
-                        }
+                        { brand.createdDate ? new Date( brand.createdDate).toLocaleString() : "-"}
                     </Typography>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -88,13 +74,7 @@ const BrandView = ({ brand }) => {
                         Updated Date
                     </Typography>
                     <Typography>
-                        {
-                            brand.updatedDate
-                                ? new Date(
-                                      brand.updatedDate
-                                  ).toLocaleString()
-                                : "-"
-                        }
+                        { brand.updatedDate ? new Date( brand.updatedDate ).toLocaleString() : "-" }
                     </Typography>
                 </Grid>
             </Grid>
