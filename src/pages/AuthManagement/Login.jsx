@@ -2,16 +2,11 @@ import React, { useState } from "react";
 import {Alert,Box,Button,Card,CardContent,Checkbox,CircularProgress,FormControlLabel,IconButton,InputAdornment,Link,Stack,TextField,Typography} from "@mui/material";
 import {LockOutlined,Visibility,VisibilityOff} from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import apiService from "../../ApiService/apiService";
 import "./AuthManagement.css";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    rememberMe: false,
-  });
+  const [formData, setFormData] = useState({email: "",password: "",rememberMe: false});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,52 +22,80 @@ const Login = () => {
     }));
   };
 
-  // =========================================
-  // Login
-  // =========================================
+// =========================================
+// Login
+// =========================================
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
+
     setLoading(true);
     setError("");
+
     try {
-      const response = await apiService.login({
-        email: formData.email,
-        password: formData.password,
-        rememberMe: formData.rememberMe,
-      });
-
-      // Save authentication data
-      const data = response.data;
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-
-      if (data.refreshToken) {
-        localStorage.setItem(
-          "refreshToken",
-          data.refreshToken
+        const response = await axios.post(
+            "http://localhost:5000/api/auth/login",
+            {
+                email: formData.email,
+                password: formData.password,
+                rememberMe: formData.rememberMe,
+            },
+            {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+            }
         );
-      }
 
-      if (data.user) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify(data.user)
-        );
-      }
+        // =========================================
+        // Save authentication data
+        // =========================================
 
-      navigate("/dashboard");
+        const data = response.data;
+
+        if (data.token) {
+            localStorage.setItem(
+                "token",
+                data.token
+            );
+        }
+
+        if (data.refreshToken) {
+            localStorage.setItem(
+                "refreshToken",
+                data.refreshToken
+            );
+        }
+
+        if (data.user) {
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
+        }
+
+        // =========================================
+        // Login successful
+        // =========================================
+
+        navigate("/dashboard");
+
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          "Invalid email or password."
-      );
+        console.error(
+            "Login Error:",
+            err.response?.data || err.message
+        );
+
+        setError(
+            err?.response?.data?.message ||
+            "Invalid email or password."
+        );
+
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <Box className="auth-container">

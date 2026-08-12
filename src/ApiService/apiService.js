@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const BASE_URL = "https://localhost:5001/api";
+const BASE_URL = "https://localhost:5000/api";
 
 
 const apiService = {
@@ -258,16 +258,12 @@ searchProductPrices: (searchText) =>
 // Inventory Search
 // ==========================================================
 
-searchInventories: (searchText) =>
+  searchInventories: (searchText) =>
     axios.get(`${BASE_URL}/inventory/search`, {
         params:{
             searchText
         }
     }),
-
-
-
-
     // ==========================================================
     // Customer Payments
     // ==========================================================
@@ -682,23 +678,20 @@ searchDeliveryChallans: (searchText) =>
         }
     }
 ),
-const getMarketplaceOrderItems = () =>
-    axiosInstance.get("/MarketplaceOrderItems");
+ getMarketplaceOrderItems : () =>
+    axiosInstance.get("/MarketplaceOrderItems"),
 
-const getMarketplaceOrderItem = (id) =>
-    axiosInstance.get(`/MarketplaceOrderItems/${id}`);
+ getMarketplaceOrderItem : (id) =>
+    axiosInstance.get(`/MarketplaceOrderItems/${id}`),
 
-const createMarketplaceOrderItem = (data) =>
-    axiosInstance.post("/MarketplaceOrderItems", data);
+ createMarketplaceOrderItem : (data) =>
+    axiosInstance.post("/MarketplaceOrderItems", data),
 
-const updateMarketplaceOrderItem = (id, data) =>
-    axiosInstance.put(`/MarketplaceOrderItems/${id}`, data);
+ updateMarketplaceOrderItem : (id, data) =>
+    axiosInstance.put(`/MarketplaceOrderItems/${id}`, data),
 
-const deleteMarketplaceOrderItem = (id) =>
-    axiosInstance.delete(`/MarketplaceOrderItems/${id}`);
+ deleteMarketplaceOrderItem : (id) =>
+    axiosInstance.delete(`/MarketplaceOrderItems/${id}`),
 };
-
-
-
 
 export default apiService;

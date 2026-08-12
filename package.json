@@ -26,6 +26,7 @@
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.26.0",
+    "msnodesqlv8": "^5.2.3",
     "mssql": "^12.7.0",
     "react": "^19.2.7",
     "react-chartjs-2": "^5.3.1",

@@ -1,67 +1,45 @@
-// ===============================
-// server.js
-// ===============================
+import sql from "mssql/msnodesqlv8.js";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import sql from "mssql";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-const PORT = process.env.PORT || 5000;
-app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true
-}));
-
-
-
-// ===============================
-// SQL CONNECTION
-// ===============================
-
+app.use(express.urlencoded({ extended: true }));
 const dbConfig = {
-
-    server: "DESKTOP-BUGKGO7",
-
-    database: "MarketplaceSellerPortal",
-
-    user: "nodeuser",
-
-    password: "Node@123",
-
-    options: {
-
-        encrypt: false,
-
-        trustServerCertificate: true
-
-    }
-
+  connectionString:
+    "Driver={ODBC Driver 18 for SQL Server};" +
+    "Server=tcp:DESKTOP-BUGKGO7,1433;" +
+    "Database=SellerPortalDB;" +
+    "Trusted_Connection=Yes;" +
+    "TrustServerCertificate=Yes;",
 };
 
-const poolPromise = new sql.ConnectionPool(dbConfig)
-.connect()
-.then(pool => {
-
-    console.log("Connected");
-
-    return pool;
-
-})
-.catch(err => {
-
-    console.log(err);
-
+console.log("SQL CONFIG:", {
+  server: "DESKTOP-BUGKGO7",
+  port: 1433,
+  database: "SellerPortalDB",
+  driver: "ODBC Driver 18 for SQL Server",
+  authentication: "Windows Authentication",
 });
+
+try {
+  await sql.connect(dbConfig);
+
+  console.log("======================================");
+  console.log("✅ SQL SERVER CONNECTED");
+  console.log("======================================");
+} catch (error) {
+  console.error("======================================");
+  console.error("❌ SQL SERVER CONNECTION ERROR");
+  console.error("======================================");
+  console.error(error);
+}
 /* =====================================================
 1. AUTHENTICATION
 ===================================================== */
-
+const BASE_URL = "https://localhost:5000/api";
 // Login
 app.post("/api/auth/login", async (req, res) => {
     try {
@@ -4303,7 +4281,7 @@ app.get("/api/stockledger/current-stock", async (req, res) => {
 app.get("/api/deliverychallan", async (req, res) => {
     try {
         const response = await axios.get(
-            "https://localhost:5001/api/deliverychallan"
+            "https://localhost:5000/api/deliverychallan"
         );
 
         res.json(response.data);
@@ -4322,7 +4300,7 @@ app.get("/api/deliverychallan", async (req, res) => {
 app.get("/api/deliverychallan/:id", async (req, res) => {
     try {
         const response = await axios.get(
-            `https://localhost:5001/api/deliverychallan/${req.params.id}`
+            `https://localhost:5000/api/deliverychallan/${req.params.id}`
         );
 
         res.json(response.data);
@@ -4341,7 +4319,7 @@ app.get("/api/deliverychallan/:id", async (req, res) => {
 app.post("/api/deliverychallan", async (req, res) => {
     try {
         const response = await axios.post(
-            "https://localhost:5001/api/deliverychallan",
+            "https://localhost:5000/api/deliverychallan",
             req.body,
             {
                 headers: {
@@ -4366,7 +4344,7 @@ app.post("/api/deliverychallan", async (req, res) => {
 app.put("/api/deliverychallan/:id", async (req, res) => {
     try {
         const response = await axios.put(
-            `https://localhost:5001/api/deliverychallan/${req.params.id}`,
+            `https://localhost:5000/api/deliverychallan/${req.params.id}`,
             req.body,
             {
                 headers: {
@@ -4391,7 +4369,7 @@ app.put("/api/deliverychallan/:id", async (req, res) => {
 app.delete("/api/deliverychallan/:id", async (req, res) => {
     try {
         const response = await axios.delete(
-            `https://localhost:5001/api/deliverychallan/${req.params.id}`
+            `https://localhost:5000/api/deliverychallan/${req.params.id}`
         );
 
         res.status(response.status).json(response.data);
@@ -4410,7 +4388,7 @@ app.delete("/api/deliverychallan/:id", async (req, res) => {
 app.get("/api/deliverychallan/statistics", async (req, res) => {
     try {
         const response = await axios.get(
-            "https://localhost:5001/api/deliverychallan/statistics"
+            "https://localhost:5000/api/deliverychallan/statistics"
         );
 
         res.json(response.data);
@@ -4429,7 +4407,7 @@ app.get("/api/deliverychallan/statistics", async (req, res) => {
 app.get("/api/deliverychallan/search", async (req, res) => {
     try {
         const response = await axios.get(
-            "https://localhost:5001/api/deliverychallan/search",
+            "https://localhost:5000/api/deliverychallan/search",
             {
                 params: req.query
             }
