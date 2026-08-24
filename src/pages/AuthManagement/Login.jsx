@@ -248,12 +248,12 @@ const Login = () => {
             );
 
 
-            navigate(
-                "/dashboard",
-                {
-                    replace: true
-                }
-            );
+          // 1. Your authentication logic here (e.g., API call)
+    // 2. Set token/auth state in localStorage or context
+    localStorage.setItem("isAuthenticated", "true");
+
+    // 3. Redirect to Dashboard (which renders inside MainLayout)
+    navigate("/dashboard", { replace: true });
 
 
         } catch (err) {
