@@ -2,10 +2,12 @@ import sql from "mssql/msnodesqlv8.js";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import https from "https";
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+import axios from "axios";
 app.use(express.urlencoded({ extended: true }));
 const dbConfig = {
   connectionString:
@@ -41,41 +43,120 @@ try {
 ===================================================== */
 const BASE_URL = "https://localhost:7203/api";
 
+const httpsAgent = new https.Agent({
+    rejectUnauthorized: false
+});
 // =========================================================
 // LOGIN
 // POST /api/auth/login
 // =========================================================
 
+// =========================================================
+// LOGIN
+// POST http://localhost:5000/api/auth/login
+// FORWARD TO
+// POST https://localhost:7203/api/AuthManagement/login
+// =========================================================
+
 app.post("/api/auth/login", async (req, res) => {
+
     try {
+
+        console.log("======================================");
         console.log("LOGIN REQUEST RECEIVED");
-        console.log("Username:", req.body?.userName);
+        console.log("REQUEST BODY:", req.body);
+        console.log("USERNAME:", req.body?.userName);
+        console.log("======================================");
+
+
+        // =====================================================
+        // VALIDATE REQUEST
+        // =====================================================
+
+        if (!req.body?.userName) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Username is required."
+            });
+
+        }
+
+
+        if (!req.body?.password) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Password is required."
+            });
+
+        }
+
+
+        // =====================================================
+        // CALL ASP.NET API
+        // =====================================================
 
         const response = await axios.post(
             `${BASE_URL}/AuthManagement/login`,
-            req.body,
+
+            {
+                userName: req.body.userName,
+                password: req.body.password
+            },
+
             {
                 headers: {
                     Accept: "application/json",
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json"
                 },
+
+                // Local ASP.NET HTTPS certificate
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
             }
         );
 
-        res.status(response.status).json(response.data);
+
+        // =====================================================
+        // LOG ASP.NET RESPONSE
+        // =====================================================
+
+        console.log("======================================");
+        console.log("LOGIN SUCCESS");
+        console.log("STATUS:", response.status);
+        console.log("RESPONSE:", response.data);
+        console.log("======================================");
+
+
+        // =====================================================
+        // SEND RESPONSE TO REACT
+        // =====================================================
+
+        return res
+            .status(response.status)
+            .json(response.data);
+
 
     } catch (err) {
-        console.error(
-            "LOGIN ERROR:",
-            err.response?.data || err.message
-        );
 
-        res.status(err.response?.status || 500).json(
-            err.response?.data || {
-                success: false,
-                message: "Login failed"
-            }
-        );
+        console.error("======================================");
+        console.error("LOGIN ERROR");
+        console.error("MESSAGE:", err.message);
+        console.error("STATUS:", err.response?.status);
+        console.error("DATA:", err.response?.data);
+        console.error("======================================");
+
+
+        return res
+            .status(err.response?.status || 500)
+            .json(
+                err.response?.data || {
+                    success: false,
+                    message: err.message || "Login failed"
+                }
+            );
     }
 });
 
@@ -162,8 +243,10 @@ app.post("/api/auth/logout", async (req, res) => {
 
 app.post("/api/auth/forgot-password", async (req, res) => {
     try {
+        console.log("======================================");
         console.log("FORGOT PASSWORD REQUEST");
-        console.log(req.body);
+        console.log("BODY:", req.body);
+        console.log("======================================");
 
         const response = await axios.post(
             `${BASE_URL}/AuthManagement/forgot-password`,
@@ -171,28 +254,39 @@ app.post("/api/auth/forgot-password", async (req, res) => {
             {
                 headers: {
                     Accept: "application/json",
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json"
                 },
+                // Important for local HTTPS development
+                httpsAgent: new (await import("https")).Agent({
+                    rejectUnauthorized: false
+                })
             }
         );
+
+        console.log("======================================");
+        console.log("DOTNET STATUS:", response.status);
+        console.log("DOTNET RESPONSE:", response.data);
+        console.log("======================================");
 
         res.status(response.status).json(response.data);
 
     } catch (err) {
-        console.error(
-            "FORGOT PASSWORD ERROR:",
-            err.response?.data || err.message
-        );
+
+        console.error("======================================");
+        console.error("FORGOT PASSWORD ERROR");
+        console.error("MESSAGE:", err.message);
+        console.error("STATUS:", err.response?.status);
+        console.error("DATA:", err.response?.data);
+        console.error("======================================");
 
         res.status(err.response?.status || 500).json(
             err.response?.data || {
                 success: false,
-                message: "Forgot password failed"
+                message: err.message || "Forgot password failed"
             }
         );
     }
 });
-
 
 // =========================================================
 // RESET PASSWORD
@@ -201,7 +295,10 @@ app.post("/api/auth/forgot-password", async (req, res) => {
 
 app.post("/api/auth/reset-password", async (req, res) => {
     try {
+        console.log("================================");
         console.log("RESET PASSWORD REQUEST");
+        console.log("BODY:", req.body);
+        console.log("================================");
 
         const response = await axios.post(
             `${BASE_URL}/AuthManagement/reset-password`,
@@ -209,23 +306,36 @@ app.post("/api/auth/reset-password", async (req, res) => {
             {
                 headers: {
                     Accept: "application/json",
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json"
                 },
+
+                // Local HTTPS development certificate
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
             }
         );
+
+        console.log("DOTNET STATUS:", response.status);
+        console.log("DOTNET RESPONSE:", response.data);
 
         res.status(response.status).json(response.data);
 
     } catch (err) {
-        console.error(
-            "RESET PASSWORD ERROR:",
-            err.response?.data || err.message
-        );
 
-        res.status(err.response?.status || 500).json(
+        console.error("================================");
+        console.error("RESET PASSWORD ERROR");
+        console.error("MESSAGE:", err.message);
+        console.error("STATUS:", err.response?.status);
+        console.error("DATA:", err.response?.data);
+        console.error("================================");
+
+        res.status(
+            err.response?.status || 500
+        ).json(
             err.response?.data || {
                 success: false,
-                message: "Reset password failed"
+                message: err.message || "Reset password failed"
             }
         );
     }

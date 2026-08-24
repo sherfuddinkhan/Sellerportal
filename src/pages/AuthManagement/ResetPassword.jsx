@@ -1,244 +1,270 @@
 import React, { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
-    KeyRound,
-    Lock,
-    Eye,
-    EyeOff,
-    ArrowLeft,
-    CheckCircle,
-    AlertCircle
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle,
+  Mail,
+  Loader2
 } from "lucide-react";
+
 import "./AuthManagement.css";
 
-const API_URL = "https://localhost:7203/api";
+const API_URL = "http://localhost:5000/api";
 
 const ResetPassword = () => {
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const [token, setToken] = useState(
-        searchParams.get("token") || ""
-    );
+  // Data passed via state from ForgotPassword step
+  const forgotPasswordData = location.state || {};
 
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+  const [token, setToken] = useState(forgotPasswordData.token || "");
+  const [email] = useState(forgotPasswordData.email || "");
 
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const [loading, setLoading] = useState(false);
+  const [responseData, setResponseData] = useState(null);
+  const [error, setError] = useState("");
 
-        setMessage("");
-        setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setResponseData(null);
 
-        if (!token.trim()) {
-            setError("Reset token is required.");
-            return;
-        }
+    // Validation
+    if (!token.trim()) {
+      setError("Reset token is required.");
+      return;
+    }
 
-        if (!newPassword) {
-            setError("Please enter a new password.");
-            return;
-        }
+    if (!newPassword) {
+      setError("Please enter a new password.");
+      return;
+    }
 
-        if (newPassword.length < 6) {
-            setError("Password must contain at least 6 characters.");
-            return;
-        }
+    if (newPassword.length < 6) {
+      setError("Password must contain at least 6 characters.");
+      return;
+    }
 
-        if (newPassword !== confirmPassword) {
-            setError("Passwords do not match.");
-            return;
-        }
+    if (!confirmPassword) {
+      setError("Please confirm your password.");
+      return;
+    }
 
-        try {
-            setLoading(true);
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
-            const response = await fetch(
-                `${API_URL}/AuthManagement/reset-password`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "*/*"
-                    },
-                    body: JSON.stringify({
-                        token: token.trim(),
-                        newPassword: newPassword
-                    })
-                }
-            );
+    try {
+      setLoading(true);
 
-            const data = await response.json();
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify({
+          token: token.trim(),
+          newPassword
+        })
+      });
 
-            if (!response.ok) {
-                throw new Error(
-                    data?.message || "Password reset failed."
-                );
-            }
+      const data = await response.json();
 
-            setMessage(
-                data?.message ||
-                "Password reset successfully."
-            );
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            data?.error ||
+            `Password reset failed with status ${response.status}`
+        );
+      }
 
-            setNewPassword("");
-            setConfirmPassword("");
+      setResponseData(data);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      console.error("RESET PASSWORD ERROR:", err);
+      setError(err.message || "Unable to reset password.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            setTimeout(() => {
-                navigate("/login");
-            }, 2000);
-
-        } catch (err) {
-            setError(err.message || "Unable to reset password.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="auth-page">
-            <div className="auth-card">
-
-                <div className="auth-icon">
-                    <KeyRound size={30} />
-                </div>
-
-                <h2>Reset Password</h2>
-
-                <p className="auth-subtitle">
-                    Enter your reset token and create a new password.
-                </p>
-
-                {message && (
-                    <div className="auth-success">
-                        <CheckCircle size={18} />
-                        <span>{message}</span>
-                    </div>
-                )}
-
-                {error && (
-                    <div className="auth-error">
-                        <AlertCircle size={18} />
-                        <span>{error}</span>
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit}>
-
-                    <div className="form-group">
-                        <label>Reset Token</label>
-
-                        <div className="input-wrapper">
-                            <KeyRound size={18} />
-
-                            <input
-                                type="text"
-                                placeholder="Enter reset token"
-                                value={token}
-                                onChange={(e) =>
-                                    setToken(e.target.value)
-                                }
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label>New Password</label>
-
-                        <div className="input-wrapper">
-                            <Lock size={18} />
-
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Enter new password"
-                                value={newPassword}
-                                onChange={(e) =>
-                                    setNewPassword(e.target.value)
-                                }
-                                autoComplete="new-password"
-                            />
-
-                            <button
-                                type="button"
-                                className="password-toggle"
-                                onClick={() =>
-                                    setShowPassword(!showPassword)
-                                }
-                            >
-                                {showPassword
-                                    ? <EyeOff size={18} />
-                                    : <Eye size={18} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label>Confirm Password</label>
-
-                        <div className="input-wrapper">
-                            <Lock size={18} />
-
-                            <input
-                                type={
-                                    showConfirmPassword
-                                        ? "text"
-                                        : "password"
-                                }
-                                placeholder="Confirm new password"
-                                value={confirmPassword}
-                                onChange={(e) =>
-                                    setConfirmPassword(e.target.value)
-                                }
-                                autoComplete="new-password"
-                            />
-
-                            <button
-                                type="button"
-                                className="password-toggle"
-                                onClick={() =>
-                                    setShowConfirmPassword(
-                                        !showConfirmPassword
-                                    )
-                                }
-                            >
-                                {showConfirmPassword
-                                    ? <EyeOff size={18} />
-                                    : <Eye size={18} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="auth-button"
-                        disabled={loading}
-                    >
-                        <KeyRound size={18} />
-
-                        {loading
-                            ? "Resetting..."
-                            : "Reset Password"}
-                    </button>
-
-                </form>
-
-                <div className="auth-footer">
-                    <Link to="/login">
-                        <ArrowLeft size={16} />
-                        Back to Login
-                    </Link>
-                </div>
-
-            </div>
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        {/* Header */}
+        <div className="auth-header">
+          <div className="auth-icon-badge">
+            <KeyRound size={24} />
+          </div>
+          <h2>Reset Password</h2>
+          <p className="auth-subtitle">
+            Provide your reset token and choose a new password.
+          </p>
         </div>
-    );
+
+        {/* Email Context Banner */}
+        {email && (
+          <div className="reset-email-display">
+            <Mail size={16} />
+            <span>
+              Resetting for: <strong>{email}</strong>
+            </span>
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {error && (
+          <div className="auth-alert error">
+            <AlertCircle size={18} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Success Alert */}
+        {responseData && (
+          <div className="auth-alert success">
+            <CheckCircle size={20} className="success-icon" />
+            <div>
+              <strong>Password Reset Successful</strong>
+              <p>
+                {responseData.message ||
+                  "Your password has been successfully updated."}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Form Controls */}
+        {!responseData ? (
+          <form onSubmit={handleSubmit} className="auth-form">
+            {/* Token Input */}
+            <div className="form-group">
+              <label htmlFor="token">Reset Token</label>
+              <div className="input-wrapper">
+                <KeyRound size={18} className="input-icon" />
+                <input
+                  id="token"
+                  type="text"
+                  placeholder="Paste reset token"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* New Password Input */}
+            <div className="form-group">
+              <label htmlFor="newPassword">New Password</label>
+              <div className="input-wrapper">
+                <Lock size={18} className="input-icon" />
+                <input
+                  id="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter new password (min. 6 characters)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  autoComplete="new-password"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password Input */}
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <div className="input-wrapper">
+                <Lock size={18} className="input-icon" />
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Re-enter new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <button type="submit" className="auth-button" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="spinner" />
+                  <span>Resetting...</span>
+                </>
+              ) : (
+                <>
+                  <KeyRound size={18} />
+                  <span>Reset Password</span>
+                </>
+              )}
+            </button>
+          </form>
+        ) : (
+          /* Post-Success Actions */
+          <div className="reset-success-actions">
+            <button
+              type="button"
+              className="auth-button"
+              onClick={() => navigate("/login")}
+            >
+              <ArrowLeft size={18} />
+              <span>Proceed to Login</span>
+            </button>
+          </div>
+        )}
+
+        {/* Footer Link */}
+        {!responseData && (
+          <div className="auth-footer">
+            <Link to="/login" className="back-link">
+              <ArrowLeft size={16} />
+              <span>Back to Login</span>
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default ResetPassword;
