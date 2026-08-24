@@ -1,743 +1,193 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-import {
-    Box
-} from "@mui/material";
-
-import {
-    useNavigate
-} from "react-router-dom";
-
-
-import apiService from "../../services/apiService";
-
-
+import React, {useEffect,useState} from "react";
+import {Box} from "@mui/material";
+import {useNavigate} from "react-router-dom";
 import ProductPriceToolbar from "./ProductPriceToolbar";
-
 import ProductPriceStatistics from "./ProductPriceStatistics";
-
 import ProductPriceSearch from "./ProductPriceSearch";
-
 import ProductPriceTable from "./ProductPriceTable";
-
 import ProductPricePagination from "./ProductPricePagination";
-
 import ProductPriceModal from "./ProductPriceModal";
-
 import DeleteProductPriceDialog from "./DeleteProductPriceDialog";
 
-
 const ProductPriceList = () => {
-
-
     const navigate = useNavigate();
-
-
     // ===========================
     // State
     // ===========================
-
-
-    const [
-        productPrices,
-        setProductPrices
-    ] = useState([]);
-
-
-    const [
-        filteredProductPrices,
-        setFilteredProductPrices
-    ] = useState([]);
-
-
-    const [
-        loading,
-        setLoading
-    ] = useState(false);
-
-
-
-    const [
-        searchText,
-        setSearchText
-    ] = useState("");
-
-
-
-    const [
-        statusFilter,
-        setStatusFilter
-    ] = useState("All");
-
-
-
-    const [
-        priceTypeFilter,
-        setPriceTypeFilter
-    ] = useState("");
-
-
-
-    const [
-        currencyFilter,
-        setCurrencyFilter
-    ] = useState("");
-
-
-
-    const [
-        selectedProductPrice,
-        setSelectedProductPrice
-    ] = useState(null);
-
-
-
-    const [
-        deleteOpen,
-        setDeleteOpen
-    ] = useState(false);
-
-
-
-    const [
-        page,
-        setPage
-    ] = useState(1);
-
-
-
-    const [
-        pageSize,
-        setPageSize
-    ] = useState(10);
-
-
-
+    const [productPrices,setProductPrices] = useState([]);
+    const [filteredProductPrices,setFilteredProductPrices] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [searchText,setSearchText] = useState("");
+    const [statusFilter,setStatusFilter] = useState("All");
+    const [priceTypeFilter,setPriceTypeFilter] = useState("");
+    const [currencyFilter,setCurrencyFilter] = useState("");
+    const [selectedProductPrice,setSelectedProductPrice] = useState(null);
+    const [deleteOpen,setDeleteOpen] = useState(false);
+    const [page,setPage] = useState(1);
+    const [pageSize,setPageSize] = useState(10);
     // ===========================
     // Load Product Prices
     // ===========================
-
-
     const loadProductPrices = async () => {
-
-
         try {
-
-
             setLoading(true);
-
-
             const response =
                 await apiService.getProductPrices();
-
-
-
             setProductPrices(
                 response.data
             );
-
-
             setFilteredProductPrices(
                 response.data
             );
-
-
         }
-
         catch (err) {
-
-
             console.log(err);
-
-
         }
-
         finally {
-
-
             setLoading(false);
-
-
         }
-
-
     };
-
-
-
     // ===========================
     // Initial Load
     // ===========================
-
-
     useEffect(() => {
-
-
         loadProductPrices();
-
-
     }, []);
-
-
-
     // ===========================
     // Search & Filter
     // ===========================
-
-
     useEffect(() => {
-
-
-        let result =
-            [
-                ...productPrices
-            ];
-
-
-
-        if (
-            searchText.trim() !== ""
-        ) {
-
-
-            const search =
-                searchText.toLowerCase();
-
-
-
-            result =
-                result.filter(item =>
-
-
-                    item.PriceType
-                        ?.toLowerCase()
-                        .includes(search)
-
-
-                    ||
-
-                    String(
-                        item.ProductId
-                    )
-                    .includes(search)
-
-
-                    ||
-
-                    String(
-                        item.SellerId
-                    )
-                    .includes(search)
-
-
-                    ||
-
-                    String(
-                        item.Price
-                    )
-                    .includes(search)
-
-
-                    ||
-
-                    item.Currency
-                        ?.toLowerCase()
-                        .includes(search)
-
-
-                );
-
-
+        let result = [...productPrices];
+        if (searchText.trim() !== "") {
+            const search = searchText.toLowerCase();
+result = result.filter(item => item.PriceType ?.toLowerCase() .includes(search) || String(item.ProductId).includes(search)||String(item.SellerId).includes(search)
+                    || String(item.Price).includes(search) ||item.Currency ?.toLowerCase() .includes(search));
         }
-
-
-
-        if (
-            statusFilter !== "All"
-        ) {
-
-
-            result =
-                result.filter(item =>
-
-
-                    statusFilter === "Active"
-
-                        ?
-
-                        item.IsActive
-
-                        :
-
-                        !item.IsActive
-
-
-                );
-
-
+        if (statusFilter !== "All") {
+            result = result.filter(item =>statusFilter === "Active"? item.IsActive : !item.IsActive);
         }
-
-
-
-        if (
-            priceTypeFilter !== ""
-        ) {
-
-
-            result =
-                result.filter(item =>
-
-
-                    item.PriceType ===
-                    priceTypeFilter
-
-
-                );
-
-
+        if (priceTypeFilter !== "") {
+            result = result.filter(item =>item.PriceType === priceTypeFilter);
         }
-
-
-
-        if (
-            currencyFilter !== ""
-        ) {
-
-
-            result =
-                result.filter(item =>
-
-
-                    item.Currency ===
-                    currencyFilter
-
-
-                );
-
-
+        if (currencyFilter !== "") {
+            result =result.filter(item =>item.Currency ===currencyFilter);
         }
-
-
-
-        setFilteredProductPrices(
-            result
-        );
-
-
+        setFilteredProductPrices(result);
         setPage(1);
-
-
-
     }, [
-
         productPrices,
-
         searchText,
-
         statusFilter,
-
         priceTypeFilter,
-
         currencyFilter
-
     ]);
-
-
-
     // ===========================
     // Pagination
     // ===========================
-
-
-    const totalPages =
-        Math.ceil(
-
-            filteredProductPrices.length /
-            pageSize
-
-        );
-
-
-
-    const pagedProductPrices =
-        filteredProductPrices.slice(
-
-            (page - 1) * pageSize,
-
-            page * pageSize
-
-        );
-
-
-
+    const totalPages = Math.ceil(filteredProductPrices.length /pageSize);
+    const pagedProductPrices = filteredProductPrices.slice((page - 1) * pageSize,page * pageSize);
     // ===========================
     // Save Product Price
     // ===========================
-
-
     const handleSave = async (data) => {
-
-
         try {
-
-
-            if (
-                data.ProductPriceId
-            ) {
-
-
+            if (data.ProductPriceId) {
                 await apiService.updateProductPrice(
-
                     data.ProductPriceId,
-
                     data
-
                 );
-
-
             }
-
             else {
-
-
                 await apiService.createProductPrice(
-
                     data
-
                 );
-
-
             }
-
-
             loadProductPrices();
-
-
             setSelectedProductPrice(null);
-
-
-
         }
-
-        catch(err) {
-
-
-            console.log(err);
-
-
-        }
-
-
+        catch(err) {console.log(err);}
     };
-
-
-
     // ===========================
     // Delete Product Price
     // ===========================
-
-
     const handleDelete = async(id) => {
-
-
         try {
-
-
             await apiService.deleteProductPrice(
                 id
             );
-
-
             loadProductPrices();
-
-
-
         }
-
         catch(err) {
-
-
             console.log(err);
-
-
         }
-
-
     };
-
-
-
     return (
-
         <Box
             sx={{
                 p:3
             }}
         >
-
-
             <ProductPriceToolbar
-
-
                 onAdd={() =>
                     setSelectedProductPrice({})
                 }
-
-
-                onRefresh={
-                    loadProductPrices
-                }
-
-
+                onRefresh={loadProductPrices}
                 onExport={() =>
-                    console.log(
-                        "Export Product Prices"
-                    )
+                    console.log("Export Product Prices")
                 }
-
-
             />
-
-
-
             <ProductPriceStatistics
-
-                productPrices={
-                    productPrices
-                }
-
+                productPrices={productPrices}
             />
-
-
-
             <ProductPriceSearch
-
-
-                searchText={
-                    searchText
-                }
-
-
-                setSearchText={
-                    setSearchText
-                }
-
-
-                statusFilter={
-                    statusFilter
-                }
-
-
-                setStatusFilter={
-                    setStatusFilter
-                }
-
-
-                priceTypeFilter={
-                    priceTypeFilter
-                }
-
-
-                setPriceTypeFilter={
-                    setPriceTypeFilter
-                }
-
-
-                currencyFilter={
-                    currencyFilter
-                }
-
-
-                setCurrencyFilter={
-                    setCurrencyFilter
-                }
-
-
-                productPrices={
-                    productPrices
-                }
-
-
+                searchText={searchText}
+                setSearchText={setSearchText}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                priceTypeFilter={priceTypeFilter}
+                setPriceTypeFilter={setPriceTypeFilter}
+                currencyFilter={currencyFilter}
+                setCurrencyFilter={setCurrencyFilter}
+                productPrices={productPrices}
             />
-
-
-
             <ProductPriceTable
-
-
-                productPrices={
-                    pagedProductPrices
-                }
-
-
-                loading={
-                    loading
-                }
-
-
-                onView={(row)=>
-
-                    setSelectedProductPrice(
-                        row
-                    )
-
-                }
-
-
-                onEdit={(row)=>
-
-                    setSelectedProductPrice(
-                        row
-                    )
-
-                }
-
-
-                onDelete={(row)=>{
-
-
-                    setSelectedProductPrice(
-                        row
-                    );
-
-
-                    setDeleteOpen(
-                        true
-                    );
-
-
+                productPrices={pagedProductPrices}
+                loading={loading}
+                onView={(row)=>setSelectedProductPrice(row)}
+                onEdit={(row)=> setSelectedProductPrice(row)}
+                onDelete={(row)=>{setSelectedProductPrice(row);
+                setDeleteOpen(true);
                 }}
-
-
             />
-
-
-
             <ProductPricePagination
-
-
-                page={
-                    page
-                }
-
-
-                totalPages={
-                    totalPages
-                }
-
-
-                pageSize={
-                    pageSize
-                }
-
-
-                totalRecords={
-                    filteredProductPrices.length
-                }
-
-
-                onPageChange={
-                    setPage
-                }
-
-
-                onPageSizeChange={(size)=>{
-
-
-                    setPageSize(
-                        size
-                    );
-
-
-                    setPage(1);
-
-
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                totalRecords={filteredProductPrices.length}
+                onPageChange={setPage}
+                onPageSizeChange={(size)=>{setPageSize(size);
+                setPage(1);
                 }}
-
-
             />
-
-
-
             <ProductPriceModal
-
-
-                open={
-                    Boolean(
-                        selectedProductPrice
-                    )
-                }
-
-
-                productPrice={
-                    selectedProductPrice
-                }
-
-
+                open={Boolean(selectedProductPrice)}
+                productPrice={selectedProductPrice}
                 onClose={()=>
-
-
-                    setSelectedProductPrice(
-                        null
-                    )
-
-
+                    setSelectedProductPrice(null)
                 }
-
-
-                onSave={
-                    handleSave
-                }
-
-
+                onSave={handleSave}
             />
-
-
-
             <DeleteProductPriceDialog
-
-
-                open={
-                    deleteOpen
-                }
-
-
-                productPrice={
-                    selectedProductPrice
-                }
-
-
+                open={deleteOpen}
+                productPrice={selectedProductPrice}
                 onClose={()=>{
-
-
-                    setDeleteOpen(
-                        false
-                    );
-
-
-                    setSelectedProductPrice(
-                        null
-                    );
-
-
+                    setDeleteOpen(false);
+                    setSelectedProductPrice(null);
                 }}
-
-
-
                 onDeleted={handleDelete}
-
-
-
             />
-
-
         </Box>
-
     );
-
 };
 
 

@@ -293,7 +293,7 @@ import ProductInventoryStatistics from "./pages/ProductInventory/ProductInventor
 import ProductInventoryTable from "./pages/ProductInventory/ProductInventoryTable";
 import ProductInventoryToolbar from "./pages/ProductInventory/ProductInventoryToolbar";
 import ProductInventoryView from "./pages/ProductInventory/ProductInventoryView";
-
+import ProductForm from "./pages/Product/ProductForm";
 // =========================================================
 // PRODUCT PRICES
 // =========================================================
@@ -943,7 +943,8 @@ function App() {
         <Route path="products/toolbar" element={<ProductToolbar />} />
         <Route path="products/view" element={<ProductView />} />
         <Route path="products/delete" element={<DeleteProductDialog />} />
-
+        <Route path="/products/new" element={<ProductForm />}/>
+        <Route path="/products/edit/:productId" element={<ProductForm />}/>
         <Route path="product-attributes" element={<ProductAttributeList />} />
         <Route path="product-attributes/card" element={<ProductAttributeCard />} />
         <Route path="product-attributes/modal" element={<ProductAttributeModal />} />
