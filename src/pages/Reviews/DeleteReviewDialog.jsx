@@ -11,13 +11,11 @@ const DeleteReviewDialog = ({
   open = false,
   review = null,
   loading = false,
-
   onClose,
   onDelete,
 }) => {
 
   if (!review) return null;
-
   const {
     customerName,
     productName,

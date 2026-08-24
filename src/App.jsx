@@ -293,7 +293,7 @@ import ProductInventoryStatistics from "./pages/ProductInventory/ProductInventor
 import ProductInventoryTable from "./pages/ProductInventory/ProductInventoryTable";
 import ProductInventoryToolbar from "./pages/ProductInventory/ProductInventoryToolbar";
 import ProductInventoryView from "./pages/ProductInventory/ProductInventoryView";
-import ProductForm from "./pages/Product/ProductForm";
+
 // =========================================================
 // PRODUCT PRICES
 // =========================================================
@@ -323,7 +323,7 @@ import ProductDetails from "./pages/Products/ProductDetails";
 import ProductEdit from "./pages/Products/ProductEdit";
 import ProductFilters from "./pages/Products/ProductFilters";
 import ProductForm from "./pages/Products/ProductForm";
-import ProductList from "./pages/Products/ProductList";
+import ProductList from "./pages/Products/ProductPriceList";
 import ProductModal from "./pages/Products/ProductModal";
 import ProductPagination from "./pages/Products/ProductPagination";
 import Products from "./pages/Products/Products";

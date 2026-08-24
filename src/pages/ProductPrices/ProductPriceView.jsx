@@ -1,17 +1,5 @@
 import React from "react";
-
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
-    Typography,
-    Divider,
-    Chip
-} from "@mui/material";
-
+import {Dialog,DialogTitle,DialogContent,DialogActions,Button,Grid,Typography,Divider,Chip} from "@mui/material";
 const ProductPriceView = ({
     open,
     productPrice,
