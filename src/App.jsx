@@ -1,16 +1,32 @@
 import { Routes, Route } from "react-router-dom";
+// =========================================================
+// AUTH PAGES
+// =========================================================
 
-// Layout
-import MainLayout from "./layouts/MainLayout";
-
-// Auth
 import Login from "./pages/AuthManagement/Login";
 import Register from "./pages/AuthManagement/Register";
 import UserProfile from "./pages/AuthManagement/UserProfile";
 import Unauthorized from "./pages/AuthManagement/Unauthorized";
 
-// Dashboard
+import ChangePassword from "./pages/AuthManagement/ChangePassword";
+import ForgotPassword from "./pages/AuthManagement/ForgotPassword";
+import ResetPassword from "./pages/AuthManagement/ResetPassword";
+
+// =========================================================
+// DASHBOARD
+// =========================================================
 import Dashboard from "./pages/Dashboard/Dashboard";
+
+// =========================================================
+// LAYOUT
+// =========================================================
+import MainLayout from "./components/Layout/MainLayout";
+
+
+// =========================================================
+// PROTECTED ROUTE
+// =========================================================
+import ProtectedRoute from "./components/Auth/ProtectedRoute";
 
 // Masters
 //import Products from "./pages/Products/Products";
@@ -95,21 +111,87 @@ import GoodsReceiptItems from "./pages/GoodsReceiptItems/GoodsReceiptNoteList";
 //import NotFound from "./pages/NotFound/NotFound";
 
 function App() {
- return (
-    <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
+    return (
+        <BrowserRouter>
 
-        {/* Protected Routes */}
-        <Route element={<MainLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            {/* other routes */}
-        </Route>
-    </Routes>
-);
+            <Routes>
+
+                {/* =====================================================
+                    PUBLIC ROUTES
+                ===================================================== */}
+
+                <Route
+                    path="/"
+                    element={<Login />}
+                />
+
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
+
+                <Route
+                    path="/forgot-password"
+                    element={<ForgotPassword />}
+                />
+
+                <Route
+                    path="/reset-password"
+                    element={<ResetPassword />}
+                />
+
+                <Route
+                    path="/unauthorized"
+                    element={<Unauthorized />}
+                />
+
+
+                {/* =====================================================
+                    PROTECTED ROUTES
+                ===================================================== */}
+
+                <Route element={<ProtectedRoute />}>
+
+                    <Route element={<MainLayout />}>
+
+                        <Route
+                            path="/dashboard"
+                            element={<Dashboard />}
+                        />
+
+                        <Route
+                            path="/profile"
+                            element={<UserProfile />}
+                        />
+
+                        <Route
+                            path="/change-password"
+                            element={<ChangePassword />}
+                        />
+
+                    </Route>
+
+                </Route>
+
+
+                {/* =====================================================
+                    FALLBACK
+                ===================================================== */}
+
+                <Route
+                    path="*"
+                    element={
+                        <Navigate
+                            to="/"
+                            replace
+                        />
+                    }
+                />
+
+            </Routes>
+
+        </BrowserRouter>
+    );
 }
 
 export default App;

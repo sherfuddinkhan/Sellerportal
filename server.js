@@ -40,11 +40,19 @@ try {
 1. AUTHENTICATION
 ===================================================== */
 const BASE_URL = "https://localhost:7203/api";
-// Login
+
+// =========================================================
+// LOGIN
+// POST /api/auth/login
+// =========================================================
+
 app.post("/api/auth/login", async (req, res) => {
     try {
+        console.log("LOGIN REQUEST RECEIVED");
+        console.log("Username:", req.body?.userName);
+
         const response = await axios.post(
-            `${BASE_URL}/auth/login`,
+            `${BASE_URL}/AuthManagement/login`,
             req.body,
             {
                 headers: {
@@ -54,57 +62,72 @@ app.post("/api/auth/login", async (req, res) => {
             }
         );
 
-        res.json(response.data);
+        res.status(response.status).json(response.data);
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(
+            "LOGIN ERROR:",
+            err.response?.data || err.message
+        );
 
         res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Login failed" }
+            err.response?.data || {
+                success: false,
+                message: "Login failed"
+            }
         );
     }
 });
 
-// =========================================
-// Register
-// =========================================
 
-app.post("/api/AuthManagement/register", async (req, res) => {
-  try {
-    console.log("REGISTER REQUEST RECEIVED");
-    console.log(req.body);
+// =========================================================
+// REGISTER
+// POST /api/auth/register
+// =========================================================
 
-    const response = await axios.post(
-      `${BASE_URL}/AuthManagement/register`,
-      req.body,
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    );
+app.post("/api/auth/register", async (req, res) => {
+    try {
+        console.log("REGISTER REQUEST RECEIVED");
+        console.log(req.body);
 
-    res.status(response.status).json(response.data);
+        const response = await axios.post(
+            `${BASE_URL}/AuthManagement/register`,
+            req.body,
+            {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+            }
+        );
 
-  } catch (err) {
-    console.error(
-      "Registration Error:",
-      err.response?.data || err.message
-    );
+        res.status(response.status).json(response.data);
 
-    res.status(err.response?.status || 500).json(
-      err.response?.data || {
-        message: "Registration failed",
-      }
-    );
-  }
+    } catch (err) {
+        console.error(
+            "REGISTRATION ERROR:",
+            err.response?.data || err.message
+        );
+
+        res.status(err.response?.status || 500).json(
+            err.response?.data || {
+                success: false,
+                message: "Registration failed"
+            }
+        );
+    }
 });
 
-// Logout
+
+// =========================================================
+// LOGOUT
+// POST /api/auth/logout
+// =========================================================
+
 app.post("/api/auth/logout", async (req, res) => {
     try {
         const response = await axios.post(
-            `${BASE_URL}/auth/logout`,
+            `${BASE_URL}/AuthManagement/logout`,
             req.body,
             {
                 headers: {
@@ -114,21 +137,36 @@ app.post("/api/auth/logout", async (req, res) => {
             }
         );
 
-        res.json(response.data);
+        res.status(response.status).json(response.data);
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(
+            "LOGOUT ERROR:",
+            err.response?.data || err.message
+        );
 
         res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Logout failed" }
+            err.response?.data || {
+                success: false,
+                message: "Logout failed"
+            }
         );
     }
 });
 
-// Forgot Password
+
+// =========================================================
+// FORGOT PASSWORD
+// POST /api/auth/forgot-password
+// =========================================================
+
 app.post("/api/auth/forgot-password", async (req, res) => {
     try {
+        console.log("FORGOT PASSWORD REQUEST");
+        console.log(req.body);
+
         const response = await axios.post(
-            `${BASE_URL}/auth/forgot-password`,
+            `${BASE_URL}/AuthManagement/forgot-password`,
             req.body,
             {
                 headers: {
@@ -138,21 +176,35 @@ app.post("/api/auth/forgot-password", async (req, res) => {
             }
         );
 
-        res.json(response.data);
+        res.status(response.status).json(response.data);
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(
+            "FORGOT PASSWORD ERROR:",
+            err.response?.data || err.message
+        );
 
         res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Forgot password failed" }
+            err.response?.data || {
+                success: false,
+                message: "Forgot password failed"
+            }
         );
     }
 });
 
-// Reset Password
+
+// =========================================================
+// RESET PASSWORD
+// POST /api/auth/reset-password
+// =========================================================
+
 app.post("/api/auth/reset-password", async (req, res) => {
     try {
+        console.log("RESET PASSWORD REQUEST");
+
         const response = await axios.post(
-            `${BASE_URL}/auth/reset-password`,
+            `${BASE_URL}/AuthManagement/reset-password`,
             req.body,
             {
                 headers: {
@@ -162,107 +214,99 @@ app.post("/api/auth/reset-password", async (req, res) => {
             }
         );
 
-        res.json(response.data);
+        res.status(response.status).json(response.data);
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(
+            "RESET PASSWORD ERROR:",
+            err.response?.data || err.message
+        );
 
         res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Reset password failed" }
+            err.response?.data || {
+                success: false,
+                message: "Reset password failed"
+            }
         );
     }
 });
 
-// Change Password
+
+// =========================================================
+// CHANGE PASSWORD
+// POST /api/auth/change-password
+// =========================================================
+
 app.post("/api/auth/change-password", async (req, res) => {
     try {
+        const token = req.headers.authorization;
+
         const response = await axios.post(
-            `${BASE_URL}/auth/change-password`,
+            `${BASE_URL}/AuthManagement/change-password`,
             req.body,
             {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json",
+                    ...(token
+                        ? { Authorization: token }
+                        : {})
                 },
             }
         );
 
-        res.json(response.data);
+        res.status(response.status).json(response.data);
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(
+            "CHANGE PASSWORD ERROR:",
+            err.response?.data || err.message
+        );
 
         res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Change password failed" }
+            err.response?.data || {
+                success: false,
+                message: "Change password failed"
+            }
         );
     }
 });
 
-// Current User
+
+// =========================================================
+// CURRENT USER
+// GET /api/auth/me
+// =========================================================
+
 app.get("/api/auth/me", async (req, res) => {
     try {
+        const token = req.headers.authorization;
+
         const response = await axios.get(
-            `${BASE_URL}/auth/me`,
+            `${BASE_URL}/AuthManagement/me`,
             {
                 headers: {
                     Accept: "application/json",
-                    "Content-Type": "application/json",
+                    ...(token
+                        ? { Authorization: token }
+                        : {})
                 },
             }
         );
 
-        res.json(response.data);
+        res.status(response.status).json(response.data);
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(
+            "GET CURRENT USER ERROR:",
+            err.response?.data || err.message
+        );
 
         res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Failed to get user" }
-        );
-    }
-});
-
-// Update Profile
-app.put("/api/auth/profile", async (req, res) => {
-    try {
-        const response = await axios.put(
-            `${BASE_URL}/auth/profile`,
-            req.body,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
+            err.response?.data || {
+                success: false,
+                message: "Failed to get current user"
             }
-        );
-
-        res.json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
-
-        res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Profile update failed" }
-        );
-    }
-});
-
-// Refresh Token
-app.post("/api/auth/refresh-token", async (req, res) => {
-    try {
-        const response = await axios.post(
-            `${BASE_URL}/auth/refresh-token`,
-            req.body,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        res.json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
-
-        res.status(err.response?.status || 500).json(
-            err.response?.data || { message: "Refresh token failed" }
         );
     }
 });
@@ -655,47 +699,34 @@ app.get("/api/category/:id", async (req, res) => {
 app.post("/api/category", async (req, res) => {
 
     try {
-
         const {
-
             categoryName,
             description,
             parentCategoryId,
             isActive
-
         } = req.body;
 
         // TODO:
         // Create Category
 
         res.status(201).json({
-
             success: true,
             message: "Category Created Successfully",
-
             data: {
-
                 categoryName,
                 description,
                 parentCategoryId,
                 isActive
-
             }
-
         });
 
     }
     catch (err) {
-
         console.error(err);
-
         res.status(500).json({
-
             success: false,
             message: err.message
-
         });
-
     }
 
 });
@@ -6902,4 +6933,10 @@ app.get("/api/rolemanagement/search", async (req, res) => {
             }
         );
     }
+});
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
