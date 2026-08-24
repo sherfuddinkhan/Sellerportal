@@ -1,253 +1,88 @@
 import React from "react";
-
-
-import {
-    Box,
-    Pagination,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Typography
-} from "@mui/material";
+import {Box,Pagination,FormControl,InputLabel,Select,MenuItem,Typography} from "@mui/material";
 
 
 
 const PurchaseOrderItemPagination = ({
-
     page,
-
     totalPages,
-
     pageSize,
-
     totalRecords,
-
     onPageChange,
-
     onPageSizeChange
-
 }) => {
 
-
     return (
-
-
         <Box
-
             className="purchase-order-item-pagination"
-
             sx={{
-
                 mt: 3,
-
                 display: "flex",
-
                 justifyContent: "space-between",
-
                 alignItems: "center",
-
                 flexWrap: "wrap",
-
                 gap: 2
-
             }}
-
         >
-
-
-
             <Typography
-
                 variant="body2"
-
                 color="text.secondary"
-
             >
-
                 Total Records : {totalRecords}
-
-
             </Typography>
-
-
-
-
-
             <Box
-
                 sx={{
-
                     display: "flex",
-
                     alignItems: "center",
-
                     gap: 2
-
                 }}
-
             >
-
-
-
-
                 <FormControl
-
                     size="small"
-
                     sx={{
-
                         minWidth: 120
-
                     }}
-
                 >
-
-
                     <InputLabel>
-
                         Rows
-
                     </InputLabel>
-
-
-
-
                     <Select
-
-
                         value={pageSize}
-
-
                         label="Rows"
-
-
                         onChange={(e) =>
-
-                            onPageSizeChange(
-
-                                Number(
-
-                                    e.target.value
-
-                                )
-
-                            )
-
+                            onPageSizeChange(Number(e.target.value))
                         }
-
-
                     >
-
-
-
                         <MenuItem value={5}>
-
                             5
-
                         </MenuItem>
-
-
-
-
                         <MenuItem value={10}>
-
                             10
-
                         </MenuItem>
-
-
-
-
                         <MenuItem value={25}>
-
                             25
-
                         </MenuItem>
-
-
-
-
                         <MenuItem value={50}>
-
                             50
-
                         </MenuItem>
-
-
-
-
                         <MenuItem value={100}>
-
                             100
-
                         </MenuItem>
-
-
-
-
                     </Select>
-
-
-
                 </FormControl>
-
-
-
-
-
-
                 <Pagination
-
-
                     count={totalPages || 1}
-
-
                     page={page}
-
-
                     color="primary"
-
-
                     shape="rounded"
-
-
                     showFirstButton
-
-
                     showLastButton
-
-
-                    onChange={(
-
-                        event,
-
-                        value
-
-                    ) =>
-
-                        onPageChange(value)
-
+                    onChange={(event,value) =>onPageChange(value)
                     }
-
-
                 />
-
-
-
-
-
             </Box>
-
-
-
-
         </Box>
-
-
     );
-
-
 };
 
 
