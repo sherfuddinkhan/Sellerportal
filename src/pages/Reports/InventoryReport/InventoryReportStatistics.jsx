@@ -1,25 +1,7 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Skeleton,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  Assessment,
-  Inventory2,
-  MonetizationOn,
-  Storage,
-} from "@mui/icons-material";
+import {Box,Card,CardContent,Grid,Skeleton,Stack,Typography} from "@mui/material";
+import {Assessment,Inventory2,MonetizationOn,Storage} from "@mui/icons-material";
 
 //======================================================
 // InventoryReportStatistics

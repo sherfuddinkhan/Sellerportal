@@ -1,87 +1,41 @@
 import React, { useEffect, useState } from "react";
+import {Paper,Grid,Typography,Chip,Button,Divider,CircularProgress,Box} from "@mui/material";
+import {ArrowBack,Edit} from "@mui/icons-material";
+import {useNavigate,useParams} from "react-router-dom";
 
-import {
-    Paper,
-    Grid,
-    Typography,
-    Chip,
-    Button,
-    Divider,
-    CircularProgress,
-    Box
-} from "@mui/material";
-
-import {
-    ArrowBack,
-    Edit
-} from "@mui/icons-material";
-
-import {
-    useNavigate,
-    useParams
-} from "react-router-dom";
-
-import apiService from "../../services/apiService";
 
 const ProductTypeDetails = () => {
-
     const navigate = useNavigate();
-
     const { id } = useParams();
-
     const [loading, setLoading] = useState(true);
-
     const [productType, setProductType] = useState(null);
-
     useEffect(() => {
-
         loadProductType();
-
     }, []);
 
     const loadProductType = async () => {
-
         try {
-
             setLoading(true);
-
-            const response =
-                await apiService.getProductTypeById(id);
-
+            const response = await apiService.getProductTypeById(id);
             setProductType(response.data);
-
         }
         catch (err) {
-
             console.log(err);
-
         }
         finally {
-
             setLoading(false);
-
         }
-
     };
 
     if (loading)
-
         return (
-
             <Box
-
                 display="flex"
-
                 justifyContent="center"
-
                 mt={5}
-
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
 
     if (!productType)

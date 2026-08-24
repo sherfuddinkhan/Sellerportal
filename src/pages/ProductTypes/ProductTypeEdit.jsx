@@ -1,57 +1,25 @@
 import React, { useEffect, useState } from "react";
-
-import {
-    Paper,
-    Typography,
-    CircularProgress,
-    Box,
-    Snackbar,
-    Alert
-} from "@mui/material";
-
-import {
-    useNavigate,
-    useParams
-} from "react-router-dom";
-
+import {Paper,Typography,CircularProgress,Box,Snackbar,Alert} from "@mui/material";
+import {useNavigate,useParams} from "react-router-dom";
 import ProductTypeForm from "./ProductTypeForm";
-
-import apiService from "../../services/apiService";
-
 const ProductTypeEdit = () => {
-
     const navigate = useNavigate();
-
     const { id } = useParams();
-
     const [loading, setLoading] = useState(false);
-
     const [pageLoading, setPageLoading] = useState(true);
-
     const [productType, setProductType] = useState({
-
         productTypeName: "",
-
         description: "",
-
         isActive: true
-
     });
 
     const [snackbar, setSnackbar] = useState({
-
         open: false,
-
         severity: "success",
-
         message: ""
-
     });
-
     useEffect(() => {
-
         loadProductType();
-
     }, []);
 
     const loadProductType = async () => {

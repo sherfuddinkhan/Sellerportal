@@ -3,40 +3,14 @@
 // Part 1A
 //======================================================
 
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo,} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
-
-import {
-  ArrowDownward,
-  ArrowUpward,
-  Inventory2Outlined,
-  WarehouseOutlined,
-} from "@mui/icons-material";
-
+import {Box,Card,CardContent,Chip,Divider,Grid,Stack,Typography,} from "@mui/material";
+import {ArrowDownward,ArrowUpward,Inventory2Outlined,WarehouseOutlined,} from "@mui/icons-material";
 //======================================================
 // Helpers
 //======================================================
-
-import {
-  formatDate,
-  formatNumber,
-  normalizeStockLedgerReport,
-  getStockLedgerStatusColor,
-} from "./StockLedgerReportHelpers";
+import {formatDate,formatNumber,normalizeStockLedgerReport,getStockLedgerStatusColor,} from "./StockLedgerReportHelpers";
 
 //======================================================
 // StockLedgerReportCard
@@ -376,7 +350,7 @@ const StockLedgerReportCard = ({
   );
 };
 
-export default StockLedgerReportCard;
+
 //======================================================
 // PropTypes
 //======================================================

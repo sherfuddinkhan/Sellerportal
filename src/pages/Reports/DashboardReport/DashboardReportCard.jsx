@@ -547,7 +547,7 @@ DashboardReportCard.defaultProps = {
 // Export
 //======================================================
 
-export default DashboardReportCard;
+
 
 //======================================================
 // PropTypes

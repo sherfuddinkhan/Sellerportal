@@ -1,49 +1,8 @@
-import React, {
-  useMemo,
-} from "react";
-
+import React, {useMemo} from "react";
 import PropTypes from "prop-types";
-
-import {
-  Box,
-  Checkbox,
-  Chip,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import {
-  ArrowDownward,
-  ArrowUpward,
-  CheckCircle,
-  Delete,
-  Edit,
-  Visibility,
-  Block,
-} from "@mui/icons-material";
-import {
-  getReportId,
-  getReportName,
-  getReportType,
-  getStatus,
-  getStatusColor,
-  getTotalRecords,
-  getTotalStock,
-  getTotalValue,
-  getCreatedBy,
-  getCreatedDate,
-  formatNumber,
-  formatCurrency,
-  formatDate,
-} from "./InventoryReportHelper";
+import {Box,Checkbox,Chip,IconButton,Paper,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Tooltip,Typography,} from "@mui/material";
+import {ArrowDownward,ArrowUpward,CheckCircle,Delete,Edit,Visibility,Block} from "@mui/icons-material";
+import {getReportId,getReportName,getReportType,getStatus,getStatusColor,getTotalRecords,getTotalStock,getTotalValue,getCreatedBy,getCreatedDate,formatNumber,formatCurrency,formatDate} from "./InventoryReportHelpers";
 
 //======================================================
 // InventoryReportTable

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {Box,Button,CircularProgress,Menu,MenuItem,ListItemIcon,ListItemText,Tooltip,} from "@mui/material";
 import {Download,FileDownload,PictureAsPdf,Print,TableChart} from "@mui/icons-material";
-import {customersToExportRows} from "./CustomerReportHelper";
+import {customersToExportRows} from "./CustomerReportHelpers";
 //======================================================
 // CustomerReportExport
 //======================================================

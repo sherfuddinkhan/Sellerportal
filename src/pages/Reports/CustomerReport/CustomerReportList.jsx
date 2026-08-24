@@ -1,6 +1,6 @@
 import React, {useCallback,useEffect,useMemo,useState,} from "react";
 import {DEFAULT_CUSTOMER_REPORT_FILTERS,filterCustomers,resetCustomerReportFilters,getCustomerReportFilterCount,} from "./CustomerReportFilter";
-import {normalizeCustomers,calculateCustomerStatistics,sortCustomers,} from "./CustomerReportHelper";
+import {normalizeCustomers,calculateCustomerStatistics,sortCustomers,} from "./CustomerReportHelpers";
 import {Alert,Box,CircularProgress,Snackbar} from "@mui/material";
 
 //======================================================

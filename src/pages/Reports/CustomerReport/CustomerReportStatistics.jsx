@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import {Box,Card,CardContent,Grid,Stack,Typography} from "@mui/material";
-import {normalizeCustomers,calculateCustomerStatistics,sortCustomers} from "./CustomerReportHelper";
+import {normalizeCustomers,calculateCustomerStatistics,sortCustomers} from "./CustomerReportHelpers";
 import {People,ShoppingCart,CurrencyRupee,AccountBalanceWallet,TrendingUp,TrendingDown} from "@mui/icons-material";
 //======================================================
 // CustomerReportStatistics

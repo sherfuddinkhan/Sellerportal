@@ -24,10 +24,7 @@ import InventoryReportService from "./InventoryReportService";
 // Inventory Report Helper
 //======================================================
 
-import {
-  filterInventoryReports,
-  sortInventoryReports,
-} from "./inventoryReportHelper";
+import {filterInventoryReports,sortInventoryReports} from "./inventoryReportHelpers";
 
 //======================================================
 // InventoryReportList
