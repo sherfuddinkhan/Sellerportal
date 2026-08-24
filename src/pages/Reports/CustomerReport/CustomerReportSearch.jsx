@@ -441,8 +441,3 @@ CustomerReportSearch.defaultProps = {
   onClear: () => {},
 };
 
-//======================================================
-// Export
-//======================================================
-
-export default CustomerReportSearch;

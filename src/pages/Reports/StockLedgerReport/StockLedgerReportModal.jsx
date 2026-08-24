@@ -274,7 +274,7 @@ const StockLedgerReportModal = ({
   // No Report
   //====================================================
 
-  if (!normalizedReport) {
+ if (!normalizedReport) {
     return (
       <Dialog
         open={open}
@@ -282,21 +282,16 @@ const StockLedgerReportModal = ({
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle>
-          Stock Ledger Report
-        </DialogTitle>
+        <DialogTitle>Stock Ledger Report</DialogTitle>
 
         <DialogContent>
           <Alert severity="info">
-            No stock ledger report
-            selected.
+            No stock ledger report selected.
           </Alert>
         </DialogContent>
 
         <DialogActions>
-          <Button
-            onClick={handleClose}
-          >
+          <Button onClick={handleClose}>
             Close
           </Button>
         </DialogActions>
@@ -320,11 +315,7 @@ const StockLedgerReportModal = ({
           Dialog Title
       ===============================================*/}
 
-      <DialogTitle
-        sx={{
-          pr: 6,
-        }}
-      >
+      <DialogTitle sx={{ pr: 6 }}>
         <Stack
           direction="row"
           alignItems="center"
@@ -332,17 +323,11 @@ const StockLedgerReportModal = ({
           spacing={2}
         >
           <Box>
-            <Typography
-              variant="h6"
-              fontWeight={700}
-            >
+            <Typography variant="h6" fontWeight={700}>
               Stock Ledger Details
             </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-            >
+            <Typography variant="body2" color="text.secondary">
               {normalizedReport.stockItem ||
                 normalizedReport.itemName ||
                 "Stock Item"}
@@ -351,10 +336,7 @@ const StockLedgerReportModal = ({
 
           <Chip
             size="small"
-            label={
-              normalizedReport.status ||
-              "Pending"
-            }
+            label={normalizedReport.status || "Pending"}
             color={statusColor}
             variant="outlined"
           />
@@ -362,9 +344,7 @@ const StockLedgerReportModal = ({
 
         <IconButton
           aria-label="Close"
-          onClick={
-            handleClose
-          }
+          onClick={handleClose}
           disabled={saving}
           sx={{
             position: "absolute",
@@ -385,9 +365,7 @@ const StockLedgerReportModal = ({
       <DialogContent dividers>
         <Stack spacing={3}>
           {localError && (
-            <Alert severity="error">
-              {localError}
-            </Alert>
+            <Alert severity="error">{localError}</Alert>
           )}
 
           {/*============================================
@@ -395,198 +373,100 @@ const StockLedgerReportModal = ({
           =============================================*/}
 
           <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight={700}
-              gutterBottom
-            >
+            <Typography variant="subtitle1" fontWeight={700} gutterBottom>
               Transaction Information
             </Typography>
 
-            <Grid
-              container
-              spacing={2}
-            >
+            <Grid container spacing={2}>
               {/* Date */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
                     size="small"
                     label="Date"
                     type="date"
-                    value={
-                      formData.date ||
-                      ""
-                    }
-                    onChange={handleChange(
-                      "date"
-                    )}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    disabled={
-                      loading ||
-                      saving
-                    }
+                    value={formData.date || ""}
+                    onChange={handleChange("date")}
+                    InputLabelProps={{ shrink: true }}
+                    disabled={loading || saving}
                   />
                 ) : (
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Date
                     </Typography>
-
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                    >
-                      {formatDate(
-                        normalizedReport.date
-                      )}
+                    <Typography variant="body2" fontWeight={600}>
+                      {formatDate(normalizedReport.date)}
                     </Typography>
                   </Box>
                 )}
               </Grid>
 
               {/* Voucher Number */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
                     size="small"
                     label="Voucher Number"
-                    value={
-                      formData.voucherNumber ||
-                      ""
-                    }
-                    onChange={handleChange(
-                      "voucherNumber"
-                    )}
-                    disabled={
-                      loading ||
-                      saving
-                    }
+                    value={formData.voucherNumber || ""}
+                    onChange={handleChange("voucherNumber")}
+                    disabled={loading || saving}
                   />
                 ) : (
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Voucher Number
                     </Typography>
-
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                    >
-                      {normalizedReport.voucherNumber ||
-                        "-"}
+                    <Typography variant="body2" fontWeight={600}>
+                      {normalizedReport.voucherNumber || "-"}
                     </Typography>
                   </Box>
                 )}
               </Grid>
 
               {/* Voucher Type */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
                     size="small"
                     label="Voucher Type"
-                    value={
-                      formData.voucherType ||
-                      ""
-                    }
-                    onChange={handleChange(
-                      "voucherType"
-                    )}
-                    disabled={
-                      loading ||
-                      saving
-                    }
+                    value={formData.voucherType || ""}
+                    onChange={handleChange("voucherType")}
+                    disabled={loading || saving}
                   />
                 ) : (
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Voucher Type
                     </Typography>
-
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                    >
-                      {normalizedReport.voucherType ||
-                        "-"}
+                    <Typography variant="body2" fontWeight={600}>
+                      {normalizedReport.voucherType || "-"}
                     </Typography>
                   </Box>
                 )}
               </Grid>
 
               {/* Transaction Type */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
                     size="small"
                     label="Transaction Type"
-                    value={
-                      formData.transactionType ||
-                      ""
-                    }
-                    onChange={handleChange(
-                      "transactionType"
-                    )}
-                    disabled={
-                      loading ||
-                      saving
-                    }
+                    value={formData.transactionType || ""}
+                    onChange={handleChange("transactionType")}
+                    disabled={loading || saving}
                   />
                 ) : (
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Transaction Type
                     </Typography>
-
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                    >
-                      {normalizedReport.transactionType ||
-                        "-"}
+                    <Typography variant="body2" fontWeight={600}>
+                      {normalizedReport.transactionType || "-"}
                     </Typography>
                   </Box>
                 )}
@@ -601,37 +481,18 @@ const StockLedgerReportModal = ({
           =============================================*/}
 
           <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight={700}
-              gutterBottom
-            >
+            <Typography variant="subtitle1" fontWeight={700} gutterBottom>
               Stock Information
             </Typography>
 
-            <Grid
-              container
-              spacing={2}
-            >
+            <Grid container spacing={2}>
               {/* Stock Item */}
-
-              <Grid
-                item
-                xs={12}
-                md={6}
-              >
+              <Grid item xs={12} md={6}>
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     Stock Item
                   </Typography>
-
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                  >
+                  <Typography variant="body2" fontWeight={600}>
                     {normalizedReport.stockItem ||
                       normalizedReport.itemName ||
                       "-"}
@@ -640,133 +501,60 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Warehouse */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     Warehouse
                   </Typography>
-
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                  >
-                    {normalizedReport.warehouse ||
-                      "-"}
+                  <Typography variant="body2" fontWeight={600}>
+                    {normalizedReport.warehouse || "-"}
                   </Typography>
                 </Box>
               </Grid>
 
               {/* Godown */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     Godown
                   </Typography>
-
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                  >
-                    {normalizedReport.godown ||
-                      "-"}
+                  <Typography variant="body2" fontWeight={600}>
+                    {normalizedReport.godown || "-"}
                   </Typography>
                 </Box>
               </Grid>
 
               {/* Inward */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     Inward Quantity
                   </Typography>
-
-                  <Typography
-                    variant="body2"
-                    fontWeight={700}
-                    color="success.main"
-                  >
-                    {formatNumber(
-                      normalizedReport.inwardQuantity
-                    )}
+                  <Typography variant="body2" fontWeight={700} color="success.main">
+                    {formatNumber(normalizedReport.inwardQuantity)}
                   </Typography>
                 </Box>
               </Grid>
 
               {/* Outward */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     Outward Quantity
                   </Typography>
-
-                  <Typography
-                    variant="body2"
-                    fontWeight={700}
-                    color="error.main"
-                  >
-                    {formatNumber(
-                      normalizedReport.outwardQuantity
-                    )}
+                  <Typography variant="body2" fontWeight={700} color="error.main">
+                    {formatNumber(normalizedReport.outwardQuantity)}
                   </Typography>
                 </Box>
               </Grid>
 
               {/* Closing */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     Closing Quantity
                   </Typography>
-
-                  <Typography
-                    variant="body2"
-                    fontWeight={700}
-                  >
+                  <Typography variant="body2" fontWeight={700}>
                     {formatNumber(
                       normalizedReport.closingQuantity ??
                         normalizedReport.balanceQuantity
@@ -776,41 +564,18 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Unit */}
-
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-              >
+              <Grid item xs={12} sm={6} md={3}>
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     Unit
                   </Typography>
-
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                  >
-                    {normalizedReport.unit ||
-                      "-"}
+                  <Typography variant="body2" fontWeight={600}>
+                    {normalizedReport.unit || "-"}
                   </Typography>
                 </Box>
               </Grid>
             </Grid>
           </Box>
-
-          {/*============================================
-              Part 1A Ends Here
-          =============================================*/}
-        </Stack>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
           <Divider />
 
@@ -819,22 +584,12 @@ const StockLedgerReportModal = ({
           =============================================*/}
 
           <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight={700}
-              gutterBottom
-            >
+            <Typography variant="subtitle1" fontWeight={700} gutterBottom>
               Additional Information
             </Typography>
 
-            <Grid
-              container
-              spacing={2}
-            >
-              <Grid
-                item
-                xs={12}
-              >
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
@@ -847,25 +602,15 @@ const StockLedgerReportModal = ({
                       formData.notes ||
                       ""
                     }
-                    onChange={handleChange(
-                      "remarks"
-                    )}
-                    disabled={
-                      loading ||
-                      saving
-                    }
+                    onChange={handleChange("remarks")}
+                    disabled={loading || saving}
                   />
                 ) : (
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Remarks
                     </Typography>
-                    <Typography
-                      variant="body2"
-                    >
+                    <Typography variant="body2">
                       {normalizedReport.remarks ||
                         normalizedReport.notes ||
                         "No remarks available"}
@@ -882,79 +627,44 @@ const StockLedgerReportModal = ({
           Dialog Actions
       ==============================================*/}
 
-      <DialogActions
-        sx={{
-          px: 3,
-          py: 2,
-        }}
-      >
-        <Button
-          onClick={handleClose}
-          disabled={saving}
-        >
+      <DialogActions sx={{ px: 3, py: 2 }}>
+        <Button onClick={handleClose} disabled={saving}>
           Close
         </Button>
 
-        {!isEditMode &&
-          typeof onEdit ===
-            "function" && (
-            <Button
-              startIcon={
-                <EditOutlinedIcon />
-              }
-              onClick={
-                handleEdit
-              }
-              disabled={
-                loading ||
-                saving
-              }
-            >
-              Edit
-            </Button>
-          )}
+        {!isEditMode && typeof onEdit === "function" && (
+          <Button
+            startIcon={<EditOutlinedIcon />}
+            onClick={handleEdit}
+            disabled={loading || saving}
+          >
+            Edit
+          </Button>
+        )}
 
-        {!isEditMode &&
-          typeof onDelete ===
-            "function" && (
-            <Button
-              color="error"
-              startIcon={
-                <DeleteOutlineOutlinedIcon />
-              }
-              onClick={() =>
-                setDeleteConfirm(
-                  true
-                )
-              }
-              disabled={
-                loading ||
-                saving
-              }
-            >
-              Delete
-            </Button>
-          )}
+        {!isEditMode && typeof onDelete === "function" && (
+          <Button
+            color="error"
+            startIcon={<DeleteOutlineOutlinedIcon />}
+            onClick={() => setDeleteConfirm(true)}
+            disabled={loading || saving}
+          >
+            Delete
+          </Button>
+        )}
 
         {isEditMode && (
           <Button
             variant="contained"
             startIcon={
               saving ? (
-                <CircularProgress
-                  size={18}
-                />
+                <CircularProgress size={18} />
               ) : (
                 <SaveOutlinedIcon />
               )
             }
-            onClick={
-              handleSave
-            }
-            disabled={
-              loading ||
-              saving
-            }
+            onClick={handleSave}
+            disabled={loading || saving}
           >
             Save
           </Button>
@@ -962,53 +672,28 @@ const StockLedgerReportModal = ({
       </DialogActions>
 
       {/*==============================================
-          Delete Confirmation
+          Delete Confirmation Dialog
       ==============================================*/}
 
       <Dialog
-        open={
-          deleteConfirm
-        }
-        onClose={() =>
-          setDeleteConfirm(
-            false
-          )
-        }
+        open={deleteConfirm}
+        onClose={() => setDeleteConfirm(false)}
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>
-          Delete Stock Ledger Entry
-        </DialogTitle>
+        <DialogTitle>Delete Stock Ledger Entry</DialogTitle>
 
         <DialogContent>
-          <Typography
-            variant="body2"
-          >
-            Are you sure you want
-            to delete this stock
-            ledger record?
+          <Typography variant="body2">
+            Are you sure you want to delete this stock ledger record?
           </Typography>
         </DialogContent>
 
         <DialogActions>
-          <Button
-            onClick={() =>
-              setDeleteConfirm(
-                false
-              )
-            }
-          >
+          <Button onClick={() => setDeleteConfirm(false)}>
             Cancel
           </Button>
-
-          <Button
-            color="error"
-            variant="contained"
-            onClick={
-              handleDelete
-            }
-          >
+          <Button color="error" variant="contained" onClick={handleDelete}>
             Delete
           </Button>
         </DialogActions>
