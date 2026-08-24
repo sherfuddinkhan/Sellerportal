@@ -118,33 +118,17 @@ const WarehouseList = () => {
         setPage(1);
 
     }, [
-
         warehouses,
-
         searchText,
-
         statusFilter
-
     ]);
 
     // ==========================================
     // Pagination
     // ==========================================
 
-    const totalPages = Math.ceil(
-
-        filteredWarehouses.length / pageSize
-
-    );
-
-    const pagedWarehouses = filteredWarehouses.slice(
-
-        (page - 1) * pageSize,
-
-        page * pageSize
-
-    );
-
+    const totalPages = Math.ceil(filteredWarehouses.length / pageSize);
+    const pagedWarehouses = filteredWarehouses.slice((page - 1) * pageSize,page * pageSize);
     // ==========================================
     // Save Warehouse
     // ==========================================
@@ -156,35 +140,20 @@ const WarehouseList = () => {
             if (data.WarehouseId) {
 
                 await apiService.updateWarehouse(
-
                     data.WarehouseId,
-
                     data
-
                 );
-
             }
-
             else {
-
                 await apiService.createWarehouse(data);
-
             }
-
             await loadWarehouses();
-
             setModalOpen(false);
-
             setSelectedWarehouse(null);
-
         }
-
         catch (err) {
-
             console.log(err);
-
         }
-
     };
 
     // ==========================================
