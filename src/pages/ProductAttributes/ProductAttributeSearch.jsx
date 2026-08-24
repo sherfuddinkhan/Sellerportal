@@ -1,7 +1,5 @@
 import React from "react";
 import {Paper,Grid,TextField,FormControl,InputLabel,Select,MenuItem} from "@mui/material";
-
-
 const ProductAttributeSearch = ({
     searchText,
     setSearchText,
