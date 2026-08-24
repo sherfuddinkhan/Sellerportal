@@ -1,5 +1,4 @@
 import React from "react";
-import apiService from "../../services/apiService";
 import {Box,Grid,Typography,Chip,Divider,Paper} from "@mui/material";
 
 const BrandView = ({ brand }) => {
