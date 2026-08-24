@@ -1,7 +1,5 @@
 import React from "react";
-
 import {Dialog,DialogTitle,DialogContent,DialogActions,Grid,Typography,Button, Divider,Chip} from "@mui/material";
-
 const CustomerAddressView = ({
     open,
     address,

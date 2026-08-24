@@ -1,8 +1,5 @@
 import React from "react";
-
 import {Dialog,DialogTitle,DialogContent,DialogActions,Button,Typography,Divider} from "@mui/material";
-
-
 const DeleteCustomerAddressDialog = ({
     open,
     address,

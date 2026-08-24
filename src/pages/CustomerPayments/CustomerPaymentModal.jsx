@@ -7,26 +7,16 @@ const [formData,setFormData] = useState(initialState);
     useEffect(() => {
         if (payment) {
             setFormData({
-                CustomerPaymentId:
-                    payment.CustomerPaymentId || 0,
-                SalesInvoiceId:
-                    payment.SalesInvoiceId || "",
-                PaymentNumber:
-                    payment.PaymentNumber || "",
-                PaymentDate:
-                    payment.PaymentDate ? payment.PaymentDate.substring(0,10)
-                        : "",
-                Amount:
-                    payment.Amount || "",
-                PaymentMode:
-                    payment.PaymentMode || "",
-                ReferenceNumber:
-                    payment.ReferenceNumber || "",
-                Remarks:
-                    payment.Remarks || ""
+                CustomerPaymentId:payment.CustomerPaymentId || 0,
+                SalesInvoiceId: payment.SalesInvoiceId || "",
+                PaymentNumber: payment.PaymentNumber || "",
+                PaymentDate: payment.PaymentDate ? payment.PaymentDate.substring(0,10) : "",
+                Amount: payment.Amount || "",
+                PaymentMode: payment.PaymentMode || "",
+                ReferenceNumber: payment.ReferenceNumber || "",
+                Remarks: payment.Remarks || ""
             });
         }
-
         else {
             setFormData(initialState);
         }
@@ -39,7 +29,6 @@ const [formData,setFormData] = useState(initialState);
             [name]: value
         }));
     };
-
     const handleSubmit = () => {
         if (
             !formData.SalesInvoiceId ||
@@ -65,9 +54,7 @@ const [formData,setFormData] = useState(initialState);
         >
             <DialogTitle>
                 {
-                    formData.CustomerPaymentId
-                        ? "Edit Customer Payment"
-                        : "Add Customer Payment"
+                    formData.CustomerPaymentId ? "Edit Customer Payment" : "Add Customer Payment"
                 }
             </DialogTitle>
             <DialogContent dividers>

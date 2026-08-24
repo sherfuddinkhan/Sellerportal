@@ -1,9 +1,5 @@
 import React from "react";
-
-import {
-    TablePagination
-} from "@mui/material";
-
+import {TablePagination} from "@mui/material";
 const CategoryPagination = ({
     page,
     rowsPerPage,
@@ -21,9 +17,7 @@ const CategoryPagination = ({
             onPageChange={onPageChange}
             onRowsPerPageChange={onRowsPerPageChange}
         />
-
     );
-
 };
 
 export default CategoryPagination;

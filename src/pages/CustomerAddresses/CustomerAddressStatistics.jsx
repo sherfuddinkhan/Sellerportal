@@ -1,5 +1,4 @@
 import React from "react";
-
 import {Grid,Card,CardContent,Typography,Stack} from "@mui/material";
 import {Home,LocationOn,Star,Public} from "@mui/icons-material";
 
@@ -7,19 +6,9 @@ const CustomerAddressStatistics = ({
     addresses = []
 }) => {
     const totalAddresses = addresses.length;
-    const defaultAddresses = addresses.filter(
-        address => address.IsDefault
-    ).length;
-    const nonDefaultAddresses =
-        totalAddresses - defaultAddresses;
-    const citiesCovered =
-        new Set(
-            addresses
-                .map(
-                    item => item.City
-                )
-                .filter(Boolean)
-        ).size;
+    const defaultAddresses = addresses.filter(address => address.IsDefault).length;
+    const nonDefaultAddresses = totalAddresses - defaultAddresses;
+    const citiesCovered = new Set(addresses.map(item => item.City).filter(Boolean)).size;
     const statistics = [
         {
             title: "Total Addresses",
