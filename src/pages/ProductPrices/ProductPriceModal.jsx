@@ -1,21 +1,5 @@
 import React, { useEffect, useState } from "react";
-
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
-    TextField,
-    Divider,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Switch,
-    FormControlLabel
-} from "@mui/material";
+import {Dialog,DialogTitle,DialogContent,DialogActions,Button,Grid,TextField,Divider,FormControl,InputLabel,Select,MenuItem,Switch,FormControlLabel} from "@mui/material";
 
 const ProductPriceModal = ({
     open,
@@ -23,97 +7,58 @@ const ProductPriceModal = ({
     onClose,
     onSave
 }) => {
-
     const [formData, setFormData] = useState({
-
         ProductPriceId: 0,
-
         ProductId: "",
-
         SellerId: "",
-
         PriceType: "",
-
         Price: "",
-
         Currency: "INR",
-
         EffectiveFrom: "",
-
         EffectiveTo: "",
-
         IsActive: true
-
     });
 
-
     useEffect(() => {
-
         if (productPrice) {
-
             setFormData({
-
                 ProductPriceId:
                     productPrice.ProductPriceId || 0,
-
                 ProductId:
                     productPrice.ProductId || "",
-
                 SellerId:
                     productPrice.SellerId || "",
-
                 PriceType:
                     productPrice.PriceType || "",
-
                 Price:
                     productPrice.Price || "",
-
                 Currency:
                     productPrice.Currency || "INR",
-
                 EffectiveFrom:
                     productPrice.EffectiveFrom
                         ? productPrice.EffectiveFrom.substring(0, 10)
                         : "",
-
                 EffectiveTo:
                     productPrice.EffectiveTo
                         ? productPrice.EffectiveTo.substring(0, 10)
                         : "",
-
                 IsActive:
                     productPrice.IsActive ?? true
-
             });
-
         }
-
         else {
-
             setFormData({
-
                 ProductPriceId: 0,
-
                 ProductId: "",
-
                 SellerId: "",
-
                 PriceType: "",
-
                 Price: "",
-
                 Currency: "INR",
-
                 EffectiveFrom: "",
-
                 EffectiveTo: "",
-
                 IsActive: true
-
             });
-
         }
-
     }, [productPrice, open]);
 
 

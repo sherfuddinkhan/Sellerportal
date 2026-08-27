@@ -1,20 +1,47 @@
-//======================================================
-// InventoryReportHelper.js
-//======================================================
 
-//======================================================
+// ======================================================
+// InventoryReportHelper.jsx
+// ======================================================
+// Helper functions for Inventory Reports
+// ======================================================
+
+
+// ======================================================
 // Safe Array
-//======================================================
+// ======================================================
 
 export const toArray = (value) => {
-  return Array.isArray(value)
-    ? value
-    : [];
+  return Array.isArray(value) ? value : [];
 };
 
-//======================================================
+
+// ======================================================
+// Safe Number
+// ======================================================
+
+export const toNumber = (value, fallback = 0) => {
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : fallback;
+};
+
+
+// ======================================================
+// Normalize Search Text
+// ======================================================
+
+export const normalizeSearchText = (value) => {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase();
+};
+
+
+// ======================================================
 // Report ID
-//======================================================
+// ======================================================
 
 export const getReportId = (report) => {
   if (!report) {
@@ -25,14 +52,16 @@ export const getReportId = (report) => {
     report.id ??
     report.reportId ??
     report.inventoryReportId ??
+    report.inventoryReportID ??
     report._id ??
     ""
   );
 };
 
-//======================================================
+
+// ======================================================
 // Report Name
-//======================================================
+// ======================================================
 
 export const getReportName = (report) => {
   if (!report) {
@@ -43,13 +72,15 @@ export const getReportName = (report) => {
     report.reportName ??
     report.name ??
     report.title ??
+    report.inventoryReportName ??
     "Unnamed Report"
   );
 };
 
-//======================================================
+
+// ======================================================
 // Report Type
-//======================================================
+// ======================================================
 
 export const getReportType = (report) => {
   if (!report) {
@@ -60,37 +91,49 @@ export const getReportType = (report) => {
     report.reportType ??
     report.type ??
     report.inventoryReportType ??
+    report.inventoryType ??
     ""
   );
 };
 
-//======================================================
-// Status
-//======================================================
+
+// ======================================================
+// Report Status
+// ======================================================
 
 export const getReportStatus = (report) => {
   if (!report) {
-    return "";
+    return "inactive";
   }
 
   return (
     report.status ??
     report.reportStatus ??
-    "inactive"
+    report.isActive === true
+      ? "active"
+      : report.isActive === false
+        ? "inactive"
+        : "inactive"
   );
 };
 
-// Alias used by table components
-export const getStatus = getReportStatus;
 
-//======================================================
+// ======================================================
+// Status Alias
+// ======================================================
+
+export const getStatus = (report) => {
+  return getReportStatus(report);
+};
+
+
+// ======================================================
 // Status Color
-//======================================================
+// ======================================================
 
 export const getStatusColor = (status) => {
-  const normalizedStatus = String(
-    status || ""
-  ).toLowerCase();
+  const normalizedStatus =
+    normalizeSearchText(status);
 
   switch (normalizedStatus) {
     case "active":
@@ -113,60 +156,70 @@ export const getStatusColor = (status) => {
   }
 };
 
-//======================================================
+
+// ======================================================
 // Total Records
-//======================================================
+// ======================================================
 
 export const getTotalRecords = (report) => {
   if (!report) {
     return 0;
   }
 
-  return Number(
+  return toNumber(
     report.totalRecords ??
       report.recordCount ??
       report.records ??
+      report.totalItems ??
+      report.itemCount ??
       0
-  ) || 0;
+  );
 };
 
-//======================================================
+
+// ======================================================
 // Total Stock
-//======================================================
+// ======================================================
 
 export const getTotalStock = (report) => {
   if (!report) {
     return 0;
   }
 
-  return Number(
+  return toNumber(
     report.totalStock ??
       report.stockQuantity ??
       report.quantity ??
+      report.totalQuantity ??
+      report.availableQuantity ??
       0
-  ) || 0;
+  );
 };
 
-//======================================================
+
+// ======================================================
 // Total Value
-//======================================================
+// ======================================================
 
 export const getTotalValue = (report) => {
   if (!report) {
     return 0;
   }
 
-  return Number(
+  return toNumber(
     report.totalValue ??
       report.inventoryValue ??
       report.stockValue ??
+      report.totalInventoryValue ??
+      report.value ??
       0
-  ) || 0;
+  );
 };
 
-//======================================================
+
+// ======================================================
 // Created By
-//======================================================
+// ======================================================
 
 export const getCreatedBy = (report) => {
   if (!report) {
@@ -178,13 +231,15 @@ export const getCreatedBy = (report) => {
     report.createdBy ??
     report.userName ??
     report.username ??
+    report.createdUser ??
     "-"
   );
 };
 
-//======================================================
+
+// ======================================================
 // Created Date
-//======================================================
+// ======================================================
 
 export const getCreatedDate = (report) => {
   if (!report) {
@@ -195,13 +250,15 @@ export const getCreatedDate = (report) => {
     report.createdDate ??
     report.createdAt ??
     report.creationDate ??
+    report.dateCreated ??
     null
   );
 };
 
-//======================================================
+
+// ======================================================
 // Updated Date
-//======================================================
+// ======================================================
 
 export const getUpdatedDate = (report) => {
   if (!report) {
@@ -211,13 +268,51 @@ export const getUpdatedDate = (report) => {
   return (
     report.updatedDate ??
     report.updatedAt ??
+    report.modifiedDate ??
+    report.modifiedAt ??
     null
   );
 };
 
-//======================================================
+
+// ======================================================
+// Description
+// ======================================================
+
+export const getDescription = (report) => {
+  if (!report) {
+    return "";
+  }
+
+  return (
+    report.description ??
+    report.reportDescription ??
+    ""
+  );
+};
+
+
+// ======================================================
+// Items
+// ======================================================
+
+export const getReportItems = (report) => {
+  if (!report) {
+    return [];
+  }
+
+  return toArray(
+    report.items ??
+      report.inventoryItems ??
+      report.details ??
+      report.records
+  );
+};
+
+
+// ======================================================
 // Format Number
-//======================================================
+// ======================================================
 
 export const formatNumber = (
   value,
@@ -237,9 +332,10 @@ export const formatNumber = (
   ).format(number);
 };
 
-//======================================================
+
+// ======================================================
 // Format Currency
-//======================================================
+// ======================================================
 
 export const formatCurrency = (
   value,
@@ -247,15 +343,10 @@ export const formatCurrency = (
 ) => {
   const number = Number(value);
 
-  if (!Number.isFinite(number)) {
-    return new Intl.NumberFormat(
-      "en-IN",
-      {
-        style: "currency",
-        currency,
-      }
-    ).format(0);
-  }
+  const safeNumber =
+    Number.isFinite(number)
+      ? number
+      : 0;
 
   return new Intl.NumberFormat(
     "en-IN",
@@ -264,12 +355,13 @@ export const formatCurrency = (
       currency,
       maximumFractionDigits: 2,
     }
-  ).format(number);
+  ).format(safeNumber);
 };
 
-//======================================================
+
+// ======================================================
 // Format Date
-//======================================================
+// ======================================================
 
 export const formatDate = (
   value,
@@ -296,13 +388,12 @@ export const formatDate = (
   ).format(date);
 };
 
-//======================================================
-// Format Date & Time
-//======================================================
 
-export const formatDateTime = (
-  value
-) => {
+// ======================================================
+// Format Date & Time
+// ======================================================
+
+export const formatDateTime = (value) => {
   if (!value) {
     return "-";
   }
@@ -326,23 +417,10 @@ export const formatDateTime = (
   ).format(date);
 };
 
-//======================================================
-// Normalize Search Text
-//======================================================
 
-export const normalizeSearchText = (
-  value
-) => {
-  return String(
-    value ?? ""
-  )
-    .trim()
-    .toLowerCase();
-};
-
-//======================================================
+// ======================================================
 // Search Reports
-//======================================================
+// ======================================================
 
 export const searchReports = (
   reports,
@@ -350,38 +428,33 @@ export const searchReports = (
 ) => {
   const list = toArray(reports);
 
-  const search = normalizeSearchText(
-    searchTerm
-  );
+  const search =
+    normalizeSearchText(searchTerm);
 
   if (!search) {
     return list;
   }
 
-  return list.filter(
-    (report) => {
+  return list.filter((report) => {
+    const searchableText = [
+      getReportId(report),
+      getReportName(report),
+      getReportType(report),
+      getReportStatus(report),
+      getCreatedBy(report),
+      getDescription(report),
+    ]
+      .map(normalizeSearchText)
+      .join(" ");
 
-      const searchableText = [
-        getReportId(report),
-        getReportName(report),
-        getReportType(report),
-        getReportStatus(report),
-        getCreatedBy(report),
-        report?.description,
-      ]
-        .map(normalizeSearchText)
-        .join(" ");
-
-      return searchableText.includes(
-        search
-      );
-    }
-  );
+    return searchableText.includes(search);
+  });
 };
 
-//======================================================
+
+// ======================================================
 // Filter Reports
-//======================================================
+// ======================================================
 
 export const filterReports = (
   reports,
@@ -396,62 +469,98 @@ export const filterReports = (
     dateTo = "",
   } = filters || {};
 
-  return list.filter(
-    (report) => {
+  return list.filter((report) => {
 
-      //==============================================
-      // Status
-      //==============================================
+    // --------------------------------------------------
+    // Status
+    // --------------------------------------------------
 
-      if (
-        status &&
+    if (status) {
+      const reportStatus =
         normalizeSearchText(
           getReportStatus(report)
-        ) !==
-          normalizeSearchText(status)
-      ) {
-        return false;
-      }
+        );
 
-      //==============================================
-      // Report Type
-      //==============================================
+      const selectedStatus =
+        normalizeSearchText(status);
 
       if (
-        reportType &&
-        normalizeSearchText(
-          getReportType(report)
-        ) !==
-          normalizeSearchText(reportType)
+        reportStatus !== selectedStatus
       ) {
         return false;
       }
+    }
 
-      //==============================================
-      // Date Range
-      //==============================================
+
+    // --------------------------------------------------
+    // Report Type
+    // --------------------------------------------------
+
+    if (reportType) {
+      const currentReportType =
+        normalizeSearchText(
+          getReportType(report)
+        );
+
+      const selectedReportType =
+        normalizeSearchText(reportType);
+
+      if (
+        currentReportType !==
+        selectedReportType
+      ) {
+        return false;
+      }
+    }
+
+
+    // --------------------------------------------------
+    // Date Filter
+    // --------------------------------------------------
+
+    if (dateFrom || dateTo) {
 
       const reportDate =
         getCreatedDate(report);
 
-      if (
-        dateFrom ||
-        dateTo
-      ) {
-        if (!reportDate) {
-          return false;
-        }
+      if (!reportDate) {
+        return false;
+      }
 
-        const date =
-          new Date(reportDate);
+      const date =
+        new Date(reportDate);
+
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+        return false;
+      }
+
+
+      // ----------------------------------------------
+      // From Date
+      // ----------------------------------------------
+
+      if (dateFrom) {
+        const from =
+          new Date(dateFrom);
 
         if (
           Number.isNaN(
-            date.getTime()
+            from.getTime()
           )
         ) {
           return false;
         }
+
+        from.setHours(
+          0,
+          0,
+          0,
+          0
+        );
 
         date.setHours(
           0,
@@ -460,47 +569,65 @@ export const filterReports = (
           0
         );
 
-        if (dateFrom) {
-          const from =
-            new Date(dateFrom);
-
-          from.setHours(
-            0,
-            0,
-            0,
-            0
-          );
-
-          if (date < from) {
-            return false;
-          }
-        }
-
-        if (dateTo) {
-          const to =
-            new Date(dateTo);
-
-          to.setHours(
-            23,
-            59,
-            59,
-            999
-          );
-
-          if (date > to) {
-            return false;
-          }
+        if (date < from) {
+          return false;
         }
       }
 
-      return true;
+
+      // ----------------------------------------------
+      // To Date
+      // ----------------------------------------------
+
+      if (dateTo) {
+        const to =
+          new Date(dateTo);
+
+        if (
+          Number.isNaN(
+            to.getTime()
+          )
+        ) {
+          return false;
+        }
+
+        to.setHours(
+          23,
+          59,
+          59,
+          999
+        );
+
+        if (date > to) {
+          return false;
+        }
+      }
     }
+
+
+    return true;
+  });
+};
+
+
+// ======================================================
+// Inventory Report Filter
+// ======================================================
+
+export const filterInventoryReports = (
+  reports,
+  filters = {}
+) => {
+  return filterReports(
+    reports,
+    filters
   );
 };
 
-//======================================================
+
+// ======================================================
 // Sort Reports
-//======================================================
+// ======================================================
 
 export const sortReports = (
   reports,
@@ -512,138 +639,159 @@ export const sortReports = (
   ];
 
   const multiplier =
-    direction === "asc"
+    normalizeSearchText(direction) === "asc"
       ? 1
       : -1;
 
-  return list.sort(
-    (a, b) => {
+  return list.sort((a, b) => {
 
-      let valueA;
-      let valueB;
+    let valueA;
+    let valueB;
 
-      switch (field) {
-        case "reportName":
-          valueA =
-            getReportName(a);
-          valueB =
-            getReportName(b);
-          break;
+    switch (field) {
 
-        case "reportType":
-          valueA =
-            getReportType(a);
-          valueB =
-            getReportType(b);
-          break;
+      case "id":
+      case "reportId":
+        valueA =
+          getReportId(a);
+        valueB =
+          getReportId(b);
+        break;
 
-        case "status":
-          valueA =
-            getReportStatus(a);
-          valueB =
-            getReportStatus(b);
-          break;
+      case "reportName":
+      case "name":
+        valueA =
+          getReportName(a);
+        valueB =
+          getReportName(b);
+        break;
 
-        case "totalRecords":
-          valueA =
-            getTotalRecords(a);
-          valueB =
-            getTotalRecords(b);
-          break;
+      case "reportType":
+      case "type":
+        valueA =
+          getReportType(a);
+        valueB =
+          getReportType(b);
+        break;
 
-        case "totalStock":
-          valueA =
-            getTotalStock(a);
-          valueB =
-            getTotalStock(b);
-          break;
+      case "status":
+        valueA =
+          getReportStatus(a);
+        valueB =
+          getReportStatus(b);
+        break;
 
-        case "totalValue":
-          valueA =
-            getTotalValue(a);
-          valueB =
-            getTotalValue(b);
-          break;
+      case "totalRecords":
+        valueA =
+          getTotalRecords(a);
+        valueB =
+          getTotalRecords(b);
+        break;
 
-        case "createdBy":
-          valueA =
-            getCreatedBy(a);
-          valueB =
-            getCreatedBy(b);
-          break;
+      case "totalStock":
+        valueA =
+          getTotalStock(a);
+        valueB =
+          getTotalStock(b);
+        break;
 
-        case "createdDate":
-        default:
-          valueA =
-            getCreatedDate(a);
-          valueB =
-            getCreatedDate(b);
-          break;
-      }
+      case "totalValue":
+        valueA =
+          getTotalValue(a);
+        valueB =
+          getTotalValue(b);
+        break;
 
-      //==============================================
-      // Numeric
-      //==============================================
+      case "createdBy":
+        valueA =
+          getCreatedBy(a);
+        valueB =
+          getCreatedBy(b);
+        break;
 
-      if (
-        typeof valueA ===
-          "number" ||
-        typeof valueB ===
-          "number"
-      ) {
-        return (
-          (Number(valueA) -
-            Number(valueB)) *
-          multiplier
-        );
-      }
+      case "updatedDate":
+        valueA =
+          getUpdatedDate(a);
+        valueB =
+          getUpdatedDate(b);
+        break;
 
-      //==============================================
-      // Date
-      //==============================================
+      case "createdDate":
+      default:
+        valueA =
+          getCreatedDate(a);
+        valueB =
+          getCreatedDate(b);
+        break;
+    }
 
-      if (
-        field ===
-        "createdDate"
-      ) {
-        const dateA =
-          new Date(valueA || 0)
-            .getTime();
 
-        const dateB =
-          new Date(valueB || 0)
-            .getTime();
+    // --------------------------------------------------
+    // Numeric Values
+    // --------------------------------------------------
 
-        return (
-          (dateA - dateB) *
-          multiplier
-        );
-      }
-
-      //==============================================
-      // String
-      //==============================================
-
+    if (
+      typeof valueA === "number" ||
+      typeof valueB === "number"
+    ) {
       return (
-        String(valueA ?? "")
-          .localeCompare(
-            String(valueB ?? ""),
-            undefined,
-            {
-              numeric: true,
-              sensitivity:
-                "base",
-            }
-          ) *
+        (
+          toNumber(valueA) -
+          toNumber(valueB)
+        ) *
         multiplier
       );
     }
-  );
+
+
+    // --------------------------------------------------
+    // Date Values
+    // --------------------------------------------------
+
+    if (
+      field === "createdDate" ||
+      field === "updatedDate"
+    ) {
+      const dateA =
+        new Date(
+          valueA || 0
+        ).getTime();
+
+      const dateB =
+        new Date(
+          valueB || 0
+        ).getTime();
+
+      return (
+        (dateA - dateB) *
+        multiplier
+      );
+    }
+
+
+    // --------------------------------------------------
+    // String Values
+    // --------------------------------------------------
+
+    return (
+      String(valueA ?? "")
+        .localeCompare(
+          String(valueB ?? ""),
+          undefined,
+          {
+            numeric: true,
+            sensitivity: "base",
+          }
+        ) *
+      multiplier
+    );
+  });
 };
 
-//======================================================
+
+// ======================================================
 // Get Unique Report Types
-//======================================================
+// ======================================================
 
 export const getUniqueReportTypes = (
   reports
@@ -652,14 +800,18 @@ export const getUniqueReportTypes = (
     ...new Set(
       toArray(reports)
         .map(getReportType)
+        .map((value) =>
+          String(value ?? "").trim()
+        )
         .filter(Boolean)
     ),
   ];
 };
 
-//======================================================
+
+// ======================================================
 // Get Unique Statuses
-//======================================================
+// ======================================================
 
 export const getUniqueStatuses = (
   reports
@@ -668,14 +820,18 @@ export const getUniqueStatuses = (
     ...new Set(
       toArray(reports)
         .map(getReportStatus)
+        .map((value) =>
+          String(value ?? "").trim()
+        )
         .filter(Boolean)
     ),
   ];
 };
 
-//======================================================
+
+// ======================================================
 // Calculate Statistics
-//======================================================
+// ======================================================
 
 export const calculateStatistics = (
   reports
@@ -685,64 +841,78 @@ export const calculateStatistics = (
 
   const statistics = {
     totalReports: list.length,
+
     activeReports: 0,
+
     inactiveReports: 0,
+
     draftReports: 0,
+
     archivedReports: 0,
+
+    pendingReports: 0,
+
     totalRecords: 0,
+
     totalStock: 0,
+
     totalValue: 0,
   };
 
-  list.forEach(
-    (report) => {
 
-      const status =
-        normalizeSearchText(
-          getReportStatus(report)
-        );
+  list.forEach((report) => {
 
-      if (
-        status === "active"
-      ) {
+    const status =
+      normalizeSearchText(
+        getReportStatus(report)
+      );
+
+
+    switch (status) {
+
+      case "active":
         statistics.activeReports += 1;
-      }
+        break;
 
-      if (
-        status === "inactive"
-      ) {
+      case "inactive":
         statistics.inactiveReports += 1;
-      }
+        break;
 
-      if (
-        status === "draft"
-      ) {
+      case "draft":
         statistics.draftReports += 1;
-      }
+        break;
 
-      if (
-        status === "archived"
-      ) {
+      case "archived":
         statistics.archivedReports += 1;
-      }
+        break;
 
-      statistics.totalRecords +=
-        getTotalRecords(report);
+      case "pending":
+        statistics.pendingReports += 1;
+        break;
 
-      statistics.totalStock +=
-        getTotalStock(report);
-
-      statistics.totalValue +=
-        getTotalValue(report);
+      default:
+        break;
     }
-  );
+
+
+    statistics.totalRecords +=
+      getTotalRecords(report);
+
+    statistics.totalStock +=
+      getTotalStock(report);
+
+    statistics.totalValue +=
+      getTotalValue(report);
+  });
+
 
   return statistics;
 };
 
-//======================================================
+
+// ======================================================
 // Pagination
-//======================================================
+// ======================================================
 
 export const paginateReports = (
   reports,
@@ -768,11 +938,17 @@ export const paginateReports = (
     (safePage - 1) *
     safeRowsPerPage;
 
+  const endIndex =
+    Math.min(
+      startIndex +
+        safeRowsPerPage,
+      list.length
+    );
+
   return {
     data: list.slice(
       startIndex,
-      startIndex +
-        safeRowsPerPage
+      endIndex
     ),
 
     total:
@@ -784,40 +960,42 @@ export const paginateReports = (
           safeRowsPerPage
       ),
 
-    page: safePage,
+    page:
+      safePage,
 
     rowsPerPage:
       safeRowsPerPage,
 
     startIndex,
 
-    endIndex: Math.min(
-      startIndex +
-        safeRowsPerPage,
-      list.length
-    ),
+    endIndex,
   };
 };
 
-//======================================================
+
+// ======================================================
 // Create Empty Report
-//======================================================
+// ======================================================
 
 export const createEmptyReport = () => {
   return {
     id: null,
 
+    reportId: null,
+
     reportName: "",
 
-    reportType:
-      "inventory",
+    reportType: "inventory",
 
-    status:
-      "active",
+    status: "active",
 
     description: "",
 
     createdBy: "",
+
+    createdDate: null,
+
+    updatedDate: null,
 
     totalRecords: 0,
 
@@ -829,9 +1007,10 @@ export const createEmptyReport = () => {
   };
 };
 
-//======================================================
+
+// ======================================================
 // Normalize Report
-//======================================================
+// ======================================================
 
 export const normalizeReport = (
   report
@@ -858,6 +1037,18 @@ export const normalizeReport = (
       getReportStatus(report) ||
       "inactive",
 
+    description:
+      getDescription(report),
+
+    createdBy:
+      getCreatedBy(report),
+
+    createdDate:
+      getCreatedDate(report),
+
+    updatedDate:
+      getUpdatedDate(report),
+
     totalRecords:
       getTotalRecords(report),
 
@@ -868,44 +1059,198 @@ export const normalizeReport = (
       getTotalValue(report),
 
     items:
-      Array.isArray(
-        report.items
-      )
-        ? report.items
-        : [],
+      getReportItems(report),
   };
 };
 
-//======================================================
-// Export Object
-//======================================================
 
-export default {
-  toArray,
-  getReportId,
-  getReportName,
-  getReportType,
-  getReportStatus,
-  getStatus,
-  getStatusColor,
-  getTotalRecords,
-  getTotalStock,
-  getTotalValue,
-  getCreatedBy,
-  getCreatedDate,
-  getUpdatedDate,
-  formatNumber,
-  formatCurrency,
-  formatDate,
-  formatDateTime,
-  normalizeSearchText,
-  searchReports,
-  filterReports,
-  sortReports,
-  getUniqueReportTypes,
-  getUniqueStatuses,
-  calculateStatistics,
-  paginateReports,
-  createEmptyReport,
-  normalizeReport,
+// ======================================================
+// Normalize Reports
+// ======================================================
+
+export const normalizeReports = (
+  reports
+) => {
+  return toArray(reports)
+    .map(normalizeReport);
 };
+
+
+// ======================================================
+// Filter + Search + Sort
+// ======================================================
+
+export const processReports = (
+  reports,
+  {
+    searchTerm = "",
+    filters = {},
+    sortField = "createdDate",
+    sortDirection = "desc",
+  } = {}
+) => {
+
+  let result =
+    normalizeReports(reports);
+
+
+  // Search
+
+  result =
+    searchReports(
+      result,
+      searchTerm
+    );
+
+
+  // Filters
+
+  result =
+    filterInventoryReports(
+      result,
+      filters
+    );
+
+
+  // Sort
+
+  result =
+    sortReports(
+      result,
+      sortField,
+      sortDirection
+    );
+
+
+  return result;
+};
+
+
+// ======================================================
+// Get Report Summary
+// ======================================================
+
+export const getReportSummary = (
+  report
+) => {
+  if (!report) {
+    return {
+      id: "",
+      name: "Unnamed Report",
+      type: "inventory",
+      status: "inactive",
+      records: 0,
+      stock: 0,
+      value: 0,
+      createdBy: "-",
+      createdDate: null,
+    };
+  }
+
+  return {
+    id:
+      getReportId(report),
+
+    name:
+      getReportName(report),
+
+    type:
+      getReportType(report),
+
+    status:
+      getReportStatus(report),
+
+    records:
+      getTotalRecords(report),
+
+    stock:
+      getTotalStock(report),
+
+    value:
+      getTotalValue(report),
+
+    createdBy:
+      getCreatedBy(report),
+
+    createdDate:
+      getCreatedDate(report),
+  };
+};
+
+
+// ======================================================
+// Export Default Helper Object
+// ======================================================
+
+const InventoryReportHelper = {
+
+  toArray,
+
+  toNumber,
+
+  normalizeSearchText,
+
+  getReportId,
+
+  getReportName,
+
+  getReportType,
+
+  getReportStatus,
+
+  getStatus,
+
+  getStatusColor,
+
+  getTotalRecords,
+
+  getTotalStock,
+
+  getTotalValue,
+
+  getCreatedBy,
+
+  getCreatedDate,
+
+  getUpdatedDate,
+
+  getDescription,
+
+  getReportItems,
+
+  formatNumber,
+
+  formatCurrency,
+
+  formatDate,
+
+  formatDateTime,
+
+  searchReports,
+
+  filterReports,
+
+  filterInventoryReports,
+
+  sortReports,
+
+  getUniqueReportTypes,
+
+  getUniqueStatuses,
+
+  calculateStatistics,
+
+  paginateReports,
+
+  createEmptyReport,
+
+  normalizeReport,
+
+  normalizeReports,
+
+  processReports,
+
+  getReportSummary,
+};
+
+export default InventoryReportHelper;

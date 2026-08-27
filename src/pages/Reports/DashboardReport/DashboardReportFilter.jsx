@@ -1,11 +1,29 @@
-import React, {useEffect,useState} from "react";
-import PropTypes from "prop-types";
-import {Box,Button,FormControl,InputLabel,MenuItem,Select,Stack,TextField} from "@mui/material";
-import {Clear,FilterAlt} from "@mui/icons-material";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 
-//======================================================
+import PropTypes from "prop-types";
+
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+} from "@mui/material";
+
+import {
+  Clear,
+  FilterAlt,
+} from "@mui/icons-material";
+
+// ======================================================
 // DashboardReportFilter
-//======================================================
+// ======================================================
 
 const DashboardReportFilter = ({
   filters = {},
@@ -14,32 +32,12 @@ const DashboardReportFilter = ({
   onReset,
   loading = false,
 }) => {
-
-  //====================================================
+  // ====================================================
   // Form State
-  //====================================================
+  // ====================================================
 
-  const [formData, setFormData] = useState({
-    status:
-      filters?.status || "",
-
-    reportType:
-      filters?.reportType || "",
-
-    dateFrom:
-      filters?.dateFrom || "",
-
-    dateTo:
-      filters?.dateTo || "",
-  });
-
-  //====================================================
-  // Sync With Parent Filters
-  //====================================================
-
-  useEffect(() => {
-
-    setFormData({
+  const [formData, setFormData] =
+    useState({
       status:
         filters?.status || "",
 
@@ -53,6 +51,24 @@ const DashboardReportFilter = ({
         filters?.dateTo || "",
     });
 
+  // ====================================================
+  // Sync With Parent Filters
+  // ====================================================
+
+  useEffect(() => {
+    setFormData({
+      status:
+        filters?.status || "",
+
+      reportType:
+        filters?.reportType || "",
+
+      dateFrom:
+        filters?.dateFrom || "",
+
+      dateTo:
+        filters?.dateTo || "",
+    });
   }, [
     filters?.status,
     filters?.reportType,
@@ -60,59 +76,47 @@ const DashboardReportFilter = ({
     filters?.dateTo,
   ]);
 
-  //====================================================
+  // ====================================================
   // Input Change
-  //====================================================
+  // ====================================================
 
-  const handleChange = (
-    event
-  ) => {
-
+  const handleChange = (event) => {
     const {
       name,
       value,
     } = event.target;
 
-    setFormData(
-      (previous) => ({
-        ...previous,
-        [name]: value,
-      })
-    );
+    const updatedData = {
+      ...formData,
+      [name]: value,
+    };
+
+    setFormData(updatedData);
 
     if (
-      typeof onChange ===
-      "function"
+      typeof onChange === "function"
     ) {
-      onChange({
-        ...formData,
-        [name]: value,
-      });
+      onChange(updatedData);
     }
-
   };
 
-  //====================================================
+  // ====================================================
   // Apply Filters
-  //====================================================
+  // ====================================================
 
   const handleApply = () => {
-
     if (
-      typeof onApply ===
-      "function"
+      typeof onApply === "function"
     ) {
       onApply(formData);
     }
-
   };
 
-  //====================================================
+  // ====================================================
   // Reset Filters
-  //====================================================
+  // ====================================================
 
   const handleReset = () => {
-
     const emptyFilters = {
       status: "",
       reportType: "",
@@ -120,257 +124,24 @@ const DashboardReportFilter = ({
       dateTo: "",
     };
 
-    setFormData(
-      emptyFilters
-    );
+    setFormData(emptyFilters);
 
     if (
-      typeof onReset ===
-      "function"
+      typeof onReset === "function"
     ) {
-      onReset();
+      onReset(emptyFilters);
     }
 
+    if (
+      typeof onChange === "function"
+    ) {
+      onChange(emptyFilters);
+    }
   };
 
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
-    //====================================================
+  // ====================================================
   // JSX
-  //====================================================
-
-  return (
-    <Box
-      className="dashboard-report-filter"
-      sx={{
-        width: "100%",
-      }}
-    >
-      <Stack
-        spacing={2}
-      >
-
-        {/*================================================
-            Filter Fields
-        =================================================*/}
-
-        <Stack
-          direction={{
-            xs: "column",
-            sm: "row",
-          }}
-          spacing={2}
-          alignItems={{
-            xs: "stretch",
-            sm: "center",
-          }}
-        >
-
-          {/*==============================================
-              Status
-          ==============================================*/}
-
-          <FormControl
-            fullWidth
-            size="small"
-            disabled={loading}
-          >
-            <InputLabel id="dashboard-report-filter-status-label">
-              Status
-            </InputLabel>
-
-            <Select
-              labelId="dashboard-report-filter-status-label"
-              name="status"
-              value={formData.status}
-              label="Status"
-              onChange={handleChange}
-            >
-
-              <MenuItem value="">
-                All Statuses
-              </MenuItem>
-
-              <MenuItem value="Active">
-                Active
-              </MenuItem>
-
-              <MenuItem value="Inactive">
-                Inactive
-              </MenuItem>
-
-              <MenuItem value="Draft">
-                Draft
-              </MenuItem>
-
-              <MenuItem value="Archived">
-                Archived
-              </MenuItem>
-
-            </Select>
-          </FormControl>
-
-          {/*==============================================
-              Report Type
-          ==============================================*/}
-
-          <FormControl
-            fullWidth
-            size="small"
-            disabled={loading}
-          >
-            <InputLabel id="dashboard-report-filter-type-label">
-              Report Type
-            </InputLabel>
-
-            <Select
-              labelId="dashboard-report-filter-type-label"
-              name="reportType"
-              value={formData.reportType}
-              label="Report Type"
-              onChange={handleChange}
-            >
-
-              <MenuItem value="">
-                All Report Types
-              </MenuItem>
-
-              <MenuItem value="Dashboard">
-                Dashboard
-              </MenuItem>
-
-              <MenuItem value="Sales">
-                Sales
-              </MenuItem>
-
-              <MenuItem value="Orders">
-                Orders
-              </MenuItem>
-
-              <MenuItem value="Customers">
-                Customers
-              </MenuItem>
-
-              <MenuItem value="Products">
-                Products
-              </MenuItem>
-
-              <MenuItem value="Inventory">
-                Inventory
-              </MenuItem>
-
-              <MenuItem value="Finance">
-                Finance
-              </MenuItem>
-
-            </Select>
-          </FormControl>
-
-        </Stack>
-
-        {/*================================================
-            Date Filters
-        =================================================*/}
-
-        <Stack
-          direction={{
-            xs: "column",
-            sm: "row",
-          }}
-          spacing={2}
-        >
-
-          {/*==============================================
-              Date From
-          ==============================================*/}
-
-          <TextField
-            fullWidth
-            size="small"
-            type="date"
-            label="Date From"
-            name="dateFrom"
-            value={formData.dateFrom}
-            onChange={handleChange}
-            disabled={loading}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-
-          {/*==============================================
-              Date To
-          ==============================================*/}
-
-          <TextField
-            fullWidth
-            size="small"
-            type="date"
-            label="Date To"
-            name="dateTo"
-            value={formData.dateTo}
-            onChange={handleChange}
-            disabled={loading}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-
-        </Stack>
-
-        {/*================================================
-            Filter Actions
-        =================================================*/}
-
-        <Stack
-          direction="row"
-          spacing={1.5}
-          justifyContent="flex-end"
-          flexWrap="wrap"
-        >
-
-          {/*==============================================
-              Reset
-          ==============================================*/}
-
-          <Button
-            variant="outlined"
-            color="secondary"
-            startIcon={<Clear />}
-            onClick={handleReset}
-            disabled={loading}
-          >
-            Reset
-          </Button>
-
-          {/*==============================================
-              Apply
-          ==============================================*/}
-
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<FilterAlt />}
-            onClick={handleApply}
-            disabled={loading}
-          >
-            Apply Filters
-          </Button>
-
-        </Stack>
-
-      </Stack>
-    </Box>
-  );
-};
-
-//======================================================
-// Part 1B Ends Here
-//======================================================
-  //====================================================
-  // JSX
-  //====================================================
+  // ====================================================
 
   return (
     <Box
@@ -381,9 +152,9 @@ const DashboardReportFilter = ({
     >
       <Stack spacing={2}>
 
-        {/*================================================
+        {/* =================================================
             Status + Report Type
-        =================================================*/}
+        ================================================== */}
 
         <Stack
           direction={{
@@ -393,9 +164,9 @@ const DashboardReportFilter = ({
           spacing={2}
         >
 
-          {/*==============================================
+          {/* ===============================================
               Status
-          ==============================================*/}
+          ================================================ */}
 
           <FormControl
             fullWidth
@@ -409,9 +180,13 @@ const DashboardReportFilter = ({
             <Select
               labelId="dashboard-report-filter-status-label"
               name="status"
-              value={formData.status}
+              value={
+                formData.status
+              }
               label="Status"
-              onChange={handleChange}
+              onChange={
+                handleChange
+              }
             >
               <MenuItem value="">
                 All Statuses
@@ -435,9 +210,9 @@ const DashboardReportFilter = ({
             </Select>
           </FormControl>
 
-          {/*==============================================
+          {/* ===============================================
               Report Type
-          ==============================================*/}
+          ================================================ */}
 
           <FormControl
             fullWidth
@@ -451,9 +226,13 @@ const DashboardReportFilter = ({
             <Select
               labelId="dashboard-report-filter-type-label"
               name="reportType"
-              value={formData.reportType}
+              value={
+                formData.reportType
+              }
               label="Report Type"
-              onChange={handleChange}
+              onChange={
+                handleChange
+              }
             >
               <MenuItem value="">
                 All Report Types
@@ -491,9 +270,9 @@ const DashboardReportFilter = ({
 
         </Stack>
 
-        {/*================================================
+        {/* =================================================
             Date Range
-        =================================================*/}
+        ================================================== */}
 
         <Stack
           direction={{
@@ -503,19 +282,27 @@ const DashboardReportFilter = ({
           spacing={2}
         >
 
+          {/* Date From */}
+
           <TextField
             fullWidth
             size="small"
             type="date"
             label="Date From"
             name="dateFrom"
-            value={formData.dateFrom}
-            onChange={handleChange}
+            value={
+              formData.dateFrom
+            }
+            onChange={
+              handleChange
+            }
             disabled={loading}
             InputLabelProps={{
               shrink: true,
             }}
           />
+
+          {/* Date To */}
 
           <TextField
             fullWidth
@@ -523,8 +310,12 @@ const DashboardReportFilter = ({
             type="date"
             label="Date To"
             name="dateTo"
-            value={formData.dateTo}
-            onChange={handleChange}
+            value={
+              formData.dateTo
+            }
+            onChange={
+              handleChange
+            }
             disabled={loading}
             InputLabelProps={{
               shrink: true,
@@ -533,9 +324,9 @@ const DashboardReportFilter = ({
 
         </Stack>
 
-        {/*================================================
+        {/* =================================================
             Actions
-        =================================================*/}
+        ================================================== */}
 
         <Stack
           direction="row"
@@ -544,21 +335,33 @@ const DashboardReportFilter = ({
           flexWrap="wrap"
         >
 
+          {/* Reset */}
+
           <Button
             variant="outlined"
             color="secondary"
-            startIcon={<Clear />}
-            onClick={handleReset}
+            startIcon={
+              <Clear />
+            }
+            onClick={
+              handleReset
+            }
             disabled={loading}
           >
             Reset
           </Button>
 
+          {/* Apply */}
+
           <Button
             variant="contained"
             color="primary"
-            startIcon={<FilterAlt />}
-            onClick={handleApply}
+            startIcon={
+              <FilterAlt />
+            }
+            onClick={
+              handleApply
+            }
             disabled={loading}
           >
             Apply Filters
@@ -569,33 +372,44 @@ const DashboardReportFilter = ({
       </Stack>
     </Box>
   );
-//======================================================
-// Part 1B Ends Here
-//======================================================
-//======================================================
-// PropTypes
-//======================================================
-
-DashboardReportFilter.propTypes = {
-  filters: PropTypes.shape({
-    status: PropTypes.string,
-    reportType: PropTypes.string,
-    dateFrom: PropTypes.string,
-    dateTo: PropTypes.string,
-  }),
-
-  onChange: PropTypes.func,
-
-  onApply: PropTypes.func,
-
-  onReset: PropTypes.func,
-
-  loading: PropTypes.bool,
 };
 
-//======================================================
+// ======================================================
+// PropTypes
+// ======================================================
+
+DashboardReportFilter.propTypes = {
+  filters:
+    PropTypes.shape({
+      status:
+        PropTypes.string,
+
+      reportType:
+        PropTypes.string,
+
+      dateFrom:
+        PropTypes.string,
+
+      dateTo:
+        PropTypes.string,
+    }),
+
+  onChange:
+    PropTypes.func,
+
+  onApply:
+    PropTypes.func,
+
+  onReset:
+    PropTypes.func,
+
+  loading:
+    PropTypes.bool,
+};
+
+// ======================================================
 // Default Props
-//======================================================
+// ======================================================
 
 DashboardReportFilter.defaultProps = {
   filters: {},
@@ -609,8 +423,8 @@ DashboardReportFilter.defaultProps = {
   loading: false,
 };
 
-//======================================================
+// ======================================================
 // Export
-//======================================================
+// ======================================================
 
 export default DashboardReportFilter;

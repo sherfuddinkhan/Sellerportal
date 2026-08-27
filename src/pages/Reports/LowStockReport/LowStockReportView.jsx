@@ -14,11 +14,11 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-
 import {
   Inventory2,
   Warning,
-  ErrorOutline,
+  Error,
+  TrendingDown,
 } from "@mui/icons-material";
 
 //======================================================

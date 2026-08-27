@@ -1,13 +1,17 @@
-import React, {useEffect,useState} from "react";
-import {Box} from "@mui/material";
-import {useNavigate} from "react-router-dom";
-import ProductPriceToolbar from "./ProductPriceToolbar";
-import ProductPriceStatistics from "./ProductPriceStatistics";
-import ProductPriceSearch from "./ProductPriceSearch";
-import ProductPriceTable from "./ProductPriceTable";
-import ProductPricePagination from "./ProductPricePagination";
-import ProductPriceModal from "./ProductPriceModal";
-import DeleteProductPriceDialog from "./DeleteProductPriceDialog";
+import ProductPriceToolbar from "../ProductPrices/ProductPriceToolbar";
+
+import ProductPriceStatistics from "../ProductPrices/ProductPriceStatistics";
+
+import ProductPriceSearch from "../ProductPrices/ProductPriceSearch";
+
+import ProductPriceTable from "../ProductPrices/ProductPriceTable";
+
+import ProductPricePagination from "../ProductPrices/ProductPricePagination";
+
+import ProductPriceModal from "../ProductPrices/ProductPriceModal";
+
+import DeleteProductPriceDialog from "../ProductPrices/DeleteProductPriceDialog";
+
 
 const ProductPriceList = () => {
     const navigate = useNavigate();

@@ -1,3 +1,7 @@
+// ======================================================
+// OrderReportModal.jsx
+// ======================================================
+
 import React, {
   useCallback,
   useEffect,
@@ -27,7 +31,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-
 import {
   createOrderReport,
   updateOrderReport,
@@ -44,9 +47,28 @@ import {
   getSalesAmount,
 } from "./OrderReportHelpers";
 
-//======================================================
+
+
+// ======================================================
+// Initial Form
+// ======================================================
+
+const INITIAL_FORM_DATA = {
+  orderNumber: "",
+  orderDate: "",
+  customerName: "",
+  channel: "",
+  quantity: "",
+  salesAmount: "",
+  orderStatus: "",
+  paymentStatus: "",
+  fulfillmentStatus: "",
+  notes: "",
+};
+
+// ======================================================
 // OrderReportModal
-//======================================================
+// ======================================================
 
 const OrderReportModal = ({
   open = false,
@@ -55,87 +77,57 @@ const OrderReportModal = ({
   onClose,
   onSaved,
 }) => {
-  //====================================================
-  // Form State
-  //====================================================
+  // ====================================================
+  // State
+  // ====================================================
 
-  const [formData, setFormData] =
-    useState({
-      orderNumber: "",
-      orderDate: "",
-      customerName: "",
-      channel: "",
-      quantity: "",
-      salesAmount: "",
-      orderStatus: "",
-      paymentStatus: "",
-      fulfillmentStatus: "",
-      notes: "",
-    });
+  const [formData, setFormData] = useState(
+    INITIAL_FORM_DATA
+  );
 
-  //====================================================
-  // Loading State
-  //====================================================
+  const [loading, setLoading] = useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [error, setError] = useState("");
 
-  //====================================================
-  // Error State
-  //====================================================
+  // ====================================================
+  // Mode
+  // ====================================================
 
-  const [error, setError] =
-    useState("");
-
-  //====================================================
-  // View Mode
-  //====================================================
-
-  const isViewMode =
-    mode === "view";
-
-  //====================================================
-  // Edit Mode
-  //====================================================
+  const isViewMode = mode === "view";
 
   const isEditMode =
     mode === "edit";
-
-  //====================================================
-  // Create Mode
-  //====================================================
 
   const isCreateMode =
     mode === "create" ||
     mode === "add";
 
-  //====================================================
+  // ====================================================
   // Populate Form
-  //====================================================
+  // ====================================================
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
+    setError("");
+
+    // ----------------------------------------------
+    // New Order
+    // ----------------------------------------------
+
     if (!order) {
       setFormData({
-        orderNumber: "",
-        orderDate: "",
-        customerName: "",
-        channel: "",
-        quantity: "",
-        salesAmount: "",
-        orderStatus: "",
-        paymentStatus: "",
-        fulfillmentStatus: "",
-        notes: "",
+        ...INITIAL_FORM_DATA,
       });
-
-      setError("");
 
       return;
     }
+
+    // ----------------------------------------------
+    // Existing Order
+    // ----------------------------------------------
 
     setFormData({
       orderNumber:
@@ -163,138 +155,166 @@ const OrderReportModal = ({
         getPaymentStatus(order) || "",
 
       fulfillmentStatus:
-        order?.fulfillmentStatus ||
-        order?.fulfilmentStatus ||
+        order?.fulfillmentStatus ??
+        order?.fulfilmentStatus ??
         "",
 
       notes:
-        order?.notes ||
-        order?.remarks ||
+        order?.notes ??
+        order?.remarks ??
         "",
     });
+  }, [open, order]);
 
-    setError("");
-  }, [
-    open,
-    order,
-  ]);
-
-  //====================================================
+  // ====================================================
   // Change Handler
-  //====================================================
+  // ====================================================
 
-  const handleChange =
-    useCallback(
-      (field, value) => {
-        setFormData(
-          (previous) => ({
-            ...previous,
-            [field]: value,
-          })
-        );
-      },
-      []
-    );
+  const handleChange = useCallback(
+    (field, value) => {
+      setFormData((previous) => ({
+        ...previous,
+        [field]: value,
+      }));
+    },
+    []
+  );
 
-  //====================================================
+  // ====================================================
   // Close Handler
-  //====================================================
+  // ====================================================
 
-  const handleClose =
-    useCallback(() => {
-      if (loading) {
-        return;
-      }
+  const handleClose = useCallback(() => {
+    if (loading) {
+      return;
+    }
 
-      if (
-        typeof onClose ===
-        "function"
-      ) {
-        onClose();
-      }
-    }, [
-      loading,
-      onClose,
-    ]);
-  //====================================================
+    if (typeof onClose === "function") {
+      onClose();
+    }
+  }, [loading, onClose]);
+
+  // ====================================================
   // Save Handler
-  //====================================================
+  // ====================================================
 
-  const handleSave =
-    useCallback(async () => {
+  const handleSave = useCallback(
+    async () => {
       if (isViewMode) {
         return;
       }
 
       setError("");
 
-      //==================================================
-      // Basic Validation
-      //==================================================
+      // ----------------------------------------------
+      // Validate Order Number
+      // ----------------------------------------------
 
-      if (
-        !formData.orderNumber
+      const orderNumber =
+        formData.orderNumber
           ?.toString()
-          .trim()
-      ) {
+          .trim();
+
+      if (!orderNumber) {
         setError(
           "Order number is required."
         );
+
         return;
       }
 
-      if (
-        !formData.orderDate
-      ) {
+      // ----------------------------------------------
+      // Validate Order Date
+      // ----------------------------------------------
+
+      if (!formData.orderDate) {
         setError(
           "Order date is required."
         );
+
         return;
       }
+
+      // ----------------------------------------------
+      // Validate Edit ID
+      // ----------------------------------------------
+
+      let orderId = null;
+
+      if (isEditMode) {
+        orderId =
+          order?.id ??
+          order?.orderId ??
+          order?.orderID;
+
+        if (
+          orderId === undefined ||
+          orderId === null ||
+          orderId === ""
+        ) {
+          setError(
+            "Order ID is required for updating."
+          );
+
+          return;
+        }
+      }
+
+      // ----------------------------------------------
+      // Loading
+      // ----------------------------------------------
 
       setLoading(true);
 
       try {
-        const payload = {
-          ...formData,
+        // --------------------------------------------
+        // Payload
+        // --------------------------------------------
 
-          orderNumber:
-            formData.orderNumber
-              .toString()
-              .trim(),
+        const payload = {
+          orderNumber,
+
+          orderDate:
+            formData.orderDate,
 
           customerName:
             formData.customerName
               ?.toString()
-              .trim(),
+              .trim() || "",
 
           channel:
             formData.channel
               ?.toString()
-              .trim(),
+              .trim() || "",
 
           quantity:
-            Number(
-              formData.quantity
-            ) || 0,
+            Number(formData.quantity) || 0,
 
           salesAmount:
-            Number(
-              formData.salesAmount
-            ) || 0,
+            Number(formData.salesAmount) || 0,
+
+          orderStatus:
+            formData.orderStatus || "",
+
+          paymentStatus:
+            formData.paymentStatus || "",
+
+          fulfillmentStatus:
+            formData.fulfillmentStatus || "",
+
+          notes:
+            formData.notes
+              ?.toString()
+              .trim() || "",
         };
+
+        // --------------------------------------------
+        // API
+        // --------------------------------------------
 
         let response;
 
-        if (
-          isEditMode &&
-          order
-        ) {
-          const orderId =
-            order.id ??
-            order.orderId ??
-            order.orderID;
-
+        if (isEditMode) {
           response =
             await updateOrderReport(
               orderId,
@@ -307,23 +327,27 @@ const OrderReportModal = ({
             );
         }
 
+        // --------------------------------------------
+        // API Failure
+        // --------------------------------------------
+
         if (
-          response?.success ===
-          false
+          response?.success === false
         ) {
           throw new Error(
-            response.message ||
+            response?.message ||
               "Unable to save order report."
           );
         }
 
+        // --------------------------------------------
+        // Callback
+        // --------------------------------------------
+
         if (
-          typeof onSaved ===
-          "function"
+          typeof onSaved === "function"
         ) {
-          await onSaved(
-            response
-          );
+          await onSaved(response);
         }
       } catch (saveError) {
         console.error(
@@ -331,49 +355,48 @@ const OrderReportModal = ({
           saveError
         );
 
-        setError(
-          saveError?.response
-            ?.data?.message ||
-            saveError?.message ||
-            "Unable to save order report."
-        );
+        const message =
+          saveError?.response?.data
+            ?.message ||
+          saveError?.response?.data
+            ?.error ||
+          saveError?.message ||
+          "Unable to save order report.";
+
+        setError(message);
       } finally {
         setLoading(false);
       }
-    }, [
+    },
+    [
       formData,
       isViewMode,
       isEditMode,
       order,
       onSaved,
-    ]);
+    ]
+  );
 
-  //====================================================
+  // ====================================================
   // Dialog Title
-  //====================================================
+  // ====================================================
 
-  const dialogTitle =
-    isCreateMode
-      ? "Add Order Report"
-      : isEditMode
-        ? "Edit Order Report"
-        : "Order Report Details";
+  const dialogTitle = isCreateMode
+    ? "Add Order Report"
+    : isEditMode
+      ? "Edit Order Report"
+      : "Order Report Details";
 
-  //====================================================
-  // Field Disabled State
-  //====================================================
+  // ====================================================
+  // Disabled
+  // ====================================================
 
   const fieldsDisabled =
-    isViewMode ||
-    loading;
+    isViewMode || loading;
 
-  //====================================================
-  // Part 1B Ends Here
-  //====================================================
-
-  //====================================================
+  // ====================================================
   // Render
-  //====================================================
+  // ====================================================
 
   return (
     <Dialog
@@ -383,9 +406,9 @@ const OrderReportModal = ({
       maxWidth="md"
       scroll="paper"
     >
-      {/*================================================
-          Dialog Title
-      =================================================*/}
+      {/* ==================================================
+          TITLE
+      ================================================== */}
 
       <DialogTitle
         sx={{
@@ -415,9 +438,9 @@ const OrderReportModal = ({
 
       <Divider />
 
-      {/*================================================
-          Dialog Content
-      =================================================*/}
+      {/* ==================================================
+          CONTENT
+      ================================================== */}
 
       <DialogContent
         sx={{
@@ -425,19 +448,18 @@ const OrderReportModal = ({
         }}
       >
         <Stack spacing={3}>
-          {/*================================================
-              Error Message
-          =================================================*/}
+
+          {/* ==============================================
+              ERROR
+          ============================================== */}
 
           {error && (
             <Box
               sx={{
                 p: 1.5,
                 borderRadius: 1,
-                bgcolor:
-                  "error.lighter",
-                color:
-                  "error.main",
+                bgcolor: "error.lighter",
+                color: "error.main",
               }}
             >
               <Typography
@@ -449,9 +471,9 @@ const OrderReportModal = ({
             </Box>
           )}
 
-          {/*================================================
-              Basic Order Information
-          =================================================*/}
+          {/* ==============================================
+              ORDER INFORMATION
+          ============================================== */}
 
           <Box>
             <Typography
@@ -468,6 +490,7 @@ const OrderReportModal = ({
               container
               spacing={2}
             >
+
               {/* Order Number */}
 
               <Grid
@@ -485,14 +508,13 @@ const OrderReportModal = ({
                   disabled={
                     fieldsDisabled
                   }
+                  required
                   onChange={(event) =>
                     handleChange(
                       "orderNumber",
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
-                  required
                 />
               </Grid>
 
@@ -514,17 +536,16 @@ const OrderReportModal = ({
                   disabled={
                     fieldsDisabled
                   }
-                  onChange={(event) =>
-                    handleChange(
-                      "orderDate",
-                      event.target
-                        .value
-                    )
-                  }
+                  required
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  required
+                  onChange={(event) =>
+                    handleChange(
+                      "orderDate",
+                      event.target.value
+                    )
+                  }
                 />
               </Grid>
 
@@ -548,8 +569,7 @@ const OrderReportModal = ({
                   onChange={(event) =>
                     handleChange(
                       "customerName",
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                 />
@@ -575,8 +595,7 @@ const OrderReportModal = ({
                   onChange={(event) =>
                     handleChange(
                       "channel",
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                 />
@@ -600,16 +619,15 @@ const OrderReportModal = ({
                   disabled={
                     fieldsDisabled
                   }
-                  onChange={(event) =>
-                    handleChange(
-                      "quantity",
-                      event.target
-                        .value
-                    )
-                  }
                   inputProps={{
                     min: 0,
                   }}
+                  onChange={(event) =>
+                    handleChange(
+                      "quantity",
+                      event.target.value
+                    )
+                  }
                 />
               </Grid>
 
@@ -631,27 +649,27 @@ const OrderReportModal = ({
                   disabled={
                     fieldsDisabled
                   }
-                  onChange={(event) =>
-                    handleChange(
-                      "salesAmount",
-                      event.target
-                        .value
-                    )
-                  }
                   inputProps={{
                     min: 0,
                     step: "0.01",
                   }}
+                  onChange={(event) =>
+                    handleChange(
+                      "salesAmount",
+                      event.target.value
+                    )
+                  }
                 />
               </Grid>
+
             </Grid>
           </Box>
 
           <Divider />
 
-          {/*================================================
-              Status Information
-          =================================================*/}
+          {/* ==============================================
+              STATUS
+          ============================================== */}
 
           <Box>
             <Typography
@@ -668,6 +686,7 @@ const OrderReportModal = ({
               container
               spacing={2}
             >
+
               {/* Order Status */}
 
               <Grid
@@ -689,8 +708,7 @@ const OrderReportModal = ({
                   onChange={(event) =>
                     handleChange(
                       "orderStatus",
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                 >
@@ -745,8 +763,7 @@ const OrderReportModal = ({
                   onChange={(event) =>
                     handleChange(
                       "paymentStatus",
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                 >
@@ -797,8 +814,7 @@ const OrderReportModal = ({
                   onChange={(event) =>
                     handleChange(
                       "fulfillmentStatus",
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                 >
@@ -831,12 +847,13 @@ const OrderReportModal = ({
                   </MenuItem>
                 </TextField>
               </Grid>
+
             </Grid>
           </Box>
 
-          {/*================================================
-              Notes
-          =================================================*/}
+          {/* ==============================================
+              NOTES
+          ============================================== */}
 
           <TextField
             fullWidth
@@ -857,14 +874,15 @@ const OrderReportModal = ({
               )
             }
           />
+
         </Stack>
       </DialogContent>
 
       <Divider />
 
-      {/*================================================
-          Dialog Actions
-      =================================================*/}
+      {/* ==================================================
+          ACTIONS
+      ================================================== */}
 
       <DialogActions
         sx={{
@@ -872,6 +890,7 @@ const OrderReportModal = ({
           py: 2,
         }}
       >
+
         <Button
           variant="outlined"
           startIcon={<Close />}
@@ -906,9 +925,51 @@ const OrderReportModal = ({
                 : "Save Order"}
           </Button>
         )}
+
       </DialogActions>
     </Dialog>
   );
 };
+
+// ======================================================
+// PropTypes
+// ======================================================
+
+OrderReportModal.propTypes = {
+  open: PropTypes.bool,
+
+  mode: PropTypes.oneOf([
+    "view",
+    "edit",
+    "create",
+    "add",
+  ]),
+
+  order: PropTypes.object,
+
+  onClose: PropTypes.func,
+
+  onSaved: PropTypes.func,
+};
+
+// ======================================================
+// Default Props
+// ======================================================
+
+OrderReportModal.defaultProps = {
+  open: false,
+
+  mode: "view",
+
+  order: null,
+
+  onClose: () => {},
+
+  onSaved: () => {},
+};
+
+// ======================================================
+// Export
+// ======================================================
 
 export default OrderReportModal;

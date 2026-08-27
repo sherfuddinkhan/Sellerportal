@@ -1,11 +1,36 @@
-import React, {useMemo} from "react";
-import PropTypes from "prop-types";
-import {Box,Card,CardContent,Chip,Divider,IconButton,Stack,Tooltip,Typography} from "@mui/material";
-import {Inventory2,MoreVert,Warning,ErrorOutline,TrendingDown} from "@mui/icons-material";
+// ======================================================
+// LowStockReportCard.jsx
+// ======================================================
 
-//======================================================
+import React, { useMemo } from "react";
+import PropTypes from "prop-types";
+
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+
+// ======================================================
+// MUI Icons
+// Direct imports prevent Vite named-export issues
+// ======================================================
+
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import WarningIcon from "@mui/icons-material/Warning";
+import ErrorIcon from "@mui/icons-material/Error";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
+
+// ======================================================
 // LowStockReportCard
-//======================================================
+// ======================================================
 
 const LowStockReportCard = ({
   report = {},
@@ -15,75 +40,128 @@ const LowStockReportCard = ({
   onMenu,
   showActions = true,
 }) => {
-
-  //====================================================
+  // ====================================================
   // Normalize Report Data
-  //====================================================
+  // ====================================================
 
   const data = useMemo(
     () => ({
-      id: report?.id ?? report?.reportId ?? report?.inventoryId ?? "",
-      productName: report?.productName ?? report?.itemName ?? report?.name ?? "Unknown Product",
-      productCode: report?.productCode ?? report?.itemCode ?? report?.sku ?? "-",
-      category: report?.categoryName ?? report?.category ?? "-",
-      currentStock: Number(report?.currentStock ?? report?.stockQuantity ?? report?.quantity ?? 0),
-      minimumStock: Number(report?.minimumStock ?? report?.minStock ?? report?.reorderLevel ?? 0),
-      reorderQuantity: Number( report?.reorderQuantity ?? report?.reorderQty ?? 0 ),
-      unit: report?.unit ?? report?.uom ?? "Units",
-      warehouse: report?.warehouseName ?? report?.warehouse ?? "-",
-      status: String( report?.status ?? "Low" ),
-      lastUpdated: report?.lastUpdated ?? report?.updatedAt ?? report?.updatedDate ?? "",
-    }),[report]
+      id:
+        report?.id ??
+        report?.reportId ??
+        report?.inventoryId ??
+        "",
+
+      productName:
+        report?.productName ??
+        report?.itemName ??
+        report?.name ??
+        "Unknown Product",
+
+      productCode:
+        report?.productCode ??
+        report?.itemCode ??
+        report?.sku ??
+        "-",
+
+      category:
+        report?.categoryName ??
+        report?.category ??
+        "-",
+
+      currentStock: Number(
+        report?.currentStock ??
+          report?.stockQuantity ??
+          report?.quantity ??
+          0
+      ),
+
+      minimumStock: Number(
+        report?.minimumStock ??
+          report?.minStock ??
+          report?.reorderLevel ??
+          0
+      ),
+
+      reorderQuantity: Number(
+        report?.reorderQuantity ??
+          report?.reorderQty ??
+          0
+      ),
+
+      unit:
+        report?.unit ??
+        report?.uom ??
+        "Units",
+
+      warehouse:
+        report?.warehouseName ??
+        report?.warehouse ??
+        "-",
+
+      status: String(
+        report?.status ?? "Low"
+      ),
+
+      lastUpdated:
+        report?.lastUpdated ??
+        report?.updatedAt ??
+        report?.updatedDate ??
+        "",
+    }),
+    [report]
   );
 
-  //====================================================
+  // ====================================================
   // Stock Percentage
-  //====================================================
+  // ====================================================
 
-  const stockPercentage =
-    useMemo(() => {
-      if (data.minimumStock <= 0) {
-        return data.currentStock > 0
-          ? 100
-          : 0;
-      }
-      return Math.min(100,
-        Math.max(0,
-          (
-            data.currentStock /
-            data.minimumStock
-          ) * 100
-        )
-      );
+  const stockPercentage = useMemo(() => {
+    if (data.minimumStock <= 0) {
+      return data.currentStock > 0
+        ? 100
+        : 0;
+    }
 
-    }, [data.currentStock,data.minimumStock]);
+    return Math.min(
+      100,
+      Math.max(
+        0,
+        (data.currentStock /
+          data.minimumStock) *
+          100
+      )
+    );
+  }, [
+    data.currentStock,
+    data.minimumStock,
+  ]);
 
-  //====================================================
+  // ====================================================
   // Stock Severity
-  //====================================================
+  // ====================================================
 
-  const severity =
-    useMemo(() => {
-      if (data.currentStock <= 0) {
-        return "critical";
-      }
-      if (
-        data.currentStock <
-        data.minimumStock
-      ) {
-        return "warning";
-      }
+  const severity = useMemo(() => {
+    if (data.currentStock <= 0) {
+      return "critical";
+    }
 
-      return "normal";
+    if (
+      data.currentStock <
+      data.minimumStock
+    ) {
+      return "warning";
+    }
 
-    }, [
-      data.currentStock,
-      data.minimumStock,
-    ]);
+    return "normal";
+  }, [
+    data.currentStock,
+    data.minimumStock,
+  ]);
 
-  //====================================================
+  // ====================================================
   // Status Color
-  //====================================================
+  // ====================================================
 
   const statusColor =
     severity === "critical"
@@ -92,9 +170,9 @@ const LowStockReportCard = ({
       ? "warning"
       : "success";
 
-  //====================================================
+  // ====================================================
   // Status Label
-  //====================================================
+  // ====================================================
 
   const statusLabel =
     severity === "critical"
@@ -103,12 +181,9 @@ const LowStockReportCard = ({
       ? "Low Stock"
       : "Stock OK";
 
-  //====================================================
-  // Part 1A Ends Here
-  //====================================================
-    //====================================================
+  // ====================================================
   // View Handler
-  //====================================================
+  // ====================================================
 
   const handleView = () => {
     if (typeof onView === "function") {
@@ -116,9 +191,9 @@ const LowStockReportCard = ({
     }
   };
 
-  //====================================================
+  // ====================================================
   // Edit Handler
-  //====================================================
+  // ====================================================
 
   const handleEdit = () => {
     if (typeof onEdit === "function") {
@@ -126,9 +201,9 @@ const LowStockReportCard = ({
     }
   };
 
-  //====================================================
+  // ====================================================
   // Delete Handler
-  //====================================================
+  // ====================================================
 
   const handleDelete = () => {
     if (typeof onDelete === "function") {
@@ -136,9 +211,9 @@ const LowStockReportCard = ({
     }
   };
 
-  //====================================================
+  // ====================================================
   // Menu Handler
-  //====================================================
+  // ====================================================
 
   const handleMenu = (event) => {
     if (typeof onMenu === "function") {
@@ -146,20 +221,20 @@ const LowStockReportCard = ({
     }
   };
 
-  //====================================================
+  // ====================================================
   // Stock Icon
-  //====================================================
+  // ====================================================
 
   const StockIcon =
     severity === "critical"
-      ? ErrorOutline
+      ? ErrorOutlineIcon
       : severity === "warning"
-      ? Warning
-      : Inventory2;
+      ? WarningIcon
+      : Inventory2Icon;
 
-  //====================================================
+  // ====================================================
   // JSX
-  //====================================================
+  // ====================================================
 
   return (
     <Card
@@ -176,14 +251,26 @@ const LowStockReportCard = ({
             : severity === "warning"
             ? "warning.light"
             : "divider",
+        transition:
+          "box-shadow 0.2s ease, transform 0.2s ease",
+        "&:hover": {
+          boxShadow: 4,
+          transform: "translateY(-2px)",
+        },
       }}
     >
       <CardContent
         className="low-stock-report-card-content"
+        sx={{
+          p: 2,
+          "&:last-child": {
+            pb: 2,
+          },
+        }}
       >
-        {/*================================================
+        {/* =================================================
             Header
-        =================================================*/}
+        ================================================= */}
 
         <Stack
           direction="row"
@@ -197,6 +284,7 @@ const LowStockReportCard = ({
             alignItems="center"
             sx={{
               minWidth: 0,
+              flex: 1,
             }}
           >
             <StockIcon
@@ -207,12 +295,14 @@ const LowStockReportCard = ({
             <Box
               sx={{
                 minWidth: 0,
+                flex: 1,
               }}
             >
               <Typography
                 variant="subtitle1"
                 fontWeight={600}
                 noWrap
+                title={data.productName}
               >
                 {data.productName}
               </Typography>
@@ -221,6 +311,7 @@ const LowStockReportCard = ({
                 variant="caption"
                 color="text.secondary"
                 noWrap
+                title={data.productCode}
               >
                 {data.productCode}
               </Typography>
@@ -232,12 +323,17 @@ const LowStockReportCard = ({
               <IconButton
                 size="small"
                 onClick={handleMenu}
+                aria-label="More actions"
               >
-                <MoreVert fontSize="small" />
+                <MoreVertIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           )}
         </Stack>
+
+        {/* =================================================
+            Divider
+        ================================================= */}
 
         <Divider
           sx={{
@@ -245,9 +341,9 @@ const LowStockReportCard = ({
           }}
         />
 
-        {/*================================================
+        {/* =================================================
             Category / Warehouse
-        =================================================*/}
+        ================================================= */}
 
         <Stack
           direction="row"
@@ -257,7 +353,12 @@ const LowStockReportCard = ({
             mb: 2,
           }}
         >
-          <Box>
+          <Box
+            sx={{
+              minWidth: 0,
+              flex: 1,
+            }}
+          >
             <Typography
               variant="caption"
               color="text.secondary"
@@ -269,6 +370,8 @@ const LowStockReportCard = ({
             <Typography
               variant="body2"
               fontWeight={500}
+              noWrap
+              title={data.category}
             >
               {data.category}
             </Typography>
@@ -277,6 +380,8 @@ const LowStockReportCard = ({
           <Box
             sx={{
               textAlign: "right",
+              minWidth: 0,
+              flex: 1,
             }}
           >
             <Typography
@@ -290,15 +395,17 @@ const LowStockReportCard = ({
             <Typography
               variant="body2"
               fontWeight={500}
+              noWrap
+              title={data.warehouse}
             >
               {data.warehouse}
             </Typography>
           </Box>
         </Stack>
 
-        {/*================================================
+        {/* =================================================
             Stock Information
-        =================================================*/}
+        ================================================= */}
 
         <Stack
           direction="row"
@@ -307,7 +414,14 @@ const LowStockReportCard = ({
             mb: 1.5,
           }}
         >
-          <Box sx={{ flex: 1 }}>
+          {/* Current Stock */}
+
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
             <Typography
               variant="caption"
               color="text.secondary"
@@ -332,9 +446,12 @@ const LowStockReportCard = ({
             </Typography>
           </Box>
 
+          {/* Minimum Stock */}
+
           <Box
             sx={{
               flex: 1,
+              minWidth: 0,
               textAlign: "right",
             }}
           >
@@ -356,9 +473,9 @@ const LowStockReportCard = ({
           </Box>
         </Stack>
 
-        {/*================================================
+        {/* =================================================
             Stock Level
-        =================================================*/}
+        ================================================= */}
 
         <Box
           className="low-stock-level"
@@ -386,25 +503,46 @@ const LowStockReportCard = ({
             >
               {Math.round(
                 stockPercentage
-              )}%
+              )}
+              %
             </Typography>
           </Stack>
 
+          {/* Progress Track */}
+
           <Box
             className="low-stock-level-bar"
+            sx={{
+              width: "100%",
+              height: 7,
+              borderRadius: 10,
+              backgroundColor:
+                "action.hover",
+              overflow: "hidden",
+            }}
           >
             <Box
               className={`low-stock-level-fill ${severity}`}
               sx={{
                 width: `${stockPercentage}%`,
+                height: "100%",
+                borderRadius: 10,
+                backgroundColor:
+                  severity === "critical"
+                    ? "error.main"
+                    : severity === "warning"
+                    ? "warning.main"
+                    : "success.main",
+                transition:
+                  "width 0.3s ease",
               }}
             />
           </Box>
         </Box>
 
-        {/*================================================
+        {/* =================================================
             Footer Information
-        =================================================*/}
+        ================================================= */}
 
         <Stack
           direction="row"
@@ -419,7 +557,7 @@ const LowStockReportCard = ({
             icon={
               severity === "critical" ||
               severity === "warning" ? (
-                <TrendingDown />
+                <TrendingDownIcon />
               ) : undefined
             }
             label={
@@ -441,9 +579,27 @@ const LowStockReportCard = ({
           </Typography>
         </Stack>
 
-        {/*================================================
+        {/* =================================================
+            Last Updated
+        ================================================= */}
+
+        {data.lastUpdated && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            display="block"
+            sx={{
+              mt: 1,
+            }}
+          >
+            Last Updated:{" "}
+            {data.lastUpdated}
+          </Typography>
+        )}
+
+        {/* =================================================
             Report ID
-        =================================================*/}
+        ================================================= */}
 
         {data.id !== "" && (
           <Typography
@@ -451,24 +607,20 @@ const LowStockReportCard = ({
             color="text.secondary"
             display="block"
             sx={{
-              mt: 1.5,
+              mt: 1,
             }}
           >
             Report ID: {data.id}
           </Typography>
         )}
-
       </CardContent>
     </Card>
   );
 };
 
-//======================================================
-// Part 1B Ends Here
-//======================================================
-//======================================================
+// ======================================================
 // PropTypes
-//======================================================
+// ======================================================
 
 LowStockReportCard.propTypes = {
   report: PropTypes.shape({
@@ -571,9 +723,9 @@ LowStockReportCard.propTypes = {
   showActions: PropTypes.bool,
 };
 
-//======================================================
+// ======================================================
 // Default Props
-//======================================================
+// ======================================================
 
 LowStockReportCard.defaultProps = {
   report: {},
@@ -589,8 +741,8 @@ LowStockReportCard.defaultProps = {
   showActions: true,
 };
 
-//======================================================
+// ======================================================
 // Export
-//======================================================
+// ======================================================
 
 export default LowStockReportCard;

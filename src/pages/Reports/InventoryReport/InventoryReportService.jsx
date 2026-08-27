@@ -1,12 +1,12 @@
 //======================================================
-// InventoryReportService.js
+// InventoryReportService.jsx
 //======================================================
 
 import {
   filterReports,
   searchReports,
   sortReports,
-} from "./InventoryReportHelper";
+} from "./InventoryReportHelpers";
 
 //======================================================
 // API Base URL

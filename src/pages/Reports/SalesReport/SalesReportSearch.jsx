@@ -1,11 +1,26 @@
-import React, {useCallback,useEffect,useState} from "react";
-import PropTypes from "prop-types";
-import {Clear,Search} from "@mui/icons-material";
-import {Box,IconButton,InputAdornment,TextField,Tooltip} from "@mui/material";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
-//======================================================
+import PropTypes from "prop-types";
+
+import {
+  Clear,
+  Search,
+} from "@mui/icons-material";
+
+import {
+  IconButton,
+  InputAdornment,
+  TextField,
+  Tooltip,
+} from "@mui/material";
+
+// ======================================================
 // SalesReportSearch
-//======================================================
+// ======================================================
 
 const SalesReportSearch = ({
   value = "",
@@ -16,105 +31,136 @@ const SalesReportSearch = ({
   onChange,
   onClear,
 }) => {
-  //====================================================
+  // ====================================================
   // Local Search State
-  //====================================================
-  const [searchValue, setSearchValue] = useState(value || "");
-  //====================================================
+  // ====================================================
+
+  const [searchValue, setSearchValue] = useState(
+    value || ""
+  );
+
+  // ====================================================
   // Sync External Value
-  //====================================================
+  // ====================================================
+
   useEffect(() => {
-    setSearchValue(
-      value || ""
-    );
+    setSearchValue(value || "");
   }, [value]);
 
-  //====================================================
+  // ====================================================
   // Search Change Handler
-  //====================================================
+  // ====================================================
 
-  const handleChange = useCallback(
-    (event) => {
-      const nextValue =
-        event.target.value;
-      setSearchValue(nextValue);
-    },
-    []
-  );
+  const handleChange = useCallback((event) => {
+    const nextValue = event.target.value;
 
-  //====================================================
+    setSearchValue(nextValue);
+  }, []);
+
+  // ====================================================
   // Debounced Change
-  //====================================================
+  // ====================================================
 
   useEffect(() => {
-    const timer =
-      setTimeout(() => {
-        if (
-          typeof onChange === "function"
-        ) {
-          onChange(searchValue);
-        }
-      }, debounceMs);
+    const timer = setTimeout(() => {
+      if (typeof onChange === "function") {
+        onChange(searchValue);
+      }
+    }, debounceMs);
 
-    return () =>
+    return () => {
       clearTimeout(timer);
-  }, [searchValue,debounceMs,onChange]);
+    };
+  }, [
+    searchValue,
+    debounceMs,
+    onChange,
+  ]);
 
-  //====================================================
+  // ====================================================
   // Clear Handler
-  //====================================================
+  // ====================================================
 
-  const handleClear = useCallback(
-    () => {
-      setSearchValue("");
-      if (
-        typeof onClear === "function"
-      ) {
-        onClear();
-      }
+  const handleClear = useCallback(() => {
+    setSearchValue("");
 
-      if (
-        typeof onChange === "function"
-      ) {
-        onChange("");
-      }
-    },
-    [onChange, onClear]
+    if (typeof onClear === "function") {
+      onClear();
+    }
+
+    if (typeof onChange === "function") {
+      onChange("");
+    }
+  }, [onChange, onClear]);
+
+  // ====================================================
+  // Render
+  // ====================================================
+
+  return (
+    <TextField
+      fullWidth
+      value={searchValue}
+      onChange={handleChange}
+      placeholder={placeholder}
+      disabled={disabled}
+      size="small"
+      variant="outlined"
+      label="Search"
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <Search />
+          </InputAdornment>
+        ),
+
+        endAdornment: searchValue ? (
+          <InputAdornment position="end">
+            <Tooltip title="Clear search">
+              <IconButton
+                onClick={handleClear}
+                edge="end"
+                disabled={disabled}
+                size="small"
+              >
+                <Clear />
+              </IconButton>
+            </Tooltip>
+          </InputAdornment>
+        ) : null,
+      }}
+    />
   );
-
-export default SalesReportSearch;
 };
 
-//======================================================
+// ======================================================
 // PropTypes
-//======================================================
+// ======================================================
 
 SalesReportSearch.propTypes = {
-  value:
-    PropTypes.string,
-  placeholder:
-    PropTypes.string,
-  loading:
-    PropTypes.bool,
-  disabled:
-    PropTypes.bool,
-  debounceMs:
-    PropTypes.number,
-  onChange:
-    PropTypes.func,
-  onClear:
-    PropTypes.func,
+  value: PropTypes.string,
+
+  placeholder: PropTypes.string,
+
+  loading: PropTypes.bool,
+
+  disabled: PropTypes.bool,
+
+  debounceMs: PropTypes.number,
+
+  onChange: PropTypes.func,
+
+  onClear: PropTypes.func,
 };
 
-//======================================================
+// ======================================================
 // Default Props
-//======================================================
+// ======================================================
 
 SalesReportSearch.defaultProps = {
   value: "",
 
-  placeholder:
-    "Search sales reports...",
+  placeholder: "Search sales reports...",
 
   loading: false,
 
@@ -127,5 +173,8 @@ SalesReportSearch.defaultProps = {
   onClear: null,
 };
 
-export default SalesReportSearch;
+// ======================================================
+// Export
+// ======================================================
 
+export default SalesReportSearch;
