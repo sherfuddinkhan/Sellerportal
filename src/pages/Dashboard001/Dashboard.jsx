@@ -1,73 +1,37 @@
-import React, { useEffect, useState } from "react";
-import {Box,Grid,CircularProgress,Alert} from "@mui/material";
+import React from "react";
+import { Box, Grid } from "@mui/material";
 
 import DashboardHeader from "./DashboardHeader";
 import DashboardCards from "./DashboardCards";
 import RevenueChart from "./RevenueChart";
 import SalesChart from "./SalesChart";
-import InventoryChart from "./InventoryChart";
-import OrderChart from "./OrderChart";
-import StatisticalChart from "./StatisticalChart";
 import LatestOrders from "./LatestOrders";
 import RecentCustomers from "./RecentCustomers";
 import TopSellingProducts from "./TopSellingProducts";
 import LowStockProducts from "./LowStockProducts";
-import QuickActions from "./QuickActions";
-import DashboardSummary from "./DashboardSummary";
-
 
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  const loadDashboard = async () => {
-    try {
-      setLoading(true);
-
-      const response = await dashboardService.getDashboardSummary();
-
-      setDashboardData(response.data);
-      setError("");
-    } catch (err) {
-      console.error(err);
-      setError("Unable to load dashboard.");
-    } finally {
-      setLoading(false);
-    }
+  // Temporary dashboard data
+  const dashboardData = {
+    summary: {},
+    revenue: [],
+    sales: [],
+    latestOrders: [],
+    recentCustomers: [],
+    topProducts: [],
+    lowStockProducts: [],
   };
-
-  if (loading)
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        mt={10}
-      >
-        <CircularProgress />
-      </Box>
-    );
-
-  if (error)
-    return (
-      <Alert severity="error">
-        {error}
-      </Alert>
-    );
 
   return (
     <Box p={3}>
 
-     <DashboardHeader
-    onRefresh={loadDashboard}
-    onExport={() => console.log("Export Dashboard")}
-/>
+      <DashboardHeader
+        onRefresh={() => window.location.reload()}
+        onExport={() => console.log("Export Dashboard")}
+      />
 
-      <StatisticsCards
+      <DashboardCards
         summary={dashboardData.summary}
       />
 

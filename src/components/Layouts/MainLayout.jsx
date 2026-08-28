@@ -28,7 +28,6 @@ const MainLayout = () => {
 
   // =========================================================
   // SIDEBAR MENU
-  // All routes correspond to App.jsx
   // =========================================================
 
   const menuSections = [
@@ -44,6 +43,7 @@ const MainLayout = () => {
           path: "/dashboard",
           icon: "🏠",
         },
+
         {
           label: "Profile",
           path: "/profile",
@@ -59,6 +59,7 @@ const MainLayout = () => {
             },
           ],
         },
+
         {
           label: "Notifications",
           path: "/notifications",
@@ -92,9 +93,9 @@ const MainLayout = () => {
     {
       section: "Catalog & Products",
       items: [
-        // ---------------------------------------------------
+        // ===================================================
         // CATALOG
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Catalog",
@@ -104,6 +105,10 @@ const MainLayout = () => {
             {
               label: "Catalog List",
               path: "/catalog",
+            },
+            {
+              label: "Create Catalog",
+              path: "/catalog/create",
             },
             {
               label: "Catalog Attributes",
@@ -158,15 +163,19 @@ const MainLayout = () => {
               path: "/catalog/view/:id",
             },
             {
+              label: "Edit Catalog",
+              path: "/catalog/edit/:id",
+            },
+            {
               label: "Delete",
               path: "/catalog/delete/:id",
             },
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PRODUCTS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Products",
@@ -240,9 +249,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // BRANDS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Brands",
@@ -312,9 +321,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // CATEGORIES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Categories",
@@ -384,9 +393,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PRODUCT ATTRIBUTES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Product Attributes",
@@ -398,8 +407,28 @@ const MainLayout = () => {
               path: "/product-attributes",
             },
             {
+              label: "Create Attribute",
+              path: "/product-attributes/create",
+            },
+            {
               label: "Attribute Card",
               path: "/product-attributes/card",
+            },
+            {
+              label: "Attribute Details",
+              path: "/product-attributes/details/:id",
+            },
+            {
+              label: "Edit Attribute",
+              path: "/product-attributes/edit/:id",
+            },
+            {
+              label: "Attribute Filters",
+              path: "/product-attributes/filters",
+            },
+            {
+              label: "Attribute Form",
+              path: "/product-attributes/form",
             },
             {
               label: "Attribute Modal",
@@ -436,9 +465,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PRODUCT IMAGES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Product Images",
@@ -450,8 +479,28 @@ const MainLayout = () => {
               path: "/product-images",
             },
             {
+              label: "Create Image",
+              path: "/product-images/create",
+            },
+            {
               label: "Image Card",
               path: "/product-images/card",
+            },
+            {
+              label: "Image Details",
+              path: "/product-images/details/:id",
+            },
+            {
+              label: "Edit Image",
+              path: "/product-images/edit/:id",
+            },
+            {
+              label: "Image Filters",
+              path: "/product-images/filters",
+            },
+            {
+              label: "Image Form",
+              path: "/product-images/form",
             },
             {
               label: "Image Modal",
@@ -488,9 +537,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PRODUCT INVENTORY
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Product Inventory",
@@ -502,6 +551,10 @@ const MainLayout = () => {
               path: "/product-inventory",
             },
             {
+              label: "Create Inventory",
+              path: "/product-inventory/create",
+            },
+            {
               label: "Inventory Card",
               path: "/product-inventory/card",
             },
@@ -510,8 +563,16 @@ const MainLayout = () => {
               path: "/product-inventory/details/:id",
             },
             {
+              label: "Edit Inventory",
+              path: "/product-inventory/edit/:id",
+            },
+            {
               label: "Inventory Filters",
               path: "/product-inventory/filters",
+            },
+            {
+              label: "Inventory Form",
+              path: "/product-inventory/form",
             },
             {
               label: "Inventory Modal",
@@ -548,9 +609,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PRODUCT PRICES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Product Prices",
@@ -620,9 +681,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PRODUCT TYPES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Product Types",
@@ -634,12 +695,12 @@ const MainLayout = () => {
               path: "/product-types",
             },
             {
-              label: "Type Card",
-              path: "/product-types/card",
-            },
-            {
               label: "Create Type",
               path: "/product-types/create",
+            },
+            {
+              label: "Type Card",
+              path: "/product-types/card",
             },
             {
               label: "Type Details",
@@ -692,9 +753,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // REVIEWS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Reviews",
@@ -706,8 +767,28 @@ const MainLayout = () => {
               path: "/reviews",
             },
             {
+              label: "Create Review",
+              path: "/reviews/create",
+            },
+            {
               label: "Review Card",
               path: "/reviews/card",
+            },
+            {
+              label: "Review Details",
+              path: "/reviews/details/:id",
+            },
+            {
+              label: "Edit Review",
+              path: "/reviews/edit/:id",
+            },
+            {
+              label: "Review Filters",
+              path: "/reviews/filters",
+            },
+            {
+              label: "Review Form",
+              path: "/reviews/form",
             },
             {
               label: "Review Modal",
@@ -753,9 +834,9 @@ const MainLayout = () => {
     {
       section: "Orders",
       items: [
-        // ---------------------------------------------------
+        // ===================================================
         // SALES ORDERS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Sales Orders",
@@ -767,8 +848,20 @@ const MainLayout = () => {
               path: "/sales-orders",
             },
             {
+              label: "Create Sales Order",
+              path: "/sales-orders/create",
+            },
+            {
               label: "Card",
               path: "/sales-orders/card",
+            },
+            {
+              label: "Details",
+              path: "/sales-orders/details/:id",
+            },
+            {
+              label: "Edit",
+              path: "/sales-orders/edit/:id",
             },
             {
               label: "Modal",
@@ -805,9 +898,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // SALES ORDER ITEMS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Sales Order Items",
@@ -819,8 +912,20 @@ const MainLayout = () => {
               path: "/sales-order-items",
             },
             {
+              label: "Create Item",
+              path: "/sales-order-items/create",
+            },
+            {
               label: "Card",
               path: "/sales-order-items/card",
+            },
+            {
+              label: "Details",
+              path: "/sales-order-items/details/:id",
+            },
+            {
+              label: "Edit",
+              path: "/sales-order-items/edit/:id",
             },
             {
               label: "Modal",
@@ -857,9 +962,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // ORDER ITEMS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Order Items",
@@ -871,8 +976,20 @@ const MainLayout = () => {
               path: "/order-items",
             },
             {
+              label: "Create Item",
+              path: "/order-items/create",
+            },
+            {
               label: "Card",
               path: "/order-items/card",
+            },
+            {
+              label: "Details",
+              path: "/order-items/details/:id",
+            },
+            {
+              label: "Edit",
+              path: "/order-items/edit/:id",
             },
             {
               label: "Modal",
@@ -909,9 +1026,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // ORDER STATUS HISTORY
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Order Status History",
@@ -923,8 +1040,20 @@ const MainLayout = () => {
               path: "/order-status-history",
             },
             {
+              label: "Create History",
+              path: "/order-status-history/create",
+            },
+            {
               label: "Card",
               path: "/order-status-history/card",
+            },
+            {
+              label: "Details",
+              path: "/order-status-history/details/:id",
+            },
+            {
+              label: "Edit",
+              path: "/order-status-history/edit/:id",
             },
             {
               label: "Modal",
@@ -970,9 +1099,9 @@ const MainLayout = () => {
     {
       section: "Delivery & Logistics",
       items: [
-        // ---------------------------------------------------
+        // ===================================================
         // DELIVERY CHALLANS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Delivery Challans",
@@ -984,8 +1113,20 @@ const MainLayout = () => {
               path: "/delivery-challans",
             },
             {
+              label: "Create Challan",
+              path: "/delivery-challans/create",
+            },
+            {
               label: "Card",
               path: "/delivery-challans/card",
+            },
+            {
+              label: "Details",
+              path: "/delivery-challans/details/:id",
+            },
+            {
+              label: "Edit Challan",
+              path: "/delivery-challans/edit/:id",
             },
             {
               label: "Modal",
@@ -1022,9 +1163,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // DELIVERY CHALLAN ITEMS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Delivery Challan Items",
@@ -1036,8 +1177,20 @@ const MainLayout = () => {
               path: "/delivery-challan-items",
             },
             {
+              label: "Create Item",
+              path: "/delivery-challan-items/create",
+            },
+            {
               label: "Card",
               path: "/delivery-challan-items/card",
+            },
+            {
+              label: "Details",
+              path: "/delivery-challan-items/details/:id",
+            },
+            {
+              label: "Edit Item",
+              path: "/delivery-challan-items/edit/:id",
             },
             {
               label: "Modal",
@@ -1074,9 +1227,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // SHIPMENTS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Shipments",
@@ -1088,8 +1241,20 @@ const MainLayout = () => {
               path: "/shipments",
             },
             {
+              label: "Create Shipment",
+              path: "/shipments/create",
+            },
+            {
               label: "Card",
               path: "/shipments/card",
+            },
+            {
+              label: "Details",
+              path: "/shipments/details/:id",
+            },
+            {
+              label: "Edit Shipment",
+              path: "/shipments/edit/:id",
             },
             {
               label: "Modal",
@@ -1126,13 +1291,437 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
-        // NOTE:
-        // Warehouses, Warehouse Locations, Stock Ledger,
-        // Stock Movements, Stock Transfers and Stock
-        // Adjustments are NOT included here because they
-        // currently do not have routes in the supplied App.jsx.
-        // ---------------------------------------------------
+        // ===================================================
+        // WAREHOUSES
+        // ===================================================
+
+        {
+          label: "Warehouses",
+          path: "/warehouses",
+          icon: "🏭",
+          children: [
+            {
+              label: "Warehouse List",
+              path: "/warehouses",
+            },
+            {
+              label: "Create Warehouse",
+              path: "/warehouses/create",
+            },
+            {
+              label: "Warehouse Card",
+              path: "/warehouses/card",
+            },
+            {
+              label: "Warehouse Details",
+              path: "/warehouses/details/:id",
+            },
+            {
+              label: "Edit Warehouse",
+              path: "/warehouses/edit/:id",
+            },
+            {
+              label: "Warehouse Filters",
+              path: "/warehouses/filters",
+            },
+            {
+              label: "Warehouse Form",
+              path: "/warehouses/form",
+            },
+            {
+              label: "Warehouse Modal",
+              path: "/warehouses/modal",
+            },
+            {
+              label: "Pagination",
+              path: "/warehouses/pagination",
+            },
+            {
+              label: "Search",
+              path: "/warehouses/search",
+            },
+            {
+              label: "Statistics",
+              path: "/warehouses/statistics",
+            },
+            {
+              label: "Table",
+              path: "/warehouses/table",
+            },
+            {
+              label: "Toolbar",
+              path: "/warehouses/toolbar",
+            },
+            {
+              label: "View Warehouse",
+              path: "/warehouses/view/:id",
+            },
+            {
+              label: "Delete Warehouse",
+              path: "/warehouses/delete/:id",
+            },
+          ],
+        },
+
+        // ===================================================
+        // WAREHOUSE LOCATIONS
+        // ===================================================
+
+        {
+          label: "Warehouse Locations",
+          path: "/warehouse-locations",
+          icon: "📍",
+          children: [
+            {
+              label: "Location List",
+              path: "/warehouse-locations",
+            },
+            {
+              label: "Create Location",
+              path: "/warehouse-locations/create",
+            },
+            {
+              label: "Location Card",
+              path: "/warehouse-locations/card",
+            },
+            {
+              label: "Location Details",
+              path: "/warehouse-locations/details/:id",
+            },
+            {
+              label: "Edit Location",
+              path: "/warehouse-locations/edit/:id",
+            },
+            {
+              label: "Location Filters",
+              path: "/warehouse-locations/filters",
+            },
+            {
+              label: "Location Form",
+              path: "/warehouse-locations/form",
+            },
+            {
+              label: "Location Modal",
+              path: "/warehouse-locations/modal",
+            },
+            {
+              label: "Pagination",
+              path: "/warehouse-locations/pagination",
+            },
+            {
+              label: "Search",
+              path: "/warehouse-locations/search",
+            },
+            {
+              label: "Statistics",
+              path: "/warehouse-locations/statistics",
+            },
+            {
+              label: "Table",
+              path: "/warehouse-locations/table",
+            },
+            {
+              label: "Toolbar",
+              path: "/warehouse-locations/toolbar",
+            },
+            {
+              label: "View Location",
+              path: "/warehouse-locations/view/:id",
+            },
+            {
+              label: "Delete Location",
+              path: "/warehouse-locations/delete/:id",
+            },
+          ],
+        },
+
+        // ===================================================
+        // STOCK LEDGER
+        // ===================================================
+
+        {
+          label: "Stock Ledger",
+          path: "/stock-ledger",
+          icon: "📒",
+          children: [
+            {
+              label: "Ledger List",
+              path: "/stock-ledger",
+            },
+            {
+              label: "Create Ledger Entry",
+              path: "/stock-ledger/create",
+            },
+            {
+              label: "Ledger Card",
+              path: "/stock-ledger/card",
+            },
+            {
+              label: "Ledger Details",
+              path: "/stock-ledger/details/:id",
+            },
+            {
+              label: "Edit Ledger",
+              path: "/stock-ledger/edit/:id",
+            },
+            {
+              label: "Ledger Filters",
+              path: "/stock-ledger/filters",
+            },
+            {
+              label: "Ledger Form",
+              path: "/stock-ledger/form",
+            },
+            {
+              label: "Ledger Modal",
+              path: "/stock-ledger/modal",
+            },
+            {
+              label: "Pagination",
+              path: "/stock-ledger/pagination",
+            },
+            {
+              label: "Search",
+              path: "/stock-ledger/search",
+            },
+            {
+              label: "Statistics",
+              path: "/stock-ledger/statistics",
+            },
+            {
+              label: "Table",
+              path: "/stock-ledger/table",
+            },
+            {
+              label: "Toolbar",
+              path: "/stock-ledger/toolbar",
+            },
+            {
+              label: "View Ledger",
+              path: "/stock-ledger/view/:id",
+            },
+            {
+              label: "Delete Ledger",
+              path: "/stock-ledger/delete/:id",
+            },
+          ],
+        },
+
+        // ===================================================
+        // STOCK MOVEMENTS
+        // ===================================================
+
+        {
+          label: "Stock Movements",
+          path: "/stock-movements",
+          icon: "🔀",
+          children: [
+            {
+              label: "Movement List",
+              path: "/stock-movements",
+            },
+            {
+              label: "Create Movement",
+              path: "/stock-movements/create",
+            },
+            {
+              label: "Movement Card",
+              path: "/stock-movements/card",
+            },
+            {
+              label: "Movement Details",
+              path: "/stock-movements/details/:id",
+            },
+            {
+              label: "Edit Movement",
+              path: "/stock-movements/edit/:id",
+            },
+            {
+              label: "Movement Filters",
+              path: "/stock-movements/filters",
+            },
+            {
+              label: "Movement Form",
+              path: "/stock-movements/form",
+            },
+            {
+              label: "Movement Modal",
+              path: "/stock-movements/modal",
+            },
+            {
+              label: "Pagination",
+              path: "/stock-movements/pagination",
+            },
+            {
+              label: "Search",
+              path: "/stock-movements/search",
+            },
+            {
+              label: "Statistics",
+              path: "/stock-movements/statistics",
+            },
+            {
+              label: "Table",
+              path: "/stock-movements/table",
+            },
+            {
+              label: "Toolbar",
+              path: "/stock-movements/toolbar",
+            },
+            {
+              label: "View Movement",
+              path: "/stock-movements/view/:id",
+            },
+            {
+              label: "Delete Movement",
+              path: "/stock-movements/delete/:id",
+            },
+          ],
+        },
+
+        // ===================================================
+        // STOCK TRANSFERS
+        // ===================================================
+
+        {
+          label: "Stock Transfers",
+          path: "/stock-transfers",
+          icon: "↔️",
+          children: [
+            {
+              label: "Transfer List",
+              path: "/stock-transfers",
+            },
+            {
+              label: "Create Transfer",
+              path: "/stock-transfers/create",
+            },
+            {
+              label: "Transfer Card",
+              path: "/stock-transfers/card",
+            },
+            {
+              label: "Transfer Details",
+              path: "/stock-transfers/details/:id",
+            },
+            {
+              label: "Edit Transfer",
+              path: "/stock-transfers/edit/:id",
+            },
+            {
+              label: "Transfer Filters",
+              path: "/stock-transfers/filters",
+            },
+            {
+              label: "Transfer Form",
+              path: "/stock-transfers/form",
+            },
+            {
+              label: "Transfer Modal",
+              path: "/stock-transfers/modal",
+            },
+            {
+              label: "Pagination",
+              path: "/stock-transfers/pagination",
+            },
+            {
+              label: "Search",
+              path: "/stock-transfers/search",
+            },
+            {
+              label: "Statistics",
+              path: "/stock-transfers/statistics",
+            },
+            {
+              label: "Table",
+              path: "/stock-transfers/table",
+            },
+            {
+              label: "Toolbar",
+              path: "/stock-transfers/toolbar",
+            },
+            {
+              label: "View Transfer",
+              path: "/stock-transfers/view/:id",
+            },
+            {
+              label: "Delete Transfer",
+              path: "/stock-transfers/delete/:id",
+            },
+          ],
+        },
+
+        // ===================================================
+        // STOCK ADJUSTMENTS
+        // ===================================================
+
+        {
+          label: "Stock Adjustments",
+          path: "/stock-adjustments",
+          icon: "⚖️",
+          children: [
+            {
+              label: "Adjustment List",
+              path: "/stock-adjustments",
+            },
+            {
+              label: "Create Adjustment",
+              path: "/stock-adjustments/create",
+            },
+            {
+              label: "Adjustment Card",
+              path: "/stock-adjustments/card",
+            },
+            {
+              label: "Adjustment Details",
+              path: "/stock-adjustments/details/:id",
+            },
+            {
+              label: "Edit Adjustment",
+              path: "/stock-adjustments/edit/:id",
+            },
+            {
+              label: "Adjustment Filters",
+              path: "/stock-adjustments/filters",
+            },
+            {
+              label: "Adjustment Form",
+              path: "/stock-adjustments/form",
+            },
+            {
+              label: "Adjustment Modal",
+              path: "/stock-adjustments/modal",
+            },
+            {
+              label: "Pagination",
+              path: "/stock-adjustments/pagination",
+            },
+            {
+              label: "Search",
+              path: "/stock-adjustments/search",
+            },
+            {
+              label: "Statistics",
+              path: "/stock-adjustments/statistics",
+            },
+            {
+              label: "Table",
+              path: "/stock-adjustments/table",
+            },
+            {
+              label: "Toolbar",
+              path: "/stock-adjustments/toolbar",
+            },
+            {
+              label: "View Adjustment",
+              path: "/stock-adjustments/view/:id",
+            },
+            {
+              label: "Delete Adjustment",
+              path: "/stock-adjustments/delete/:id",
+            },
+          ],
+        },
       ],
     },
 
@@ -1143,9 +1732,9 @@ const MainLayout = () => {
     {
       section: "Procurement & Receiving",
       items: [
-        // ---------------------------------------------------
+        // ===================================================
         // PURCHASE ORDERS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Purchase Orders",
@@ -1157,8 +1746,20 @@ const MainLayout = () => {
               path: "/purchase-orders",
             },
             {
+              label: "Create Purchase Order",
+              path: "/purchase-orders/create",
+            },
+            {
               label: "Card",
               path: "/purchase-orders/card",
+            },
+            {
+              label: "Details",
+              path: "/purchase-orders/details/:id",
+            },
+            {
+              label: "Edit Purchase Order",
+              path: "/purchase-orders/edit/:id",
             },
             {
               label: "Modal",
@@ -1195,9 +1796,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PURCHASE ORDER ITEMS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Purchase Order Items",
@@ -1209,8 +1810,20 @@ const MainLayout = () => {
               path: "/purchase-order-items",
             },
             {
+              label: "Create Item",
+              path: "/purchase-order-items/create",
+            },
+            {
               label: "Card",
               path: "/purchase-order-items/card",
+            },
+            {
+              label: "Details",
+              path: "/purchase-order-items/details/:id",
+            },
+            {
+              label: "Edit Item",
+              path: "/purchase-order-items/edit/:id",
             },
             {
               label: "Modal",
@@ -1247,9 +1860,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PURCHASE RETURNS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Purchase Returns",
@@ -1261,8 +1874,20 @@ const MainLayout = () => {
               path: "/purchase-returns",
             },
             {
+              label: "Create Return",
+              path: "/purchase-returns/create",
+            },
+            {
               label: "Card",
               path: "/purchase-returns/card",
+            },
+            {
+              label: "Details",
+              path: "/purchase-returns/details/:id",
+            },
+            {
+              label: "Edit Return",
+              path: "/purchase-returns/edit/:id",
             },
             {
               label: "Modal",
@@ -1299,9 +1924,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // GOODS RECEIPT NOTES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Goods Receipt Notes",
@@ -1313,8 +1938,20 @@ const MainLayout = () => {
               path: "/goods-receipt-notes",
             },
             {
+              label: "Create GRN",
+              path: "/goods-receipt-notes/create",
+            },
+            {
               label: "GRN Card",
               path: "/goods-receipt-notes/card",
+            },
+            {
+              label: "GRN Details",
+              path: "/goods-receipt-notes/details/:id",
+            },
+            {
+              label: "Edit GRN",
+              path: "/goods-receipt-notes/edit/:id",
             },
             {
               label: "GRN Modal",
@@ -1351,9 +1988,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // GOODS RECEIPT ITEMS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Goods Receipt Items",
@@ -1365,8 +2002,20 @@ const MainLayout = () => {
               path: "/goods-receipt-note-items",
             },
             {
+              label: "Create Item",
+              path: "/goods-receipt-note-items/create",
+            },
+            {
               label: "Item Card",
               path: "/goods-receipt-note-items/card",
+            },
+            {
+              label: "Item Details",
+              path: "/goods-receipt-note-items/details/:id",
+            },
+            {
+              label: "Edit Item",
+              path: "/goods-receipt-note-items/edit/:id",
             },
             {
               label: "Item Modal",
@@ -1403,14 +2052,76 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // SUPPLIERS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Suppliers",
           path: "/suppliers",
           icon: "🏢",
+          children: [
+            {
+              label: "Supplier List",
+              path: "/suppliers",
+            },
+            {
+              label: "Create Supplier",
+              path: "/suppliers/create",
+            },
+            {
+              label: "Supplier Card",
+              path: "/suppliers/card",
+            },
+            {
+              label: "Supplier Details",
+              path: "/suppliers/details/:id",
+            },
+            {
+              label: "Edit Supplier",
+              path: "/suppliers/edit/:id",
+            },
+            {
+              label: "Supplier Filters",
+              path: "/suppliers/filters",
+            },
+            {
+              label: "Supplier Form",
+              path: "/suppliers/form",
+            },
+            {
+              label: "Supplier Modal",
+              path: "/suppliers/modal",
+            },
+            {
+              label: "Pagination",
+              path: "/suppliers/pagination",
+            },
+            {
+              label: "Search",
+              path: "/suppliers/search",
+            },
+            {
+              label: "Statistics",
+              path: "/suppliers/statistics",
+            },
+            {
+              label: "Table",
+              path: "/suppliers/table",
+            },
+            {
+              label: "Toolbar",
+              path: "/suppliers/toolbar",
+            },
+            {
+              label: "View Supplier",
+              path: "/suppliers/view/:id",
+            },
+            {
+              label: "Delete Supplier",
+              path: "/suppliers/delete/:id",
+            },
+          ],
         },
       ],
     },
@@ -1422,9 +2133,9 @@ const MainLayout = () => {
     {
       section: "Customers",
       items: [
-        // ---------------------------------------------------
+        // ===================================================
         // SELLER CUSTOMERS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Seller Customers",
@@ -1436,8 +2147,28 @@ const MainLayout = () => {
               path: "/seller-customers",
             },
             {
+              label: "Create Customer",
+              path: "/seller-customers/create",
+            },
+            {
               label: "Customer Card",
               path: "/seller-customers/card",
+            },
+            {
+              label: "Customer Details",
+              path: "/seller-customers/details/:id",
+            },
+            {
+              label: "Edit Customer",
+              path: "/seller-customers/edit/:id",
+            },
+            {
+              label: "Customer Filters",
+              path: "/seller-customers/filters",
+            },
+            {
+              label: "Customer Form",
+              path: "/seller-customers/form",
             },
             {
               label: "Customer Modal",
@@ -1474,9 +2205,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // CUSTOMER ADDRESSES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Customer Addresses",
@@ -1488,8 +2219,28 @@ const MainLayout = () => {
               path: "/customer-addresses",
             },
             {
+              label: "Create Address",
+              path: "/customer-addresses/create",
+            },
+            {
               label: "Address Card",
               path: "/customer-addresses/card",
+            },
+            {
+              label: "Address Details",
+              path: "/customer-addresses/details/:id",
+            },
+            {
+              label: "Edit Address",
+              path: "/customer-addresses/edit/:id",
+            },
+            {
+              label: "Address Filters",
+              path: "/customer-addresses/filters",
+            },
+            {
+              label: "Address Form",
+              path: "/customer-addresses/form",
             },
             {
               label: "Address Modal",
@@ -1526,9 +2277,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // CUSTOMER PAYMENTS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Customer Payments",
@@ -1540,8 +2291,28 @@ const MainLayout = () => {
               path: "/customer-payments",
             },
             {
+              label: "Create Payment",
+              path: "/customer-payments/create",
+            },
+            {
               label: "Payment Card",
               path: "/customer-payments/card",
+            },
+            {
+              label: "Payment Details",
+              path: "/customer-payments/details/:id",
+            },
+            {
+              label: "Edit Payment",
+              path: "/customer-payments/edit/:id",
+            },
+            {
+              label: "Payment Filters",
+              path: "/customer-payments/filters",
+            },
+            {
+              label: "Payment Form",
+              path: "/customer-payments/form",
             },
             {
               label: "Payment Modal",
@@ -1578,9 +2349,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // CUSTOMER RETURNS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Customer Returns",
@@ -1592,8 +2363,28 @@ const MainLayout = () => {
               path: "/customer-returns",
             },
             {
+              label: "Create Return",
+              path: "/customer-returns/create",
+            },
+            {
               label: "Return Card",
               path: "/customer-returns/card",
+            },
+            {
+              label: "Return Details",
+              path: "/customer-returns/details/:id",
+            },
+            {
+              label: "Edit Return",
+              path: "/customer-returns/edit/:id",
+            },
+            {
+              label: "Return Filters",
+              path: "/customer-returns/filters",
+            },
+            {
+              label: "Return Form",
+              path: "/customer-returns/form",
             },
             {
               label: "Return Modal",
@@ -1630,9 +2421,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // WISHLISTS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Wishlists",
@@ -1644,8 +2435,28 @@ const MainLayout = () => {
               path: "/wishlists",
             },
             {
+              label: "Create Wishlist",
+              path: "/wishlists/create",
+            },
+            {
               label: "Wishlist Card",
               path: "/wishlists/card",
+            },
+            {
+              label: "Wishlist Details",
+              path: "/wishlists/details/:id",
+            },
+            {
+              label: "Edit Wishlist",
+              path: "/wishlists/edit/:id",
+            },
+            {
+              label: "Wishlist Filters",
+              path: "/wishlists/filters",
+            },
+            {
+              label: "Wishlist Form",
+              path: "/wishlists/form",
             },
             {
               label: "Wishlist Modal",
@@ -1697,9 +2508,9 @@ const MainLayout = () => {
           icon: "🌐",
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // MARKETPLACE ORDER ITEMS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Marketplace Order Items",
@@ -1711,8 +2522,20 @@ const MainLayout = () => {
               path: "/marketplace-order-items",
             },
             {
+              label: "Create Item",
+              path: "/marketplace-order-items/create",
+            },
+            {
               label: "Card",
               path: "/marketplace-order-items/card",
+            },
+            {
+              label: "Details",
+              path: "/marketplace-order-items/details/:id",
+            },
+            {
+              label: "Edit Item",
+              path: "/marketplace-order-items/edit/:id",
             },
             {
               label: "Modal",
@@ -1749,9 +2572,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // MARKETPLACE RETURNS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Marketplace Returns",
@@ -1763,8 +2586,20 @@ const MainLayout = () => {
               path: "/marketplace-returns",
             },
             {
+              label: "Create Return",
+              path: "/marketplace-returns/create",
+            },
+            {
               label: "Card",
               path: "/marketplace-returns/card",
+            },
+            {
+              label: "Details",
+              path: "/marketplace-returns/details/:id",
+            },
+            {
+              label: "Edit Return",
+              path: "/marketplace-returns/edit/:id",
             },
             {
               label: "Modal",
@@ -1810,9 +2645,9 @@ const MainLayout = () => {
     {
       section: "Sales & Finance",
       items: [
-        // ---------------------------------------------------
+        // ===================================================
         // SALES INVOICES
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Sales Invoices",
@@ -1824,8 +2659,28 @@ const MainLayout = () => {
               path: "/sales-invoices",
             },
             {
+              label: "Create Invoice",
+              path: "/sales-invoices/create",
+            },
+            {
               label: "Invoice Card",
               path: "/sales-invoices/card",
+            },
+            {
+              label: "Invoice Details",
+              path: "/sales-invoices/details/:id",
+            },
+            {
+              label: "Edit Invoice",
+              path: "/sales-invoices/edit/:id",
+            },
+            {
+              label: "Invoice Filters",
+              path: "/sales-invoices/filters",
+            },
+            {
+              label: "Invoice Form",
+              path: "/sales-invoices/form",
             },
             {
               label: "Invoice Modal",
@@ -1862,9 +2717,9 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // PAYMENT SETTINGS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Payment Settings",
@@ -1890,14 +2745,52 @@ const MainLayout = () => {
           ],
         },
 
-        // ---------------------------------------------------
+        // ===================================================
         // REPORTS
-        // ---------------------------------------------------
+        // ===================================================
 
         {
           label: "Reports",
           path: "/reports",
           icon: "📈",
+          children: [
+            {
+              label: "Reports Dashboard",
+              path: "/reports",
+            },
+            {
+              label: "Sales Report",
+              path: "/reports/sales",
+            },
+            {
+              label: "Order Report",
+              path: "/reports/orders",
+            },
+            {
+              label: "Inventory Report",
+              path: "/reports/inventory",
+            },
+            {
+              label: "Product Report",
+              path: "/reports/products",
+            },
+            {
+              label: "Customer Report",
+              path: "/reports/customers",
+            },
+            {
+              label: "Purchase Report",
+              path: "/reports/purchases",
+            },
+            {
+              label: "Stock Report",
+              path: "/reports/stock",
+            },
+            {
+              label: "Export",
+              path: "/reports/export",
+            },
+          ],
         },
       ],
     },
@@ -1987,7 +2880,9 @@ const MainLayout = () => {
                   marginBottom: "10px",
                 }}
               >
-                {/* Section Header */}
+                {/* =================================================
+                    SECTION HEADER
+                ================================================== */}
 
                 <div
                   onClick={() =>
@@ -2018,7 +2913,9 @@ const MainLayout = () => {
                   </span>
                 </div>
 
-                {/* Section Items */}
+                {/* =================================================
+                    SECTION ITEMS
+                ================================================== */}
 
                 {isGroupOpen &&
                   group.items.map((item) => {
@@ -2031,7 +2928,9 @@ const MainLayout = () => {
 
                     return (
                       <div key={item.path}>
-                        {/* Parent */}
+                        {/* =================================================
+                            PARENT
+                        ================================================== */}
 
                         <div
                           style={{
@@ -2064,15 +2963,15 @@ const MainLayout = () => {
                             <span>{item.label}</span>
                           </NavLink>
 
-                          {/* Expand */}
+                          {/* =================================================
+                              EXPAND BUTTON
+                          ================================================== */}
 
                           {hasChildren && (
                             <button
                               type="button"
                               onClick={() =>
-                                toggleSection(
-                                  item.label
-                                )
+                                toggleSection(item.label)
                               }
                               style={{
                                 border: "none",
@@ -2173,7 +3072,7 @@ const MainLayout = () => {
       </aside>
 
       {/* =====================================================
-          MAIN CONTENT AREA
+          MAIN CONTENT
       ====================================================== */}
 
       <div
@@ -2266,3 +3165,4 @@ const MainLayout = () => {
 };
 
 export default MainLayout;
+

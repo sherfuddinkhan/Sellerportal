@@ -9,6 +9,7 @@ app.use(cors());
 app.use(express.json());
 import axios from "axios";
 app.use(express.urlencoded({ extended: true }));
+
 const dbConfig = {
   connectionString:
     "Driver={ODBC Driver 18 for SQL Server};" +
@@ -550,296 +551,314 @@ app.get("/api/dashboard/low-stock-products", async (req, res) => {
     }
 });
 
-/* =====================================================
-3. BRAND
-===================================================== */
 
+// =====================================================
+// 3. BRAND APIs
+// =====================================================
+
+// =====================================================
 // Get All Brands
+// Frontend: GET http://localhost:5000/api/brand
+// Backend:  GET https://localhost:7203/api/Brand
+// =====================================================
+
+
 app.get("/api/brand", async (req, res) => {
     try {
-        const response = await axios.get(
-            `${BASE_URL}/brand`,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            }
-        );
 
-        res.json(response.data);
+        console.log("Calling:", `${BASE_URL}/Brand`);
+
+      const response = await axios.get(
+    `${BASE_URL}/Brand`,
+    {
+        httpsAgent,
+        headers: {
+            Accept: "application/json"
+        }
+    }
+);
+
+        console.log("Brand API Status:", response.status);
+        console.log("Brand API Response:", response.data);
+
+        res.status(response.status).json(response.data);
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
 
-        res.status(err.response?.status || 500).json(
+        console.error("=================================");
+        console.error("GET ALL BRANDS ERROR");
+        console.error("Axios Error Code:", err.code);
+        console.error("Axios Error Message:", err.message);
+        console.error("Status:", err.response?.status);
+        console.error("Response:", err.response?.data);
+        console.error("URL:", err.config?.url);
+        console.error("=================================");
+
+        res.status(
+            err.response?.status || 500
+        ).json(
             err.response?.data || {
-                message: "Failed to fetch brands",
+                message: err.message
             }
         );
     }
 });
 
-// Get Brand By Id
-app.get("/api/brand/:id", async (req, res) => {
-    try {
-        const response = await axios.get(
-            `${BASE_URL}/brand/${req.params.id}`,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        res.json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
-
-        res.status(err.response?.status || 500).json(
-            err.response?.data || {
-                message: "Failed to fetch brand",
-            }
-        );
-    }
-});
-
-// Create Brand
-app.post("/api/brand", async (req, res) => {
-    try {
-        const response = await axios.post(
-            `${BASE_URL}/brand`,
-            req.body,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        res.status(201).json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
-
-        res.status(err.response?.status || 500).json(
-            err.response?.data || {
-                message: "Failed to create brand",
-            }
-        );
-    }
-});
-
-// Update Brand
-app.put("/api/brand/:id", async (req, res) => {
-    try {
-        const response = await axios.put(
-            `${BASE_URL}/brand/${req.params.id}`,
-            req.body,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        res.json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
-
-        res.status(err.response?.status || 500).json(
-            err.response?.data || {
-                message: "Failed to update brand",
-            }
-        );
-    }
-});
-
-// Delete Brand
-app.delete("/api/brand/:id", async (req, res) => {
-    try {
-        const response = await axios.delete(
-            `${BASE_URL}/brand/${req.params.id}`,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        res.json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
-
-        res.status(err.response?.status || 500).json(
-            err.response?.data || {
-                message: "Failed to delete brand",
-            }
-        );
-    }
-});
-
+// =====================================================
 // Brand Statistics
+// IMPORTANT: BEFORE /brand/:id
+// =====================================================
+
 app.get("/api/brand/statistics", async (req, res) => {
     try {
+
         const response = await axios.get(
-            `${BASE_URL}/brand/statistics`,
+            `${BASE_URL}/Brand/statistics`,
             {
                 headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
+                    Accept: "application/json"
+                }
             }
         );
 
-        res.json(response.data);
-    } catch (err) {
-        console.error(err.response?.data || err.message);
+        res.status(response.status).json(
+            response.data
+        );
 
-        res.status(err.response?.status || 500).json(
+    } catch (err) {
+
+        console.error("BRAND STATISTICS ERROR");
+        console.error("Status:", err.response?.status);
+        console.error("Response:", err.response?.data);
+        console.error("Message:", err.message);
+
+        res.status(
+            err.response?.status || 500
+        ).json(
             err.response?.data || {
-                message: "Failed to fetch brand statistics",
+                message: "Failed to fetch brand statistics"
             }
         );
     }
 });
 
+
+// =====================================================
 // Search Brands
+// IMPORTANT: BEFORE /brand/:id
+// =====================================================
+
 app.get("/api/brand/search", async (req, res) => {
     try {
+
         const response = await axios.get(
-            `${BASE_URL}/brand/search`,
+            `${BASE_URL}/Brand/search`,
             {
                 params: req.query,
+
+                headers: {
+                    Accept: "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (err) {
+
+        console.error("SEARCH BRANDS ERROR");
+        console.error("Status:", err.response?.status);
+        console.error("Response:", err.response?.data);
+        console.error("Message:", err.message);
+
+        res.status(
+            err.response?.status || 500
+        ).json(
+            err.response?.data || {
+                message: "Failed to search brands"
+            }
+        );
+    }
+});
+
+
+// =====================================================
+// Get Brand By ID
+// =====================================================
+
+app.get("/api/brand/:id", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${BASE_URL}/Brand/${req.params.id}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (err) {
+
+        console.error("GET BRAND BY ID ERROR");
+        console.error("Status:", err.response?.status);
+        console.error("Response:", err.response?.data);
+        console.error("Message:", err.message);
+
+        res.status(
+            err.response?.status || 500
+        ).json(
+            err.response?.data || {
+                message: "Failed to fetch brand"
+            }
+        );
+    }
+});
+
+
+// =====================================================
+// Create Brand
+// Frontend: POST http://localhost:5000/api/brand
+// Backend:  POST https://localhost:7203/api/Brand
+// =====================================================
+app.post("/api/brand", async (req, res) => {
+
+    try {
+
+        console.log("=================================");
+        console.log("CREATE BRAND REQUEST");
+        console.log("URL:", `${BASE_URL}/Brand`);
+        console.log("Request Body:", req.body);
+        console.log("=================================");
+
+        const response = await axios.post(
+    `${BASE_URL}/Brand`,
+    req.body,
+    {
+        httpsAgent,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+        }
+    }
+);
+
+        console.log("ASP.NET Status:", response.status);
+        console.log("ASP.NET Response:", response.data);
+        console.log("=================================");
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (err) {
+
+        console.error("=================================");
+        console.error("CREATE BRAND ERROR");
+        console.error("Axios Code:", err.code);
+        console.error("Axios Message:", err.message);
+        console.error("ASP.NET Status:", err.response?.status);
+        console.error("ASP.NET Response:", err.response?.data);
+        console.error("Request URL:", err.config?.url);
+        console.error("=================================");
+
+        res.status(
+            err.response?.status || 500
+        ).json(
+            err.response?.data || {
+                message: err.message,
+                code: err.code
+            }
+        );
+    }
+});
+
+
+
+
+// =====================================================
+// Update Brand
+// =====================================================
+
+app.put("/api/brand/:id", async (req, res) => {
+    try {
+
+        const response = await axios.put(
+            `${BASE_URL}/Brand/${req.params.id}`,
+            req.body,
+            {
                 headers: {
                     Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
+                    "Content-Type": "application/json"
+                }
             }
         );
 
-        res.json(response.data);
+        res.status(response.status).json(
+            response.data
+        );
+
     } catch (err) {
-        console.error(err.response?.data || err.message);
 
-        res.status(err.response?.status || 500).json(
+        console.error("UPDATE BRAND ERROR");
+        console.error("Status:", err.response?.status);
+        console.error("Response:", err.response?.data);
+        console.error("Message:", err.message);
+
+        res.status(
+            err.response?.status || 500
+        ).json(
             err.response?.data || {
-                message: "Failed to search brands",
+                message: "Failed to update brand"
             }
         );
     }
 });
 
-/* =====================================================
-4. CATEGORY APIs
-===================================================== */
 
-// ======================================
-// Get All Categories
-// GET: /api/category
-// ======================================
-app.get("/api/category", async (req, res) => {
+// =====================================================
+// Delete Brand
+// =====================================================
 
+app.delete("/api/brand/:id", async (req, res) => {
     try {
 
-        // TODO:
-        // Get All Categories
-
-        res.json({
-            success: true,
-            data: []
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
-
-});
-
-
-// ======================================
-// Get Category By Id
-// GET: /api/category/:id
-// ======================================
-app.get("/api/category/:id", async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        // TODO:
-        // Get Category By Id
-
-        res.json({
-            success: true,
-            data: {
-                id: id
+        const response = await axios.delete(
+            `${BASE_URL}/Brand/${req.params.id}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                }
             }
-        });
+        );
 
-    }
-    catch (err) {
+        res.status(response.status).json(
+            response.data
+        );
 
-        console.error(err);
+    } catch (err) {
 
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
+        console.error("DELETE BRAND ERROR");
+        console.error("Status:", err.response?.status);
+        console.error("Response:", err.response?.data);
+        console.error("Message:", err.message);
 
-    }
-
-});
-
-
-// ======================================
-// Create Category
-// POST: /api/category
-// ======================================
-app.post("/api/category", async (req, res) => {
-
-    try {
-        const {
-            categoryName,
-            description,
-            parentCategoryId,
-            isActive
-        } = req.body;
-
-        // TODO:
-        // Create Category
-
-        res.status(201).json({
-            success: true,
-            message: "Category Created Successfully",
-            data: {
-                categoryName,
-                description,
-                parentCategoryId,
-                isActive
+        res.status(
+            err.response?.status || 500
+        ).json(
+            err.response?.data || {
+                message: "Failed to delete brand"
             }
-        });
-
+        );
     }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-    }
-
 });
+
 
 
 // ======================================

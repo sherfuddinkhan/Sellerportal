@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {Box,Paper,Typography,CircularProgress,Alert} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import BrandForm from "./BrandForm";
 const BrandEdit = () => {
     const navigate = useNavigate();
     const { id } = useParams();

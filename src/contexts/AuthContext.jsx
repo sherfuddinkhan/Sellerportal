@@ -1,120 +1,121 @@
-import{ React,createContext,useContext,useEffect,useMemo,useState,useCallback} from "react";
+import {
+    React,
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+    useCallback
+} from "react";
 
-
-
-//=========================================================
+// =========================================================
 // Context
-//=========================================================
+// =========================================================
 
 const AuthContext = createContext(null);
 
-//=========================================================
+const SERVER_URL = "http://localhost:5000";
+
+// =========================================================
 // Hook
-//=========================================================
+// =========================================================
 
 export const useAuth = () => {
 
     const context = useContext(AuthContext);
 
     if (!context) {
-
         throw new Error(
-
             "useAuth must be used inside AuthProvider."
-
         );
-
     }
 
     return context;
-
 };
 
-//=========================================================
+// =========================================================
 // Provider
-//=========================================================
+// =========================================================
 
-export const AuthProvider = ({
-
-    children
-
-}) => {
+export const AuthProvider = ({ children }) => {
 
     const [user, setUser] = useState(null);
 
     const [token, setToken] = useState(
-
         localStorage.getItem("token")
-
     );
 
     const [loading, setLoading] = useState(true);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    //=====================================================
-    // Load User
-    //=====================================================
+
+    // =====================================================
+    // Clear Storage
+    // =====================================================
+
+    const clearStorage = () => {
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+    };
+
+
+    // =====================================================
+    // Load Current User
+    // =====================================================
 
     const loadCurrentUser = useCallback(async () => {
+    const jwt = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
 
-        const jwt = localStorage.getItem("token");
+    if (!jwt) {
+        setUser(null);
+        setToken(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+    }
 
-        if (!jwt) {
+    try {
+        setToken(jwt);
 
-            setUser(null);
+        if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
 
-            setToken(null);
-
-            setIsAuthenticated(false);
-
-            setLoading(false);
-
-            return;
-
-        }
-
-        try {
-
-            const currentUser = await authService.getCurrentUser();
-
-            setUser(currentUser);
-
-            setToken(jwt);
-
+            setUser(parsedUser);
             setIsAuthenticated(true);
-
-        }
-        catch (error) {
-
-            console.error(
-
-                "Unable to load current user.",
-
-                error
-
-            );
-
-            authService.clearStorage();
-
+        } else {
+            // Token exists but no user information
             setUser(null);
-
-            setToken(null);
-
-            setIsAuthenticated(false);
-
-        }
-        finally {
-
-            setLoading(false);
-
+            setIsAuthenticated(true);
         }
 
-    }, []);
+    } catch (error) {
 
-    //=====================================================
+        console.error(
+            "Unable to load stored user.",
+            error
+        );
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setUser(null);
+        setToken(null);
+        setIsAuthenticated(false);
+
+    } finally {
+        setLoading(false);
+    }
+
+}, []);
+
+
+    // =====================================================
     // Initialize
-    //=====================================================
+    // =====================================================
 
     useEffect(() => {
 
@@ -122,9 +123,10 @@ export const AuthProvider = ({
 
     }, [loadCurrentUser]);
 
-    //=====================================================
+
+    // =====================================================
     // Login
-    //=====================================================
+    // =====================================================
 
     const login = async (credentials) => {
 
@@ -132,34 +134,72 @@ export const AuthProvider = ({
 
         try {
 
-            const response = await authService.login(credentials);
+            const response = await fetch(
+                `${SERVER_URL}/api/auth/login`,
+                {
+                    method: "POST",
 
-            const jwt =
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json"
+                    },
 
-                response.token ||
+                    body: JSON.stringify(credentials)
+                }
+            );
 
-                response.accessToken ||
+            const data = await response.json();
 
-                localStorage.getItem("token");
+            if (!response.ok) {
 
-            setToken(jwt);
-
-            if (response.user) {
-
-                setUser(response.user);
+                throw new Error(
+                    data?.message ||
+                    "Login failed."
+                );
 
             }
-            else {
 
-                const currentUser = await authService.getCurrentUser();
+            const jwt =
+                data.token ||
+                data.accessToken;
 
-                setUser(currentUser);
+            if (jwt) {
+
+                localStorage.setItem(
+                    "token",
+                    jwt
+                );
+
+                setToken(jwt);
+
+            }
+
+            if (data.user) {
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(data.user)
+                );
+
+                setUser(data.user);
 
             }
 
             setIsAuthenticated(true);
 
-            return response;
+            return data;
+
+        }
+        catch (error) {
+
+            console.error(
+                "Login error:",
+                error
+            );
+
+            setIsAuthenticated(false);
+
+            throw error;
 
         }
         finally {
@@ -170,175 +210,247 @@ export const AuthProvider = ({
 
     };
 
-    //=====================================================
+
+    // =====================================================
     // Register
-    //=====================================================
+    // =====================================================
 
     const register = async (model) => {
 
-        return await authService.register(model);
+        const response = await fetch(
+            `${SERVER_URL}/api/auth/register`,
+            {
+                method: "POST",
+
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(model)
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data?.message ||
+                "Registration failed."
+            );
+
+        }
+
+        return data;
 
     };
 
-    //=====================================================
+
+    // =====================================================
     // Logout
-    //=====================================================
+    // =====================================================
 
     const logout = async () => {
 
         try {
 
-            await authService.logout();
+            const jwt =
+                localStorage.getItem("token");
+
+            await fetch(
+                `${SERVER_URL}/api/auth/logout`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        Accept: "application/json",
+
+                        Authorization:
+                            `Bearer ${jwt}`
+                    }
+                }
+            );
 
         }
         catch (error) {
 
-            console.error(error);
+            console.error(
+                "Logout error:",
+                error
+            );
 
         }
         finally {
 
-            authService.clearStorage();
+            clearStorage();
 
             setUser(null);
-
             setToken(null);
-
             setIsAuthenticated(false);
 
         }
 
     };
 
-    //=====================================================
+
+    // =====================================================
     // Refresh User
-    //=====================================================
+    // =====================================================
 
     const refreshUser = async () => {
 
         try {
 
-            const currentUser = await authService.getCurrentUser();
+            const jwt =
+                localStorage.getItem("token");
+
+            if (!jwt) {
+                return;
+            }
+
+            const response = await fetch(
+                `${SERVER_URL}/api/auth/current-user`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        Accept: "application/json",
+
+                        Authorization:
+                            `Bearer ${jwt}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    "Unable to refresh user."
+                );
+            }
+
+            const currentUser =
+                await response.json();
 
             setUser(currentUser);
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(currentUser)
+            );
 
         }
         catch (error) {
 
-            console.error(error);
+            console.error(
+                "Unable to refresh user.",
+                error
+            );
 
         }
 
     };
 
-    //=====================================================
+
+    // =====================================================
     // Update User
-    //=====================================================
+    // =====================================================
 
     const updateUser = (updatedUser) => {
 
         setUser(updatedUser);
 
         localStorage.setItem(
-
             "user",
-
             JSON.stringify(updatedUser)
-
         );
 
     };
 
-    //=====================================================
+
+    // =====================================================
     // Has Role
-    //=====================================================
+    // =====================================================
 
     const hasRole = (...roles) => {
 
-        if (!user) return false;
+        if (!user) {
+            return false;
+        }
 
         return roles.includes(user.role);
 
     };
 
-    //=====================================================
+
+    // =====================================================
     // Has Permission
-    //=====================================================
+    // =====================================================
 
     const hasPermission = (permission) => {
 
-        if (!user) return false;
+        if (!user) {
+            return false;
+        }
 
-        if (!user.permissions) return false;
+        if (!user.permissions) {
+            return false;
+        }
 
-        return user.permissions.includes(permission);
+        return user.permissions.includes(
+            permission
+        );
 
     };
 
-    //=====================================================
+
+    // =====================================================
     // Context Value
-    //=====================================================
+    // =====================================================
 
-    const value = useMemo(() => ({
+    const value = useMemo(
+        () => ({
 
-        //-------------------------------------------------
+            user,
 
-        user,
+            token,
 
-        token,
+            loading,
 
-        loading,
+            isAuthenticated,
 
-        isAuthenticated,
+            login,
 
-        //-------------------------------------------------
+            logout,
 
-        login,
+            register,
 
-        logout,
+            refreshUser,
 
-        register,
+            updateUser,
 
-        refreshUser,
+            hasRole,
 
-        updateUser,
+            hasPermission,
 
-        //-------------------------------------------------
+            setUser,
 
-        hasRole,
+            setLoading
 
-        hasPermission,
+        }),
+        [
+            user,
+            token,
+            loading,
+            isAuthenticated
+        ]
+    );
 
-        //-------------------------------------------------
-
-        setUser,
-
-        setLoading
-
-    }), [
-
-        user,
-
-        token,
-
-        loading,
-
-        isAuthenticated
-
-    ]);
 
     return (
-
-        <AuthContext.Provider
-
-            value={value}
-
-        >
-
+        <AuthContext.Provider value={value}>
             {children}
-
         </AuthContext.Provider>
-
     );
 
 };

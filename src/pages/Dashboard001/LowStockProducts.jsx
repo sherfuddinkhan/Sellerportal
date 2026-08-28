@@ -18,9 +18,7 @@ import {
     Visibility
 } from "@mui/icons-material";
 
-import {
-    DataGrid
-} from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 
 import { useNavigate } from "react-router-dom";
 
@@ -30,71 +28,80 @@ const LowStockProducts = () => {
     const navigate = useNavigate();
 
     const [products, setProducts] = useState([]);
-
     const [filteredProducts, setFilteredProducts] = useState([]);
-
     const [search, setSearch] = useState("");
-
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState("");
 
+
     useEffect(() => {
-
         loadProducts();
-
     }, []);
 
+
     useEffect(() => {
 
-        const result = products.filter(item =>
+        const searchValue = search.toLowerCase();
 
+        const result = products.filter((item) =>
             item.productName
                 ?.toLowerCase()
-                .includes(search.toLowerCase()) ||
+                .includes(searchValue) ||
 
             item.sku
                 ?.toLowerCase()
-                .includes(search.toLowerCase()) ||
+                .includes(searchValue) ||
 
             item.brandName
                 ?.toLowerCase()
-                .includes(search.toLowerCase())
-
+                .includes(searchValue)
         );
 
         setFilteredProducts(result);
 
     }, [search, products]);
 
+
     const loadProducts = async () => {
 
         try {
 
             setLoading(true);
+            setError("");
 
-            const response =
-                await apiService.getLowStockProducts();
+            const response = await fetch(
+                "http://localhost:5000/api/products/low-stock"
+            );
 
-            setProducts(response.data);
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP error: ${response.status}`
+                );
+            }
 
-            setFilteredProducts(response.data);
+            const data = await response.json();
 
-        }
-        catch (err) {
+            setProducts(data);
+            setFilteredProducts(data);
 
-            console.log(err);
+        } catch (err) {
 
-            setError("Unable to load Low Stock Products.");
+            console.error(
+                "Low Stock Products Error:",
+                err
+            );
 
-        }
-        finally {
+            setError(
+                "Unable to load Low Stock Products."
+            );
+
+        } finally {
 
             setLoading(false);
 
         }
-
     };
+
 
     const columns = [
 
@@ -142,94 +149,79 @@ const LowStockProducts = () => {
 
         {
             field: "status",
-
             headerName: "Status",
-
             width: 140,
 
             renderCell: (params) => (
 
                 <Chip
-
                     size="small"
-
                     color={
                         params.row.availableQty <= 0
                             ? "error"
                             : "warning"
                     }
-
                     label={
                         params.row.availableQty <= 0
                             ? "Out Of Stock"
                             : "Low Stock"
                     }
-
                 />
 
             )
-
         },
 
         {
-
             field: "action",
-
             headerName: "Action",
-
             width: 120,
-
             sortable: false,
 
             renderCell: (params) => (
 
                 <Button
-
                     size="small"
-
                     variant="contained"
-
                     startIcon={<Visibility />}
-
                     onClick={() =>
-                        navigate(`/products/${params.row.productId}`)
+                        navigate(
+                            `/products/${params.row.productId}`
+                        )
                     }
-
                 >
-
                     View
-
                 </Button>
 
             )
-
         }
 
     ];
 
-    if (loading)
+
+    if (loading) {
 
         return (
-
-            <Box textAlign="center" mt={5}>
-
+            <Box
+                textAlign="center"
+                mt={5}
+            >
                 <CircularProgress />
-
             </Box>
-
         );
 
-    if (error)
+    }
+
+
+    if (error) {
 
         return (
-
             <Alert severity="error">
-
                 {error}
-
             </Alert>
-
         );
+
+    }
+
 
     return (
 
@@ -238,56 +230,37 @@ const LowStockProducts = () => {
             <CardContent>
 
                 <Stack
-
                     direction="row"
-
                     justifyContent="space-between"
-
                     alignItems="center"
-
                     mb={3}
-
                 >
 
                     <Typography variant="h6">
-
                         Low Stock Products
-
                     </Typography>
 
                     <Button
-
                         variant="contained"
-
                         startIcon={<Refresh />}
-
                         onClick={loadProducts}
-
                     >
-
                         Refresh
-
                     </Button>
 
                 </Stack>
 
+
                 <TextField
-
                     fullWidth
-
                     placeholder="Search Product..."
-
                     value={search}
-
                     onChange={(e) =>
                         setSearch(e.target.value)
                     }
-
-                    sx={{
-                        mb: 3
-                    }}
-
+                    sx={{ mb: 3 }}
                 />
+
 
                 <Box
                     sx={{
@@ -297,15 +270,16 @@ const LowStockProducts = () => {
                 >
 
                     <DataGrid
-
                         rows={filteredProducts}
-
                         columns={columns}
-
-                        getRowId={(row) => row.productId}
-
-                        pageSizeOptions={[10, 20, 50]}
-
+                        getRowId={(row) =>
+                            row.productId
+                        }
+                        pageSizeOptions={[
+                            10,
+                            20,
+                            50
+                        ]}
                         initialState={{
                             pagination: {
                                 paginationModel: {
@@ -313,7 +287,6 @@ const LowStockProducts = () => {
                                 }
                             }
                         }}
-
                     />
 
                 </Box>
@@ -325,5 +298,6 @@ const LowStockProducts = () => {
     );
 
 };
+
 
 export default LowStockProducts;
