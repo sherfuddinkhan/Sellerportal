@@ -1,9 +1,34 @@
 import React from "react";
-import {Card,CardContent,CardActions,Typography,Button,Chip,Stack,Box} from "@mui/material";
-import {Visibility,Edit,Delete} from "@mui/icons-material";
+import {
+    Card,
+    CardContent,
+    CardActions,
+    Typography,
+    Button,
+    Chip,
+    Stack,
+    Box
+} from "@mui/material";
 
-const BrandCard = ({brand,onView,onEdit,onDelete
+import {
+    Visibility,
+    Edit,
+    Delete
+} from "@mui/icons-material";
+
+
+const BrandCard = ({
+    brand,
+    onView,
+    onEdit,
+    onDelete
 }) => {
+
+    if (!brand) {
+        return null;
+    }
+
+
     return (
         <Card
             elevation={4}
@@ -13,31 +38,43 @@ const BrandCard = ({brand,onView,onEdit,onDelete
                 display: "flex",
                 flexDirection: "column",
                 transition: "0.3s",
+
                 "&:hover": {
                     boxShadow: 8,
                     transform: "translateY(-3px)"
                 }
             }}
         >
+
             <CardContent
                 sx={{
                     flexGrow: 1
                 }}
             >
+
+                {/* BRAND NAME */}
+
                 <Typography
                     variant="h6"
                     fontWeight="bold"
                 >
-                    {brand.brandName}
+                    {brand.brandName || "-"}
                 </Typography>
+
+
+                {/* DESCRIPTION */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                     mt={2}
                 >
                     {brand.description || "No Description"}
-
                 </Typography>
+
+
+                {/* STATUS */}
+
                 <Box mt={3}>
 
                     <Chip
@@ -51,16 +88,23 @@ const BrandCard = ({brand,onView,onEdit,onDelete
                                 ? "success"
                                 : "error"
                         }
+                        size="small"
                     />
+
                 </Box>
 
+
+                {/* CREATED DATE */}
+
                 <Box mt={3}>
+
                     <Typography
                         variant="caption"
                         color="text.secondary"
                     >
                         Created
                     </Typography>
+
                     <Typography>
                         {
                             brand.createdDate
@@ -70,44 +114,93 @@ const BrandCard = ({brand,onView,onEdit,onDelete
                                 : "-"
                         }
                     </Typography>
+
                 </Box>
+
             </CardContent>
+
+
+            {/* ACTIONS */}
+
             <CardActions>
+
                 <Stack
                     direction="row"
                     spacing={1}
                     width="100%"
                 >
+
+                    {/* VIEW */}
+
                     <Button
                         fullWidth
-                        startIcon={<Visibility />}
+                        startIcon={
+                            <Visibility />
+                        }
                         variant="outlined"
-                        onClick={() => onView(brand)}
+                        onClick={() => {
+                            console.log(
+                                "View Brand:",
+                                brand
+                            );
+
+                            onView(brand);
+                        }}
                     >
                         View
                     </Button>
+
+
+                    {/* EDIT */}
+
                     <Button
                         fullWidth
-                        startIcon={<Edit />}
+                        startIcon={
+                            <Edit />
+                        }
                         color="warning"
                         variant="outlined"
-                        onClick={() => onEdit(brand)}
+                        onClick={() => {
+                            console.log(
+                                "Edit Brand:",
+                                brand
+                            );
+
+                            onEdit(brand);
+                        }}
                     >
                         Edit
                     </Button>
+
+
+                    {/* DELETE */}
+
                     <Button
                         fullWidth
-                        startIcon={<Delete />}
+                        startIcon={
+                            <Delete />
+                        }
                         color="error"
                         variant="outlined"
-                        onClick={() => onDelete(brand)}
+                        onClick={() => {
+                            console.log(
+                                "Delete Brand:",
+                                brand
+                            );
+
+                            onDelete(brand);
+                        }}
                     >
                         Delete
                     </Button>
+
                 </Stack>
+
             </CardActions>
+
         </Card>
     );
 };
+
 
 export default BrandCard;

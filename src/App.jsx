@@ -532,6 +532,7 @@ import NotFound from "./pages/NotFound/NotFound";
 // APP
 // =========================================================
 
+
 function App() {
   return (
     <Routes>
@@ -572,45 +573,60 @@ function App() {
             DASHBOARD
         =================================================== */}
 
-        <Route
-          path="dashboard"
-          element={<Dashboard />}
-        />
+        <Route path="dashboard" element={<Dashboard />} />
+
 
         {/* ===================================================
             PROFILE
         =================================================== */}
 
-        <Route
-          path="profile"
-          element={<UserProfile />}
-        />
-
-        <Route
-          path="profile/card"
-          element={<UserProfileCard />}
-        />
+        <Route path="profile" element={<UserProfile />} />
+        <Route path="profile/card" element={<UserProfileCard />} />
 
 
-        {/* ===================================================
-            BRANDS
-        =================================================== */}
+      {/* ===================================================
+    BRANDS
+=================================================== */}
 
-        <Route path="brands" element={<BrandList />} />
-        <Route path="brands/card" element={<BrandCard />} />
-        <Route path="brands/create" element={<BrandCreate />} />
-        <Route path="brands/details/:id" element={<BrandDetails />} />
-        <Route path="brands/edit/:id" element={<BrandEdit />} />
-        <Route path="brands/filters" element={<BrandFilters />} />
-        <Route path="brands/form" element={<BrandForm />} />
-        <Route path="brands/modal" element={<BrandModal />} />
-        <Route path="brands/pagination" element={<BrandPagination />} />
-        <Route path="brands/search" element={<BrandSearch />} />
-        <Route path="brands/statistics" element={<BrandStatistics />} />
-        <Route path="brands/table" element={<BrandTable />} />
-        <Route path="brands/toolbar" element={<BrandToolbar />} />
-        <Route path="brands/view/:id" element={<BrandView />} />
-        <Route path="brands/delete/:id" element={<DeleteBrandDialog />} />
+<Route
+    path="brands"
+    element={<BrandList />}
+/>
+
+<Route
+    path="brands/create"
+    element={<BrandCreate />}
+/>
+
+<Route
+    path="brands/details/:id"
+    element={<BrandDetails />}
+/>
+
+<Route
+    path="brands/:id/edit"
+    element={<BrandEdit />}
+/>
+
+<Route
+    path="brands/view/:id"
+    element={<BrandView />}
+/>
+
+<Route
+    path="brands/search"
+    element={<BrandSearch />}
+/>
+
+<Route
+    path="brands/filters"
+    element={<BrandFilters />}
+/>
+
+<Route
+    path="brands/statistics"
+    element={<BrandStatistics />}
+/>
 
 
         {/* ===================================================
@@ -618,20 +634,9 @@ function App() {
         =================================================== */}
 
         <Route path="catalog" element={<CatalogList />} />
-        <Route path="catalog/attributes" element={<CatalogAttributes />} />
-        <Route path="catalog/card" element={<CatalogCard />} />
-        <Route path="catalog/images" element={<CatalogImages />} />
-        <Route path="catalog/marketplace" element={<CatalogMarketplace />} />
-        <Route path="catalog/modal" element={<CatalogModal />} />
-        <Route path="catalog/pagination" element={<CatalogPagination />} />
-        <Route path="catalog/publish" element={<CatalogPublish />} />
+        <Route path="catalog/:id" element={<CatalogView />} />
         <Route path="catalog/search" element={<CatalogSearch />} />
         <Route path="catalog/statistics" element={<CatalogStatistics />} />
-        <Route path="catalog/table" element={<CatalogTable />} />
-        <Route path="catalog/toolbar" element={<CatalogToolbar />} />
-        <Route path="catalog/variants" element={<CatalogVariants />} />
-        <Route path="catalog/view/:id" element={<CatalogView />} />
-        <Route path="catalog/delete/:id" element={<DeleteCatalogDialog />} />
 
 
         {/* ===================================================
@@ -639,20 +644,13 @@ function App() {
         =================================================== */}
 
         <Route path="categories" element={<CategoryList />} />
-        <Route path="categories/card" element={<CategoryCard />} />
         <Route path="categories/create" element={<CategoryCreate />} />
-        <Route path="categories/details/:id" element={<CategoryDetails />} />
-        <Route path="categories/edit/:id" element={<CategoryEdit />} />
-        <Route path="categories/filters" element={<CategoryFilters />} />
-        <Route path="categories/form" element={<CategoryForm />} />
-        <Route path="categories/modal" element={<CategoryModal />} />
-        <Route path="categories/pagination" element={<CategoryPagination />} />
-        <Route path="categories/search" element={<CategorySearch />} />
-        <Route path="categories/statistics" element={<CategoryStatistics />} />
-        <Route path="categories/table" element={<CategoryTable />} />
-        <Route path="categories/toolbar" element={<CategoryToolbar />} />
+        <Route path="categories/:id" element={<CategoryDetails />} />
+        <Route path="categories/:id/edit" element={<CategoryEdit />} />
         <Route path="categories/view/:id" element={<CategoryView />} />
-        <Route path="categories/delete/:id" element={<DeleteCategoryDialog />} />
+        <Route path="categories/search" element={<CategorySearch />} />
+        <Route path="categories/filters" element={<CategoryFilters />} />
+        <Route path="categories/statistics" element={<CategoryStatistics />} />
 
 
         {/* ===================================================
@@ -660,15 +658,9 @@ function App() {
         =================================================== */}
 
         <Route path="customer-addresses" element={<CustomerAddressList />} />
-        <Route path="customer-addresses/card" element={<CustomerAddressCard />} />
-        <Route path="customer-addresses/modal" element={<CustomerAddressModal />} />
-        <Route path="customer-addresses/pagination" element={<CustomerAddressPagination />} />
+        <Route path="customer-addresses/:id" element={<CustomerAddressView />} />
         <Route path="customer-addresses/search" element={<CustomerAddressSearch />} />
         <Route path="customer-addresses/statistics" element={<CustomerAddressStatistics />} />
-        <Route path="customer-addresses/table" element={<CustomerAddressTable />} />
-        <Route path="customer-addresses/toolbar" element={<CustomerAddressToolbar />} />
-        <Route path="customer-addresses/view/:id" element={<CustomerAddressView />} />
-        <Route path="customer-addresses/delete/:id" element={<DeleteCustomerAddressDialog />} />
 
 
         {/* ===================================================
@@ -676,15 +668,9 @@ function App() {
         =================================================== */}
 
         <Route path="customer-payments" element={<CustomerPaymentList />} />
-        <Route path="customer-payments/card" element={<CustomerPaymentCard />} />
-        <Route path="customer-payments/modal" element={<CustomerPaymentModal />} />
-        <Route path="customer-payments/pagination" element={<CustomerPaymentPagination />} />
+        <Route path="customer-payments/:id" element={<CustomerPaymentView />} />
         <Route path="customer-payments/search" element={<CustomerPaymentSearch />} />
         <Route path="customer-payments/statistics" element={<CustomerPaymentStatistics />} />
-        <Route path="customer-payments/table" element={<CustomerPaymentTable />} />
-        <Route path="customer-payments/toolbar" element={<CustomerPaymentToolbar />} />
-        <Route path="customer-payments/view/:id" element={<CustomerPaymentView />} />
-        <Route path="customer-payments/delete/:id" element={<DeleteCustomerPaymentDialog />} />
 
 
         {/* ===================================================
@@ -692,15 +678,9 @@ function App() {
         =================================================== */}
 
         <Route path="customer-returns" element={<CustomerReturnList />} />
-        <Route path="customer-returns/card" element={<CustomerReturnCard />} />
-        <Route path="customer-returns/modal" element={<CustomerReturnModal />} />
-        <Route path="customer-returns/pagination" element={<CustomerReturnPagination />} />
+        <Route path="customer-returns/:id" element={<CustomerReturnView />} />
         <Route path="customer-returns/search" element={<CustomerReturnSearch />} />
         <Route path="customer-returns/statistics" element={<CustomerReturnStatistics />} />
-        <Route path="customer-returns/table" element={<CustomerReturnTable />} />
-        <Route path="customer-returns/toolbar" element={<CustomerReturnToolbar />} />
-        <Route path="customer-returns/view/:id" element={<CustomerReturnView />} />
-        <Route path="customer-returns/delete/:id" element={<DeleteCustomerReturnDialog />} />
 
 
         {/* ===================================================
@@ -708,15 +688,9 @@ function App() {
         =================================================== */}
 
         <Route path="delivery-challans" element={<DeliveryChallanList />} />
-        <Route path="delivery-challans/card" element={<DeliveryChallanCard />} />
-        <Route path="delivery-challans/modal" element={<DeliveryChallanModal />} />
-        <Route path="delivery-challans/pagination" element={<DeliveryChallanPagination />} />
+        <Route path="delivery-challans/:id" element={<DeliveryChallanView />} />
         <Route path="delivery-challans/search" element={<DeliveryChallanSearch />} />
         <Route path="delivery-challans/statistics" element={<DeliveryChallanStatistics />} />
-        <Route path="delivery-challans/table" element={<DeliveryChallanTable />} />
-        <Route path="delivery-challans/toolbar" element={<DeliveryChallanToolbar />} />
-        <Route path="delivery-challans/view/:id" element={<DeliveryChallanView />} />
-        <Route path="delivery-challans/delete/:id" element={<DeleteDeliveryChallanDialog />} />
 
 
         {/* ===================================================
@@ -724,15 +698,9 @@ function App() {
         =================================================== */}
 
         <Route path="delivery-challan-items" element={<DeliveryChallanItemList />} />
-        <Route path="delivery-challan-items/card" element={<DeliveryChallanItemCard />} />
-        <Route path="delivery-challan-items/modal" element={<DeliveryChallanItemModal />} />
-        <Route path="delivery-challan-items/pagination" element={<DeliveryChallanItemPagination />} />
+        <Route path="delivery-challan-items/:id" element={<DeliveryChallanItemView />} />
         <Route path="delivery-challan-items/search" element={<DeliveryChallanItemSearch />} />
         <Route path="delivery-challan-items/statistics" element={<DeliveryChallanItemStatistics />} />
-        <Route path="delivery-challan-items/table" element={<DeliveryChallanItemTable />} />
-        <Route path="delivery-challan-items/toolbar" element={<DeliveryChallanItemToolbar />} />
-        <Route path="delivery-challan-items/view/:id" element={<DeliveryChallanItemView />} />
-        <Route path="delivery-challan-items/delete/:id" element={<DeleteDeliveryChallanItemDialog />} />
 
 
         {/* ===================================================
@@ -740,31 +708,19 @@ function App() {
         =================================================== */}
 
         <Route path="goods-receipt-notes" element={<GoodsReceiptNoteList />} />
-        <Route path="goods-receipt-notes/card" element={<GoodsReceiptNoteCard />} />
-        <Route path="goods-receipt-notes/modal" element={<GoodsReceiptNoteModal />} />
-        <Route path="goods-receipt-notes/pagination" element={<GoodsReceiptNotePagination />} />
+        <Route path="goods-receipt-notes/:id" element={<GoodsReceiptNoteView />} />
         <Route path="goods-receipt-notes/search" element={<GoodsReceiptNoteSearch />} />
         <Route path="goods-receipt-notes/statistics" element={<GoodsReceiptNoteStatistics />} />
-        <Route path="goods-receipt-notes/table" element={<GoodsReceiptNoteTable />} />
-        <Route path="goods-receipt-notes/toolbar" element={<GoodsReceiptNoteToolbar />} />
-        <Route path="goods-receipt-notes/view/:id" element={<GoodsReceiptNoteView />} />
-        <Route path="goods-receipt-notes/delete/:id" element={<DeleteGoodsReceiptNoteDialog />} />
 
 
         {/* ===================================================
-            GOODS RECEIPT NOTE ITEMS
+            GOODS RECEIPT ITEMS
         =================================================== */}
 
-        <Route path="goods-receipt-note-items" element={<GoodsReceiptNoteItemList />} />
-        <Route path="goods-receipt-note-items/card" element={<GoodsReceiptNoteItemCard />} />
-        <Route path="goods-receipt-note-items/modal" element={<GoodsReceiptNoteItemModal />} />
-        <Route path="goods-receipt-note-items/pagination" element={<GoodsReceiptNoteItemPagination />} />
-        <Route path="goods-receipt-note-items/search" element={<GoodsReceiptNoteItemSearch />} />
-        <Route path="goods-receipt-note-items/statistics" element={<GoodsReceiptNoteItemStatistics />} />
-        <Route path="goods-receipt-note-items/table" element={<GoodsReceiptNoteItemTable />} />
-        <Route path="goods-receipt-note-items/toolbar" element={<GoodsReceiptNoteItemToolbar />} />
-        <Route path="goods-receipt-note-items/view/:id" element={<GoodsReceiptNoteItemView />} />
-        <Route path="goods-receipt-note-items/delete/:id" element={<DeleteGoodsReceiptNoteItemDialog />} />
+        <Route path="goods-receipt-items" element={<GoodsReceiptNoteItemList />} />
+        <Route path="goods-receipt-items/:id" element={<GoodsReceiptNoteItemView />} />
+        <Route path="goods-receipt-items/search" element={<GoodsReceiptNoteItemSearch />} />
+        <Route path="goods-receipt-items/statistics" element={<GoodsReceiptNoteItemStatistics />} />
 
 
         {/* ===================================================
@@ -772,15 +728,9 @@ function App() {
         =================================================== */}
 
         <Route path="marketplace-order-items" element={<MarketplaceOrderItemList />} />
-        <Route path="marketplace-order-items/card" element={<MarketplaceOrderItemCard />} />
-        <Route path="marketplace-order-items/modal" element={<MarketplaceOrderItemModal />} />
-        <Route path="marketplace-order-items/pagination" element={<MarketplaceOrderItemPagination />} />
+        <Route path="marketplace-order-items/:id" element={<MarketplaceOrderItemView />} />
         <Route path="marketplace-order-items/search" element={<MarketplaceOrderItemSearch />} />
         <Route path="marketplace-order-items/statistics" element={<MarketplaceOrderItemStatistics />} />
-        <Route path="marketplace-order-items/table" element={<MarketplaceOrderItemTable />} />
-        <Route path="marketplace-order-items/toolbar" element={<MarketplaceOrderItemToolbar />} />
-        <Route path="marketplace-order-items/view/:id" element={<MarketplaceOrderItemView />} />
-        <Route path="marketplace-order-items/delete/:id" element={<DeleteMarketplaceOrderItemDialog />} />
 
 
         {/* ===================================================
@@ -788,15 +738,9 @@ function App() {
         =================================================== */}
 
         <Route path="marketplace-returns" element={<MarketplaceReturnList />} />
-        <Route path="marketplace-returns/card" element={<MarketplaceReturnCard />} />
-        <Route path="marketplace-returns/modal" element={<MarketplaceReturnModal />} />
-        <Route path="marketplace-returns/pagination" element={<MarketplaceReturnPagination />} />
+        <Route path="marketplace-returns/:id" element={<MarketplaceReturnView />} />
         <Route path="marketplace-returns/search" element={<MarketplaceReturnSearch />} />
         <Route path="marketplace-returns/statistics" element={<MarketplaceReturnStatistics />} />
-        <Route path="marketplace-returns/table" element={<MarketplaceReturnTable />} />
-        <Route path="marketplace-returns/toolbar" element={<MarketplaceReturnToolbar />} />
-        <Route path="marketplace-returns/view/:id" element={<MarketplaceReturnView />} />
-        <Route path="marketplace-returns/delete/:id" element={<DeleteMarketplaceReturnDialog />} />
 
 
         {/* ===================================================
@@ -804,9 +748,8 @@ function App() {
         =================================================== */}
 
         <Route path="notifications" element={<NotificationList />} />
-        <Route path="notifications/card" element={<NotificationCard />} />
+        <Route path="notifications/:id" element={<NotificationView />} />
         <Route path="notifications/settings" element={<NotificationSettings />} />
-        <Route path="notifications/view/:id" element={<NotificationView />} />
 
 
         {/* ===================================================
@@ -814,15 +757,9 @@ function App() {
         =================================================== */}
 
         <Route path="order-items" element={<OrderItemList />} />
-        <Route path="order-items/card" element={<OrderItemCard />} />
-        <Route path="order-items/modal" element={<OrderItemModal />} />
-        <Route path="order-items/pagination" element={<OrderItemPagination />} />
+        <Route path="order-items/:id" element={<OrderItemView />} />
         <Route path="order-items/search" element={<OrderItemSearch />} />
         <Route path="order-items/statistics" element={<OrderItemStatistics />} />
-        <Route path="order-items/table" element={<OrderItemTable />} />
-        <Route path="order-items/toolbar" element={<OrderItemToolbar />} />
-        <Route path="order-items/view/:id" element={<OrderItemView />} />
-        <Route path="order-items/delete/:id" element={<DeleteOrderItemDialog />} />
 
 
         {/* ===================================================
@@ -830,25 +767,19 @@ function App() {
         =================================================== */}
 
         <Route path="order-status-history" element={<OrderStatusHistoryList />} />
-        <Route path="order-status-history/card" element={<OrderStatusHistoryCard />} />
-        <Route path="order-status-history/modal" element={<OrderStatusHistoryModal />} />
-        <Route path="order-status-history/pagination" element={<OrderStatusHistoryPagination />} />
+        <Route path="order-status-history/:id" element={<OrderStatusHistoryView />} />
         <Route path="order-status-history/search" element={<OrderStatusHistorySearch />} />
         <Route path="order-status-history/statistics" element={<OrderStatusHistoryStatistics />} />
-        <Route path="order-status-history/table" element={<OrderStatusHistoryTable />} />
-        <Route path="order-status-history/toolbar" element={<OrderStatusHistoryToolbar />} />
-        <Route path="order-status-history/view/:id" element={<OrderStatusHistoryView />} />
-        <Route path="order-status-history/delete/:id" element={<DeleteOrderStatusHistoryDialog />} />
 
 
         {/* ===================================================
             PAYMENT SETTINGS
         =================================================== */}
 
-        <Route path="payments/settings" element={<PaymentSettings />} />
-        <Route path="payments/bank-details" element={<BankDetails />} />
-        <Route path="payments/gateway" element={<PaymentGateway />} />
-        <Route path="payments/upi" element={<UpiSettings />} />
+        <Route path="payment-settings" element={<PaymentSettings />} />
+        <Route path="payment-settings/bank-details" element={<BankDetails />} />
+        <Route path="payment-settings/payment-gateway" element={<PaymentGateway />} />
+        <Route path="payment-settings/upi" element={<UpiSettings />} />
 
 
         {/* ===================================================
@@ -856,15 +787,9 @@ function App() {
         =================================================== */}
 
         <Route path="product-attributes" element={<ProductAttributeList />} />
-        <Route path="product-attributes/card" element={<ProductAttributeCard />} />
-        <Route path="product-attributes/modal" element={<ProductAttributeModal />} />
-        <Route path="product-attributes/pagination" element={<ProductAttributePagination />} />
+        <Route path="product-attributes/:id" element={<ProductAttributeView />} />
         <Route path="product-attributes/search" element={<ProductAttributeSearch />} />
         <Route path="product-attributes/statistics" element={<ProductAttributeStatistics />} />
-        <Route path="product-attributes/table" element={<ProductAttributeTable />} />
-        <Route path="product-attributes/toolbar" element={<ProductAttributeToolbar />} />
-        <Route path="product-attributes/view/:id" element={<ProductAttributeView />} />
-        <Route path="product-attributes/delete/:id" element={<DeleteProductAttributeDialog />} />
 
 
         {/* ===================================================
@@ -872,15 +797,9 @@ function App() {
         =================================================== */}
 
         <Route path="product-images" element={<ProductImageList />} />
-        <Route path="product-images/card" element={<ProductImageCard />} />
-        <Route path="product-images/modal" element={<ProductImageModal />} />
-        <Route path="product-images/pagination" element={<ProductImagePagination />} />
+        <Route path="product-images/:id" element={<ProductImageView />} />
         <Route path="product-images/search" element={<ProductImageSearch />} />
         <Route path="product-images/statistics" element={<ProductImageStatistics />} />
-        <Route path="product-images/table" element={<ProductImageTable />} />
-        <Route path="product-images/toolbar" element={<ProductImageToolbar />} />
-        <Route path="product-images/view/:id" element={<ProductImageView />} />
-        <Route path="product-images/delete/:id" element={<DeleteProductImageDialog />} />
 
 
         {/* ===================================================
@@ -888,17 +807,11 @@ function App() {
         =================================================== */}
 
         <Route path="product-inventory" element={<ProductInventoryList />} />
-        <Route path="product-inventory/card" element={<ProductInventoryCard />} />
+        <Route path="product-inventory/:id" element={<ProductInventoryView />} />
         <Route path="product-inventory/details/:id" element={<ProductInventoryDetails />} />
-        <Route path="product-inventory/filters" element={<ProductInventoryFilters />} />
-        <Route path="product-inventory/modal" element={<ProductInventoryModal />} />
-        <Route path="product-inventory/pagination" element={<ProductInventoryPagination />} />
         <Route path="product-inventory/search" element={<ProductInventorySearch />} />
+        <Route path="product-inventory/filters" element={<ProductInventoryFilters />} />
         <Route path="product-inventory/statistics" element={<ProductInventoryStatistics />} />
-        <Route path="product-inventory/table" element={<ProductInventoryTable />} />
-        <Route path="product-inventory/toolbar" element={<ProductInventoryToolbar />} />
-        <Route path="product-inventory/view/:id" element={<ProductInventoryView />} />
-        <Route path="product-inventory/delete/:id" element={<DeleteProductInventoryDialog />} />
 
 
         {/* ===================================================
@@ -906,20 +819,13 @@ function App() {
         =================================================== */}
 
         <Route path="product-prices" element={<ProductPriceList />} />
-        <Route path="product-prices/card" element={<ProductPriceCard />} />
         <Route path="product-prices/create" element={<ProductPriceCreate />} />
-        <Route path="product-prices/details/:id" element={<ProductPriceDetails />} />
-        <Route path="product-prices/edit/:id" element={<ProductPriceEdit />} />
-        <Route path="product-prices/filters" element={<ProductPriceFilters />} />
-        <Route path="product-prices/form" element={<ProductPriceForm />} />
-        <Route path="product-prices/modal" element={<ProductPriceModal />} />
-        <Route path="product-prices/pagination" element={<ProductPricePagination />} />
-        <Route path="product-prices/search" element={<ProductPriceSearch />} />
-        <Route path="product-prices/statistics" element={<ProductPriceStatistics />} />
-        <Route path="product-prices/table" element={<ProductPriceTable />} />
-        <Route path="product-prices/toolbar" element={<ProductPriceToolbar />} />
+        <Route path="product-prices/:id" element={<ProductPriceDetails />} />
+        <Route path="product-prices/:id/edit" element={<ProductPriceEdit />} />
         <Route path="product-prices/view/:id" element={<ProductPriceView />} />
-        <Route path="product-prices/delete/:id" element={<DeleteProductPriceDialog />} />
+        <Route path="product-prices/search" element={<ProductPriceSearch />} />
+        <Route path="product-prices/filters" element={<ProductPriceFilters />} />
+        <Route path="product-prices/statistics" element={<ProductPriceStatistics />} />
 
 
         {/* ===================================================
@@ -928,20 +834,13 @@ function App() {
 
         <Route path="products" element={<Products />} />
         <Route path="products/list" element={<ProductList />} />
-        <Route path="products/card" element={<ProductCard />} />
         <Route path="products/create" element={<ProductCreate />} />
-        <Route path="products/details/:id" element={<ProductDetails />} />
-        <Route path="products/edit/:id" element={<ProductEdit />} />
-        <Route path="products/filters" element={<ProductFilters />} />
-        <Route path="products/form" element={<ProductForm />} />
-        <Route path="products/modal" element={<ProductModal />} />
-        <Route path="products/pagination" element={<ProductPagination />} />
-        <Route path="products/search" element={<ProductSearch />} />
-        <Route path="products/statistics" element={<ProductStatistics />} />
-        <Route path="products/table" element={<ProductTable />} />
-        <Route path="products/toolbar" element={<ProductToolbar />} />
+        <Route path="products/:id" element={<ProductDetails />} />
+        <Route path="products/:id/edit" element={<ProductEdit />} />
         <Route path="products/view/:id" element={<ProductView />} />
-        <Route path="products/delete/:id" element={<DeleteProductDialog />} />
+        <Route path="products/search" element={<ProductSearch />} />
+        <Route path="products/filters" element={<ProductFilters />} />
+        <Route path="products/statistics" element={<ProductStatistics />} />
 
 
         {/* ===================================================
@@ -949,36 +848,13 @@ function App() {
         =================================================== */}
 
         <Route path="product-types" element={<ProductTypeList />} />
-        <Route path="product-types/card" element={<ProductTypeCard />} />
         <Route path="product-types/create" element={<ProductTypeCreate />} />
-        <Route path="product-types/details/:id" element={<ProductTypeDetails />} />
-        <Route path="product-types/edit/:id" element={<ProductTypeEdit />} />
-        <Route path="product-types/filters" element={<ProductTypeFilters />} />
-        <Route path="product-types/form" element={<ProductTypeForm />} />
-        <Route path="product-types/modal" element={<ProductTypeModal />} />
-        <Route path="product-types/pagination" element={<ProductTypePagination />} />
-        <Route path="product-types/search" element={<ProductTypeSearch />} />
-        <Route path="product-types/statistics" element={<ProductTypeStatistics />} />
-        <Route path="product-types/table" element={<ProductTypeTable />} />
-        <Route path="product-types/toolbar" element={<ProductTypeToolbar />} />
+        <Route path="product-types/:id" element={<ProductTypeDetails />} />
+        <Route path="product-types/:id/edit" element={<ProductTypeEdit />} />
         <Route path="product-types/view/:id" element={<ProductTypeView />} />
-        <Route path="product-types/delete/:id" element={<DeleteProductTypeDialog />} />
-
-
-        {/* ===================================================
-            PURCHASE ORDERS
-        =================================================== */}
-
-        <Route path="purchase-orders" element={<PurchaseOrderList />} />
-        <Route path="purchase-orders/card" element={<PurchaseOrderCard />} />
-        <Route path="purchase-orders/modal" element={<PurchaseOrderModal />} />
-        <Route path="purchase-orders/pagination" element={<PurchaseOrderPagination />} />
-        <Route path="purchase-orders/search" element={<PurchaseOrderSearch />} />
-        <Route path="purchase-orders/statistics" element={<PurchaseOrderStatistics />} />
-        <Route path="purchase-orders/table" element={<PurchaseOrderTable />} />
-        <Route path="purchase-orders/toolbar" element={<PurchaseOrderToolbar />} />
-        <Route path="purchase-orders/view/:id" element={<PurchaseOrderView />} />
-        <Route path="purchase-orders/delete/:id" element={<DeletePurchaseOrderDialog />} />
+        <Route path="product-types/search" element={<ProductTypeSearch />} />
+        <Route path="product-types/filters" element={<ProductTypeFilters />} />
+        <Route path="product-types/statistics" element={<ProductTypeStatistics />} />
 
 
         {/* ===================================================
@@ -986,15 +862,19 @@ function App() {
         =================================================== */}
 
         <Route path="purchase-order-items" element={<PurchaseOrderItemList />} />
-        <Route path="purchase-order-items/card" element={<PurchaseOrderItemCard />} />
-        <Route path="purchase-order-items/modal" element={<PurchaseOrderItemModal />} />
-        <Route path="purchase-order-items/pagination" element={<PurchaseOrderItemPagination />} />
+        <Route path="purchase-order-items/:id" element={<PurchaseOrderItemView />} />
         <Route path="purchase-order-items/search" element={<PurchaseOrderItemSearch />} />
         <Route path="purchase-order-items/statistics" element={<PurchaseOrderItemStatistics />} />
-        <Route path="purchase-order-items/table" element={<PurchaseOrderItemTable />} />
-        <Route path="purchase-order-items/toolbar" element={<PurchaseOrderItemToolbar />} />
-        <Route path="purchase-order-items/view/:id" element={<PurchaseOrderItemView />} />
-        <Route path="purchase-order-items/delete/:id" element={<DeletePurchaseOrderItemDialog />} />
+
+
+        {/* ===================================================
+            PURCHASE ORDERS
+        =================================================== */}
+
+        <Route path="purchase-orders" element={<PurchaseOrderList />} />
+        <Route path="purchase-orders/:id" element={<PurchaseOrderView />} />
+        <Route path="purchase-orders/search" element={<PurchaseOrderSearch />} />
+        <Route path="purchase-orders/statistics" element={<PurchaseOrderStatistics />} />
 
 
         {/* ===================================================
@@ -1002,15 +882,9 @@ function App() {
         =================================================== */}
 
         <Route path="purchase-returns" element={<PurchaseReturnList />} />
-        <Route path="purchase-returns/card" element={<PurchaseReturnCard />} />
-        <Route path="purchase-returns/modal" element={<PurchaseReturnModal />} />
-        <Route path="purchase-returns/pagination" element={<PurchaseReturnPagination />} />
+        <Route path="purchase-returns/:id" element={<PurchaseReturnView />} />
         <Route path="purchase-returns/search" element={<PurchaseReturnSearch />} />
         <Route path="purchase-returns/statistics" element={<PurchaseReturnStatistics />} />
-        <Route path="purchase-returns/table" element={<PurchaseReturnTable />} />
-        <Route path="purchase-returns/toolbar" element={<PurchaseReturnToolbar />} />
-        <Route path="purchase-returns/view/:id" element={<PurchaseReturnView />} />
-        <Route path="purchase-returns/delete/:id" element={<DeletePurchaseReturnDialog />} />
 
 
         {/* ===================================================
@@ -1018,15 +892,9 @@ function App() {
         =================================================== */}
 
         <Route path="reviews" element={<ReviewList />} />
-        <Route path="reviews/card" element={<ReviewCard />} />
-        <Route path="reviews/modal" element={<ReviewModal />} />
-        <Route path="reviews/pagination" element={<ReviewPagination />} />
+        <Route path="reviews/:id" element={<ReviewView />} />
         <Route path="reviews/search" element={<ReviewSearch />} />
         <Route path="reviews/statistics" element={<ReviewStatistics />} />
-        <Route path="reviews/table" element={<ReviewTable />} />
-        <Route path="reviews/toolbar" element={<ReviewToolbar />} />
-        <Route path="reviews/view/:id" element={<ReviewView />} />
-        <Route path="reviews/delete/:id" element={<DeleteReviewDialog />} />
 
 
         {/* ===================================================
@@ -1034,31 +902,9 @@ function App() {
         =================================================== */}
 
         <Route path="sales-invoices" element={<SalesInvoiceList />} />
-        <Route path="sales-invoices/card" element={<SalesInvoiceCard />} />
-        <Route path="sales-invoices/modal" element={<SalesInvoiceModal />} />
-        <Route path="sales-invoices/pagination" element={<SalesInvoicePagination />} />
+        <Route path="sales-invoices/:id" element={<SalesInvoiceView />} />
         <Route path="sales-invoices/search" element={<SalesInvoiceSearch />} />
         <Route path="sales-invoices/statistics" element={<SalesInvoiceStatistics />} />
-        <Route path="sales-invoices/table" element={<SalesInvoiceTable />} />
-        <Route path="sales-invoices/toolbar" element={<SalesInvoiceToolbar />} />
-        <Route path="sales-invoices/view/:id" element={<SalesInvoiceView />} />
-        <Route path="sales-invoices/delete/:id" element={<DeleteSalesInvoiceDialog />} />
-
-
-        {/* ===================================================
-            SALES ORDERS
-        =================================================== */}
-
-        <Route path="sales-orders" element={<SalesOrderList />} />
-        <Route path="sales-orders/card" element={<SalesOrderCard />} />
-        <Route path="sales-orders/modal" element={<SalesOrderModal />} />
-        <Route path="sales-orders/pagination" element={<SalesOrderPagination />} />
-        <Route path="sales-orders/search" element={<SalesOrderSearch />} />
-        <Route path="sales-orders/statistics" element={<SalesOrderStatistics />} />
-        <Route path="sales-orders/table" element={<SalesOrderTable />} />
-        <Route path="sales-orders/toolbar" element={<SalesOrderToolbar />} />
-        <Route path="sales-orders/view/:id" element={<SalesOrderView />} />
-        <Route path="sales-orders/delete/:id" element={<DeleteSalesOrderDialog />} />
 
 
         {/* ===================================================
@@ -1066,15 +912,19 @@ function App() {
         =================================================== */}
 
         <Route path="sales-order-items" element={<SalesOrderItemList />} />
-        <Route path="sales-order-items/card" element={<SalesOrderItemCard />} />
-        <Route path="sales-order-items/modal" element={<SalesOrderItemModal />} />
-        <Route path="sales-order-items/pagination" element={<SalesOrderItemPagination />} />
+        <Route path="sales-order-items/:id" element={<SalesOrderItemView />} />
         <Route path="sales-order-items/search" element={<SalesOrderItemSearch />} />
         <Route path="sales-order-items/statistics" element={<SalesOrderItemStatistics />} />
-        <Route path="sales-order-items/table" element={<SalesOrderItemTable />} />
-        <Route path="sales-order-items/toolbar" element={<SalesOrderItemToolbar />} />
-        <Route path="sales-order-items/view/:id" element={<SalesOrderItemView />} />
-        <Route path="sales-order-items/delete/:id" element={<DeleteSalesOrderItemDialog />} />
+
+
+        {/* ===================================================
+            SALES ORDERS
+        =================================================== */}
+
+        <Route path="sales-orders" element={<SalesOrderList />} />
+        <Route path="sales-orders/:id" element={<SalesOrderView />} />
+        <Route path="sales-orders/search" element={<SalesOrderSearch />} />
+        <Route path="sales-orders/statistics" element={<SalesOrderStatistics />} />
 
 
         {/* ===================================================
@@ -1082,15 +932,9 @@ function App() {
         =================================================== */}
 
         <Route path="seller-customers" element={<SellerCustomerList />} />
-        <Route path="seller-customers/card" element={<SellerCustomerCard />} />
-        <Route path="seller-customers/modal" element={<SellerCustomerModal />} />
-        <Route path="seller-customers/pagination" element={<SellerCustomerPagination />} />
+        <Route path="seller-customers/:id" element={<SellerCustomerView />} />
         <Route path="seller-customers/search" element={<SellerCustomerSearch />} />
         <Route path="seller-customers/statistics" element={<SellerCustomerStatistics />} />
-        <Route path="seller-customers/table" element={<SellerCustomerTable />} />
-        <Route path="seller-customers/toolbar" element={<SellerCustomerToolbar />} />
-        <Route path="seller-customers/view/:id" element={<SellerCustomerView />} />
-        <Route path="seller-customers/delete/:id" element={<DeleteSellerCustomerDialog />} />
 
 
         {/* ===================================================
@@ -1098,15 +942,9 @@ function App() {
         =================================================== */}
 
         <Route path="shipments" element={<ShipmentList />} />
-        <Route path="shipments/card" element={<ShipmentCard />} />
-        <Route path="shipments/modal" element={<ShipmentModal />} />
-        <Route path="shipments/pagination" element={<ShipmentPagination />} />
+        <Route path="shipments/:id" element={<ShipmentView />} />
         <Route path="shipments/search" element={<ShipmentSearch />} />
         <Route path="shipments/statistics" element={<ShipmentStatistics />} />
-        <Route path="shipments/table" element={<ShipmentTable />} />
-        <Route path="shipments/toolbar" element={<ShipmentToolbar />} />
-        <Route path="shipments/view/:id" element={<ShipmentView />} />
-        <Route path="shipments/delete/:id" element={<DeleteShipmentDialog />} />
 
 
         {/* ===================================================
@@ -1114,15 +952,9 @@ function App() {
         =================================================== */}
 
         <Route path="wishlists" element={<WishlistList />} />
-        <Route path="wishlists/card" element={<WishlistCard />} />
-        <Route path="wishlists/modal" element={<WishlistModal />} />
-        <Route path="wishlists/pagination" element={<WishlistPagination />} />
+        <Route path="wishlists/:id" element={<WishlistView />} />
         <Route path="wishlists/search" element={<WishlistSearch />} />
         <Route path="wishlists/statistics" element={<WishlistStatistics />} />
-        <Route path="wishlists/table" element={<WishlistTable />} />
-        <Route path="wishlists/toolbar" element={<WishlistToolbar />} />
-        <Route path="wishlists/view/:id" element={<WishlistView />} />
-        <Route path="wishlists/delete/:id" element={<DeleteWishlistDialog />} />
 
       </Route>
 
@@ -1131,13 +963,14 @@ function App() {
           GLOBAL 404
       ===================================================== */}
 
-      <Route
-        path="*"
-        element={<NotFound />}
-      />
+      <Route path="*" element={<NotFound />} />
 
     </Routes>
   );
 }
 
 export default App;
+
+
+
+

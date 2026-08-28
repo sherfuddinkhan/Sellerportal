@@ -550,38 +550,73 @@ app.get("/api/dashboard/low-stock-products", async (req, res) => {
         );
     }
 });
-
-
 // =====================================================
 // 3. BRAND APIs
 // =====================================================
+//
+// Frontend / React:
+// http://localhost:5000/api/brand
+//
+// Backend / ASP.NET:
+// https://localhost:7203/api/Brand
+//
+// IMPORTANT:
+// - All Brand requests go through Node.js.
+// - Node forwards requests to ASP.NET.
+// - httpsAgent is used because the local ASP.NET
+//   development certificate is self-signed.
+// =====================================================
+
 
 // =====================================================
-// Get All Brands
-// Frontend: GET http://localhost:5000/api/brand
-// Backend:  GET https://localhost:7203/api/Brand
+// GET ALL BRANDS
 // =====================================================
-
+//
+// Frontend:
+// GET http://localhost:5000/api/brand
+//
+// Backend:
+// GET https://localhost:7203/api/Brand
+// =====================================================
 
 app.get("/api/brand", async (req, res) => {
+
     try {
 
-        console.log("Calling:", `${BASE_URL}/Brand`);
+        console.log("=================================");
+        console.log("GET ALL BRANDS");
+        console.log(
+            "Backend URL:",
+            `${BASE_URL}/Brand`
+        );
+        console.log("=================================");
 
-      const response = await axios.get(
-    `${BASE_URL}/Brand`,
-    {
-        httpsAgent,
-        headers: {
-            Accept: "application/json"
-        }
-    }
-);
+        const response = await axios.get(
+            `${BASE_URL}/Brand`,
+            {
+                httpsAgent,
 
-        console.log("Brand API Status:", response.status);
-        console.log("Brand API Response:", response.data);
+                headers: {
+                    Accept: "application/json"
+                }
+            }
+        );
 
-        res.status(response.status).json(response.data);
+        console.log(
+            "Brand API Status:",
+            response.status
+        );
+
+        console.log(
+            "Brand Count:",
+            Array.isArray(response.data)
+                ? response.data.length
+                : "Not an array"
+        );
+
+        res
+            .status(response.status)
+            .json(response.data);
 
     } catch (err) {
 
@@ -589,210 +624,449 @@ app.get("/api/brand", async (req, res) => {
         console.error("GET ALL BRANDS ERROR");
         console.error("Axios Error Code:", err.code);
         console.error("Axios Error Message:", err.message);
-        console.error("Status:", err.response?.status);
-        console.error("Response:", err.response?.data);
-        console.error("URL:", err.config?.url);
+        console.error(
+            "Status:",
+            err.response?.status
+        );
+        console.error(
+            "Response:",
+            err.response?.data
+        );
+        console.error(
+            "URL:",
+            err.config?.url
+        );
         console.error("=================================");
 
-        res.status(
-            err.response?.status || 500
-        ).json(
-            err.response?.data || {
-                message: err.message
-            }
-        );
-    }
-});
-
-// =====================================================
-// Brand Statistics
-// IMPORTANT: BEFORE /brand/:id
-// =====================================================
-
-app.get("/api/brand/statistics", async (req, res) => {
-    try {
-
-        const response = await axios.get(
-            `${BASE_URL}/Brand/statistics`,
-            {
-                headers: {
-                    Accept: "application/json"
+        res
+            .status(err.response?.status || 500)
+            .json(
+                err.response?.data || {
+                    message:
+                        err.message ||
+                        "Failed to fetch brands",
+                    code: err.code
                 }
-            }
-        );
-
-        res.status(response.status).json(
-            response.data
-        );
-
-    } catch (err) {
-
-        console.error("BRAND STATISTICS ERROR");
-        console.error("Status:", err.response?.status);
-        console.error("Response:", err.response?.data);
-        console.error("Message:", err.message);
-
-        res.status(
-            err.response?.status || 500
-        ).json(
-            err.response?.data || {
-                message: "Failed to fetch brand statistics"
-            }
-        );
+            );
     }
 });
 
 
 // =====================================================
-// Search Brands
-// IMPORTANT: BEFORE /brand/:id
+// GET BRAND STATISTICS
+// =====================================================
+//
+// Frontend:
+// GET http://localhost:5000/api/brand/statistics
+//
+// Backend:
+// GET https://localhost:7203/api/Brand/statistics
+//
+// IMPORTANT:
+// This route MUST be before /api/brand/:id
 // =====================================================
 
-app.get("/api/brand/search", async (req, res) => {
-    try {
+app.get(
+    "/api/brand/statistics",
+    async (req, res) => {
 
-        const response = await axios.get(
-            `${BASE_URL}/Brand/search`,
-            {
-                params: req.query,
+        try {
 
-                headers: {
-                    Accept: "application/json"
+            console.log(
+                "GET BRAND STATISTICS"
+            );
+
+            const response = await axios.get(
+                `${BASE_URL}/Brand/statistics`,
+                {
+                    httpsAgent,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
                 }
-            }
-        );
+            );
 
-        res.status(response.status).json(
-            response.data
-        );
+            console.log(
+                "Brand Statistics Status:",
+                response.status
+            );
 
-    } catch (err) {
+            res
+                .status(response.status)
+                .json(response.data);
 
-        console.error("SEARCH BRANDS ERROR");
-        console.error("Status:", err.response?.status);
-        console.error("Response:", err.response?.data);
-        console.error("Message:", err.message);
+        } catch (err) {
 
-        res.status(
-            err.response?.status || 500
-        ).json(
-            err.response?.data || {
-                message: "Failed to search brands"
-            }
-        );
-    }
-});
+            console.error(
+                "BRAND STATISTICS ERROR"
+            );
 
+            console.error(
+                "Axios Code:",
+                err.code
+            );
 
-// =====================================================
-// Get Brand By ID
-// =====================================================
+            console.error(
+                "Message:",
+                err.message
+            );
 
-app.get("/api/brand/:id", async (req, res) => {
-    try {
+            console.error(
+                "Status:",
+                err.response?.status
+            );
 
-        const response = await axios.get(
-            `${BASE_URL}/Brand/${req.params.id}`,
-            {
-                headers: {
-                    Accept: "application/json"
-                }
-            }
-        );
+            console.error(
+                "Response:",
+                err.response?.data
+            );
 
-        res.status(response.status).json(
-            response.data
-        );
-
-    } catch (err) {
-
-        console.error("GET BRAND BY ID ERROR");
-        console.error("Status:", err.response?.status);
-        console.error("Response:", err.response?.data);
-        console.error("Message:", err.message);
-
-        res.status(
-            err.response?.status || 500
-        ).json(
-            err.response?.data || {
-                message: "Failed to fetch brand"
-            }
-        );
-    }
-});
-
-
-// =====================================================
-// Create Brand
-// Frontend: POST http://localhost:5000/api/brand
-// Backend:  POST https://localhost:7203/api/Brand
-// =====================================================
-app.post("/api/brand", async (req, res) => {
-
-    try {
-
-        console.log("=================================");
-        console.log("CREATE BRAND REQUEST");
-        console.log("URL:", `${BASE_URL}/Brand`);
-        console.log("Request Body:", req.body);
-        console.log("=================================");
-
-        const response = await axios.post(
-    `${BASE_URL}/Brand`,
-    req.body,
-    {
-        httpsAgent,
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json"
+            res
+                .status(
+                    err.response?.status || 500
+                )
+                .json(
+                    err.response?.data || {
+                        message:
+                            err.message ||
+                            "Failed to fetch brand statistics"
+                    }
+                );
         }
     }
 );
 
-        console.log("ASP.NET Status:", response.status);
-        console.log("ASP.NET Response:", response.data);
+
+// =====================================================
+// SEARCH BRANDS
+// =====================================================
+//
+// Frontend:
+// GET http://localhost:5000/api/brand/search
+//
+// Example:
+// /api/brand/search?search=Samsung
+//
+// Backend:
+// GET https://localhost:7203/api/Brand/search
+//
+// IMPORTANT:
+// This route MUST be before /api/brand/:id
+// =====================================================
+
+app.get(
+    "/api/brand/search",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "SEARCH BRANDS"
+            );
+
+            console.log(
+                "Query:",
+                req.query
+            );
+
+            const response = await axios.get(
+                `${BASE_URL}/Brand/search`,
+                {
+                    httpsAgent,
+
+                    params: req.query,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "Search Status:",
+                response.status
+            );
+
+            console.log(
+                "Search Response:",
+                response.data
+            );
+
+            res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (err) {
+
+            console.error(
+                "SEARCH BRANDS ERROR"
+            );
+
+            console.error(
+                "Axios Code:",
+                err.code
+            );
+
+            console.error(
+                "Message:",
+                err.message
+            );
+
+            console.error(
+                "Status:",
+                err.response?.status
+            );
+
+            console.error(
+                "Response:",
+                err.response?.data
+            );
+
+            res
+                .status(
+                    err.response?.status || 500
+                )
+                .json(
+                    err.response?.data || {
+                        message:
+                            err.message ||
+                            "Failed to search brands"
+                    }
+                );
+        }
+    }
+);
+
+
+// =====================================================
+// GET BRAND BY ID
+// =====================================================
+//
+// Frontend:
+// GET http://localhost:5000/api/brand/1005
+//
+// Backend:
+// GET https://localhost:7203/api/Brand/1005
+// =====================================================
+
+app.get("/api/brand/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        console.log("=================================");
+        console.log("GET BRAND BY ID");
+        console.log("ID:", id);
+        console.log(
+            "Calling:",
+            `${BASE_URL}/Brand/${id}`
+        );
         console.log("=================================");
 
-        res.status(response.status).json(
+        const response = await axios.get(
+            `${BASE_URL}/Brand/${id}`,
+            {
+                httpsAgent,
+                headers: {
+                    Accept: "application/json"
+                }
+            }
+        );
+
+        console.log(
+            "ASP.NET Status:",
+            response.status
+        );
+
+        console.log(
+            "ASP.NET Data:",
             response.data
         );
+
+        return res
+            .status(response.status)
+            .json(response.data);
 
     } catch (err) {
 
         console.error("=================================");
-        console.error("CREATE BRAND ERROR");
-        console.error("Axios Code:", err.code);
-        console.error("Axios Message:", err.message);
-        console.error("ASP.NET Status:", err.response?.status);
-        console.error("ASP.NET Response:", err.response?.data);
-        console.error("Request URL:", err.config?.url);
+        console.error("GET BRAND BY ID ERROR");
+        console.error("ID:", req.params.id);
+        console.error("Code:", err.code);
+        console.error("Message:", err.message);
+        console.error(
+            "Status:",
+            err.response?.status
+        );
+        console.error(
+            "Response:",
+            err.response?.data
+        );
+        console.error(
+            "URL:",
+            err.config?.url
+        );
         console.error("=================================");
 
-        res.status(
-            err.response?.status || 500
-        ).json(
-            err.response?.data || {
-                message: err.message,
-                code: err.code
-            }
-        );
+        return res
+            .status(err.response?.status || 500)
+            .json(
+                err.response?.data || {
+                    message:
+                        err.message ||
+                        "Failed to fetch brand"
+                }
+            );
     }
 });
 
 
+// =====================================================
+// CREATE BRAND
+// =====================================================
+//
+// Frontend:
+// POST http://localhost:5000/api/brand
+//
+// Backend:
+// POST https://localhost:7203/api/Brand
+// =====================================================
+
+app.post(
+    "/api/brand",
+    async (req, res) => {
+
+        try {
+
+            console.log("=================================");
+            console.log("CREATE BRAND");
+            console.log(
+                "Backend URL:",
+                `${BASE_URL}/Brand`
+            );
+            console.log(
+                "Request Body:",
+                req.body
+            );
+            console.log("=================================");
+
+            const response = await axios.post(
+                `${BASE_URL}/Brand`,
+                req.body,
+                {
+                    httpsAgent,
+
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "ASP.NET Status:",
+                response.status
+            );
+
+            console.log(
+                "ASP.NET Response:",
+                response.data
+            );
+
+            res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (err) {
+
+            console.error("=================================");
+            console.error("CREATE BRAND ERROR");
+
+            console.error(
+                "Axios Code:",
+                err.code
+            );
+
+            console.error(
+                "Axios Message:",
+                err.message
+            );
+
+            console.error(
+                "ASP.NET Status:",
+                err.response?.status
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                err.response?.data
+            );
+
+            console.error(
+                "Request URL:",
+                err.config?.url
+            );
+
+            console.error("=================================");
+
+            res
+                .status(
+                    err.response?.status || 500
+                )
+                .json(
+                    err.response?.data || {
+                        message:
+                            err.message ||
+                            "Failed to create brand",
+                        code: err.code
+                    }
+                );
+        }
+    }
+);
 
 
 // =====================================================
-// Update Brand
+// UPDATE BRAND
+// =====================================================
+//
+// Frontend:
+// PUT http://localhost:5000/api/brand/1005
+//
+// Backend:
+// PUT https://localhost:7203/api/Brand/1005
 // =====================================================
 
 app.put("/api/brand/:id", async (req, res) => {
     try {
+        const { id } = req.params;
+
+        console.log("=================================");
+        console.log("UPDATE BRAND");
+        console.log("ID:", id);
+        console.log("Request Body:", req.body);
+        console.log("Calling:", `${BASE_URL}/Brand/${id}`);
+        console.log("=================================");
+
+        if (!id || id === ":id" || !/^\d+$/.test(id)) {
+            return res.status(400).json({
+                message: `Invalid Brand ID: ${id}`
+            });
+        }
 
         const response = await axios.put(
-            `${BASE_URL}/Brand/${req.params.id}`,
-            req.body,
+            `${BASE_URL}/Brand/${id}`,
             {
+                brandId: Number(id),
+                brandName: req.body.brandName,
+                description: req.body.description,
+                isActive: req.body.isActive
+            },
+            {
+                httpsAgent,
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json"
@@ -800,66 +1074,242 @@ app.put("/api/brand/:id", async (req, res) => {
             }
         );
 
-        res.status(response.status).json(
-            response.data
-        );
+        console.log("ASP.NET Status:", response.status);
+        console.log("ASP.NET Response:", response.data);
+        console.log("=================================");
+
+        return res
+            .status(response.status)
+            .json(response.data);
 
     } catch (err) {
-
+        console.error("=================================");
         console.error("UPDATE BRAND ERROR");
+        console.error("ID:", req.params.id);
+        console.error("Code:", err.code);
+        console.error("Message:", err.message);
         console.error("Status:", err.response?.status);
         console.error("Response:", err.response?.data);
-        console.error("Message:", err.message);
+        console.error("URL:", err.config?.url);
+        console.error("=================================");
 
-        res.status(
-            err.response?.status || 500
-        ).json(
-            err.response?.data || {
-                message: "Failed to update brand"
-            }
-        );
+        return res
+            .status(err.response?.status || 500)
+            .json(
+                err.response?.data || {
+                    message: "Failed to update brand"
+                }
+            );
     }
 });
 
 
 // =====================================================
-// Delete Brand
+// DELETE BRAND
+// =====================================================
+//
+// Frontend:
+// DELETE http://localhost:5000/api/brand/1005
+//
+// Backend:
+// DELETE https://localhost:7203/api/Brand/1005
 // =====================================================
 
-app.delete("/api/brand/:id", async (req, res) => {
+app.delete(
+    "/api/brand/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            console.log(
+                "DELETE BRAND:",
+                id
+            );
+
+            const response = await axios.delete(
+                `${BASE_URL}/Brand/${id}`,
+                {
+                    httpsAgent,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "Delete Status:",
+                response.status
+            );
+
+            console.log(
+                "Delete Response:",
+                response.data
+            );
+
+            // ASP.NET DELETE may return 204
+            if (response.status === 204) {
+                return res.sendStatus(204);
+            }
+
+            res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (err) {
+
+            console.error(
+                "DELETE BRAND ERROR"
+            );
+
+            console.error(
+                "Brand ID:",
+                req.params.id
+            );
+
+            console.error(
+                "Axios Code:",
+                err.code
+            );
+
+            console.error(
+                "Message:",
+                err.message
+            );
+
+            console.error(
+                "Status:",
+                err.response?.status
+            );
+
+            console.error(
+                "Response:",
+                err.response?.data
+            );
+
+            res
+                .status(
+                    err.response?.status || 500
+                )
+                .json(
+                    err.response?.data || {
+                        message:
+                            err.message ||
+                            "Failed to delete brand"
+                    }
+                );
+        }
+    }
+);
+
+// =====================================================
+// BRAND FILTERS
+// =====================================================
+//
+// Frontend:
+// GET http://localhost:5000/api/brand/filters
+//
+// ASP.NET:
+// GET https://localhost:7203/api/Brand/filters
+// =====================================================
+
+app.get("/api/brand/filters", async (req, res) => {
+
     try {
 
-        const response = await axios.delete(
-            `${BASE_URL}/Brand/${req.params.id}`,
+        console.log("=================================");
+        console.log("GET BRAND FILTERS");
+        console.log(
+            "Calling:",
+            `${BASE_URL}/Brand/filters`
+        );
+        console.log("=================================");
+
+
+        const response = await axios.get(
+            `${BASE_URL}/Brand/filters`,
             {
+                httpsAgent,
+
                 headers: {
                     Accept: "application/json"
                 }
             }
         );
 
+
+        console.log(
+            "Brand Filters Status:",
+            response.status
+        );
+
+        console.log(
+            "Brand Filters Response:",
+            response.data
+        );
+
+
         res.status(response.status).json(
             response.data
         );
 
+
     } catch (err) {
 
-        console.error("DELETE BRAND ERROR");
-        console.error("Status:", err.response?.status);
-        console.error("Response:", err.response?.data);
-        console.error("Message:", err.message);
+        console.error(
+            "================================="
+        );
+
+        console.error(
+            "BRAND FILTERS ERROR"
+        );
+
+        console.error(
+            "Code:",
+            err.code
+        );
+
+        console.error(
+            "Message:",
+            err.message
+        );
+
+        console.error(
+            "Status:",
+            err.response?.status
+        );
+
+        console.error(
+            "Response:",
+            err.response?.data
+        );
+
+        console.error(
+            "URL:",
+            err.config?.url
+        );
+
+        console.error(
+            "================================="
+        );
+
 
         res.status(
             err.response?.status || 500
-        ).json(
-            err.response?.data || {
-                message: "Failed to delete brand"
-            }
-        );
+        ).json({
+
+            message:
+                err.response?.data?.message ||
+                err.message ||
+                "Unable to load brand filters"
+
+        });
+
     }
+
 });
-
-
 
 // ======================================
 // Update Category

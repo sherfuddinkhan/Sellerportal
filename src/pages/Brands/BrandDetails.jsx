@@ -1,49 +1,295 @@
-import React, { useEffect, useState } from "react";
-import { Box, Paper,Typography, Grid,Chip,Button,CircularProgress,Alert,Divider} from "@mui/material";
-import {ArrowBack,Edit} from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
+import React, {
+    useEffect,
+    useState
+} from "react";
+
+import {
+    Box,
+    Paper,
+    Typography,
+    Grid,
+    Chip,
+    Button,
+    CircularProgress,
+    Alert,
+    Divider
+} from "@mui/material";
+
+import {
+    ArrowBack,
+    Edit
+} from "@mui/icons-material";
+
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+
+const SERVER_URL = "http://localhost:5000";
+
+
 const BrandDetails = () => {
+
     const { id } = useParams();
+
     const navigate = useNavigate();
-    const [brand, setBrand] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+
+
+    const [brand, setBrand] =
+        useState(null);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [error, setError] =
+        useState("");
+
+
+    // =====================================================
+    // LOAD BRAND WHEN ID CHANGES
+    // =====================================================
+
     useEffect(() => {
-        loadBrand();
-    }, []);
-    const loadBrand = async () => {
-        try {
-            const response = await apiService.getBrandById(id);
-            setBrand(response.data);
-        }
-        catch (err) {
-            console.error(err);
-            setError("Unable to load Brand.");
-        }
-        finally {
+
+        if (!id) {
+
+            setError(
+                "Brand ID is missing."
+            );
+
             setLoading(false);
+
+            return;
         }
+
+
+        // Prevent literal ":id"
+        if (
+            id === ":id" ||
+            !/^\d+$/.test(id)
+        ) {
+
+            setError(
+                `Invalid Brand ID: ${id}`
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+
+        loadBrand();
+
+    }, [id]);
+
+
+    // =====================================================
+    // LOAD BRAND
+    // =====================================================
+
+    const loadBrand = async () => {
+
+        try {
+
+            setLoading(true);
+
+            setError("");
+
+
+            console.log(
+                "================================="
+            );
+
+            console.log(
+                "Loading Brand"
+            );
+
+            console.log(
+                "Brand ID:",
+                id
+            );
+
+            console.log(
+                "Node URL:",
+                `${SERVER_URL}/api/brand/${id}`
+            );
+
+            console.log(
+                "================================="
+            );
+
+
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/brand/${id}`
+                );
+
+
+            console.log(
+                "Node response status:",
+                response.status
+            );
+
+
+            // Safely read response
+            const data =
+                await response.json();
+
+
+            console.log(
+                "Node response:",
+                data
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data?.message ||
+                    data?.title ||
+                    `HTTP ${response.status}: ${response.statusText}`
+                );
+
+            }
+
+
+            setBrand(data);
+
+
+        } catch (err) {
+
+            console.error(
+                "Load Brand Error:",
+                err
+            );
+
+
+            setError(
+                err.message ||
+                "Unable to load Brand."
+            );
+
+
+            setBrand(null);
+
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
     };
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
     if (loading) {
+
         return (
+
             <Box
                 display="flex"
                 justifyContent="center"
-                mt={10}
+                alignItems="center"
+                minHeight="400px"
             >
+
                 <CircularProgress />
+
             </Box>
+
         );
+
     }
+
+
+    // =====================================================
+    // ERROR
+    // =====================================================
+
     if (error) {
+
         return (
-            <Alert severity="error">
-                {error}
-            </Alert>
+
+            <Box p={3}>
+
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                >
+                    {error}
+                </Alert>
+
+
+                <Button
+                    variant="outlined"
+                    startIcon={
+                        <ArrowBack />
+                    }
+                    onClick={() =>
+                        navigate("/brands")
+                    }
+                >
+                    Back to Brands
+                </Button>
+
+            </Box>
+
         );
+
     }
+
+
+    // =====================================================
+    // BRAND NOT FOUND
+    // =====================================================
+
+    if (!brand) {
+
+        return (
+
+            <Box p={3}>
+
+                <Alert
+                    severity="warning"
+                    sx={{ mb: 2 }}
+                >
+                    Brand not found.
+                </Alert>
+
+
+                <Button
+                    variant="outlined"
+                    startIcon={
+                        <ArrowBack />
+                    }
+                    onClick={() =>
+                        navigate("/brands")
+                    }
+                >
+                    Back to Brands
+                </Button>
+
+            </Box>
+
+        );
+
+    }
+
+
+    // =====================================================
+    // UI
+    // =====================================================
+
     return (
+
         <Box p={3}>
+
             <Paper
                 elevation={3}
                 sx={{
@@ -51,18 +297,66 @@ const BrandDetails = () => {
                     borderRadius: 3
                 }}
             >
+
+                {/* =================================================
+                    HEADER
+                ================================================= */}
+
                 <Typography
                     variant="h4"
                     gutterBottom
                 >
                     Brand Details
                 </Typography>
-                <Divider sx={{ mb: 3 }} />
+
+
+                <Divider
+                    sx={{ mb: 3 }}
+                />
+
+
                 <Grid
                     container
                     spacing={3}
                 >
-                    <Grid item xs={12} md={6}>
+
+                    {/* =================================================
+                        BRAND ID
+                    ================================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
+                            Brand ID
+                        </Typography>
+
+
+                        <Typography
+                            variant="h6"
+                        >
+                            {brand.brandId || "-"}
+                        </Typography>
+
+                    </Grid>
+
+
+                    {/* =================================================
+                        BRAND NAME
+                    ================================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
@@ -70,97 +364,199 @@ const BrandDetails = () => {
                             Brand Name
                         </Typography>
 
-                        <Typography variant="h6">
-                            {brand.brandName}
+
+                        <Typography
+                            variant="h6"
+                        >
+                            {brand.brandName || "-"}
                         </Typography>
+
                     </Grid>
-                    <Grid item xs={12} md={6}>
+
+
+                    {/* =================================================
+                        STATUS
+                    ================================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
                             Status
                         </Typography>
-                        <Chip
-                            label={
-                                brand.isActive
-                                    ? "Active"
-                                    : "Inactive"
-                            }
-                            color={
-                                brand.isActive
-                                    ? "success"
-                                    : "error"
-                            }
-                        />
+
+
+                        <Box mt={1}>
+
+                            <Chip
+                                label={
+                                    brand.isActive
+                                        ? "Active"
+                                        : "Inactive"
+                                }
+                                color={
+                                    brand.isActive
+                                        ? "success"
+                                        : "error"
+                                }
+                            />
+
+                        </Box>
+
                     </Grid>
-                    <Grid item xs={12}>
+
+
+                    {/* =================================================
+                        DESCRIPTION
+                    ================================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                    >
+
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
                             Description
                         </Typography>
+
+
                         <Typography>
-                            {brand.description || "-"}
+                            {
+                                brand.description ||
+                                "-"
+                            }
                         </Typography>
+
                     </Grid>
-                    <Grid item xs={12} md={6}>
+
+
+                    {/* =================================================
+                        CREATED DATE
+                    ================================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
                             Created Date
                         </Typography>
+
+
                         <Typography>
-                            {brand.createdDate
-                                ? new Date(
-                                      brand.createdDate
-                                  ).toLocaleString()
-                                : "-"}
+
+                            {
+                                brand.createdDate
+                                    ? new Date(
+                                        brand.createdDate
+                                    ).toLocaleString()
+                                    : "-"
+                            }
+
                         </Typography>
+
                     </Grid>
-                    <Grid item xs={12} md={6}>
+
+
+                    {/* =================================================
+                        UPDATED DATE
+                    ================================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
                             Updated Date
                         </Typography>
+
+
                         <Typography>
-                            {brand.updatedDate
-                                ? new Date(
-                                      brand.updatedDate
-                                  ).toLocaleString()
-                                : "-"}
+
+                            {
+                                brand.updatedDate
+                                    ? new Date(
+                                        brand.updatedDate
+                                    ).toLocaleString()
+                                    : "-"
+                            }
+
                         </Typography>
+
                     </Grid>
+
                 </Grid>
+
+
+                {/* =================================================
+                    BUTTONS
+                ================================================= */}
+
                 <Box
                     mt={4}
                     display="flex"
                     gap={2}
                 >
+
+                    {/* BACK */}
+
                     <Button
                         variant="outlined"
-                        startIcon={<ArrowBack />}
-                        onClick={() => navigate("/brands")}
+                        startIcon={
+                            <ArrowBack />
+                        }
+                        onClick={() =>
+                            navigate("/brands")
+                        }
                     >
                         Back
                     </Button>
+
+
+                    {/* EDIT */}
+
                     <Button
                         variant="contained"
-                        startIcon={<Edit />}
+                        startIcon={
+                            <Edit />
+                        }
                         onClick={() =>
-                            navigate(`/brands/edit/${id}`)
+                            navigate(
+                                `/brands/${id}/edit`
+                            )
                         }
                     >
                         Edit
                     </Button>
+
                 </Box>
+
             </Paper>
+
         </Box>
+
     );
+
 };
+
 
 export default BrandDetails;
