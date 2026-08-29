@@ -104,268 +104,119 @@ const menuSections = [
   // CATALOG & PRODUCTS
   // =======================================================
 
-  {
-    section: "Catalog & Products",
-    items: [
-      // -------------------------------------------------------
-      // CATALOG
-      // -------------------------------------------------------
-
-      {
-        label: "Catalog",
-        path: "/catalog",
-        icon: "📚",
-        children: [
-          { label: "Catalog List", path: "/catalog" },
-          { label: "Create Catalog", path: "/catalog/create" },
-          { label: "Catalog Attributes", path: "/catalog/attributes" },
-          { label: "Catalog Card", path: "/catalog/card" },
-          { label: "Catalog Images", path: "/catalog/images" },
-          { label: "Marketplace", path: "/catalog/marketplace" },
-          { label: "Publish", path: "/catalog/publish" },
-          { label: "Pagination", path: "/catalog/pagination" },
-          { label: "Search", path: "/catalog/search" },
-          { label: "Statistics", path: "/catalog/statistics" },
-          { label: "Table", path: "/catalog/table" },
-          { label: "Toolbar", path: "/catalog/toolbar" },
-          { label: "Variants", path: "/catalog/variants" },
-          { label: "Modal", path: "/catalog/modal" },
-        ],
-      },
-
-      // -------------------------------------------------------
-      // PRODUCTS
-      // -------------------------------------------------------
-
-      {
-        label: "Products",
-        path: "/products",
-        icon: "📦",
-        children: [
-          { label: "Products Dashboard", path: "/products" },
-          { label: "Product List", path: "/products/list" },
-          { label: "Product Card", path: "/products/card" },
-          { label: "Create Product", path: "/products/create" },
-          { label: "Product Details", path: "/products/details/:id" },
-          { label: "Edit Product", path: "/products/edit/:id" },
-          { label: "Product Filters", path: "/products/filters" },
-          { label: "Product Form", path: "/products/form" },
-          { label: "Product Modal", path: "/products/modal" },
-          { label: "Pagination", path: "/products/pagination" },
-          { label: "Search", path: "/products/search" },
-          { label: "Statistics", path: "/products/statistics" },
-          { label: "Table", path: "/products/table" },
-          { label: "Toolbar", path: "/products/toolbar" },
-        ],
-      },
-
-     // -------------------------------------------------------
-// BRANDS
-// -------------------------------------------------------
+ // =======================================================
+// CATALOG & PRODUCTS
+// =======================================================
 
 {
-    label: "Brands",
-    path: "/brands",
-    icon: "🏷️",
-    children: [
+    section: "Catalog & Products",
+    items: [
+
+        // -------------------------------------------------------
+        // CATALOG
+        // -------------------------------------------------------
+
         {
-            label: "Brand List",
-            path: "/brands",
+            label: "Catalog",
+            path: "/catalog",
+            icon: "📚",
+
+            children: [
+
+                // Main catalog page
+                {
+                    label: "Catalog List",
+                    path: "/catalog"
+                },
+
+                // Create
+                {
+                    label: "Create Catalog",
+                    path: "/catalog/create"
+                },
+
+                // Search
+                {
+                    label: "Search",
+                    path: "/catalog/search"
+                },
+
+                // Product views
+                {
+                    label: "Latest Products",
+                    path: "/catalog/latest"
+                },
+
+                {
+                    label: "Featured Products",
+                    path: "/catalog/featured"
+                },
+
+                {
+                    label: "Top Rated",
+                    path: "/catalog/toprated"
+                },
+
+                {
+                    label: "Best Sellers",
+                    path: "/catalog/bestsellers"
+                }
+
+            ]
         },
+
+
+        // -------------------------------------------------------
+        // PRODUCTS
+        // -------------------------------------------------------
+
         {
-            label: "Create Brand",
-            path: "/brands/create",
-        },
-        {
-            label: "Brand Filters",
-            path: "/brands/filters",
-        },
-        {
-            label: "Search",
-            path: "/brands/search",
-        },
-        {
-            label: "Statistics",
-            path: "/brands/statistics",
-        },
-    ],
+            label: "Products",
+            path: "/products",
+            icon: "📦",
+
+            children: [
+
+                {
+                    label: "Products Dashboard",
+                    path: "/products"
+                },
+
+                {
+                    label: "Product List",
+                    path: "/products/list"
+                },
+
+                {
+                    label: "Create Product",
+                    path: "/products/create"
+                },
+
+                {
+                    label: "Product Details",
+                    path: "/products/details/:id"
+                },
+
+                {
+                    label: "Edit Product",
+                    path: "/products/edit/:id"
+                },
+
+                {
+                    label: "Product Filters",
+                    path: "/products/filters"
+                },
+
+                {
+                    label: "Search",
+                    path: "/products/search"
+                }
+
+            ]
+        }
+
+    ]
 },
-      // -------------------------------------------------------
-      // CATEGORIES
-      // -------------------------------------------------------
-
-      {
-        label: "Categories",
-        path: "/categories",
-        icon: "📂",
-        children: [
-          { label: "Category List", path: "/categories" },
-          { label: "Category Card", path: "/categories/card" },
-          { label: "Create Category", path: "/categories/create" },
-          { label: "Category Details", path: "/categories/details/:id" },
-          { label: "Edit Category", path: "/categories/edit/:id" },
-          { label: "Category Filters", path: "/categories/filters" },
-          { label: "Category Form", path: "/categories/form" },
-          { label: "Category Modal", path: "/categories/modal" },
-          { label: "Pagination", path: "/categories/pagination" },
-          { label: "Search", path: "/categories/search" },
-          { label: "Statistics", path: "/categories/statistics" },
-          { label: "Table", path: "/categories/table" },
-          { label: "Toolbar", path: "/categories/toolbar" },
-        ],
-      },
-
-      // -------------------------------------------------------
-      // PRODUCT ATTRIBUTES
-      // -------------------------------------------------------
-
-      {
-        label: "Product Attributes",
-        path: "/product-attributes",
-        icon: "🔖",
-        children: [
-          { label: "Attribute List", path: "/product-attributes" },
-          { label: "Create Attribute", path: "/product-attributes/create" },
-          { label: "Attribute Card", path: "/product-attributes/card" },
-          { label: "Attribute Details", path: "/product-attributes/details/:id" },
-          { label: "Edit Attribute", path: "/product-attributes/edit/:id" },
-          { label: "Attribute Filters", path: "/product-attributes/filters" },
-          { label: "Attribute Form", path: "/product-attributes/form" },
-          { label: "Attribute Modal", path: "/product-attributes/modal" },
-          { label: "Pagination", path: "/product-attributes/pagination" },
-          { label: "Search", path: "/product-attributes/search" },
-          { label: "Statistics", path: "/product-attributes/statistics" },
-          { label: "Table", path: "/product-attributes/table" },
-          { label: "Toolbar", path: "/product-attributes/toolbar" },
-        ],
-      },
-
-      // -------------------------------------------------------
-      // PRODUCT IMAGES
-      // -------------------------------------------------------
-
-      {
-        label: "Product Images",
-        path: "/product-images",
-        icon: "🖼️",
-        children: [
-          { label: "Image List", path: "/product-images" },
-          { label: "Create Image", path: "/product-images/create" },
-          { label: "Image Card", path: "/product-images/card" },
-          { label: "Image Details", path: "/product-images/details/:id" },
-          { label: "Edit Image", path: "/product-images/edit/:id" },
-          { label: "Image Filters", path: "/product-images/filters" },
-          { label: "Image Form", path: "/product-images/form" },
-          { label: "Image Modal", path: "/product-images/modal" },
-          { label: "Pagination", path: "/product-images/pagination" },
-          { label: "Search", path: "/product-images/search" },
-          { label: "Statistics", path: "/product-images/statistics" },
-          { label: "Table", path: "/product-images/table" },
-          { label: "Toolbar", path: "/product-images/toolbar" },
-        ],
-      },
-
-      // -------------------------------------------------------
-      // PRODUCT INVENTORY
-      // -------------------------------------------------------
-
-      {
-        label: "Product Inventory",
-        path: "/product-inventory",
-        icon: "📊",
-        children: [
-          { label: "Inventory List", path: "/product-inventory" },
-          { label: "Create Inventory", path: "/product-inventory/create" },
-          { label: "Inventory Card", path: "/product-inventory/card" },
-          { label: "Inventory Details", path: "/product-inventory/details/:id" },
-          { label: "Edit Inventory", path: "/product-inventory/edit/:id" },
-          { label: "Inventory Filters", path: "/product-inventory/filters" },
-          { label: "Inventory Form", path: "/product-inventory/form" },
-          { label: "Inventory Modal", path: "/product-inventory/modal" },
-          { label: "Pagination", path: "/product-inventory/pagination" },
-          { label: "Search", path: "/product-inventory/search" },
-          { label: "Statistics", path: "/product-inventory/statistics" },
-          { label: "Table", path: "/product-inventory/table" },
-          { label: "Toolbar", path: "/product-inventory/toolbar" },
-        ],
-      },
-
-      // -------------------------------------------------------
-      // PRODUCT PRICES
-      // -------------------------------------------------------
-
-      {
-        label: "Product Prices",
-        path: "/product-prices",
-        icon: "💰",
-        children: [
-          { label: "Price List", path: "/product-prices" },
-          { label: "Price Card", path: "/product-prices/card" },
-          { label: "Create Price", path: "/product-prices/create" },
-          { label: "Price Details", path: "/product-prices/details/:id" },
-          { label: "Edit Price", path: "/product-prices/edit/:id" },
-          { label: "Price Filters", path: "/product-prices/filters" },
-          { label: "Price Form", path: "/product-prices/form" },
-          { label: "Price Modal", path: "/product-prices/modal" },
-          { label: "Pagination", path: "/product-prices/pagination" },
-          { label: "Search", path: "/product-prices/search" },
-          { label: "Statistics", path: "/product-prices/statistics" },
-          { label: "Table", path: "/product-prices/table" },
-          { label: "Toolbar", path: "/product-prices/toolbar" },
-        ],
-      },
-
-      // -------------------------------------------------------
-      // PRODUCT TYPES
-      // -------------------------------------------------------
-
-      {
-        label: "Product Types",
-        path: "/product-types",
-        icon: "🗂️",
-        children: [
-          { label: "Type List", path: "/product-types" },
-          { label: "Create Type", path: "/product-types/create" },
-          { label: "Type Card", path: "/product-types/card" },
-          { label: "Type Details", path: "/product-types/details/:id" },
-          { label: "Edit Type", path: "/product-types/edit/:id" },
-          { label: "Type Filters", path: "/product-types/filters" },
-          { label: "Type Form", path: "/product-types/form" },
-          { label: "Type Modal", path: "/product-types/modal" },
-          { label: "Pagination", path: "/product-types/pagination" },
-          { label: "Search", path: "/product-types/search" },
-          { label: "Statistics", path: "/product-types/statistics" },
-          { label: "Table", path: "/product-types/table" },
-          { label: "Toolbar", path: "/product-types/toolbar" },
-        ],
-      },
-
-      // -------------------------------------------------------
-      // REVIEWS
-      // -------------------------------------------------------
-
-      {
-        label: "Reviews",
-        path: "/reviews",
-        icon: "⭐",
-        children: [
-          { label: "Review List", path: "/reviews" },
-          { label: "Create Review", path: "/reviews/create" },
-          { label: "Review Card", path: "/reviews/card" },
-          { label: "Review Details", path: "/reviews/details/:id" },
-          { label: "Edit Review", path: "/reviews/edit/:id" },
-          { label: "Review Filters", path: "/reviews/filters" },
-          { label: "Review Form", path: "/reviews/form" },
-          { label: "Review Modal", path: "/reviews/modal" },
-          { label: "Pagination", path: "/reviews/pagination" },
-          { label: "Search", path: "/reviews/search" },
-          { label: "Statistics", path: "/reviews/statistics" },
-          { label: "Table", path: "/reviews/table" },
-          { label: "Toolbar", path: "/reviews/toolbar" },
-        ],
-      },
-    ],
-  },
 
   // =======================================================
   // ORDERS

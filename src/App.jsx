@@ -63,7 +63,10 @@ import CatalogTable from "./pages/Catalog/CatalogTable";
 import CatalogToolbar from "./pages/Catalog/CatalogToolbar";
 import CatalogVariants from "./pages/Catalog/CatalogVariants";
 import CatalogView from "./pages/Catalog/CatalogView";
+import CatalogForm from "./pages/Catalog/CatalogForm";
+import CatalogFilters from "./pages/Catalog/CatalogFilters";
 import DeleteCatalogDialog from "./pages/Catalog/DeleteCatalogDialog";
+import CatalogReviews from "./pages/Catalog/CatalogReviews";
 
 // =========================================================
 // CATEGORIES
@@ -658,13 +661,89 @@ function App() {
         {/* ===================================================
             CATALOG
         =================================================== */}
+{/* =========================================================
+    CATALOG
+========================================================= */}
 
-        <Route path="catalog" element={<CatalogList />} />
-        <Route path="catalog/:id" element={<CatalogView />} />
-        <Route path="catalog/search" element={<CatalogSearch />} />
-        <Route path="catalog/statistics" element={<CatalogStatistics />} />
+<Route
+    path="catalog"
+    element={<CatalogList />}
+/>
 
+<Route
+    path="catalog/create"
+    element={<CatalogForm />}
+/>
 
+<Route
+    path="catalog/view/:id"
+    element={<CatalogView />}
+/>
+
+<Route
+    path="catalog/:id/edit"
+    element={<CatalogForm />}
+/>
+
+<Route
+    path="catalog/search"
+    element={<CatalogSearch />}
+/>
+
+<Route
+    path="catalog/filters"
+    element={<CatalogFilters />}
+/>
+
+<Route
+    path="catalog/brand/:brandId"
+    element={<CatalogList />}
+/>
+
+<Route
+    path="catalog/category/:categoryId"
+    element={<CatalogList />}
+/>
+
+<Route
+    path="catalog/producttype/:productTypeId"
+    element={<CatalogList />}
+/>
+
+<Route
+    path="catalog/latest"
+    element={<CatalogList />}
+/>
+
+<Route
+    path="catalog/featured"
+    element={<CatalogList />}
+/>
+
+<Route
+    path="catalog/toprated"
+    element={<CatalogList />}
+/>
+
+<Route
+    path="catalog/bestsellers"
+    element={<CatalogList />}
+/>
+
+<Route
+    path="catalog/:productId/images"
+    element={<CatalogImages />}
+/>
+
+<Route
+    path="catalog/:productId/attributes"
+    element={<CatalogAttributes />}
+/>
+
+<Route
+    path="catalog/:productId/reviews"
+    element={<CatalogReviews />}
+/>
         {/* ===================================================
             CATEGORIES
         =================================================== */}
