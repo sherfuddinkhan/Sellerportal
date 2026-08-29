@@ -1310,7 +1310,320 @@ app.get("/api/brand/filters", async (req, res) => {
     }
 
 });
+//////////////// BrandModel////////////////////
+// ============================================================
+// BRAND MODEL APIs
+// ============================================================
 
+
+// ============================================================
+// 1. GET BRAND MODELS BY BRAND ID
+// GET /api/BrandModel/brand/:brandId
+// ============================================================
+
+app.get("/api/BrandModel/brand/:brandId", async (req, res) => {
+
+    try {
+
+        const { brandId } = req.params;
+
+        console.log(
+            "GET Brand Models By Brand ID:",
+            brandId
+        );
+
+        const response = await axios.get(
+            `${BASE_URL}/BrandModel/brand/${brandId}`,
+            {
+                httpsAgent
+            }
+        );
+
+        console.log(
+            "Brand Models API Response:",
+            response.data
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/BrandModel/brand/:brandId Error:",
+            error.response?.status,
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+
+            message:
+                "Failed to fetch brand models by brand",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+// ============================================================
+// 2. GET ALL BRAND MODELS
+// GET /api/BrandModel
+// ============================================================
+
+app.get("/api/BrandModel", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${BASE_URL}/BrandModel`,
+            {
+                params: req.query,
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/BrandModel Error:",
+            error.response?.status,
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+
+            message:
+                "Failed to fetch brand models",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+// ============================================================
+// 3. GET BRAND MODEL BY ID
+// GET /api/BrandModel/:id
+// ============================================================
+
+app.get("/api/BrandModel/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        console.log(
+            "GET Brand Model By ID:",
+            id
+        );
+
+        const response = await axios.get(
+            `${BASE_URL}/BrandModel/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            `GET /api/BrandModel/${req.params.id} Error:`,
+            error.response?.status,
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+
+            message:
+                "Failed to fetch brand model",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+// ============================================================
+// 4. CREATE BRAND MODEL
+// POST /api/BrandModel
+// ============================================================
+
+app.post("/api/BrandModel", async (req, res) => {
+
+    try {
+
+        const response = await axios.post(
+            `${BASE_URL}/BrandModel`,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "POST /api/BrandModel Error:",
+            error.response?.status,
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+
+            message:
+                "Failed to create brand model",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+// ============================================================
+// 5. UPDATE BRAND MODEL
+// PUT /api/BrandModel/:id
+// ============================================================
+
+app.put("/api/BrandModel/:id", async (req, res) => {
+
+    try {
+
+        const response = await axios.put(
+            `${BASE_URL}/BrandModel/${req.params.id}`,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            `PUT /api/BrandModel/${req.params.id} Error:`,
+            error.response?.status,
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+
+            message:
+                "Failed to update brand model",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+// ============================================================
+// 6. DELETE BRAND MODEL
+// DELETE /api/BrandModel/:id
+// ============================================================
+
+app.delete("/api/BrandModel/:id", async (req, res) => {
+
+    try {
+
+        const response = await axios.delete(
+            `${BASE_URL}/BrandModel/${req.params.id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            `DELETE /api/BrandModel/${req.params.id} Error:`,
+            error.response?.status,
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+
+            message:
+                "Failed to delete brand model",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
 // ======================================
 // Update Category
 // PUT: /api/category/:id

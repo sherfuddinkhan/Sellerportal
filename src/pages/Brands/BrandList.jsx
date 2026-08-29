@@ -15,10 +15,8 @@ import {
 
 import BrandToolbar from "./BrandToolbar";
 import BrandStatistics from "./BrandStatistics";
-import BrandSearch from "./BrandSearch";
-import BrandFilters from "./BrandFilters";
 import BrandTable from "./BrandTable";
-import BrandPagination from "./BrandPagination";
+
 
 
 const SERVER_URL = "http://localhost:5000";
@@ -33,9 +31,7 @@ const BrandList = () => {
     // STATE
     // =========================================================
 
-    const [brands, setBrands] = useState([]);
-
-    const [filteredBrands, setFilteredBrands] =
+    const [brands, setBrands] =
         useState([]);
 
     const [loading, setLoading] =
@@ -44,24 +40,8 @@ const BrandList = () => {
     const [error, setError] =
         useState("");
 
-
-    // Text currently being typed
-    const [searchText, setSearchText] =
-        useState("");
-
-
-    // Text actually submitted by Search button
-    const [searchQuery, setSearchQuery] =
-        useState("");
-
-
-    const [statusFilter, setStatusFilter] =
-        useState("All");
-
-
     const [page, setPage] =
         useState(0);
-
 
     const [rowsPerPage, setRowsPerPage] =
         useState(10);
@@ -89,7 +69,7 @@ const BrandList = () => {
 
 
             console.log(
-                "Response status:",
+                "Brand response status:",
                 response.status
             );
 
@@ -113,6 +93,10 @@ const BrandList = () => {
             );
 
 
+            // =====================================================
+            // HANDLE DIFFERENT API RESPONSE FORMATS
+            // =====================================================
+
             const brandData =
                 Array.isArray(data)
                     ? data
@@ -120,7 +104,11 @@ const BrandList = () => {
                         ? data.data
                         : Array.isArray(data?.brands)
                             ? data.brands
-                            : [];
+                            : Array.isArray(data?.items)
+                                ? data.items
+                                : Array.isArray(data?.$values)
+                                    ? data.$values
+                                    : [];
 
 
             console.log(
@@ -129,11 +117,14 @@ const BrandList = () => {
             );
 
 
-            setBrands(brandData);
-
-            setFilteredBrands(
+            setBrands(
                 brandData
             );
+
+
+            // Reset pagination after refresh
+
+            setPage(0);
 
 
         } catch (err) {
@@ -151,8 +142,6 @@ const BrandList = () => {
 
 
             setBrands([]);
-
-            setFilteredBrands([]);
 
 
         } finally {
@@ -176,155 +165,152 @@ const BrandList = () => {
 
 
     // =========================================================
-    // SEARCH + STATUS FILTER
-    // =========================================================
-
-   
-// =========================================================
-// SEARCH + STATUS FILTER
-// =========================================================
-
-useEffect(() => {
-
-    let result = [...brands];
-
-
-    // =====================================================
-    // SEARCH BY BRAND NAME / DESCRIPTION
-    // =====================================================
-
-    const search =
-        searchQuery
-            .trim()
-            .toLowerCase();
-
-
-    if (search !== "") {
-
-        result = result.filter((brand) => {
-
-            const brandName =
-                brand.brandName
-                    ?.toLowerCase() || "";
-
-            const description =
-                brand.description
-                    ?.toLowerCase() || "";
-
-
-            return (
-                brandName.includes(search) ||
-                description.includes(search)
-            );
-
-        });
-
-    }
-
-
-    // =====================================================
-    // STATUS FILTER
-    // =====================================================
-
-    if (statusFilter !== "All") {
-
-        result = result.filter((brand) => {
-
-            if (statusFilter === "Active") {
-
-                return brand.isActive === true;
-
-            }
-
-
-            if (statusFilter === "Inactive") {
-
-                return brand.isActive === false;
-
-            }
-
-
-            return true;
-
-        });
-
-    }
-
-
-    // =====================================================
-    // SET FILTERED DATA
-    // =====================================================
-
-    setFilteredBrands(result);
-
-
-    // Reset pagination after filtering
-
-    setPage(0);
-
-
-}, [
-    brands,
-    searchQuery,
-    statusFilter
-]);
-
-
-
-    // =========================================================
-    // SEARCH BUTTON
-    // =========================================================
-
-   const handleSearch = (value) => {
-
-    const search = value.trim();
-
-    if (!search) {
-        navigate("/brands/filters");
-        return;
-    }
-
-    navigate(
-        `/brands/filters?search=${encodeURIComponent(search)}`
-    );
-};
-
-
-    // =========================================================
     // VIEW BRAND
     // =========================================================
 
-  const handleView = (brand) => {
-    console.log("View clicked:", brand);
+    const handleView = (brand) => {
 
-    const brandId = brand?.brandId;
+        console.log(
+            "View Brand:",
+            brand
+        );
 
-    console.log("Brand ID:", brandId);
 
-    if (!brandId) {
-        setError("Brand ID is missing.");
-        return;
-    }
+        const brandId =
+            brand?.brandId ??
+            brand?.BrandId;
 
-    navigate(`/brands/details/${brandId}`);
-};
+
+        console.log(
+            "Brand ID:",
+            brandId
+        );
+
+
+        if (
+            brandId === undefined ||
+            brandId === null ||
+            brandId === ""
+        ) {
+
+            setError(
+                "Brand ID is missing."
+            );
+
+            return;
+
+        }
+
+
+        navigate(
+            `/brands/details/${brandId}`
+        );
+
+    };
 
 
     // =========================================================
     // EDIT BRAND
     // =========================================================
 
-  const handleEdit = (brand) => {
-    console.log("Edit Brand:", brand);
-    console.log("Brand ID:", brand?.brandId);
+    const handleEdit = (brand) => {
 
-    if (!brand?.brandId) {
-        setError("Brand ID is missing.");
-        return;
-    }
+        console.log(
+            "Edit Brand:",
+            brand
+        );
 
-    navigate(`/brands/${brand.brandId}/edit`);
-};
+
+        const brandId =
+            brand?.brandId ??
+            brand?.BrandId;
+
+
+        console.log(
+            "Brand ID:",
+            brandId
+        );
+
+
+        if (
+            brandId === undefined ||
+            brandId === null ||
+            brandId === ""
+        ) {
+
+            setError(
+                "Brand ID is missing."
+            );
+
+            return;
+
+        }
+
+
+        navigate(
+            `/brands/${brandId}/edit`
+        );
+
+    };
+
+
+    // =========================================================
+    // OPEN BRAND MODELS
+    // =========================================================
+    //
+    // Brand Models are opened ONLY from BrandList.
+    //
+    // Example:
+    //
+    // Brand ID = 3
+    //
+    // /brands/3/models
+    //
+    // BrandModelTable receives:
+    //
+    // brandId = 3
+    //
+    // =========================================================
+
+    const handleModels = (brand) => {
+
+        console.log(
+            "Brand Models clicked:",
+            brand
+        );
+
+
+        const brandId =
+            brand?.brandId ??
+            brand?.BrandId;
+
+
+        console.log(
+            "Brand ID for models:",
+            brandId
+        );
+
+
+        if (
+            brandId === undefined ||
+            brandId === null ||
+            brandId === ""
+        ) {
+
+            setError(
+                "Brand ID is missing."
+            );
+
+            return;
+
+        }
+
+
+        navigate(
+            `/brands/${brandId}/models`
+        );
+
+    };
 
 
     // =========================================================
@@ -335,9 +321,35 @@ useEffect(() => {
         brand
     ) => {
 
+        const brandId =
+            brand?.brandId ??
+            brand?.BrandId;
+
+
+        const brandName =
+            brand?.brandName ??
+            brand?.BrandName ??
+            "this brand";
+
+
+        if (
+            brandId === undefined ||
+            brandId === null ||
+            brandId === ""
+        ) {
+
+            setError(
+                "Brand ID is missing."
+            );
+
+            return;
+
+        }
+
+
         const confirmed =
             window.confirm(
-                `Are you sure you want to delete "${brand.brandName}"?`
+                `Are you sure you want to delete "${brandName}"?`
             );
 
 
@@ -356,13 +368,13 @@ useEffect(() => {
 
             console.log(
                 "Deleting Brand:",
-                brand.brandId
+                brandId
             );
 
 
             const response =
                 await fetch(
-                    `${SERVER_URL}/api/brand/${brand.brandId}`,
+                    `${SERVER_URL}/api/brand/${brandId}`,
                     {
                         method: "DELETE"
                     }
@@ -435,7 +447,7 @@ useEffect(() => {
     // =========================================================
 
     const paginatedBrands =
-        filteredBrands.slice(
+        brands.slice(
             page * rowsPerPage,
             page * rowsPerPage +
             rowsPerPage
@@ -443,7 +455,7 @@ useEffect(() => {
 
 
     // =========================================================
-    // LOADING
+    // INITIAL LOADING
     // =========================================================
 
     if (
@@ -515,111 +527,39 @@ useEffect(() => {
 
             <BrandStatistics
                 brands={
-                    filteredBrands
+                    brands
                 }
             />
 
 
             {/* =================================================
-                SEARCH
-            ================================================= */}
-
-            <BrandSearch
-                value={
-                    searchText
-                }
-                onChange={
-                    setSearchText
-                }
-                onSearch={
-                    handleSearch
-                }
-            />
-
-
-            {/* =================================================
-                FILTER
-            ================================================= */}
-
-            <BrandFilters
-                value={
-                    statusFilter
-                }
-                onChange={
-                    setStatusFilter
-                }
-            />
-
-
-            {/* =================================================
-                TABLE
+                BRAND TABLE
             ================================================= */}
 
             <BrandTable
                 brands={
                     paginatedBrands
                 }
+
                 loading={
                     loading
                 }
+
                 onView={
                     handleView
                 }
+
                 onEdit={
                     handleEdit
                 }
+
                 onDelete={
                     handleDelete
                 }
-            />
 
-
-            {/* =================================================
-                PAGINATION
-            ================================================= */}
-
-            <BrandPagination
-                page={
-                    page
+                onModels={
+                    handleModels
                 }
-                rowsPerPage={
-                    rowsPerPage
-                }
-                totalRecords={
-                    filteredBrands.length
-                }
-
-                onPageChange={(
-                    event,
-                    newPage
-                ) => {
-
-                    setPage(
-                        newPage
-                    );
-
-                }}
-
-                onRowsPerPageChange={(
-                    event
-                ) => {
-
-                    const newRowsPerPage =
-                        parseInt(
-                            event.target.value,
-                            10
-                        );
-
-
-                    setRowsPerPage(
-                        newRowsPerPage
-                    );
-
-
-                    setPage(0);
-
-                }}
-
             />
 
         </Box>

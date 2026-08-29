@@ -41,6 +41,9 @@ import BrandTable from "./pages/Brands/BrandTable";
 import BrandToolbar from "./pages/Brands/BrandToolbar";
 import BrandView from "./pages/Brands/BrandView";
 import DeleteBrandDialog from "./pages/Brands/DeleteBrandDialog";
+import BrandModelTable from "./pages/Brands/BrandModelTable";
+import BrandModelForm from "./pages/Brands/BrandModelForm";
+import BrandModelView from "./pages/Brands/BrandModelView";
 
 // =========================================================
 // CATALOG
@@ -628,6 +631,29 @@ function App() {
     element={<BrandStatistics />}
 />
 
+{/* ===================================================
+    BRAND MODELS
+=================================================== */}
+
+<Route
+    path="brands/:brandId/models"
+    element={<BrandModelTable />}
+/>
+
+<Route
+    path="brands/:brandId/models/new"
+    element={<BrandModelForm />}
+/>
+
+<Route
+    path="brands/:brandId/models/:modelId"
+    element={<BrandModelView />}
+/>
+
+<Route
+    path="brands/:brandId/models/:modelId/edit"
+    element={<BrandModelForm />}
+/>
 
         {/* ===================================================
             CATALOG
