@@ -67,6 +67,7 @@ import CatalogForm from "./pages/Catalog/CatalogForm";
 import CatalogFilters from "./pages/Catalog/CatalogFilters";
 import DeleteCatalogDialog from "./pages/Catalog/DeleteCatalogDialog";
 import CatalogReviews from "./pages/Catalog/CatalogReviews";
+import Catalog from "./pages/Catalog/Catalog";
 
 // =========================================================
 // CATEGORIES
@@ -658,9 +659,6 @@ function App() {
     element={<BrandModelForm />}
 />
 
-        {/* ===================================================
-            CATALOG
-        =================================================== */}
 {/* =========================================================
     CATALOG
 ========================================================= */}
@@ -744,6 +742,12 @@ function App() {
     path="catalog/:productId/reviews"
     element={<CatalogReviews />}
 />
+<Route
+    path="/catalog/products"
+    element={<CatalogView />}
+/>
+{/* Catalog Route */}
+        <Route path="catalog" element={<Catalog />} />
         {/* ===================================================
             CATEGORIES
         =================================================== */}

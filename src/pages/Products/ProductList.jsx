@@ -1,7 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-// Product Components
+// =========================================================
+// ProductList.jsx
+// =========================================================
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+
+import {
+    Alert,
+    Box,
+    Snackbar
+} from "@mui/material";
+
 import ProductToolbar from "./ProductToolbar";
 import ProductStatistics from "./ProductStatistics";
 import ProductSearch from "./ProductSearch";
@@ -10,238 +18,515 @@ import ProductPagination from "./ProductPagination";
 import ProductModal from "./ProductModal";
 import DeleteProductDialog from "./DeleteProductDialog";
 
-const ProductList = () => {
-    const navigate = useNavigate();
+// =========================================================
+// CONFIGURATION
+// =========================================================
 
-    // =========================================================
+const SERVER_URL = "http://localhost:5000";
+
+// =========================================================
+// HELPER
+// =========================================================
+
+const getValue = (item, ...keys) => {
+    for (const key of keys) {
+        if (
+            item &&
+            item[key] !== undefined &&
+            item[key] !== null
+        ) {
+            return item[key];
+        }
+    }
+
+    return "";
+};
+
+// =========================================================
+// NORMALIZE PRODUCT
+// Handles both:
+// productId / ProductId
+// productName / ProductName
+// =========================================================
+
+const normalizeProduct = (item = {}) => {
+
+    return {
+        ...item,
+
+        ProductId: getValue(
+            item,
+            "productId",
+            "ProductId"
+        ),
+
+        ProductName: getValue(
+            item,
+            "productName",
+            "ProductName"
+        ),
+
+        ProductCode: getValue(
+            item,
+            "productCode",
+            "ProductCode"
+        ),
+
+        SKU: getValue(
+            item,
+            "sku",
+            "SKU"
+        ),
+
+        SellerId: getValue(
+            item,
+            "sellerId",
+            "SellerId"
+        ),
+
+        CustomerId: getValue(
+            item,
+            "customerId",
+            "CustomerId"
+        ),
+
+        CategoryId: getValue(
+            item,
+            "categoryId",
+            "CategoryId"
+        ),
+
+        BrandId: getValue(
+            item,
+            "brandId",
+            "BrandId"
+        ),
+
+        ProductTypeId: getValue(
+            item,
+            "productTypeId",
+            "ProductTypeId"
+        ),
+
+        Description: getValue(
+            item,
+            "description",
+            "Description"
+        ),
+
+        IsActive:
+            item.isActive ??
+            item.IsActive ??
+            true
+    };
+};
+
+// =========================================================
+// EXTRACT ARRAY FROM API RESPONSE
+// Supports:
+// []
+// { data: [] }
+// { products: [] }
+// { items: [] }
+// { result: [] }
+// =========================================================
+
+const extractProducts = (responseData) => {
+
+    if (Array.isArray(responseData)) {
+        return responseData;
+    }
+
+    if (
+        responseData &&
+        Array.isArray(responseData.data)
+    ) {
+        return responseData.data;
+    }
+
+    if (
+        responseData &&
+        Array.isArray(responseData.products)
+    ) {
+        return responseData.products;
+    }
+
+    if (
+        responseData &&
+        Array.isArray(responseData.items)
+    ) {
+        return responseData.items;
+    }
+
+    if (
+        responseData &&
+        Array.isArray(responseData.result)
+    ) {
+        return responseData.result;
+    }
+
+    return [];
+};
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
+const ProductList = () => {
+
+    // =====================================================
     // STATE
-    // =========================================================
+    // =====================================================
 
     const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [filteredProducts, setFilteredProducts] =
+        useState([]);
 
-    const [searchText, setSearchText] = useState("");
+    const [loading, setLoading] =
+        useState(false);
 
-    const [statusFilter, setStatusFilter] = useState("All");
+    const [searchText, setSearchText] =
+        useState("");
 
-    const [categoryFilter, setCategoryFilter] = useState("");
+    const [statusFilter, setStatusFilter] =
+        useState("All");
 
-    const [brandFilter, setBrandFilter] = useState("");
+    const [categoryFilter, setCategoryFilter] =
+        useState("");
 
-    const [productTypeFilter, setProductTypeFilter] = useState("");
+    const [brandFilter, setBrandFilter] =
+        useState("");
 
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [productTypeFilter, setProductTypeFilter] =
+        useState("");
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] =
+        useState(null);
 
-    const [page, setPage] = useState(1);
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
 
-    const [pageSize, setPageSize] = useState(10);
+    const [page, setPage] =
+        useState(1);
 
-    // =========================================================
-    // LOAD PRODUCTS
-    // =========================================================
+    const [pageSize, setPageSize] =
+        useState(10);
 
-    const loadProducts = async () => {
-        try {
-            setLoading(true);
+    const [errorMessage, setErrorMessage] =
+        useState("");
 
-            const response = await apiService.getProducts();
+    const [successMessage, setSuccessMessage] =
+        useState("");
 
-            const data = Array.isArray(response.data)
-                ? response.data
-                : [];
+    // =====================================================
+    // LOAD ALL PRODUCTS
+    //
+    // Node:
+    // GET /api/catalog/products/all
+    //
+    // ASP.NET:
+    // GET /api/catalog/products/all
+    // =====================================================
 
-            setProducts(data);
-            setFilteredProducts(data);
-        }
-        catch (err) {
-            console.error(
-                "Error loading products:",
-                err
-            );
+    const loadProducts = useCallback(
+        async () => {
 
-            setProducts([]);
-            setFilteredProducts([]);
-        }
-        finally {
-            setLoading(false);
-        }
-    };
+            try {
 
-    // =========================================================
+                setLoading(true);
+
+                console.log(
+                    "================================="
+                );
+
+                console.log(
+                    "LOADING CATALOG PRODUCTS"
+                );
+
+                console.log(
+                    "URL:",
+                    `${SERVER_URL}/api/catalog/products/all`
+                );
+
+                console.log(
+                    "================================="
+                );
+
+                const response = await fetch(
+                    `${SERVER_URL}/api/catalog/products/all`,
+                    {
+                        method: "GET",
+                        headers: {
+                            Accept:
+                                "application/json"
+                        }
+                    }
+                );
+
+                const responseData =
+                    await response.json();
+
+                console.log(
+                    "PRODUCT API STATUS:",
+                    response.status
+                );
+
+                console.log(
+                    "PRODUCT API RESPONSE:",
+                    responseData
+                );
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        responseData?.message ||
+                        "Failed to load products"
+                    );
+                }
+
+                const data =
+                    extractProducts(
+                        responseData
+                    );
+
+                const normalized =
+                    data.map(
+                        normalizeProduct
+                    );
+
+                console.log(
+                    "NORMALIZED PRODUCTS:",
+                    normalized
+                );
+
+                setProducts(normalized);
+
+                setFilteredProducts(
+                    normalized
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "LOAD PRODUCTS ERROR:",
+                    error
+                );
+
+                setProducts([]);
+
+                setFilteredProducts([]);
+
+                setErrorMessage(
+                    error.message ||
+                    "Failed to load products"
+                );
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+        []
+    );
+
+    // =====================================================
     // INITIAL LOAD
-    // =========================================================
+    // =====================================================
 
     useEffect(() => {
+
         loadProducts();
-    }, []);
 
-    // =========================================================
-    // SEARCH & FILTER
-    // =========================================================
+    }, [loadProducts]);
+
+    // =====================================================
+    // SEARCH + FILTER
+    // =====================================================
 
     useEffect(() => {
+
         let result = [...products];
 
-        // -----------------------------------------------------
+        // =================================================
         // SEARCH
-        // -----------------------------------------------------
+        // =================================================
 
-        if (searchText.trim() !== "") {
+        const search =
+            searchText
+                .trim()
+                .toLowerCase();
 
-            const search =
-                searchText
-                    .toLowerCase()
-                    .trim();
+        if (search) {
 
-            result = result.filter((item) => {
+            result = result.filter(
+                (item) => {
 
-                return (
-                    String(
-                        item.ProductId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    const searchableValues = [
 
-                    ||
+                        item.ProductId,
 
-                    String(
-                        item.ProductName ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.ProductName,
 
-                    ||
+                        item.ProductCode,
 
-                    String(
-                        item.ProductCode ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.SKU,
 
-                    ||
+                        item.SellerId,
 
-                    String(
-                        item.SKU ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.CustomerId,
 
-                    ||
+                        item.CategoryId,
 
-                    String(
-                        item.SellerId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.BrandId,
 
-                    ||
+                        item.ProductTypeId,
 
-                    String(
-                        item.CategoryId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.Description,
 
-                    ||
+                        item.brandName,
 
-                    String(
-                        item.BrandId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.BrandName,
 
-                    ||
+                        item.categoryName,
 
-                    String(
-                        item.ProductTypeId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.CategoryName,
 
-                    ||
+                        item.productTypeName,
 
-                    String(
-                        item.Description ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                        item.ProductTypeName
+
+                    ];
+
+                    return searchableValues.some(
+                        (value) =>
+                            String(
+                                value ?? ""
+                            )
+                                .toLowerCase()
+                                .includes(search)
+                    );
+
+                }
+            );
+
+        }
+
+        // =================================================
+        // STATUS
+        // =================================================
+
+        if (
+            statusFilter !== "All"
+        ) {
+
+            result =
+                result.filter(
+                    (item) => {
+
+                        const active =
+                            item.IsActive === true ||
+                            item.IsActive === 1 ||
+                            item.IsActive === "true";
+
+                        return statusFilter ===
+                            "Active"
+                            ? active
+                            : !active;
+
+                    }
                 );
-            });
+
         }
 
-        // -----------------------------------------------------
-        // STATUS FILTER
-        // -----------------------------------------------------
-
-        if (statusFilter !== "All") {
-
-            result = result.filter((item) => {
-
-                const isActive =
-                    item.IsActive === true ||
-                    item.IsActive === 1 ||
-                    item.IsActive === "true";
-
-                return statusFilter === "Active"
-                    ? isActive
-                    : !isActive;
-            });
-        }
-
-        // -----------------------------------------------------
-        // CATEGORY FILTER
-        // -----------------------------------------------------
+        // =================================================
+        // CATEGORY
+        // =================================================
 
         if (categoryFilter !== "") {
 
-            result = result.filter(
-                (item) =>
-                    String(
-                        item.CategoryId ?? ""
-                    ) === String(categoryFilter)
-            );
+            result =
+                result.filter(
+                    (item) =>
+                        String(
+                            item.CategoryId
+                        ) ===
+                        String(
+                            categoryFilter
+                        )
+                );
+
         }
 
-        // -----------------------------------------------------
-        // BRAND FILTER
-        // -----------------------------------------------------
+        // =================================================
+        // BRAND
+        // =================================================
 
         if (brandFilter !== "") {
 
-            result = result.filter(
-                (item) =>
-                    String(
-                        item.BrandId ?? ""
-                    ) === String(brandFilter)
-            );
+            result =
+                result.filter(
+                    (item) =>
+                        String(
+                            item.BrandId
+                        ) ===
+                        String(
+                            brandFilter
+                        )
+                );
+
         }
 
-        // -----------------------------------------------------
-        // PRODUCT TYPE FILTER
-        // -----------------------------------------------------
+        // =================================================
+        // PRODUCT TYPE
+        // =================================================
 
-        if (productTypeFilter !== "") {
+        if (
+            productTypeFilter !== ""
+        ) {
 
-            result = result.filter(
-                (item) =>
-                    String(
-                        item.ProductTypeId ?? ""
-                    ) === String(productTypeFilter)
-            );
+            result =
+                result.filter(
+                    (item) =>
+                        String(
+                            item.ProductTypeId
+                        ) ===
+                        String(
+                            productTypeFilter
+                        )
+                );
+
         }
-
-        // -----------------------------------------------------
-        // UPDATE FILTERED PRODUCTS
-        // -----------------------------------------------------
 
         setFilteredProducts(result);
 
-        // Reset pagination after search/filter
-        setPage(1);
+        // =================================================
+        // Keep current page valid
+        // =================================================
+
+        const calculatedPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    result.length /
+                    pageSize
+                )
+            );
+
+        if (
+            page >
+            calculatedPages
+        ) {
+
+            setPage(
+                calculatedPages
+            );
+
+        }
 
     }, [
         products,
@@ -249,12 +534,14 @@ const ProductList = () => {
         statusFilter,
         categoryFilter,
         brandFilter,
-        productTypeFilter
+        productTypeFilter,
+        page,
+        pageSize
     ]);
 
-    // =========================================================
+    // =====================================================
     // PAGINATION
-    // =========================================================
+    // =====================================================
 
     const totalPages =
         Math.max(
@@ -266,158 +553,553 @@ const ProductList = () => {
         );
 
     const pagedProducts =
-        filteredProducts.slice(
-            (page - 1) * pageSize,
-            page * pageSize
+        useMemo(
+            () => {
+
+                const start =
+                    (page - 1) *
+                    pageSize;
+
+                const end =
+                    start +
+                    pageSize;
+
+                return filteredProducts.slice(
+                    start,
+                    end
+                );
+
+            },
+            [
+                filteredProducts,
+                page,
+                pageSize
+            ]
         );
 
-    // =========================================================
+    // =====================================================
+    // CREATE PRODUCT
+    //
+    // Node:
+    // POST /api/catalog/products
+    // =====================================================
+
+    const createProduct =
+        async (data) => {
+
+            console.log(
+                "CREATE PRODUCT REQUEST:",
+                data
+            );
+
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/catalog/products`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            Accept:
+                                "application/json",
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                data
+                            )
+                    }
+                );
+
+            const responseData =
+                await response.json();
+
+            console.log(
+                "CREATE PRODUCT RESPONSE:",
+                responseData
+            );
+
+            if (!response.ok) {
+
+                throw new Error(
+                    responseData?.message ||
+                    "Failed to create product"
+                );
+
+            }
+
+            return responseData;
+        };
+
+    // =====================================================
+    // UPDATE PRODUCT
+    //
+    // Node:
+    // PUT /api/catalog/:id
+    // =====================================================
+
+    const updateProduct =
+        async (
+            id,
+            data
+        ) => {
+
+            console.log(
+                "UPDATE PRODUCT:",
+                id,
+                data
+            );
+
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/catalog/${id}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            Accept:
+                                "application/json",
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                data
+                            )
+                    }
+                );
+
+            const responseData =
+                await response.json();
+
+            console.log(
+                "UPDATE PRODUCT RESPONSE:",
+                responseData
+            );
+
+            if (!response.ok) {
+
+                throw new Error(
+                    responseData?.message ||
+                    "Failed to update product"
+                );
+
+            }
+
+            return responseData;
+        };
+
+    // =====================================================
     // SAVE PRODUCT
-    // =========================================================
+    // =====================================================
 
-    const handleSave = async (data) => {
+    const handleSave =
+        async (data) => {
 
-        try {
+            try {
 
-            setLoading(true);
+                setLoading(true);
 
-            // -------------------------------------------------
-            // UPDATE
-            // -------------------------------------------------
+                console.log(
+                    "================================="
+                );
 
-            if (data.ProductId) {
+                console.log(
+                    "SAVE PRODUCT"
+                );
 
-                await apiService.updateProduct(
-                    data.ProductId,
+                console.log(
+                    "DATA:",
                     data
                 );
 
-            }
+                console.log(
+                    "================================="
+                );
 
-            // -------------------------------------------------
-            // CREATE
-            // -------------------------------------------------
+                const productId =
+                    getValue(
+                        data,
+                        "productId",
+                        "ProductId"
+                    );
 
-            else {
+                // =============================================
+                // UPDATE
+                // =============================================
 
-                await apiService.createProduct(
-                    data
+                if (
+                    productId !== "" &&
+                    productId !== null &&
+                    productId !== undefined
+                ) {
+
+                    await updateProduct(
+                        productId,
+                        data
+                    );
+
+                    setSuccessMessage(
+                        "Product updated successfully"
+                    );
+
+                }
+
+                // =============================================
+                // CREATE
+                // =============================================
+
+                else {
+
+                    await createProduct(
+                        data
+                    );
+
+                    setSuccessMessage(
+                        "Product created successfully"
+                    );
+
+                }
+
+                // =============================================
+                // RELOAD
+                // =============================================
+
+                await loadProducts();
+
+                // =============================================
+                // CLOSE MODAL
+                // =============================================
+
+                setSelectedProduct(
+                    null
                 );
 
             }
+            catch (error) {
 
-            // Reload products
-            await loadProducts();
+                console.error(
+                    "SAVE PRODUCT ERROR:",
+                    error
+                );
 
-            // Close modal
-            setSelectedProduct(null);
+                setErrorMessage(
+                    error.message ||
+                    "Failed to save product"
+                );
 
-        }
-        catch (err) {
+            }
+            finally {
 
-            console.error(
-                "Error saving product:",
-                err
-            );
+                setLoading(false);
 
-        }
-        finally {
+            }
 
-            setLoading(false);
+        };
 
-        }
-    };
-
-    // =========================================================
+    // =====================================================
     // DELETE PRODUCT
-    // =========================================================
+    //
+    // Node:
+    // DELETE /api/catalog/:id
+    // =====================================================
 
-    const handleDelete = async (id) => {
+    const handleDelete =
+        async (id) => {
 
-        try {
+            try {
 
-            setLoading(true);
+                setLoading(true);
 
-            await apiService.deleteProduct(id);
+                console.log(
+                    "DELETE PRODUCT:",
+                    id
+                );
 
-            await loadProducts();
+                const response =
+                    await fetch(
+                        `${SERVER_URL}/api/catalog/${id}`,
+                        {
+                            method: "DELETE",
 
-        }
-        catch (err) {
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
 
-            console.error(
-                "Error deleting product:",
-                err
+                let responseData = {};
+
+                const contentType =
+                    response.headers.get(
+                        "content-type"
+                    );
+
+                if (
+                    contentType &&
+                    contentType.includes(
+                        "application/json"
+                    )
+                ) {
+
+                    responseData =
+                        await response.json();
+
+                }
+
+                console.log(
+                    "DELETE RESPONSE:",
+                    responseData
+                );
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        responseData?.message ||
+                        "Failed to delete product"
+                    );
+
+                }
+
+                setSuccessMessage(
+                    "Product deleted successfully"
+                );
+
+                await loadProducts();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "DELETE PRODUCT ERROR:",
+                    error
+                );
+
+                setErrorMessage(
+                    error.message ||
+                    "Failed to delete product"
+                );
+
+            }
+            finally {
+
+                setLoading(false);
+
+                setDeleteOpen(false);
+
+                setSelectedProduct(
+                    null
+                );
+
+            }
+
+        };
+
+    // =====================================================
+    // VIEW
+    // =====================================================
+
+    const handleView =
+        async (row) => {
+
+            try {
+
+                const productId =
+                    getValue(
+                        row,
+                        "productId",
+                        "ProductId"
+                    );
+
+                if (!productId) {
+
+                    setSelectedProduct(
+                        row
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "VIEW PRODUCT:",
+                    productId
+                );
+
+                const response =
+                    await fetch(
+                        `${SERVER_URL}/api/catalog/products/${productId}`,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
+
+                const responseData =
+                    await response.json();
+
+                console.log(
+                    "VIEW PRODUCT RESPONSE:",
+                    responseData
+                );
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        responseData?.message ||
+                        "Failed to fetch product"
+                    );
+
+                }
+
+                const product =
+                    responseData?.data ||
+                    responseData?.product ||
+                    responseData;
+
+                setSelectedProduct(
+                    normalizeProduct(
+                        product
+                    )
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "VIEW PRODUCT ERROR:",
+                    error
+                );
+
+                setErrorMessage(
+                    error.message ||
+                    "Failed to load product details"
+                );
+
+            }
+
+        };
+
+    // =====================================================
+    // EDIT
+    // =====================================================
+
+    const handleEdit =
+        (row) => {
+
+            console.log(
+                "EDIT PRODUCT:",
+                row
             );
 
-        }
-        finally {
+            setSelectedProduct(
+                normalizeProduct(
+                    row
+                )
+            );
 
-            setLoading(false);
+        };
 
-            setDeleteOpen(false);
+    // =====================================================
+    // DELETE CLICK
+    // =====================================================
 
-            setSelectedProduct(null);
-        }
-    };
+    const handleDeleteClick =
+        (row) => {
 
-    // =========================================================
-    // VIEW PRODUCT
-    // =========================================================
+            console.log(
+                "DELETE CLICK:",
+                row
+            );
 
-    const handleView = (row) => {
+            setSelectedProduct(
+                normalizeProduct(
+                    row
+                )
+            );
 
-        setSelectedProduct(row);
+            setDeleteOpen(
+                true
+            );
 
-        // If you prefer a separate View page,
-        // replace the above with:
-        //
-        // navigate(`/products/view/${row.ProductId}`);
-    };
+        };
 
-    // =========================================================
-    // EDIT PRODUCT
-    // =========================================================
+    // =====================================================
+    // ADD PRODUCT
+    // =====================================================
 
-    const handleEdit = (row) => {
+    const handleAdd =
+        () => {
 
-        setSelectedProduct(row);
+            setSelectedProduct(
+                {}
+            );
 
-    };
+        };
 
-    // =========================================================
-    // DELETE CONFIRMATION
-    // =========================================================
+    // =====================================================
+    // CLEAR FILTERS
+    // =====================================================
 
-    const handleDeleteClick = (row) => {
+    const clearFilters =
+        () => {
 
-        setSelectedProduct(row);
+            setSearchText("");
 
-        setDeleteOpen(true);
+            setStatusFilter(
+                "All"
+            );
 
-    };
+            setCategoryFilter(
+                ""
+            );
 
-    // =========================================================
+            setBrandFilter(
+                ""
+            );
+
+            setProductTypeFilter(
+                ""
+            );
+
+            setPage(1);
+
+        };
+
+    // =====================================================
     // RENDER
-    // =========================================================
+    // =====================================================
 
     return (
+
         <Box
             sx={{
                 p: 3,
-                width: "100%",
+                width: "100%"
             }}
         >
 
             {/* =================================================
-                PRODUCT TOOLBAR
-            ================================================== */}
+                TOOLBAR
+            ================================================= */}
 
             <ProductToolbar
-                onAdd={() =>
-                    setSelectedProduct({})
+                onAdd={
+                    handleAdd
                 }
-                onRefresh={loadProducts}
+
+                onRefresh={
+                    loadProducts
+                }
+
                 onExport={() =>
                     console.log(
                         "Export Products"
@@ -426,52 +1108,89 @@ const ProductList = () => {
             />
 
             {/* =================================================
-                PRODUCT STATISTICS
-            ================================================== */}
+                STATISTICS
+            ================================================= */}
 
             <ProductStatistics
-                products={products}
+                products={
+                    products
+                }
             />
 
             {/* =================================================
-                PRODUCT SEARCH & FILTERS
-            ================================================== */}
+                SEARCH + FILTER
+            ================================================= */}
 
             <ProductSearch
-                searchText={searchText}
-                setSearchText={setSearchText}
+                searchText={
+                    searchText
+                }
 
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
+                setSearchText={
+                    setSearchText
+                }
 
-                categoryFilter={categoryFilter}
-                setCategoryFilter={setCategoryFilter}
+                statusFilter={
+                    statusFilter
+                }
 
-                brandFilter={brandFilter}
-                setBrandFilter={setBrandFilter}
+                setStatusFilter={
+                    setStatusFilter
+                }
+
+                categoryFilter={
+                    categoryFilter
+                }
+
+                setCategoryFilter={
+                    setCategoryFilter
+                }
+
+                brandFilter={
+                    brandFilter
+                }
+
+                setBrandFilter={
+                    setBrandFilter
+                }
 
                 productTypeFilter={
                     productTypeFilter
                 }
+
                 setProductTypeFilter={
                     setProductTypeFilter
                 }
 
-                products={products}
+                products={
+                    products
+                }
+
+                onClearFilters={
+                    clearFilters
+                }
             />
 
             {/* =================================================
-                PRODUCT TABLE
-            ================================================== */}
+                TABLE
+            ================================================= */}
 
             <ProductTable
-                products={pagedProducts}
+                products={
+                    pagedProducts
+                }
 
-                loading={loading}
+                loading={
+                    loading
+                }
 
-                onView={handleView}
+                onView={
+                    handleView
+                }
 
-                onEdit={handleEdit}
+                onEdit={
+                    handleEdit
+                }
 
                 onDelete={
                     handleDeleteClick
@@ -479,34 +1198,48 @@ const ProductList = () => {
             />
 
             {/* =================================================
-                PRODUCT PAGINATION
-            ================================================== */}
+                PAGINATION
+            ================================================= */}
 
             <ProductPagination
-                page={page}
+                page={
+                    page
+                }
 
-                totalPages={totalPages}
+                totalPages={
+                    totalPages
+                }
 
-                pageSize={pageSize}
+                pageSize={
+                    pageSize
+                }
 
                 totalRecords={
                     filteredProducts.length
                 }
 
-                onPageChange={setPage}
+                onPageChange={
+                    setPage
+                }
 
-                onPageSizeChange={(size) => {
+                onPageSizeChange={
+                    (size) => {
 
-                    setPageSize(size);
+                        setPageSize(
+                            size
+                        );
 
-                    setPage(1);
+                        setPage(
+                            1
+                        );
 
-                }}
+                    }
+                }
             />
 
             {/* =================================================
                 PRODUCT MODAL
-            ================================================== */}
+            ================================================= */}
 
             <ProductModal
                 open={
@@ -521,18 +1254,24 @@ const ProductList = () => {
                 }
 
                 onClose={() =>
-                    setSelectedProduct(null)
+                    setSelectedProduct(
+                        null
+                    )
                 }
 
-                onSave={handleSave}
+                onSave={
+                    handleSave
+                }
             />
 
             {/* =================================================
-                DELETE PRODUCT DIALOG
-            ================================================== */}
+                DELETE DIALOG
+            ================================================= */}
 
             <DeleteProductDialog
-                open={deleteOpen}
+                open={
+                    deleteOpen
+                }
 
                 product={
                     selectedProduct
@@ -540,17 +1279,87 @@ const ProductList = () => {
 
                 onClose={() => {
 
-                    setDeleteOpen(false);
+                    setDeleteOpen(
+                        false
+                    );
 
-                    setSelectedProduct(null);
+                    setSelectedProduct(
+                        null
+                    );
 
                 }}
 
-                onDeleted={handleDelete}
+                onDeleted={
+                    handleDelete
+                }
             />
 
+            {/* =================================================
+                ERROR MESSAGE
+            ================================================= */}
+
+            <Snackbar
+                open={
+                    Boolean(
+                        errorMessage
+                    )
+                }
+
+                autoHideDuration={
+                    5000
+                }
+
+                onClose={() =>
+                    setErrorMessage("")
+                }
+            >
+
+                <Alert
+                    severity="error"
+                    onClose={() =>
+                        setErrorMessage("")
+                    }
+                >
+                    {errorMessage}
+                </Alert>
+
+            </Snackbar>
+
+            {/* =================================================
+                SUCCESS MESSAGE
+            ================================================= */}
+
+            <Snackbar
+                open={
+                    Boolean(
+                        successMessage
+                    )
+                }
+
+                autoHideDuration={
+                    3000
+                }
+
+                onClose={() =>
+                    setSuccessMessage("")
+                }
+            >
+
+                <Alert
+                    severity="success"
+                    onClose={() =>
+                        setSuccessMessage("")
+                    }
+                >
+                    {successMessage}
+                </Alert>
+
+            </Snackbar>
+
         </Box>
+
     );
+
 };
 
 export default ProductList;

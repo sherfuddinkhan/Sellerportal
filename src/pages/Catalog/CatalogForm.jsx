@@ -1,12 +1,10 @@
 // =========================================================
 // CatalogForm.jsx
-// Create + Edit Catalog/Product
+// Create + Edit Catalog / Product
+// SellerId and CustomerId come from CatalogList navigation
 // =========================================================
 
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, { useEffect, useState } from "react";
 
 import {
     Alert,
@@ -18,17 +16,18 @@ import {
     MenuItem,
     Paper,
     TextField,
-    Typography
+    Typography,
 } from "@mui/material";
 
 import {
     ArrowBack,
-    Save
+    Save,
 } from "@mui/icons-material";
 
 import {
     useNavigate,
-    useParams
+    useParams,
+    useSearchParams,
 } from "react-router-dom";
 
 
@@ -44,25 +43,57 @@ const SERVER_URL = "http://localhost:5000";
 // =========================================================
 
 const initialForm = {
-
     productName: "",
-
     description: "",
-
     sku: "",
-
     brandId: "",
-
     categoryId: "",
-
     productTypeId: "",
-
     price: "",
-
     quantity: "",
+    isActive: true,
+};
 
-    isActive: true
 
+// =========================================================
+// RESPONSE ARRAY HELPER
+// =========================================================
+
+const getArrayData = (data) => {
+
+    if (Array.isArray(data)) {
+        return data;
+    }
+
+    if (Array.isArray(data?.data)) {
+        return data.data;
+    }
+
+    if (Array.isArray(data?.items)) {
+        return data.items;
+    }
+
+    if (Array.isArray(data?.result)) {
+        return data.result;
+    }
+
+    if (Array.isArray(data?.brands)) {
+        return data.brands;
+    }
+
+    if (Array.isArray(data?.categories)) {
+        return data.categories;
+    }
+
+    if (Array.isArray(data?.productTypes)) {
+        return data.productTypes;
+    }
+
+    if (Array.isArray(data?.$values)) {
+        return data.$values;
+    }
+
+    return [];
 };
 
 
@@ -74,82 +105,84 @@ const CatalogForm = () => {
 
     const navigate = useNavigate();
 
-    const {
-        id
-    } = useParams();
+    const { id } = useParams();
+
+    const [searchParams] = useSearchParams();
 
 
     // =====================================================
-    // MODE
+    // PRODUCT MODE
     // =====================================================
 
-    const isEditMode =
-        Boolean(id);
+    const isEditMode = Boolean(id);
+
+
+    // =====================================================
+    // SELLER / CUSTOMER FROM URL
+    // =====================================================
+
+    const sellerId =
+        searchParams.get("sellerId");
+
+    const customerId =
+        searchParams.get("customerId");
+
+
+    // =====================================================
+    // VALIDATE SELLER / CUSTOMER
+    // =====================================================
+
+    const hasSellerCustomer =
+        sellerId &&
+        customerId &&
+        !Number.isNaN(Number(sellerId)) &&
+        !Number.isNaN(Number(customerId));
 
 
     // =====================================================
     // STATE
     // =====================================================
 
-    const [
-        form,
-        setForm
-    ] = useState(initialForm);
+    const [form, setForm] =
+        useState(initialForm);
 
+    const [brands, setBrands] =
+        useState([]);
 
-    const [
-        brands,
-        setBrands
-    ] = useState([]);
+    const [categories, setCategories] =
+        useState([]);
 
+    const [productTypes, setProductTypes] =
+        useState([]);
 
-    const [
-        categories,
-        setCategories
-    ] = useState([]);
+    const [loading, setLoading] =
+        useState(false);
 
+    const [saving, setSaving] =
+        useState(false);
 
-    const [
-        productTypes,
-        setProductTypes
-    ] = useState([]);
+    const [loadingBrands, setLoadingBrands] =
+        useState(false);
 
+    const [loadingCategories, setLoadingCategories] =
+        useState(false);
 
-    const [
-        loading,
-        setLoading
-    ] = useState(false);
+    const [loadingProductTypes, setLoadingProductTypes] =
+        useState(false);
 
+    const [error, setError] =
+        useState("");
 
-    const [
-        saving,
-        setSaving
-    ] = useState(false);
-
-
-    const [
-        error,
-        setError
-    ] = useState("");
-
-
-    const [
-        success,
-        setSuccess
-    ] = useState("");
+    const [success, setSuccess] =
+        useState("");
 
 
     // =====================================================
-    // SELLER / CUSTOMER
-    // =====================================================
-    //
-    // Change these to your actual logged-in values.
-    //
+    // COMMON QUERY
     // =====================================================
 
-    const sellerId = 6;
-
-    const customerId = 3;
+    const query =
+        `sellerId=${encodeURIComponent(sellerId)}&customerId=${encodeURIComponent(customerId)}`;
 
 
     // =====================================================
@@ -160,11 +193,26 @@ const CatalogForm = () => {
 
         try {
 
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/catalog/brands?sellerId=${sellerId}&customerId=${customerId}`
-                );
+            setLoadingBrands(true);
 
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "Loading Brands..."
+            );
+
+            const url =
+                `${SERVER_URL}/api/catalog/brands?${query}`;
+
+            console.log(
+                "GET",
+                url
+            );
+
+            const response =
+                await fetch(url);
 
             if (!response.ok) {
 
@@ -174,30 +222,33 @@ const CatalogForm = () => {
 
             }
 
-
             const data =
                 await response.json();
 
+            console.log(
+                "Brands API response:",
+                data
+            );
 
             const result =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.data)
-                        ? data.data
-                        : Array.isArray(data?.items)
-                            ? data.items
-                            : [];
-
+                getArrayData(data);
 
             setBrands(result);
 
-
-        } catch (err) {
+        }
+        catch (err) {
 
             console.error(
                 "Brand loading error:",
                 err
             );
+
+            setBrands([]);
+
+        }
+        finally {
+
+            setLoadingBrands(false);
 
         }
 
@@ -212,11 +263,26 @@ const CatalogForm = () => {
 
         try {
 
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/catalog/categories?sellerId=${sellerId}&customerId=${customerId}`
-                );
+            setLoadingCategories(true);
 
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "Loading Categories..."
+            );
+
+            const url =
+                `${SERVER_URL}/api/catalog/categories?${query}`;
+
+            console.log(
+                "GET",
+                url
+            );
+
+            const response =
+                await fetch(url);
 
             if (!response.ok) {
 
@@ -226,30 +292,33 @@ const CatalogForm = () => {
 
             }
 
-
             const data =
                 await response.json();
 
+            console.log(
+                "Categories API response:",
+                data
+            );
 
             const result =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.data)
-                        ? data.data
-                        : Array.isArray(data?.items)
-                            ? data.items
-                            : [];
-
+                getArrayData(data);
 
             setCategories(result);
 
-
-        } catch (err) {
+        }
+        catch (err) {
 
             console.error(
                 "Category loading error:",
                 err
             );
+
+            setCategories([]);
+
+        }
+        finally {
+
+            setLoadingCategories(false);
 
         }
 
@@ -264,22 +333,62 @@ const CatalogForm = () => {
 
         try {
 
-            /*
-             * Your current CatalogController does not expose
-             * a GET /api/catalog/producttypes endpoint.
-             *
-             * Therefore this remains empty until that API
-             * is added.
-             */
+            setLoadingProductTypes(true);
 
-            setProductTypes([]);
+            console.log(
+                "========================================"
+            );
 
-        } catch (err) {
+            console.log(
+                "Loading Product Types..."
+            );
+
+            const url =
+                `${SERVER_URL}/api/catalog/producttype?${query}`;
+
+            console.log(
+                "GET",
+                url
+            );
+
+            const response =
+                await fetch(url);
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `Unable to load product types. HTTP ${response.status}`
+                );
+
+            }
+
+            const data =
+                await response.json();
+
+            console.log(
+                "Product Types API response:",
+                data
+            );
+
+            const result =
+                getArrayData(data);
+
+            setProductTypes(result);
+
+        }
+        catch (err) {
 
             console.error(
                 "Product type loading error:",
                 err
             );
+
+            setProductTypes([]);
+
+        }
+        finally {
+
+            setLoadingProductTypes(false);
 
         }
 
@@ -287,64 +396,122 @@ const CatalogForm = () => {
 
 
     // =====================================================
-    // LOAD PRODUCT FOR EDIT
+    // LOAD PRODUCT
     // =====================================================
 
     const loadProduct = async () => {
 
         if (!isEditMode) {
-
             return;
-
         }
 
+        if (!hasSellerCustomer) {
+
+            setError(
+                "Seller ID and Customer ID are missing. Please return to Catalog List and select the product again."
+            );
+
+            return;
+        }
 
         try {
 
             setLoading(true);
+
             setError("");
 
+            const url =
+                `${SERVER_URL}/api/catalog/products/${id}?${query}`;
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "Loading Product..."
+            );
+
+            console.log(
+                "GET",
+                url
+            );
 
             const response =
-                await fetch(
-                    `${SERVER_URL}/api/catalog/products/${id}?sellerId=${sellerId}&customerId=${customerId}`
-                );
+                await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        Accept:
+                            "application/json",
+                    },
+                });
 
+            console.log(
+                "Product response status:",
+                response.status
+            );
 
             if (!response.ok) {
 
-                if (
-                    response.status === 404
-                ) {
+                let message =
+                    `Unable to load product. HTTP ${response.status}`;
 
-                    throw new Error(
-                        "Product not found."
-                    );
+                try {
+
+                    const errorData =
+                        await response.json();
+
+                    message =
+                        errorData?.message ||
+                        errorData?.title ||
+                        message;
 
                 }
+                catch {
+                    // Ignore non-JSON response
+                }
 
+                throw new Error(message);
+
+            }
+
+            const data =
+                await response.json();
+
+            console.log(
+                "Product API response:",
+                data
+            );
+
+
+            // =================================================
+            // EXTRACT PRODUCT
+            // =================================================
+
+            const product =
+                data?.data ??
+                data?.result ??
+                data?.product ??
+                data;
+
+
+            console.log(
+                "Product extracted:",
+                product
+            );
+
+
+            if (!product) {
 
                 throw new Error(
-                    `Unable to load product. HTTP ${response.status}`
+                    "Product not found."
                 );
 
             }
 
 
-            const data =
-                await response.json();
-
-
-            console.log(
-                "Product loaded:",
-                data
-            );
-
-
-            const product =
-                data?.data ??
-                data;
-
+            // =================================================
+            // POPULATE FORM
+            // =================================================
 
             setForm({
 
@@ -380,35 +547,36 @@ const CatalogForm = () => {
 
                 price:
                     product?.price ??
+                    product?.Price ??
                     "",
 
                 quantity:
                     product?.quantity ??
+                    product?.Quantity ??
                     "",
 
                 isActive:
                     product?.isActive ??
                     product?.IsActive ??
-                    true
+                    true,
 
             });
 
-
-        } catch (err) {
+        }
+        catch (err) {
 
             console.error(
                 "Product loading error:",
                 err
             );
 
-
             setError(
                 err.message ||
                 "Unable to load product."
             );
 
-
-        } finally {
+        }
+        finally {
 
             setLoading(false);
 
@@ -423,35 +591,52 @@ const CatalogForm = () => {
 
     useEffect(() => {
 
-        loadBrands();
+        if (!hasSellerCustomer) {
 
-        loadCategories();
+            setError(
+                "Seller ID and Customer ID are missing. Please return to Catalog List and select the product again."
+            );
 
-        loadProductTypes();
+            return;
 
-        loadProduct();
+        }
 
-    }, [id]);
+        const loadFormData = async () => {
+
+            await Promise.all([
+                loadBrands(),
+                loadCategories(),
+                loadProductTypes(),
+            ]);
+
+            await loadProduct();
+
+        };
+
+        loadFormData();
+
+    }, [
+        id,
+        sellerId,
+        customerId,
+    ]);
 
 
     // =====================================================
     // INPUT CHANGE
     // =====================================================
 
-    const handleChange = (
-        event
-    ) => {
+    const handleChange = (event) => {
 
         const {
             name,
-            value
+            value,
         } = event.target;
 
-
         setForm(
-            previous => ({
+            (previous) => ({
                 ...previous,
-                [name]: value
+                [name]: value,
             })
         );
 
@@ -462,27 +647,37 @@ const CatalogForm = () => {
     // SUBMIT
     // =====================================================
 
-    const handleSubmit = async (
-        event
-    ) => {
+    const handleSubmit = async (event) => {
 
         event.preventDefault();
-
 
         try {
 
             setSaving(true);
+
             setError("");
+
             setSuccess("");
 
 
             // =================================================
-            // VALIDATION
+            // SELLER / CUSTOMER VALIDATION
             // =================================================
 
-            if (
-                !form.productName.trim()
-            ) {
+            if (!hasSellerCustomer) {
+
+                throw new Error(
+                    "Seller ID and Customer ID are missing. Please return to Catalog List and select the product again."
+                );
+
+            }
+
+
+            // =================================================
+            // PRODUCT VALIDATION
+            // =================================================
+
+            if (!form.productName.trim()) {
 
                 throw new Error(
                     "Product name is required."
@@ -497,9 +692,11 @@ const CatalogForm = () => {
 
             const requestBody = {
 
-                sellerId,
+                sellerId:
+                    Number(sellerId),
 
-                customerId,
+                customerId:
+                    Number(customerId),
 
                 productName:
                     form.productName.trim(),
@@ -511,17 +708,17 @@ const CatalogForm = () => {
                     form.sku.trim(),
 
                 brandId:
-                    form.brandId
+                    form.brandId !== ""
                         ? Number(form.brandId)
                         : null,
 
                 categoryId:
-                    form.categoryId
+                    form.categoryId !== ""
                         ? Number(form.categoryId)
                         : null,
 
                 productTypeId:
-                    form.productTypeId
+                    form.productTypeId !== ""
                         ? Number(form.productTypeId)
                         : null,
 
@@ -536,34 +733,49 @@ const CatalogForm = () => {
                         : 0,
 
                 isActive:
-                    Boolean(form.isActive)
+                    Boolean(form.isActive),
 
             };
 
 
             console.log(
-                "Catalog request:",
+                "========================================"
+            );
+
+            console.log(
+                "Catalog Request Body:",
                 requestBody
             );
 
 
             // =================================================
-            // CREATE / UPDATE
+            // URL
             // =================================================
 
             const url =
                 isEditMode
-
-                    ? `${SERVER_URL}/api/catalog/${id}?sellerId=${sellerId}&customerId=${customerId}`
-
+                    ? `${SERVER_URL}/api/catalog/${id}?${query}`
                     : `${SERVER_URL}/api/catalog/products`;
 
+
+            // =================================================
+            // METHOD
+            // =================================================
 
             const method =
                 isEditMode
                     ? "PUT"
                     : "POST";
 
+
+            console.log(
+                `${method} ${url}`
+            );
+
+
+            // =================================================
+            // API REQUEST
+            // =================================================
 
             const response =
                 await fetch(
@@ -573,51 +785,70 @@ const CatalogForm = () => {
 
                         headers: {
                             "Content-Type":
-                                "application/json"
+                                "application/json",
+
+                            Accept:
+                                "application/json",
                         },
 
                         body:
                             JSON.stringify(
                                 requestBody
-                            )
+                            ),
                     }
                 );
 
+
+            // =================================================
+            // ERROR RESPONSE
+            // =================================================
 
             if (!response.ok) {
 
                 let message =
                     `Request failed. HTTP ${response.status}`;
 
-
                 try {
 
                     const errorData =
                         await response.json();
 
+                    console.error(
+                        "API Error:",
+                        errorData
+                    );
 
                     message =
                         errorData?.message ||
                         errorData?.title ||
+                        errorData?.error ||
                         message;
 
-
-                } catch {
-
-                    // Non-JSON response
-
+                }
+                catch {
+                    // Non JSON response
                 }
 
-
-                throw new Error(
-                    message
-                );
+                throw new Error(message);
 
             }
 
 
-            const result =
-                await response.json();
+            // =================================================
+            // RESPONSE
+            // =================================================
+
+            let result = null;
+
+            try {
+
+                result =
+                    await response.json();
+
+            }
+            catch {
+                // 204 No Content
+            }
 
 
             console.log(
@@ -625,6 +856,10 @@ const CatalogForm = () => {
                 result
             );
 
+
+            // =================================================
+            // SUCCESS
+            // =================================================
 
             setSuccess(
                 isEditMode
@@ -640,27 +875,26 @@ const CatalogForm = () => {
             setTimeout(() => {
 
                 navigate(
-                    "/catalog"
+                    `/catalog?sellerId=${sellerId}&customerId=${customerId}`
                 );
 
             }, 800);
 
-
-        } catch (err) {
+        }
+        catch (err) {
 
             console.error(
                 "Catalog save error:",
                 err
             );
 
-
             setError(
                 err.message ||
                 "Unable to save product."
             );
 
-
-        } finally {
+        }
+        finally {
 
             setSaving(false);
 
@@ -670,7 +904,48 @@ const CatalogForm = () => {
 
 
     // =====================================================
-    // LOADING EDIT PRODUCT
+    // MISSING SELLER / CUSTOMER
+    // =====================================================
+
+    if (!hasSellerCustomer) {
+
+        return (
+
+            <Box
+                sx={{
+                    p: 3,
+                }}
+            >
+
+                <Alert
+                    severity="error"
+                    sx={{ mb: 3 }}
+                >
+                    Seller ID and Customer ID are missing.
+                    Please return to Catalog List and
+                    select the product again.
+                </Alert>
+
+
+                <Button
+                    variant="contained"
+                    startIcon={<ArrowBack />}
+                    onClick={() =>
+                        navigate("/catalog")
+                    }
+                >
+                    Return to Catalog List
+                </Button>
+
+            </Box>
+
+        );
+
+    }
+
+
+    // =====================================================
+    // LOADING
     // =====================================================
 
     if (
@@ -685,7 +960,7 @@ const CatalogForm = () => {
                     minHeight: 400,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
                 }}
             >
 
@@ -707,7 +982,8 @@ const CatalogForm = () => {
         <Box
             sx={{
                 p: 3,
-                width: "100%"
+                width: "100%",
+                boxSizing: "border-box",
             }}
         >
 
@@ -720,7 +996,7 @@ const CatalogForm = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
-                    mb: 3
+                    mb: 3,
                 }}
             >
 
@@ -728,7 +1004,9 @@ const CatalogForm = () => {
                     variant="outlined"
                     startIcon={<ArrowBack />}
                     onClick={() =>
-                        navigate("/catalog")
+                        navigate(
+                            `/catalog?sellerId=${sellerId}&customerId=${customerId}`
+                        )
                     }
                 >
                     Back
@@ -754,6 +1032,17 @@ const CatalogForm = () => {
                         {isEditMode
                             ? "Update product information"
                             : "Create a new catalog product"}
+                    </Typography>
+
+
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Seller ID: {sellerId} |
+                        Customer ID: {customerId}
                     </Typography>
 
                 </Box>
@@ -799,15 +1088,15 @@ const CatalogForm = () => {
             <Paper
                 elevation={2}
                 sx={{
-                    p: 3
+                    p: 3,
+                    width: "100%",
+                    boxSizing: "border-box",
                 }}
             >
 
                 <Box
                     component="form"
-                    onSubmit={
-                        handleSubmit
-                    }
+                    onSubmit={handleSubmit}
                 >
 
                     {/* =================================================
@@ -895,11 +1184,7 @@ const CatalogForm = () => {
                     </Grid>
 
 
-                    <Divider
-                        sx={{
-                            my: 3
-                        }}
-                    />
+                    <Divider sx={{ my: 3 }} />
 
 
                     {/* =================================================
@@ -939,6 +1224,13 @@ const CatalogForm = () => {
                                 onChange={
                                     handleChange
                                 }
+                                helperText={
+                                    loadingBrands
+                                        ? "Loading brands..."
+                                        : brands.length === 0
+                                            ? "No brands available"
+                                            : `${brands.length} brand(s) available`
+                                }
                             >
 
                                 <MenuItem value="">
@@ -947,27 +1239,40 @@ const CatalogForm = () => {
 
 
                                 {brands.map(
-                                    brand => (
+                                    (brand) => {
 
-                                        <MenuItem
-                                            key={
-                                                brand.brandId ??
-                                                brand.BrandId
-                                            }
-                                            value={
-                                                brand.brandId ??
-                                                brand.BrandId
-                                            }
-                                        >
+                                        const brandId =
+                                            brand?.brandId ??
+                                            brand?.BrandId ??
+                                            brand?.id ??
+                                            brand?.Id;
 
-                                            {
-                                                brand.brandName ??
-                                                brand.BrandName
-                                            }
+                                        const brandName =
+                                            brand?.brandName ??
+                                            brand?.BrandName ??
+                                            brand?.name ??
+                                            brand?.Name;
 
-                                        </MenuItem>
+                                        if (
+                                            brandId ===
+                                            undefined
+                                        ) {
+                                            return null;
+                                        }
 
-                                    )
+                                        return (
+
+                                            <MenuItem
+                                                key={brandId}
+                                                value={brandId}
+                                            >
+                                                {brandName ||
+                                                    `Brand ${brandId}`}
+                                            </MenuItem>
+
+                                        );
+
+                                    }
                                 )}
 
                             </TextField>
@@ -994,6 +1299,13 @@ const CatalogForm = () => {
                                 onChange={
                                     handleChange
                                 }
+                                helperText={
+                                    loadingCategories
+                                        ? "Loading categories..."
+                                        : categories.length === 0
+                                            ? "No categories available"
+                                            : `${categories.length} categor${categories.length === 1 ? "y" : "ies"} available`
+                                }
                             >
 
                                 <MenuItem value="">
@@ -1002,27 +1314,40 @@ const CatalogForm = () => {
 
 
                                 {categories.map(
-                                    category => (
+                                    (category) => {
 
-                                        <MenuItem
-                                            key={
-                                                category.categoryId ??
-                                                category.CategoryId
-                                            }
-                                            value={
-                                                category.categoryId ??
-                                                category.CategoryId
-                                            }
-                                        >
+                                        const categoryId =
+                                            category?.categoryId ??
+                                            category?.CategoryId ??
+                                            category?.id ??
+                                            category?.Id;
 
-                                            {
-                                                category.categoryName ??
-                                                category.CategoryName
-                                            }
+                                        const categoryName =
+                                            category?.categoryName ??
+                                            category?.CategoryName ??
+                                            category?.name ??
+                                            category?.Name;
 
-                                        </MenuItem>
+                                        if (
+                                            categoryId ===
+                                            undefined
+                                        ) {
+                                            return null;
+                                        }
 
-                                    )
+                                        return (
+
+                                            <MenuItem
+                                                key={categoryId}
+                                                value={categoryId}
+                                            >
+                                                {categoryName ||
+                                                    `Category ${categoryId}`}
+                                            </MenuItem>
+
+                                        );
+
+                                    }
                                 )}
 
                             </TextField>
@@ -1049,6 +1374,13 @@ const CatalogForm = () => {
                                 onChange={
                                     handleChange
                                 }
+                                helperText={
+                                    loadingProductTypes
+                                        ? "Loading product types..."
+                                        : productTypes.length === 0
+                                            ? "No product types available"
+                                            : `${productTypes.length} product type(s) available`
+                                }
                             >
 
                                 <MenuItem value="">
@@ -1057,27 +1389,40 @@ const CatalogForm = () => {
 
 
                                 {productTypes.map(
-                                    type => (
+                                    (type) => {
 
-                                        <MenuItem
-                                            key={
-                                                type.productTypeId ??
-                                                type.ProductTypeId
-                                            }
-                                            value={
-                                                type.productTypeId ??
-                                                type.ProductTypeId
-                                            }
-                                        >
+                                        const typeId =
+                                            type?.productTypeId ??
+                                            type?.ProductTypeId ??
+                                            type?.id ??
+                                            type?.Id;
 
-                                            {
-                                                type.productTypeName ??
-                                                type.ProductTypeName
-                                            }
+                                        const typeName =
+                                            type?.productTypeName ??
+                                            type?.ProductTypeName ??
+                                            type?.name ??
+                                            type?.Name;
 
-                                        </MenuItem>
+                                        if (
+                                            typeId ===
+                                            undefined
+                                        ) {
+                                            return null;
+                                        }
 
-                                    )
+                                        return (
+
+                                            <MenuItem
+                                                key={typeId}
+                                                value={typeId}
+                                            >
+                                                {typeName ||
+                                                    `Product Type ${typeId}`}
+                                            </MenuItem>
+
+                                        );
+
+                                    }
                                 )}
 
                             </TextField>
@@ -1087,15 +1432,11 @@ const CatalogForm = () => {
                     </Grid>
 
 
-                    <Divider
-                        sx={{
-                            my: 3
-                        }}
-                    />
+                    <Divider sx={{ my: 3 }} />
 
 
                     {/* =================================================
-                        INVENTORY / PRICE
+                        PRICE & INVENTORY
                     ================================================= */}
 
                     <Typography
@@ -1131,7 +1472,7 @@ const CatalogForm = () => {
                                 }
                                 inputProps={{
                                     min: 0,
-                                    step: "0.01"
+                                    step: "0.01",
                                 }}
                             />
 
@@ -1156,7 +1497,7 @@ const CatalogForm = () => {
                                     handleChange
                                 }
                                 inputProps={{
-                                    min: 0
+                                    min: 0,
                                 }}
                             />
 
@@ -1182,11 +1523,11 @@ const CatalogForm = () => {
                                 onChange={(event) => {
 
                                     setForm(
-                                        previous => ({
+                                        (previous) => ({
                                             ...previous,
                                             isActive:
                                                 event.target.value ===
-                                                "true"
+                                                "true",
                                         })
                                     );
 
@@ -1217,14 +1558,16 @@ const CatalogForm = () => {
                             display: "flex",
                             justifyContent: "flex-end",
                             gap: 2,
-                            mt: 4
+                            mt: 4,
                         }}
                     >
 
                         <Button
                             variant="outlined"
                             onClick={() =>
-                                navigate("/catalog")
+                                navigate(
+                                    `/catalog?sellerId=${sellerId}&customerId=${customerId}`
+                                )
                             }
                             disabled={saving}
                         >
@@ -1237,15 +1580,17 @@ const CatalogForm = () => {
                             variant="contained"
                             startIcon={
                                 saving
-                                    ? <CircularProgress
-                                        size={18}
-                                        color="inherit"
-                                    />
-                                    : <Save />
+                                    ? (
+                                        <CircularProgress
+                                            size={18}
+                                            color="inherit"
+                                        />
+                                    )
+                                    : (
+                                        <Save />
+                                    )
                             }
-                            disabled={
-                                saving
-                            }
+                            disabled={saving}
                         >
 
                             {saving
@@ -1270,4 +1615,3 @@ const CatalogForm = () => {
 
 
 export default CatalogForm;
-

@@ -32,6 +32,7 @@ import {
     Publish,
 } from "@mui/icons-material";
 
+
 // =========================================================
 // COMPONENT
 // =========================================================
@@ -55,90 +56,155 @@ const CatalogTable = ({
     onPublish,
 
     loading = false,
+
+    page = 0,
+    rowsPerPage = 10,
+    totalCount = 0,
+    onPageChange,
+    onRowsPerPageChange,
 }) => {
 
     // =========================================================
-    // GET PRODUCT / CATALOG ID
+    // GET PRODUCT ID
     // =========================================================
 
-    const getId = (catalog) =>
-        catalog?.productId ??
-        catalog?.ProductId ??
-        catalog?.catalogId ??
-        catalog?.CatalogId ??
-        catalog?.id ??
-        catalog?.Id;
+    const getProductId = (catalog) => {
+
+        return (
+            catalog?.productId ??
+            catalog?.ProductId ??
+            catalog?.catalogId ??
+            catalog?.CatalogId ??
+            catalog?.id ??
+            catalog?.Id
+        );
+
+    };
+
+
+    // =========================================================
+    // GET SELLER ID
+    // =========================================================
+
+    const getSellerId = (catalog) => {
+
+        return (
+            catalog?.sellerId ??
+            catalog?.SellerId ??
+            catalog?.seller?.sellerId ??
+            catalog?.seller?.SellerId ??
+            "—"
+        );
+
+    };
+
+
+    // =========================================================
+    // GET CUSTOMER ID
+    // =========================================================
+
+    const getCustomerId = (catalog) => {
+
+        return (
+            catalog?.customerId ??
+            catalog?.CustomerId ??
+            catalog?.customer?.customerId ??
+            catalog?.customer?.CustomerId ??
+            "—"
+        );
+
+    };
+
 
     // =========================================================
     // GET PRODUCT NAME
     // =========================================================
 
-    const getProductName = (catalog) =>
-        catalog?.productName ??
-        catalog?.ProductName ??
-        catalog?.catalogName ??
-        catalog?.CatalogName ??
-        catalog?.product?.productName ??
-        catalog?.name ??
-        "—";
+    const getProductName = (catalog) => {
+
+        return (
+            catalog?.productName ??
+            catalog?.ProductName ??
+            catalog?.catalogName ??
+            catalog?.CatalogName ??
+            catalog?.product?.productName ??
+            catalog?.name ??
+            catalog?.Name ??
+            "—"
+        );
+
+    };
+
 
     // =========================================================
-    // GET SKU / PRODUCT CODE
+    // GET SKU
     // =========================================================
 
-    const getProductCode = (catalog) =>
-        catalog?.sku ??
-        catalog?.SKU ??
-        catalog?.productCode ??
-        catalog?.ProductCode ??
-        catalog?.product?.sku ??
-        catalog?.product?.productCode ??
-        "—";
+    const getProductCode = (catalog) => {
 
-    // =========================================================
-    // GET CUSTOMER
-    // =========================================================
+        return (
+            catalog?.sku ??
+            catalog?.SKU ??
+            catalog?.productCode ??
+            catalog?.ProductCode ??
+            catalog?.product?.sku ??
+            catalog?.product?.productCode ??
+            "—"
+        );
 
-    const getCustomerName = (catalog) =>
-        catalog?.customerName ??
-        catalog?.CustomerName ??
-        catalog?.customer?.customerName ??
-        catalog?.customer?.CustomerName ??
-        catalog?.customer?.name ??
-        "—";
+    };
+
 
     // =========================================================
     // GET BRAND
     // =========================================================
 
-    const getBrandName = (catalog) =>
-        catalog?.brandName ??
-        catalog?.BrandName ??
-        catalog?.brand?.brandName ??
-        catalog?.brand?.BrandName ??
-        "—";
+    const getBrandName = (catalog) => {
+
+        return (
+            catalog?.brandName ??
+            catalog?.BrandName ??
+            catalog?.brand?.brandName ??
+            catalog?.brand?.BrandName ??
+            "—"
+        );
+
+    };
+
 
     // =========================================================
     // GET CATEGORY
     // =========================================================
 
-    const getCategoryName = (catalog) =>
-        catalog?.categoryName ??
-        catalog?.CategoryName ??
-        catalog?.category?.categoryName ??
-        catalog?.category?.CategoryName ??
-        "—";
+    const getCategoryName = (catalog) => {
+
+        return (
+            catalog?.categoryName ??
+            catalog?.CategoryName ??
+            catalog?.category?.categoryName ??
+            catalog?.category?.CategoryName ??
+            "—"
+        );
+
+    };
+
 
     // =========================================================
     // GET PRICE
     // =========================================================
 
-    const getPrice = (catalog) =>
-        catalog?.price ??
-        catalog?.sellingPrice ??
-        catalog?.sellingPriceAmount ??
-        catalog?.product?.price ??
-        catalog?.product?.sellingPrice;
+    const getPrice = (catalog) => {
+
+        return (
+            catalog?.price ??
+            catalog?.sellingPrice ??
+            catalog?.sellingPriceAmount ??
+            catalog?.product?.price ??
+            catalog?.product?.sellingPrice
+        );
+
+    };
+
 
     // =========================================================
     // FORMAT PRICE
@@ -167,7 +233,9 @@ const CatalogTable = ({
                 maximumFractionDigits: 2,
             }
         )}`;
+
     };
+
 
     // =========================================================
     // GET STOCK
@@ -176,9 +244,9 @@ const CatalogTable = ({
     const getStock = (catalog) => {
 
         const value =
+            catalog?.stockQuantity ??
             catalog?.stock ??
             catalog?.quantity ??
-            catalog?.stockQuantity ??
             catalog?.productInventory?.quantity ??
             catalog?.inventory?.quantity ??
             0;
@@ -188,7 +256,9 @@ const CatalogTable = ({
         return Number.isNaN(number)
             ? 0
             : number;
+
     };
+
 
     // =========================================================
     // GET STATUS
@@ -203,6 +273,10 @@ const CatalogTable = ({
         const isActive =
             catalog?.isActive ??
             catalog?.IsActive;
+
+        const isAvailable =
+            catalog?.isAvailable ??
+            catalog?.IsAvailable;
 
         if (
             status !== undefined &&
@@ -220,8 +294,18 @@ const CatalogTable = ({
             return "Inactive";
         }
 
+        if (isAvailable === true) {
+            return "Available";
+        }
+
+        if (isAvailable === false) {
+            return "Unavailable";
+        }
+
         return "Unknown";
+
     };
+
 
     // =========================================================
     // STATUS COLOR
@@ -238,6 +322,12 @@ const CatalogTable = ({
 
             case "inactive":
                 return "default";
+
+            case "available":
+                return "success";
+
+            case "unavailable":
+                return "error";
 
             case "pending":
                 return "warning";
@@ -256,8 +346,11 @@ const CatalogTable = ({
 
             default:
                 return "default";
+
         }
+
     };
+
 
     // =========================================================
     // STOCK CHIP
@@ -299,20 +392,23 @@ const CatalogTable = ({
 
     };
 
+
     // =========================================================
     // SELECT ALL
     // =========================================================
 
     const allSelected =
         catalogs.length > 0 &&
-        catalogs.every((catalog) =>
-            selectedIds.includes(
-                getId(catalog)
-            )
+        catalogs.every(
+            (catalog) =>
+                selectedIds.includes(
+                    getProductId(catalog)
+                )
         );
 
+
     // =========================================================
-    // SELECT ALL HANDLER
+    // SELECT ALL
     // =========================================================
 
     const handleSelectAll = (event) => {
@@ -323,13 +419,14 @@ const CatalogTable = ({
 
         if (event.target.checked) {
 
-            const ids = catalogs
-                .map(getId)
-                .filter(
-                    (id) =>
-                        id !== undefined &&
-                        id !== null
-                );
+            const ids =
+                catalogs
+                    .map(getProductId)
+                    .filter(
+                        (id) =>
+                            id !== undefined &&
+                            id !== null
+                    );
 
             onSelectionChange(ids);
 
@@ -341,6 +438,7 @@ const CatalogTable = ({
 
     };
 
+
     // =========================================================
     // SELECT ONE
     // =========================================================
@@ -351,7 +449,8 @@ const CatalogTable = ({
             return;
         }
 
-        const id = getId(catalog);
+        const id =
+            getProductId(catalog);
 
         if (
             id === undefined ||
@@ -360,7 +459,9 @@ const CatalogTable = ({
             return;
         }
 
-        if (selectedIds.includes(id)) {
+        if (
+            selectedIds.includes(id)
+        ) {
 
             onSelectionChange(
                 selectedIds.filter(
@@ -380,6 +481,7 @@ const CatalogTable = ({
 
     };
 
+
     // =========================================================
     // LOADING
     // =========================================================
@@ -387,10 +489,12 @@ const CatalogTable = ({
     if (loading) {
 
         return (
+
             <TableContainer
                 component={Paper}
                 elevation={1}
             >
+
                 <Box
                     sx={{
                         py: 8,
@@ -405,10 +509,13 @@ const CatalogTable = ({
                     </Typography>
 
                 </Box>
+
             </TableContainer>
+
         );
 
     }
+
 
     // =========================================================
     // EMPTY
@@ -417,6 +524,7 @@ const CatalogTable = ({
     if (!catalogs.length) {
 
         return (
+
             <TableContainer
                 component={Paper}
                 elevation={1}
@@ -449,9 +557,11 @@ const CatalogTable = ({
                 </Box>
 
             </TableContainer>
+
         );
 
     }
+
 
     // =========================================================
     // RENDER
@@ -471,11 +581,14 @@ const CatalogTable = ({
             <Table
                 stickyHeader
                 size="small"
+                sx={{
+                    minWidth: 1450,
+                }}
             >
 
                 {/* =================================================
                     HEADER
-                   ================================================= */}
+                ================================================= */}
 
                 <TableHead>
 
@@ -486,15 +599,13 @@ const CatalogTable = ({
                         <TableCell
                             padding="checkbox"
                         >
-
                             <Checkbox
                                 checked={
                                     allSelected
                                 }
 
                                 indeterminate={
-                                    selectedIds.length >
-                                        0 &&
+                                    selectedIds.length > 0 &&
                                     !allSelected
                                 }
 
@@ -507,16 +618,35 @@ const CatalogTable = ({
                                         "Select all catalogs",
                                 }}
                             />
-
                         </TableCell>
 
-                        {/* ID */}
+
+                        {/* PRODUCT ID */}
 
                         <TableCell>
                             <strong>
-                                ID
+                                Product ID
                             </strong>
                         </TableCell>
+
+
+                        {/* SELLER ID */}
+
+                        <TableCell>
+                            <strong>
+                                Seller ID
+                            </strong>
+                        </TableCell>
+
+
+                        {/* CUSTOMER ID */}
+
+                        <TableCell>
+                            <strong>
+                                Customer ID
+                            </strong>
+                        </TableCell>
+
 
                         {/* PRODUCT */}
 
@@ -526,6 +656,7 @@ const CatalogTable = ({
                             </strong>
                         </TableCell>
 
+
                         {/* SKU */}
 
                         <TableCell>
@@ -533,6 +664,7 @@ const CatalogTable = ({
                                 SKU
                             </strong>
                         </TableCell>
+
 
                         {/* BRAND */}
 
@@ -542,6 +674,7 @@ const CatalogTable = ({
                             </strong>
                         </TableCell>
 
+
                         {/* CATEGORY */}
 
                         <TableCell>
@@ -550,44 +683,46 @@ const CatalogTable = ({
                             </strong>
                         </TableCell>
 
-                        {/* CUSTOMER */}
-
-                        <TableCell>
-                            <strong>
-                                Customer
-                            </strong>
-                        </TableCell>
 
                         {/* PRICE */}
 
-                        <TableCell align="right">
+                        <TableCell
+                            align="right"
+                        >
                             <strong>
                                 Price
                             </strong>
                         </TableCell>
 
+
                         {/* STOCK */}
 
-                        <TableCell align="center">
+                        <TableCell
+                            align="center"
+                        >
                             <strong>
                                 Stock
                             </strong>
                         </TableCell>
 
+
                         {/* STATUS */}
 
-                        <TableCell align="center">
+                        <TableCell
+                            align="center"
+                        >
                             <strong>
                                 Status
                             </strong>
                         </TableCell>
+
 
                         {/* ACTIONS */}
 
                         <TableCell
                             align="center"
                             sx={{
-                                minWidth: 300
+                                minWidth: 300,
                             }}
                         >
                             <strong>
@@ -599,9 +734,10 @@ const CatalogTable = ({
 
                 </TableHead>
 
+
                 {/* =================================================
                     BODY
-                   ================================================= */}
+                ================================================= */}
 
                 <TableBody>
 
@@ -611,8 +747,18 @@ const CatalogTable = ({
                             index
                         ) => {
 
-                            const id =
-                                getId(
+                            const productId =
+                                getProductId(
+                                    catalog
+                                );
+
+                            const sellerId =
+                                getSellerId(
+                                    catalog
+                                );
+
+                            const customerId =
+                                getCustomerId(
                                     catalog
                                 );
 
@@ -636,11 +782,6 @@ const CatalogTable = ({
                                     catalog
                                 );
 
-                            const customerName =
-                                getCustomerName(
-                                    catalog
-                                );
-
                             const price =
                                 getPrice(
                                     catalog
@@ -658,14 +799,15 @@ const CatalogTable = ({
 
                             const isSelected =
                                 selectedIds.includes(
-                                    id
+                                    productId
                                 );
+
 
                             return (
 
                                 <TableRow
                                     key={
-                                        id ??
+                                        productId ??
                                         index
                                     }
 
@@ -696,12 +838,54 @@ const CatalogTable = ({
 
                                     </TableCell>
 
-                                    {/* ID */}
+
+                                    {/* PRODUCT ID */}
 
                                     <TableCell>
-                                        {id ??
-                                            "—"}
+
+                                        <Chip
+                                            label={
+                                                productId ??
+                                                "—"
+                                            }
+                                            size="small"
+                                            variant="outlined"
+                                        />
+
                                     </TableCell>
+
+
+                                    {/* SELLER ID */}
+
+                                    <TableCell>
+
+                                        <Chip
+                                            label={
+                                                sellerId
+                                            }
+                                            size="small"
+                                            color="primary"
+                                            variant="outlined"
+                                        />
+
+                                    </TableCell>
+
+
+                                    {/* CUSTOMER ID */}
+
+                                    <TableCell>
+
+                                        <Chip
+                                            label={
+                                                customerId
+                                            }
+                                            size="small"
+                                            color="secondary"
+                                            variant="outlined"
+                                        />
+
+                                    </TableCell>
+
 
                                     {/* PRODUCT */}
 
@@ -709,7 +893,10 @@ const CatalogTable = ({
 
                                         <Typography
                                             variant="body2"
-                                            fontWeight="medium"
+                                            fontWeight="600"
+                                            sx={{
+                                                minWidth: 220,
+                                            }}
                                         >
                                             {
                                                 productName
@@ -717,6 +904,7 @@ const CatalogTable = ({
                                         </Typography>
 
                                     </TableCell>
+
 
                                     {/* SKU */}
 
@@ -733,6 +921,7 @@ const CatalogTable = ({
 
                                     </TableCell>
 
+
                                     {/* BRAND */}
 
                                     <TableCell>
@@ -741,41 +930,50 @@ const CatalogTable = ({
                                         }
                                     </TableCell>
 
+
                                     {/* CATEGORY */}
 
                                     <TableCell>
-                                        {
-                                            categoryName
-                                        }
+
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                minWidth: 160,
+                                            }}
+                                        >
+                                            {
+                                                categoryName
+                                            }
+                                        </Typography>
+
                                     </TableCell>
 
-                                    {/* CUSTOMER */}
-
-                                    <TableCell>
-                                        {
-                                            customerName
-                                        }
-                                    </TableCell>
 
                                     {/* PRICE */}
 
                                     <TableCell
                                         align="right"
                                     >
-                                        {formatPrice(
-                                            price
-                                        )}
+                                        {
+                                            formatPrice(
+                                                price
+                                            )
+                                        }
                                     </TableCell>
+
 
                                     {/* STOCK */}
 
                                     <TableCell
                                         align="center"
                                     >
-                                        {renderStock(
-                                            stock
-                                        )}
+                                        {
+                                            renderStock(
+                                                stock
+                                            )
+                                        }
                                     </TableCell>
+
 
                                     {/* STATUS */}
 
@@ -788,14 +986,17 @@ const CatalogTable = ({
                                                 status
                                             }
 
-                                            color={getStatusColor(
-                                                status
-                                            )}
+                                            color={
+                                                getStatusColor(
+                                                    status
+                                                )
+                                            }
 
                                             size="small"
                                         />
 
                                     </TableCell>
+
 
                                     {/* ACTIONS */}
 
@@ -817,15 +1018,15 @@ const CatalogTable = ({
                                                 gap: 0.3,
 
                                                 flexWrap:
-                                                    "nowrap"
+                                                    "nowrap",
                                             }}
                                         >
 
-                                            {/* =================================
-                                                VIEW
-                                            ================================= */}
+                                            {/* VIEW */}
 
-                                            <Tooltip title="View Product">
+                                            <Tooltip
+                                                title="View Product"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -843,11 +1044,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                EDIT
-                                            ================================= */}
 
-                                            <Tooltip title="Edit Product">
+                                            {/* EDIT */}
+
+                                            <Tooltip
+                                                title="Edit Product"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -865,11 +1067,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                IMAGES
-                                            ================================= */}
 
-                                            <Tooltip title="Product Images">
+                                            {/* IMAGES */}
+
+                                            <Tooltip
+                                                title="Product Images"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -887,11 +1090,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                ATTRIBUTES
-                                            ================================= */}
 
-                                            <Tooltip title="Product Attributes">
+                                            {/* ATTRIBUTES */}
+
+                                            <Tooltip
+                                                title="Product Attributes"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -909,11 +1113,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                REVIEWS
-                                            ================================= */}
 
-                                            <Tooltip title="Product Reviews">
+                                            {/* REVIEWS */}
+
+                                            <Tooltip
+                                                title="Product Reviews"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -931,11 +1136,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                RELATED PRODUCTS
-                                            ================================= */}
 
-                                            <Tooltip title="Related Products">
+                                            {/* RELATED */}
+
+                                            <Tooltip
+                                                title="Related Products"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -953,11 +1159,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                MARKETPLACE
-                                            ================================= */}
 
-                                            <Tooltip title="Marketplace">
+                                            {/* MARKETPLACE */}
+
+                                            <Tooltip
+                                                title="Marketplace"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -975,11 +1182,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                PUBLISH
-                                            ================================= */}
 
-                                            <Tooltip title="Publish Product">
+                                            {/* PUBLISH */}
+
+                                            <Tooltip
+                                                title="Publish Product"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -997,11 +1205,12 @@ const CatalogTable = ({
 
                                             </Tooltip>
 
-                                            {/* =================================
-                                                DELETE
-                                            ================================= */}
 
-                                            <Tooltip title="Delete Product">
+                                            {/* DELETE */}
+
+                                            <Tooltip
+                                                title="Delete Product"
+                                            >
 
                                                 <IconButton
                                                     size="small"
@@ -1039,5 +1248,6 @@ const CatalogTable = ({
     );
 
 };
+
 
 export default CatalogTable;

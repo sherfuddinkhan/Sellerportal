@@ -1,179 +1,142 @@
-import React from "react";
+// =========================================================
+// CatalogSearch.jsx
+// =========================================================
+
+import React, { useState } from "react";
+
 import {
-  Grid,
-  TextField,
-  MenuItem,
-  InputAdornment,
-  Button,
-  Paper,
+    Box,
+    Button,
+    Paper,
+    TextField,
+    Typography,
 } from "@mui/material";
 
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
-const CatalogSearch = ({
-  filters,
-  onChange,
-  onSearch,
-  onClear,
-}) => {
-  return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 2,
-        mb: 3,
-        borderRadius: 2,
-      }}
-    >
-      <Grid container spacing={2}>
-        {/* Search */}
-        <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Search Catalog"
-            name="search"
-            value={filters.search || ""}
-            onChange={onChange}
-            placeholder="Catalog Name / SKU / Product..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
+// =========================================================
+// COMPONENT
+// =========================================================
+
+const CatalogSearch = () => {
+    const [search, setSearch] = useState("");
+
+    const handleSearch = () => {
+        console.log("Catalog search:", search);
+    };
+
+    const handleClear = () => {
+        setSearch("");
+    };
+
+    return (
+        <Box
+            sx={{
+                width: "100%",
+                p: 3,
             }}
-          />
-        </Grid>
+        >
+            {/* =====================================================
+                HEADER
+               ===================================================== */}
 
-        {/* Category */}
-        <Grid item xs={12} md={2}>
-          <TextField
-            select
-            fullWidth
-            label="Category"
-            name="category"
-            value={filters.category || ""}
-            onChange={onChange}
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="Electronics">
-              Electronics
-            </MenuItem>
-            <MenuItem value="Fashion">
-              Fashion
-            </MenuItem>
-            <MenuItem value="Home">
-              Home
-            </MenuItem>
-            <MenuItem value="Books">
-              Books
-            </MenuItem>
-          </TextField>
-        </Grid>
+            <Box sx={{ mb: 3 }}>
+                <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                >
+                    Search Catalogs
+                </Typography>
 
-        {/* Brand */}
-        <Grid item xs={12} md={2}>
-          <TextField
-            select
-            fullWidth
-            label="Brand"
-            name="brand"
-            value={filters.brand || ""}
-            onChange={onChange}
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="Apple">Apple</MenuItem>
-            <MenuItem value="Samsung">
-              Samsung
-            </MenuItem>
-            <MenuItem value="Sony">Sony</MenuItem>
-            <MenuItem value="Dell">Dell</MenuItem>
-          </TextField>
-        </Grid>
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                >
+                    Search catalog records
+                </Typography>
+            </Box>
 
-        {/* Status */}
-        <Grid item xs={12} md={2}>
-          <TextField
-            select
-            fullWidth
-            label="Status"
-            name="status"
-            value={filters.status || ""}
-            onChange={onChange}
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="Active">
-              Active
-            </MenuItem>
-            <MenuItem value="Inactive">
-              Inactive
-            </MenuItem>
-            <MenuItem value="Draft">
-              Draft
-            </MenuItem>
-            <MenuItem value="Published">
-              Published
-            </MenuItem>
-          </TextField>
-        </Grid>
+            {/* =====================================================
+                SEARCH
+               ===================================================== */}
 
-        {/* Visibility */}
-        <Grid item xs={12} md={2}>
-          <TextField
-            select
-            fullWidth
-            label="Visibility"
-            name="visibility"
-            value={filters.visibility || ""}
-            onChange={onChange}
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="Public">
-              Public
-            </MenuItem>
-            <MenuItem value="Private">
-              Private
-            </MenuItem>
-            <MenuItem value="Hidden">
-              Hidden
-            </MenuItem>
-          </TextField>
-        </Grid>
+            <Paper
+                elevation={0}
+                sx={{
+                    p: 3,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 2,
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                    }}
+                >
+                    <TextField
+                        fullWidth
+                        label="Search Catalog"
+                        placeholder="Enter catalog name..."
+                        value={search}
+                        onChange={(e) =>
+                            setSearch(
+                                e.target.value
+                            )
+                        }
+                        onKeyDown={(e) => {
+                            if (
+                                e.key === "Enter"
+                            ) {
+                                handleSearch();
+                            }
+                        }}
+                        sx={{
+                            flex: 1,
+                            minWidth: 250,
+                        }}
+                    />
 
-        {/* Buttons */}
-        <Grid item xs={12}>
-          <Grid
-            container
-            spacing={2}
-            justifyContent="flex-end"
-          >
-            <Grid item>
-              <Button
-                variant="contained"
-                startIcon={<FilterAltIcon />}
-                onClick={onSearch}
-              >
-                Search
-              </Button>
-            </Grid>
+                    <Button
+                        variant="contained"
+                        startIcon={<SearchIcon />}
+                        onClick={handleSearch}
+                    >
+                        Search
+                    </Button>
 
-            <Grid item>
-              <Button
-                variant="outlined"
-                color="secondary"
-                startIcon={<ClearIcon />}
-                onClick={onClear}
-              >
-                Clear
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-    </Paper>
-  );
+                    <Button
+                        variant="outlined"
+                        startIcon={<ClearIcon />}
+                        onClick={handleClear}
+                    >
+                        Clear
+                    </Button>
+                </Box>
+
+                {/* =================================================
+                    SEARCH VALUE
+                   ================================================= */}
+
+                {search && (
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 2 }}
+                    >
+                        Searching for:{" "}
+                        <strong>
+                            {search}
+                        </strong>
+                    </Typography>
+                )}
+            </Paper>
+        </Box>
+    );
 };
 
 export default CatalogSearch;
