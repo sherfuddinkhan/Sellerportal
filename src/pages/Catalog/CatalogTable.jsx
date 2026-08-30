@@ -1077,11 +1077,11 @@ const CatalogTable = ({
                                                 <IconButton
                                                     size="small"
                                                     color="info"
-                                                    onClick={() =>
-                                                        onImages?.(
-                                                            catalog
-                                                        )
-                                                    }
+                                                  onClick={() => {
+    console.log("IMAGES CLICKED", catalog);
+    console.log("onImages:", onImages);
+    onImages?.(catalog);
+}}
                                                 >
                                                     <Image
                                                         fontSize="small"
@@ -1100,11 +1100,11 @@ const CatalogTable = ({
                                                 <IconButton
                                                     size="small"
                                                     color="secondary"
-                                                    onClick={() =>
-                                                        onAttributes?.(
-                                                            catalog
-                                                        )
-                                                    }
+                                                   onClick={() => {
+    console.log("ATTRIBUTES CLICKED", catalog);
+    console.log("onAttributes:", onAttributes);
+    onAttributes?.(catalog);
+}}
                                                 >
                                                     <Tune
                                                         fontSize="small"
@@ -1123,11 +1123,11 @@ const CatalogTable = ({
                                                 <IconButton
                                                     size="small"
                                                     color="success"
-                                                    onClick={() =>
-                                                        onReviews?.(
-                                                            catalog
-                                                        )
-                                                    }
+                                                  onClick={() => {
+    console.log("REVIEWS CLICKED", catalog);
+    console.log("onReviews:", onReviews);
+    onReviews?.(catalog);
+}}
                                                 >
                                                     <Reviews
                                                         fontSize="small"
@@ -1169,11 +1169,11 @@ const CatalogTable = ({
                                                 <IconButton
                                                     size="small"
                                                     color="secondary"
-                                                    onClick={() =>
-                                                        onMarketplace?.(
-                                                            catalog
-                                                        )
-                                                    }
+                                                    onClick={() => {
+    console.log("MARKETPLACE CLICKED", catalog);
+    console.log("onMarketplace:", onMarketplace);
+    onMarketplace?.(catalog);
+}}
                                                 >
                                                     <Store
                                                         fontSize="small"

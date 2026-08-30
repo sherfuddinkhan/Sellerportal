@@ -843,41 +843,58 @@ const url = `https://localhost:7203/api/catalog/products` + `?sellerId=${encodeU
     // PRODUCT IMAGES
     // =====================================================
 
-    const handleProductImages =
-        useCallback(
-            (product) => {
+    const handleProductImages = useCallback(
+    (product) => {
 
-                const context =
-                    validateProductContext(
-                        product
-                    );
+        console.log("================================");
+        console.log("PRODUCT IMAGES CLICKED");
+        console.log("Product:", product);
 
-                if (!context) {
-                    return;
-                }
+        const context =
+            validateProductContext(product);
 
+        console.log("Validated Context:", context);
 
-                const {
-                    productId,
-                    sellerId,
-                    customerId,
-                } = context;
+        if (!context) {
+            console.error(
+                "Product context validation FAILED"
+            );
+            return;
+        }
 
+        const {
+            productId,
+            sellerId,
+            customerId,
+        } = context;
 
-                navigate(
-                    `/catalog/${productId}/images` +
-                    buildQuery(
-                        sellerId,
-                        customerId
-                    )
-                );
-            },
-            [
-                validateProductContext,
-                buildQuery,
-                navigate,
-            ]
-        );
+        console.log("Product ID:", productId);
+        console.log("Seller ID:", sellerId);
+        console.log("Customer ID:", customerId);
+
+        const query =
+            buildQuery(
+                sellerId,
+                customerId
+            );
+
+        console.log("Query:", query);
+
+        const route =
+            `/catalog/${productId}/images` +
+            query;
+
+        console.log("Navigating to:", route);
+
+        navigate(route);
+
+    },
+    [
+        validateProductContext,
+        buildQuery,
+        navigate,
+    ]
+);
 
 
     // =====================================================
@@ -1324,14 +1341,7 @@ const url = `https://localhost:7203/api/catalog/products` + `?sellerId=${encodeU
 
                     return;
                 }
-
-
-                navigate(
-                    `/catalog/latest` +
-                    buildQuery(
-                        catalogSellerId,
-                        catalogCustomerId
-                    )
+                navigate(`/catalog/latest` +buildQuery(catalogSellerId,catalogCustomerId)
                 );
             },
             [
@@ -1355,21 +1365,10 @@ const url = `https://localhost:7203/api/catalog/products` + `?sellerId=${encodeU
                     catalogSellerId === null ||
                     catalogCustomerId === null
                 ) {
-
-                    setError(
-                        "Seller ID and Customer ID are required."
-                    );
-
+                    setError( "Seller ID and Customer ID are required.");
                     return;
                 }
-
-
-                navigate(
-                    `/catalog/featured` +
-                    buildQuery(
-                        catalogSellerId,
-                        catalogCustomerId
-                    )
+                navigate(`/catalog/featured` +buildQuery(catalogSellerId,catalogCustomerId)
                 );
             },
             [
@@ -1393,21 +1392,10 @@ const url = `https://localhost:7203/api/catalog/products` + `?sellerId=${encodeU
                     catalogSellerId === null ||
                     catalogCustomerId === null
                 ) {
-
-                    setError(
-                        "Seller ID and Customer ID are required."
-                    );
-
+                    setError("Seller ID and Customer ID are required.");
                     return;
                 }
-
-
-                navigate(
-                    `/catalog/toprated` +
-                    buildQuery(
-                        catalogSellerId,
-                        catalogCustomerId
-                    )
+                navigate(`/catalog/toprated` +buildQuery(catalogSellerId,catalogCustomerId)
                 );
             },
             [
@@ -1431,22 +1419,10 @@ const url = `https://localhost:7203/api/catalog/products` + `?sellerId=${encodeU
                     catalogSellerId === null ||
                     catalogCustomerId === null
                 ) {
-
-                    setError(
-                        "Seller ID and Customer ID are required."
-                    );
-
+                    setError("Seller ID and Customer ID are required.");
                     return;
                 }
-
-
-                navigate(
-                    `/catalog/bestsellers` +
-                    buildQuery(
-                        catalogSellerId,
-                        catalogCustomerId
-                    )
-                );
+                navigate(`/catalog/bestsellers` +buildQuery(catalogSellerId,catalogCustomerId));
             },
             [
                 catalogSellerId,

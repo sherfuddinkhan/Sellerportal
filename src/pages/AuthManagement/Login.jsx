@@ -31,15 +31,24 @@ import {
 import "./AuthManagement.css";
 
 
+// =========================================================
+// API CONFIGURATION
+// =========================================================
+
 const API_URL = "http://localhost:5000/api";
 
+
+// =========================================================
+// LOGIN COMPONENT
+// =========================================================
 
 const Login = () => {
 
     const navigate = useNavigate();
 
+
     // =========================================================
-    // FORM DATA
+    // STATE
     // =========================================================
 
     const [formData, setFormData] = useState({
@@ -49,11 +58,16 @@ const Login = () => {
     });
 
 
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword] =
+        useState(false);
 
-    const [loading, setLoading] = useState(false);
 
-    const [error, setError] = useState("");
+    const [loading, setLoading] =
+        useState(false);
+
+
+    const [error, setError] =
+        useState("");
 
 
     // =========================================================
@@ -69,8 +83,9 @@ const Login = () => {
             type
         } = e.target;
 
-        setFormData((prev) => ({
-            ...prev,
+
+        setFormData((previous) => ({
+            ...previous,
 
             [name]:
                 type === "checkbox"
@@ -82,7 +97,6 @@ const Login = () => {
 
     // =========================================================
     // LOGIN
-    // POST http://localhost:5000/api/auth/login
     // =========================================================
 
     const handleSubmit = async (e) => {
@@ -91,13 +105,16 @@ const Login = () => {
 
         setError("");
 
+
         // =====================================================
         // VALIDATION
         // =====================================================
 
         if (!formData.userName.trim()) {
 
-            setError("Please enter your username.");
+            setError(
+                "Please enter your username."
+            );
 
             return;
         }
@@ -105,7 +122,9 @@ const Login = () => {
 
         if (!formData.password) {
 
-            setError("Please enter your password.");
+            setError(
+                "Please enter your password."
+            );
 
             return;
         }
@@ -116,63 +135,171 @@ const Login = () => {
             setLoading(true);
 
 
-            console.log("LOGIN REQUEST:");
+            console.log(
+                "=========================================="
+            );
 
-            console.log({
-                userName: formData.userName,
-                password: formData.password
-            });
+            console.log(
+                "LOGIN REQUEST"
+            );
+
+            console.log(
+                "Username:",
+                formData.userName.trim()
+            );
 
 
             // =================================================
-            // CALL NODE PROXY
+            // NODE API
+            // =================================================
+            //
+            // React:
+            // http://localhost:5173
+            //
+            // Node:
+            // http://localhost:5000
+            //
+            // Route:
+            // /api/AuthManagement/login
+            //
             // =================================================
 
             const response = await fetch(
-                `${API_URL}/auth/login`,
+                `${API_URL}/AuthManagement/login`,
                 {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
+                        "Content-Type":
+                            "application/json",
+
+                        Accept:
+                            "application/json"
                     },
 
                     body: JSON.stringify({
-                        userName: formData.userName.trim(),
-                        password: formData.password
+                        userName:
+                            formData.userName.trim(),
+
+                        password:
+                            formData.password
                     })
                 }
             );
 
 
             // =================================================
-            // READ RESPONSE
+            // RESPONSE INFORMATION
             // =================================================
 
-            const data = await response.json();
+            console.log(
+                "HTTP STATUS:",
+                response.status
+            );
 
+            console.log(
+                "HTTP STATUS TEXT:",
+                response.statusText
+            );
 
-            console.log("LOGIN RESPONSE:");
-
-            console.log(data);
+            console.log(
+                "CONTENT TYPE:",
+                response.headers.get(
+                    "content-type"
+                )
+            );
 
 
             // =================================================
-            // CHECK ERROR
+            // READ RESPONSE AS TEXT
+            // =================================================
+            //
+            // We read text first so JSON.parse errors
+            // cannot hide the actual backend response.
+            //
+            // =================================================
+
+            const responseText =
+                await response.text();
+
+
+            console.log(
+                "RAW SERVER RESPONSE:",
+                responseText
+            );
+
+
+            // =================================================
+            // PARSE JSON
+            // =================================================
+
+            let data = null;
+
+
+            if (responseText) {
+
+                try {
+
+                    data =
+                        JSON.parse(
+                            responseText
+                        );
+
+                } catch (jsonError) {
+
+                    console.error(
+                        "JSON PARSE ERROR:",
+                        jsonError
+                    );
+
+
+                    throw new Error(
+                        response.ok
+                            ? "Server returned an invalid response."
+                            : `Server returned HTTP ${response.status}: ${responseText}`
+                    );
+                }
+            }
+
+
+            // =================================================
+            // HTTP ERROR
             // =================================================
 
             if (!response.ok) {
 
                 throw new Error(
                     data?.message ||
-                    "Invalid username or password."
+                    data?.error ||
+                    `Login failed. HTTP ${response.status}.`
                 );
             }
 
 
             // =================================================
-            // SAVE TOKEN
+            // EMPTY RESPONSE
+            // =================================================
+
+            if (!data) {
+
+                throw new Error(
+                    "Login succeeded but the server returned an empty response."
+                );
+            }
+
+
+            // =================================================
+            // LOG LOGIN RESPONSE
+            // =================================================
+
+            console.log(
+                "LOGIN RESPONSE:",
+                data
+            );
+
+
+            // =================================================
+            // TOKEN
             // =================================================
 
             if (data?.token) {
@@ -185,7 +312,7 @@ const Login = () => {
 
 
             // =================================================
-            // SAVE REFRESH TOKEN
+            // REFRESH TOKEN
             // =================================================
 
             if (data?.refreshToken) {
@@ -198,25 +325,37 @@ const Login = () => {
 
 
             // =================================================
-            // SAVE USER
+            // USER
             // =================================================
 
             if (data?.user) {
 
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(data.user)
+                    JSON.stringify(
+                        data.user
+                    )
                 );
             }
 
 
             // =================================================
-            // SAVE COMPLETE LOGIN RESPONSE
+            // COMPLETE LOGIN RESPONSE
             // =================================================
 
             localStorage.setItem(
                 "loginResponse",
                 JSON.stringify(data)
+            );
+
+
+            // =================================================
+            // AUTHENTICATION FLAG
+            // =================================================
+
+            localStorage.setItem(
+                "isAuthenticated",
+                "true"
             );
 
 
@@ -240,7 +379,7 @@ const Login = () => {
 
 
             // =================================================
-            // LOGIN SUCCESS
+            // SUCCESS
             // =================================================
 
             console.log(
@@ -248,32 +387,48 @@ const Login = () => {
             );
 
 
-          // 1. Your authentication logic here (e.g., API call)
-    // 2. Set token/auth state in localStorage or context
-    localStorage.setItem("isAuthenticated", "true");
+            console.log(
+                "REDIRECTING TO DASHBOARD"
+            );
 
-    // 3. Redirect to Dashboard (which renders inside MainLayout)
-    navigate("/dashboard", { replace: true });
+
+            // =================================================
+            // REDIRECT
+            // =================================================
+
+            navigate(
+                "/dashboard",
+                {
+                    replace: true
+                }
+            );
 
 
         } catch (err) {
+
+            console.error(
+                "=========================================="
+            );
 
             console.error(
                 "LOGIN ERROR:",
                 err
             );
 
+            console.error(
+                "=========================================="
+            );
+
 
             setError(
                 err?.message ||
-                "Unable to login. Please try again."
+                "Unable to connect to server. Please try again."
             );
 
 
         } finally {
 
             setLoading(false);
-
         }
     };
 
@@ -332,7 +487,12 @@ const Login = () => {
 
                         <Alert
                             severity="error"
-                            sx={{ mb: 2 }}
+                            sx={{
+                                mb: 2
+                            }}
+                            onClose={() =>
+                                setError("")
+                            }
                         >
                             {error}
                         </Alert>
@@ -344,7 +504,11 @@ const Login = () => {
                         LOGIN FORM
                     ================================================= */}
 
-                    <form onSubmit={handleSubmit}>
+                    <Box
+                        component="form"
+                        onSubmit={handleSubmit}
+                        noValidate
+                    >
 
                         {/* =================================================
                             USERNAME
@@ -355,8 +519,12 @@ const Login = () => {
                             margin="normal"
                             label="Username"
                             name="userName"
-                            value={formData.userName}
-                            onChange={handleChange}
+                            value={
+                                formData.userName
+                            }
+                            onChange={
+                                handleChange
+                            }
                             required
                             autoComplete="username"
                         />
@@ -376,24 +544,36 @@ const Login = () => {
                                     ? "text"
                                     : "password"
                             }
-                            value={formData.password}
-                            onChange={handleChange}
+                            value={
+                                formData.password
+                            }
+                            onChange={
+                                handleChange
+                            }
                             required
                             autoComplete="current-password"
 
                             InputProps={{
                                 endAdornment: (
 
-                                    <InputAdornment position="end">
+                                    <InputAdornment
+                                        position="end"
+                                    >
 
                                         <IconButton
                                             type="button"
+                                            edge="end"
+                                            aria-label={
+                                                showPassword
+                                                    ? "Hide password"
+                                                    : "Show password"
+                                            }
                                             onClick={() =>
                                                 setShowPassword(
-                                                    (prev) => !prev
+                                                    (previous) =>
+                                                        !previous
                                                 )
                                             }
-                                            edge="end"
                                         >
 
                                             {showPassword ? (
@@ -415,7 +595,7 @@ const Login = () => {
 
 
                         {/* =================================================
-                            REMEMBER + FORGOT PASSWORD
+                            REMEMBER ME + FORGOT PASSWORD
                         ================================================= */}
 
                         <Box
@@ -426,7 +606,6 @@ const Login = () => {
                         >
 
                             <FormControlLabel
-
                                 control={
 
                                     <Checkbox
@@ -440,7 +619,6 @@ const Login = () => {
                                     />
 
                                 }
-
                                 label="Remember Me"
                             />
 
@@ -464,7 +642,9 @@ const Login = () => {
                             fullWidth
                             variant="contained"
                             size="large"
-                            sx={{ mt: 3 }}
+                            sx={{
+                                mt: 3
+                            }}
                             type="submit"
                             disabled={loading}
                         >
@@ -508,7 +688,7 @@ const Login = () => {
 
                         </Typography>
 
-                    </form>
+                    </Box>
 
                 </CardContent>
 

@@ -349,7 +349,7 @@ const normalizeCatalog = (catalog) => {
 
 
         // ---------------------------------------------
-        // KEEP ORIGINAL API OBJECT
+        // KEEP ORIGINAL API DATA
         // ---------------------------------------------
 
         ...catalog,
@@ -386,6 +386,9 @@ const CatalogList = () => {
 
     const [rowsPerPage, setRowsPerPage] =
         useState(10);
+
+    const [selectedIds, setSelectedIds] =
+        useState([]);
 
 
     // =====================================================
@@ -485,10 +488,6 @@ const CatalogList = () => {
                 }
 
 
-                // =================================================
-                // RESPONSE
-                // =================================================
-
                 const data =
                     await response.json();
 
@@ -498,10 +497,6 @@ const CatalogList = () => {
                     data
                 );
 
-
-                // =================================================
-                // EXTRACT ARRAY
-                // =================================================
 
                 const catalogData =
                     extractCatalogData(data);
@@ -513,16 +508,6 @@ const CatalogList = () => {
                 );
 
 
-                console.log(
-                    "Catalog Count:",
-                    catalogData.length
-                );
-
-
-                // =================================================
-                // NORMALIZE ALL RECORDS
-                // =================================================
-
                 const mappedCatalogs =
                     catalogData.map(
                         normalizeCatalog
@@ -530,77 +515,16 @@ const CatalogList = () => {
 
 
                 console.log(
-                    "========================================"
-                );
-
-                console.log(
-                    "MAPPED CATALOG DATA"
-                );
-
-                console.log(
-                    "========================================"
-                );
-
-
-                mappedCatalogs.forEach(
-                    (catalog) => {
-
-                        console.log(
-                            {
-                                productId:
-                                    catalog.productId,
-
-                                sellerId:
-                                    catalog.sellerId,
-
-                                customerId:
-                                    catalog.customerId,
-
-                                productName:
-                                    catalog.productName,
-
-                                sku:
-                                    catalog.sku,
-
-                                brandName:
-                                    catalog.brandName,
-
-                                categoryName:
-                                    catalog.categoryName,
-
-                                productType:
-                                    catalog.productType,
-
-                                price:
-                                    catalog.price,
-
-                                offerPrice:
-                                    catalog.offerPrice,
-
-                                stockQuantity:
-                                    catalog.stockQuantity,
-
-                                isAvailable:
-                                    catalog.isAvailable,
-
-                                rating:
-                                    catalog.rating,
-
-                                reviewCount:
-                                    catalog.reviewCount,
-
-                                primaryImage:
-                                    catalog.primaryImage,
-                            }
-                        );
-
-                    }
+                    "MAPPED CATALOG DATA:",
+                    mappedCatalogs
                 );
 
 
                 setCatalogs(
                     mappedCatalogs
                 );
+
+                setSelectedIds([]);
 
                 setPage(0);
 
@@ -646,350 +570,886 @@ const CatalogList = () => {
 
 
     // =====================================================
-    // VIEW
+    // BUILD QUERY
     // =====================================================
 
-    const handleView = (
-        catalog
-    ) => {
-
-        const productId =
-            getProductId(catalog);
-
-        const sellerId =
-            getSellerId(catalog);
-
-        const customerId =
-            getCustomerId(catalog);
-
-
-        console.log(
-            "VIEW CATALOG CONTEXT:",
-            {
-                productId,
-                sellerId,
-                customerId,
-            }
-        );
-
-
-        if (!productId) {
-
-            setError(
-                "Product ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        if (!sellerId) {
-
-            setError(
-                "Seller ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        if (!customerId) {
-
-            setError(
-                "Customer ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        const params =
-            new URLSearchParams();
-
-
-        params.set(
-            "sellerId",
-            sellerId
-        );
-
-
-        params.set(
-            "customerId",
+    const buildQuery = useCallback(
+        (
+            sellerId,
             customerId
-        );
-
-
-        navigate(
-            `/catalog/products?${params.toString()}`
-        );
-
-    };
-
-
-    // =====================================================
-    // EDIT
-    // =====================================================
-
-    const handleEdit = (
-        catalog
-    ) => {
-
-        const productId =
-            getProductId(catalog);
-
-        const sellerId =
-            getSellerId(catalog);
-
-        const customerId =
-            getCustomerId(catalog);
-
-
-        if (!productId) {
-
-            setError(
-                "Product ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        if (!sellerId) {
-
-            setError(
-                "Seller ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        if (!customerId) {
-
-            setError(
-                "Customer ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        const params =
-            new URLSearchParams();
-
-
-        params.set(
-            "sellerId",
-            sellerId
-        );
-
-
-        params.set(
-            "customerId",
-            customerId
-        );
-
-
-        navigate(
-            `/catalog/${productId}/edit?${params.toString()}`
-        );
-
-    };
-
-
-    // =====================================================
-    // DELETE
-    // =====================================================
-
-    const handleDelete = async (
-        catalog
-    ) => {
-
-        const productId =
-            getProductId(catalog);
-
-        const sellerId =
-            getSellerId(catalog);
-
-        const customerId =
-            getCustomerId(catalog);
-
-        const productName =
-            getProductName(catalog);
-
-
-        console.log(
-            "DELETE CATALOG CONTEXT:",
-            {
-                productId,
-                sellerId,
-                customerId,
-            }
-        );
-
-
-        if (!productId) {
-
-            setError(
-                "Product ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        if (!sellerId) {
-
-            setError(
-                "Seller ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        if (!customerId) {
-
-            setError(
-                "Customer ID is missing."
-            );
-
-            return;
-
-        }
-
-
-        const confirmed =
-            window.confirm(
-                `Are you sure you want to delete "${productName}"?`
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-
-
-        try {
-
-            setLoading(true);
-
-            setError("");
-
+        ) => {
 
             const params =
                 new URLSearchParams();
 
 
-            params.set(
-                "sellerId",
-                sellerId
-            );
+            if (
+                sellerId !== null &&
+                sellerId !== undefined
+            ) {
 
-
-            params.set(
-                "customerId",
-                customerId
-            );
-
-
-            const url =
-                `${API_URL}/${productId}?${params.toString()}`;
-
-
-            console.log(
-                "DELETE:",
-                url
-            );
-
-
-            const response =
-                await fetch(
-                    url,
-                    {
-                        method: "DELETE",
-
-                        headers: {
-                            Accept:
-                                "application/json",
-                        },
-                    }
-                );
-
-
-            console.log(
-                "Delete HTTP Status:",
-                response.status
-            );
-
-
-            if (!response.ok) {
-
-                let errorMessage =
-                    `Delete failed: HTTP ${response.status}`;
-
-
-                try {
-
-                    const errorData =
-                        await response.json();
-
-
-                    errorMessage =
-                        errorData?.message ||
-                        errorData?.title ||
-                        errorData?.error ||
-                        errorMessage;
-
-                }
-                catch {
-
-                    console.error(
-                        "Delete API returned non-JSON response."
-                    );
-
-                }
-
-
-                throw new Error(
-                    errorMessage
+                params.set(
+                    "sellerId",
+                    sellerId
                 );
 
             }
 
 
-            await loadCatalogs();
+            if (
+                customerId !== null &&
+                customerId !== undefined
+            ) {
 
-        }
-        catch (err) {
+                params.set(
+                    "customerId",
+                    customerId
+                );
 
-            console.error(
-                "Catalog delete error:",
-                err
-            );
+            }
 
 
-            setError(
-                err?.message ||
-                "Unable to delete catalog product."
-            );
+            const query =
+                params.toString();
 
-        }
-        finally {
 
-            setLoading(false);
+            return query
+                ? `?${query}`
+                : "";
 
-        }
+        },
+        []
+    );
 
-    };
+
+    // =====================================================
+    // VALIDATE PRODUCT CONTEXT
+    // =====================================================
+
+    const validateProductContext =
+        useCallback(
+            (product) => {
+
+                if (!product) {
+
+                    setError(
+                        "Product information is missing."
+                    );
+
+                    return null;
+
+                }
+
+
+                const productId =
+                    getProductId(product);
+
+
+                const sellerId =
+                    getSellerId(product);
+
+
+                const customerId =
+                    getCustomerId(product);
+
+
+                console.log(
+                    "VALIDATING PRODUCT CONTEXT:",
+                    {
+                        productId,
+                        sellerId,
+                        customerId,
+                    }
+                );
+
+
+                if (
+                    productId === null ||
+                    productId === undefined
+                ) {
+
+                    setError(
+                        "Product ID is missing."
+                    );
+
+                    return null;
+
+                }
+
+
+                if (
+                    sellerId === null ||
+                    sellerId === undefined
+                ) {
+
+                    setError(
+                        "Seller ID is missing."
+                    );
+
+                    return null;
+
+                }
+
+
+                if (
+                    customerId === null ||
+                    customerId === undefined
+                ) {
+
+                    setError(
+                        "Customer ID is missing."
+                    );
+
+                    return null;
+
+                }
+
+
+                return {
+                    productId,
+                    sellerId,
+                    customerId,
+                };
+
+            },
+            []
+        );
+
+
+    // =====================================================
+    // VIEW PRODUCT
+    // =====================================================
+
+    const handleView =
+        useCallback(
+            (product) => {
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                const query =
+                    buildQuery(
+                        sellerId,
+                        customerId
+                    );
+
+
+                console.log(
+                    "VIEW PRODUCT:",
+                    product
+                );
+
+
+                navigate(
+                    `/catalog/products${query}`
+                );
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                navigate,
+            ]
+        );
+
+
+    // =====================================================
+    // EDIT PRODUCT
+    // =====================================================
+
+    const handleEdit =
+        useCallback(
+            (product) => {
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                console.log(
+                    "EDIT PRODUCT:",
+                    context
+                );
+
+
+                navigate(
+                    `/catalog/${productId}/edit` +
+                    buildQuery(
+                        sellerId,
+                        customerId
+                    )
+                );
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                navigate,
+            ]
+        );
+
+
+    // =====================================================
+    // PRODUCT IMAGES
+    // =====================================================
+
+    const handleProductImages =
+        useCallback(
+            (product) => {
+
+                console.log(
+                    "========================================"
+                );
+
+                console.log(
+                    "PRODUCT IMAGES CLICKED"
+                );
+
+                console.log(
+                    "Product:",
+                    product
+                );
+
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                const query =
+                    buildQuery(
+                        sellerId,
+                        customerId
+                    );
+
+
+                const route =
+                    `/catalog/${productId}/images` +
+                    query;
+
+
+                console.log(
+                    "IMAGES NAVIGATION:",
+                    route
+                );
+
+
+                navigate(
+                    route
+                );
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                navigate,
+            ]
+        );
+
+
+    // =====================================================
+    // PRODUCT ATTRIBUTES
+    // =====================================================
+
+    const handleProductAttributes =
+        useCallback(
+            (product) => {
+
+                console.log(
+                    "========================================"
+                );
+
+                console.log(
+                    "PRODUCT ATTRIBUTES CLICKED"
+                );
+
+                console.log(
+                    "Product:",
+                    product
+                );
+
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                const route =
+                    `/catalog/${productId}/attributes` +
+                    buildQuery(
+                        sellerId,
+                        customerId
+                    );
+
+
+                console.log(
+                    "ATTRIBUTES NAVIGATION:",
+                    route
+                );
+
+
+                navigate(
+                    route
+                );
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                navigate,
+            ]
+        );
+
+
+    // =====================================================
+    // PRODUCT REVIEWS
+    // =====================================================
+
+    const handleProductReviews =
+        useCallback(
+            (product) => {
+
+                console.log(
+                    "========================================"
+                );
+
+                console.log(
+                    "PRODUCT REVIEWS CLICKED"
+                );
+
+                console.log(
+                    "Product:",
+                    product
+                );
+
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                const route =
+                    `/catalog/${productId}/reviews` +
+                    buildQuery(
+                        sellerId,
+                        customerId
+                    );
+
+
+                console.log(
+                    "REVIEWS NAVIGATION:",
+                    route
+                );
+
+
+                navigate(
+                    route
+                );
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                navigate,
+            ]
+        );
+
+
+    // =====================================================
+    // RELATED PRODUCTS
+    // =====================================================
+
+    const handleRelatedProducts =
+        useCallback(
+            (product) => {
+
+                console.log(
+                    "RELATED PRODUCTS CLICKED:",
+                    product
+                );
+
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                const route =
+                    `/catalog/${productId}/related` +
+                    buildQuery(
+                        sellerId,
+                        customerId
+                    );
+
+
+                console.log(
+                    "RELATED NAVIGATION:",
+                    route
+                );
+
+
+                navigate(
+                    route
+                );
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                navigate,
+            ]
+        );
+
+
+    // =====================================================
+    // MARKETPLACE
+    // =====================================================
+
+    const handleMarketplace =
+        useCallback(
+            (product) => {
+
+                console.log(
+                    "========================================"
+                );
+
+                console.log(
+                    "MARKETPLACE CLICKED"
+                );
+
+                console.log(
+                    "Product:",
+                    product
+                );
+
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                const route =
+                    `/catalog/${productId}/marketplace` +
+                    buildQuery(
+                        sellerId,
+                        customerId
+                    );
+
+
+                console.log(
+                    "MARKETPLACE NAVIGATION:",
+                    route
+                );
+
+
+                navigate(
+                    route
+                );
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                navigate,
+            ]
+        );
+
+
+    // =====================================================
+    // PUBLISH PRODUCT
+    // =====================================================
+
+    const handlePublishProduct =
+        useCallback(
+            async (product) => {
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                console.log(
+                    "PUBLISH PRODUCT:",
+                    context
+                );
+
+
+                const confirmed =
+                    window.confirm(
+                        `Publish product #${productId}?`
+                    );
+
+
+                if (!confirmed) {
+                    return;
+                }
+
+
+                try {
+
+                    setLoading(true);
+
+                    setError("");
+
+
+                    const query =
+                        buildQuery(
+                            sellerId,
+                            customerId
+                        );
+
+
+                    const url =
+                        `${API_URL}/${productId}/publish${query}`;
+
+
+                    console.log(
+                        "PUBLISH:",
+                        url
+                    );
+
+
+                    const response =
+                        await fetch(
+                            url,
+                            {
+                                method: "PUT",
+
+                                headers: {
+                                    Accept:
+                                        "application/json",
+                                },
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        let errorMessage =
+                            `Publish failed: HTTP ${response.status}`;
+
+
+                        try {
+
+                            const data =
+                                await response.json();
+
+
+                            errorMessage =
+                                data?.message ||
+                                data?.title ||
+                                data?.error ||
+                                errorMessage;
+
+                        }
+                        catch {
+                            // Non JSON response
+                        }
+
+
+                        throw new Error(
+                            errorMessage
+                        );
+
+                    }
+
+
+                    await loadCatalogs();
+
+                }
+                catch (err) {
+
+                    console.error(
+                        "Publish error:",
+                        err
+                    );
+
+
+                    setError(
+                        err?.message ||
+                        "Unable to publish product."
+                    );
+
+                }
+                finally {
+
+                    setLoading(false);
+
+                }
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                loadCatalogs,
+            ]
+        );
+
+
+    // =====================================================
+    // DELETE PRODUCT
+    // =====================================================
+
+    const handleDelete =
+        useCallback(
+            async (product) => {
+
+                const context =
+                    validateProductContext(
+                        product
+                    );
+
+
+                if (!context) {
+                    return;
+                }
+
+
+                const {
+                    productId,
+                    sellerId,
+                    customerId,
+                } = context;
+
+
+                const productName =
+                    getProductName(
+                        product
+                    );
+
+
+                const confirmed =
+                    window.confirm(
+                        `Are you sure you want to delete "${productName}"?`
+                    );
+
+
+                if (!confirmed) {
+                    return;
+                }
+
+
+                try {
+
+                    setLoading(true);
+
+                    setError("");
+
+
+                    const query =
+                        buildQuery(
+                            sellerId,
+                            customerId
+                        );
+
+
+                    const url =
+                        `${API_URL}/${productId}${query}`;
+
+
+                    console.log(
+                        "DELETE:",
+                        url
+                    );
+
+
+                    const response =
+                        await fetch(
+                            url,
+                            {
+                                method: "DELETE",
+
+                                headers: {
+                                    Accept:
+                                        "application/json",
+                                },
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        let errorMessage =
+                            `Delete failed: HTTP ${response.status}`;
+
+
+                        try {
+
+                            const errorData =
+                                await response.json();
+
+
+                            errorMessage =
+                                errorData?.message ||
+                                errorData?.title ||
+                                errorData?.error ||
+                                errorMessage;
+
+                        }
+                        catch {
+                            // Non JSON response
+                        }
+
+
+                        throw new Error(
+                            errorMessage
+                        );
+
+                    }
+
+
+                    await loadCatalogs();
+
+                }
+                catch (err) {
+
+                    console.error(
+                        "Catalog delete error:",
+                        err
+                    );
+
+
+                    setError(
+                        err?.message ||
+                        "Unable to delete catalog product."
+                    );
+
+                }
+                finally {
+
+                    setLoading(false);
+
+                }
+
+            },
+            [
+                validateProductContext,
+                buildQuery,
+                loadCatalogs,
+            ]
+        );
+
+
+    // =====================================================
+    // SELECTION
+    // =====================================================
+
+    const handleSelectionChange =
+        useCallback(
+            (ids) => {
+
+                setSelectedIds(
+                    ids
+                );
+
+            },
+            []
+        );
 
 
     // =====================================================
@@ -1073,10 +1533,14 @@ const CatalogList = () => {
                 (catalog) => {
 
                     const sellerId =
-                        getSellerId(catalog);
+                        getSellerId(
+                            catalog
+                        );
 
                     const customerId =
-                        getCustomerId(catalog);
+                        getCustomerId(
+                            catalog
+                        );
 
 
                     if (
@@ -1118,7 +1582,7 @@ const CatalogList = () => {
 
 
     // =====================================================
-    // LOADING
+    // LOADING SCREEN
     // =====================================================
 
     if (
@@ -1215,8 +1679,7 @@ const CatalogList = () => {
                             mb: 1.5,
                         }}
                     >
-                        Catalog Seller / Customer
-                        Context
+                        Catalog Seller / Customer Context
                     </Typography>
 
 
@@ -1286,9 +1749,82 @@ const CatalogList = () => {
             ================================================= */}
 
             <CatalogToolbar
+
+                selectedCount={
+                    selectedIds.length
+                }
+
+                onAdd={() =>
+                    navigate(
+                        "/catalog/create"
+                    )
+                }
+
                 onRefresh={
                     loadCatalogs
                 }
+
+                onFilter={() =>
+                    console.log(
+                        "Catalog Filter clicked"
+                    )
+                }
+
+                onImport={() =>
+                    console.log(
+                        "Catalog Import clicked"
+                    )
+                }
+
+                onExportExcel={() =>
+                    console.log(
+                        "Export Excel clicked"
+                    )
+                }
+
+                onExportPDF={() =>
+                    console.log(
+                        "Export PDF clicked"
+                    )
+                }
+
+                onPrint={() =>
+                    window.print()
+                }
+
+                onPublish={() => {
+
+                    console.log(
+                        "Publish Selected:",
+                        selectedIds
+                    );
+
+                }}
+
+                onUnpublish={() => {
+
+                    console.log(
+                        "Unpublish Selected:",
+                        selectedIds
+                    );
+
+                }}
+
+                onDeleteSelected={() => {
+
+                    console.log(
+                        "Delete Selected:",
+                        selectedIds
+                    );
+
+                }}
+
+                onToggleView={() =>
+                    console.log(
+                        "Toggle View clicked"
+                    )
+                }
+
             />
 
 
@@ -1344,8 +1880,7 @@ const CatalogList = () => {
                                     mt: 1,
                                 }}
                             >
-                                No catalog products are
-                                currently available.
+                                No catalog products are currently available.
                             </Typography>
 
                         </Box>
@@ -1373,6 +1908,32 @@ const CatalogList = () => {
 
 
                     // -----------------------------------------
+                    // CONTEXT
+                    // -----------------------------------------
+
+                    sellerId={
+                        null
+                    }
+
+                    customerId={
+                        null
+                    }
+
+
+                    // -----------------------------------------
+                    // SELECTION
+                    // -----------------------------------------
+
+                    selectedIds={
+                        selectedIds
+                    }
+
+                    onSelectionChange={
+                        handleSelectionChange
+                    }
+
+
+                    // -----------------------------------------
                     // PRODUCT ACTIONS
                     // -----------------------------------------
 
@@ -1382,6 +1943,30 @@ const CatalogList = () => {
 
                     onEdit={
                         handleEdit
+                    }
+
+                    onImages={
+                        handleProductImages
+                    }
+
+                    onAttributes={
+                        handleProductAttributes
+                    }
+
+                    onReviews={
+                        handleProductReviews
+                    }
+
+                    onRelated={
+                        handleRelatedProducts
+                    }
+
+                    onMarketplace={
+                        handleMarketplace
+                    }
+
+                    onPublish={
+                        handlePublishProduct
                     }
 
                     onDelete={

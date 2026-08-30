@@ -941,15 +941,31 @@ function App() {
             PRODUCTS
         =================================================== */}
 
-        <Route path="products" element={<Products />} />
-        <Route path="products/list" element={<ProductList />} />
-        <Route path="products/create" element={<ProductCreate />} />
-        <Route path="products/:id" element={<ProductDetails />} />
-        <Route path="products/:id/edit" element={<ProductEdit />} />
-        <Route path="products/view/:id" element={<ProductView />} />
-        <Route path="products/search" element={<ProductSearch />} />
-        <Route path="products/filters" element={<ProductFilters />} />
-        <Route path="products/statistics" element={<ProductStatistics />} />
+
+<Route path="products" element={<Products />} />
+<Route path="products/list" element={<ProductList />} />
+<Route path="products/create" element={<ProductCreate />} />
+
+{/* Product details */}
+<Route path="products/:id" element={<ProductDetails />} />
+
+{/* Product edit - recommended */}
+<Route path="products/:id/edit" element={<ProductEdit />} />
+
+{/* Product edit - also support /products/edit/:id */}
+<Route path="products/edit/:id" element={<ProductEdit />} />
+
+{/* Product view */}
+<Route path="products/view/:id" element={<ProductView />} />
+
+{/* Product search */}
+<Route path="products/search" element={<ProductSearch />} />
+
+{/* Product filters */}
+<Route path="products/filters" element={<ProductFilters />} />
+
+{/* Product statistics */}
+<Route path="products/statistics" element={<ProductStatistics />} />
 
 
         {/* ===================================================
