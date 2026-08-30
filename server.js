@@ -2171,6 +2171,528 @@ app.get(
         }
     }
 );
+// =========================================================
+// SELLER ROUTES
+// Node.js → ASP.NET Core
+//
+// ASP.NET Base:
+// https://localhost:7203/api/sellers
+//
+// Node Base:
+// http://localhost:5000/api/sellers
+// =========================================================
+
+
+// =========================================================
+// GET SELLER LIST
+//
+// PURPOSE:
+// Used by dropdowns / selection controls.
+//
+// React:
+// GET /api/sellers/list
+//
+// ASP.NET:
+// GET /api/sellers/list
+//
+// RESPONSE:
+//
+// [
+//     {
+//         "sellerId": 1,
+//         "sellerName": "ABC Traders"
+//     },
+//     {
+//         "sellerId": 2,
+//         "sellerName": "XYZ Electronics"
+//     }
+// ]
+// =========================================================
+
+app.get(
+    "/api/sellers/list",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET SELLER LIST"
+            );
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/sellers/list`,
+
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "SELLER LIST STATUS:",
+                response.status
+            );
+
+            console.log(
+                "SELLER LIST:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET SELLER LIST ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET SELLER LIST"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET ALL SELLERS
+//
+// React:
+// GET /api/sellers
+//
+// ASP.NET:
+// GET /api/sellers
+//
+// Supported:
+//
+// /api/sellers
+// /api/sellers?search=john
+// /api/sellers?status=active
+// /api/sellers?sort=seller_name
+// /api/sellers?page=1&limit=15
+// =========================================================
+
+app.get(
+    "/api/sellers",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET ALL SELLERS"
+            );
+
+            console.log(
+                "SELLER QUERY:",
+                req.query
+            );
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/sellers`,
+
+                    {
+                        params:
+                            req.query,
+
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "SELLER STATUS:",
+                response.status
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET ALL SELLERS"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET SELLER BY ID
+//
+// React:
+// GET /api/sellers/1
+//
+// ASP.NET:
+// GET /api/sellers/1
+// =========================================================
+
+app.get(
+    "/api/sellers/:id",
+    async (req, res) => {
+
+        const { id } =
+            req.params;
+
+        try {
+
+            console.log(
+                "GET SELLER BY ID:",
+                id
+            );
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/sellers/${encodeURIComponent(id)}`,
+
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "SELLER BY ID STATUS:",
+                response.status
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET SELLER ${id}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET SELLER STATISTICS
+//
+// React:
+// GET /api/sellers/stats
+//
+// ASP.NET:
+// GET /api/sellers/stats
+// =========================================================
+
+app.get(
+    "/api/sellers/stats",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET SELLER STATISTICS"
+            );
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/sellers/stats`,
+
+                    {
+                        params:
+                            req.query,
+
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "SELLER STATISTICS:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET SELLER STATISTICS"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// CREATE SELLER
+//
+// React:
+// POST /api/sellers
+//
+// ASP.NET:
+// POST /api/sellers
+// =========================================================
+
+app.post(
+    "/api/sellers",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "CREATE SELLER"
+            );
+
+            console.log(
+                "SELLER BODY:",
+                req.body
+            );
+
+            const response =
+                await axios.post(
+
+                    `${DOTNET_API}/sellers`,
+
+                    req.body,
+
+                    {
+                        httpsAgent,
+
+                        headers: {
+
+                            Accept:
+                                "application/json",
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "CREATE SELLER STATUS:",
+                response.status
+            );
+
+            console.log(
+                "CREATE SELLER RESPONSE:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "CREATE SELLER"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// UPDATE SELLER
+//
+// React:
+// PUT /api/sellers/1
+//
+// ASP.NET:
+// PUT /api/sellers/1
+// =========================================================
+
+app.put(
+    "/api/sellers/:id",
+    async (req, res) => {
+
+        const { id } =
+            req.params;
+
+        try {
+
+            console.log(
+                "UPDATE SELLER:",
+                id
+            );
+
+            console.log(
+                "UPDATE SELLER BODY:",
+                req.body
+            );
+
+            const response =
+                await axios.put(
+
+                    `${DOTNET_API}/sellers/${encodeURIComponent(id)}`,
+
+                    req.body,
+
+                    {
+                        httpsAgent,
+
+                        headers: {
+
+                            Accept:
+                                "application/json",
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "UPDATE SELLER STATUS:",
+                response.status
+            );
+
+            console.log(
+                "UPDATE SELLER RESPONSE:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `UPDATE SELLER ${id}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// DELETE SELLER
+//
+// React:
+// DELETE /api/sellers/1
+//
+// ASP.NET:
+// DELETE /api/sellers/1
+// =========================================================
+
+app.delete(
+    "/api/sellers/:id",
+    async (req, res) => {
+
+        const { id } =
+            req.params;
+
+        try {
+
+            console.log(
+                "DELETE SELLER:",
+                id
+            );
+
+            const response =
+                await axios.delete(
+
+                    `${DOTNET_API}/sellers/${encodeURIComponent(id)}`,
+
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "DELETE SELLER STATUS:",
+                response.status
+            );
+
+            if (
+                response.data === undefined ||
+                response.data === null
+            ) {
+
+                return res
+                    .status(response.status)
+                    .send();
+            }
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `DELETE SELLER ${id}`
+            );
+        }
+    }
+);
 
 // =========================================================
 // =========================================================

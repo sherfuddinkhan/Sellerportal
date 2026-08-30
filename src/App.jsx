@@ -246,6 +246,17 @@ import OrderItemTable from "./pages/OrderItems/OrderItemTable";
 import OrderItemToolbar from "./pages/OrderItems/OrderItemToolbar";
 import OrderItemView from "./pages/OrderItems/OrderItemView";
 
+//////////////// seller ////////////////////////////
+import SellerList from "./pages/Seller/SellerList";
+import SellerForm from "./pages/Seller/SellerForm";
+import SellerView from "./pages/Seller/SellerView";
+import SellerTable from "./pages/Seller/SellerTable";
+import SellerSearch from "./pages/Seller/SellerSearch";
+import SellerFilters from "./pages/Seller/SellerFilters";
+import SellerToolbar from "./pages/Seller/SellerToolbar";
+import SellerStatistics from "./pages/Seller/SellerStatistics";
+import SellerPagination from "./pages/Seller/SellerPagination";
+
 // =========================================================
 // ORDER STATUS HISTORY
 // =========================================================
@@ -748,6 +759,31 @@ function App() {
 />
 {/* Catalog Route */}
         <Route path="catalog" element={<Catalog />} />
+
+
+        {/* =========================================================
+    SELLER ROUTES
+========================================================= */}
+
+<Route
+    path="/sellers"
+    element={<SellerList />}
+/>
+
+<Route
+    path="/sellers/create"
+    element={<SellerForm />}
+/>
+
+<Route
+    path="/sellers/edit/:id"
+    element={<SellerForm />}
+/>
+
+<Route
+    path="/sellers/view/:id"
+    element={<SellerView />}
+/>
         {/* ===================================================
             CATEGORIES
         =================================================== */}

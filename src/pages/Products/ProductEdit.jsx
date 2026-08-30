@@ -1,32 +1,26 @@
 // =========================================================
 // ProductEdit.jsx
 // Marketplace Seller Portal
-// Product Management
-// Uses server.js proxy
+// Edit Product Page
+// Uses server.js directly
 // =========================================================
 
 import React, { useEffect, useState } from "react";
-
 import {
-    Alert,
     Box,
     CircularProgress,
     Paper,
+    Typography,
+    Alert,
     Snackbar,
-    Typography
 } from "@mui/material";
 
-import axios from "axios";
-
-import {
-    useNavigate,
-    useParams
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import ProductForm from "./ProductForm";
 
 // =========================================================
-// SERVER URL
+// NODE SERVER
 // =========================================================
 
 const SERVER_URL = "http://localhost:5000";
@@ -39,11 +33,12 @@ const ProductEdit = () => {
 
     const navigate = useNavigate();
 
+    // IMPORTANT:
+    // This must match your React route:
+    //
+    // /products/edit/:id
+    //
     const { id } = useParams();
-
-    // =====================================================
-    // STATE
-    // =====================================================
 
     const [product, setProduct] = useState(null);
 
@@ -53,11 +48,12 @@ const ProductEdit = () => {
     const [loading, setLoading] =
         useState(false);
 
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        severity: "success",
-        message: ""
-    });
+    const [snackbar, setSnackbar] =
+        useState({
+            open: false,
+            severity: "success",
+            message: "",
+        });
 
     // =====================================================
     // LOAD PRODUCT
@@ -67,10 +63,14 @@ const ProductEdit = () => {
 
         if (!id) {
 
+            console.error(
+                "Product ID is missing."
+            );
+
             setSnackbar({
                 open: true,
                 severity: "error",
-                message: "Product ID is missing."
+                message: "Product ID is missing.",
             });
 
             setPageLoading(false);
@@ -93,32 +93,59 @@ const ProductEdit = () => {
             setPageLoading(true);
 
             console.log(
-                "Loading Product:",
+                "Loading Product ID:",
                 id
             );
 
-            const response = await axios.get(
-                `${SERVER_URL}/api/products/${id}`
+            // IMPORTANT:
+            // Use /api/products/:id
+            //
+            // because your server.js contains:
+            //
+            // app.get("/api/products/:id")
+
+            const response = await fetch(
+                `${SERVER_URL}/api/products/${encodeURIComponent(id)}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Accept:
+                            "application/json",
+                    },
+                }
             );
 
             console.log(
-                "Product API Response:",
-                response.data
+                "Product response status:",
+                response.status
             );
 
-            // -------------------------------------------------
-            // Handle different possible response structures
-            // -------------------------------------------------
+            if (!response.ok) {
 
-            const data =
-                response.data?.data ??
-                response.data?.product ??
-                response.data;
+                const errorText =
+                    await response.text();
 
-            if (!data) {
+                console.error(
+                    "Product API error:",
+                    errorText
+                );
 
                 throw new Error(
-                    "Product data was not returned by server."
+                    `Unable to load product. HTTP ${response.status}`
+                );
+            }
+
+            const data =
+                await response.json();
+
+            console.log(
+                "Product response:",
+                data
+            );
+
+            if (!data) {
+                throw new Error(
+                    "Product data is empty."
                 );
             }
 
@@ -128,61 +155,30 @@ const ProductEdit = () => {
         catch (error) {
 
             console.error(
-                "Load Product Error:",
+                "Product loading error:",
                 error
             );
-
-            console.error(
-                "Response:",
-                error.response?.data
-            );
-
-            let message =
-                "Unable to load Product.";
-
-            if (error.response?.status === 404) {
-
-                message =
-                    `Product ${id} was not found.`;
-
-            }
-            else if (
-                error.response?.data?.message
-            ) {
-
-                message =
-                    error.response.data.message;
-
-            }
-            else if (error.message) {
-
-                message =
-                    error.message;
-
-            }
 
             setSnackbar({
                 open: true,
                 severity: "error",
-                message
+                message:
+                    error.message ||
+                    "Unable to load Product.",
             });
 
         }
         finally {
 
             setPageLoading(false);
-
         }
-
     };
 
     // =====================================================
     // UPDATE PRODUCT
     // =====================================================
 
-    const handleUpdate = async (
-        values
-    ) => {
+    const handleUpdate = async (values) => {
 
         try {
 
@@ -194,30 +190,55 @@ const ProductEdit = () => {
             );
 
             console.log(
-                "Update Payload:",
+                "Update payload:",
                 values
             );
 
-            const response = await axios.put(
-                `${SERVER_URL}/api/products/${id}`,
-                values
+            const response = await fetch(
+                `${SERVER_URL}/api/products/${encodeURIComponent(id)}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        Accept:
+                            "application/json",
+                    },
+
+                    body:
+                        JSON.stringify(values),
+                }
             );
 
             console.log(
-                "Update Response:",
-                response.data
+                "Update status:",
+                response.status
             );
+
+            if (!response.ok) {
+
+                const errorText =
+                    await response.text();
+
+                console.error(
+                    "Update error:",
+                    errorText
+                );
+
+                throw new Error(
+                    errorText ||
+                    `Unable to update Product. HTTP ${response.status}`
+                );
+            }
 
             setSnackbar({
                 open: true,
                 severity: "success",
                 message:
-                    "Product updated successfully."
+                    "Product updated successfully.",
             });
-
-            // -------------------------------------------------
-            // Return to product list
-            // -------------------------------------------------
 
             setTimeout(() => {
 
@@ -229,58 +250,23 @@ const ProductEdit = () => {
         catch (error) {
 
             console.error(
-                "Update Product Error:",
+                "Product update error:",
                 error
             );
-
-            console.error(
-                "Response:",
-                error.response?.data
-            );
-
-            let message =
-                "Unable to update Product.";
-
-            if (
-                error.response?.data?.message
-            ) {
-
-                message =
-                    error.response.data.message;
-
-            }
-            else if (
-                error.response?.data?.title
-            ) {
-
-                message =
-                    error.response.data.title;
-
-            }
 
             setSnackbar({
                 open: true,
                 severity: "error",
-                message
+                message:
+                    error.message ||
+                    "Unable to update Product.",
             });
 
         }
         finally {
 
             setLoading(false);
-
         }
-
-    };
-
-    // =====================================================
-    // CANCEL
-    // =====================================================
-
-    const handleCancel = () => {
-
-        navigate("/products");
-
     };
 
     // =====================================================
@@ -290,41 +276,32 @@ const ProductEdit = () => {
     if (pageLoading) {
 
         return (
-
             <Box
                 sx={{
-                    width: "100%",
-                    minHeight: "400px",
+                    minHeight: 400,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 2,
                 }}
             >
 
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 2
-                    }}
+                <CircularProgress />
+
+                <Typography>
+                    Loading Product...
+                </Typography>
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
                 >
-
-                    <CircularProgress />
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
-                        Loading Product...
-                    </Typography>
-
-                </Box>
+                    Product ID: {id || "Missing"}
+                </Typography>
 
             </Box>
-
         );
-
     }
 
     // =====================================================
@@ -334,54 +311,69 @@ const ProductEdit = () => {
     if (!product) {
 
         return (
+            <Box sx={{ p: 3 }}>
 
-            <Paper
-                sx={{
-                    p: 4,
-                    textAlign: "center"
-                }}
-            >
+                <Paper sx={{ p: 3 }}>
 
-                <Typography
-                    variant="h6"
-                    color="error"
-                    gutterBottom
+                    <Typography
+                        variant="h5"
+                        fontWeight="bold"
+                        mb={2}
+                    >
+                        Unable to load Product
+                    </Typography>
+
+                    <Alert
+                        severity="error"
+                        sx={{ mb: 2 }}
+                    >
+                        Product ID:{" "}
+                        {id || "Missing"}
+                    </Alert>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            navigate("/products")
+                        }
+                    >
+                        ← Back to Products
+                    </button>
+
+                </Paper>
+
+                <Snackbar
+                    open={snackbar.open}
+                    autoHideDuration={4000}
+                    onClose={() =>
+                        setSnackbar({
+                            ...snackbar,
+                            open: false,
+                        })
+                    }
                 >
-                    Unable to load Product
-                </Typography>
+                    <Alert
+                        severity={
+                            snackbar.severity
+                        }
+                        variant="filled"
+                    >
+                        {snackbar.message}
+                    </Alert>
+                </Snackbar>
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    Product ID: {id}
-                </Typography>
-
-            </Paper>
-
+            </Box>
         );
-
     }
 
     // =====================================================
-    // RENDER
+    // PAGE
     // =====================================================
 
     return (
+        <Box sx={{ p: 3 }}>
 
-        <Box sx={{ width: "100%" }}>
-
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 3,
-                    width: "100%"
-                }}
-            >
-
-                {/* =================================================
-                    HEADER
-                ================================================= */}
+            <Paper sx={{ p: 3 }}>
 
                 <Typography
                     variant="h5"
@@ -391,57 +383,37 @@ const ProductEdit = () => {
                     Edit Product
                 </Typography>
 
-                {/* =================================================
-                    PRODUCT FORM
-                ================================================= */}
-
                 <ProductForm
                     initialValues={product}
                     loading={loading}
                     onSubmit={handleUpdate}
-                    onCancel={handleCancel}
+                    onCancel={() =>
+                        navigate("/products")
+                    }
                 />
 
             </Paper>
 
-            {/* =====================================================
-                SNACKBAR
-            ===================================================== */}
-
             <Snackbar
                 open={snackbar.open}
-                autoHideDuration={4000}
+                autoHideDuration={3000}
                 onClose={() =>
                     setSnackbar({
                         ...snackbar,
-                        open: false
+                        open: false,
                     })
                 }
-                anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right"
-                }}
             >
-
                 <Alert
                     severity={snackbar.severity}
                     variant="filled"
-                    onClose={() =>
-                        setSnackbar({
-                            ...snackbar,
-                            open: false
-                        })
-                    }
                 >
                     {snackbar.message}
                 </Alert>
-
             </Snackbar>
 
         </Box>
-
     );
-
 };
 
 export default ProductEdit;

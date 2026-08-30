@@ -42,9 +42,6 @@ const ProductTable = ({
     products = [],
     loading = false,
 
-    onView,
-    onViewBySKU,
-    onEdit,
     onDelete,
 
     onSellerProducts,
@@ -60,28 +57,6 @@ const ProductTable = ({
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedRow, setSelectedRow] = React.useState(null);
-
-    // =====================================================
-    // OPEN ACTION MENU
-    // =====================================================
-
-    const handleMenuOpen = (event, row) => {
-
-        event.stopPropagation();
-
-        setAnchorEl(event.currentTarget);
-        setSelectedRow(row);
-    };
-
-    // =====================================================
-    // CLOSE ACTION MENU
-    // =====================================================
-
-    const handleMenuClose = () => {
-
-        setAnchorEl(null);
-        setSelectedRow(null);
-    };
 
     // =====================================================
     // SAFE VALUE
@@ -119,28 +94,6 @@ const ProductTable = ({
         );
 
     // =====================================================
-    // SKU
-    // =====================================================
-
-    const getSKU = (row) =>
-        getValue(
-            row,
-            "sku",
-            "SKU"
-        );
-
-    // =====================================================
-    // PRODUCT NAME
-    // =====================================================
-
-    const getProductName = (row) =>
-        getValue(
-            row,
-            "productName",
-            "ProductName"
-        );
-
-    // =====================================================
     // SELLER ID
     // =====================================================
 
@@ -160,6 +113,28 @@ const ProductTable = ({
             row,
             "customerId",
             "CustomerId"
+        );
+
+    // =====================================================
+    // SKU
+    // =====================================================
+
+    const getSKU = (row) =>
+        getValue(
+            row,
+            "sku",
+            "SKU"
+        );
+
+    // =====================================================
+    // PRODUCT NAME
+    // =====================================================
+
+    const getProductName = (row) =>
+        getValue(
+            row,
+            "productName",
+            "ProductName"
         );
 
     // =====================================================
@@ -196,7 +171,7 @@ const ProductTable = ({
         );
 
     // =====================================================
-    // IS ACTIVE
+    // ACTIVE STATUS
     // =====================================================
 
     const isActive = (row) => {
@@ -216,61 +191,78 @@ const ProductTable = ({
     };
 
     // =====================================================
-    // RUN CALLBACK ACTION
+    // OPEN MENU
     // =====================================================
 
-    const runAction = (callback, ...args) => {
+    const handleMenuOpen = (event, row) => {
 
-        handleMenuClose();
+        event.stopPropagation();
 
-        if (typeof callback === "function") {
-            callback(...args);
-        }
+        setAnchorEl(event.currentTarget);
+        setSelectedRow(row);
+    };
+
+    // =====================================================
+    // CLOSE MENU
+    // =====================================================
+
+    const handleMenuClose = () => {
+
+        setAnchorEl(null);
+        setSelectedRow(null);
     };
 
     // =====================================================
     // VIEW PRODUCT
+    //
+    // IMPORTANT:
+    // This ALWAYS redirects to a PAGE.
+    // It does NOT call onView.
     // =====================================================
 
     const handleView = () => {
 
-        const id = getProductId(selectedRow);
+        const productId =
+            getProductId(selectedRow);
 
         handleMenuClose();
 
-        if (!id) {
-            return;
-        }
-
-        if (typeof onView === "function") {
-            onView(selectedRow);
-            return;
-        }
-
-        navigate(`/products/view/${id}`);
-    };
-
-    // =====================================================
-    // VIEW PRODUCT BY SKU
-    // =====================================================
-
-    const handleViewBySKU = () => {
-
-        const sku = getSKU(selectedRow);
-
-        handleMenuClose();
-
-        if (!sku) {
-            return;
-        }
-
-        if (typeof onViewBySKU === "function") {
-            onViewBySKU(selectedRow);
+        if (!productId) {
+            console.error(
+                "Product ID is missing:",
+                selectedRow
+            );
             return;
         }
 
         navigate(
-            `/products/search?sku=${encodeURIComponent(sku)}`
+            `/products/view/${productId}`
+        );
+    };
+
+    // =====================================================
+    // VIEW BY SKU
+    // =====================================================
+
+    const handleViewBySKU = () => {
+
+        const sku =
+            getSKU(selectedRow);
+
+        handleMenuClose();
+
+        if (!sku) {
+            console.error(
+                "SKU is missing:",
+                selectedRow
+            );
+            return;
+        }
+
+        navigate(
+            `/products/search?sku=${encodeURIComponent(
+                sku
+            )}`
         );
     };
 
@@ -278,26 +270,21 @@ const ProductTable = ({
     // EDIT PRODUCT
     // =====================================================
 
-    const handleEdit = () => {
+const handleEdit = () => {
+    const id = getProductId(selectedRow);
 
-        const id = getProductId(selectedRow);
+    console.log("Selected row:", selectedRow);
+    console.log("Product ID:", id);
 
-        handleMenuClose();
+    handleMenuClose();
 
-        if (!id) {
-            return;
-        }
+    if (!id || String(id) === ":id") {
+        console.error("Invalid Product ID:", id);
+        return;
+    }
 
-        if (typeof onEdit === "function") {
-            onEdit(selectedRow);
-            return;
-        }
-
-        // IMPORTANT:
-        // App.jsx uses /products/edit/:id
-
-        navigate(`/products/edit/${id}`);
-    };
+    navigate(`/products/edit/${id}`);
+};
 
     // =====================================================
     // SELLER PRODUCTS
@@ -311,10 +298,17 @@ const ProductTable = ({
         handleMenuClose();
 
         if (!sellerId) {
+            console.error(
+                "Seller ID is missing:",
+                selectedRow
+            );
             return;
         }
 
-        if (typeof onSellerProducts === "function") {
+        if (
+            typeof onSellerProducts ===
+            "function"
+        ) {
             onSellerProducts(selectedRow);
             return;
         }
@@ -336,10 +330,17 @@ const ProductTable = ({
         handleMenuClose();
 
         if (!customerId) {
+            console.error(
+                "Customer ID is missing:",
+                selectedRow
+            );
             return;
         }
 
-        if (typeof onCustomerProducts === "function") {
+        if (
+            typeof onCustomerProducts ===
+            "function"
+        ) {
             onCustomerProducts(selectedRow);
             return;
         }
@@ -364,6 +365,12 @@ const ProductTable = ({
         handleMenuClose();
 
         if (!sellerId || !customerId) {
+
+            console.error(
+                "Seller ID or Customer ID missing:",
+                selectedRow
+            );
+
             return;
         }
 
@@ -371,7 +378,9 @@ const ProductTable = ({
             typeof onSellerCustomerProducts ===
             "function"
         ) {
-            onSellerCustomerProducts(selectedRow);
+            onSellerCustomerProducts(
+                selectedRow
+            );
             return;
         }
 
@@ -392,10 +401,17 @@ const ProductTable = ({
         handleMenuClose();
 
         if (!brandId) {
+            console.error(
+                "Brand ID is missing:",
+                selectedRow
+            );
             return;
         }
 
-        if (typeof onBrandProducts === "function") {
+        if (
+            typeof onBrandProducts ===
+            "function"
+        ) {
             onBrandProducts(selectedRow);
             return;
         }
@@ -417,10 +433,17 @@ const ProductTable = ({
         handleMenuClose();
 
         if (!categoryId) {
+            console.error(
+                "Category ID is missing:",
+                selectedRow
+            );
             return;
         }
 
-        if (typeof onCategoryProducts === "function") {
+        if (
+            typeof onCategoryProducts ===
+            "function"
+        ) {
             onCategoryProducts(selectedRow);
             return;
         }
@@ -442,6 +465,10 @@ const ProductTable = ({
         handleMenuClose();
 
         if (!productTypeId) {
+            console.error(
+                "Product Type ID is missing:",
+                selectedRow
+            );
             return;
         }
 
@@ -469,7 +496,10 @@ const ProductTable = ({
 
         handleMenuClose();
 
-        if (typeof onStatusProducts === "function") {
+        if (
+            typeof onStatusProducts ===
+            "function"
+        ) {
             onStatusProducts(selectedRow);
             return;
         }
@@ -480,10 +510,118 @@ const ProductTable = ({
     };
 
     // =====================================================
+    // DELETE
+    // =====================================================
+
+    const handleDelete = () => {
+
+        const row = selectedRow;
+
+        handleMenuClose();
+
+        if (
+            typeof onDelete ===
+            "function"
+        ) {
+            onDelete(row);
+        }
+    };
+
+    // =====================================================
     // COLUMNS
     // =====================================================
 
     const columns = [
+
+        // =================================================
+        // PRODUCT ID
+        // =================================================
+
+        {
+            field: "productId",
+            headerName: "Product ID",
+            width: 110,
+            sortable: true,
+
+            renderCell: (params) => {
+
+                const value =
+                    getProductId(params.row);
+
+                return (
+                    <Box
+                        sx={{
+                            width: "100%",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                        }}
+                    >
+                        {value || "N/A"}
+                    </Box>
+                );
+            },
+        },
+
+        // =================================================
+        // SELLER ID
+        // =================================================
+
+        {
+            field: "sellerId",
+            headerName: "Seller ID",
+            width: 110,
+            sortable: true,
+
+            renderCell: (params) => {
+
+                const value =
+                    getSellerId(params.row);
+
+                return (
+                    <Box
+                        sx={{
+                            width: "100%",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                        }}
+                    >
+                        {value || "N/A"}
+                    </Box>
+                );
+            },
+        },
+
+        // =================================================
+        // CUSTOMER ID
+        // =================================================
+
+        {
+            field: "customerId",
+            headerName: "Customer ID",
+            width: 120,
+            sortable: true,
+
+            renderCell: (params) => {
+
+                const value =
+                    getCustomerId(params.row);
+
+                return (
+                    <Box
+                        sx={{
+                            width: "100%",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                        }}
+                    >
+                        {value || "N/A"}
+                    </Box>
+                );
+            },
+        },
 
         // =================================================
         // SKU
@@ -491,21 +629,22 @@ const ProductTable = ({
 
         {
             field: "sku",
-
             headerName: "SKU",
-
             width: 150,
-
             sortable: true,
 
             renderCell: (params) => {
 
-                const sku =
+                const value =
                     getSKU(params.row);
 
                 return (
-                    <Tooltip title={sku || "N/A"}>
-
+                    <Tooltip
+                        title={
+                            value ||
+                            "N/A"
+                        }
+                    >
                         <Box
                             sx={{
                                 width: "100%",
@@ -514,9 +653,8 @@ const ProductTable = ({
                                 whiteSpace: "nowrap",
                             }}
                         >
-                            {sku || "N/A"}
+                            {value || "N/A"}
                         </Box>
-
                     </Tooltip>
                 );
             },
@@ -528,21 +666,22 @@ const ProductTable = ({
 
         {
             field: "productName",
-
             headerName: "Product Name",
-
             width: 250,
-
             sortable: true,
 
             renderCell: (params) => {
 
-                const name =
+                const value =
                     getProductName(params.row);
 
                 return (
-                    <Tooltip title={name || "N/A"}>
-
+                    <Tooltip
+                        title={
+                            value ||
+                            "N/A"
+                        }
+                    >
                         <Box
                             sx={{
                                 width: "100%",
@@ -551,9 +690,8 @@ const ProductTable = ({
                                 whiteSpace: "nowrap",
                             }}
                         >
-                            {name || "N/A"}
+                            {value || "N/A"}
                         </Box>
-
                     </Tooltip>
                 );
             },
@@ -565,11 +703,8 @@ const ProductTable = ({
 
         {
             field: "isActive",
-
             headerName: "Status",
-
             width: 120,
-
             sortable: true,
 
             renderCell: (params) => {
@@ -601,21 +736,17 @@ const ProductTable = ({
 
         {
             field: "actions",
-
             headerName: "Actions",
-
             width: 100,
-
             sortable: false,
-
             filterable: false,
-
             disableColumnMenu: true,
 
             renderCell: (params) => (
 
-                <Tooltip title="Product Actions">
-
+                <Tooltip
+                    title="Product Actions"
+                >
                     <IconButton
                         size="small"
                         color="primary"
@@ -628,7 +759,6 @@ const ProductTable = ({
                     >
                         <MoreVert />
                     </IconButton>
-
                 </Tooltip>
             ),
         },
@@ -654,7 +784,6 @@ const ProductTable = ({
             >
 
                 <DataGrid
-
                     rows={
                         Array.isArray(products)
                             ? products
@@ -688,7 +817,6 @@ const ProductTable = ({
                     }}
 
                     sx={{
-
                         width: "100%",
 
                         borderRadius: 2,
@@ -710,11 +838,8 @@ const ProductTable = ({
             ================================================= */}
 
             <Menu
-
                 anchorEl={anchorEl}
-
                 open={Boolean(anchorEl)}
-
                 onClose={handleMenuClose}
 
                 PaperProps={{
@@ -725,10 +850,12 @@ const ProductTable = ({
             >
 
                 {/* =================================================
-                    VIEW
+                    VIEW PRODUCT
                 ================================================= */}
 
-                <MenuItem onClick={handleView}>
+                <MenuItem
+                    onClick={handleView}
+                >
 
                     <Visibility
                         fontSize="small"
@@ -757,10 +884,12 @@ const ProductTable = ({
                 </MenuItem>
 
                 {/* =================================================
-                    EDIT
+                    EDIT PRODUCT
                 ================================================= */}
 
-                <MenuItem onClick={handleEdit}>
+                <MenuItem
+                    onClick={handleEdit}
+                >
 
                     <Edit
                         fontSize="small"
@@ -772,7 +901,7 @@ const ProductTable = ({
                 </MenuItem>
 
                 {/* =================================================
-                    FILTERS
+                    PRODUCT FILTERS
                 ================================================= */}
 
                 <MenuItem
@@ -854,7 +983,7 @@ const ProductTable = ({
                 </MenuItem>
 
                 {/* =================================================
-                    BRAND
+                    BRAND PRODUCTS
                 ================================================= */}
 
                 <MenuItem
@@ -873,7 +1002,7 @@ const ProductTable = ({
                 </MenuItem>
 
                 {/* =================================================
-                    CATEGORY
+                    CATEGORY PRODUCTS
                 ================================================= */}
 
                 <MenuItem
@@ -946,14 +1075,7 @@ const ProductTable = ({
                 ================================================= */}
 
                 <MenuItem
-
-                    onClick={() =>
-                        runAction(
-                            onDelete,
-                            selectedRow
-                        )
-                    }
-
+                    onClick={handleDelete}
                     sx={{
                         color: "error.main",
                     }}

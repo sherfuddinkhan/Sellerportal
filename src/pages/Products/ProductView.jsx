@@ -1,333 +1,623 @@
-import React from "react";
+// =========================================================
+// ProductView.jsx
+// Marketplace Seller Portal
+// Product Management
+// View Product Page
+// =========================================================
+
+import React, { useEffect, useState } from "react";
 
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
+    Alert,
+    Box,
+    CircularProgress,
+    Paper,
+    Snackbar,
     Typography,
+    Grid,
     Divider,
-    Chip
+    Button,
 } from "@mui/material";
 
-const ProductView = ({
-    open,
-    product,
-    onClose
-}) => {
+import {
+    ArrowBack,
+    Edit,
+} from "@mui/icons-material";
 
-    if (!product) return null;
+import {
+    useNavigate,
+    useParams,
+} from "react-router-dom";
 
-    const Field = ({ label, value }) => (
+import axios from "axios";
 
-        <Grid item xs={12} md={6}>
+// =========================================================
+// NODE SERVER
+// =========================================================
 
-            <Typography
-                variant="caption"
-                color="text.secondary"
+const SERVER_URL = "http://localhost:5000";
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
+const ProductView = () => {
+
+    const navigate = useNavigate();
+
+    // IMPORTANT:
+    // App.jsx route must be:
+    //
+    // /products/view/:id
+    //
+    // Therefore we use "id" here.
+
+    const { id } = useParams();
+
+    // =====================================================
+    // STATE
+    // =====================================================
+
+    const [product, setProduct] = useState(null);
+
+    const [loading, setLoading] = useState(true);
+
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        severity: "error",
+        message: "",
+    });
+
+    // =====================================================
+    // LOAD PRODUCT
+    // =====================================================
+
+    useEffect(() => {
+
+        if (!id || id === ":id") {
+
+            setSnackbar({
+                open: true,
+                severity: "error",
+                message: "Invalid Product ID.",
+            });
+
+            setLoading(false);
+
+            return;
+        }
+
+        loadProduct();
+
+    }, [id]);
+
+    // =====================================================
+    // GET PRODUCT BY ID
+    // =====================================================
+
+    const loadProduct = async () => {
+
+        try {
+
+            setLoading(true);
+
+            console.log(
+                "Loading Product ID:",
+                id
+            );
+
+            const response = await axios.get(
+                `${SERVER_URL}/api/Product/${encodeURIComponent(id)}`
+            );
+
+            console.log(
+                "Product Response:",
+                response.data
+            );
+
+            setProduct(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Unable to load Product:",
+                error
+            );
+
+            console.error(
+                "Response:",
+                error.response?.data
+            );
+
+            setSnackbar({
+                open: true,
+                severity: "error",
+                message:
+                    error.response?.data?.message ||
+                    error.response?.data ||
+                    "Unable to load Product.",
+            });
+
+        }
+        finally {
+
+            setLoading(false);
+        }
+    };
+
+    // =====================================================
+    // SAFE VALUE
+    // =====================================================
+
+    const getValue = (...keys) => {
+
+        if (!product) {
+            return "";
+        }
+
+        for (const key of keys) {
+
+            if (
+                product[key] !== undefined &&
+                product[key] !== null &&
+                product[key] !== ""
+            ) {
+                return product[key];
+            }
+        }
+
+        return "";
+    };
+
+    // =====================================================
+    // PRODUCT VALUES
+    // =====================================================
+
+    const productId =
+        getValue(
+            "productId",
+            "ProductId"
+        );
+
+    const sellerId =
+        getValue(
+            "sellerId",
+            "SellerId"
+        );
+
+    const customerId =
+        getValue(
+            "customerId",
+            "CustomerId"
+        );
+
+    const sku =
+        getValue(
+            "sku",
+            "SKU"
+        );
+
+    const productName =
+        getValue(
+            "productName",
+            "ProductName"
+        );
+
+    const description =
+        getValue(
+            "description",
+            "Description"
+        );
+
+    const brandId =
+        getValue(
+            "brandId",
+            "BrandId"
+        );
+
+    const categoryId =
+        getValue(
+            "categoryId",
+            "CategoryId"
+        );
+
+    const productTypeId =
+        getValue(
+            "productTypeId",
+            "ProductTypeId"
+        );
+
+    const isActiveValue =
+        getValue(
+            "isActive",
+            "IsActive"
+        );
+
+    const isActive =
+        isActiveValue === true ||
+        isActiveValue === 1 ||
+        isActiveValue === "true" ||
+        isActiveValue === "True";
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: 400,
+                }}
             >
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-                {label}
+    // =====================================================
+    // NO PRODUCT
+    // =====================================================
 
-            </Typography>
+    if (!product) {
 
-            <Typography
-                variant="body1"
-                fontWeight={500}
-            >
+        return (
+            <Box sx={{ p: 3 }}>
 
-                {value || "-"}
+                <Alert severity="error">
+                    Unable to load Product.
+                </Alert>
 
-            </Typography>
+                <Button
+                    sx={{ mt: 2 }}
+                    startIcon={<ArrowBack />}
+                    onClick={() =>
+                        navigate("/products")
+                    }
+                >
+                    Back to Products
+                </Button>
 
-        </Grid>
+                <Snackbar
+                    open={snackbar.open}
+                    autoHideDuration={4000}
+                    onClose={() =>
+                        setSnackbar({
+                            ...snackbar,
+                            open: false,
+                        })
+                    }
+                >
+                    <Alert
+                        severity={snackbar.severity}
+                        variant="filled"
+                    >
+                        {snackbar.message}
+                    </Alert>
+                </Snackbar>
 
-    );
+            </Box>
+        );
+    }
+
+    // =====================================================
+    // VIEW
+    // =====================================================
 
     return (
 
-        <Dialog
+        <Box sx={{ p: 3 }}>
 
-            open={open}
+            {/* =================================================
+                HEADER
+            ================================================= */}
 
-            onClose={onClose}
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 3,
+                }}
+            >
 
-            fullWidth
+                <Box>
 
-            maxWidth="md"
+                    <Typography
+                        variant="h4"
+                        fontWeight="bold"
+                    >
+                        Product Details
+                    </Typography>
 
-        >
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        View product information
+                    </Typography>
 
-            <DialogTitle>
+                </Box>
 
-                Product Details
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 1,
+                    }}
+                >
 
-            </DialogTitle>
-
-            <Divider />
-
-            <DialogContent sx={{ mt: 2 }}>
-
-                <Grid container spacing={3}>
-
-                    <Field
-
-                        label="Product ID"
-
-                        value={product.ProductId}
-
-                    />
-
-                    <Field
-
-                        label="Seller ID"
-
-                        value={product.SellerId}
-
-                    />
-
-                    <Field
-
-                        label="SKU"
-
-                        value={product.SKU}
-
-                    />
-
-                    <Field
-
-                        label="Product Name"
-
-                        value={product.ProductName}
-
-                    />
-
-                    <Field
-
-                        label="Barcode"
-
-                        value={product.Barcode}
-
-                    />
-
-                    <Field
-
-                        label="HSN Code"
-
-                        value={product.HSNCode}
-
-                    />
-
-                    <Field
-
-                        label="Brand"
-
-                        value={
-                            product.BrandName ||
-
-                            product.BrandId
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={() =>
+                            navigate("/products")
                         }
+                    >
+                        Back
+                    </Button>
 
-                    />
-
-                    <Field
-
-                        label="Category"
-
-                        value={
-                            product.CategoryName ||
-
-                            product.CategoryId
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={() =>
+                            navigate(
+                                `/products/edit/${productId}`
+                            )
                         }
+                    >
+                        Edit Product
+                    </Button>
 
-                    />
+                </Box>
 
-                    <Field
+            </Box>
 
-                        label="Product Type"
+            {/* =================================================
+                PRODUCT INFORMATION
+            ================================================= */}
 
-                        value={
-                            product.ProductTypeName ||
+            <Paper
+                elevation={2}
+                sx={{
+                    p: 3,
+                    borderRadius: 2,
+                }}
+            >
 
-                            product.ProductTypeId
-                        }
+                <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    mb={2}
+                >
+                    Product Information
+                </Typography>
 
-                    />
+                <Divider sx={{ mb: 3 }} />
 
-                    <Field
+                <Grid
+                    container
+                    spacing={3}
+                >
 
-                        label="Unit"
+                    {/* PRODUCT ID */}
 
-                        value={
-                            product.UnitOfMeasure
-                        }
-
-                    />
-
-                    <Field
-
-                        label="Weight"
-
-                        value={product.Weight}
-
-                    />
-
-                    <Field
-
-                        label="Length"
-
-                        value={product.Length}
-
-                    />
-
-                    <Field
-
-                        label="Width"
-
-                        value={product.Width}
-
-                    />
-
-                    <Field
-
-                        label="Height"
-
-                        value={product.Height}
-
-                    />
-
-                    <Grid item xs={12}>
+                    <Grid item xs={12} md={4}>
 
                         <Typography
-
                             variant="caption"
-
                             color="text.secondary"
-
                         >
-
-                            Description
-
+                            Product ID
                         </Typography>
 
-                        <Typography>
-
-                            {product.Description || "-"}
-
+                        <Typography fontWeight="bold">
+                            {productId || "N/A"}
                         </Typography>
 
                     </Grid>
+
+                    {/* SELLER ID */}
+
+                    <Grid item xs={12} md={4}>
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Seller ID
+                        </Typography>
+
+                        <Typography fontWeight="bold">
+                            {sellerId || "N/A"}
+                        </Typography>
+
+                    </Grid>
+
+                    {/* CUSTOMER ID */}
+
+                    <Grid item xs={12} md={4}>
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Customer ID
+                        </Typography>
+
+                        <Typography fontWeight="bold">
+                            {customerId || "N/A"}
+                        </Typography>
+
+                    </Grid>
+
+                    {/* SKU */}
 
                     <Grid item xs={12} md={6}>
 
                         <Typography
-
                             variant="caption"
-
                             color="text.secondary"
-
                         >
-
-                            Status
-
+                            SKU
                         </Typography>
 
-                        <br />
-
-                        <Chip
-
-                            label={
-                                product.IsActive
-
-                                    ? "Active"
-
-                                    : "Inactive"
-
-                            }
-
-                            color={
-                                product.IsActive
-
-                                    ? "success"
-
-                                    : "error"
-
-                            }
-
-                        />
+                        <Typography fontWeight="bold">
+                            {sku || "N/A"}
+                        </Typography>
 
                     </Grid>
 
-                    <Field
+                    {/* PRODUCT NAME */}
 
-                        label="Workflow Status"
+                    <Grid item xs={12} md={6}>
 
-                        value={product.Status}
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Product Name
+                        </Typography>
 
-                    />
+                        <Typography fontWeight="bold">
+                            {productName || "N/A"}
+                        </Typography>
 
-                    <Field
+                    </Grid>
 
-                        label="Created"
+                    {/* BRAND */}
 
-                        value={
-                            product.CreatedDate
+                    <Grid item xs={12} md={4}>
 
-                                ? new Date(
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Brand ID
+                        </Typography>
 
-                                    product.CreatedDate
+                        <Typography fontWeight="bold">
+                            {brandId || "N/A"}
+                        </Typography>
 
-                                ).toLocaleString()
+                    </Grid>
 
-                                : "-"
-                        }
+                    {/* CATEGORY */}
 
-                    />
+                    <Grid item xs={12} md={4}>
 
-                    <Field
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Category ID
+                        </Typography>
 
-                        label="Updated"
+                        <Typography fontWeight="bold">
+                            {categoryId || "N/A"}
+                        </Typography>
 
-                        value={
-                            product.UpdatedDate
+                    </Grid>
 
-                                ? new Date(
+                    {/* PRODUCT TYPE */}
 
-                                    product.UpdatedDate
+                    <Grid item xs={12} md={4}>
 
-                                ).toLocaleString()
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Product Type ID
+                        </Typography>
 
-                                : "-"
-                        }
+                        <Typography fontWeight="bold">
+                            {productTypeId || "N/A"}
+                        </Typography>
 
-                    />
+                    </Grid>
+
+                    {/* STATUS */}
+
+                    <Grid item xs={12} md={4}>
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Status
+                        </Typography>
+
+                        <Typography
+                            fontWeight="bold"
+                            color={
+                                isActive
+                                    ? "success.main"
+                                    : "error.main"
+                            }
+                        >
+                            {isActive
+                                ? "Active"
+                                : "Inactive"}
+                        </Typography>
+
+                    </Grid>
+
+                    {/* DESCRIPTION */}
+
+                    <Grid item xs={12}>
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Description
+                        </Typography>
+
+                        <Typography
+                            sx={{
+                                mt: 0.5,
+                                whiteSpace: "pre-wrap",
+                            }}
+                        >
+                            {description || "No description"}
+                        </Typography>
+
+                    </Grid>
 
                 </Grid>
 
-            </DialogContent>
+            </Paper>
 
-            <DialogActions>
+            {/* =================================================
+                SNACKBAR
+            ================================================= */}
 
-                <Button
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={() =>
+                    setSnackbar({
+                        ...snackbar,
+                        open: false,
+                    })
+                }
+            >
 
-                    variant="contained"
-
-                    onClick={onClose}
-
+                <Alert
+                    severity={snackbar.severity}
+                    variant="filled"
                 >
+                    {snackbar.message}
+                </Alert>
 
-                    Close
+            </Snackbar>
 
-                </Button>
-
-            </DialogActions>
-
-        </Dialog>
-
+        </Box>
     );
-
 };
 
 export default ProductView;

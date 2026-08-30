@@ -109,7 +109,85 @@ const MainLayout = () => {
         },
       ],
     },
+// =======================================================
+// SELLER MANAGEMENT
+// =======================================================
 
+{
+  section: "Seller Management",
+
+  items: [
+
+    // ===================================================
+    // SELLERS
+    // ===================================================
+
+    {
+      label: "Sellers",
+      path: "/sellers",
+      icon: "🏪",
+
+      children: [
+        {
+          label: "Seller List",
+          path: "/sellers",
+        },
+        {
+          label: "Create Seller",
+          path: "/sellers/create",
+        },
+        {
+          label: "Seller Details",
+          path: "/sellers/details/:id",
+        },
+        {
+          label: "Edit Seller",
+          path: "/sellers/edit/:id",
+        },
+        {
+          label: "Seller Filters",
+          path: "/sellers/filters",
+        },
+        {
+          label: "Search Sellers",
+          path: "/sellers/search",
+        },
+        {
+          label: "Seller Statistics",
+          path: "/sellers/statistics",
+        },
+        {
+          label: "Seller Table",
+          path: "/sellers/table",
+        },
+        {
+          label: "Seller Card",
+          path: "/sellers/card",
+        },
+        {
+          label: "Seller Form",
+          path: "/sellers/form",
+        },
+        {
+          label: "Seller Modal",
+          path: "/sellers/modal",
+        },
+        {
+          label: "Seller Pagination",
+          path: "/sellers/pagination",
+        },
+        {
+          label: "Seller Toolbar",
+          path: "/sellers/toolbar",
+        },
+        {
+          label: "Seller View",
+          path: "/sellers/view/:id",
+        },
+      ],
+    },
+  ],
+},
     // =======================================================
     // CATALOG & PRODUCTS
     // =======================================================
@@ -380,17 +458,6 @@ const MainLayout = () => {
               label: "Create Product",
               path: "/products/create",
             },
-
-            {
-              label: "Product Details",
-              path: "/products/details/:id",
-            },
-
-            {
-              label: "Edit Product",
-              path: "/products/edit/:id",
-            },
-
             {
               label: "Product Filters",
               path: "/products/filters",
