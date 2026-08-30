@@ -817,7 +817,7 @@ function App() {
         <Route path="categories" element={<CategoryList />} />
         <Route path="categories/create" element={<CategoryCreate />} />
         <Route path="categories/:id" element={<CategoryDetails />} />
-        <Route path="categories/:id/edit" element={<CategoryEdit />} />
+       <Route path="/categories/edit/:categoryId" element={<CategoryEdit />}/>
         <Route path="categories/view/:id" element={<CategoryView />} />
         <Route path="categories/search" element={<CategorySearch />} />
         <Route path="categories/filters" element={<CategoryFilters />} />

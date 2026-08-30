@@ -1,120 +1,435 @@
-import React, { useEffect, useState } from "react";
-import {Paper,Typography,CircularProgress,Box,Snackbar,Alert} from "@mui/material";
-import {useNavigate,useParams} from "react-router-dom";
+// =========================================================
+// CategoryEdit.jsx
+// =========================================================
+
+import React, {
+    useEffect,
+    useState
+} from "react";
+
+import {
+    Box,
+    Paper,
+    Typography,
+    CircularProgress,
+    Alert,
+    Snackbar
+} from "@mui/material";
+
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+import axios from "axios";
+
 import CategoryForm from "./CategoryForm";
 
+// =========================================================
+// SERVER
+// =========================================================
+
+const SERVER_URL = "http://localhost:5000";
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const CategoryEdit = () => {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const [loading, setLoading] = useState(false);
-    const [pageLoading, setPageLoading] = useState(true);
-    const [category, setCategory] = useState({
-        categoryName: "",
-        description: "",
-        parentCategoryId: "",
-        isActive: true
-    });
 
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        severity: "success",
-        message: ""
-    });
-    useEffect(() => {
-        loadCategory();
-    }, []);
+    const navigate = useNavigate();
+
+    const { categoryId } =
+        useParams();
+
+    // =====================================================
+    // STATE
+    // =====================================================
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [saving, setSaving] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
+    const [snackbarOpen, setSnackbarOpen] =
+        useState(false);
+
+    const [category, setCategory] =
+        useState({
+
+            categoryName: "",
+
+            parentCategoryId: "",
+
+            description: "",
+
+            isActive: true
+
+        });
+
+    // =====================================================
+    // LOAD CATEGORY
+    // =====================================================
 
     const loadCategory = async () => {
+
         try {
-            setPageLoading(true);
-            const response = await apiService.getCategoryById(id);
-            setCategory(response.data);
+
+            setLoading(true);
+
+            setError("");
+
+            console.log(
+                "GET CATEGORY:",
+                categoryId
+            );
+
+            const response =
+                await axios.get(
+
+                    `${SERVER_URL}/api/Category/${categoryId}`,
+
+                    {
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            console.log(
+                "CATEGORY DETAILS:",
+                response.data
+            );
+
+            let data =
+                response.data;
+
+            // Handle wrapped response
+
+            if (
+                data &&
+                data.data
+            ) {
+
+                data =
+                    data.data;
+
+            }
+
+            if (
+                data &&
+                data.item
+            ) {
+
+                data =
+                    data.item;
+
+            }
+
+            setCategory({
+
+                categoryId:
+                    data.categoryId,
+
+                categoryName:
+                    data.categoryName ||
+                    "",
+
+                parentCategoryId:
+                    data.parentCategoryId ??
+                    "",
+
+                description:
+                    data.description ||
+                    "",
+
+                isActive:
+                    data.isActive ??
+                    true
+
+            });
+
         }
         catch (err) {
-            console.log(err);
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message: "Unable to load Category."
-            });
+
+            console.error(
+                "Category loading error:",
+                err
+            );
+
+            const message =
+                err.response?.data?.message ||
+                err.response?.data ||
+                err.message ||
+                "Failed to load category";
+
+            setError(
+                typeof message === "string"
+                    ? message
+                    : "Failed to load category"
+            );
+
+            setSnackbarOpen(true);
+
         }
         finally {
-            setPageLoading(false);
+
+            setLoading(false);
+
         }
+
     };
 
-    const handleUpdate = async (values) => {
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
+
+    useEffect(() => {
+
+        if (categoryId) {
+
+            loadCategory();
+
+        }
+
+    }, [categoryId]);
+
+    // =====================================================
+    // SAVE CATEGORY
+    // =====================================================
+
+    const handleSubmit = async (
+        formData
+    ) => {
+
         try {
-            setLoading(true);
-            await apiService.updateCategory(id, values);
-            setSnackbar({
-                open: true,
-                severity: "success",
-                message: "Category updated successfully."
-            });
-            setTimeout(() => {
-                navigate("/categories");
-            }, 1000);
+
+            setSaving(true);
+
+            setError("");
+
+            console.log(
+                "UPDATE CATEGORY:",
+                formData
+            );
+
+            const payload = {
+
+                categoryName:
+                    formData.categoryName,
+
+                parentCategoryId:
+                    formData.parentCategoryId
+                        ? Number(
+                            formData.parentCategoryId
+                        )
+                        : null,
+
+                description:
+                    formData.description,
+
+                isActive:
+                    Boolean(
+                        formData.isActive
+                    )
+
+            };
+
+            await axios.put(
+
+                `${SERVER_URL}/api/Category/${categoryId}`,
+
+                payload,
+
+                {
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        Accept:
+                            "application/json"
+
+                    },
+
+                    timeout: 30000
+
+                }
+
+            );
+
+            console.log(
+                "CATEGORY UPDATED"
+            );
+
+            navigate(
+                "/categories"
+            );
+
         }
         catch (err) {
-            console.log(err);
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message: "Unable to update Category."
-            });
+
+            console.error(
+                "Category update error:",
+                err
+            );
+
+            const message =
+                err.response?.data?.message ||
+                err.response?.data ||
+                err.message ||
+                "Failed to update category";
+
+            setError(
+                typeof message === "string"
+                    ? message
+                    : "Failed to update category"
+            );
+
+            setSnackbarOpen(true);
+
         }
         finally {
-            setLoading(false);
+
+            setSaving(false);
+
         }
+
     };
-    if (pageLoading)
-        return (
-            <Box
-                display="flex"
-                justifyContent="center"
-                mt={5}
-            >
-                <CircularProgress />
-            </Box>
+
+    // =====================================================
+    // CANCEL
+    // =====================================================
+
+    const handleCancel = () => {
+
+        navigate(
+            "/categories"
         );
+
+    };
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: 400
+                }}
+            >
+
+                <CircularProgress />
+
+            </Box>
+
+        );
+
+    }
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
-        <Paper sx={{ p: 3 }}>
+
+        <Box>
+
             <Typography
                 variant="h5"
-                fontWeight="bold"
-                mb={3}
+                sx={{
+                    mb: 2,
+                    fontWeight: 600
+                }}
             >
+
                 Edit Category
+
             </Typography>
-            <CategoryForm
-                initialValues={category}
-                loading={loading}
-                onSubmit={handleUpdate}
-                onCancel={() =>
-                    navigate("/categories")
-                }
-            />
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={() =>
-                    setSnackbar({
-                        ...snackbar,
-                        open: false
-                    })
-                }
+
+            <Paper
+                sx={{
+                    p: 3
+                }}
             >
+
+                <CategoryForm
+
+                    initialValues={
+                        category
+                    }
+
+                    loading={
+                        saving
+                    }
+
+                    onSubmit={
+                        handleSubmit
+                    }
+
+                    onCancel={
+                        handleCancel
+                    }
+
+                />
+
+            </Paper>
+
+            {/* =============================================
+                ERROR
+            ============================================== */}
+
+            <Snackbar
+
+                open={
+                    snackbarOpen
+                }
+
+                autoHideDuration={
+                    5000
+                }
+
+                onClose={() =>
+                    setSnackbarOpen(false)
+                }
+
+            >
+
                 <Alert
-                    severity={snackbar.severity}
-                    variant="filled"
+                    severity="error"
+                    onClose={() =>
+                        setSnackbarOpen(false)
+                    }
+
+                    sx={{
+                        width: "100%"
+                    }}
                 >
-                    {snackbar.message}
+
+                    {error}
+
                 </Alert>
+
             </Snackbar>
-        </Paper>
+
+        </Box>
+
     );
+
 };
 
 export default CategoryEdit;

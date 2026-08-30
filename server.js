@@ -1696,6 +1696,9 @@ app.delete(
 // /api/Category?search=Electronics
 // /api/Category?isActive=true
 // =========================================================
+// =========================================================
+// GET ALL CATEGORIES
+// =========================================================
 
 app.get(
     "/api/Category",
@@ -1704,11 +1707,11 @@ app.get(
         try {
 
             console.log(
-                "GET ALL CATEGORIES"
+                "GET CATEGORIES"
             );
 
             console.log(
-                "QUERY:",
+                "CATEGORY QUERY:",
                 req.query
             );
 
@@ -1732,11 +1735,6 @@ app.get(
                     }
                 );
 
-            console.log(
-                "CATEGORY STATUS:",
-                response.status
-            );
-
             return res
                 .status(response.status)
                 .json(response.data);
@@ -1747,11 +1745,12 @@ app.get(
             return handleAxiosError(
                 res,
                 error,
-                "GET ALL CATEGORIES"
+                "GET CATEGORIES"
             );
         }
     }
 );
+
 
 // =========================================================
 // GET CATEGORY BY ID
@@ -2224,6 +2223,76 @@ app.get(
         }
     }
 );
+// =========================================================
+// GET ALL CATEGORIES
+// =========================================================
+
+app.get(
+    "/api/categories",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET CATEGORIES"
+            );
+
+            console.log(
+                "CATEGORY QUERY:",
+                req.query
+            );
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/categories`,
+
+                    {
+                        params:
+                            req.query,
+
+                        httpsAgent,
+
+                        headers: {
+
+                            Accept:
+                                "application/json"
+
+                        },
+
+                        timeout: 30000
+
+                    }
+                );
+
+            console.log(
+                "CATEGORY API RESPONSE:",
+                response.data
+            );
+
+            return res
+                .status(
+                    response.status
+                )
+                .json(
+                    response.data
+                );
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET CATEGORIES"
+            );
+
+        }
+
+    }
+);
+
+
 // =========================================================
 // SELLER ROUTES
 // Node.js → ASP.NET Core
