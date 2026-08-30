@@ -1262,6 +1262,59 @@ app.get(
 );
 
 // =========================================================
+//GET ALL BRANDS
+// =========================================================
+app.get(
+    "/api/brands",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET ALL BRANDS"
+            );
+
+            console.log(
+                "BRAND QUERY:",
+                req.query
+            );
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/brands`,
+
+                    {
+                        params:
+                            req.query,
+
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET ALL BRANDS"
+            );
+        }
+    }
+);
+// =========================================================
 // BRAND FILTERS
 // =========================================================
 
