@@ -22,7 +22,7 @@ const app = express();
 const PORT = 5000;
 
 const DOTNET_API = "https://localhost:7203/api";
-
+const BASE_URL = "https://localhost:7203/api";
 // =========================================================
 // HTTPS AGENT
 // Development only
@@ -1895,39 +1895,54 @@ app.post(
 // PUT /api/Category/1
 // =========================================================
 
-app.put(
-    "/api/Category/:id",
-    async (req, res) => {
+// =========================================================
+// CATEGORY - UPDATE
+// PUT /api/categories/:id
+// =========================================================
 
-        const { id } = req.params;
+app.put(
+    "/api/categories/:id",
+    async (req, res) => {
 
         try {
 
+            const { id } = req.params;
+
             console.log(
-                "UPDATE CATEGORY:",
+                "================================="
+            );
+
+            console.log(
+                "UPDATE CATEGORY"
+            );
+
+            console.log(
+                "Category ID:",
                 id
             );
 
             console.log(
-                "BODY:",
+                "Request Body:",
                 req.body
+            );
+
+            console.log(
+                "Target URL:",
+                `${BASE_URL}/categories/${id}`
+            );
+
+            console.log(
+                "================================="
             );
 
             const response =
                 await axios.put(
-
-                    `${DOTNET_API}/Category/${encodeURIComponent(id)}`,
-
+                    `${BASE_URL}/categories/${id}`,
                     req.body,
-
                     {
-                        params:
-                            req.query,
-
                         httpsAgent,
 
                         headers: {
-
                             "Content-Type":
                                 "application/json",
 
@@ -1940,26 +1955,199 @@ app.put(
                 );
 
             console.log(
-                "UPDATE CATEGORY STATUS:",
-                response.status
+                "UPDATE CATEGORY RESPONSE:",
+                response.data
             );
 
-            return res
+            res
                 .status(response.status)
                 .json(response.data);
 
         }
         catch (error) {
 
-            return handleAxiosError(
-                res,
-                error,
-                `UPDATE CATEGORY ${id}`
+            console.error(
+                "UPDATE CATEGORY ERROR:"
             );
+
+            console.error(
+                "Status:",
+                error.response?.status
+            );
+
+            console.error(
+                "Data:",
+                error.response?.data
+            );
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+            res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update category"
+                    }
+                );
         }
     }
 );
 
+// ---------------------------------------------------------
+// GET CATEGORY BY ID
+// GET /api/categories/:id
+// ---------------------------------------------------------
+
+app.get(
+    "/api/categories/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            console.log(
+                `GET /api/categories/${id}`
+            );
+
+            const response = await axios.get(
+                `${BASE_URL}/categories/${id}`,
+                {
+                    httpsAgent,
+                }
+            );
+
+            console.log(
+                "Category response:",
+                response.data
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET category by ID error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch category",
+                }
+            );
+
+        }
+
+    }
+);
+app.get(
+    "/api/categories/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            console.log(
+                `GET CATEGORY ${id}`
+            );
+
+            const response = await axios.get(
+                `${BASE_URL}/categories/${id}`,
+                {
+                    httpsAgent,
+                }
+            );
+
+            res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATEGORY ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch category",
+                    }
+                );
+        }
+    }
+);
+app.get(
+    "/api/categories/:id/products",
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            console.log(
+                `GET CATEGORY PRODUCTS ${id}`
+            );
+
+            const response = await axios.get(
+                `${BASE_URL}/categories/${id}/products`,
+                {
+                    httpsAgent,
+                }
+            );
+
+            console.log(
+                "PRODUCTS RESPONSE:",
+                response.data
+            );
+
+            res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATEGORY PRODUCTS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch category products",
+                    }
+                );
+        }
+    }
+);
 // =========================================================
 // PATCH CATEGORY
 //

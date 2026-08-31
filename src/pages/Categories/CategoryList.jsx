@@ -1,10 +1,13 @@
 // =========================================================
 // CategoryList.jsx
+// Central Category Management Page
+// Uses server.js directly through axios
 // =========================================================
 
 import React, {
+    useCallback,
     useEffect,
-    useState
+    useState,
 } from "react";
 
 import axios from "axios";
@@ -15,11 +18,11 @@ import {
     CircularProgress,
     Grid,
     Paper,
-    Snackbar
+    Snackbar,
 } from "@mui/material";
 
 import {
-    useNavigate
+    useNavigate,
 } from "react-router-dom";
 
 import CategoryToolbar from "./CategoryToolbar";
@@ -29,7 +32,6 @@ import CategoryFilters from "./CategoryFilters";
 import CategoryTable from "./CategoryTable";
 import CategoryPagination from "./CategoryPagination";
 import DeleteCategoryDialog from "./DeleteCategoryDialog";
-import CategoryModal from "./CategoryModal";
 
 // =========================================================
 // SERVER
@@ -44,7 +46,8 @@ const SERVER_URL =
 
 const CategoryList = () => {
 
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
 
     // =====================================================
     // CATEGORY DATA
@@ -111,21 +114,12 @@ const CategoryList = () => {
     ] = useState(null);
 
     // =====================================================
-    // DELETE
+    // DELETE DIALOG
     // =====================================================
 
     const [
         deleteOpen,
         setDeleteOpen
-    ] = useState(false);
-
-    // =====================================================
-    // DETAILS
-    // =====================================================
-
-    const [
-        viewOpen,
-        setViewOpen
     ] = useState(false);
 
     // =====================================================
@@ -142,156 +136,183 @@ const CategoryList = () => {
         setSnackbarOpen
     ] = useState(false);
 
+    // =====================================================
+    // ERROR HANDLER
+    // =====================================================
+
+    const showError = useCallback(
+        (message) => {
+
+            setError(
+                typeof message === "string"
+                    ? message
+                    : "An unexpected error occurred."
+            );
+
+            setSnackbarOpen(true);
+
+        },
+        []
+    );
+
+    // =====================================================
+    // GET CATEGORY ID
+    // =====================================================
+
+    const getCategoryId = (
+        category
+    ) => {
+
+        return (
+            category?.categoryId ??
+            category?.id ??
+            null
+        );
+
+    };
 
     // =====================================================
     // LOAD ALL CATEGORIES
     // =====================================================
 
-    const loadCategories = async () => {
+    const loadCategories =
+        useCallback(
+            async () => {
 
-        try {
+                try {
 
-            setLoading(true);
+                    setLoading(true);
 
-            setError("");
+                    setError("");
 
-            console.log(
-                "================================="
-            );
+                    console.log(
+                        "================================="
+                    );
 
-            console.log(
-                "GET ALL CATEGORIES"
-            );
+                    console.log(
+                        "GET ALL CATEGORIES"
+                    );
 
-            console.log(
-                "URL:",
-                `${SERVER_URL}/api/categories`
-            );
+                    console.log(
+                        "URL:",
+                        `${SERVER_URL}/api/categories`
+                    );
 
-            console.log(
-                "================================="
-            );
+                    console.log(
+                        "================================="
+                    );
 
-            const response =
-                await axios.get(
-                    `${SERVER_URL}/api/categories`,
-                    {
-                        headers: {
-                            Accept:
-                                "application/json"
-                        },
+                    const response =
+                        await axios.get(
+                            `${SERVER_URL}/api/categories`,
+                            {
+                                headers: {
+                                    Accept:
+                                        "application/json",
+                                },
 
-                        timeout: 30000
+                                timeout: 30000,
+                            }
+                        );
+
+                    console.log(
+                        "CATEGORY RESPONSE:",
+                        response.data
+                    );
+
+                    let data =
+                        response.data;
+
+                    // =================================================
+                    // { items: [] }
+                    // =================================================
+
+                    if (
+                        data &&
+                        Array.isArray(
+                            data.items
+                        )
+                    ) {
+
+                        data =
+                            data.items;
+
                     }
-                );
 
-            console.log(
-                "CATEGORY RESPONSE:",
-                response.data
-            );
+                    // =================================================
+                    // { data: [] }
+                    // =================================================
 
-            // =================================================
-            // NORMALIZE RESPONSE
-            // =================================================
+                    else if (
+                        data &&
+                        Array.isArray(
+                            data.data
+                        )
+                    ) {
 
-            let data =
-                response.data;
+                        data =
+                            data.data;
 
-            // -----------------------------------------------
-            // { items: [] }
-            // -----------------------------------------------
+                    }
 
-            if (
-                data &&
-                Array.isArray(
-                    data.items
-                )
-            ) {
+                    // =================================================
+                    // { categories: [] }
+                    // =================================================
 
-                data =
-                    data.items;
+                    else if (
+                        data &&
+                        Array.isArray(
+                            data.categories
+                        )
+                    ) {
 
-            }
+                        data =
+                            data.categories;
 
-            // -----------------------------------------------
-            // { data: [] }
-            // -----------------------------------------------
+                    }
 
-            else if (
-                data &&
-                Array.isArray(
-                    data.data
-                )
-            ) {
+                    // =================================================
+                    // DIRECT ARRAY
+                    // =================================================
 
-                data =
-                    data.data;
+                    if (
+                        !Array.isArray(data)
+                    ) {
 
-            }
+                        data = [];
 
-            // -----------------------------------------------
-            // { categories: [] }
-            // -----------------------------------------------
+                    }
 
-            else if (
-                data &&
-                Array.isArray(
-                    data.categories
-                )
-            ) {
+                    setCategories(data);
 
-                data =
-                    data.categories;
+                }
+                catch (err) {
 
-            }
+                    console.error(
+                        "CATEGORY LOADING ERROR:",
+                        err
+                    );
 
-            // -----------------------------------------------
-            // DIRECT ARRAY
-            // -----------------------------------------------
+                    const message =
+                        err.response?.data?.message ||
+                        err.response?.data ||
+                        err.message ||
+                        "Failed to load categories.";
 
-            if (
-                !Array.isArray(data)
-            ) {
+                    showError(message);
 
-                data = [];
+                    setCategories([]);
 
-            }
+                }
+                finally {
 
-            setCategories(data);
+                    setLoading(false);
 
-        }
-        catch (err) {
+                }
 
-            console.error(
-                "CATEGORY LOADING ERROR:",
-                err
-            );
-
-            const message =
-                err.response?.data?.message ||
-                err.response?.data ||
-                err.message ||
-                "Failed to load categories";
-
-            setError(
-                typeof message === "string"
-                    ? message
-                    : "Failed to load categories"
-            );
-
-            setSnackbarOpen(true);
-
-            setCategories([]);
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
-
+            },
+            [showError]
+        );
 
     // =====================================================
     // INITIAL LOAD
@@ -301,8 +322,9 @@ const CategoryList = () => {
 
         loadCategories();
 
-    }, []);
-
+    }, [
+        loadCategories
+    ]);
 
     // =====================================================
     // SEARCH + FILTER
@@ -369,7 +391,6 @@ const CategoryList = () => {
 
         }
 
-
         // =================================================
         // STATUS FILTER
         // =================================================
@@ -392,16 +413,10 @@ const CategoryList = () => {
 
         }
 
-
-        // =================================================
-        // UPDATE
-        // =================================================
-
         setFilteredCategories(
             result
         );
 
-        // Reset pagination
         setPage(0);
 
     }, [
@@ -409,7 +424,6 @@ const CategoryList = () => {
         searchText,
         statusFilter
     ]);
-
 
     // =====================================================
     // PAGINATED CATEGORIES
@@ -422,6 +436,17 @@ const CategoryList = () => {
                 rowsPerPage
         );
 
+    // =====================================================
+    // ADD CATEGORY
+    // =====================================================
+
+    const handleAdd = () => {
+
+        navigate(
+            "/categories/create"
+        );
+
+    };
 
     // =====================================================
     // VIEW CATEGORY
@@ -431,14 +456,31 @@ const CategoryList = () => {
         category
     ) => {
 
-        setSelectedCategory(
+        const categoryId =
+            getCategoryId(
+                category
+            );
+
+        console.log(
+            "VIEW CATEGORY:",
             category
         );
 
-        setViewOpen(true);
+        if (!categoryId) {
+
+            showError(
+                "Category ID not found."
+            );
+
+            return;
+
+        }
+
+        navigate(
+            `/categories/details/${categoryId}`
+        );
 
     };
-
 
     // =====================================================
     // EDIT CATEGORY
@@ -449,13 +491,14 @@ const CategoryList = () => {
     ) => {
 
         const categoryId =
-            category.categoryId ||
-            category.id;
+            getCategoryId(
+                category
+            );
 
         if (!categoryId) {
 
-            console.error(
-                "Category ID not found"
+            showError(
+                "Category ID not found."
             );
 
             return;
@@ -468,6 +511,63 @@ const CategoryList = () => {
 
     };
 
+    // =====================================================
+    // VIEW CATEGORY PRODUCTS
+    // =====================================================
+
+    const handleViewProducts = (
+        category
+    ) => {
+
+        const categoryId =
+            getCategoryId(
+                category
+            );
+
+        if (!categoryId) {
+
+            showError(
+                "Category ID not found."
+            );
+
+            return;
+
+        }
+
+        navigate(
+            `/categories/${categoryId}/products`
+        );
+
+    };
+
+    // =====================================================
+    // ADD SUBCATEGORY
+    // =====================================================
+
+    const handleAddSubcategory = (
+        category
+    ) => {
+
+        const categoryId =
+            getCategoryId(
+                category
+            );
+
+        if (!categoryId) {
+
+            showError(
+                "Category ID not found."
+            );
+
+            return;
+
+        }
+
+        navigate(
+            `/categories/create?parentId=${categoryId}`
+        );
+
+    };
 
     // =====================================================
     // DUPLICATE CATEGORY
@@ -480,10 +580,15 @@ const CategoryList = () => {
         try {
 
             const categoryId =
-                category.categoryId ||
-                category.id;
+                getCategoryId(
+                    category
+                );
 
             if (!categoryId) {
+
+                showError(
+                    "Category ID not found."
+                );
 
                 return;
 
@@ -491,9 +596,9 @@ const CategoryList = () => {
 
             setLoading(true);
 
-            // ---------------------------------------------
+            // =================================================
             // GET ORIGINAL
-            // ---------------------------------------------
+            // =================================================
 
             const response =
                 await axios.get(
@@ -501,25 +606,32 @@ const CategoryList = () => {
                     {
                         headers: {
                             Accept:
-                                "application/json"
-                        }
+                                "application/json",
+                        },
+
+                        timeout: 30000,
                     }
                 );
 
             const original =
                 response.data;
 
-            // ---------------------------------------------
+            // =================================================
             // CREATE COPY
-            // ---------------------------------------------
+            // =================================================
 
             const duplicateData = {
 
                 categoryName:
-                    `${original.categoryName || category.categoryName} Copy`,
+                    `${
+                        original.categoryName ||
+                        category.categoryName ||
+                        "Category"
+                    } Copy`,
 
                 parentCategoryId:
-                    original.parentCategoryId ||
+                    original.parentCategoryId ??
+                    category.parentCategoryId ??
                     null,
 
                 description:
@@ -528,9 +640,14 @@ const CategoryList = () => {
 
                 isActive:
                     original.isActive ??
-                    true
+                    true,
 
             };
+
+            console.log(
+                "DUPLICATE CATEGORY:",
+                duplicateData
+            );
 
             await axios.post(
                 `${SERVER_URL}/api/categories`,
@@ -541,10 +658,10 @@ const CategoryList = () => {
                             "application/json",
 
                         Accept:
-                            "application/json"
+                            "application/json",
                     },
 
-                    timeout: 30000
+                    timeout: 30000,
                 }
             );
 
@@ -562,15 +679,9 @@ const CategoryList = () => {
                 err.response?.data?.message ||
                 err.response?.data ||
                 err.message ||
-                "Failed to duplicate category";
+                "Failed to duplicate category.";
 
-            setError(
-                typeof message === "string"
-                    ? message
-                    : "Failed to duplicate category"
-            );
-
-            setSnackbarOpen(true);
+            showError(message);
 
         }
         finally {
@@ -581,99 +692,100 @@ const CategoryList = () => {
 
     };
 
-
     // =====================================================
     // TOGGLE STATUS
     // =====================================================
 
-    const handleToggleStatus = async (
-        category
-    ) => {
+    const handleToggleStatus =
+        async (
+            category
+        ) => {
 
-        try {
+            try {
 
-            const categoryId =
-                category.categoryId ||
-                category.id;
+                const categoryId =
+                    getCategoryId(
+                        category
+                    );
 
-            if (!categoryId) {
+                if (!categoryId) {
 
-                return;
+                    showError(
+                        "Category ID not found."
+                    );
+
+                    return;
+
+                }
+
+                const updateData = {
+
+                    categoryName:
+                        category.categoryName ||
+                        category.name ||
+                        "",
+
+                    parentCategoryId:
+                        category.parentCategoryId ??
+                        null,
+
+                    description:
+                        category.description ||
+                        "",
+
+                    isActive:
+                        !Boolean(
+                            category.isActive
+                        ),
+
+                };
+
+                console.log(
+                    "UPDATE CATEGORY:",
+                    categoryId,
+                    updateData
+                );
+
+                await axios.put(
+                    `${SERVER_URL}/api/categories/${categoryId}`,
+                    updateData,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+                await loadCategories();
+
+            }
+            catch (err) {
+
+                console.error(
+                    "TOGGLE CATEGORY ERROR:",
+                    err
+                );
+
+                const message =
+                    err.response?.data?.message ||
+                    err.response?.data ||
+                    err.message ||
+                    "Failed to update category status.";
+
+                showError(message);
 
             }
 
-            const newStatus =
-                !Boolean(
-                    category.isActive
-                );
-
-            const updateData = {
-
-                categoryName:
-                    category.categoryName ||
-                    category.name ||
-                    "",
-
-                parentCategoryId:
-                    category.parentCategoryId ||
-                    null,
-
-                description:
-                    category.description ||
-                    "",
-
-                isActive:
-                    newStatus
-
-            };
-
-            await axios.put(
-                `${SERVER_URL}/api/categories/${categoryId}`,
-                updateData,
-                {
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-
-                        Accept:
-                            "application/json"
-                    },
-
-                    timeout: 30000
-                }
-            );
-
-            await loadCategories();
-
-        }
-        catch (err) {
-
-            console.error(
-                "TOGGLE CATEGORY ERROR:",
-                err
-            );
-
-            const message =
-                err.response?.data?.message ||
-                err.response?.data ||
-                err.message ||
-                "Failed to update category status";
-
-            setError(
-                typeof message === "string"
-                    ? message
-                    : "Failed to update category status"
-            );
-
-            setSnackbarOpen(true);
-
-        }
-
-    };
-
+        };
 
     // =====================================================
-    // DELETE
+    // DELETE CATEGORY
     // =====================================================
 
     const handleDelete = (
@@ -688,7 +800,6 @@ const CategoryList = () => {
 
     };
 
-
     // =====================================================
     // DELETE CLOSE
     // =====================================================
@@ -700,7 +811,6 @@ const CategoryList = () => {
         setSelectedCategory(null);
 
     };
-
 
     // =====================================================
     // DELETE SUCCESS
@@ -716,20 +826,6 @@ const CategoryList = () => {
 
     };
 
-
-    // =====================================================
-    // VIEW CLOSE
-    // =====================================================
-
-    const handleViewClose = () => {
-
-        setViewOpen(false);
-
-        setSelectedCategory(null);
-
-    };
-
-
     // =====================================================
     // PAGE CHANGE
     // =====================================================
@@ -742,7 +838,6 @@ const CategoryList = () => {
         setPage(newPage);
 
     };
-
 
     // =====================================================
     // ROWS PER PAGE
@@ -758,14 +853,11 @@ const CategoryList = () => {
                 10
             );
 
-        setRowsPerPage(
-            value
-        );
+        setRowsPerPage(value);
 
         setPage(0);
 
     };
-
 
     // =====================================================
     // EXPORT
@@ -781,7 +873,7 @@ const CategoryList = () => {
             "Description",
             "Status",
             "Created Date",
-            "Updated Date"
+            "Updated Date",
 
         ];
 
@@ -789,8 +881,8 @@ const CategoryList = () => {
             filteredCategories.map(
                 (category) => [
 
-                    category.categoryId ||
-                    category.id ||
+                    category.categoryId ??
+                    category.id ??
                     "",
 
                     category.categoryName ||
@@ -817,7 +909,7 @@ const CategoryList = () => {
                         ? new Date(
                             category.updatedDate
                         ).toLocaleDateString()
-                        : ""
+                        : "",
 
                 ]
             );
@@ -825,13 +917,13 @@ const CategoryList = () => {
         const csv =
             [
                 headers,
-                ...rows
+                ...rows,
             ]
                 .map(
-                    row =>
+                    (row) =>
                         row
                             .map(
-                                value =>
+                                (value) =>
                                     `"${String(
                                         value
                                     ).replace(
@@ -848,7 +940,7 @@ const CategoryList = () => {
                 [csv],
                 {
                     type:
-                        "text/csv;charset=utf-8;"
+                        "text/csv;charset=utf-8;",
                 }
             );
 
@@ -884,7 +976,6 @@ const CategoryList = () => {
 
     };
 
-
     // =====================================================
     // RENDER
     // =====================================================
@@ -894,15 +985,13 @@ const CategoryList = () => {
         <Box>
 
             {/* =================================================
-                CATEGORY TOOLBAR
+                TOOLBAR
             ================================================== */}
 
             <CategoryToolbar
 
-                onAdd={() =>
-                    navigate(
-                        "/categories/create"
-                    )
+                onAdd={
+                    handleAdd
                 }
 
                 onRefresh={
@@ -915,21 +1004,20 @@ const CategoryList = () => {
 
             />
 
-
             {/* =================================================
-                CATEGORY CONTENT
+                CONTENT
             ================================================== */}
 
             <Grid
                 container
                 spacing={2}
                 sx={{
-                    mt: 1
+                    mt: 1,
                 }}
             >
 
                 {/* =================================================
-                    CATEGORY STATISTICS
+                    STATISTICS
                 ================================================== */}
 
                 <Grid
@@ -938,18 +1026,16 @@ const CategoryList = () => {
                 >
 
                     <CategoryStatistics
-
                         categories={
                             categories
                         }
-
                     />
 
                 </Grid>
 
 
                 {/* =================================================
-                    CATEGORY SEARCH
+                    SEARCH
                 ================================================== */}
 
                 <Grid
@@ -974,7 +1060,7 @@ const CategoryList = () => {
 
 
                 {/* =================================================
-                    CATEGORY FILTERS
+                    FILTERS
                 ================================================== */}
 
                 <Grid
@@ -999,7 +1085,7 @@ const CategoryList = () => {
 
 
                 {/* =================================================
-                    CATEGORY TABLE
+                    TABLE
                 ================================================== */}
 
                 <Grid
@@ -1009,7 +1095,7 @@ const CategoryList = () => {
 
                     <Paper
                         sx={{
-                            p: 2
+                            p: 2,
                         }}
                     >
 
@@ -1027,7 +1113,7 @@ const CategoryList = () => {
                                         "center",
 
                                     justifyContent:
-                                        "center"
+                                        "center",
                                 }}
                             >
 
@@ -1055,6 +1141,14 @@ const CategoryList = () => {
                                     handleEdit
                                 }
 
+                                onViewProducts={
+                                    handleViewProducts
+                                }
+
+                                onAddSubcategory={
+                                    handleAddSubcategory
+                                }
+
                                 onDuplicate={
                                     handleDuplicate
                                 }
@@ -1070,7 +1164,6 @@ const CategoryList = () => {
                             />
 
                         )}
-
 
                         {/* =================================================
                             PAGINATION
@@ -1137,28 +1230,7 @@ const CategoryList = () => {
 
 
             {/* =================================================
-                CATEGORY DETAILS
-            ================================================== */}
-
-            <CategoryModal
-
-                open={
-                    viewOpen
-                }
-
-                category={
-                    selectedCategory
-                }
-
-                onClose={
-                    handleViewClose
-                }
-
-            />
-
-
-            {/* =================================================
-                ERROR SNACKBAR
+                ERROR
             ================================================== */}
 
             <Snackbar
@@ -1185,7 +1257,8 @@ const CategoryList = () => {
                     }
 
                     sx={{
-                        width: "100%"
+                        width:
+                            "100%",
                     }}
                 >
 

@@ -88,6 +88,8 @@ import CategoryTable from "./pages/Categories/CategoryTable";
 import CategoryToolbar from "./pages/Categories/CategoryToolbar";
 import CategoryView from "./pages/Categories/CategoryView";
 import DeleteCategoryDialog from "./pages/Categories/DeleteCategoryDialog";
+import CategoryProducts from "./pages/Categories/CategoryProducts";
+
 
 // =========================================================
 // CUSTOMER ADDRESSES
@@ -813,16 +815,88 @@ function App() {
         {/* ===================================================
             CATEGORIES
         =================================================== */}
+      // =========================================================
+// CATEGORY ROUTES
+// =========================================================
 
-        <Route path="categories" element={<CategoryList />} />
-        <Route path="categories/create" element={<CategoryCreate />} />
-        <Route path="categories/:id" element={<CategoryDetails />} />
-       <Route path="/categories/edit/:categoryId" element={<CategoryEdit />}/>
-        <Route path="categories/view/:id" element={<CategoryView />} />
-        <Route path="categories/search" element={<CategorySearch />} />
-        <Route path="categories/filters" element={<CategoryFilters />} />
-        <Route path="categories/statistics" element={<CategoryStatistics />} />
+<Route
+    path="categories"
+    element={<CategoryList />}
+/>
 
+<Route
+    path="categories/create"
+    element={<CategoryCreate />}
+/>
+
+<Route
+    path="categories/details/:id"
+    element={<CategoryDetails />}
+/>
+
+<Route
+    path="categories/edit/:categoryId"
+    element={<CategoryEdit />}
+/>
+
+<Route
+    path="categories/view/:id"
+    element={<CategoryView />}
+/>
+
+<Route
+    path="categories/search"
+    element={<CategorySearch />}
+/>
+
+<Route
+    path="categories/filters"
+    element={<CategoryFilters />}
+/>
+
+<Route
+    path="categories/statistics"
+    element={<CategoryStatistics />}
+/>
+
+<Route
+    path="categories/table"
+    element={<CategoryList />}
+/>
+
+<Route
+    path="categories/:id/products"
+    element={<CategoryProducts />}
+/>
+
+<Route
+    path="categories/form"
+    element={<CategoryForm />}
+/>
+
+<Route
+    path="categories/modal"
+    element={<CategoryModal />}
+/>
+
+<Route
+    path="categories/card"
+    element={
+        <CategoryCard
+            category={{
+                categoryId: 1,
+                categoryName: "Mobiles",
+                description:
+                    "Mobile phones and accessories",
+                parentCategoryName:
+                    "Electronics",
+                isActive: true
+            }}
+        />
+    }
+/>
+       
+        
 
         {/* ===================================================
             CUSTOMER ADDRESSES

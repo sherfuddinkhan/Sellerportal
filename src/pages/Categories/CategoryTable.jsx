@@ -1,5 +1,6 @@
 // =========================================================
 // CategoryTable.jsx
+// Category Management DataGrid
 // =========================================================
 
 import React from "react";
@@ -8,17 +9,20 @@ import {
     Box,
     Chip,
     IconButton,
-    Tooltip
+    Tooltip,
 } from "@mui/material";
 
 import {
-    DataGrid
+    DataGrid,
 } from "@mui/x-data-grid";
 
 import {
     Visibility,
     Edit,
-    Delete
+    Delete,
+    Add,
+    Inventory2,
+    PowerSettingsNew,
 } from "@mui/icons-material";
 
 // =========================================================
@@ -29,9 +33,16 @@ const CategoryTable = ({
     categories = [],
     loading = false,
 
+    // =====================================================
+    // ACTION CALLBACKS
+    // =====================================================
+
     onView,
     onEdit,
-    onDelete
+    onViewProducts,
+    onAddSubcategory,
+    onToggleStatus,
+    onDelete,
 }) => {
 
     // =====================================================
@@ -47,12 +58,11 @@ const CategoryTable = ({
         {
             field: "categoryName",
 
-            headerName:
-                "Category Name",
+            headerName: "Category Name",
 
             flex: 1.5,
 
-            minWidth: 180
+            minWidth: 180,
         },
 
         // =================================================
@@ -60,20 +70,16 @@ const CategoryTable = ({
         // =================================================
 
         {
-            field:
-                "parentCategoryName",
+            field: "parentCategoryName",
 
-            headerName:
-                "Parent Category",
+            headerName: "Parent Category",
 
             flex: 1,
 
             minWidth: 180,
 
-            renderCell:
-                (params) =>
-                    params.value ||
-                    "Root"
+            renderCell: (params) =>
+                params.value || "Root",
         },
 
         // =================================================
@@ -81,20 +87,16 @@ const CategoryTable = ({
         // =================================================
 
         {
-            field:
-                "description",
+            field: "description",
 
-            headerName:
-                "Description",
+            headerName: "Description",
 
             flex: 2,
 
             minWidth: 250,
 
-            renderCell:
-                (params) =>
-                    params.value ||
-                    "-"
+            renderCell: (params) =>
+                params.value || "-",
         },
 
         // =================================================
@@ -102,36 +104,31 @@ const CategoryTable = ({
         // =================================================
 
         {
-            field:
-                "isActive",
+            field: "isActive",
 
-            headerName:
-                "Status",
+            headerName: "Status",
 
             width: 120,
 
-            renderCell:
-                (params) => (
+            renderCell: (params) => (
 
-                    <Chip
+                <Chip
+                    label={
+                        params.value
+                            ? "Active"
+                            : "Inactive"
+                    }
 
-                        label={
-                            params.value
-                                ? "Active"
-                                : "Inactive"
-                        }
+                    color={
+                        params.value
+                            ? "success"
+                            : "error"
+                    }
 
-                        color={
-                            params.value
-                                ? "success"
-                                : "error"
-                        }
+                    size="small"
+                />
 
-                        size="small"
-
-                    />
-
-                )
+            ),
         },
 
         // =================================================
@@ -139,21 +136,18 @@ const CategoryTable = ({
         // =================================================
 
         {
-            field:
-                "createdDate",
+            field: "createdDate",
 
-            headerName:
-                "Created Date",
+            headerName: "Created Date",
 
             width: 170,
 
-            renderCell:
-                (params) =>
-                    params.value
-                        ? new Date(
-                            params.value
-                        ).toLocaleDateString()
-                        : "-"
+            renderCell: (params) =>
+                params.value
+                    ? new Date(
+                        params.value
+                    ).toLocaleDateString()
+                    : "-",
         },
 
         // =================================================
@@ -161,21 +155,18 @@ const CategoryTable = ({
         // =================================================
 
         {
-            field:
-                "updatedDate",
+            field: "updatedDate",
 
-            headerName:
-                "Updated Date",
+            headerName: "Updated Date",
 
             width: 170,
 
-            renderCell:
-                (params) =>
-                    params.value
-                        ? new Date(
-                            params.value
-                        ).toLocaleDateString()
-                        : "-"
+            renderCell: (params) =>
+                params.value
+                    ? new Date(
+                        params.value
+                    ).toLocaleDateString()
+                    : "-",
         },
 
         // =================================================
@@ -183,13 +174,11 @@ const CategoryTable = ({
         // =================================================
 
         {
-            field:
-                "actions",
+            field: "actions",
 
-            headerName:
-                "Actions",
+            headerName: "Actions",
 
-            width: 150,
+            width: 260,
 
             sortable: false,
 
@@ -197,43 +186,41 @@ const CategoryTable = ({
 
             disableColumnMenu: true,
 
-            renderCell:
-                (params) => (
+            renderCell: (params) => {
+
+                const category =
+                    params.row;
+
+                return (
 
                     <Box
                         sx={{
-                            display:
-                                "flex",
+                            display: "flex",
 
                             alignItems:
                                 "center",
 
-                            gap: 0.5
+                            gap: 0.25,
                         }}
                     >
 
                         {/* =================================
-                            CATEGORY DETAILS
+                            VIEW DETAILS
                         ================================== */}
 
                         <Tooltip
-                            title={
-                                "Category Details"
-                            }
+                            title="Category Details"
                         >
 
                             <IconButton
-
                                 color="primary"
-
                                 size="small"
 
                                 onClick={() =>
                                     onView?.(
-                                        params.row
+                                        category
                                     )
                                 }
-
                             >
 
                                 <Visibility />
@@ -243,30 +230,109 @@ const CategoryTable = ({
                         </Tooltip>
 
                         {/* =================================
-                            CATEGORY EDIT
+                            EDIT CATEGORY
                         ================================== */}
 
                         <Tooltip
-                            title={
-                                "Edit Category"
-                            }
+                            title="Edit Category"
                         >
 
                             <IconButton
-
                                 color="warning"
-
                                 size="small"
 
                                 onClick={() =>
                                     onEdit?.(
-                                        params.row
+                                        category
                                     )
                                 }
-
                             >
 
                                 <Edit />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+                        {/* =================================
+                            VIEW PRODUCTS
+                        ================================== */}
+
+                        <Tooltip
+                            title="View Products"
+                        >
+
+                            <IconButton
+                                color="info"
+                                size="small"
+
+                                onClick={() =>
+                                    onViewProducts?.(
+                                        category
+                                    )
+                                }
+                            >
+
+                                <Inventory2 />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+                        {/* =================================
+                            ADD SUBCATEGORY
+                        ================================== */}
+
+                        <Tooltip
+                            title="Add Subcategory"
+                        >
+
+                            <IconButton
+                                color="success"
+                                size="small"
+
+                                onClick={() =>
+                                    onAddSubcategory?.(
+                                        category
+                                    )
+                                }
+                            >
+
+                                <Add />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+                        {/* =================================
+                            ACTIVATE / DEACTIVATE
+                        ================================== */}
+
+                        <Tooltip
+                            title={
+                                category.isActive
+                                    ? "Deactivate Category"
+                                    : "Activate Category"
+                            }
+                        >
+
+                            <IconButton
+                                color={
+                                    category.isActive
+                                        ? "default"
+                                        : "success"
+                                }
+
+                                size="small"
+
+                                onClick={() =>
+                                    onToggleStatus?.(
+                                        category
+                                    )
+                                }
+                            >
+
+                                <PowerSettingsNew />
 
                             </IconButton>
 
@@ -277,23 +343,18 @@ const CategoryTable = ({
                         ================================== */}
 
                         <Tooltip
-                            title={
-                                "Delete Category"
-                            }
+                            title="Delete Category"
                         >
 
                             <IconButton
-
                                 color="error"
-
                                 size="small"
 
                                 onClick={() =>
                                     onDelete?.(
-                                        params.row
+                                        category
                                     )
                                 }
-
                             >
 
                                 <Delete />
@@ -304,9 +365,9 @@ const CategoryTable = ({
 
                     </Box>
 
-                )
-        }
-
+                );
+            },
+        },
     ];
 
     // =====================================================
@@ -318,23 +379,17 @@ const CategoryTable = ({
         <Box
             sx={{
                 width: "100%",
-                height: 600
+                height: 600,
             }}
         >
 
             <DataGrid
 
-                rows={
-                    categories
-                }
+                rows={categories}
 
-                columns={
-                    columns
-                }
+                columns={columns}
 
-                loading={
-                    loading
-                }
+                loading={loading}
 
                 getRowId={(row) =>
                     row.categoryId ??
@@ -346,7 +401,7 @@ const CategoryTable = ({
                 disableRowSelectionOnClick
 
                 // =================================================
-                // PAGINATION IS HANDLED BY CategoryList
+                // PAGINATION HANDLED BY CATEGORY LIST
                 // =================================================
 
                 hideFooter
@@ -354,30 +409,28 @@ const CategoryTable = ({
                 sx={{
 
                     "& .MuiDataGrid-cell": {
-
-                        display:
-                            "flex",
-
-                        alignItems:
-                            "center"
-
+                        display: "flex",
+                        alignItems: "center",
                     },
 
                     "& .MuiDataGrid-columnHeader": {
+                        fontWeight: 600,
+                    },
 
-                        fontWeight:
-                            600
+                    "& .MuiDataGrid-cell:focus": {
+                        outline: "none",
+                    },
 
-                    }
+                    "& .MuiDataGrid-row:hover": {
+                        cursor: "default",
+                    },
 
                 }}
 
             />
 
         </Box>
-
     );
-
 };
 
 export default CategoryTable;
