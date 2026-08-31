@@ -1,107 +1,252 @@
+// =========================================================
+// ProductTypeModal.jsx
+// Product Type Details Modal
+//
+// Frontend-only component.
+// Data comes from ProductTypeList.
+// No axios / apiService required.
+// =========================================================
+
 import React from "react";
 
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
     Grid,
     Typography,
-    Chip,
-    Divider
 } from "@mui/material";
 
+
+// =========================================================
+// PRODUCT TYPE MODAL
+// =========================================================
+
 const ProductTypeModal = ({
-    open,
+    open = false,
     onClose,
-    productType
+    productType = null,
 }) => {
 
-    if (!productType) return null;
+    // =====================================================
+    // NO PRODUCT TYPE
+    // =====================================================
+
+    if (!productType) {
+        return null;
+    }
+
+
+    // =====================================================
+    // FORMAT DATE
+    // =====================================================
+
+    const formatDate = (dateValue) => {
+
+        if (!dateValue) {
+            return "-";
+        }
+
+        const date =
+            new Date(dateValue);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "-";
+        }
+
+        return date.toLocaleString();
+
+    };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Dialog
+
             open={open}
+
             onClose={onClose}
+
             maxWidth="md"
+
             fullWidth
+
         >
 
-            <DialogTitle>
+            {/* =============================================
+                TITLE
+            ============================================= */}
+
+            <DialogTitle
+                sx={{
+                    fontWeight: "bold",
+                }}
+            >
 
                 Product Type Details
 
             </DialogTitle>
 
+
             <Divider />
 
-            <DialogContent sx={{ mt: 2 }}>
 
-                <Grid container spacing={3}>
+            {/* =============================================
+                CONTENT
+            ============================================= */}
 
-                    <Grid item xs={12} md={6}>
+            <DialogContent
+                sx={{
+                    mt: 1,
+                }}
+            >
+
+                <Grid
+                    container
+                    spacing={3}
+                >
+
+                    {/* =====================================
+                        PRODUCT TYPE ID
+                    ===================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
+
                             Product Type ID
+
                         </Typography>
 
-                        <Typography>
+                        <Typography
+                            variant="body1"
+                            fontWeight="600"
+                        >
 
-                            {productType.productTypeId}
+                            {
+                                productType.productTypeId ??
+                                "-"
+                            }
 
                         </Typography>
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        PRODUCT TYPE NAME
+                    ===================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
+
                             Product Type Name
+
                         </Typography>
 
-                        <Typography>
+                        <Typography
+                            variant="body1"
+                            fontWeight="600"
+                        >
 
-                            {productType.productTypeName}
+                            {
+                                productType.productTypeName ||
+                                "-"
+                            }
 
                         </Typography>
 
                     </Grid>
 
-                    <Grid item xs={12}>
+
+                    {/* =====================================
+                        DESCRIPTION
+                    ===================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                    >
 
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
+
                             Description
+
                         </Typography>
 
-                        <Typography>
+                        <Typography
+                            sx={{
+                                mt: 0.5,
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                            }}
+                        >
 
-                            {productType.description || "-"}
+                            {
+                                productType.description ||
+                                "-"
+                            }
 
                         </Typography>
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        STATUS
+                    ===================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
+                            sx={{
+                                mb: 1,
+                            }}
                         >
+
                             Status
+
                         </Typography>
 
                         <Chip
+
+                            size="small"
 
                             label={
                                 productType.isActive
@@ -119,54 +264,64 @@ const ProductTypeModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        CREATED DATE
+                    ===================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
+
                             Created Date
+
                         </Typography>
 
                         <Typography>
 
                             {
-
-                                productType.createdDate
-
-                                    ? new Date(
-                                        productType.createdDate
-                                    ).toLocaleString()
-
-                                    : "-"
-
+                                formatDate(
+                                    productType.createdDate
+                                )
                             }
 
                         </Typography>
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        UPDATED DATE
+                    ===================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
+
                             Updated Date
+
                         </Typography>
 
                         <Typography>
 
                             {
-
-                                productType.updatedDate
-
-                                    ? new Date(
-                                        productType.updatedDate
-                                    ).toLocaleString()
-
-                                    : "-"
-
+                                formatDate(
+                                    productType.updatedDate
+                                )
                             }
 
                         </Typography>
@@ -177,7 +332,17 @@ const ProductTypeModal = ({
 
             </DialogContent>
 
-            <DialogActions>
+
+            {/* =============================================
+                ACTIONS
+            ============================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2,
+                }}
+            >
 
                 <Button
 
@@ -198,5 +363,10 @@ const ProductTypeModal = ({
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductTypeModal;

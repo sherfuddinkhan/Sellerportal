@@ -1,106 +1,366 @@
-import React, { useEffect, useState } from "react";
-import {Paper,Typography,CircularProgress,Box,Snackbar,Alert} from "@mui/material";
-import {useNavigate,useParams} from "react-router-dom";
+// =========================================================
+// ProductTypeEdit.jsx
+// Edit Product Type
+// React → Node server.js → ASP.NET Core API
+// =========================================================
+
+import React, {
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
+
+import axios from "axios";
+
+import {
+    Alert,
+    Box,
+    CircularProgress,
+    Paper,
+    Snackbar,
+    Typography,
+} from "@mui/material";
+
+import {
+    useNavigate,
+    useParams,
+} from "react-router-dom";
+
 import ProductTypeForm from "./ProductTypeForm";
+
+
+// =========================================================
+// NODE SERVER
+// =========================================================
+
+const NODE_API_URL = "http://localhost:5000";
+
+
+// =========================================================
+// DEFAULT PRODUCT TYPE
+// =========================================================
+
+const DEFAULT_PRODUCT_TYPE = {
+    productTypeName: "",
+    description: "",
+    isActive: true,
+};
+
+
+// =========================================================
+// PRODUCT TYPE EDIT
+// =========================================================
+
 const ProductTypeEdit = () => {
+
     const navigate = useNavigate();
+
     const { id } = useParams();
+
+
+    // =====================================================
+    // STATE
+    // =====================================================
+
     const [loading, setLoading] = useState(false);
+
     const [pageLoading, setPageLoading] = useState(true);
-    const [productType, setProductType] = useState({
-        productTypeName: "",
-        description: "",
-        isActive: true
-    });
+
+    const [productType, setProductType] = useState(
+        DEFAULT_PRODUCT_TYPE
+    );
+
+
+    // =====================================================
+    // SNACKBAR
+    // =====================================================
 
     const [snackbar, setSnackbar] = useState({
         open: false,
         severity: "success",
-        message: ""
+        message: "",
     });
-    useEffect(() => {
-        loadProductType();
-    }, []);
 
-    const loadProductType = async () => {
 
-        try {
+    // =====================================================
+    // SHOW MESSAGE
+    // =====================================================
 
-            setPageLoading(true);
-
-            const response =
-                await apiService.getProductTypeById(id);
-
-            setProductType(response.data);
-
-        }
-
-        catch (err) {
-
-            console.log(err);
+    const showMessage = useCallback(
+        (message, severity = "success") => {
 
             setSnackbar({
-
                 open: true,
-
-                severity: "error",
-
-                message: "Unable to load Product Type."
-
+                severity,
+                message,
             });
 
-        }
+        },
+        []
+    );
 
-        finally {
 
-            setPageLoading(false);
+    // =====================================================
+    // LOAD PRODUCT TYPE
+    // =====================================================
 
-        }
+    const loadProductType = useCallback(
+        async () => {
 
-    };
+            // -----------------------------------------------
+            // Validate ID
+            // -----------------------------------------------
+
+            if (!id) {
+
+                showMessage(
+                    "Product Type ID is missing.",
+                    "error"
+                );
+
+                setPageLoading(false);
+
+                return;
+
+            }
+
+
+            try {
+
+                setPageLoading(true);
+
+
+                // -------------------------------------------
+                // React → Node
+                // -------------------------------------------
+
+                const response = await axios.get(
+                    `${NODE_API_URL}/api/product-types/${id}`
+                );
+
+
+                const responseData =
+                    response.data;
+
+
+                // -------------------------------------------
+                // Backend can return:
+                //
+                // {
+                //     success: true,
+                //     data: {...}
+                // }
+                //
+                // or:
+                //
+                // {
+                //     productTypeId: 1,
+                //     productTypeName: "Electronics"
+                // }
+                // -------------------------------------------
+
+                let data = null;
+
+
+                if (
+                    responseData?.data &&
+                    typeof responseData.data === "object"
+                ) {
+
+                    data =
+                        responseData.data;
+
+                }
+                else if (
+                    responseData &&
+                    typeof responseData === "object"
+                ) {
+
+                    data =
+                        responseData;
+
+                }
+
+
+                if (!data) {
+
+                    throw new Error(
+                        "Product Type data not found."
+                    );
+
+                }
+
+
+                setProductType({
+                    ...DEFAULT_PRODUCT_TYPE,
+                    ...data,
+                });
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Load Product Type Error:",
+                    error
+                );
+
+
+                const message =
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    "Unable to load Product Type.";
+
+
+                showMessage(
+                    message,
+                    "error"
+                );
+
+            }
+            finally {
+
+                setPageLoading(false);
+
+            }
+
+        },
+        [
+            id,
+            showMessage,
+        ]
+    );
+
+
+    // =====================================================
+    // LOAD ON PAGE OPEN
+    // =====================================================
+
+    useEffect(() => {
+
+        loadProductType();
+
+    }, [
+        loadProductType,
+    ]);
+
+
+    // =====================================================
+    // UPDATE PRODUCT TYPE
+    // =====================================================
 
     const handleUpdate = async (values) => {
+
+        if (!id) {
+
+            showMessage(
+                "Product Type ID is missing.",
+                "error"
+            );
+
+            return;
+
+        }
+
 
         try {
 
             setLoading(true);
 
-            await apiService.updateProductType(id, values);
 
-            setSnackbar({
+            // -----------------------------------------------
+            // Prepare request
+            // -----------------------------------------------
 
-                open: true,
+            const payload = {
 
-                severity: "success",
+                productTypeName:
+                    values.productTypeName?.trim() || "",
 
-                message: "Product Type updated successfully."
+                description:
+                    values.description?.trim() || "",
 
-            });
+                isActive:
+                    Boolean(values.isActive),
+
+            };
+
+
+            // -----------------------------------------------
+            // React → Node
+            //
+            // PUT
+            // /api/product-types/:id
+            // -----------------------------------------------
+
+            const response =
+                await axios.put(
+                    `${NODE_API_URL}/api/product-types/${id}`,
+                    payload,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+
+            console.log(
+                "Product Type Update Response:",
+                response.data
+            );
+
+
+            // -----------------------------------------------
+            // Success
+            // -----------------------------------------------
+
+            showMessage(
+                "Product Type updated successfully.",
+                "success"
+            );
+
+
+            // -----------------------------------------------
+            // Navigate after success
+            // -----------------------------------------------
 
             setTimeout(() => {
 
-                navigate("/product-types");
+                navigate(
+                    "/product-types"
+                );
 
             }, 1000);
 
         }
+        catch (error) {
 
-        catch (err) {
+            console.error(
+                "Update Product Type Error:",
+                error
+            );
 
-            console.log(err);
 
-            setSnackbar({
+            // -----------------------------------------------
+            // ASP.NET / Node error
+            // -----------------------------------------------
 
-                open: true,
+            const message =
+                error?.response?.data?.message ||
+                error?.response?.data?.title ||
+                error?.message ||
+                "Unable to update Product Type.";
 
-                severity: "error",
 
-                message: "Unable to update Product Type."
-
-            });
+            showMessage(
+                message,
+                "error"
+            );
 
         }
-
         finally {
 
             setLoading(false);
@@ -109,18 +369,23 @@ const ProductTypeEdit = () => {
 
     };
 
-    if (pageLoading)
+
+    // =====================================================
+    // PAGE LOADING
+    // =====================================================
+
+    if (pageLoading) {
 
         return (
 
             <Box
-
-                display="flex"
-
-                justifyContent="center"
-
-                mt={5}
-
+                sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: 300,
+                }}
             >
 
                 <CircularProgress />
@@ -129,65 +394,120 @@ const ProductTypeEdit = () => {
 
         );
 
+    }
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
 
-        <Paper sx={{ p: 3 }}>
+        <Box
+            sx={{
+                width: "100%",
+            }}
+        >
 
-            <Typography
-
-                variant="h5"
-
-                fontWeight="bold"
-
-                mb={3}
-
+            <Paper
+                elevation={2}
+                sx={{
+                    p: 3,
+                }}
             >
 
-                Edit Product Type
+                {/* =========================================
+                    PAGE TITLE
+                ========================================= */}
 
-            </Typography>
+                <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    mb={3}
+                >
+                    Edit Product Type
+                </Typography>
 
-            <ProductTypeForm
 
-                initialValues={productType}
+                {/* =========================================
+                    PRODUCT TYPE FORM
+                ========================================= */}
 
-                loading={loading}
+                <ProductTypeForm
 
-                onSubmit={handleUpdate}
+                    initialValues={
+                        productType
+                    }
 
-                onCancel={() =>
+                    loading={
+                        loading
+                    }
 
-                    navigate("/product-types")
+                    onSubmit={
+                        handleUpdate
+                    }
 
-                }
+                    onCancel={() =>
+                        navigate(
+                            "/product-types"
+                        )
+                    }
 
-            />
+                />
+
+            </Paper>
+
+
+            {/* =============================================
+                SNACKBAR
+            ============================================= */}
 
             <Snackbar
 
-                open={snackbar.open}
+                open={
+                    snackbar.open
+                }
 
-                autoHideDuration={3000}
+                autoHideDuration={
+                    3000
+                }
 
                 onClose={() =>
-
-                    setSnackbar({
-
-                        ...snackbar,
-
-                        open: false
-
-                    })
-
+                    setSnackbar(
+                        (previous) => ({
+                            ...previous,
+                            open: false,
+                        })
+                    )
                 }
+
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                }}
 
             >
 
                 <Alert
 
-                    severity={snackbar.severity}
+                    severity={
+                        snackbar.severity
+                    }
 
                     variant="filled"
+
+                    onClose={() =>
+                        setSnackbar(
+                            (previous) => ({
+                                ...previous,
+                                open: false,
+                            })
+                        )
+                    }
+
+                    sx={{
+                        width: "100%",
+                    }}
 
                 >
 
@@ -197,10 +517,14 @@ const ProductTypeEdit = () => {
 
             </Snackbar>
 
-        </Paper>
+        </Box>
 
     );
-
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductTypeEdit;

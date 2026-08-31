@@ -1,48 +1,82 @@
+// =========================================================
+// ProductTypeToolbar.jsx
+// Product Type Management Toolbar
+// =========================================================
+
 import React from "react";
 
 import {
-
+    Button,
     Stack,
-
     Typography,
-
-    Button
-
 } from "@mui/material";
 
 import {
-
     Add,
-
+    Download,
     Refresh,
-
-    Download
-
 } from "@mui/icons-material";
 
+
+// =========================================================
+// PRODUCT TYPE TOOLBAR
+// =========================================================
+
 const ProductTypeToolbar = ({
-
     onAdd,
-
     onRefresh,
-
-    onExport
-
+    onExport,
+    loading = false,
 }) => {
+
+    // =====================================================
+    // EXPORT
+    // =====================================================
+
+    const handleExport = () => {
+
+        if (loading) {
+            return;
+        }
+
+        if (onExport) {
+            onExport();
+        }
+
+    };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Stack
 
-            direction="row"
+            direction={{
+                xs: "column",
+                sm: "row",
+            }}
 
             justifyContent="space-between"
 
-            alignItems="center"
+            alignItems={{
+                xs: "stretch",
+                sm: "center",
+            }}
 
-            sx={{ mb: 3 }}
+            spacing={2}
+
+            sx={{
+                mb: 3,
+            }}
 
         >
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
 
             <Typography
 
@@ -56,21 +90,37 @@ const ProductTypeToolbar = ({
 
             </Typography>
 
+
+            {/* =================================================
+                ACTION BUTTONS
+            ================================================= */}
+
             <Stack
 
-                direction="row"
+                direction={{
+                    xs: "column",
+                    sm: "row",
+                }}
 
                 spacing={2}
 
             >
 
+                {/* =============================================
+                    ADD PRODUCT TYPE
+                ============================================= */}
+
                 <Button
 
                     variant="contained"
 
-                    startIcon={<Add/>}
+                    startIcon={
+                        <Add />
+                    }
 
                     onClick={onAdd}
+
+                    disabled={loading}
 
                 >
 
@@ -78,13 +128,22 @@ const ProductTypeToolbar = ({
 
                 </Button>
 
+
+                {/* =============================================
+                    REFRESH
+                ============================================= */}
+
                 <Button
 
                     variant="outlined"
 
-                    startIcon={<Refresh/>}
+                    startIcon={
+                        <Refresh />
+                    }
 
                     onClick={onRefresh}
+
+                    disabled={loading}
 
                 >
 
@@ -92,15 +151,27 @@ const ProductTypeToolbar = ({
 
                 </Button>
 
+
+                {/* =============================================
+                    EXPORT
+                ============================================= */}
+
                 <Button
 
                     variant="outlined"
 
                     color="success"
 
-                    startIcon={<Download/>}
+                    startIcon={
+                        <Download />
+                    }
 
-                    onClick={onExport}
+                    onClick={handleExport}
+
+                    disabled={
+                        loading ||
+                        !onExport
+                    }
 
                 >
 
@@ -115,5 +186,10 @@ const ProductTypeToolbar = ({
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductTypeToolbar;

@@ -1,5 +1,38 @@
-import React, {useEffect,useMemo,useState} from "react";
-import { Box,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
+// =========================================================
+// ProductTypeList.jsx
+// Central Product Type Management Page
+//
+// React
+//   ↓
+// Axios
+//   ↓
+// Node server.js :5000
+//   ↓
+// ASP.NET Core :7203
+// =========================================================
+
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+
+import axios from "axios";
+
+import {
+    Alert,
+    Box,
+    CircularProgress,
+    Grid,
+    Paper,
+    Snackbar,
+    Typography,
+} from "@mui/material";
+
+import {
+    useNavigate,
+} from "react-router-dom";
 
 import ProductTypeToolbar from "./ProductTypeToolbar";
 import ProductTypeStatistics from "./ProductTypeStatistics";
@@ -7,18 +40,30 @@ import ProductTypeSearch from "./ProductTypeSearch";
 import ProductTypeFilters from "./ProductTypeFilters";
 import ProductTypeTable from "./ProductTypeTable";
 import ProductTypePagination from "./ProductTypePagination";
-import ProductTypeModal from "./ProductTypeModal";
 import DeleteProductTypeDialog from "./DeleteProductTypeDialog";
 
 
+// =========================================================
+// NODE SERVER URL
+// =========================================================
+
+const NODE_API_URL = "http://localhost:5000";
+
+
+// =========================================================
+// PRODUCT TYPE LIST
+// =========================================================
 
 const ProductTypeList = () => {
 
     const navigate = useNavigate();
 
-    const [productTypes, setProductTypes] = useState([]);
 
-    const [filteredProductTypes, setFilteredProductTypes] = useState([]);
+    // =====================================================
+    // STATE
+    // =====================================================
+
+    const [productTypes, setProductTypes] = useState([]);
 
     const [loading, setLoading] = useState(false);
 
@@ -30,208 +75,808 @@ const ProductTypeList = () => {
 
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const [selectedProductType, setSelectedProductType] = useState(null);
-
-    const [viewOpen, setViewOpen] = useState(false);
+    const [selectedProductType, setSelectedProductType] =
+        useState(null);
 
     const [deleteOpen, setDeleteOpen] = useState(false);
+
+
+    // =====================================================
+    // SNACKBAR
+    // =====================================================
+
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "success",
+    });
+
+
+    // =====================================================
+    // SHOW MESSAGE
+    // =====================================================
+
+    const showMessage = useCallback(
+        (message, severity = "success") => {
+
+            setSnackbar({
+                open: true,
+                message,
+                severity,
+            });
+
+        },
+        []
+    );
+
+
+    // =====================================================
+    // CLOSE SNACKBAR
+    // =====================================================
+
+    const handleSnackbarClose = () => {
+
+        setSnackbar((previous) => ({
+            ...previous,
+            open: false,
+        }));
+
+    };
+
+
+    // =====================================================
+    // LOAD PRODUCT TYPES
+    // =====================================================
+
+    const loadProductTypes = useCallback(
+        async () => {
+
+            try {
+
+                setLoading(true);
+
+
+                const response = await axios.get(
+                    `${NODE_API_URL}/api/product-types`
+                );
+
+
+                const data = response.data;
+
+
+                // -------------------------------------------------
+                // Support:
+                //
+                // Array
+                // { items: [] }
+                // { data: [] }
+                // -------------------------------------------------
+
+                let items = [];
+
+
+                if (Array.isArray(data)) {
+
+                    items = data;
+
+                }
+                else if (
+                    Array.isArray(data?.items)
+                ) {
+
+                    items = data.items;
+
+                }
+                else if (
+                    Array.isArray(data?.data)
+                ) {
+
+                    items = data.data;
+
+                }
+
+
+                setProductTypes(items);
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Product Type Load Error:",
+                    error
+                );
+
+
+                setProductTypes([]);
+
+
+                showMessage(
+                    error?.response?.data?.message ||
+                    "Failed to load product types.",
+                    "error"
+                );
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+        [showMessage]
+    );
+
+
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
 
     useEffect(() => {
 
         loadProductTypes();
 
-    }, []);
+    }, [loadProductTypes]);
+
+
+    // =====================================================
+    // FILTER
+    // =====================================================
+
+    const filteredProductTypes = useMemo(
+        () => {
+
+            let result = [
+                ...productTypes
+            ];
+
+
+            // -------------------------------------------------
+            // SEARCH
+            // -------------------------------------------------
+
+            if (
+                searchText &&
+                searchText.trim() !== ""
+            ) {
+
+                const search =
+                    searchText
+                        .trim()
+                        .toLowerCase();
+
+
+                result =
+                    result.filter(
+                        (item) => {
+
+                            const name =
+                                item
+                                    ?.productTypeName
+                                    ?.toString()
+                                    .toLowerCase() ||
+                                "";
+
+
+                            const description =
+                                item
+                                    ?.description
+                                    ?.toString()
+                                    .toLowerCase() ||
+                                "";
+
+
+                            const id =
+                                item
+                                    ?.productTypeId
+                                    ?.toString()
+                                    .toLowerCase() ||
+                                "";
+
+
+                            return (
+                                name.includes(search) ||
+                                description.includes(search) ||
+                                id.includes(search)
+                            );
+
+                        }
+                    );
+
+            }
+
+
+            // -------------------------------------------------
+            // STATUS
+            // -------------------------------------------------
+
+            if (
+                statusFilter !== "All"
+            ) {
+
+                const active =
+                    statusFilter === "Active";
+
+
+                result =
+                    result.filter(
+                        (item) =>
+                            Boolean(
+                                item.isActive
+                            ) === active
+                    );
+
+            }
+
+
+            return result;
+
+        },
+        [
+            productTypes,
+            searchText,
+            statusFilter,
+        ]
+    );
+
+
+    // =====================================================
+    // RESET PAGE
+    // =====================================================
 
     useEffect(() => {
 
-        let result = [...productTypes];
+        setPage(0);
 
-        if (searchText !== "") {
+    }, [
+        searchText,
+        statusFilter,
+        rowsPerPage,
+    ]);
 
-            result = result.filter(x =>
 
-                x.productTypeName
+    // =====================================================
+    // PAGINATION
+    // =====================================================
 
-                    ?.toLowerCase()
+    const paginatedProductTypes =
+        useMemo(
+            () => {
 
-                    .includes(searchText.toLowerCase())
+                const start =
+                    page * rowsPerPage;
 
+
+                const end =
+                    start + rowsPerPage;
+
+
+                return filteredProductTypes.slice(
+                    start,
+                    end
+                );
+
+            },
+            [
+                filteredProductTypes,
+                page,
+                rowsPerPage,
+            ]
+        );
+
+
+    // =====================================================
+    // VIEW
+    //
+    // IMPORTANT:
+    // This navigates using the REAL ID.
+    //
+    // /product-types/details/5
+    //
+    // NOT:
+    //
+    // /product-types/details/:id
+    // =====================================================
+
+    const handleView = (row) => {
+
+        const id =
+            row?.productTypeId;
+
+
+        console.log(
+            "View Product Type:",
+            row
+        );
+
+
+        if (
+            id === undefined ||
+            id === null ||
+            id === ""
+        ) {
+
+            showMessage(
+                "Product type ID is missing.",
+                "error"
             );
 
-        }
-
-        if (statusFilter !== "All") {
-
-            const active = statusFilter === "Active";
-
-            result = result.filter(x =>
-
-                x.isActive === active
-
-            );
+            return;
 
         }
 
-        setFilteredProductTypes(result);
 
-    }, [productTypes, searchText, statusFilter]);
-
-    const loadProductTypes = async () => {
-
-        try {
-
-            setLoading(true);
-
-            const response =
-                await apiService.getProductTypes();
-
-            setProductTypes(response.data);
-
-            setFilteredProductTypes(response.data);
-
-        }
-
-        catch (err) {
-
-            console.log(err);
-
-        }
-
-        finally {
-
-            setLoading(false);
-
-        }
+        navigate(
+            `/product-types/details/${id}`
+        );
 
     };
 
+
+    // =====================================================
+    // EDIT
+    // =====================================================
+
+    const handleEdit = (row) => {
+
+        const id =
+            row?.productTypeId;
+
+
+        if (
+            id === undefined ||
+            id === null ||
+            id === ""
+        ) {
+
+            showMessage(
+                "Product type ID is missing.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        navigate(
+            `/product-types/edit/${id}`
+        );
+
+    };
+
+
+    // =====================================================
+    // DELETE
+    // =====================================================
+
+    const handleDelete = (row) => {
+
+        setSelectedProductType(row);
+
+        setDeleteOpen(true);
+
+    };
+
+
+    // =====================================================
+    // DELETE COMPLETED
+    // =====================================================
+
+    const handleDeleted = async () => {
+
+        setDeleteOpen(false);
+
+        setSelectedProductType(null);
+
+
+        await loadProductTypes();
+
+
+        showMessage(
+            "Product type deleted successfully.",
+            "success"
+        );
+
+    };
+
+
+    // =====================================================
+    // CLOSE DELETE
+    // =====================================================
+
+    const handleDeleteClose = () => {
+
+        if (loading) return;
+
+
+        setDeleteOpen(false);
+
+        setSelectedProductType(null);
+
+    };
+
+
+    // =====================================================
+    // EXPORT CSV
+    // =====================================================
+
+    const handleExport = () => {
+
+        if (
+            filteredProductTypes.length === 0
+        ) {
+
+            showMessage(
+                "No product types available to export.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+
+        const headers = [
+            "Product Type ID",
+            "Product Type Name",
+            "Description",
+            "Status",
+            "Created Date",
+            "Updated Date",
+        ];
+
+
+        const rows =
+            filteredProductTypes.map(
+                (item) => [
+
+                    item.productTypeId ?? "",
+
+                    item.productTypeName ?? "",
+
+                    item.description ?? "",
+
+                    item.isActive
+                        ? "Active"
+                        : "Inactive",
+
+                    item.createdDate ?? "",
+
+                    item.updatedDate ?? "",
+
+                ]
+            );
+
+
+        const csv = [
+
+            headers,
+
+            ...rows,
+
+        ]
+            .map(
+                (row) =>
+                    row
+                        .map(
+                            (value) =>
+                                `"${String(value)
+                                    .replaceAll('"', '""')}"`
+                        )
+                        .join(",")
+            )
+            .join("\n");
+
+
+        const blob =
+            new Blob(
+                [csv],
+                {
+                    type:
+                        "text/csv;charset=utf-8;",
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href = url;
+
+        link.download =
+            "product-types.csv";
+
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+
+
+        showMessage(
+            "Product types exported successfully.",
+            "success"
+        );
+
+    };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
 
-        <Box>
+        <Box
+            sx={{
+                width: "100%",
+            }}
+        >
+
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
 
             <ProductTypeToolbar
 
                 onAdd={() =>
-
-                    navigate("/product-types/create")
-
+                    navigate(
+                        "/product-types/create"
+                    )
                 }
 
-                onRefresh={loadProductTypes}
+                onRefresh={
+                    loadProductTypes
+                }
+
+                onExport={
+                    handleExport
+                }
 
             />
 
-            <Grid container spacing={2}>
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
+            <Grid
+                container
+                spacing={2}
+            >
+
+                {/* =================================================
+                    STATISTICS
+                ================================================= */}
 
                 <Grid item xs={12}>
 
                     <ProductTypeStatistics
-
-                        productTypes={productTypes}
-
+                        productTypes={
+                            productTypes
+                        }
                     />
 
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+
+                {/* =================================================
+                    SEARCH
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
 
                     <ProductTypeSearch
 
-                        searchText={searchText}
+                        searchText={
+                            searchText
+                        }
 
-                        setSearchText={setSearchText}
+                        setSearchText={
+                            setSearchText
+                        }
 
                     />
 
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+
+                {/* =================================================
+                    FILTER
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
 
                     <ProductTypeFilters
 
-                        statusFilter={statusFilter}
+                        statusFilter={
+                            statusFilter
+                        }
 
-                        setStatusFilter={setStatusFilter}
+                        setStatusFilter={
+                            setStatusFilter
+                        }
 
                     />
 
                 </Grid>
 
-                <Grid item xs={12}>
 
-                    <Paper sx={{ p: 2 }}>
+                {/* =================================================
+                    TABLE
+                ================================================= */}
 
-                        <ProductTypeTable
+                <Grid
+                    item
+                    xs={12}
+                >
 
-                            productTypes={
+                    <Paper
+                        elevation={2}
+                        sx={{
+                            p: 2,
+                            width: "100%",
+                            overflow: "hidden",
+                        }}
+                    >
 
-                                filteredProductTypes.slice(
+                        {loading ? (
 
-                                    page * rowsPerPage,
+                            <Box
+                                sx={{
+                                    minHeight: 300,
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
 
-                                    page * rowsPerPage + rowsPerPage
+                                <CircularProgress />
 
-                                )
+                            </Box>
 
-                            }
+                        ) : filteredProductTypes.length === 0 ? (
 
-                            loading={loading}
+                            <Box
+                                sx={{
+                                    minHeight: 300,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: 1,
+                                }}
+                            >
 
-                            onView={(row) => {
+                                <Typography
+                                    variant="h6"
+                                    color="text.secondary"
+                                >
 
-                                setSelectedProductType(row);
+                                    No product types found
 
-                                setViewOpen(true);
+                                </Typography>
 
-                            }}
 
-                            onEdit={(row) =>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
 
-                                navigate(
+                                    Try changing your
+                                    search or filter.
 
-                                    `/product-types/edit/${row.productTypeId}`
+                                </Typography>
 
-                                )
+                            </Box>
 
-                            }
+                        ) : (
 
-                            onDelete={(row) => {
+                            <ProductTypeTable
 
-                                setSelectedProductType(row);
+                                productTypes={
+                                    paginatedProductTypes
+                                }
 
-                                setDeleteOpen(true);
+                                loading={
+                                    loading
+                                }
 
-                            }}
+                                onView={
+                                    handleView
+                                }
 
-                        />
+                                onEdit={
+                                    handleEdit
+                                }
 
-                        <ProductTypePagination
+                                onDelete={
+                                    handleDelete
+                                }
 
-                            page={page}
+                            />
 
-                            rowsPerPage={rowsPerPage}
+                        )}
 
-                            totalRecords={filteredProductTypes.length}
 
-                            onPageChange={(e, newPage) =>
+                        {/* =================================================
+                            PAGINATION
+                        ================================================= */}
 
-                                setPage(newPage)
+                        {!loading &&
+                            filteredProductTypes.length >
+                                0 && (
 
-                            }
+                                <ProductTypePagination
 
-                            onRowsPerPageChange={(e) => {
+                                    page={
+                                        page
+                                    }
 
-                                setRowsPerPage(
+                                    rowsPerPage={
+                                        rowsPerPage
+                                    }
 
-                                    parseInt(e.target.value, 10)
+                                    totalRecords={
+                                        filteredProductTypes.length
+                                    }
 
-                                );
+                                    onPageChange={
+                                        (
+                                            event,
+                                            newPage
+                                        ) => {
 
-                                setPage(0);
+                                            setPage(
+                                                newPage
+                                            );
 
-                            }}
+                                        }
+                                    }
 
-                        />
+                                    onRowsPerPageChange={
+                                        (
+                                            event
+                                        ) => {
+
+                                            const value =
+                                                parseInt(
+                                                    event
+                                                        .target
+                                                        .value,
+                                                    10
+                                                );
+
+
+                                            setRowsPerPage(
+                                                value
+                                            );
+
+                                            setPage(0);
+
+                                        }
+                                    }
+
+                                />
+
+                            )}
 
                     </Paper>
 
@@ -239,44 +884,92 @@ const ProductTypeList = () => {
 
             </Grid>
 
-            <ProductTypeModal
 
-                open={viewOpen}
-
-                productType={selectedProductType}
-
-                onClose={() => {
-
-                    setViewOpen(false);
-
-                    setSelectedProductType(null);
-
-                }}
-
-            />
+            {/* =================================================
+                DELETE DIALOG
+            ================================================= */}
 
             <DeleteProductTypeDialog
 
-                open={deleteOpen}
+                open={
+                    deleteOpen
+                }
 
-                productType={selectedProductType}
+                productType={
+                    selectedProductType
+                }
 
-                onClose={() => {
+                onClose={
+                    handleDeleteClose
+                }
 
-                    setDeleteOpen(false);
-
-                    setSelectedProductType(null);
-
-                }}
-
-                onDeleted={loadProductTypes}
+                onDeleted={
+                    handleDeleted
+                }
 
             />
+
+
+            {/* =================================================
+                SNACKBAR
+            ================================================= */}
+
+            <Snackbar
+
+                open={
+                    snackbar.open
+                }
+
+                autoHideDuration={
+                    4000
+                }
+
+                onClose={
+                    handleSnackbarClose
+                }
+
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                }}
+
+            >
+
+                <Alert
+
+                    onClose={
+                        handleSnackbarClose
+                    }
+
+                    severity={
+                        snackbar.severity
+                    }
+
+                    variant="filled"
+
+                    sx={{
+                        width: "100%",
+                    }}
+
+                >
+
+                    {
+                        snackbar.message
+                    }
+
+                </Alert>
+
+            </Snackbar>
 
         </Box>
 
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductTypeList;

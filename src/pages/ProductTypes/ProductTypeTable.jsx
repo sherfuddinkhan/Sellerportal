@@ -1,192 +1,399 @@
-import React from "react";
+// =========================================================
+// ProductTypeTable.jsx
+// =========================================================
+
+import React, {
+    useMemo,
+} from "react";
 
 import {
     Box,
     Chip,
     IconButton,
-    Tooltip
+    Tooltip,
 } from "@mui/material";
 
-import { DataGrid } from "@mui/x-data-grid";
+import {
+    DataGrid,
+} from "@mui/x-data-grid";
 
 import {
-
     Visibility,
-
     Edit,
-
-    Delete
-
+    Delete,
 } from "@mui/icons-material";
 
+
 const ProductTypeTable = ({
-
-    productTypes,
-
-    loading,
-
+    productTypes = [],
+    loading = false,
     onView,
-
     onEdit,
-
-    onDelete
-
+    onDelete,
 }) => {
 
-    const columns = [
 
-        {
+    const columns = useMemo(
+        () => [
 
-            field: "productTypeName",
+            // =================================================
+            // PRODUCT TYPE
+            // =================================================
 
-            headerName: "Product Type",
+            {
+                field: "productTypeName",
 
-            flex: 1.5
+                headerName: "Product Type",
 
-        },
+                flex: 1.5,
 
-        {
+                minWidth: 180,
 
-            field: "description",
+                sortable: true,
 
-            headerName: "Description",
+                renderCell: (params) => (
 
-            flex: 2
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            height: "100%",
+                            fontWeight: 500,
+                        }}
+                    >
 
-        },
+                        {
+                            params.value ||
+                            "-"
+                        }
 
-        {
+                    </Box>
 
-            field: "isActive",
+                ),
+            },
 
-            headerName: "Status",
 
-            width: 130,
+            // =================================================
+            // DESCRIPTION
+            // =================================================
 
-            renderCell: (params) => (
+            {
+                field: "description",
 
-                <Chip
+                headerName: "Description",
 
-                    size="small"
+                flex: 2,
 
-                    label={
-                        params.value
-                            ? "Active"
-                            : "Inactive"
-                    }
+                minWidth: 250,
 
-                    color={
-                        params.value
-                            ? "success"
-                            : "error"
-                    }
+                renderCell: (params) => (
 
-                />
+                    <Tooltip
+                        title={
+                            params.value ||
+                            ""
+                        }
+                    >
 
-            )
-
-        },
-
-        {
-
-            field: "actions",
-
-            headerName: "Actions",
-
-            width: 170,
-
-            sortable: false,
-
-            renderCell: (params) => (
-
-                <>
-
-                    <Tooltip title="View">
-
-                        <IconButton
-                            color="primary"
-                            onClick={() =>
-                                onView(params.row)
-                            }
+                        <Box
+                            sx={{
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                width: "100%",
+                            }}
                         >
 
-                            <Visibility/>
+                            {
+                                params.value ||
+                                "-"
+                            }
 
-                        </IconButton>
+                        </Box>
 
                     </Tooltip>
 
-                    <Tooltip title="Edit">
+                ),
+            },
 
-                        <IconButton
-                            color="warning"
-                            onClick={() =>
-                                onEdit(params.row)
-                            }
+
+            // =================================================
+            // STATUS
+            // =================================================
+
+            {
+                field: "isActive",
+
+                headerName: "Status",
+
+                width: 130,
+
+                renderCell: (params) => {
+
+                    const active =
+                        Boolean(
+                            params.value
+                        );
+
+
+                    return (
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                height: "100%",
+                            }}
                         >
 
-                            <Edit/>
+                            <Chip
 
-                        </IconButton>
+                                size="small"
 
-                    </Tooltip>
+                                label={
+                                    active
+                                        ? "Active"
+                                        : "Inactive"
+                                }
 
-                    <Tooltip title="Delete">
+                                color={
+                                    active
+                                        ? "success"
+                                        : "error"
+                                }
 
-                        <IconButton
-                            color="error"
-                            onClick={() =>
-                                onDelete(params.row)
-                            }
-                        >
+                            />
 
-                            <Delete/>
+                        </Box>
 
-                        </IconButton>
+                    );
 
-                    </Tooltip>
+                },
 
-                </>
+            },
 
-            )
 
-        }
+            // =================================================
+            // ACTIONS
+            // =================================================
 
-    ];
+            {
+                field: "actions",
+
+                headerName: "Actions",
+
+                width: 170,
+
+                sortable: false,
+
+                filterable: false,
+
+                disableColumnMenu: true,
+
+                renderCell: (params) => (
+
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            height: "100%",
+                        }}
+                    >
+
+                        {/* ===============================
+                            VIEW
+                        =============================== */}
+
+                        <Tooltip title="View">
+
+                            <IconButton
+
+                                size="small"
+
+                                color="primary"
+
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+
+                                    if (onView) {
+
+                                        onView(
+                                            params.row
+                                        );
+
+                                    }
+
+                                }}
+
+                            >
+
+                                <Visibility
+                                    fontSize="small"
+                                />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+
+                        {/* ===============================
+                            EDIT
+                        =============================== */}
+
+                        <Tooltip title="Edit">
+
+                            <IconButton
+
+                                size="small"
+
+                                color="warning"
+
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+
+                                    if (onEdit) {
+
+                                        onEdit(
+                                            params.row
+                                        );
+
+                                    }
+
+                                }}
+
+                            >
+
+                                <Edit
+                                    fontSize="small"
+                                />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+
+                        {/* ===============================
+                            DELETE
+                        =============================== */}
+
+                        <Tooltip title="Delete">
+
+                            <IconButton
+
+                                size="small"
+
+                                color="error"
+
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+
+                                    if (onDelete) {
+
+                                        onDelete(
+                                            params.row
+                                        );
+
+                                    }
+
+                                }}
+
+                            >
+
+                                <Delete
+                                    fontSize="small"
+                                />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+                    </Box>
+
+                ),
+
+            },
+
+        ],
+        [
+            onView,
+            onEdit,
+            onDelete,
+        ]
+    );
+
 
     return (
 
-        <Box sx={{ height: 550 }}>
+        <Box
+            sx={{
+                width: "100%",
+                height: 550,
+            }}
+        >
 
             <DataGrid
 
-                rows={productTypes}
+                rows={
+                    Array.isArray(
+                        productTypes
+                    )
+                        ? productTypes
+                        : []
+                }
 
-                columns={columns}
+                columns={
+                    columns
+                }
 
-                loading={loading}
+                loading={
+                    loading
+                }
 
-                getRowId={(row) => row.productTypeId}
-
-                pageSizeOptions={[5,10,20,50]}
-
-                initialState={{
-
-                    pagination: {
-
-                        paginationModel: {
-
-                            pageSize: 10,
-
-                            page: 0
-
-                        }
-
-                    }
-
-                }}
+                getRowId={
+                    (row) =>
+                        row.productTypeId
+                }
 
                 disableRowSelectionOnClick
+
+                pageSizeOptions={[
+                    5,
+                    10,
+                    20,
+                    50,
+                ]}
+
+                sx={{
+
+                    border: 0,
+
+                    "& .MuiDataGrid-cell:focus":
+                        {
+                            outline: "none",
+                        },
+
+                    "& .MuiDataGrid-cell:focus-within":
+                        {
+                            outline: "none",
+                        },
+
+                    "& .MuiDataGrid-columnHeader:focus":
+                        {
+                            outline: "none",
+                        },
+
+                    "& .MuiDataGrid-columnHeader:focus-within":
+                        {
+                            outline: "none",
+                        },
+
+                }}
 
             />
 
@@ -195,5 +402,6 @@ const ProductTypeTable = ({
     );
 
 };
+
 
 export default ProductTypeTable;

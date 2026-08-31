@@ -2479,6 +2479,726 @@ app.get(
 
     }
 );
+// =========================================================
+// PRODUCT TYPES
+// =========================================================
+// =========================================================
+// GET ALL PRODUCT TYPES
+//
+// GET /api/product-types
+//
+// Supports:
+// ?search=electronic
+// ?status=active
+// ?sort=name_desc
+// ?page=1&limit=10
+// =========================================================
+
+app.get(
+    "/api/product-types",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "GET PRODUCT TYPES"
+            );
+
+            console.log(
+                "Query:",
+                req.query
+            );
+
+            const response =
+                await axios.get(
+                    `${ASPNET_API}/product-types`,
+                    {
+                        params: req.query,
+
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "ASP.NET Status:",
+                response.status
+            );
+
+            console.log(
+                "ASP.NET Response:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCT TYPES ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                console.error(
+                    "ASP.NET Status:",
+                    error.response.status
+                );
+
+                console.error(
+                    "ASP.NET Response:",
+                    error.response.data
+                );
+
+                return res
+                    .status(error.response.status)
+                    .json(error.response.data);
+            }
+
+            return res
+                .status(500)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to connect to ASP.NET Product Type API.",
+
+                    error:
+                        error.message,
+                });
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT TYPE STATISTICS
+//
+// GET /api/product-types/stats
+// =========================================================
+
+app.get(
+    "/api/product-types/stats",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET PRODUCT TYPE STATISTICS"
+            );
+
+            const response =
+                await axios.get(
+                    `${ASPNET_API}/product-types/stats`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCT TYPE STATS ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res
+                    .status(error.response.status)
+                    .json(error.response.data);
+            }
+
+            return res
+                .status(500)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to connect to Product Type Statistics API.",
+
+                    error:
+                        error.message,
+                });
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT TYPE BY ID
+//
+// GET /api/product-types/1
+// =========================================================
+
+app.get(
+    "/api/product-types/:id",
+    async (req, res) => {
+
+        try {
+
+            const productTypeId =
+                Number(req.params.id);
+
+            // ---------------------------------------------
+            // VALIDATE ID
+            // ---------------------------------------------
+
+            if (
+                !Number.isInteger(productTypeId) ||
+                productTypeId <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Invalid Product Type ID.",
+                    });
+            }
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "GET PRODUCT TYPE BY ID:",
+                productTypeId
+            );
+
+            console.log(
+                "ASP.NET URL:",
+                `${ASPNET_API}/product-types/${productTypeId}`
+            );
+
+            const response =
+                await axios.get(
+                    `${ASPNET_API}/product-types/${productTypeId}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "ASP.NET Status:",
+                response.status
+            );
+
+            console.log(
+                "ASP.NET Response:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCT TYPE BY ID ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res
+                    .status(error.response.status)
+                    .json(error.response.data);
+            }
+
+            return res
+                .status(500)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to connect to ASP.NET Product Type API.",
+
+                    error:
+                        error.message,
+                });
+        }
+    }
+);
+
+
+// =========================================================
+// CREATE PRODUCT TYPE
+//
+// POST /api/product-types
+// =========================================================
+
+app.post(
+    "/api/product-types",
+    async (req, res) => {
+
+        try {
+
+            // ---------------------------------------------
+            // VALIDATE BODY
+            // ---------------------------------------------
+
+            if (
+                !req.body ||
+                typeof req.body !== "object"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Product Type data is required.",
+                    });
+            }
+
+            // ---------------------------------------------
+            // VALIDATE NAME
+            // ---------------------------------------------
+
+            if (
+                !req.body.productTypeName ||
+                !req.body.productTypeName
+                    .toString()
+                    .trim()
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Product Type Name is required.",
+                    });
+            }
+
+            // ---------------------------------------------
+            // PREPARE PAYLOAD
+            // ---------------------------------------------
+
+            const payload = {
+
+                productTypeName:
+                    req.body.productTypeName
+                        .toString()
+                        .trim(),
+
+                description:
+                    req.body.description
+                        ? req.body.description
+                            .toString()
+                            .trim()
+                        : "",
+
+                isActive:
+                    req.body.isActive !== false,
+            };
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "CREATE PRODUCT TYPE"
+            );
+
+            console.log(
+                "Payload:",
+                payload
+            );
+
+            const response =
+                await axios.post(
+                    `${ASPNET_API}/product-types`,
+                    payload,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "ASP.NET Status:",
+                response.status
+            );
+
+            console.log(
+                "ASP.NET Response:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE PRODUCT TYPE ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res
+                    .status(error.response.status)
+                    .json(error.response.data);
+            }
+
+            return res
+                .status(500)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to create Product Type.",
+
+                    error:
+                        error.message,
+                });
+        }
+    }
+);
+
+
+// =========================================================
+// UPDATE PRODUCT TYPE
+//
+// PUT /api/product-types/1
+// =========================================================
+
+app.put(
+    "/api/product-types/:id",
+    async (req, res) => {
+
+        try {
+
+            const productTypeId =
+                Number(req.params.id);
+
+            // ---------------------------------------------
+            // VALIDATE ID
+            // ---------------------------------------------
+
+            if (
+                !Number.isInteger(productTypeId) ||
+                productTypeId <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Invalid Product Type ID.",
+                    });
+            }
+
+            // ---------------------------------------------
+            // VALIDATE BODY
+            // ---------------------------------------------
+
+            if (
+                !req.body ||
+                typeof req.body !== "object"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Product Type data is required.",
+                    });
+            }
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "UPDATE PRODUCT TYPE:",
+                productTypeId
+            );
+
+            console.log(
+                "Payload:",
+                req.body
+            );
+
+            const payload = {
+
+                productTypeName:
+                    req.body.productTypeName
+                        ?.toString()
+                        .trim(),
+
+                description:
+                    req.body.description
+                        ?.toString()
+                        .trim() || "",
+
+                isActive:
+                    req.body.isActive !== false,
+            };
+
+            if (!payload.productTypeName) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Product Type Name is required.",
+                    });
+            }
+
+            const response =
+                await axios.put(
+                    `${ASPNET_API}/product-types/${productTypeId}`,
+                    payload,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "ASP.NET Status:",
+                response.status
+            );
+
+            console.log(
+                "ASP.NET Response:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE PRODUCT TYPE ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res
+                    .status(error.response.status)
+                    .json(error.response.data);
+            }
+
+            return res
+                .status(500)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to update Product Type.",
+
+                    error:
+                        error.message,
+                });
+        }
+    }
+);
+
+
+// =========================================================
+// DELETE PRODUCT TYPE
+//
+// DELETE /api/product-types/1
+// =========================================================
+
+app.delete(
+    "/api/product-types/:id",
+    async (req, res) => {
+
+        try {
+
+            const productTypeId =
+                Number(req.params.id);
+
+            // ---------------------------------------------
+            // VALIDATE ID
+            // ---------------------------------------------
+
+            if (
+                !Number.isInteger(productTypeId) ||
+                productTypeId <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Invalid Product Type ID.",
+                    });
+            }
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "DELETE PRODUCT TYPE:",
+                productTypeId
+            );
+
+            console.log(
+                "ASP.NET URL:",
+                `${ASPNET_API}/product-types/${productTypeId}`
+            );
+
+            const response =
+                await axios.delete(
+                    `${ASPNET_API}/product-types/${productTypeId}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "ASP.NET Status:",
+                response.status
+            );
+
+            console.log(
+                "ASP.NET Response:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE PRODUCT TYPE ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                console.error(
+                    "ASP.NET Status:",
+                    error.response.status
+                );
+
+                console.error(
+                    "ASP.NET Response:",
+                    error.response.data
+                );
+
+                return res
+                    .status(error.response.status)
+                    .json(error.response.data);
+            }
+
+            return res
+                .status(500)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to connect to ASP.NET Product Type API.",
+
+                    error:
+                        error.message,
+                });
+        }
+    }
+);
+
 
 
 // =========================================================

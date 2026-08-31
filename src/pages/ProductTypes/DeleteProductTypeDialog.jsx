@@ -1,21 +1,71 @@
-import React, { useState } from "react";
-import {Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions,Button,Typography,Alert,CircularProgress} from "@mui/material";
+// =========================================================
+// DeleteProductTypeDialog.jsx
+//
+// React → Node server.js → ASP.NET Core API
+//
+// DELETE /api/product-types/:id
+// =========================================================
+
+import React, {
+    useState,
+} from "react";
+
+import axios from "axios";
+
+import {
+    Alert,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Typography,
+} from "@mui/material";
+
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+
+
+// =========================================================
+// NODE SERVER URL
+// =========================================================
+
+const NODE_API_URL = "http://localhost:5000";
+
+
+// =========================================================
+// DELETE PRODUCT TYPE DIALOG
+// =========================================================
 
 const DeleteProductTypeDialog = ({
     open,
     productType,
     onClose,
-    onDeleted
+    onDeleted,
 }) => {
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [error, setError] = useState("");
+    const [error, setError] =
+        useState("");
+
+
+    // =====================================================
+    // DELETE PRODUCT TYPE
+    // =====================================================
 
     const handleDelete = async () => {
 
-        if (!productType) return;
+        if (!productType) {
+            return;
+        }
+
+
+        const productTypeId =
+            productType.productTypeId;
+
 
         try {
 
@@ -23,30 +73,109 @@ const DeleteProductTypeDialog = ({
 
             setError("");
 
-            await apiService.deleteProductType(
-                productType.productTypeId
+
+            // =============================================
+            // DEBUG
+            // =============================================
+
+            console.log(
+                "Deleting Product Type:",
+                productTypeId
             );
+
+
+            // =============================================
+            // REACT → NODE
+            // =============================================
+
+            const response =
+                await axios.delete(
+
+                    `${NODE_API_URL}/api/product-types/${productTypeId}`,
+
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+
+                );
+
+
+            // =============================================
+            // DEBUG RESPONSE
+            // =============================================
+
+            console.log(
+                "Delete Product Type Response:",
+                response.data
+            );
+
+
+            // =============================================
+            // NOTIFY PARENT
+            // =============================================
 
             if (onDeleted) {
 
-                onDeleted();
+                await onDeleted();
 
             }
+
+
+            // =============================================
+            // CLOSE DIALOG
+            // =============================================
 
             onClose();
 
         }
         catch (err) {
 
-            console.log(err);
-
-            setError(
-
-                err?.response?.data?.message ||
-
-                "Unable to delete Product Type."
-
+            console.error(
+                "Delete Product Type Error:",
+                err
             );
+
+
+            // =============================================
+            // BACKEND ERROR MESSAGE
+            // =============================================
+
+            let message =
+                "Unable to delete Product Type.";
+
+
+            if (
+                err?.response?.data?.message
+            ) {
+
+                message =
+                    err.response.data.message;
+
+            }
+            else if (
+                err?.response?.data?.title
+            ) {
+
+                message =
+                    err.response.data.title;
+
+            }
+            else if (
+                err?.message
+            ) {
+
+                message =
+                    err.message;
+
+            }
+
+
+            setError(message);
 
         }
         finally {
@@ -57,13 +186,39 @@ const DeleteProductTypeDialog = ({
 
     };
 
+
+    // =====================================================
+    // CLOSE
+    // =====================================================
+
+    const handleClose = () => {
+
+        if (loading) {
+            return;
+        }
+
+        setError("");
+
+        onClose();
+
+    };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
 
         <Dialog
 
             open={open}
 
-            onClose={loading ? undefined : onClose}
+            onClose={
+                loading
+                    ? undefined
+                    : handleClose
+            }
 
             maxWidth="sm"
 
@@ -71,63 +226,141 @@ const DeleteProductTypeDialog = ({
 
         >
 
-            <DialogTitle>
+            {/* =============================================
+                TITLE
+            ============================================= */}
+
+            <DialogTitle
+                sx={{
+                    fontWeight: "bold",
+                }}
+            >
 
                 Delete Product Type
 
             </DialogTitle>
 
+
+            {/* =============================================
+                CONTENT
+            ============================================= */}
+
             <DialogContent>
 
+                {/* =========================================
+                    ERROR
+                ========================================= */}
+
                 {
+                    error && (
 
-                    error &&
+                        <Alert
+                            severity="error"
+                            sx={{
+                                mb: 2,
+                            }}
+                        >
 
-                    <Alert
+                            {
+                                error
+                            }
 
-                        severity="error"
+                        </Alert>
 
-                        sx={{ mb: 2 }}
-
-                    >
-
-                        {error}
-
-                    </Alert>
-
+                    )
                 }
+
+
+                {/* =========================================
+                    CONFIRMATION
+                ========================================= */}
 
                 <DialogContentText>
 
-                    Are you sure you want to delete this Product Type?
+                    Are you sure you want to delete this
+                    Product Type?
 
                 </DialogContentText>
 
+
+                {/* =========================================
+                    PRODUCT TYPE NAME
+                ========================================= */}
+
                 <Typography
-
                     variant="h6"
-
-                    sx={{ mt: 2 }}
-
+                    fontWeight="600"
+                    sx={{
+                        mt: 2,
+                    }}
                 >
 
-                    {productType?.productTypeName}
+                    {
+                        productType?.productTypeName ||
+                        "-"
+                    }
 
                 </Typography>
 
-                <Typography color="text.secondary">
 
-                    {productType?.description || "-"}
+                {/* =========================================
+                    DESCRIPTION
+                ========================================= */}
+
+                <Typography
+                    color="text.secondary"
+                    sx={{
+                        mt: 0.5,
+                    }}
+                >
+
+                    {
+                        productType?.description ||
+                        "-"
+                    }
+
+                </Typography>
+
+
+                {/* =========================================
+                    ID
+                ========================================= */}
+
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                        display: "block",
+                        mt: 1,
+                    }}
+                >
+
+                    Product Type ID:{" "}
+
+                    {
+                        productType?.productTypeId ||
+                        "-"
+                    }
 
                 </Typography>
 
             </DialogContent>
 
-            <DialogActions>
+
+            {/* =============================================
+                ACTIONS
+            ============================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2,
+                }}
+            >
 
                 <Button
 
-                    onClick={onClose}
+                    onClick={handleClose}
 
                     disabled={loading}
 
@@ -137,31 +370,32 @@ const DeleteProductTypeDialog = ({
 
                 </Button>
 
+
                 <Button
 
                     color="error"
 
                     variant="contained"
 
-                    disabled={loading}
+                    disabled={
+                        loading ||
+                        !productType
+                    }
 
                     startIcon={
 
-                        loading
-
-                            ?
+                        loading ? (
 
                             <CircularProgress
-
                                 size={18}
-
                                 color="inherit"
-
                             />
 
-                            :
+                        ) : (
 
                             <DeleteForeverIcon />
+
+                        )
 
                     }
 
@@ -170,17 +404,9 @@ const DeleteProductTypeDialog = ({
                 >
 
                     {
-
                         loading
-
-                            ?
-
-                            "Deleting..."
-
-                            :
-
-                            "Delete"
-
+                            ? "Deleting..."
+                            : "Delete"
                     }
 
                 </Button>
@@ -192,5 +418,10 @@ const DeleteProductTypeDialog = ({
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default DeleteProductTypeDialog;

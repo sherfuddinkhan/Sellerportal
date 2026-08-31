@@ -1,90 +1,215 @@
-import React from "react";
+// =========================================================
+// ProductTypeStatistics.jsx
+// Product Type Statistics Cards
+// =========================================================
+
+import React, {
+    useMemo,
+} from "react";
 
 import {
-    Grid,
     Card,
     CardContent,
-    Typography
+    Grid,
+    Typography,
 } from "@mui/material";
 
-const ProductTypeStatistics = ({ productTypes }) => {
 
-    const total = productTypes.length;
+// =========================================================
+// PRODUCT TYPE STATISTICS
+// =========================================================
 
-    const active = productTypes.filter(
-        x => x.isActive
-    ).length;
+const ProductTypeStatistics = ({
+    productTypes = [],
+}) => {
 
-    const inactive = total - active;
+    // =====================================================
+    // ENSURE ARRAY
+    // =====================================================
 
-    const thisMonth = productTypes.filter(x => {
+    const items = Array.isArray(productTypes)
+        ? productTypes
+        : [];
 
-        if (!x.createdDate) return false;
 
-        const date = new Date(x.createdDate);
+    // =====================================================
+    // CALCULATE STATISTICS
+    // =====================================================
 
-        const today = new Date();
+    const statistics = useMemo(() => {
 
-        return (
+        const total =
+            items.length;
 
-            date.getMonth() === today.getMonth() &&
 
-            date.getFullYear() === today.getFullYear()
+        // -------------------------------------------------
+        // ACTIVE
+        // -------------------------------------------------
 
-        );
+        const active =
+            items.filter(
+                (item) =>
+                    Boolean(item?.isActive)
+            ).length;
 
-    }).length;
+
+        // -------------------------------------------------
+        // INACTIVE
+        // -------------------------------------------------
+
+        const inactive =
+            total - active;
+
+
+        // -------------------------------------------------
+        // ADDED THIS MONTH
+        // -------------------------------------------------
+
+        const today =
+            new Date();
+
+        const currentMonth =
+            today.getMonth();
+
+        const currentYear =
+            today.getFullYear();
+
+
+        const thisMonth =
+            items.filter((item) => {
+
+                if (!item?.createdDate) {
+                    return false;
+                }
+
+
+                const createdDate =
+                    new Date(
+                        item.createdDate
+                    );
+
+
+                if (
+                    Number.isNaN(
+                        createdDate.getTime()
+                    )
+                ) {
+                    return false;
+                }
+
+
+                return (
+                    createdDate.getMonth() ===
+                        currentMonth &&
+                    createdDate.getFullYear() ===
+                        currentYear
+                );
+
+            }).length;
+
+
+        return {
+            total,
+            active,
+            inactive,
+            thisMonth,
+        };
+
+    }, [items]);
+
+
+    // =====================================================
+    // STATISTICS CARDS
+    // =====================================================
 
     const cards = [
 
         {
-            title: "Total Product Types",
-            value: total
+            title:
+                "Total Product Types",
+
+            value:
+                statistics.total,
         },
 
         {
-            title: "Active",
-            value: active
+            title:
+                "Active",
+
+            value:
+                statistics.active,
         },
 
         {
-            title: "Inactive",
-            value: inactive
+            title:
+                "Inactive",
+
+            value:
+                statistics.inactive,
         },
 
         {
-            title: "Added This Month",
-            value: thisMonth
-        }
+            title:
+                "Added This Month",
+
+            value:
+                statistics.thisMonth,
+        },
 
     ];
 
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
 
-        <Grid container spacing={2}>
+        <Grid
+            container
+            spacing={2}
+        >
 
-            {
-
-                cards.map((card, index) => (
+            {cards.map(
+                (card, index) => (
 
                     <Grid
                         item
                         xs={12}
+                        sm={6}
                         md={3}
                         key={index}
                     >
 
-                        <Card>
+                        <Card
+                            elevation={2}
+                            sx={{
+                                height: "100%",
+                            }}
+                        >
 
                             <CardContent>
 
+                                {/* =================================
+                                    TITLE
+                                ================================= */}
+
                                 <Typography
+                                    variant="body2"
                                     color="text.secondary"
+                                    sx={{
+                                        mb: 1,
+                                    }}
                                 >
 
                                     {card.title}
 
                                 </Typography>
+
+
+                                {/* =================================
+                                    VALUE
+                                ================================= */}
 
                                 <Typography
                                     variant="h4"
@@ -101,14 +226,18 @@ const ProductTypeStatistics = ({ productTypes }) => {
 
                     </Grid>
 
-                ))
-
-            }
+                )
+            )}
 
         </Grid>
 
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductTypeStatistics;

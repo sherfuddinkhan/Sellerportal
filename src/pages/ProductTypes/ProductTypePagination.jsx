@@ -1,22 +1,30 @@
+// =========================================================
+// ProductTypePagination.jsx
+// Product Type Pagination
+// =========================================================
+
 import React from "react";
 
 import {
-    TablePagination
+    TablePagination,
 } from "@mui/material";
 
+
+// =========================================================
+// PRODUCT TYPE PAGINATION
+// =========================================================
+
 const ProductTypePagination = ({
-
-    page,
-
-    rowsPerPage,
-
-    totalRecords,
-
+    page = 0,
+    rowsPerPage = 10,
+    totalRecords = 0,
     onPageChange,
-
-    onRowsPerPageChange
-
+    onRowsPerPageChange,
 }) => {
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
@@ -30,16 +38,36 @@ const ProductTypePagination = ({
 
             count={totalRecords}
 
-            rowsPerPageOptions={[5,10,20,50]}
+            rowsPerPageOptions={[
+                5,
+                10,
+                20,
+                50,
+            ]}
 
-            onPageChange={onPageChange}
+            onPageChange={
+                onPageChange
+            }
 
-            onRowsPerPageChange={onRowsPerPageChange}
+            onRowsPerPageChange={
+                onRowsPerPageChange
+            }
+
+            labelRowsPerPage="Rows per page:"
+
+            showFirstButton
+
+            showLastButton
 
         />
 
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductTypePagination;

@@ -1108,14 +1108,78 @@ function App() {
             PRODUCT TYPES
         =================================================== */}
 
-        <Route path="product-types" element={<ProductTypeList />} />
-        <Route path="product-types/create" element={<ProductTypeCreate />} />
-        <Route path="product-types/:id" element={<ProductTypeDetails />} />
-        <Route path="product-types/:id/edit" element={<ProductTypeEdit />} />
-        <Route path="product-types/view/:id" element={<ProductTypeView />} />
-        <Route path="product-types/search" element={<ProductTypeSearch />} />
-        <Route path="product-types/filters" element={<ProductTypeFilters />} />
-        <Route path="product-types/statistics" element={<ProductTypeStatistics />} />
+      {/* ===================================================
+    PRODUCT TYPES
+=================================================== */}
+<Route
+    path="product-types"
+    element={<ProductTypeList />}
+/>
+
+<Route
+    path="product-types/create"
+    element={<ProductTypeCreate />}
+/>
+
+<Route
+    path="product-types/details/:id"
+    element={<ProductTypeDetails />}
+/>
+
+<Route
+    path="product-types/edit/:id"
+    element={<ProductTypeEdit />}
+/>
+
+<Route
+    path="product-types/view/:id"
+    element={<ProductTypeView />}
+/>
+
+<Route
+    path="product-types/search"
+    element={<ProductTypeSearch />}
+/>
+
+<Route
+    path="product-types/filters"
+    element={<ProductTypeFilters />}
+/>
+
+<Route
+    path="product-types/statistics"
+    element={<ProductTypeStatistics />}
+/>
+
+<Route
+    path="product-types/table"
+    element={<ProductTypeTable />}
+/>
+
+<Route
+    path="product-types/card"
+    element={<ProductTypeCard />}
+/>
+
+<Route
+    path="product-types/form"
+    element={<ProductTypeForm />}
+/>
+
+<Route
+    path="product-types/modal"
+    element={<ProductTypeModal />}
+/>
+
+<Route
+    path="product-types/pagination"
+    element={<ProductTypePagination />}
+/>
+
+<Route
+    path="product-types/toolbar"
+    element={<ProductTypeToolbar />}
+/>
 
 
         {/* ===================================================

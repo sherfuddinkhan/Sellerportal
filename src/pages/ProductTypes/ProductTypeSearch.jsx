@@ -1,16 +1,62 @@
+// =========================================================
+// ProductTypeSearch.jsx
+// Product Type Search Component
+// =========================================================
+
 import React from "react";
 
 import {
+    InputAdornment,
     TextField,
-    InputAdornment
 } from "@mui/material";
 
 import SearchIcon from "@mui/icons-material/Search";
 
+
+// =========================================================
+// PRODUCT TYPE SEARCH
+// =========================================================
+
 const ProductTypeSearch = ({
-    searchText,
-    setSearchText
+    searchText = "",
+    setSearchText,
 }) => {
+
+    // =====================================================
+    // HANDLE SEARCH
+    // =====================================================
+
+    const handleSearchChange = (event) => {
+
+        if (setSearchText) {
+
+            setSearchText(
+                event.target.value
+            );
+
+        }
+
+    };
+
+
+    // =====================================================
+    // CLEAR SEARCH
+    // =====================================================
+
+    const handleClear = () => {
+
+        if (setSearchText) {
+
+            setSearchText("");
+
+        }
+
+    };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
@@ -20,26 +66,43 @@ const ProductTypeSearch = ({
 
             size="small"
 
+            label="Search"
+
             placeholder="Search Product Type..."
 
             value={searchText}
 
-            onChange={(e) =>
-                setSearchText(e.target.value)
+            onChange={
+                handleSearchChange
             }
+
+            autoComplete="off"
 
             InputProps={{
 
                 startAdornment: (
 
-                    <InputAdornment position="start">
+                    <InputAdornment
+                        position="start"
+                    >
 
-                        <SearchIcon />
+                        <SearchIcon
+                            fontSize="small"
+                        />
 
                     </InputAdornment>
 
-                )
+                ),
 
+            }}
+
+            InputLabelProps={{
+                shrink: true,
+            }}
+
+            inputProps={{
+                "aria-label":
+                    "Search Product Type",
             }}
 
         />
@@ -47,5 +110,10 @@ const ProductTypeSearch = ({
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductTypeSearch;
