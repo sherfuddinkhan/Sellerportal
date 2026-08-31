@@ -589,7 +589,7 @@ function App() {
 
         <Route
           index
-          element={<Navigate to="/dashboard" replace />}
+          element={<Navigate to="/dashboard"  />}
         />
 
         {/* ===================================================
