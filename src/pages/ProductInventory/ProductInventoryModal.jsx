@@ -1,206 +1,70 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, {useEffect,useState} from "react";
 
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
-    TextField,
-    Divider,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Switch,
-    FormControlLabel
-} from "@mui/material";
-
-
+import {Dialog,DialogTitle,DialogContent, DialogActions,Button, Grid,TextField,Divider,FormControl,InputLabel,Select,MenuItem,Switch,FormControlLabel} from "@mui/material";
 const ProductInventoryModal = ({
-
     open,
-
     inventory,
-
     onClose,
-
     onSave
-
 }) => {
-
-
     const [formData, setFormData] = useState({
-
         ProductInventoryId: 0,
-
         ProductId: "",
-
         SellerId: "",
-
         WarehouseId: "",
-
         Quantity: 0,
-
         AvailableQuantity: 0,
-
         ReservedQuantity: 0,
-
         ReorderLevel: 0,
-
         MinStockLevel: 0,
-
         MaxStockLevel: 0,
-
         StockStatus: "Available",
-
         IsActive: true
-
     });
-
-
-
     useEffect(() => {
-
-
         if (inventory) {
-
-
             setFormData({
-
-                ProductInventoryId:
-                    inventory.ProductInventoryId || 0,
-
-
-                ProductId:
-                    inventory.ProductId || "",
-
-
-                SellerId:
-                    inventory.SellerId || "",
-
-
-                WarehouseId:
-                    inventory.WarehouseId || "",
-
-
-                Quantity:
-                    inventory.Quantity || 0,
-
-
-                AvailableQuantity:
-                    inventory.AvailableQuantity || 0,
-
-
-                ReservedQuantity:
-                    inventory.ReservedQuantity || 0,
-
-
-                ReorderLevel:
-                    inventory.ReorderLevel || 0,
-
-
-                MinStockLevel:
-                    inventory.MinStockLevel || 0,
-
-
-                MaxStockLevel:
-                    inventory.MaxStockLevel || 0,
-
-
-                StockStatus:
-                    inventory.StockStatus || "Available",
-
-
-                IsActive:
-                    inventory.IsActive ?? true
-
+                ProductInventoryId: inventory.ProductInventoryId || 0,
+                ProductId: inventory.ProductId || "",
+                SellerId: inventory.SellerId || "",
+                WarehouseId: inventory.WarehouseId || "",
+                Quantity:inventory.Quantity || 0,
+                AvailableQuantity:inventory.AvailableQuantity || 0,
+                ReservedQuantity: inventory.ReservedQuantity || 0,
+                ReorderLevel:inventory.ReorderLevel || 0,
+                MinStockLevel:inventory.MinStockLevel || 0,
+                MaxStockLevel:inventory.MaxStockLevel || 0,
+                StockStatus:inventory.StockStatus || "Available",
+                IsActive:inventory.IsActive ?? true
             });
-
         }
-
         else {
-
-
             setFormData({
-
                 ProductInventoryId: 0,
-
                 ProductId: "",
-
                 SellerId: "",
-
                 WarehouseId: "",
-
                 Quantity: 0,
-
                 AvailableQuantity: 0,
-
                 ReservedQuantity: 0,
-
                 ReorderLevel: 0,
-
                 MinStockLevel: 0,
-
                 MaxStockLevel: 0,
-
                 StockStatus: "Available",
-
                 IsActive: true
-
             });
-
-
         }
-
-
     }, [inventory, open]);
-
-
-
-
     const handleChange = (e) => {
-
-
-        const {
-
-            name,
-
-            value
-
-        } = e.target;
-
-
-
+        const {name,value} = e.target;
         setFormData({
-
             ...formData,
-
             [name]: value
-
         });
-
-
     };
-
-
-
-
     const handleSubmit = () => {
-
-
         onSave(formData);
-
-
     };
-
-
-
-
     return (
 
         <Dialog

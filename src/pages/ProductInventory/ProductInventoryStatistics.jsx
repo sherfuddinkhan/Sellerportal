@@ -1,4 +1,12 @@
-import React from "react";
+// =========================================================
+// ProductInventoryStatistics.jsx
+// Product Inventory Statistics
+// Frontend Only
+// =========================================================
+
+import React, {
+    useMemo
+} from "react";
 
 import {
     Grid,
@@ -7,208 +15,297 @@ import {
 } from "@mui/material";
 
 
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const ProductInventoryStatistics = ({
     inventories = []
 }) => {
 
 
-    const totalInventory =
-        inventories.length;
+    // =====================================================
+    // STATISTICS
+    // =====================================================
+
+    const statistics = useMemo(() => {
+
+        // -------------------------------------------------
+        // TOTAL INVENTORY RECORDS
+        // -------------------------------------------------
+
+        const totalInventory =
+            inventories.length;
 
 
-    const activeInventory =
-        inventories.filter(
-            item => item.IsActive
-        ).length;
+        // -------------------------------------------------
+        // ACTIVE INVENTORY
+        // -------------------------------------------------
+
+        const activeInventory =
+            inventories.filter((item) => {
+
+                const isActive =
+                    item.isActive ??
+                    item.IsActive ??
+                    false;
+
+                return isActive === true;
+
+            }).length;
 
 
-    const inactiveInventory =
-        totalInventory - activeInventory;
+        // -------------------------------------------------
+        // INACTIVE INVENTORY
+        // -------------------------------------------------
+
+        const inactiveInventory =
+            totalInventory -
+            activeInventory;
 
 
-    const totalQuantity =
-        inventories.reduce(
-            (sum, item) =>
-                sum +
-                Number(
-                    item.Quantity || 0
-                ),
-            0
-        );
+        // -------------------------------------------------
+        // TOTAL QUANTITY
+        // -------------------------------------------------
+
+        const totalQuantity =
+            inventories.reduce(
+                (sum, item) => {
+
+                    const quantity =
+                        item.quantity ??
+                        item.Quantity ??
+                        0;
+
+                    return (
+                        sum +
+                        Number(quantity)
+                    );
+
+                },
+                0
+            );
 
 
-    const availableQuantity =
-        inventories.reduce(
-            (sum, item) =>
-                sum +
-                Number(
-                    item.AvailableQuantity || 0
-                ),
-            0
-        );
+        // -------------------------------------------------
+        // AVAILABLE QUANTITY
+        // -------------------------------------------------
+
+        const availableQuantity =
+            inventories.reduce(
+                (sum, item) => {
+
+                    const quantity =
+                        item.availableQuantity ??
+                        item.AvailableQuantity ??
+                        0;
+
+                    return (
+                        sum +
+                        Number(quantity)
+                    );
+
+                },
+                0
+            );
 
 
-    const reservedQuantity =
-        inventories.reduce(
-            (sum, item) =>
-                sum +
-                Number(
-                    item.ReservedQuantity || 0
-                ),
-            0
-        );
+        // -------------------------------------------------
+        // RESERVED QUANTITY
+        // -------------------------------------------------
+
+        const reservedQuantity =
+            inventories.reduce(
+                (sum, item) => {
+
+                    const quantity =
+                        item.reservedQuantity ??
+                        item.ReservedQuantity ??
+                        0;
+
+                    return (
+                        sum +
+                        Number(quantity)
+                    );
+
+                },
+                0
+            );
 
 
-    const lowStockCount =
-        inventories.filter(
-            item =>
+        // -------------------------------------------------
+        // LOW STOCK
+        // -------------------------------------------------
+        //
+        // Available Quantity <= Reorder Level
+        //
+        // -------------------------------------------------
 
-                Number(
-                    item.AvailableQuantity || 0
-                )
+        const lowStockCount =
+            inventories.filter((item) => {
 
-                <=
+                const available =
+                    Number(
+                        item.availableQuantity ??
+                        item.AvailableQuantity ??
+                        0
+                    );
 
-                Number(
-                    item.ReorderLevel || 0
-                )
+                const reorderLevel =
+                    Number(
+                        item.reorderLevel ??
+                        item.ReorderLevel ??
+                        0
+                    );
 
-        ).length;
+
+                return (
+                    available <=
+                    reorderLevel
+                );
+
+            }).length;
 
 
+        return {
+
+            totalInventory,
+
+            activeInventory,
+
+            inactiveInventory,
+
+            totalQuantity,
+
+            availableQuantity,
+
+            reservedQuantity,
+
+            lowStockCount
+
+        };
+
+    }, [inventories]);
+
+
+    // =====================================================
+    // STATISTICS CARDS
+    // =====================================================
 
     const cards = [
 
         {
             title: "Total Inventory",
-            value: totalInventory
+            value:
+                statistics.totalInventory
         },
 
         {
             title: "Active",
-            value: activeInventory
+            value:
+                statistics.activeInventory
         },
 
         {
             title: "Inactive",
-            value: inactiveInventory
+            value:
+                statistics.inactiveInventory
         },
 
         {
             title: "Total Quantity",
-            value: totalQuantity
+            value:
+                statistics.totalQuantity
         },
 
         {
             title: "Available",
-            value: availableQuantity
+            value:
+                statistics.availableQuantity
         },
 
         {
             title: "Reserved",
-            value: reservedQuantity
+            value:
+                statistics.reservedQuantity
         },
 
         {
             title: "Low Stock",
-            value: lowStockCount
+            value:
+                statistics.lowStockCount
         }
 
     ];
 
 
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Grid
-
             container
-
             spacing={2}
-
-            sx={{ mb: 3 }}
-
+            sx={{
+                mb: 3
+            }}
         >
 
-            {
+            {cards.map(
+                (card) => (
 
-                cards.map(
-                    (card, index) => (
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={2}
+                        key={card.title}
+                    >
 
-                        <Grid
-
-                            item
-
-                            xs={12}
-
-                            sm={6}
-
-                            md={2}
-
-                            key={index}
-
+                        <Paper
+                            elevation={3}
+                            sx={{
+                                p: 2,
+                                textAlign: "center",
+                                borderRadius: 2,
+                                height: "100%"
+                            }}
                         >
 
-                            <Paper
+                            {/* =================================
+                                TITLE
+                            ================================= */}
 
-                                elevation={3}
-
-                                sx={{
-
-                                    p:2,
-
-                                    textAlign:
-                                        "center",
-
-                                    borderRadius:2,
-
-                                    height:"100%"
-
-                                }}
-
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
                             >
-
-                                <Typography
-
-                                    variant="body2"
-
-                                    color="text.secondary"
-
-                                >
-
-                                    {card.title}
-
-                                </Typography>
+                                {card.title}
+                            </Typography>
 
 
-                                <Typography
+                            {/* =================================
+                                VALUE
+                            ================================= */}
 
-                                    variant="h5"
+                            <Typography
+                                variant="h5"
+                                fontWeight="bold"
+                                sx={{
+                                    mt: 1
+                                }}
+                            >
+                                {card.value}
+                            </Typography>
 
-                                    fontWeight="bold"
+                        </Paper>
 
-                                    sx={{
-                                        mt:1
-                                    }}
-
-                                >
-
-                                    {card.value}
-
-                                </Typography>
-
-
-                            </Paper>
-
-
-                        </Grid>
-
-                    )
+                    </Grid>
 
                 )
-
-            }
-
+            )}
 
         </Grid>
 
@@ -216,5 +313,9 @@ const ProductInventoryStatistics = ({
 
 };
 
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductInventoryStatistics;

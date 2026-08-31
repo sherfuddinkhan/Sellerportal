@@ -1,656 +1,1075 @@
-import React, {useEffect,useMemo,useState} from "react";
-import {Box,Grid,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
+// =========================================================
+// ProductInventoryList.jsx
+// Product Inventory Management
+// Frontend
+// React -> Node server.js -> ASP.NET Core API
+// =========================================================
+
+import React, { useEffect, useMemo,useState} from "react";
+
+import {Alert,Box,CircularProgress,Snackbar
+} from "@mui/material";
+
+import axios from "axios";
+
 import ProductInventoryToolbar from "./ProductInventoryToolbar";
+
 import ProductInventoryStatistics from "./ProductInventoryStatistics";
+
 import ProductInventorySearch from "./ProductInventorySearch";
+
 import ProductInventoryFilters from "./ProductInventoryFilters";
+
 import ProductInventoryTable from "./ProductInventoryTable";
+
 import ProductInventoryPagination from "./ProductInventoryPagination";
+
 import ProductInventoryModal from "./ProductInventoryModal";
+
 import ProductInventoryView from "./ProductInventoryView";
+
 import DeleteProductInventoryDialog from "./DeleteProductInventoryDialog";
 
 
+// =========================================================
+// SERVER CONFIGURATION
+// =========================================================
+
+const SERVER_URL = "http://localhost:5000";
+
+const INVENTORY_API =
+    `${SERVER_URL}/api/product-inventory`;
+
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const ProductInventoryList = () => {
 
-    // ===========================
-    // State
-    // ===========================
-    const [inventories,setInventories] = useState([]);
-    const [filteredInventories,setFilteredInventories] = useState([]);
-    const [loading,setLoading] = useState(false);
-    const [searchText,setSearchText] = useState("");
-    const [stockStatusFilter,setStockStatusFilter] = useState("");
-    const [warehouseFilter,setWarehouseFilter] = useState("");
-    const [statusFilter,setStatusFilter] = useState("All");
-    const [quantityFilter,setQuantityFilter] = useState("");
-    const [selectedInventory, setSelectedInventory] = useState(null);
-    const [modalOpen,setModalOpen] = useState(false);
-    const [viewOpen,setViewOpen] = useState(false);
-    const [deleteOpen,setDeleteOpen] = useState(false);
-    const [page,setPage] = useState(1);
-    const [pageSize,setPageSize] = useState(10);
+    // =====================================================
+    // STATE
+    // =====================================================
 
-    // ===========================
-    // Load Inventory
-    // ===========================
+    const [inventories, setInventories] = useState([]);
+
+    const [loading, setLoading] = useState(false);
+
+    const [searchText, setSearchText] = useState("");
+
+    const [stockStatusFilter, setStockStatusFilter] =
+        useState("");
+
+    const [warehouseFilter, setWarehouseFilter] =
+        useState("");
+
+    const [statusFilter, setStatusFilter] =
+        useState("All");
+
+    const [quantityFilter, setQuantityFilter] =
+        useState("");
+
+    const [selectedInventory, setSelectedInventory] =
+        useState(null);
+
+    const [modalOpen, setModalOpen] =
+        useState(false);
+
+    const [viewOpen, setViewOpen] =
+        useState(false);
+
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
+
+    const [page, setPage] =
+        useState(1);
+
+    const [pageSize, setPageSize] =
+        useState(10);
+
+    const [error, setError] =
+        useState("");
+
+    const [success, setSuccess] =
+        useState("");
+
+
+    // =====================================================
+    // LOAD INVENTORIES
+    // =====================================================
 
     const loadInventories = async () => {
+
         try {
+
             setLoading(true);
-            const response = await apiService.getInventories();
-            setInventories(response.data);
-            setFilteredInventories(response.data);
+
+            setError("");
+
+            const response = await axios.get(
+                `${INVENTORY_API}/all`
+            );
+
+            // ---------------------------------------------
+            // Support different response formats
+            // ---------------------------------------------
+
+            let data = response.data;
+
+            if (Array.isArray(data)) {
+
+                setInventories(data);
+
+            }
+
+            else if (Array.isArray(data?.data)) {
+
+                setInventories(data.data);
+
+            }
+
+            else if (Array.isArray(data?.inventories)) {
+
+                setInventories(data.inventories);
+
+            }
+
+            else {
+
+                setInventories([]);
+
+            }
+
         }
-        catch(err) {
-            console.log(err);
+
+        catch (err) {
+
+            console.error(
+                "Load Product Inventory Error:",
+                err
+            );
+
+            setError(
+                err?.response?.data?.message ||
+                "Failed to load product inventory."
+            );
+
+            setInventories([]);
+
         }
+
         finally {
+
             setLoading(false);
+
         }
+
     };
-    useEffect(()=>{
+
+
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
+
+    useEffect(() => {
+
         loadInventories();
-    },[]);
 
-    // ===========================
-    // Search & Filters
-    // ===========================
-
-    useEffect(()=>{
-        let result = [
-            ...inventories
-        ];
-        if(searchText.trim() !== ""){
-            const search = searchText.toLowerCase();
-            result = result.filter(item =>
-                    String(
-                        item.ProductId
-                    )
-                    .includes(search)
+    }, []);
 
 
+    // =====================================================
+    // FILTER INVENTORIES
+    // =====================================================
 
-                    ||
+    const filteredInventories = useMemo(() => {
 
-                    String(
-                        item.SellerId
-                    )
-                    .includes(search)
+        let result = [...inventories];
 
 
+        // =================================================
+        // SEARCH
+        // =================================================
 
-                    ||
+        if (searchText.trim() !== "") {
 
-                    String(
-                        item.WarehouseId
-                    )
-                    .includes(search)
-                    ||
-                    item.StockStatus
-                        ?.toLowerCase()
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
+
+            result = result.filter((item) => {
+
+                const productId =
+                    item.productId ??
+                    item.ProductId ??
+                    "";
+
+                const sellerId =
+                    item.sellerId ??
+                    item.SellerId ??
+                    "";
+
+                const warehouseId =
+                    item.warehouseId ??
+                    item.WarehouseId ??
+                    "";
+
+                const stockStatus =
+                    item.stockStatus ??
+                    item.StockStatus ??
+                    "";
+
+                const productName =
+                    item.productName ??
+                    item.ProductName ??
+                    "";
+
+                const warehouseName =
+                    item.warehouseName ??
+                    item.WarehouseName ??
+                    "";
+
+                return (
+
+                    String(productId)
+                        .toLowerCase()
                         .includes(search)
+
+                    ||
+
+                    String(sellerId)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(warehouseId)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(stockStatus)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(productName)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(warehouseName)
+                        .toLowerCase()
+                        .includes(search)
+
                 );
+
+            });
+
         }
-        if(statusFilter !== "All"){
-            result = result.filter(item => statusFilter === "Active" ? item.IsActive :!item.IsActive);
+
+
+        // =================================================
+        // ACTIVE / INACTIVE
+        // =================================================
+
+        if (statusFilter !== "All") {
+
+            result = result.filter((item) => {
+
+                const isActive =
+                    item.isActive ??
+                    item.IsActive ??
+                    false;
+
+                if (statusFilter === "Active") {
+
+                    return isActive === true;
+
+                }
+
+                if (statusFilter === "Inactive") {
+
+                    return isActive === false;
+
+                }
+
+                return true;
+
+            });
+
         }
-        if(stockStatusFilter !== ""){
-            result = result.filter(item => item.StockStatus === stockStatusFilter);
+
+
+        // =================================================
+        // STOCK STATUS
+        // =================================================
+
+        if (stockStatusFilter !== "") {
+
+            result = result.filter((item) => {
+
+                const stockStatus =
+                    item.stockStatus ??
+                    item.StockStatus ??
+                    "";
+
+                return (
+                    String(stockStatus) ===
+                    String(stockStatusFilter)
+                );
+
+            });
+
         }
-        if(warehouseFilter !== ""){
-            result = result.filter(item =>
-                    String(item.WarehouseId)
-                    ===
+
+
+        // =================================================
+        // WAREHOUSE
+        // =================================================
+
+        if (warehouseFilter !== "") {
+
+            result = result.filter((item) => {
+
+                const warehouseId =
+                    item.warehouseId ??
+                    item.WarehouseId ??
+                    "";
+
+                return (
+                    String(warehouseId) ===
                     String(warehouseFilter)
                 );
-        }
-        if(quantityFilter !== ""){
-            result = result.filter(item=>{
-                    const available =
-                        Number(
-                            item.AvailableQuantity || 0
-                        );
-                    const reorder =
-                        Number(item.ReorderLevel || 0);
 
-
-
-                    if(quantityFilter === "out")
-
-                        return available === 0;
-
-
-
-                    if(quantityFilter === "low")
-
-                        return available <= reorder;
-
-
-
-                    if(quantityFilter === "available")
-
-                        return available > reorder;
-
-
-
-                    return true;
-
-
-                });
-
+            });
 
         }
 
 
+        // =================================================
+        // QUANTITY FILTER
+        // =================================================
 
+        if (quantityFilter !== "") {
 
+            result = result.filter((item) => {
 
-        setFilteredInventories(result);
+                const available =
+                    Number(
+                        item.availableQuantity ??
+                        item.AvailableQuantity ??
+                        0
+                    );
 
+                const reorder =
+                    Number(
+                        item.reorderLevel ??
+                        item.ReorderLevel ??
+                        0
+                    );
 
 
-        setPage(1);
+                // -----------------------------------------
+                // OUT OF STOCK
+                // -----------------------------------------
 
+                if (
+                    quantityFilter === "out"
+                ) {
 
-
-    },[
-
-        inventories,
-
-        searchText,
-
-        statusFilter,
-
-        stockStatusFilter,
-
-        warehouseFilter,
-
-        quantityFilter
-
-    ]);
-
-
-
-
-
-
-
-    // ===========================
-    // Pagination
-    // ===========================
-
-
-
-    const totalPages =
-
-        Math.ceil(
-
-            filteredInventories.length /
-
-            pageSize
-
-        );
-
-
-
-
-    const pagedInventories =
-
-        filteredInventories.slice(
-
-            (page - 1) * pageSize,
-
-            page * pageSize
-
-        );
-
-
-
-
-
-
-
-    // ===========================
-    // Save
-    // ===========================
-
-
-
-    const handleSave = async(data)=>{
-
-
-        try{
-
-
-            if(data.ProductInventoryId){
-
-
-                await apiService.updateInventory(
-
-                    data.ProductInventoryId,
-
-                    data
-
-                );
-
-
-            }
-
-            else{
-
-
-                await apiService.createInventory(
-
-                    data
-
-                );
-
-
-            }
-
-
-
-            loadInventories();
-
-
-
-            setModalOpen(false);
-
-
-
-        }
-
-        catch(err){
-
-
-            console.log(err);
-
-
-        }
-
-
-    };
-
-
-
-
-
-
-
-    // ===========================
-    // Delete
-    // ===========================
-
-
-
-    const handleDelete = async(id)=>{
-
-
-        try{
-
-
-            await apiService.deleteInventory(id);
-
-
-
-            loadInventories();
-
-
-
-            setDeleteOpen(false);
-
-
-
-        }
-
-        catch(err){
-
-
-            console.log(err);
-
-
-        }
-
-
-    };
-
-
-
-
-
-
-
-    return (
-
-
-
-        <Box
-
-            sx={{
-
-                p:3
-
-            }}
-
-        >
-
-
-
-
-            <ProductInventoryToolbar
-
-
-
-                onAdd={()=>{
-
-
-                    setSelectedInventory(null);
-
-
-                    setModalOpen(true);
-
-
-                }}
-
-
-
-                onRefresh={loadInventories}
-
-
-
-                onExport={()=>
-
-
-                    console.log(
-                        "Export Inventory"
-                    )
-
+                    return available === 0;
 
                 }
 
 
+                // -----------------------------------------
+                // LOW STOCK
+                // -----------------------------------------
 
-            />
+                if (
+                    quantityFilter === "low"
+                ) {
 
+                    return (
+                        available > 0 &&
+                        available <= reorder
+                    );
 
+                }
 
 
+                // -----------------------------------------
+                // AVAILABLE
+                // -----------------------------------------
 
-            <ProductInventoryStatistics
+                if (
+                    quantityFilter === "available"
+                ) {
 
+                    return available > reorder;
 
-                inventories={inventories}
+                }
 
 
-            />
+                return true;
 
+            });
 
+        }
 
 
+        return result;
 
-            <ProductInventorySearch
+    }, [
+        inventories,
+        searchText,
+        statusFilter,
+        stockStatusFilter,
+        warehouseFilter,
+        quantityFilter
+    ]);
 
 
+    // =====================================================
+    // RESET PAGE WHEN FILTER CHANGES
+    // =====================================================
 
-                searchText={searchText}
+    useEffect(() => {
 
+        setPage(1);
 
+    }, [
+        searchText,
+        statusFilter,
+        stockStatusFilter,
+        warehouseFilter,
+        quantityFilter
+    ]);
 
-                setSearchText={setSearchText}
 
+    // =====================================================
+    // PAGINATION
+    // =====================================================
 
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                filteredInventories.length /
+                pageSize
+            )
+        );
 
-                stockStatusFilter={stockStatusFilter}
 
+    const pagedInventories =
+        filteredInventories.slice(
+            (page - 1) * pageSize,
+            page * pageSize
+        );
 
 
-                setStockStatusFilter={setStockStatusFilter}
+    // =====================================================
+    // SAVE INVENTORY
+    // =====================================================
 
+    const handleSave = async (data) => {
 
+        try {
 
-                warehouseFilter={warehouseFilter}
+            setLoading(true);
 
+            setError("");
 
+            // ---------------------------------------------
+            // Detect ID from either naming convention
+            // ---------------------------------------------
 
-                setWarehouseFilter={setWarehouseFilter}
+            const inventoryId =
+                data.productInventoryId ??
+                data.ProductInventoryId;
 
 
+            // =================================================
+            // UPDATE
+            // =================================================
 
-                inventories={inventories}
+            if (inventoryId) {
 
+                await axios.put(
+                    `${INVENTORY_API}/${inventoryId}`,
+                    data
+                );
 
+                setSuccess(
+                    "Product inventory updated successfully."
+                );
 
-            />
+            }
 
+            // =================================================
+            // CREATE
+            // =================================================
 
+            else {
 
+                await axios.post(
+                    INVENTORY_API,
+                    data
+                );
 
+                setSuccess(
+                    "Product inventory created successfully."
+                );
 
-            <ProductInventoryFilters
+            }
 
 
+            // ---------------------------------------------
+            // Reload data
+            // ---------------------------------------------
 
-                statusFilter={statusFilter}
+            await loadInventories();
 
+            setModalOpen(false);
 
+            setSelectedInventory(null);
 
-                setStatusFilter={setStatusFilter}
+        }
 
+        catch (err) {
 
+            console.error(
+                "Save Product Inventory Error:",
+                err
+            );
 
-                quantityFilter={quantityFilter}
+            setError(
+                err?.response?.data?.message ||
+                "Failed to save product inventory."
+            );
 
+        }
 
+        finally {
 
-                setQuantityFilter={setQuantityFilter}
+            setLoading(false);
 
+        }
 
+    };
 
-                inventories={inventories}
 
+    // =====================================================
+    // DELETE INVENTORY
+    // =====================================================
 
+    const handleDelete = async (id) => {
 
-            />
+        try {
 
+            setLoading(true);
 
+            setError("");
 
+            await axios.delete(
+                `${INVENTORY_API}/${id}`
+            );
 
 
+            setSuccess(
+                "Product inventory deleted successfully."
+            );
 
 
-            <ProductInventoryTable
+            await loadInventories();
 
+            setDeleteOpen(false);
 
+            setSelectedInventory(null);
 
-                inventories={pagedInventories}
+        }
 
+        catch (err) {
 
+            console.error(
+                "Delete Product Inventory Error:",
+                err
+            );
 
-                loading={loading}
+            setError(
+                err?.response?.data?.message ||
+                "Failed to delete product inventory."
+            );
 
+        }
 
+        finally {
 
-                onView={(row)=>{
+            setLoading(false);
 
+        }
 
-                    setSelectedInventory(row);
+    };
+const handleView = (row) => {
+    const id =
+        row.productInventoryId ??
+        row.ProductInventoryId;
 
+    if (!id) {
+        setError("Inventory ID is missing.");
+        return;
+    }
 
-                    setViewOpen(true);
+    navigate(`/product-inventory/${id}`);
+};
 
 
-                }}
+const handleEdit = (row) => {
+    const id =
+        row.productInventoryId ??
+        row.ProductInventoryId;
 
+    if (!id) {
+        setError("Inventory ID is missing.");
+        return;
+    }
 
+    navigate(`/product-inventory/edit/${id}`);
+};
 
-                onEdit={(row)=>{
 
+    // =====================================================
+// ADD
+// =====================================================
 
-                    setSelectedInventory(row);
+const handleAdd = () => {
 
+    setSelectedInventory(null);
 
-                    setModalOpen(true);
-
-
-                }}
-
-
-
-                onDelete={(row)=>{
-
-
-                    setSelectedInventory(row);
-
-
-                    setDeleteOpen(true);
-
-
-                }}
-
-
-
-            />
-
-
-
-
-
-
-
-            <ProductInventoryPagination
-
-
-
-                page={page}
-
-
-
-                totalPages={totalPages}
-
-
-
-                pageSize={pageSize}
-
-
-
-                totalRecords={filteredInventories.length}
-
-
-
-                onPageChange={setPage}
-
-
-
-                onPageSizeChange={(size)=>{
-
-
-                    setPageSize(size);
-
-
-                    setPage(1);
-
-
-                }}
-
-
-
-            />
-
-
-
-
-
-
-
-            <ProductInventoryModal
-
-
-
-                open={modalOpen}
-
-
-
-                inventory={selectedInventory}
-
-
-
-                onClose={()=>setModalOpen(false)}
-
-
-
-                onSave={handleSave}
-
-
-
-            />
-
-
-
-
-
-
-
-            <ProductInventoryView
-
-
-
-                open={viewOpen}
-
-
-
-                inventory={selectedInventory}
-
-
-
-                onClose={()=>setViewOpen(false)}
-
-
-
-            />
-
-
-
-
-
-
-
-            <DeleteProductInventoryDialog
-
-
-
-                open={deleteOpen}
-
-
-
-                inventory={selectedInventory}
-
-
-
-                onClose={()=>setDeleteOpen(false)}
-
-
-
-                onDeleted={handleDelete}
-
-
-
-            />
-
-
-
-
-
-        </Box>
-
-
-
-    );
-
+    setModalOpen(true);
 
 };
 
 
+// =====================================================
+// DELETE CLICK
+// =====================================================
+
+const handleDeleteClick = (row) => {
+
+    if (!row) {
+        setError("No inventory record selected.");
+        return;
+    }
+
+    setSelectedInventory(row);
+
+    setDeleteOpen(true);
+
+};
+
+
+// =====================================================
+// EXPORT
+// =====================================================
+
+const handleExport = () => {
+
+    if (!filteredInventories.length) {
+        setError("No inventory records available to export.");
+        return;
+    }
+
+    const headers = [
+        "Inventory ID",
+        "Product ID",
+        "Seller ID",
+        "Customer ID",
+        "Warehouse ID",
+        "Quantity",
+        "Available Quantity",
+        "Reserved Quantity",
+        "Reorder Level",
+        "Min Stock Level",
+        "Max Stock Level",
+        "Stock Status",
+        "Active",
+    ];
+
+    const rows = filteredInventories.map((item) => {
+
+        return [
+            item.productInventoryId ??
+                item.ProductInventoryId ??
+                "",
+
+            item.productId ??
+                item.ProductId ??
+                "",
+
+            item.sellerId ??
+                item.SellerId ??
+                "",
+
+            item.customerId ??
+                item.CustomerId ??
+                "",
+
+            item.warehouseId ??
+                item.WarehouseId ??
+                "",
+
+            item.quantity ??
+                item.Quantity ??
+                0,
+
+            item.availableQuantity ??
+                item.AvailableQuantity ??
+                0,
+
+            item.reservedQuantity ??
+                item.ReservedQuantity ??
+                0,
+
+            item.reorderLevel ??
+                item.ReorderLevel ??
+                0,
+
+            item.minStockLevel ??
+                item.MinStockLevel ??
+                0,
+
+            item.maxStockLevel ??
+                item.MaxStockLevel ??
+                0,
+
+            item.stockStatus ??
+                item.StockStatus ??
+                "",
+
+            (
+                item.isActive ??
+                item.IsActive ??
+                false
+            )
+                ? "Active"
+                : "Inactive",
+        ];
+    });
+
+
+    const csv = [
+        headers,
+        ...rows,
+    ]
+        .map((row) =>
+            row
+                .map((value) => {
+
+                    const text =
+                        String(value ?? "");
+
+                    return `"${text.replace(
+                        /"/g,
+                        '""'
+                    )}"`;
+                })
+                .join(",")
+        )
+        .join("\n");
+
+
+    const blob = new Blob(
+        [csv],
+        {
+            type:
+                "text/csv;charset=utf-8;",
+        }
+    );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "product-inventory.csv";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+
+    setSuccess(
+        "Product inventory exported successfully."
+    );
+};
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
+    return (
+
+        <Box sx={{ p: 3 }}>
+
+            {/* ==========================================
+                TOOLBAR
+            ========================================== */}
+
+            <ProductInventoryToolbar
+
+                onAdd={handleAdd}
+
+                onRefresh={loadInventories}
+
+                onExport={handleExport}
+
+            />
+
+
+            {/* ==========================================
+                STATISTICS
+            ========================================== */}
+
+            <ProductInventoryStatistics
+
+                inventories={inventories}
+
+            />
+
+
+            {/* ==========================================
+                SEARCH
+            ========================================== */}
+
+            <ProductInventorySearch
+
+                searchText={searchText}
+
+                setSearchText={setSearchText}
+
+                stockStatusFilter={stockStatusFilter}
+
+                setStockStatusFilter={
+                    setStockStatusFilter
+                }
+
+                warehouseFilter={warehouseFilter}
+
+                setWarehouseFilter={
+                    setWarehouseFilter
+                }
+
+                inventories={inventories}
+
+            />
+
+
+            {/* ==========================================
+                FILTERS
+            ========================================== */}
+
+            <ProductInventoryFilters
+
+                statusFilter={statusFilter}
+
+                setStatusFilter={setStatusFilter}
+
+                quantityFilter={quantityFilter}
+
+                setQuantityFilter={setQuantityFilter}
+
+                inventories={inventories}
+
+            />
+
+
+            {/* ==========================================
+                TABLE
+            ========================================== */}
+
+            <ProductInventoryTable
+
+                inventories={pagedInventories}
+
+                loading={loading}
+
+                onView={handleView}
+
+                onEdit={handleEdit}
+
+                onDelete={handleDeleteClick}
+
+            />
+
+
+            {/* ==========================================
+                PAGINATION
+            ========================================== */}
+
+            <ProductInventoryPagination
+
+                page={page}
+
+                totalPages={totalPages}
+
+                pageSize={pageSize}
+
+                totalRecords={
+                    filteredInventories.length
+                }
+
+                onPageChange={setPage}
+
+                onPageSizeChange={(size) => {
+
+                    setPageSize(size);
+
+                    setPage(1);
+
+                }}
+
+            />
+
+
+            {/* ==========================================
+                CREATE / EDIT MODAL
+            ========================================== */}
+
+            <ProductInventoryModal
+
+                open={modalOpen}
+
+                inventory={selectedInventory}
+
+                onClose={() => {
+
+                    setModalOpen(false);
+
+                    setSelectedInventory(null);
+
+                }}
+
+                onSave={handleSave}
+
+            />
+
+
+            {/* ==========================================
+                VIEW MODAL
+            ========================================== */}
+
+            <ProductInventoryView
+
+                open={viewOpen}
+
+                inventory={selectedInventory}
+
+                onClose={() => {
+
+                    setViewOpen(false);
+
+                    setSelectedInventory(null);
+
+                }}
+
+            />
+
+
+            {/* ==========================================
+                DELETE DIALOG
+            ========================================== */}
+
+            <DeleteProductInventoryDialog
+
+                open={deleteOpen}
+
+                inventory={selectedInventory}
+
+                onClose={() => {
+
+                    setDeleteOpen(false);
+
+                    setSelectedInventory(null);
+
+                }}
+
+                onDeleted={handleDelete}
+
+            />
+
+
+            {/* ==========================================
+                ERROR
+            ========================================== */}
+
+            <Snackbar
+
+                open={Boolean(error)}
+
+                autoHideDuration={5000}
+
+                onClose={() => setError("")}
+
+            >
+
+                <Alert
+                    severity="error"
+                    onClose={() => setError("")}
+                >
+                    {error}
+                </Alert>
+
+            </Snackbar>
+
+
+            {/* ==========================================
+                SUCCESS
+            ========================================== */}
+
+            <Snackbar
+
+                open={Boolean(success)}
+
+                autoHideDuration={3000}
+
+                onClose={() => setSuccess("")}
+
+            >
+
+                <Alert
+                    severity="success"
+                    onClose={() => setSuccess("")}
+                >
+                    {success}
+                </Alert>
+
+            </Snackbar>
+
+        </Box>
+
+    );
+
+};
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductInventoryList;

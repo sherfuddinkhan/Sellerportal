@@ -15,8 +15,6 @@ const DeleteProductInventoryDialog = ({
             inventory.ProductInventoryId
         );
     };
-
-
     return (
         <Dialog
             open={open}

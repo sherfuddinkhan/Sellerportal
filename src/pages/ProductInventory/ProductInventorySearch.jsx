@@ -1,4 +1,12 @@
-import React from "react";
+// =========================================================
+// ProductInventorySearch.jsx
+// Product Inventory Search & Quick Filters
+// Frontend Only
+// =========================================================
+
+import React, {
+    useMemo
+} from "react";
 
 import {
     Paper,
@@ -10,6 +18,10 @@ import {
     MenuItem
 } from "@mui/material";
 
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const ProductInventorySearch = ({
 
@@ -30,269 +42,222 @@ const ProductInventorySearch = ({
 }) => {
 
 
-    const warehouses = [
+    // =====================================================
+    // WAREHOUSES
+    // =====================================================
 
-        ...new Set(
+    const warehouses = useMemo(() => {
 
-            inventories
+        const values = inventories
+            .map((item) => {
 
-                .map(item => item.WarehouseId)
+                return (
+                    item.warehouseId ??
+                    item.WarehouseId ??
+                    null
+                );
 
-                .filter(Boolean)
-
-        )
-
-    ];
-
-
-    const stockStatuses = [
-
-        ...new Set(
-
-            inventories
-
-                .map(item => item.StockStatus)
-
-                .filter(Boolean)
-
-        )
-
-    ];
+            })
+            .filter(
+                (value) =>
+                    value !== null &&
+                    value !== undefined &&
+                    value !== ""
+            );
 
 
+        return [
+            ...new Set(values)
+        ];
+
+    }, [inventories]);
+
+
+    // =====================================================
+    // STOCK STATUSES
+    // =====================================================
+
+    const stockStatuses = useMemo(() => {
+
+        const values = inventories
+            .map((item) => {
+
+                return (
+                    item.stockStatus ??
+                    item.StockStatus ??
+                    null
+                );
+
+            })
+            .filter(
+                (value) =>
+                    value !== null &&
+                    value !== undefined &&
+                    value !== ""
+            );
+
+
+        return [
+            ...new Set(values)
+        ];
+
+    }, [inventories]);
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Paper
-
             elevation={2}
-
             sx={{
-
-                p:2,
-
-                mb:3
-
+                p: 2,
+                mb: 3
             }}
-
         >
 
             <Grid
-
                 container
-
                 spacing={2}
-
             >
 
+                {/* =================================================
+                    SEARCH
+                ================================================= */}
 
                 <Grid
-
                     item
-
                     xs={12}
-
                     md={5}
-
                 >
 
                     <TextField
-
                         fullWidth
-
                         label="Search Inventory"
-
                         placeholder="Product ID, Seller ID, Warehouse..."
-
-                        value={searchText}
-
-                        onChange={(e)=>
-
+                        value={searchText || ""}
+                        onChange={(e) =>
                             setSearchText(
-
                                 e.target.value
-
                             )
-
                         }
-
                     />
 
                 </Grid>
 
 
+                {/* =================================================
+                    STOCK STATUS
+                ================================================= */}
 
                 <Grid
-
                     item
-
                     xs={12}
-
                     md={3}
-
                 >
 
                     <FormControl
-
                         fullWidth
-
                     >
 
                         <InputLabel>
-
                             Stock Status
-
                         </InputLabel>
 
-
                         <Select
-
                             value={
-                                stockStatusFilter
+                                stockStatusFilter || ""
                             }
-
                             label="Stock Status"
-
-                            onChange={(e)=>
-
+                            onChange={(e) =>
                                 setStockStatusFilter(
-
                                     e.target.value
-
                                 )
-
                             }
-
                         >
 
                             <MenuItem value="">
-
                                 All
-
                             </MenuItem>
 
 
-                            {
+                            {stockStatuses.map(
+                                (status) => (
 
-                                stockStatuses.map(
-
-                                    status => (
-
-                                        <MenuItem
-
-                                            key={status}
-
-                                            value={status}
-
-                                        >
-
-                                            {status}
-
-                                        </MenuItem>
-
-                                    )
+                                    <MenuItem
+                                        key={status}
+                                        value={status}
+                                    >
+                                        {status}
+                                    </MenuItem>
 
                                 )
-
-                            }
-
+                            )}
 
                         </Select>
 
-
                     </FormControl>
-
 
                 </Grid>
 
 
+                {/* =================================================
+                    WAREHOUSE
+                ================================================= */}
 
                 <Grid
-
                     item
-
                     xs={12}
-
                     md={4}
-
                 >
 
                     <FormControl
-
                         fullWidth
-
                     >
 
                         <InputLabel>
-
                             Warehouse
-
                         </InputLabel>
 
-
                         <Select
-
                             value={
-                                warehouseFilter
+                                warehouseFilter || ""
                             }
-
                             label="Warehouse"
-
-                            onChange={(e)=>
-
+                            onChange={(e) =>
                                 setWarehouseFilter(
-
                                     e.target.value
-
                                 )
-
                             }
-
                         >
 
                             <MenuItem value="">
-
                                 All
-
                             </MenuItem>
 
 
-                            {
+                            {warehouses.map(
+                                (warehouse) => (
 
-                                warehouses.map(
-
-                                    warehouse => (
-
-                                        <MenuItem
-
-                                            key={warehouse}
-
-                                            value={warehouse}
-
-                                        >
-
-                                            {warehouse}
-
-                                        </MenuItem>
-
-                                    )
+                                    <MenuItem
+                                        key={warehouse}
+                                        value={warehouse}
+                                    >
+                                        {warehouse}
+                                    </MenuItem>
 
                                 )
-
-                            }
-
+                            )}
 
                         </Select>
 
-
                     </FormControl>
 
-
                 </Grid>
-
 
             </Grid>
-
 
         </Paper>
 
@@ -300,5 +265,9 @@ const ProductInventorySearch = ({
 
 };
 
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductInventorySearch;
