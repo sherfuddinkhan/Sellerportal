@@ -375,6 +375,14 @@ import ProductToolbar from "./pages/Products/ProductToolbar";
 import ProductView from "./pages/Products/ProductView";
 
 // =========================================================
+//  STOCK TRANSFER
+// =========================================================
+import StockTransferForm from "./pages/StockTransfer/StockTransferForm"; 
+import StockTransferView from "./pages/StockTransfer/StockTransferView";
+import StockTransferList from "./pages/StockTransfer/StockTransferList";
+
+
+// =========================================================
 // PRODUCT TYPES
 // =========================================================
 
@@ -919,6 +927,59 @@ function App() {
         <Route path="customer-payments/:id" element={<CustomerPaymentView />} />
         <Route path="customer-payments/search" element={<CustomerPaymentSearch />} />
         <Route path="customer-payments/statistics" element={<CustomerPaymentStatistics />} />
+
+
+
+// ========================================================= // ROUTES // ========================================================= 
+// =========================================================
+// ROUTES
+// =========================================================
+
+<Route
+    path="stock-transfers"
+    element={<StockTransferList />}
+/>
+
+<Route
+    path="stock-transfers/create"
+    element={
+        <StockTransferForm
+            onSuccess={() => {
+                window.location.href =
+                    "/stock-transfers";
+            }}
+            onCancel={() => {
+                window.location.href =
+                    "/stock-transfers";
+            }}
+        />
+    }
+/>
+
+<Route
+    path="/stock-transfers/create"
+    element={<StockTransferForm />}
+/>
+
+<Route
+    path="/stock-transfers/:stockTransferId"
+    element={<StockTransferView />}
+/>
+
+<Route
+    path="/stock-transfers/:stockTransferId/edit"
+    element={<StockTransferForm />}
+/>
+<Route
+    path="/stock-transfers/:stockTransferId"
+    element={<StockTransferView />}
+/>
+
+<Route
+    path="/stock-transfers/:stockTransferId/edit"
+    element={<StockTransferForm />}
+/>
+
 
           {/* ===================================================
     CUSTOMER RETURNS

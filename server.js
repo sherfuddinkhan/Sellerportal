@@ -4143,6 +4143,1538 @@ app.delete(
 
     }
 );
+//////////////////// stock transfer Routes /////////////
+
+// =========================================================
+// STOCK TRANSFER API ROUTES
+
+//
+// =========================================================
+// STOCK TRANSFER
+// GET ALL
+//
+// React:
+// GET /api/stock-transfers
+//
+// Node:
+// GET /api/stock-transfers
+//
+// .NET:
+// GET /api/StockTransfer
+// =========================================================
+
+app.get(
+    "/api/stock-transfers",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "GET ALL STOCK TRANSFERS"
+            );
+
+            console.log(
+                "Node:",
+                "/api/stock-transfers"
+            );
+
+            console.log(
+                "Backend:",
+                `${BASE_URL}/StockTransfer`
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Stock Transfer Response:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "STOCK TRANSFER GET ALL ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error?.response?.data
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to get stock transfers.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER SEARCH
+//
+// React:
+// GET /api/stock-transfers/search?search=ST-001
+//
+// Node:
+// GET /api/stock-transfers/search
+//
+// .NET:
+// GET /api/StockTransfer/search?search=ST-001
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/search",
+    async (req, res) => {
+
+        try {
+
+            const search =
+                String(
+                    req.query.search || ""
+                ).trim();
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "STOCK TRANSFER SEARCH"
+            );
+
+            console.log(
+                "Search:",
+                search
+            );
+
+            console.log(
+                "Backend:",
+                `${BASE_URL}/StockTransfer/search`
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            // =================================================
+            // VALIDATION
+            // =================================================
+
+            if (!search) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Search value is required.",
+                    });
+            }
+
+            // =================================================
+            // NODE → .NET
+            // =================================================
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/search`,
+                    {
+                        params: {
+                            search: search,
+                        },
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Search Response:",
+                response.data
+            );
+
+            // =================================================
+            // .NET → NODE → REACT
+            // =================================================
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "STOCK TRANSFER SEARCH ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error?.response?.data
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to search stock transfers.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER STATISTICS
+//
+// React:
+// GET /api/stock-transfers/statistics
+//
+// Node:
+// GET /api/stock-transfers/statistics
+//
+// .NET:
+// GET /api/StockTransfer/statistics
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/statistics",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "GET STOCK TRANSFER STATISTICS"
+            );
+
+            console.log(
+                "Node:",
+                "/api/stock-transfers/statistics"
+            );
+
+            console.log(
+                "Backend:",
+                `${BASE_URL}/StockTransfer/statistics`
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            // =================================================
+            // NODE → .NET API
+            // =================================================
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/statistics`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Statistics Response:",
+                response.data
+            );
+
+            // =================================================
+            // .NET → NODE → REACT
+            // =================================================
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "STOCK TRANSFER STATISTICS ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error?.response?.data
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load stock transfer statistics.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// GET BY SELLER
+//
+// React:
+// GET /api/stock-transfers/seller/1
+//
+// Node:
+// GET /api/stock-transfers/seller/1
+//
+// .NET:
+// GET /api/StockTransfer/seller/1
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+            } = req.params;
+
+            const id =
+                Number(sellerId);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid seller ID.",
+                    });
+            }
+
+            console.log(
+                "GET STOCK TRANSFERS BY SELLER:",
+                id
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/seller/${id}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Transfer GET BY SELLER Error:",
+                error?.response?.data ||
+                error?.message
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to get stock transfers by seller.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// GET BY PRODUCT
+//
+// React:
+// GET /api/stock-transfers/product/1
+//
+// Node:
+// GET /api/stock-transfers/product/1
+//
+// .NET:
+// GET /api/StockTransfer/product/1
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId,
+            } = req.params;
+
+            const id =
+                Number(productId);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid product ID.",
+                    });
+            }
+
+            console.log(
+                "GET STOCK TRANSFERS BY PRODUCT:",
+                id
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/product/${id}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Transfer GET BY PRODUCT Error:",
+                error?.response?.data ||
+                error?.message
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to get stock transfers by product.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// GET BY FROM WAREHOUSE
+//
+// React:
+// GET /api/stock-transfers/fromwarehouse/1
+//
+// Node:
+// GET /api/stock-transfers/fromwarehouse/1
+//
+// .NET:
+// GET /api/StockTransfer/fromwarehouse/1
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/fromwarehouse/:fromWarehouseId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                fromWarehouseId,
+            } = req.params;
+
+            const id =
+                Number(fromWarehouseId);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid from warehouse ID.",
+                    });
+            }
+
+            console.log(
+                "GET STOCK TRANSFERS BY FROM WAREHOUSE:",
+                id
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/fromwarehouse/${id}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Transfer GET BY FROM WAREHOUSE Error:",
+                error?.response?.data ||
+                error?.message
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to get stock transfers by from warehouse.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// GET BY TO WAREHOUSE
+//
+// React:
+// GET /api/stock-transfers/towarehouse/1
+//
+// Node:
+// GET /api/stock-transfers/towarehouse/1
+//
+// .NET:
+// GET /api/StockTransfer/towarehouse/1
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/towarehouse/:toWarehouseId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                toWarehouseId,
+            } = req.params;
+
+            const id =
+                Number(toWarehouseId);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid to warehouse ID.",
+                    });
+            }
+
+            console.log(
+                "GET STOCK TRANSFERS BY TO WAREHOUSE:",
+                id
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/towarehouse/${id}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Transfer GET BY TO WAREHOUSE Error:",
+                error?.response?.data ||
+                error?.message
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to get stock transfers by to warehouse.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// GET BY STATUS
+//
+// React:
+// GET /api/stock-transfers/status/Pending
+//
+// Node:
+// GET /api/stock-transfers/status/Pending
+//
+// .NET:
+// GET /api/StockTransfer/status/Pending
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const {
+                status,
+            } = req.params;
+
+            const cleanStatus =
+                String(status || "").trim();
+
+            if (!cleanStatus) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Status is required.",
+                    });
+            }
+
+            console.log(
+                "GET STOCK TRANSFERS BY STATUS:",
+                cleanStatus
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/status/${encodeURIComponent(cleanStatus)}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Transfer GET BY STATUS Error:",
+                error?.response?.data ||
+                error?.message
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to get stock transfers by status.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// SORT
+//
+// React:
+// GET /api/stock-transfers/sort?sort=date_desc
+//
+// Node:
+// GET /api/stock-transfers/sort?sort=date_desc
+//
+// .NET:
+// GET /api/StockTransfer/sort?sort=date_desc
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/sort",
+    async (req, res) => {
+
+        try {
+
+            const sort =
+                String(
+                    req.query.sort || ""
+                ).trim();
+
+            console.log(
+                "STOCK TRANSFER SORT:",
+                sort
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/sort`,
+                    {
+                        params: {
+                            sort: sort || undefined,
+                        },
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Transfer SORT Error:",
+                error?.response?.data ||
+                error?.message
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to sort stock transfers.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// PAGINATION
+//
+// React:
+// GET /api/stock-transfers/page?page=1&limit=15
+//
+// Node:
+// GET /api/stock-transfers/page?page=1&limit=15
+//
+// .NET:
+// GET /api/StockTransfer/page?page=1&limit=15
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/page",
+    async (req, res) => {
+
+        try {
+
+            let page =
+                Number(req.query.page || 1);
+
+            let limit =
+                Number(req.query.limit || 15);
+
+            if (
+                !Number.isInteger(page) ||
+                page < 1
+            ) {
+                page = 1;
+            }
+
+            if (
+                !Number.isInteger(limit) ||
+                limit < 1
+            ) {
+                limit = 15;
+            }
+
+            console.log(
+                "STOCK TRANSFER PAGINATION:",
+                {
+                    page,
+                    limit,
+                }
+            );
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/page`,
+                    {
+                        params: {
+                            page,
+                            limit,
+                        },
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Transfer PAGINATION Error:",
+                error?.response?.data ||
+                error?.message
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load paginated stock transfers.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// GET BY ID
+//
+// IMPORTANT:
+// This route is AFTER search/statistics/filter routes.
+//
+// React:
+// GET /api/stock-transfers/1
+//
+// Node:
+// GET /api/stock-transfers/1
+//
+// .NET:
+// GET /api/StockTransfer/1
+// =========================================================
+
+app.get(
+    "/api/stock-transfers/:stockTransferId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                stockTransferId,
+            } = req.params;
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "GET STOCK TRANSFER BY ID"
+            );
+
+            console.log(
+                "ID:",
+                stockTransferId
+            );
+
+            console.log(
+                "Backend URL:",
+                `${BASE_URL}/StockTransfer/${stockTransferId}`
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            // =================================================
+            // VALIDATE ID
+            // =================================================
+
+            const id =
+                Number(stockTransferId);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid stock transfer ID.",
+                    });
+            }
+
+            // =================================================
+            // CALL .NET API
+            // =================================================
+
+            const response =
+                await axios.get(
+                    `${BASE_URL}/StockTransfer/${id}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Backend Response:",
+                response.data
+            );
+
+            // =================================================
+            // RETURN TO REACT
+            // =================================================
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "STOCK TRANSFER GET BY ID ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error?.response?.data
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            // =================================================
+            // NOT FOUND
+            // =================================================
+
+            if (
+                error?.response?.status === 404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        message:
+                            "Stock transfer not found.",
+                    });
+            }
+
+            // =================================================
+            // BACKEND ERROR
+            // =================================================
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load stock transfer.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// CREATE
+//
+// React:
+// POST /api/stock-transfers
+//
+// Node:
+// POST /api/stock-transfers
+//
+// .NET:
+// POST /api/StockTransfer
+// =========================================================
+
+app.post(
+    "/api/stock-transfers",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "CREATE STOCK TRANSFER"
+            );
+
+            console.log(
+                "Payload:",
+                req.body
+            );
+
+            console.log(
+                "Backend:",
+                `${BASE_URL}/StockTransfer`
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            const response =
+                await axios.post(
+                    `${BASE_URL}/StockTransfer`,
+                    req.body,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Create Response:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "STOCK TRANSFER CREATE ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error?.response?.data
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to create stock transfer.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// UPDATE
+//
+// React:
+// PUT /api/stock-transfers/1
+//
+// Node:
+// PUT /api/stock-transfers/1
+//
+// .NET:
+// PUT /api/StockTransfer/1
+// =========================================================
+
+app.put(
+    "/api/stock-transfers/:stockTransferId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                stockTransferId,
+            } = req.params;
+
+            const id =
+                Number(stockTransferId);
+
+            // =================================================
+            // VALIDATE ID
+            // =================================================
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid stock transfer ID.",
+                    });
+            }
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "UPDATE STOCK TRANSFER"
+            );
+
+            console.log(
+                "ID:",
+                id
+            );
+
+            console.log(
+                "Payload:",
+                req.body
+            );
+
+            console.log(
+                "Backend:",
+                `${BASE_URL}/StockTransfer/${id}`
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            // =================================================
+            // NODE → .NET
+            // =================================================
+
+            const response =
+                await axios.put(
+                    `${BASE_URL}/StockTransfer/${id}`,
+                    req.body,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Update Response:",
+                response.data
+            );
+
+            // =================================================
+            // .NET → NODE → REACT
+            // =================================================
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "STOCK TRANSFER UPDATE ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error?.response?.data
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            // =================================================
+            // NOT FOUND
+            // =================================================
+
+            if (
+                error?.response?.status === 404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        message:
+                            "Stock transfer not found.",
+                    });
+            }
+
+            // =================================================
+            // BACKEND ERROR
+            // =================================================
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to update stock transfer.",
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// STOCK TRANSFER
+// DELETE
+//
+// React:
+// DELETE /api/stock-transfers/1
+//
+// Node:
+// DELETE /api/stock-transfers/1
+//
+// .NET:
+// DELETE /api/StockTransfer/1
+// =========================================================
+
+app.delete(
+    "/api/stock-transfers/:stockTransferId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                stockTransferId,
+            } = req.params;
+
+            const id =
+                Number(stockTransferId);
+
+            // =================================================
+            // VALIDATE ID
+            // =================================================
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid stock transfer ID.",
+                    });
+            }
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "DELETE STOCK TRANSFER"
+            );
+
+            console.log(
+                "ID:",
+                id
+            );
+
+            console.log(
+                "Backend:",
+                `${BASE_URL}/StockTransfer/${id}`
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            // =================================================
+            // NODE → .NET
+            // =================================================
+
+            const response =
+                await axios.delete(
+                    `${BASE_URL}/StockTransfer/${id}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Delete Response:",
+                response.data
+            );
+
+            // =================================================
+            // .NET → NODE → REACT
+            // =================================================
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "STOCK TRANSFER DELETE ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error?.response?.data
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            // =================================================
+            // NOT FOUND
+            // =================================================
+
+            if (
+                error?.response?.status === 404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        message:
+                            "Stock transfer not found.",
+                    });
+            }
+
+            // =================================================
+            // BACKEND ERROR
+            // =================================================
+
+            return res
+                .status(
+                    error?.response?.status || 500
+                )
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to delete stock transfer.",
+                    }
+                );
+        }
+    }
+);
+
+
 // =========================================================
 // CUSTOMER RETURN ROUTES
 // React -> Node server.js -> ASP.NET Core
