@@ -928,22 +928,6 @@ function App() {
     path="customer-returns"
     element={<CustomerReturnList />}
 />
-
-<Route
-    path="customer-returns/:id"
-    element={<CustomerReturnView />}
-/>
-
-<Route
-    path="customer-returns/search"
-    element={<CustomerReturnSearch />}
-/>
-
-
-{/* ===================================================
-    CUSTOMER RETURNS
-=================================================== */}
-
 <Route
     path="customer-returns"
     element={<CustomerReturnList />}
@@ -967,16 +951,6 @@ function App() {
 <Route
     path="customer-returns/:id/edit"
     element={<CustomerReturnEdit />}
-/>
-
-
-{/* ===================================================
-    CUSTOMER RETURNS
-=================================================== */}
-
-<Route
-    path="customer-returns"
-    element={<CustomerReturnList />}
 />
 
 <Route
