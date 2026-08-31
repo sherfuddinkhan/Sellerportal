@@ -1,3 +1,7 @@
+// =========================================================
+// DeleteSellerCustomerDialog.jsx
+// =========================================================
+
 import React from "react";
 
 import {
@@ -7,260 +11,214 @@ import {
     DialogActions,
     Button,
     Typography,
-    Divider
+    Divider,
 } from "@mui/material";
 
+// =========================================================
+// FIELD HELPER
+// =========================================================
+
+const getField = (object, field) => {
+
+    if (!object) {
+        return undefined;
+    }
+
+    if (object[field] !== undefined) {
+        return object[field];
+    }
+
+    const pascalField =
+        field.charAt(0).toUpperCase() +
+        field.slice(1);
+
+    return object[pascalField];
+
+};
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const DeleteSellerCustomerDialog = ({
-
     open,
-
     customer,
-
     onClose,
-
-    onDeleted
-
+    onDeleted,
 }) => {
 
+    if (!customer) {
+        return null;
+    }
 
-    if (!customer) return null;
+    // =====================================================
+    // VALUES
+    // =====================================================
 
+    const customerId =
+        getField(
+            customer,
+            "customerId"
+        );
+
+    const customerCode =
+        getField(
+            customer,
+            "customerCode"
+        );
+
+    const customerName =
+        getField(
+            customer,
+            "customerName"
+        );
+
+    const contactPerson =
+        getField(
+            customer,
+            "contactPerson"
+        );
+
+    const email =
+        getField(
+            customer,
+            "email"
+        );
+
+    const phone =
+        getField(
+            customer,
+            "phone"
+        );
+
+    const gstin =
+        getField(
+            customer,
+            "gstin"
+        );
+
+    const city =
+        getField(
+            customer,
+            "city"
+        );
+
+    // =====================================================
+    // DELETE
+    // =====================================================
 
     const handleDelete = () => {
 
+        if (!customerId) {
+            return;
+        }
+
         onDeleted(
-
-            customer.CustomerId
-
+            customerId
         );
 
     };
 
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Dialog
-
             open={open}
-
             onClose={onClose}
-
             fullWidth
-
             maxWidth="sm"
-
         >
 
             <DialogTitle>
-
                 Delete Customer
-
             </DialogTitle>
-
 
             <Divider />
 
-
             <DialogContent
-
                 sx={{
-
-                    mt: 2
-
+                    mt: 2,
                 }}
-
             >
 
                 <Typography>
-
-                    Are you sure you want to delete this customer?
-
+                    Are you sure you want to delete
+                    this customer?
                 </Typography>
-
 
                 <Typography
-
-                    sx={{ mt: 2 }}
-
+                    sx={{
+                        mt: 2,
+                    }}
                     fontWeight="bold"
-
                 >
-
-                    Customer ID :
-
-                    {" "}
-
-                    {
-
-                        customer.CustomerId
-
-                    }
-
+                    Customer ID:{" "}
+                    {customerId || "-"}
                 </Typography>
-
 
                 <Typography>
-
-                    Customer Code :
-
-                    {" "}
-
-                    {
-
-                        customer.CustomerCode ||
-
-                        "-"
-
-                    }
-
+                    Customer Code:{" "}
+                    {customerCode || "-"}
                 </Typography>
-
 
                 <Typography>
-
-                    Customer Name :
-
-                    {" "}
-
-                    {
-
-                        customer.CustomerName ||
-
-                        "-"
-
-                    }
-
+                    Customer Name:{" "}
+                    {customerName || "-"}
                 </Typography>
-
 
                 <Typography>
-
-                    Contact Person :
-
-                    {" "}
-
-                    {
-
-                        customer.ContactPerson ||
-
-                        "-"
-
-                    }
-
+                    Contact Person:{" "}
+                    {contactPerson || "-"}
                 </Typography>
-
 
                 <Typography>
-
-                    Email :
-
-                    {" "}
-
-                    {
-
-                        customer.Email ||
-
-                        "-"
-
-                    }
-
+                    Email:{" "}
+                    {email || "-"}
                 </Typography>
-
 
                 <Typography>
-
-                    Phone :
-
-                    {" "}
-
-                    {
-
-                        customer.Phone ||
-
-                        "-"
-
-                    }
-
+                    Phone:{" "}
+                    {phone || "-"}
                 </Typography>
-
 
                 <Typography>
-
-                    GSTIN :
-
-                    {" "}
-
-                    {
-
-                        customer.GSTIN ||
-
-                        "-"
-
-                    }
-
+                    GSTIN:{" "}
+                    {gstin || "-"}
                 </Typography>
-
 
                 <Typography>
-
-                    City :
-
-                    {" "}
-
-                    {
-
-                        customer.City ||
-
-                        "-"
-
-                    }
-
+                    City:{" "}
+                    {city || "-"}
                 </Typography>
-
 
             </DialogContent>
 
-
             <DialogActions>
 
-
                 <Button
-
                     variant="outlined"
-
                     onClick={onClose}
-
                 >
-
                     Cancel
-
                 </Button>
-
 
                 <Button
-
                     variant="contained"
-
                     color="error"
-
                     onClick={handleDelete}
-
                 >
-
                     Delete
-
                 </Button>
-
 
             </DialogActions>
-
 
         </Dialog>
 
     );
 
 };
-
 
 export default DeleteSellerCustomerDialog;

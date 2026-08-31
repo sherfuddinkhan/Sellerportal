@@ -27,21 +27,12 @@ import {
 
 
 const CustomerReturnTable = ({
-
     items = [],
-
     loading,
-
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
-
-
-
     const getStatusColor = (status) => {
 
 
@@ -101,15 +92,6 @@ const CustomerReturnTable = ({
 
 
     };
-
-
-
-
-
-
-
-
-
     if (loading) {
 
 
@@ -151,13 +133,6 @@ const CustomerReturnTable = ({
 
 
     }
-
-
-
-
-
-
-
     if (items.length === 0) {
 
 
@@ -219,756 +194,342 @@ const CustomerReturnTable = ({
 
 
     }
+   return (
 
+    <TableContainer
+        component={Paper}
+        sx={{
+            width: "100%",
+            overflowX: "auto",
+        }}
+    >
 
-
-
-
-
-
-    return (
-
-
-
-        <TableContainer
-
-
-
-            component={Paper}
-
-
-
+        <Table
+            size="small"
+            sx={{
+                minWidth: 1100,
+            }}
         >
 
+            {/* =====================================================
+                TABLE HEADER
+            ===================================================== */}
 
+            <TableHead>
 
+                <TableRow>
 
+                    <TableCell>
+                        Return ID
+                    </TableCell>
 
+                    <TableCell>
+                        Invoice ID
+                    </TableCell>
 
+                    <TableCell>
+                        Product ID
+                    </TableCell>
 
-            <Table
+                    <TableCell>
+                        Return Number
+                    </TableCell>
 
+                    <TableCell>
+                        Return Date
+                    </TableCell>
 
+                    <TableCell>
+                        Quantity
+                    </TableCell>
 
-                size="small"
+                    <TableCell>
+                        Return Amount
+                    </TableCell>
 
+                    <TableCell>
+                        Status
+                    </TableCell>
 
+                    <TableCell
+                        align="center"
+                    >
+                        Actions
+                    </TableCell>
 
-            >
+                </TableRow>
 
+            </TableHead>
 
 
+            {/* =====================================================
+                TABLE BODY
+            ===================================================== */}
 
+            <TableBody>
 
+                {items.map((row) => {
 
+                    // =================================================
+                    // SUPPORT BOTH PascalCase AND camelCase
+                    // =================================================
 
-                <TableHead>
+                    const returnId =
+                        row.CustomerReturnId ??
+                        row.customerReturnId;
 
+                    const invoiceId =
+                        row.SalesInvoiceId ??
+                        row.salesInvoiceId;
 
+                    const productId =
+                        row.ProductId ??
+                        row.productId;
 
+                    const returnNumber =
+                        row.ReturnNumber ??
+                        row.returnNumber;
 
+                    const returnDate =
+                        row.ReturnDate ??
+                        row.returnDate;
 
+                    const quantity =
+                        row.Quantity ??
+                        row.quantity ??
+                        0;
 
+                    const returnAmount =
+                        row.ReturnAmount ??
+                        row.returnAmount ??
+                        0;
 
-                    <TableRow>
+                    const status =
+                        row.Status ??
+                        row.status ??
+                        "N/A";
 
 
+                    return (
 
-
-
-
-
-                        <TableCell>
-
-                            Return ID
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell>
-
-                            Invoice ID
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell>
-
-                            Product ID
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell>
-
-                            Return Number
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell>
-
-                            Return Date
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell>
-
-                            Quantity
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell>
-
-                            Return Amount
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell>
-
-                            Status
-
-                        </TableCell>
-
-
-
-
-
-
-
-
-
-                        <TableCell
-
-
-
-                            align="center"
-
-
-
+                        <TableRow
+                            key={returnId}
+                            hover
                         >
 
+                            {/* =================================================
+                                RETURN ID
+                            ================================================= */}
+
+                            <TableCell>
+
+                                {returnId}
+
+                            </TableCell>
 
 
-                            Actions
+                            {/* =================================================
+                                INVOICE ID
+                            ================================================= */}
+
+                            <TableCell>
+
+                                {invoiceId}
+
+                            </TableCell>
 
 
+                            {/* =================================================
+                                PRODUCT ID
+                            ================================================= */}
 
-                        </TableCell>
+                            <TableCell>
 
+                                {productId}
 
-
-
-
-
-
-                    </TableRow>
-
+                            </TableCell>
 
 
+                            {/* =================================================
+                                RETURN NUMBER
+                            ================================================= */}
+
+                            <TableCell>
+
+                                {returnNumber || "-"}
+
+                            </TableCell>
 
 
+                            {/* =================================================
+                                RETURN DATE
+                            ================================================= */}
 
+                            <TableCell>
 
-                </TableHead>
+                                {returnDate
 
+                                    ? new Date(
+                                        returnDate
+                                    ).toLocaleDateString(
+                                        "en-IN"
+                                    )
 
-
-
-
-
-
-
-
-                <TableBody>
-
-
-
-
-
-
-
-                    {
-
-
-
-                        items.map((row) => (
-
-
-
-
-
-
-
-                            <TableRow
-
-
-
-                                key={
-
-                                    row.CustomerReturnId
+                                    : "-"
 
                                 }
 
+                            </TableCell>
 
 
-                                hover
+                            {/* =================================================
+                                QUANTITY
+                            ================================================= */}
+
+                            <TableCell>
+
+                                {quantity}
+
+                            </TableCell>
 
 
+                            {/* =================================================
+                                RETURN AMOUNT
+                            ================================================= */}
 
+                            <TableCell>
+
+                                ₹{" "}
+
+                                {Number(
+                                    returnAmount
+                                ).toLocaleString(
+                                    "en-IN"
+                                )}
+
+                            </TableCell>
+
+
+                            {/* =================================================
+                                STATUS
+                            ================================================= */}
+
+                            <TableCell>
+
+                                <Chip
+
+                                    label={status}
+
+                                    color={
+                                        getStatusColor(
+                                            status
+                                        )
+                                    }
+
+                                    size="small"
+
+                                />
+
+                            </TableCell>
+
+
+                            {/* =================================================
+                                ACTIONS
+                            ================================================= */}
+
+                            <TableCell
+                                align="center"
                             >
 
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.CustomerReturnId
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.SalesInvoiceId
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.ProductId
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-
-
-                                        row.ReturnNumber ||
-
-                                        "-"
-
-
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-
-
-                                        row.ReturnDate
-
-
-
-                                            ? new Date(
-
-                                                row.ReturnDate
-
-                                            )
-
-                                            .toLocaleDateString()
-
-
-
-                                            : "-"
-
-
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.Quantity
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-
-
-                                        row.ReturnAmount
-
-
-
-                                            ? `₹ ${row.ReturnAmount}`
-
-
-
-                                            : "-"
-
-
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-
-
-
-
-                                    <Chip
-
-
-
-                                        label={
-
-
-
-                                            row.Status ||
-
-                                            "N/A"
-
-
-
-                                        }
-
-
-
-                                        color={
-
-
-
-                                            getStatusColor(
-
-                                                row.Status
-
-                                            )
-
-
-
-                                        }
-
-
-
-                                        size="small"
-
-
-
-                                    />
-
-
-
-
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                                <TableCell
-
-
-
-                                    align="center"
-
-
-
+                                {/* =============================================
+                                    VIEW
+                                ============================================= */}
+
+                                <Tooltip
+                                    title="View Return"
                                 >
 
+                                    <IconButton
 
+                                        color="primary"
 
-
-
-
-
-                                    <Tooltip
-
-
-
-                                        title="View"
-
-
+                                        onClick={() =>
+                                            onView(row)
+                                        }
 
                                     >
 
+                                        <Visibility />
+
+                                    </IconButton>
+
+                                </Tooltip>
 
 
+                                {/* =============================================
+                                    EDIT
+                                ============================================= */}
 
+                                <Tooltip
+                                    title="Edit Return"
+                                >
 
+                                    <IconButton
 
+                                        color="warning"
 
-                                        <IconButton
-
-
-
-                                            color="primary"
-
-
-
-                                            onClick={() =>
-
-                                                onView(row)
-
-                                            }
-
-
-
-                                        >
-
-
-
-                                            <Visibility />
-
-
-
-                                        </IconButton>
-
-
-
-
-
-
-
-                                    </Tooltip>
-
-
-
-
-
-
-
-
-
-                                    <Tooltip
-
-
-
-                                        title="Edit"
-
-
+                                        onClick={() =>
+                                            onEdit(row)
+                                        }
 
                                     >
 
+                                        <Edit />
+
+                                    </IconButton>
+
+                                </Tooltip>
 
 
+                                {/* =============================================
+                                    DELETE
+                                ============================================= */}
 
+                                <Tooltip
+                                    title="Delete Return"
+                                >
 
+                                    <IconButton
 
+                                        color="error"
 
-                                        <IconButton
-
-
-
-                                            color="warning"
-
-
-
-                                            onClick={() =>
-
-                                                onEdit(row)
-
-                                            }
-
-
-
-                                        >
-
-
-
-                                            <Edit />
-
-
-
-                                        </IconButton>
-
-
-
-
-
-
-
-                                    </Tooltip>
-
-
-
-
-
-
-
-
-
-                                    <Tooltip
-
-
-
-                                        title="Delete"
-
-
+                                        onClick={() =>
+                                            onDelete(row)
+                                        }
 
                                     >
 
+                                        <Delete />
 
+                                    </IconButton>
 
+                                </Tooltip>
 
+                            </TableCell>
 
+                        </TableRow>
 
+                    );
 
-                                        <IconButton
+                })}
 
+            </TableBody>
 
+        </Table>
 
-                                            color="error"
+    </TableContainer>
 
-
-
-                                            onClick={() =>
-
-                                                onDelete(row)
-
-                                            }
-
-
-
-                                        >
-
-
-
-                                            <Delete />
-
-
-
-                                        </IconButton>
-
-
-
-
-
-
-
-                                    </Tooltip>
-
-
-
-
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-
-
-                            </TableRow>
-
-
-
-
-
-
-
-                        ))
-
-
-
-                    }
-
-
-
-
-
-
-
-                </TableBody>
-
-
-
-
-
-
-
-            </Table>
-
-
-
-
-
-
-
-        </TableContainer>
-
-
-
-    );
+);
 
 };
 

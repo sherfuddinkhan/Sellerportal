@@ -3723,6 +3723,1057 @@ app.delete(
         }
     }
 );
+////////////////// seller-customer/////////////////
+// =========================================================
+// SELLER CUSTOMER ROUTES
+// =========================================================
+
+// GET ALL SELLER CUSTOMERS
+// GET /api/seller-customers
+app.get(
+    "/api/seller-customers",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET ALL SELLER CUSTOMERS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load seller customers."
+                    }
+                );
+
+        }
+
+    }
+);
+// GET CUSTOMER BY SELLER + CUSTOMER ID
+app.get(
+    "/api/SellerCustomer/:sellerId/customers/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+
+            console.log(
+                `GET SellerCustomer: seller=${sellerId}, customer=${customerId}`
+            );
+
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`
+                );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET SellerCustomer Details Error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to load customer details."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+
+// =========================================================
+// GET CUSTOMERS BY SELLER
+// =========================================================
+
+// GET /api/seller-customers/seller/6
+
+app.get(
+    "/api/seller-customers/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/seller/${sellerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET SELLER CUSTOMERS BY SELLER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load seller customers."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET SINGLE CUSTOMER
+// =========================================================
+
+// GET /api/seller-customers/6/customers/3
+
+app.get(
+    "/api/seller-customers/:sellerId/customers/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET SELLER CUSTOMER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Customer not found."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET CUSTOMER BY CODE
+// =========================================================
+
+// GET /api/seller-customers/6/code/CUST001
+
+app.get(
+    "/api/seller-customers/:sellerId/code/:customerCode",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerCode
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/code/${encodeURIComponent(customerCode)}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET CUSTOMER BY CODE ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Customer not found."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// CREATE CUSTOMER
+// =========================================================
+
+// POST /api/seller-customers
+
+app.post(
+    "/api/seller-customers",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/SellerCustomer`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "CREATE SELLER CUSTOMER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to create customer."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// UPDATE CUSTOMER
+// =========================================================
+
+// PUT /api/seller-customers/6/customers/3
+
+app.put(
+    "/api/seller-customers/:sellerId/customers/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.put(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .send(
+                    response.data || null
+                );
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE SELLER CUSTOMER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update customer."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// DELETE CUSTOMER
+// =========================================================
+
+// DELETE /api/seller-customers/6/customers/3
+
+app.delete(
+    "/api/seller-customers/:sellerId/customers/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.delete(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .send(
+                    response.data || null
+                );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE SELLER CUSTOMER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to delete customer."
+                    }
+                );
+
+        }
+
+    }
+);
+// =========================================================
+// CUSTOMER RETURN ROUTES
+// React -> Node server.js -> ASP.NET Core
+// =========================================================
+
+// ASP.NET Core API
+const ASPNET_URL = "https://localhost:7203";
+
+// =========================================================
+// GET ALL CUSTOMER RETURNS
+// =========================================================
+// React:
+// GET http://localhost:5000/api/customer-returns
+//
+// ASP.NET:
+// GET https://localhost:7203/api/CustomerReturn
+// =========================================================
+
+app.get(
+    "/api/customer-returns",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET /api/customer-returns"
+            );
+
+            const response = await axios.get(
+                `${ASPNET_URL}/api/CustomerReturn`,
+                {
+                    httpsAgent,
+                    timeout: 30000,
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Get Customer Returns Error:",
+                error.message
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to load customer returns.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET CUSTOMER RETURN BY ID
+// =========================================================
+// React:
+// GET /api/customer-returns/1
+//
+// ASP.NET:
+// GET /api/CustomerReturn/1
+// =========================================================
+
+app.get(
+    "/api/customer-returns/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            console.log(
+                "GET Customer Return:",
+                id
+            );
+
+            const response = await axios.get(
+                `${ASPNET_URL}/api/CustomerReturn/${id}`,
+                {
+                    httpsAgent,
+                    timeout: 30000,
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Get Customer Return By ID Error:",
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Customer return not found.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET RETURNS BY SALES INVOICE
+// =========================================================
+// React:
+// GET /api/customer-returns/invoice/10
+//
+// ASP.NET:
+// GET /api/CustomerReturn/invoice/10
+// =========================================================
+
+app.get(
+    "/api/customer-returns/invoice/:salesInvoiceId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                salesInvoiceId
+            } = req.params;
+
+            console.log(
+                "Get Returns By Sales Invoice:",
+                salesInvoiceId
+            );
+
+            const response = await axios.get(
+                `${ASPNET_URL}/api/CustomerReturn/invoice/${salesInvoiceId}`,
+                {
+                    httpsAgent,
+                    timeout: 30000,
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Get Returns By Invoice Error:",
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to load returns for this invoice.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET RETURNS BY PRODUCT
+// =========================================================
+// React:
+// GET /api/customer-returns/product/5
+//
+// ASP.NET:
+// GET /api/CustomerReturn/product/5
+// =========================================================
+
+app.get(
+    "/api/customer-returns/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            console.log(
+                "Get Returns By Product:",
+                productId
+            );
+
+            const response = await axios.get(
+                `${ASPNET_URL}/api/CustomerReturn/product/${productId}`,
+                {
+                    httpsAgent,
+                    timeout: 30000,
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Get Returns By Product Error:",
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to load returns for this product.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET RETURNS BY STATUS
+// =========================================================
+// React:
+// GET /api/customer-returns/status/Pending
+//
+// ASP.NET:
+// GET /api/CustomerReturn/status/Pending
+// =========================================================
+
+app.get(
+    "/api/customer-returns/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const {
+                status
+            } = req.params;
+
+            console.log(
+                "Get Returns By Status:",
+                status
+            );
+
+            const response = await axios.get(
+                `${ASPNET_URL}/api/CustomerReturn/status/${encodeURIComponent(status)}`,
+                {
+                    httpsAgent,
+                    timeout: 30000,
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Get Returns By Status Error:",
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to load returns by status.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET RETURN BY RETURN NUMBER
+// =========================================================
+// React:
+// GET /api/customer-returns/number/RET-001
+//
+// ASP.NET:
+// GET /api/CustomerReturn/number/RET-001
+// =========================================================
+
+app.get(
+    "/api/customer-returns/number/:returnNumber",
+    async (req, res) => {
+
+        try {
+
+            const {
+                returnNumber
+            } = req.params;
+
+            console.log(
+                "Get Return By Number:",
+                returnNumber
+            );
+
+            const response = await axios.get(
+                `${ASPNET_URL}/api/CustomerReturn/number/${encodeURIComponent(returnNumber)}`,
+                {
+                    httpsAgent,
+                    timeout: 30000,
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Get Return By Number Error:",
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Customer return not found.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// CREATE CUSTOMER RETURN
+// =========================================================
+// React:
+// POST /api/customer-returns
+//
+// ASP.NET:
+// POST /api/CustomerReturn
+// =========================================================
+
+app.post(
+    "/api/customer-returns",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "Create Customer Return:"
+            );
+
+            console.log(
+                req.body
+            );
+
+            const response = await axios.post(
+
+                `${ASPNET_URL}/api/CustomerReturn`,
+
+                req.body,
+
+                {
+                    httpsAgent,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    timeout: 30000,
+                }
+
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Create Customer Return Error:",
+                error.message
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to create customer return.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// UPDATE CUSTOMER RETURN
+// =========================================================
+// React:
+// PUT /api/customer-returns/1
+//
+// ASP.NET:
+// PUT /api/CustomerReturn/1
+// =========================================================
+
+app.put(
+    "/api/customer-returns/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            console.log(
+                "Update Customer Return:",
+                id
+            );
+
+            console.log(
+                "Payload:",
+                req.body
+            );
+
+            const response = await axios.put(
+
+                `${ASPNET_URL}/api/CustomerReturn/${id}`,
+
+                req.body,
+
+                {
+                    httpsAgent,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    timeout: 30000,
+                }
+
+            );
+
+            // ASP.NET returns Ok()
+            return res
+                .status(response.status)
+                .json(
+                    response.data || {
+                        success: true,
+                        message:
+                            "Customer return updated successfully."
+                    }
+                );
+
+        }
+        catch (error) {
+
+            console.error(
+                "Update Customer Return Error:",
+                error.message
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to update customer return.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// DELETE CUSTOMER RETURN
+// =========================================================
+// React:
+// DELETE /api/customer-returns/1
+//
+// ASP.NET:
+// DELETE /api/CustomerReturn/1
+// =========================================================
+
+app.delete(
+    "/api/customer-returns/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            console.log(
+                "Delete Customer Return:",
+                id
+            );
+
+            const response = await axios.delete(
+
+                `${ASPNET_URL}/api/CustomerReturn/${id}`,
+
+                {
+                    httpsAgent,
+                    timeout: 30000,
+                }
+
+            );
+
+            return res
+                .status(response.status)
+                .json(
+                    response.data || {
+                        success: true,
+                        message:
+                            "Customer return deleted successfully."
+                    }
+                );
+
+        }
+        catch (error) {
+
+            console.error(
+                "Delete Customer Return Error:",
+                error.message
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to delete customer return.",
+                    error:
+                        error.message,
+                });
+
+        }
+
+    }
+);
+
 
 // =========================================================
 // =========================================================

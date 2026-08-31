@@ -1,3 +1,7 @@
+// =========================================================
+// SellerCustomerTable.jsx
+// =========================================================
+
 import React from "react";
 
 import {
@@ -22,450 +26,426 @@ import {
     Delete
 } from "@mui/icons-material";
 
+import { useNavigate } from "react-router-dom";
+
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const SellerCustomerTable = ({
-
     customers = [],
-
-    loading,
-
-    onView,
-
-    onEdit,
-
-    onDelete
-
+    loading
 }) => {
 
+    const navigate = useNavigate();
+
+
+    // =====================================================
+    // Loading
+    // =====================================================
 
     if (loading) {
 
         return (
-
             <Box
-
                 display="flex"
-
                 justifyContent="center"
-
+                alignItems="center"
                 mt={5}
-
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
 
     }
 
 
-    if (customers.length === 0) {
+    // =====================================================
+    // Empty
+    // =====================================================
+
+    if (!customers || customers.length === 0) {
 
         return (
-
-            <Paper
-
-                sx={{
-
-                    p: 4
-
-                }}
-
-            >
+            <Paper sx={{ p: 4 }}>
 
                 <Typography
-
                     align="center"
-
                     color="text.secondary"
-
                 >
-
                     No Customers Found
-
                 </Typography>
 
-
             </Paper>
-
         );
 
     }
 
 
-    return (
+    // =====================================================
+    // Render
+    // =====================================================
 
-        <TableContainer
+return (
 
-            component={Paper}
+    <TableContainer component={Paper}>
 
-        >
+        <Table size="small">
 
-            <Table
+            <TableHead>
 
-                size="small"
+                <TableRow>
 
-            >
+                    <TableCell>
+                        ID
+                    </TableCell>
 
-                <TableHead>
+                    <TableCell>
+                        Customer Code
+                    </TableCell>
 
-                    <TableRow>
+                    <TableCell>
+                        Customer Name
+                    </TableCell>
 
+                    <TableCell>
+                        Contact Person
+                    </TableCell>
 
-                        <TableCell>
+                    <TableCell>
+                        Email
+                    </TableCell>
 
-                            ID
+                    <TableCell>
+                        Phone
+                    </TableCell>
 
-                        </TableCell>
+                    <TableCell>
+                        GSTIN
+                    </TableCell>
 
+                    <TableCell>
+                        City
+                    </TableCell>
 
-                        <TableCell>
+                    <TableCell>
+                        Credit Limit
+                    </TableCell>
 
-                            Customer Code
+                    <TableCell>
+                        Status
+                    </TableCell>
 
-                        </TableCell>
+                    <TableCell align="center">
+                        Actions
+                    </TableCell>
 
+                </TableRow>
 
-                        <TableCell>
+            </TableHead>
 
-                            Customer Name
 
-                        </TableCell>
+            <TableBody>
 
+                {customers.map((row) => {
 
-                        <TableCell>
+                    // =================================================
+                    // IDs
+                    // =================================================
 
-                            Contact Person
+                    const customerId =
+                        row.CustomerId ??
+                        row.customerId;
 
-                        </TableCell>
+                    const sellerId =
+                        row.SellerId ??
+                        row.sellerId;
 
 
-                        <TableCell>
+                    return (
 
-                            Email
+                        <TableRow
+                            key={`${sellerId}-${customerId}`}
+                            hover
+                        >
 
-                        </TableCell>
+                            {/* =================================================
+                                CUSTOMER ID
+                            ================================================= */}
 
+                            <TableCell>
+                                {customerId || "-"}
+                            </TableCell>
 
-                        <TableCell>
 
-                            Phone
+                            {/* =================================================
+                                CUSTOMER CODE
+                            ================================================= */}
 
-                        </TableCell>
+                            <TableCell>
+                                {row.CustomerCode ??
+                                    row.customerCode ??
+                                    "-"}
+                            </TableCell>
 
 
-                        <TableCell>
+                            {/* =================================================
+                                CUSTOMER NAME
+                            ================================================= */}
 
-                            GSTIN
+                            <TableCell>
+                                {row.CustomerName ??
+                                    row.customerName ??
+                                    "-"}
+                            </TableCell>
 
-                        </TableCell>
 
+                            {/* =================================================
+                                CONTACT PERSON
+                            ================================================= */}
 
-                        <TableCell>
+                            <TableCell>
+                                {row.ContactPerson ??
+                                    row.contactPerson ??
+                                    "-"}
+                            </TableCell>
 
-                            City
 
-                        </TableCell>
+                            {/* =================================================
+                                EMAIL
+                            ================================================= */}
 
+                            <TableCell>
+                                {row.Email ??
+                                    row.email ??
+                                    "-"}
+                            </TableCell>
 
-                        <TableCell>
 
-                            Credit Limit
+                            {/* =================================================
+                                PHONE
+                            ================================================= */}
 
-                        </TableCell>
+                            <TableCell>
+                                {row.Phone ??
+                                    row.phone ??
+                                    "-"}
+                            </TableCell>
 
 
-                        <TableCell>
+                            {/* =================================================
+                                GSTIN
+                            ================================================= */}
 
-                            Status
+                            <TableCell>
+                                {row.GSTIN ??
+                                    row.gstin ??
+                                    "-"}
+                            </TableCell>
 
-                        </TableCell>
 
+                            {/* =================================================
+                                CITY
+                            ================================================= */}
 
-                        <TableCell align="center">
+                            <TableCell>
+                                {row.City ??
+                                    row.city ??
+                                    "-"}
+                            </TableCell>
 
-                            Actions
 
-                        </TableCell>
+                            {/* =================================================
+                                CREDIT LIMIT
+                            ================================================= */}
 
+                            <TableCell>
 
-                    </TableRow>
+                                ₹{" "}
 
-                </TableHead>
+                                {Number(
+                                    row.CreditLimit ??
+                                    row.creditLimit ??
+                                    0
+                                ).toLocaleString("en-IN")}
 
+                            </TableCell>
 
-                <TableBody>
 
+                            {/* =================================================
+                                STATUS
+                            ================================================= */}
 
-                    {
+                            <TableCell>
 
-                        customers.map((row) => (
-
-                            <TableRow
-
-                                key={
-
-                                    row.CustomerId
-
-                                }
-
-                                hover
-
-                            >
-
-
-                                <TableCell>
-
-                                    {
-
-                                        row.CustomerId
-
+                                <Chip
+                                    label={
+                                        (
+                                            row.IsActive ??
+                                            row.isActive
+                                        )
+                                            ? "Active"
+                                            : "Inactive"
                                     }
-
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    {
-
-                                        row.CustomerCode ||
-
-                                        "-"
-
+                                    color={
+                                        (
+                                            row.IsActive ??
+                                            row.isActive
+                                        )
+                                            ? "success"
+                                            : "error"
                                     }
+                                    size="small"
+                                />
 
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    {
-
-                                        row.CustomerName
-
-                                    }
-
-                                </TableCell>
+                            </TableCell>
 
 
-                                <TableCell>
+                            {/* =================================================
+                                ACTIONS
+                            ================================================= */}
 
-                                    {
+                            <TableCell align="center">
 
-                                        row.ContactPerson ||
+                                {/* =============================================
+                                    VIEW
+                                    /seller-customers/details/6/3
+                                ============================================= */}
 
-                                        "-"
+                                <Tooltip title="View">
 
-                                    }
-
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    {
-
-                                        row.Email ||
-
-                                        "-"
-
-                                    }
-
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    {
-
-                                        row.Phone ||
-
-                                        "-"
-
-                                    }
-
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    {
-
-                                        row.GSTIN ||
-
-                                        "-"
-
-                                    }
-
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    {
-
-                                        row.City ||
-
-                                        "-"
-
-                                    }
-
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    ₹{" "}
-
-                                    {
-
-                                        Number(
-
-                                            row.CreditLimit ||
-
-                                            0
-
-                                        ).toLocaleString()
-
-                                    }
-
-                                </TableCell>
-
-
-                                <TableCell>
-
-                                    <Chip
-
-                                        label={
-
-                                            row.IsActive
-
-                                                ? "Active"
-
-                                                : "Inactive"
-
+                                    <IconButton
+                                        color="primary"
+                                        disabled={
+                                            !sellerId ||
+                                            !customerId
                                         }
+                                        onClick={() => {
 
-                                        color={
+                                            if (
+                                                !sellerId ||
+                                                !customerId
+                                            ) {
+                                                console.error(
+                                                    "Seller ID or Customer ID missing:",
+                                                    row
+                                                );
 
-                                            row.IsActive
+                                                return;
+                                            }
 
-                                                ? "success"
+                                            navigate(
+                                                `/seller-customers/details/${sellerId}/${customerId}`
+                                            );
 
-                                                : "error"
+                                        }}
+                                    >
 
+                                        <Visibility />
+
+                                    </IconButton>
+
+                                </Tooltip>
+
+
+                                {/* =============================================
+                                    EDIT
+                                    /seller-customers/edit/6/3
+                                ============================================= */}
+
+                                <Tooltip title="Edit">
+
+                                    <IconButton
+                                        color="warning"
+                                        disabled={
+                                            !sellerId ||
+                                            !customerId
                                         }
+                                        onClick={() => {
 
-                                        size="small"
+                                            if (
+                                                !sellerId ||
+                                                !customerId
+                                            ) {
+                                                console.error(
+                                                    "Seller ID or Customer ID missing:",
+                                                    row
+                                                );
 
-                                    />
-
-                                </TableCell>
-
-
-                                <TableCell
-
-                                    align="center"
-
-                                >
-
-                                    <Tooltip
-
-                                        title="View"
-
-                                    >
-
-                                        <IconButton
-
-                                            color="primary"
-
-                                            onClick={() =>
-
-                                                onView(row)
-
+                                                return;
                                             }
 
-                                        >
+                                            navigate(
+                                                `/seller-customers/edit/${sellerId}/${customerId}`
+                                            );
 
-                                            <Visibility />
-
-                                        </IconButton>
-
-                                    </Tooltip>
-
-
-                                    <Tooltip
-
-                                        title="Edit"
-
+                                        }}
                                     >
 
-                                        <IconButton
+                                        <Edit />
 
-                                            color="warning"
+                                    </IconButton>
 
-                                            onClick={() =>
+                                </Tooltip>
 
-                                                onEdit(row)
 
+                                {/* =============================================
+                                    DELETE
+                                    /seller-customers/delete/6/3
+                                ============================================= */}
+
+                                <Tooltip title="Delete">
+
+                                    <IconButton
+                                        color="error"
+                                        disabled={
+                                            !sellerId ||
+                                            !customerId
+                                        }
+                                        onClick={() => {
+
+                                            if (
+                                                !sellerId ||
+                                                !customerId
+                                            ) {
+                                                console.error(
+                                                    "Seller ID or Customer ID missing:",
+                                                    row
+                                                );
+
+                                                return;
                                             }
 
-                                        >
+                                            navigate(
+                                                `/seller-customers/delete/${sellerId}/${customerId}`
+                                            );
 
-                                            <Edit />
-
-                                        </IconButton>
-
-                                    </Tooltip>
-
-
-                                    <Tooltip
-
-                                        title="Delete"
-
+                                        }}
                                     >
 
-                                        <IconButton
+                                        <Delete />
 
-                                            color="error"
+                                    </IconButton>
 
-                                            onClick={() =>
+                                </Tooltip>
 
-                                                onDelete(row)
+                            </TableCell>
 
-                                            }
+                        </TableRow>
 
-                                        >
+                    );
 
-                                            <Delete />
+                })}
 
-                                        </IconButton>
+            </TableBody>
 
-                                    </Tooltip>
+        </Table>
 
+    </TableContainer>
 
-                                </TableCell>
+);
 
-
-                            </TableRow>
-
-                        ))
-
-                    }
-
-
-                </TableBody>
-
-
-            </Table>
-
-
-        </TableContainer>
-
-    );
 
 };
 

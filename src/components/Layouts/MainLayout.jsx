@@ -1534,66 +1534,58 @@ const MainLayout = () => {
 
             items: [
 
-                {
-                    label: "Seller Customers",
-                    path: "/seller-customers",
-                    icon: "👥",
+               {
+    label: "Seller Customers",
+    path: "/seller-customers",
+    icon: "👥",
 
-                    children: [
-                        {
-                            label: "Customer List",
-                            path: "/seller-customers",
-                        },
-                        {
-                            label: "Create Customer",
-                            path: "/seller-customers/create",
-                        },
-                        {
-                            label: "Customer Card",
-                            path: "/seller-customers/card",
-                        },
-                        {
-                            label: "Customer Details",
-                            path: "/seller-customers/details/:id",
-                        },
-                        {
-                            label: "Edit Customer",
-                            path: "/seller-customers/edit/:id",
-                        },
-                        {
-                            label: "Customer Filters",
-                            path: "/seller-customers/filters",
-                        },
-                        {
-                            label: "Customer Form",
-                            path: "/seller-customers/form",
-                        },
-                        {
-                            label: "Customer Modal",
-                            path: "/seller-customers/modal",
-                        },
-                        {
-                            label: "Pagination",
-                            path: "/seller-customers/pagination",
-                        },
-                        {
-                            label: "Search",
-                            path: "/seller-customers/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/seller-customers/statistics",
-                        },
-                        {
-                            label: "Table",
-                            path: "/seller-customers/table",
-                        },
-                        {
-                            label: "Toolbar",
-                            path: "/seller-customers/toolbar",
-                        },
-                    ],
-                },
+    children: [
+        {
+            label: "Customer List",
+            path: "/seller-customers",
+        },
+        {
+            label: "Create Customer",
+            path: "/seller-customers/create",
+        },
+        {
+            label: "Customer Filters",
+            path: "/seller-customers/filters",
+        },
+        {
+            label: "Search Customers",
+            path: "/seller-customers/search",
+        },
+        {
+            label: "Customer Statistics",
+            path: "/seller-customers/statistics",
+        },
+        {
+            label: "Customer Table",
+            path: "/seller-customers/table",
+        },
+        {
+            label: "Customer Card",
+            path: "/seller-customers/card",
+        },
+        {
+            label: "Customer Form",
+            path: "/seller-customers/form",
+        },
+        {
+            label: "Customer Modal",
+            path: "/seller-customers/modal",
+        },
+        {
+            label: "Customer Pagination",
+            path: "/seller-customers/pagination",
+        },
+        {
+            label: "Customer Toolbar",
+            path: "/seller-customers/toolbar",
+        },
+    ],
+},
 
                 {
                     label: "Customer Addresses",

@@ -135,7 +135,7 @@ import CustomerReturnTable from "./pages/CustomerReturns/CustomerReturnTable";
 import CustomerReturnToolbar from "./pages/CustomerReturns/CustomerReturnToolbar";
 import CustomerReturnView from "./pages/CustomerReturns/CustomerReturnView";
 import DeleteCustomerReturnDialog from "./pages/CustomerReturns/DeleteCustomerReturnDialog";
-
+import CustomerReturnEdit from "./pages/CustomerReturns/CustomerReturnEdit";
 // =========================================================
 // DELIVERY CHALLANS
 // =========================================================
@@ -513,6 +513,9 @@ import SellerCustomerStatistics from "./pages/SellerCustomers/SellerCustomerStat
 import SellerCustomerTable from "./pages/SellerCustomers/SellerCustomerTable";
 import SellerCustomerToolbar from "./pages/SellerCustomers/SellerCustomerToolbar";
 import SellerCustomerView from "./pages/SellerCustomers/SellerCustomerView";
+import SellerCustomerCreate from "./pages/SellerCustomers/SellerCustomerCreate";
+import SellerCustomerDetails from "./pages/SellerCustomers/SellerCustomerDetails";
+import SellerCustomerEdit from "./pages/SellerCustomers/SellerCustomerEdit";
 
 // =========================================================
 // SHIPMENTS
@@ -917,15 +920,75 @@ function App() {
         <Route path="customer-payments/search" element={<CustomerPaymentSearch />} />
         <Route path="customer-payments/statistics" element={<CustomerPaymentStatistics />} />
 
+          {/* ===================================================
+    CUSTOMER RETURNS
+=================================================== */}
 
-        {/* ===================================================
-            CUSTOMER RETURNS
-        =================================================== */}
+<Route
+    path="customer-returns"
+    element={<CustomerReturnList />}
+/>
 
-        <Route path="customer-returns" element={<CustomerReturnList />} />
-        <Route path="customer-returns/:id" element={<CustomerReturnView />} />
-        <Route path="customer-returns/search" element={<CustomerReturnSearch />} />
-        <Route path="customer-returns/statistics" element={<CustomerReturnStatistics />} />
+<Route
+    path="customer-returns/:id"
+    element={<CustomerReturnView />}
+/>
+
+<Route
+    path="customer-returns/search"
+    element={<CustomerReturnSearch />}
+/>
+
+
+{/* ===================================================
+    CUSTOMER RETURNS
+=================================================== */}
+
+<Route
+    path="customer-returns"
+    element={<CustomerReturnList />}
+/>
+
+<Route
+    path="customer-returns/search"
+    element={<CustomerReturnSearch />}
+/>
+
+<Route
+    path="customer-returns/statistics"
+    element={<CustomerReturnStatistics />}
+/>
+
+<Route
+    path="customer-returns/:id"
+    element={<CustomerReturnView />}
+/>
+
+<Route
+    path="customer-returns/:id/edit"
+    element={<CustomerReturnEdit />}
+/>
+
+
+{/* ===================================================
+    CUSTOMER RETURNS
+=================================================== */}
+
+<Route
+    path="customer-returns"
+    element={<CustomerReturnList />}
+/>
+
+<Route
+    path="customer-returns/details/:id"
+    element={<CustomerReturnView />}
+/>
+
+<Route
+    path="customer-returns/edit/:id"
+    element={<CustomerReturnEdit />}
+/>
+
 
 
         {/* ===================================================
@@ -1104,10 +1167,6 @@ function App() {
 <Route path="products/statistics" element={<ProductStatistics />} />
 
 
-        {/* ===================================================
-            PRODUCT TYPES
-        =================================================== */}
-
       {/* ===================================================
     PRODUCT TYPES
 =================================================== */}
@@ -1253,13 +1312,48 @@ function App() {
 
 
         {/* ===================================================
-            SELLER CUSTOMERS
-        =================================================== */}
+    SELLER CUSTOMERS
+=================================================== */}
 
-        <Route path="seller-customers" element={<SellerCustomerList />} />
-        <Route path="seller-customers/:id" element={<SellerCustomerView />} />
-        <Route path="seller-customers/search" element={<SellerCustomerSearch />} />
-        <Route path="seller-customers/statistics" element={<SellerCustomerStatistics />} />
+<Route
+    path="/seller-customers"
+    element={<SellerCustomerList />}
+/>
+
+<Route
+    path="/seller-customers/create"
+    element={<SellerCustomerCreate />}
+/>
+<Route path="/seller-customers/:customerId" element={<SellerCustomerView />} />
+<Route
+    path="/seller-customers/:id"
+    element={<SellerCustomerDetails />}
+/>
+
+<Route
+    path="/seller-customers/details/:sellerId/:customerId"
+    element={<SellerCustomerDetails />}
+/>
+
+<Route
+    path="/seller-customers/edit/:sellerId/:customerId"
+    element={<SellerCustomerEdit />}
+/>
+
+<Route
+    path="/seller-customers/edit/:id"
+    element={<SellerCustomerEdit />}
+/>
+
+<Route
+    path="/seller-customers/search"
+    element={<SellerCustomerSearch />}
+/>
+
+<Route
+    path="/seller-customers/statistics"
+    element={<SellerCustomerStatistics />}
+/>
 
 
         {/* ===================================================
