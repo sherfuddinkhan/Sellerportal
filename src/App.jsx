@@ -380,8 +380,8 @@ import ProductView from "./pages/Products/ProductView";
 import StockTransferForm from "./pages/StockTransfer/StockTransferForm"; 
 import StockTransferView from "./pages/StockTransfer/StockTransferView";
 import StockTransferList from "./pages/StockTransfer/StockTransferList";
-
-
+import StockTransferDetails  from "./pages/StockTransfer/StockTransferDetails";
+import StockTransferEdit from "./pages/StockTransfer/StockTransferEdit";
 // =========================================================
 // PRODUCT TYPES
 // =========================================================
@@ -932,7 +932,7 @@ function App() {
 
 // ========================================================= // ROUTES // ========================================================= 
 // =========================================================
-// ROUTES
+// stock-transfers ROUTES
 // =========================================================
 
 <Route
@@ -979,7 +979,13 @@ function App() {
     path="/stock-transfers/:stockTransferId/edit"
     element={<StockTransferForm />}
 />
-
+<Route path="stock-transfers/:stockTransferId" element={<StockTransferView />} />
+<Route path="stock-transfers/:stockTransferId/edit" element={<StockTransferForm />} />
+<Route path="stock-transfers/details/:stockTransferId" element={<StockTransferDetails />} />
+<Route
+    path="stock-transfers/:stockTransferId/edit"
+    element={<StockTransferEdit />}
+/>
 
           {/* ===================================================
     CUSTOMER RETURNS

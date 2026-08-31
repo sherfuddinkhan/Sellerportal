@@ -1,12 +1,16 @@
 // =========================================================
 // StockTransferEdit.jsx
 // Edit Stock Transfer
+//
+// React → Node server.js → .NET API
 // =========================================================
 
 import React, {
     useEffect,
     useState,
 } from "react";
+
+import axios from "axios";
 
 import {
     Alert,
@@ -30,10 +34,11 @@ import {
     useParams,
 } from "react-router-dom";
 
-import {
-    getStockTransferById,
-    updateStockTransfer,
-} from "../../services/apiService";
+// =========================================================
+// NODE SERVER URL
+// =========================================================
+
+const SERVER_URL = "http://localhost:5000";
 
 // =========================================================
 // COMPONENT
@@ -49,7 +54,7 @@ const StockTransferEdit = () => {
         useNavigate();
 
     // =====================================================
-    // STATE
+    // FORM STATE
     // =====================================================
 
     const [formData, setFormData] = useState({
@@ -62,6 +67,10 @@ const StockTransferEdit = () => {
         transferDate: "",
         remarks: "",
     });
+
+    // =====================================================
+    // UI STATE
+    // =====================================================
 
     const [loading, setLoading] =
         useState(true);
@@ -81,80 +90,155 @@ const StockTransferEdit = () => {
 
     useEffect(() => {
 
-        const loadStockTransfer =
-            async () => {
+        const loadStockTransfer = async () => {
 
-                try {
+            if (!stockTransferId) {
 
-                    setLoading(true);
-                    setError("");
+                setError(
+                    "Stock transfer ID is missing."
+                );
 
-                    const result =
-                        await getStockTransferById(
-                            stockTransferId
-                        );
+                setLoading(false);
 
-                    console.log(
-                        "Stock Transfer:",
-                        result
+                return;
+            }
+
+            // =============================================
+            // VALIDATE ID
+            // =============================================
+
+            const id =
+                Number(stockTransferId);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                setError(
+                    "Invalid stock transfer ID."
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+            try {
+
+                setLoading(true);
+                setError("");
+
+                console.log(
+                    "===================================="
+                );
+
+                console.log(
+                    "LOAD STOCK TRANSFER"
+                );
+
+                console.log(
+                    "ID:",
+                    id
+                );
+
+                console.log(
+                    "Node URL:",
+                    `${SERVER_URL}/api/stock-transfers/${id}`
+                );
+
+                console.log(
+                    "===================================="
+                );
+
+                // =========================================
+                // REACT → NODE SERVER.JS
+                // =========================================
+
+                const response =
+                    await axios.get(
+                        `${SERVER_URL}/api/stock-transfers/${id}`,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json",
+                            },
+                        }
                     );
 
-                    setFormData({
-                        sellerId:
-                            result?.sellerId ?? "",
+                console.log(
+                    "Stock Transfer Response:",
+                    response.data
+                );
 
-                        productId:
-                            result?.productId ?? "",
+                const data =
+                    response.data;
 
-                        fromWarehouseId:
-                            result?.fromWarehouseId ?? "",
+                // =========================================
+                // POPULATE FORM
+                // =========================================
 
-                        toWarehouseId:
-                            result?.toWarehouseId ?? "",
+                setFormData({
 
-                        quantity:
-                            result?.quantity ?? "",
+                    sellerId:
+                        data?.sellerId ?? "",
 
-                        status:
-                            result?.status ??
-                            "Pending",
+                    productId:
+                        data?.productId ?? "",
 
-                        transferDate:
-                            formatDateForInput(
-                                result?.transferDate
-                            ),
+                    fromWarehouseId:
+                        data?.fromWarehouseId ?? "",
 
-                        remarks:
-                            result?.remarks ?? "",
-                    });
+                    toWarehouseId:
+                        data?.toWarehouseId ?? "",
 
-                } catch (err) {
+                    quantity:
+                        data?.quantity ?? "",
 
-                    console.error(
-                        "Error loading stock transfer:",
-                        err
-                    );
+                    status:
+                        data?.status ||
+                        "Pending",
 
-                    setError(
-                        err?.response?.data?.message ||
-                        "Failed to load stock transfer."
-                    );
+                    transferDate:
+                        formatDateForInput(
+                            data?.transferDate
+                        ),
 
-                } finally {
+                    remarks:
+                        data?.remarks ?? "",
+                });
 
-                    setLoading(false);
+            } catch (err) {
 
-                }
-            };
+                console.error(
+                    "Load Stock Transfer Error:",
+                    err
+                );
 
-        if (stockTransferId) {
-            loadStockTransfer();
-        }
+                console.error(
+                    "Response:",
+                    err?.response?.data
+                );
+
+                setError(
+                    err?.response?.data?.message ||
+                    err?.response?.data?.title ||
+                    "Failed to load stock transfer."
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+        };
+
+        loadStockTransfer();
 
     }, [stockTransferId]);
 
     // =====================================================
-    // HANDLE CHANGE
+    // HANDLE INPUT CHANGE
     // =====================================================
 
     const handleChange = (event) => {
@@ -165,29 +249,31 @@ const StockTransferEdit = () => {
         } = event.target;
 
         setFormData(
-            (previous) => ({
+            previous => ({
                 ...previous,
                 [name]: value,
             })
         );
+
+        // Clear previous messages
+        setError("");
+        setSuccess("");
     };
 
     // =====================================================
-    // SUBMIT
+    // SUBMIT UPDATE
     // =====================================================
 
-    const handleSubmit = async (
-        event
-    ) => {
+    const handleSubmit = async (event) => {
 
         event.preventDefault();
 
         setError("");
         setSuccess("");
 
-        // -------------------------------------------------
+        // =================================================
         // VALIDATION
-        // -------------------------------------------------
+        // =================================================
 
         if (!formData.sellerId) {
 
@@ -235,6 +321,17 @@ const StockTransferEdit = () => {
         }
 
         if (
+            Number(formData.quantity) <= 0
+        ) {
+
+            setError(
+                "Quantity must be greater than zero."
+            );
+
+            return;
+        }
+
+        if (
             Number(
                 formData.fromWarehouseId
             ) ===
@@ -250,9 +347,9 @@ const StockTransferEdit = () => {
             return;
         }
 
-        // -------------------------------------------------
-        // PAYLOAD
-        // -------------------------------------------------
+        // =================================================
+        // BUILD PAYLOAD
+        // =================================================
 
         const payload = {
 
@@ -287,35 +384,81 @@ const StockTransferEdit = () => {
             transferDate:
                 formData.transferDate
                     ? new Date(
-                        formData.transferDate
+                        `${formData.transferDate}T00:00:00`
                     ).toISOString()
                     : null,
 
             remarks:
-                formData.remarks,
+                formData.remarks ||
+                "",
         };
 
+        // =================================================
+        // LOG
+        // =================================================
+
         console.log(
-            "Updating Stock Transfer:",
+            "===================================="
+        );
+
+        console.log(
+            "UPDATE STOCK TRANSFER"
+        );
+
+        console.log(
+            "ID:",
+            stockTransferId
+        );
+
+        console.log(
+            "Node URL:",
+            `${SERVER_URL}/api/stock-transfers/${stockTransferId}`
+        );
+
+        console.log(
+            "Payload:",
             payload
+        );
+
+        console.log(
+            "===================================="
         );
 
         try {
 
             setSaving(true);
 
-            await updateStockTransfer(
-                stockTransferId,
-                payload
+            // =============================================
+            // REACT → NODE SERVER.JS
+            // =============================================
+
+            const response =
+                await axios.put(
+                    `${SERVER_URL}/api/stock-transfers/${stockTransferId}`,
+                    payload,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "Update Response:",
+                response.data
             );
 
             setSuccess(
                 "Stock transfer updated successfully."
             );
 
-            // -------------------------------------------------
-            // REDIRECT AFTER UPDATE
-            // -------------------------------------------------
+            // =============================================
+            // REDIRECT
+            // =============================================
 
             setTimeout(() => {
 
@@ -328,23 +471,31 @@ const StockTransferEdit = () => {
         } catch (err) {
 
             console.error(
-                "Update stock transfer error:",
-                err
+                "===================================="
             );
 
-            // -------------------------------------------------
-            // API ERROR
-            // -------------------------------------------------
+            console.error(
+                "UPDATE STOCK TRANSFER ERROR"
+            );
 
-            if (
+            console.error(
+                "Message:",
+                err?.message
+            );
+
+            console.error(
+                "Status:",
+                err?.response?.status
+            );
+
+            console.error(
+                "Response:",
                 err?.response?.data
-            ) {
+            );
 
-                console.error(
-                    "API response:",
-                    err.response.data
-                );
-            }
+            console.error(
+                "===================================="
+            );
 
             setError(
                 err?.response?.data?.message ||
@@ -370,8 +521,8 @@ const StockTransferEdit = () => {
                 sx={{
                     minHeight: 300,
                     display: "flex",
-                    alignItems: "center",
                     justifyContent: "center",
+                    alignItems: "center",
                 }}
             >
                 <CircularProgress />
@@ -400,12 +551,12 @@ const StockTransferEdit = () => {
             <Box
                 sx={{
                     display: "flex",
-                    alignItems: "center",
                     justifyContent:
                         "space-between",
-                    mb: 3,
+                    alignItems: "center",
                     flexWrap: "wrap",
                     gap: 2,
+                    mb: 3,
                 }}
             >
 
@@ -421,7 +572,9 @@ const StockTransferEdit = () => {
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ mt: 0.5 }}
+                        sx={{
+                            mt: 0.5,
+                        }}
                     >
                         Stock Transfer ID:{" "}
                         {stockTransferId}
@@ -434,6 +587,7 @@ const StockTransferEdit = () => {
                     startIcon={
                         <ArrowBack />
                     }
+                    disabled={saving}
                     onClick={() =>
                         navigate(
                             "/stock-transfers"
@@ -504,7 +658,7 @@ const StockTransferEdit = () => {
                     >
 
                         {/* =====================================
-                            SELLER
+                            SELLER ID
                         ===================================== */}
 
                         <Grid
@@ -525,12 +679,15 @@ const StockTransferEdit = () => {
                                 onChange={
                                     handleChange
                                 }
+                                inputProps={{
+                                    min: 1,
+                                }}
                             />
 
                         </Grid>
 
                         {/* =====================================
-                            PRODUCT
+                            PRODUCT ID
                         ===================================== */}
 
                         <Grid
@@ -551,6 +708,9 @@ const StockTransferEdit = () => {
                                 onChange={
                                     handleChange
                                 }
+                                inputProps={{
+                                    min: 1,
+                                }}
                             />
 
                         </Grid>
@@ -577,6 +737,9 @@ const StockTransferEdit = () => {
                                 onChange={
                                     handleChange
                                 }
+                                inputProps={{
+                                    min: 1,
+                                }}
                             />
 
                         </Grid>
@@ -603,6 +766,9 @@ const StockTransferEdit = () => {
                                 onChange={
                                     handleChange
                                 }
+                                inputProps={{
+                                    min: 1,
+                                }}
                             />
 
                         </Grid>
@@ -777,16 +943,14 @@ const StockTransferEdit = () => {
                                     type="submit"
                                     variant="contained"
                                     startIcon={
-                                        saving
-                                            ? (
-                                                <CircularProgress
-                                                    size={18}
-                                                    color="inherit"
-                                                />
-                                            )
-                                            : (
-                                                <Save />
-                                            )
+                                        saving ? (
+                                            <CircularProgress
+                                                size={18}
+                                                color="inherit"
+                                            />
+                                        ) : (
+                                            <Save />
+                                        )
                                     }
                                     disabled={
                                         saving
@@ -812,7 +976,7 @@ const StockTransferEdit = () => {
 };
 
 // =========================================================
-// FORMAT DATE
+// FORMAT DATE FOR HTML DATE INPUT
 // =========================================================
 
 const formatDateForInput = (
@@ -851,4 +1015,3 @@ const formatDateForInput = (
 // =========================================================
 
 export default StockTransferEdit;
-
