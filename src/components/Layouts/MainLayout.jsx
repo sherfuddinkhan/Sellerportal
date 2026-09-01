@@ -880,21 +880,100 @@ const MainLayout = () => {
                         },
                     ],
                 },
+// =====================================================
+// PRODUCT INVENTORY
+// =====================================================
+{
+    label: "Product Inventory",
+    path: "/product-inventory",
+    icon: "📦",
 
+    children: [
+
+        {
+            label: "Inventory List",
+            path: "/product-inventory",
+        },
+
+        {
+            label: "Create Inventory",
+            path: "/product-inventory/create",
+        },
+
+        {
+            label: "Inventory Card",
+            path: "/product-inventory/card",
+        },
+
+        {
+            label: "Inventory Details",
+            path: "/product-inventory/details/:id",
+        },
+
+        {
+            label: "Edit Inventory",
+            path: "/product-inventory/edit/:id",
+        },
+
+        {
+            label: "Inventory Filters",
+            path: "/product-inventory/filters",
+        },
+
+        {
+            label: "Inventory Form",
+            path: "/product-inventory/form",
+        },
+
+        {
+            label: "Inventory Modal",
+            path: "/product-inventory/modal",
+        },
+
+        {
+            label: "Inventory Pagination",
+            path: "/product-inventory/pagination",
+        },
+
+        {
+            label: "Search Inventory",
+            path: "/product-inventory/search",
+        },
+
+        {
+            label: "Inventory Statistics",
+            path: "/product-inventory/statistics",
+        },
+
+        {
+            label: "Inventory Table",
+            path: "/product-inventory/table",
+        },
+
+        {
+            label: "Inventory Toolbar",
+            path: "/product-inventory/toolbar",
+        },
+
+        {
+            label: "Inventory View",
+            path: "/product-inventory/view/:id",
+        },
+    ],
+},
+{
+    label: "Warehouse Locations",
+    path: "/warehouse-locations",
+    icon: "📍",
+    children: [
                 {
-                    label: "Warehouse Locations",
-                    path: "/warehouse-locations",
-                    icon: "📍",
-
-                    children: [
-                        {
-                            label: "Location List",
-                            path: "/warehouse-locations",
-                        },
-                        {
-                            label: "Create Location",
-                            path: "/warehouse-locations/create",
-                        },
+                  label: "Location List",
+                  path: "/warehouse-locations",
+                 },
+                 {
+                  label: "Create Location",
+                  path: "/warehouse-locations/create",
+                  },
                         {
                             label: "Location Card",
                             path: "/warehouse-locations/card",

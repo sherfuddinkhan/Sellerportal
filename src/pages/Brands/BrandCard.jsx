@@ -1,34 +1,15 @@
 import React from "react";
-import {
-    Card,
-    CardContent,
-    CardActions,
-    Typography,
-    Button,
-    Chip,
-    Stack,
-    Box
-} from "@mui/material";
-
-import {
-    Visibility,
-    Edit,
-    Delete
-} from "@mui/icons-material";
-
-
+import {Card,CardContent,CardActions,Typography,Button,Chip,Stack,Box} from "@mui/material";
+import {Visibility,Edit,Delete} from "@mui/icons-material";
 const BrandCard = ({
     brand,
     onView,
     onEdit,
     onDelete
 }) => {
-
     if (!brand) {
         return null;
     }
-
-
     return (
         <Card
             elevation={4}
@@ -51,19 +32,14 @@ const BrandCard = ({
                     flexGrow: 1
                 }}
             >
-
                 {/* BRAND NAME */}
-
                 <Typography
                     variant="h6"
                     fontWeight="bold"
                 >
                     {brand.brandName || "-"}
                 </Typography>
-
-
                 {/* DESCRIPTION */}
-
                 <Typography
                     variant="body2"
                     color="text.secondary"
@@ -71,12 +47,8 @@ const BrandCard = ({
                 >
                     {brand.description || "No Description"}
                 </Typography>
-
-
                 {/* STATUS */}
-
                 <Box mt={3}>
-
                     <Chip
                         label={
                             brand.isActive
@@ -90,21 +62,15 @@ const BrandCard = ({
                         }
                         size="small"
                     />
-
                 </Box>
-
-
                 {/* CREATED DATE */}
-
                 <Box mt={3}>
-
                     <Typography
                         variant="caption"
                         color="text.secondary"
                     >
                         Created
                     </Typography>
-
                     <Typography>
                         {
                             brand.createdDate
@@ -114,24 +80,16 @@ const BrandCard = ({
                                 : "-"
                         }
                     </Typography>
-
                 </Box>
-
             </CardContent>
-
-
             {/* ACTIONS */}
-
             <CardActions>
-
                 <Stack
                     direction="row"
                     spacing={1}
                     width="100%"
                 >
-
                     {/* VIEW */}
-
                     <Button
                         fullWidth
                         startIcon={
@@ -143,16 +101,12 @@ const BrandCard = ({
                                 "View Brand:",
                                 brand
                             );
-
                             onView(brand);
                         }}
                     >
                         View
                     </Button>
-
-
                     {/* EDIT */}
-
                     <Button
                         fullWidth
                         startIcon={
@@ -165,16 +119,12 @@ const BrandCard = ({
                                 "Edit Brand:",
                                 brand
                             );
-
                             onEdit(brand);
                         }}
                     >
                         Edit
                     </Button>
-
-
                     {/* DELETE */}
-
                     <Button
                         fullWidth
                         startIcon={
@@ -193,11 +143,8 @@ const BrandCard = ({
                     >
                         Delete
                     </Button>
-
                 </Stack>
-
             </CardActions>
-
         </Card>
     );
 };

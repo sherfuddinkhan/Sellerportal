@@ -332,6 +332,9 @@ import ProductInventoryStatistics from "./pages/ProductInventory/ProductInventor
 import ProductInventoryTable from "./pages/ProductInventory/ProductInventoryTable";
 import ProductInventoryToolbar from "./pages/ProductInventory/ProductInventoryToolbar";
 import ProductInventoryView from "./pages/ProductInventory/ProductInventoryView";
+import ProductInventoryCreate from "./pages/ProductInventory/ProductInventoryCreate";
+import ProductInventoryEdit from "./pages/ProductInventory/ProductInventoryEdit";
+
 
 // =========================================================
 // PRODUCT PRICES
@@ -1154,13 +1157,75 @@ function App() {
         {/* ===================================================
             PRODUCT INVENTORY
         =================================================== */}
+{/* =====================================================
+PRODUCT INVENTORY
+===================================================== */}
 
-        <Route path="product-inventory" element={<ProductInventoryList />} />
-        <Route path="product-inventory/:id" element={<ProductInventoryView />} />
-        <Route path="product-inventory/details/:id" element={<ProductInventoryDetails />} />
-        <Route path="product-inventory/search" element={<ProductInventorySearch />} />
-        <Route path="product-inventory/filters" element={<ProductInventoryFilters />} />
-        <Route path="product-inventory/statistics" element={<ProductInventoryStatistics />} />
+<Route
+path="product-inventory"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/create"
+element={<ProductInventoryCreate />}
+/>
+
+<Route
+path="product-inventory/details/:id"
+element={<ProductInventoryView />}
+/>
+
+<Route
+path="product-inventory/edit/:id"
+element={<ProductInventoryEdit />}
+/>
+
+<Route
+path="product-inventory/search"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/filters"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/statistics"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/table"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/card"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/form"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/modal"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/pagination"
+element={<ProductInventoryList />}
+/>
+
+<Route
+path="product-inventory/toolbar"
+element={<ProductInventoryList />}
+/>
+
 
 
         {/* ===================================================

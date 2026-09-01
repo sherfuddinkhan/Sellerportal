@@ -1,231 +1,96 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-import {
-    Box,
-    Paper,
-    Typography,
-    Grid,
-    Chip,
-    Button,
-    CircularProgress,
-    Alert,
-    Divider
-} from "@mui/material";
-
-import {
-    ArrowBack,
-    Edit
-} from "@mui/icons-material";
-
-import {
-    useNavigate,
-    useParams
-} from "react-router-dom";
-
-
+import React, {useEffect,useState} from "react";
+import {Box,Paper,Typography,Grid,Chip,Button,CircularProgress,Alert,Divider} from "@mui/material";
+import {ArrowBack,Edit} from "@mui/icons-material";
+import {useNavigate,useParams} from "react-router-dom";
 const SERVER_URL = "http://localhost:5000";
 
-
 const BrandDetails = () => {
-
     const { id } = useParams();
-
     const navigate = useNavigate();
-
-
-    const [brand, setBrand] =
-        useState(null);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [error, setError] =
-        useState("");
-
-
+    const [brand, setBrand] =useState(null);
+    const [loading, setLoading] =useState(true);
+    const [error, setError] =useState("");
     // =====================================================
     // LOAD BRAND WHEN ID CHANGES
     // =====================================================
-
     useEffect(() => {
-
         if (!id) {
-
-            setError(
-                "Brand ID is missing."
-            );
-
+            setError("Brand ID is missing.");
             setLoading(false);
-
             return;
         }
-
-
         // Prevent literal ":id"
         if (
             id === ":id" ||
             !/^\d+$/.test(id)
         ) {
 
-            setError(
-                `Invalid Brand ID: ${id}`
-            );
-
+            setError(`Invalid Brand ID: ${id}`);
             setLoading(false);
-
             return;
         }
-
-
         loadBrand();
-
     }, [id]);
-
-
     // =====================================================
     // LOAD BRAND
     // =====================================================
-
     const loadBrand = async () => {
-
         try {
-
             setLoading(true);
-
             setError("");
-
-
-            console.log(
-                "================================="
-            );
-
-            console.log(
-                "Loading Brand"
-            );
-
-            console.log(
-                "Brand ID:",
-                id
-            );
-
-            console.log(
-                "Node URL:",
-                `${SERVER_URL}/api/brand/${id}`
-            );
-
-            console.log(
-                "================================="
-            );
-
-
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/brand/${id}`
-                );
-
-
-            console.log(
-                "Node response status:",
-                response.status
-            );
-
-
+            console.log( "=================================");
+            console.log("Loading Brand");
+            console.log("Brand ID:",id);
+            console.log("Node URL:",`${SERVER_URL}/api/brand/${id}`);
+            console.log("=================================");
+            const response = await fetch(`${SERVER_URL}/api/brand/${id}`);
+            console.log("Node response status:",response.status);
             // Safely read response
-            const data =
-                await response.json();
-
-
-            console.log(
-                "Node response:",
-                data
-            );
-
-
+            const data = await response.json();
+            console.log("Node response:",data);
             if (!response.ok) {
-
                 throw new Error(
                     data?.message ||
                     data?.title ||
                     `HTTP ${response.status}: ${response.statusText}`
                 );
-
             }
-
-
             setBrand(data);
-
-
         } catch (err) {
-
-            console.error(
-                "Load Brand Error:",
-                err
-            );
-
-
-            setError(
-                err.message ||
-                "Unable to load Brand."
-            );
-
-
+            console.error("Load Brand Error:",err);
+            setError(err.message ||"Unable to load Brand.");
             setBrand(null);
-
-
         } finally {
-
             setLoading(false);
-
         }
-
     };
-
-
     // =====================================================
     // LOADING
     // =====================================================
-
     if (loading) {
-
         return (
-
             <Box
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
                 minHeight="400px"
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
-
     }
-
-
     // =====================================================
     // ERROR
     // =====================================================
-
     if (error) {
-
         return (
-
             <Box p={3}>
-
                 <Alert
                     severity="error"
                     sx={{ mb: 2 }}
                 >
                     {error}
                 </Alert>
-
-
                 <Button
                     variant="outlined"
                     startIcon={
@@ -237,32 +102,21 @@ const BrandDetails = () => {
                 >
                     Back to Brands
                 </Button>
-
             </Box>
-
         );
-
     }
-
-
     // =====================================================
     // BRAND NOT FOUND
     // =====================================================
-
     if (!brand) {
-
         return (
-
             <Box p={3}>
-
                 <Alert
                     severity="warning"
                     sx={{ mb: 2 }}
                 >
                     Brand not found.
                 </Alert>
-
-
                 <Button
                     variant="outlined"
                     startIcon={
@@ -274,22 +128,14 @@ const BrandDetails = () => {
                 >
                     Back to Brands
                 </Button>
-
             </Box>
-
         );
-
     }
-
-
     // =====================================================
     // UI
     // =====================================================
-
     return (
-
         <Box p={3}>
-
             <Paper
                 elevation={3}
                 sx={{
@@ -301,7 +147,6 @@ const BrandDetails = () => {
                 {/* =================================================
                     HEADER
                 ================================================= */}
-
                 <Typography
                     variant="h4"
                     gutterBottom
@@ -313,8 +158,6 @@ const BrandDetails = () => {
                 <Divider
                     sx={{ mb: 3 }}
                 />
-
-
                 <Grid
                     container
                     spacing={3}
@@ -329,28 +172,21 @@ const BrandDetails = () => {
                         xs={12}
                         md={6}
                     >
-
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
                         >
                             Brand ID
                         </Typography>
-
-
                         <Typography
                             variant="h6"
                         >
                             {brand.brandId || "-"}
                         </Typography>
-
                     </Grid>
-
-
                     {/* =================================================
                         BRAND NAME
                     ================================================= */}
-
                     <Grid
                         item
                         xs={12}
