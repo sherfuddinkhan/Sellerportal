@@ -8522,11 +8522,11 @@ app.delete("/api/stock-adjustments/:id", async (req, res) => {
 // =========================================================
 // PRODUCT ATTRIBUTE API PROXY
 // server.js
-// =========================================================
-
-// =========================================================
+// =========================================================// =========================================================
 // GET ALL PRODUCT ATTRIBUTES
-// GET http://localhost:5000/api/product-attributes/all
+//
+// GET:
+// http://localhost:5000/api/product-attributes/all
 // =========================================================
 
 app.get(
@@ -8536,7 +8536,10 @@ app.get(
         try {
 
             const response = await axios.get(
-                `${DOTNET_API}/product-attributes/all`
+                `${DOTNET_API}/product-attributes/all`,
+                {
+                    httpsAgent
+                }
             );
 
             res.status(response.status).json(
@@ -8557,8 +8560,10 @@ app.get(
                     error.response?.data?.message ||
                     "Failed to fetch product attributes.",
 
-                error:
-                    error.message
+                errors:
+                    error.response?.data?.errors,
+
+                error: error.message
             });
         }
     }
@@ -8568,10 +8573,13 @@ app.get(
 // =========================================================
 // GET PRODUCT ATTRIBUTES
 //
-// Supports:
+// GET:
 // /api/product-attributes
+//
+// Supports:
+// /api/product-attributesnode 
 // /api/product-attributes?search=Color
-// /api/product-attributes?sort=AttributeName
+// /api/product-attributes?sort=name_asc
 // /api/product-attributes?page=1&limit=10
 // =========================================================
 
@@ -8584,7 +8592,8 @@ app.get(
             const response = await axios.get(
                 `${DOTNET_API}/product-attributes`,
                 {
-                    params: req.query
+                    params: req.query,
+                    httpsAgent
                 }
             );
 
@@ -8606,8 +8615,10 @@ app.get(
                     error.response?.data?.message ||
                     "Failed to fetch product attributes.",
 
-                error:
-                    error.message
+                errors:
+                    error.response?.data?.errors,
+
+                error: error.message
             });
         }
     }
@@ -8615,7 +8626,7 @@ app.get(
 
 
 // =========================================================
-// GET PRODUCT ATTRIBUTE BY PRODUCT ID
+// GET PRODUCT ATTRIBUTES BY PRODUCT ID
 //
 // GET:
 // /api/product-attributes/product/6
@@ -8632,7 +8643,10 @@ app.get(
             } = req.params;
 
             const response = await axios.get(
-                `${DOTNET_API}/product-attributes/product/${productId}`
+                `${DOTNET_API}/product-attributes/product/${productId}`,
+                {
+                    httpsAgent
+                }
             );
 
             res.status(response.status).json(
@@ -8653,8 +8667,10 @@ app.get(
                     error.response?.data?.message ||
                     "Failed to fetch product attributes by product.",
 
-                error:
-                    error.message
+                errors:
+                    error.response?.data?.errors,
+
+                error: error.message
             });
         }
     }
@@ -8679,7 +8695,10 @@ app.get(
             } = req.params;
 
             const response = await axios.get(
-                `${DOTNET_API}/product-attributes/attribute/${encodeURIComponent(attributeName)}`
+                `${DOTNET_API}/product-attributes/attribute/${encodeURIComponent(attributeName)}`,
+                {
+                    httpsAgent
+                }
             );
 
             res.status(response.status).json(
@@ -8700,8 +8719,10 @@ app.get(
                     error.response?.data?.message ||
                     "Failed to fetch product attributes by name.",
 
-                error:
-                    error.message
+                errors:
+                    error.response?.data?.errors,
+
+                error: error.message
             });
         }
     }
@@ -8722,7 +8743,10 @@ app.get(
         try {
 
             const response = await axios.get(
-                `${DOTNET_API}/product-attributes/stats`
+                `${DOTNET_API}/product-attributes/stats`,
+                {
+                    httpsAgent
+                }
             );
 
             res.status(response.status).json(
@@ -8743,8 +8767,10 @@ app.get(
                     error.response?.data?.message ||
                     "Failed to fetch product attribute statistics.",
 
-                error:
-                    error.message
+                errors:
+                    error.response?.data?.errors,
+
+                error: error.message
             });
         }
     }
@@ -8753,10 +8779,6 @@ app.get(
 
 // =========================================================
 // GET PRODUCT ATTRIBUTE BY ID
-//
-// Used by:
-// ProductAttributeDetails.jsx
-// ProductAttributeEdit.jsx
 //
 // GET:
 // /api/product-attributes/1
@@ -8773,7 +8795,10 @@ app.get(
             } = req.params;
 
             const response = await axios.get(
-                `${DOTNET_API}/product-attributes/${id}`
+                `${DOTNET_API}/product-attributes/${id}`,
+                {
+                    httpsAgent
+                }
             );
 
             res.status(response.status).json(
@@ -8794,8 +8819,10 @@ app.get(
                     error.response?.data?.message ||
                     "Failed to fetch product attribute.",
 
-                error:
-                    error.message
+                errors:
+                    error.response?.data?.errors,
+
+                error: error.message
             });
         }
     }
@@ -8820,9 +8847,9 @@ app.post(
                 req.body,
                 {
                     headers: {
-                        "Content-Type":
-                            "application/json"
-                    }
+                        "Content-Type": "application/json"
+                    },
+                    httpsAgent
                 }
             );
 
@@ -8847,8 +8874,7 @@ app.post(
                 errors:
                     error.response?.data?.errors,
 
-                error:
-                    error.message
+                error: error.message
             });
         }
     }
@@ -8857,9 +8883,6 @@ app.post(
 
 // =========================================================
 // UPDATE PRODUCT ATTRIBUTE
-//
-// Used by:
-// ProductAttributeEdit.jsx
 //
 // PUT:
 // /api/product-attributes/1
@@ -8880,9 +8903,9 @@ app.put(
                 req.body,
                 {
                     headers: {
-                        "Content-Type":
-                            "application/json"
-                    }
+                        "Content-Type": "application/json"
+                    },
+                    httpsAgent
                 }
             );
 
@@ -8907,8 +8930,7 @@ app.put(
                 errors:
                     error.response?.data?.errors,
 
-                error:
-                    error.message
+                error: error.message
             });
         }
     }
@@ -8933,7 +8955,10 @@ app.delete(
             } = req.params;
 
             const response = await axios.delete(
-                `${DOTNET_API}/product-attributes/${id}`
+                `${DOTNET_API}/product-attributes/${id}`,
+                {
+                    httpsAgent
+                }
             );
 
             res.status(response.status).json(
@@ -8954,12 +8979,15 @@ app.delete(
                     error.response?.data?.message ||
                     "Failed to delete product attribute.",
 
-                error:
-                    error.message
+                errors:
+                    error.response?.data?.errors,
+
+                error: error.message
             });
         }
     }
 );
+
 
 // =========================================================
 // PRODUCT INVENTORY

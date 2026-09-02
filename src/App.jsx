@@ -298,20 +298,27 @@ import PaymentGateway from "./pages/PaymentsSettings/PaymentGateway";
 import PaymentSettings from "./pages/PaymentsSettings/PaymentSettings";
 import UpiSettings from "./pages/PaymentsSettings/UpiSettings";
 
+
 // =========================================================
-// PRODUCT ATTRIBUTES
+// Product Attribute Imports
 // =========================================================
 
-import DeleteProductAttributeDialog from "./pages/ProductAttributes/DeleteProductAttributeDialog";
-import ProductAttributeCard from "./pages/ProductAttributes/ProductAttributeCard";
 import ProductAttributeList from "./pages/ProductAttributes/ProductAttributeList";
-import ProductAttributeModal from "./pages/ProductAttributes/ProductAttributeModal";
-import ProductAttributePagination from "./pages/ProductAttributes/ProductAttributePagination";
+import ProductAttributeCreate from "./pages/ProductAttributes/ProductAttributeCreate";
+import ProductAttributeView from "./pages/ProductAttributes/ProductAttributeView";
+import ProductAttributeDetails from "./pages/ProductAttributes/ProductAttributeDetails";
+import ProductAttributeEdit from "./pages/ProductAttributes/ProductAttributeEdit";
 import ProductAttributeSearch from "./pages/ProductAttributes/ProductAttributeSearch";
 import ProductAttributeStatistics from "./pages/ProductAttributes/ProductAttributeStatistics";
+import ProductAttributeFilters from "./pages/ProductAttributes/ProductAttributeFilters";
 import ProductAttributeTable from "./pages/ProductAttributes/ProductAttributeTable";
+import ProductAttributeCard from "./pages/ProductAttributes/ProductAttributeCard";
+import ProductAttributeForm from "./pages/ProductAttributes/ProductAttributeForm";
+import ProductAttributeModal from "./pages/ProductAttributes/ProductAttributeModal";
+import ProductAttributePagination from "./pages/ProductAttributes/ProductAttributePagination";
 import ProductAttributeToolbar from "./pages/ProductAttributes/ProductAttributeToolbar";
-import ProductAttributeView from "./pages/ProductAttributes/ProductAttributeView";
+
+
 
 // =========================================================
 // PRODUCT IMAGES
@@ -1272,14 +1279,82 @@ function App() {
         <Route path="payment-settings/upi" element={<UpiSettings />} />
 
 
-        {/* ===================================================
-            PRODUCT ATTRIBUTES
-        =================================================== */}
+   
+{/* =========================================================
+    PRODUCT ATTRIBUTES
+    ========================================================= */}
 
-        <Route path="product-attributes" element={<ProductAttributeList />} />
-        <Route path="product-attributes/:id" element={<ProductAttributeView />} />
-        <Route path="product-attributes/search" element={<ProductAttributeSearch />} />
-        <Route path="product-attributes/statistics" element={<ProductAttributeStatistics />} />
+<Route
+    path="product-attributes"
+    element={<ProductAttributeList />}
+/>
+
+<Route
+    path="product-attributes/create"
+    element={<ProductAttributeCreate />}
+/>
+
+<Route
+    path="product-attributes/details/:id"
+    element={<ProductAttributeDetails />}
+/>
+
+<Route
+    path="product-attributes/view/:id"
+    element={<ProductAttributeView />}
+/>
+
+<Route
+    path="product-attributes/edit/:id"
+    element={<ProductAttributeEdit />}
+/>
+
+<Route
+    path="product-attributes/search"
+    element={<ProductAttributeSearch />}
+/>
+
+<Route
+    path="product-attributes/statistics"
+    element={<ProductAttributeStatistics />}
+/>
+
+<Route
+    path="product-attributes/filters"
+    element={<ProductAttributeFilters />}
+/>
+
+<Route
+    path="product-attributes/table"
+    element={<ProductAttributeTable />}
+/>
+
+<Route
+    path="product-attributes/card"
+    element={<ProductAttributeCard />}
+/>
+
+<Route
+    path="product-attributes/form"
+    element={<ProductAttributeForm />}
+/>
+
+<Route
+    path="product-attributes/modal"
+    element={<ProductAttributeModal />}
+/>
+
+<Route
+    path="product-attributes/pagination"
+    element={<ProductAttributePagination />}
+/>
+
+<Route
+    path="product-attributes/toolbar"
+    element={<ProductAttributeToolbar />}
+/>
+
+
 
 
         {/* ===================================================
