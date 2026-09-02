@@ -45,6 +45,18 @@ import BrandModelTable from "./pages/Brands/BrandModelTable";
 import BrandModelForm from "./pages/Brands/BrandModelForm";
 import BrandModelView from "./pages/Brands/BrandModelView";
 
+
+// =========================================================
+// STOCK ADJUSTMENT MANAGEMENT
+// =========================================================
+
+import StockAdjustmentList from "./pages/StockAdjustment/StockAdjustmentList";
+import StockAdjustmentCreate from "./pages/StockAdjustment/StockAdjustmentCreate";
+import StockAdjustmentEdit from "./pages/StockAdjustment/StockAdjustmentEdit";
+import StockAdjustmentView from "./pages/StockAdjustment/StockAdjustmentView";
+import StockAdjustmentSearch from "./pages/StockAdjustment/StockAdjustmentSearch";
+import StockAdjustmentStatistics from "./pages/StockAdjustment/StockAdjustmentStatistics";
+
 // =========================================================
 // CATALOG
 // =========================================================
@@ -1126,8 +1138,41 @@ function App() {
     element={<CustomerReturnEdit />}
 />
 
+            {/* =================================================
+                STOCK ADJUSTMENTS
+            ================================================= */}
 
+            <Route
+                path="stock-adjustments"
+                element={<StockAdjustmentList />}
+            />
 
+            <Route
+                path="stock-adjustments/create"
+                element={<StockAdjustmentCreate />}
+            />
+
+            <Route
+                path="stock-adjustments/search"
+                element={<StockAdjustmentSearch />}
+            />
+
+            <Route
+                path="stock-adjustments/statistics"
+                element={<StockAdjustmentStatistics />}
+            />
+
+            <Route
+                path="stock-adjustments/view/:id"
+                element={<StockAdjustmentView />}
+            />
+
+            <Route
+                path="stock-adjustments/edit/:id"
+                element={<StockAdjustmentEdit />}
+            />
+
+       
         {/* ===================================================
             DELIVERY CHALLANS
         =================================================== */}

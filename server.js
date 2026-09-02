@@ -8004,6 +8004,520 @@ app.delete(
 
     }
 );
+
+
+// =========================================================
+// STOCK ADJUSTMENT
+// =========================================================
+
+
+// =========================================================
+// GET ALL STOCK ADJUSTMENTS
+// Frontend:
+// GET http://localhost:5000/api/stock-adjustments
+//
+// Backend:
+// GET https://localhost:7203/api/StockAdjustment
+// =========================================================
+
+app.get("/api/stock-adjustments", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load stock adjustments"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// SEARCH STOCK ADJUSTMENTS
+// Frontend:
+// GET /api/stock-adjustments/search?search=value
+//
+// Backend:
+// GET /api/StockAdjustment/search?search=value
+// =========================================================
+
+app.get("/api/stock-adjustments/search", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/search`,
+            {
+                params: {
+                    search: req.query.search
+                },
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/search Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to search stock adjustments"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// SORT STOCK ADJUSTMENTS
+// Frontend:
+// GET /api/stock-adjustments/sort?sort=quantity
+//
+// Backend:
+// GET /api/StockAdjustment/sort?sort=quantity
+// =========================================================
+
+app.get("/api/stock-adjustments/sort", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/sort`,
+            {
+                params: {
+                    sort: req.query.sort
+                },
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/sort Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to sort stock adjustments"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// PAGINATED STOCK ADJUSTMENTS
+// Frontend:
+// GET /api/stock-adjustments/page?page=1&limit=15
+//
+// Backend:
+// GET /api/StockAdjustment/page?page=1&limit=15
+// =========================================================
+
+app.get("/api/stock-adjustments/page", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/page`,
+            {
+                params: {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 15
+                },
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/page Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load paginated stock adjustments"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// STOCK ADJUSTMENT STATISTICS
+// Frontend:
+// GET /api/stock-adjustments/statistics
+//
+// Backend:
+// GET /api/StockAdjustment/statistics
+// =========================================================
+
+app.get("/api/stock-adjustments/statistics", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/statistics`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/statistics Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load stock adjustment statistics"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET STOCK ADJUSTMENTS BY SELLER
+// Frontend:
+// GET /api/stock-adjustments/seller/6
+//
+// Backend:
+// GET /api/StockAdjustment/seller/6
+// =========================================================
+
+app.get("/api/stock-adjustments/seller/:sellerId", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/seller/${req.params.sellerId}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/seller/:sellerId Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load seller stock adjustments"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET STOCK ADJUSTMENTS BY PRODUCT
+// Frontend:
+// GET /api/stock-adjustments/product/6
+//
+// Backend:
+// GET /api/StockAdjustment/product/6
+// =========================================================
+
+app.get("/api/stock-adjustments/product/:productId", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/product/${req.params.productId}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/product/:productId Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load product stock adjustments"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET STOCK ADJUSTMENTS BY WAREHOUSE
+// Frontend:
+// GET /api/stock-adjustments/warehouse/3
+//
+// Backend:
+// GET /api/StockAdjustment/warehouse/3
+// =========================================================
+
+app.get("/api/stock-adjustments/warehouse/:warehouseId", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/warehouse/${req.params.warehouseId}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/warehouse/:warehouseId Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load warehouse stock adjustments"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET STOCK ADJUSTMENTS BY TYPE
+// Frontend:
+// GET /api/stock-adjustments/type/Damage
+//
+// Backend:
+// GET /api/StockAdjustment/type/Damage
+// =========================================================
+
+app.get("/api/stock-adjustments/type/:adjustmentType", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/type/${encodeURIComponent(
+                req.params.adjustmentType
+            )}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/type/:adjustmentType Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load stock adjustments by type"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET STOCK ADJUSTMENT BY ID
+// IMPORTANT:
+// Keep this AFTER search, sort, page, statistics,
+// seller, product, warehouse and type routes.
+//
+// Frontend:
+// GET /api/stock-adjustments/1
+//
+// Backend:
+// GET /api/StockAdjustment/1
+// =========================================================
+
+app.get("/api/stock-adjustments/:id", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/StockAdjustment/${req.params.id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/stock-adjustments/:id Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to load stock adjustment"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// CREATE STOCK ADJUSTMENT
+// Frontend:
+// POST /api/stock-adjustments
+//
+// Backend:
+// POST /api/StockAdjustment
+// =========================================================
+
+app.post("/api/stock-adjustments", async (req, res) => {
+    try {
+
+        const response = await axios.post(
+            `${DOTNET_API}/StockAdjustment`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "POST /api/stock-adjustments Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to create stock adjustment"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// UPDATE STOCK ADJUSTMENT
+// Frontend:
+// PUT /api/stock-adjustments/1
+//
+// Backend:
+// PUT /api/StockAdjustment/1
+// =========================================================
+
+app.put("/api/stock-adjustments/:id", async (req, res) => {
+    try {
+
+        const response = await axios.put(
+            `${DOTNET_API}/StockAdjustment/${req.params.id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "PUT /api/stock-adjustments/:id Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to update stock adjustment"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// DELETE STOCK ADJUSTMENT
+// Frontend:
+// DELETE /api/stock-adjustments/1
+//
+// Backend:
+// DELETE /api/StockAdjustment/1
+// =========================================================
+
+app.delete("/api/stock-adjustments/:id", async (req, res) => {
+    try {
+
+        const response = await axios.delete(
+            `${DOTNET_API}/StockAdjustment/${req.params.id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data || {
+                message: "Stock adjustment deleted successfully"
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "DELETE /api/stock-adjustments/:id Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to delete stock adjustment"
+            }
+        );
+    }
+});
 // =========================================================
 // PRODUCT INVENTORY
 // =========================================================
