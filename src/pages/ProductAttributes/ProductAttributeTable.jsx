@@ -1,154 +1,375 @@
+// =========================================================
+// ProductAttributeTable.jsx
+// Product Attribute Table
+// =========================================================
+
 import React from "react";
 
-import {Paper,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,IconButton,Chip,Tooltip,CircularProgress,Typography,Box} from "@mui/material";
-import {Visibility,Edit,Delete} from "@mui/icons-material";
+import {
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    IconButton,
+    Chip,
+    Tooltip,
+    CircularProgress,
+    Typography,
+    Box
+} from "@mui/material";
+
+import {
+    Visibility,
+    Edit,
+    Delete
+} from "@mui/icons-material";
+
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const ProductAttributeTable = ({
     attributes = [],
-    loading,
+    loading = false,
     onView,
     onEdit,
     onDelete
 }) => {
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
     if (loading) {
+
         return (
             <Box
                 display="flex"
                 justifyContent="center"
-                mt={5}
+                alignItems="center"
+                sx={{
+                    py: 6
+                }}
             >
                 <CircularProgress />
             </Box>
         );
     }
+
+
+    // =====================================================
+    // EMPTY STATE
+    // =====================================================
+
     if (attributes.length === 0) {
+
         return (
             <Paper
-                sx={{ p: 4 }}
+                elevation={2}
+                sx={{
+                    p: 4,
+                    borderRadius: 2
+                }}
             >
+
                 <Typography
                     align="center"
                     color="text.secondary"
                 >
                     No Product Attributes Found
                 </Typography>
+
             </Paper>
         );
     }
+
+
+    // =====================================================
+    // RENDER TABLE
+    // =====================================================
+
     return (
+
         <TableContainer
             component={Paper}
+            elevation={2}
+            sx={{
+                borderRadius: 2
+            }}
         >
-            <Table>
+
+            <Table
+                stickyHeader
+            >
+
+                {/* =================================================
+                    TABLE HEADER
+                ================================================= */}
+
                 <TableHead>
+
                     <TableRow>
+
                         <TableCell>
                             ID
                         </TableCell>
+
                         <TableCell>
                             Product ID
                         </TableCell>
+
                         <TableCell>
                             Attribute Name
                         </TableCell>
+
                         <TableCell>
                             Attribute Value
                         </TableCell>
+
                         <TableCell>
                             Attribute Type
                         </TableCell>
+
                         <TableCell>
                             Required
                         </TableCell>
+
                         <TableCell>
                             Active
                         </TableCell>
+
                         <TableCell align="center">
                             Actions
                         </TableCell>
+
                     </TableRow>
+
                 </TableHead>
+
+
+                {/* =================================================
+                    TABLE BODY
+                ================================================= */}
+
                 <TableBody>
-                    {
-                        attributes.map((row) => (
+
+                    {attributes.map((row) => {
+
+                        // ==========================================
+                        // SUPPORT BOTH JSON NAMING STYLES
+                        // ==========================================
+
+                        const id =
+                            row.productAttributeId ??
+                            row.ProductAttributeId;
+
+                        const productId =
+                            row.productId ??
+                            row.ProductId;
+
+                        const attributeName =
+                            row.attributeName ??
+                            row.AttributeName;
+
+                        const attributeValue =
+                            row.attributeValue ??
+                            row.AttributeValue;
+
+                        const attributeType =
+                            row.attributeType ??
+                            row.AttributeType;
+
+                        const isRequired =
+                            row.isRequired ??
+                            row.IsRequired ??
+                            false;
+
+                        const isActive =
+                            row.isActive ??
+                            row.IsActive ??
+                            false;
+
+
+                        return (
+
                             <TableRow
-                                key={row.ProductAttributeId}
+                                key={id}
                                 hover
                             >
+
+                                {/* =================================
+                                    ID
+                                ================================= */}
+
                                 <TableCell>
-                                    {row.ProductAttributeId}
+                                    {id ?? "-"}
                                 </TableCell>
+
+
+                                {/* =================================
+                                    PRODUCT ID
+                                ================================= */}
+
                                 <TableCell>
-                                    {row.ProductId}
+                                    {productId ?? "-"}
                                 </TableCell>
+
+
+                                {/* =================================
+                                    ATTRIBUTE NAME
+                                ================================= */}
+
                                 <TableCell>
-                                    {
-                                        row.AttributeName || "-"
-                                    }
+                                    {attributeName || "-"}
                                 </TableCell>
+
+
+                                {/* =================================
+                                    ATTRIBUTE VALUE
+                                ================================= */}
+
                                 <TableCell>
-                                    {
-                                        row.AttributeValue || "-"
-                                    }
+                                    {attributeValue || "-"}
                                 </TableCell>
+
+
+                                {/* =================================
+                                    ATTRIBUTE TYPE
+                                ================================= */}
+
                                 <TableCell>
-                                    {
-                                        row.AttributeType || "-"
-                                    }
+                                    {attributeType || "-"}
                                 </TableCell>
+
+
+                                {/* =================================
+                                    REQUIRED
+                                ================================= */}
+
                                 <TableCell>
+
                                     <Chip
-                                        label={ row.IsRequired ? "Yes" : "No" }
-                                        color={ row.IsRequired ? "primary" : "default" }
+                                        label={
+                                            isRequired
+                                                ? "Yes"
+                                                : "No"
+                                        }
+                                        color={
+                                            isRequired
+                                                ? "primary"
+                                                : "default"
+                                        }
                                         size="small"
                                     />
+
                                 </TableCell>
+
+
+                                {/* =================================
+                                    ACTIVE
+                                ================================= */}
+
                                 <TableCell>
+
                                     <Chip
-                                        label={ row.IsActive ? "Active" : "Inactive" }
-                                        color={ row.IsActive ? "success" : "error"}
+                                        label={
+                                            isActive
+                                                ? "Active"
+                                                : "Inactive"
+                                        }
+                                        color={
+                                            isActive
+                                                ? "success"
+                                                : "error"
+                                        }
                                         size="small"
                                     />
+
                                 </TableCell>
+
+
+                                {/* =================================
+                                    ACTIONS
+                                ================================= */}
+
                                 <TableCell align="center">
+
+                                    {/* VIEW */}
+
                                     <Tooltip title="View">
+
                                         <IconButton
                                             color="primary"
+                                            size="small"
                                             onClick={() =>
-                                                onView(row)
+                                                onView?.(row)
                                             }
                                         >
+
                                             <Visibility />
+
                                         </IconButton>
+
                                     </Tooltip>
+
+
+                                    {/* EDIT */}
+
                                     <Tooltip title="Edit">
+
                                         <IconButton
                                             color="warning"
+                                            size="small"
                                             onClick={() =>
-                                                onEdit(row)
+                                                onEdit?.(row)
                                             }
                                         >
+
                                             <Edit />
+
                                         </IconButton>
+
                                     </Tooltip>
+
+
+                                    {/* DELETE */}
+
                                     <Tooltip title="Delete">
+
                                         <IconButton
                                             color="error"
+                                            size="small"
                                             onClick={() =>
-                                                onDelete(row)
+                                                onDelete?.(row)
                                             }
                                         >
+
                                             <Delete />
+
                                         </IconButton>
+
                                     </Tooltip>
+
                                 </TableCell>
+
                             </TableRow>
-                        ))
-                    }
+
+                        );
+
+                    })}
+
                 </TableBody>
+
             </Table>
+
         </TableContainer>
     );
 };
+
 
 export default ProductAttributeTable;

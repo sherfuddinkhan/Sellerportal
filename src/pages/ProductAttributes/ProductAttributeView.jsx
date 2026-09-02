@@ -1,3 +1,8 @@
+// =========================================================
+// ProductAttributeView.jsx
+// Product Attribute Details View
+// =========================================================
+
 import React from "react";
 
 import {
@@ -9,331 +14,339 @@ import {
     Grid,
     Typography,
     Divider,
-    Chip
+    Chip,
+    Box
 } from "@mui/material";
 
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const ProductAttributeView = ({
-
     open,
-
     attribute,
-
     onClose
-
 }) => {
 
-    if (!attribute) return null;
+
+    // =====================================================
+    // NO ATTRIBUTE
+    // =====================================================
+
+    if (!attribute) {
+        return null;
+    }
+
+
+    // =====================================================
+    // SUPPORT BOTH JSON NAMING STYLES
+    // =====================================================
+
+    const attributeId =
+        attribute.productAttributeId ??
+        attribute.ProductAttributeId;
+
+    const productId =
+        attribute.productId ??
+        attribute.ProductId;
+
+    const attributeName =
+        attribute.attributeName ??
+        attribute.AttributeName;
+
+    const attributeValue =
+        attribute.attributeValue ??
+        attribute.AttributeValue;
+
+    const attributeType =
+        attribute.attributeType ??
+        attribute.AttributeType;
+
+    const isRequired =
+        attribute.isRequired ??
+        attribute.IsRequired ??
+        false;
+
+    const isActive =
+        attribute.isActive ??
+        attribute.IsActive ??
+        false;
+
+    const createdDate =
+        attribute.createdDate ??
+        attribute.CreatedDate;
+
+    const updatedDate =
+        attribute.updatedDate ??
+        attribute.UpdatedDate;
+
+
+    // =====================================================
+    // DATE FORMATTER
+    // =====================================================
+
+    const formatDate = (date) => {
+
+        if (!date) {
+            return "-";
+        }
+
+        const parsedDate = new Date(date);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return "-";
+        }
+
+        return parsedDate.toLocaleString();
+    };
+
+
+    // =====================================================
+    // FIELD COMPONENT
+    // =====================================================
 
     const Field = ({
-
         label,
-
         value
-
     }) => (
 
         <Grid
-
             item
-
             xs={12}
-
             md={6}
-
         >
 
-            <Typography
+            <Box>
 
-                variant="caption"
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                >
+                    {label}
+                </Typography>
 
-                color="text.secondary"
+                <Typography
+                    variant="body1"
+                    fontWeight={500}
+                    sx={{
+                        mt: 0.5,
+                        wordBreak: "break-word"
+                    }}
+                >
+                    {value !== null &&
+                    value !== undefined &&
+                    value !== ""
+                        ? value
+                        : "-"
+                    }
+                </Typography>
 
-            >
-
-                {label}
-
-            </Typography>
-
-            <Typography
-
-                variant="body1"
-
-                fontWeight={500}
-
-            >
-
-                {value || "-"}
-
-            </Typography>
+            </Box>
 
         </Grid>
-
     );
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Dialog
-
             open={open}
-
             onClose={onClose}
-
             fullWidth
-
             maxWidth="md"
-
         >
 
-            <DialogTitle>
+            {/* =================================================
+                TITLE
+            ================================================= */}
 
+            <DialogTitle
+                sx={{
+                    fontWeight: "bold"
+                }}
+            >
                 Product Attribute Details
-
             </DialogTitle>
+
 
             <Divider />
 
-            <DialogContent sx={{ mt: 2 }}>
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
+            <DialogContent
+                sx={{
+                    mt: 2
+                }}
+            >
 
                 <Grid
-
                     container
-
                     spacing={3}
-
                 >
 
-                    <Field
+                    {/* ATTRIBUTE ID */}
 
+                    <Field
                         label="Attribute ID"
-
-                        value={
-
-                            attribute.ProductAttributeId
-
-                        }
-
+                        value={attributeId}
                     />
 
-                    <Field
 
+                    {/* PRODUCT ID */}
+
+                    <Field
                         label="Product ID"
-
-                        value={
-
-                            attribute.ProductId
-
-                        }
-
+                        value={productId}
                     />
 
-                    <Field
 
+                    {/* ATTRIBUTE NAME */}
+
+                    <Field
                         label="Attribute Name"
-
-                        value={
-
-                            attribute.AttributeName
-
-                        }
-
+                        value={attributeName}
                     />
 
-                    <Field
 
+                    {/* ATTRIBUTE VALUE */}
+
+                    <Field
                         label="Attribute Value"
-
-                        value={
-
-                            attribute.AttributeValue
-
-                        }
-
+                        value={attributeValue}
                     />
 
-                    <Field
 
+                    {/* ATTRIBUTE TYPE */}
+
+                    <Field
                         label="Attribute Type"
-
-                        value={
-
-                            attribute.AttributeType
-
-                        }
-
+                        value={attributeType}
                     />
 
+
+                    {/* REQUIRED */}
+
                     <Grid
-
                         item
-
                         xs={12}
-
                         md={6}
-
                     >
 
                         <Typography
-
                             variant="caption"
-
                             color="text.secondary"
-
                         >
-
                             Required
-
                         </Typography>
 
-                        <br />
+                        <Box sx={{ mt: 0.5 }}>
 
-                        <Chip
+                            <Chip
+                                label={
+                                    isRequired
+                                        ? "Yes"
+                                        : "No"
+                                }
+                                color={
+                                    isRequired
+                                        ? "primary"
+                                        : "default"
+                                }
+                                size="small"
+                            />
 
-                            label={
-
-                                attribute.IsRequired
-
-                                    ? "Yes"
-
-                                    : "No"
-
-                            }
-
-                            color={
-
-                                attribute.IsRequired
-
-                                    ? "primary"
-
-                                    : "default"
-
-                            }
-
-                        />
+                        </Box>
 
                     </Grid>
 
+
+                    {/* ACTIVE STATUS */}
+
                     <Grid
-
                         item
-
                         xs={12}
-
                         md={6}
-
                     >
 
                         <Typography
-
                             variant="caption"
-
                             color="text.secondary"
-
                         >
-
                             Status
-
                         </Typography>
 
-                        <br />
+                        <Box sx={{ mt: 0.5 }}>
 
-                        <Chip
+                            <Chip
+                                label={
+                                    isActive
+                                        ? "Active"
+                                        : "Inactive"
+                                }
+                                color={
+                                    isActive
+                                        ? "success"
+                                        : "error"
+                                }
+                                size="small"
+                            />
 
-                            label={
-
-                                attribute.IsActive
-
-                                    ? "Active"
-
-                                    : "Inactive"
-
-                            }
-
-                            color={
-
-                                attribute.IsActive
-
-                                    ? "success"
-
-                                    : "error"
-
-                            }
-
-                        />
+                        </Box>
 
                     </Grid>
 
+
+                    {/* CREATED DATE */}
+
                     <Field
-
                         label="Created Date"
-
-                        value={
-
-                            attribute.CreatedDate
-
-                                ?
-
-                                new Date(
-
-                                    attribute.CreatedDate
-
-                                ).toLocaleString()
-
-                                :
-
-                                "-"
-
-                        }
-
+                        value={formatDate(createdDate)}
                     />
 
+
+                    {/* UPDATED DATE */}
+
                     <Field
-
                         label="Updated Date"
-
-                        value={
-
-                            attribute.UpdatedDate
-
-                                ?
-
-                                new Date(
-
-                                    attribute.UpdatedDate
-
-                                ).toLocaleString()
-
-                                :
-
-                                "-"
-
-                        }
-
+                        value={formatDate(updatedDate)}
                     />
 
                 </Grid>
 
             </DialogContent>
 
-            <DialogActions>
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
 
                 <Button
-
                     variant="contained"
-
                     onClick={onClose}
-
                 >
-
                     Close
-
                 </Button>
 
             </DialogActions>
 
         </Dialog>
-
     );
-
 };
+
 
 export default ProductAttributeView;

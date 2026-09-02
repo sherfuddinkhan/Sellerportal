@@ -397,6 +397,66 @@ const MainLayout = () => {
                         },
                     ],
                 },
+                {
+    label: "Product Attributes",
+    path: "/product-attributes",
+    icon: "🏷️",
+
+    children: [
+        {
+            label: "Product Attribute List",
+            path: "/product-attributes",
+        },
+        {
+            label: "Create Product Attribute",
+            path: "/product-attributes/create",
+        },
+        {
+            label: "Product Attribute Details",
+            path: "/product-attributes/details/:id",
+        },
+        {
+            label: "Edit Product Attribute",
+            path: "/product-attributes/edit/:id",
+        },
+        {
+            label: "Product Attribute Filters",
+            path: "/product-attributes/filters",
+        },
+        {
+            label: "Search Product Attributes",
+            path: "/product-attributes/search",
+        },
+        {
+            label: "Product Attribute Statistics",
+            path: "/product-attributes/statistics",
+        },
+        {
+            label: "Product Attribute Table",
+            path: "/product-attributes/table",
+        },
+        {
+            label: "Product Attribute Card",
+            path: "/product-attributes/card",
+        },
+        {
+            label: "Product Attribute Form",
+            path: "/product-attributes/form",
+        },
+        {
+            label: "Product Attribute Modal",
+            path: "/product-attributes/modal",
+        },
+        {
+            label: "Product Attribute Pagination",
+            path: "/product-attributes/pagination",
+        },
+        {
+            label: "Product Attribute Toolbar",
+            path: "/product-attributes/toolbar",
+        },
+    ],
+},
 
                 {
                     label: "Products",

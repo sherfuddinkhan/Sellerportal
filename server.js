@@ -8518,6 +8518,449 @@ app.delete("/api/stock-adjustments/:id", async (req, res) => {
         );
     }
 });
+
+// =========================================================
+// PRODUCT ATTRIBUTE API PROXY
+// server.js
+// =========================================================
+
+// =========================================================
+// GET ALL PRODUCT ATTRIBUTES
+// GET http://localhost:5000/api/product-attributes/all
+// =========================================================
+
+app.get(
+    "/api/product-attributes/all",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/product-attributes/all`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/product-attributes/all Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to fetch product attributes.",
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT ATTRIBUTES
+//
+// Supports:
+// /api/product-attributes
+// /api/product-attributes?search=Color
+// /api/product-attributes?sort=AttributeName
+// /api/product-attributes?page=1&limit=10
+// =========================================================
+
+app.get(
+    "/api/product-attributes",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/product-attributes`,
+                {
+                    params: req.query
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/product-attributes Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to fetch product attributes.",
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT ATTRIBUTE BY PRODUCT ID
+//
+// GET:
+// /api/product-attributes/product/6
+// =========================================================
+
+app.get(
+    "/api/product-attributes/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/product-attributes/product/${productId}`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET Product Attributes By Product Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to fetch product attributes by product.",
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT ATTRIBUTES BY ATTRIBUTE NAME
+//
+// GET:
+// /api/product-attributes/attribute/Color
+// =========================================================
+
+app.get(
+    "/api/product-attributes/attribute/:attributeName",
+    async (req, res) => {
+
+        try {
+
+            const {
+                attributeName
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/product-attributes/attribute/${encodeURIComponent(attributeName)}`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET Product Attributes By Name Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to fetch product attributes by name.",
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT ATTRIBUTE STATISTICS
+//
+// GET:
+// /api/product-attributes/stats
+// =========================================================
+
+app.get(
+    "/api/product-attributes/stats",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/product-attributes/stats`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET Product Attribute Statistics Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to fetch product attribute statistics.",
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT ATTRIBUTE BY ID
+//
+// Used by:
+// ProductAttributeDetails.jsx
+// ProductAttributeEdit.jsx
+//
+// GET:
+// /api/product-attributes/1
+// =========================================================
+
+app.get(
+    "/api/product-attributes/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/product-attributes/${id}`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET Product Attribute By ID Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to fetch product attribute.",
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// CREATE PRODUCT ATTRIBUTE
+//
+// POST:
+// /api/product-attributes
+// =========================================================
+
+app.post(
+    "/api/product-attributes",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.post(
+                `${DOTNET_API}/product-attributes`,
+                req.body,
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "POST /api/product-attributes Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to create product attribute.",
+
+                errors:
+                    error.response?.data?.errors,
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// UPDATE PRODUCT ATTRIBUTE
+//
+// Used by:
+// ProductAttributeEdit.jsx
+//
+// PUT:
+// /api/product-attributes/1
+// =========================================================
+
+app.put(
+    "/api/product-attributes/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.put(
+                `${DOTNET_API}/product-attributes/${id}`,
+                req.body,
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "PUT Product Attribute Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to update product attribute.",
+
+                errors:
+                    error.response?.data?.errors,
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// DELETE PRODUCT ATTRIBUTE
+//
+// DELETE:
+// /api/product-attributes/1
+// =========================================================
+
+app.delete(
+    "/api/product-attributes/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.delete(
+                `${DOTNET_API}/product-attributes/${id}`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE Product Attribute Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to delete product attribute.",
+
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
 // =========================================================
 // PRODUCT INVENTORY
 // =========================================================

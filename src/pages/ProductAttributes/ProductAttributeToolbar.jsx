@@ -1,3 +1,8 @@
+// =========================================================
+// ProductAttributeToolbar.jsx
+// Product Attribute Toolbar
+// =========================================================
+
 import React from "react";
 
 import {
@@ -12,100 +17,97 @@ import {
     Download
 } from "@mui/icons-material";
 
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const ProductAttributeToolbar = ({
-
     onAdd,
-
     onRefresh,
-
     onExport
-
 }) => {
 
     return (
 
         <Stack
-
-            direction="row"
-
+            direction={{
+                xs: "column",
+                md: "row"
+            }}
             justifyContent="space-between"
-
-            alignItems="center"
-
-            sx={{ mb: 3 }}
-
+            alignItems={{
+                xs: "stretch",
+                md: "center"
+            }}
+            spacing={2}
+            sx={{
+                mb: 3
+            }}
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <Typography
-
                 variant="h5"
-
                 fontWeight="bold"
-
             >
-
                 Product Attributes
-
             </Typography>
 
+
+            {/* =================================================
+                ACTION BUTTONS
+            ================================================= */}
+
             <Stack
-
-                direction="row"
-
-                spacing={2}
-
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
+                spacing={1.5}
             >
 
-                <Button
+                {/* ADD */}
 
+                <Button
                     variant="contained"
-
                     startIcon={<Add />}
-
-                    onClick={onAdd}
-
+                    onClick={() => onAdd?.()}
                 >
-
                     Add Attribute
-
                 </Button>
 
+
+                {/* REFRESH */}
+
                 <Button
-
                     variant="outlined"
-
                     startIcon={<Refresh />}
-
-                    onClick={onRefresh}
-
+                    onClick={() => onRefresh?.()}
                 >
-
                     Refresh
-
                 </Button>
 
+
+                {/* EXPORT */}
+
                 <Button
-
                     variant="outlined"
-
                     color="success"
-
                     startIcon={<Download />}
-
-                    onClick={onExport}
-
+                    onClick={() => onExport?.()}
                 >
-
                     Export
-
                 </Button>
 
             </Stack>
 
         </Stack>
-
     );
-
 };
+
 
 export default ProductAttributeToolbar;
