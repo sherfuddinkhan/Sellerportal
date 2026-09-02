@@ -1,5 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
+// =========================================================
+// WarehouseList.jsx
+// Warehouse List / Search / Filter / Pagination / CRUD
+// =========================================================
+
+import React, {
+    useEffect,
+    useState
+} from "react";
+
+import {
+    Box,
+    Alert,
+    Snackbar
+} from "@mui/material";
+
 import WarehouseToolbar from "./WarehouseToolbar";
 import WarehouseStatistics from "./WarehouseStatistics";
 import WarehouseSearch from "./WarehouseSearch";
@@ -9,27 +23,52 @@ import WarehouseModal from "./WarehouseModal";
 import WarehouseView from "./WarehouseView";
 import DeleteWarehouseDialog from "./DeleteWarehouseDialog";
 
+// =========================================================
+// SERVER URL
+// =========================================================
+
+const SERVER_URL = "http://localhost:5000";
+
+// =========================================================
+// WarehouseList
+// =========================================================
+
 const WarehouseList = () => {
 
-    // ==========================================
-    // State
-    // ==========================================
+    // =====================================================
+    // STATE
+    // =====================================================
 
     const [warehouses, setWarehouses] = useState([]);
+
     const [filteredWarehouses, setFilteredWarehouses] = useState([]);
+
     const [loading, setLoading] = useState(false);
+
     const [searchText, setSearchText] = useState("");
+
     const [statusFilter, setStatusFilter] = useState("All");
+
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+
     const [modalOpen, setModalOpen] = useState(false);
+
     const [viewOpen, setViewOpen] = useState(false);
+
     const [deleteOpen, setDeleteOpen] = useState(false);
+
     const [page, setPage] = useState(1);
+
     const [pageSize, setPageSize] = useState(10);
 
-    // ==========================================
-    // Load Warehouses
-    // ==========================================
+    const [error, setError] = useState("");
+
+    const [success, setSuccess] = useState("");
+
+
+    // =====================================================
+    // LOAD WAREHOUSES
+    // =====================================================
 
     const loadWarehouses = async () => {
 
@@ -37,20 +76,55 @@ const WarehouseList = () => {
 
             setLoading(true);
 
-            const response = await apiService.getWarehouses();
+            setError("");
 
-            setWarehouses(response.data);
+            const response = await fetch(
+                `${SERVER_URL}/api/warehouse`
+            );
 
-            setFilteredWarehouses(response.data);
+            if (!response.ok) {
+
+                throw new Error(
+                    `Failed to load warehouses. Status: ${response.status}`
+                );
+
+            }
+
+            const data = await response.json();
+
+            // -------------------------------------------------
+            // Support both:
+            // [ ... ]
+            //
+            // and:
+            // { data: [ ... ] }
+            // -------------------------------------------------
+
+            const warehouseData =
+                Array.isArray(data)
+                    ? data
+                    : Array.isArray(data.data)
+                        ? data.data
+                        : [];
+
+            setWarehouses(warehouseData);
+
+            setFilteredWarehouses(warehouseData);
 
         }
-
         catch (err) {
 
-            console.log(err);
+            console.error(
+                "Load Warehouses Error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "Failed to load warehouses."
+            );
 
         }
-
         finally {
 
             setLoading(false);
@@ -59,59 +133,121 @@ const WarehouseList = () => {
 
     };
 
+
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
+
     useEffect(() => {
 
         loadWarehouses();
 
     }, []);
 
-    // ==========================================
-    // Search & Filter
-    // ==========================================
+
+    // =====================================================
+    // SEARCH + FILTER
+    // =====================================================
 
     useEffect(() => {
 
         let result = [...warehouses];
 
+
+        // -------------------------------------------------
+        // SEARCH
+        // -------------------------------------------------
+
         if (searchText.trim() !== "") {
 
-            const search = searchText.toLowerCase();
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
 
-            result = result.filter(item =>
+            result = result.filter((item) => {
 
-                item.WarehouseCode?.toLowerCase().includes(search) ||
+                return (
 
-                item.WarehouseName?.toLowerCase().includes(search) ||
+                    item.WarehouseCode
+                        ?.toLowerCase()
+                        .includes(search)
 
-                item.City?.toLowerCase().includes(search) ||
+                    ||
 
-                item.State?.toLowerCase().includes(search) ||
+                    item.WarehouseName
+                        ?.toLowerCase()
+                        .includes(search)
 
-                item.Country?.toLowerCase().includes(search) ||
+                    ||
 
-                item.ContactPerson?.toLowerCase().includes(search) ||
+                    item.City
+                        ?.toLowerCase()
+                        .includes(search)
 
-                item.Phone?.toLowerCase().includes(search) ||
+                    ||
 
-                item.Email?.toLowerCase().includes(search)
+                    item.State
+                        ?.toLowerCase()
+                        .includes(search)
 
-            );
+                    ||
+
+                    item.Country
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.ContactPerson
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.Phone
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.Email
+                        ?.toLowerCase()
+                        .includes(search)
+
+                );
+
+            });
 
         }
+
+
+        // -------------------------------------------------
+        // STATUS FILTER
+        // -------------------------------------------------
 
         if (statusFilter !== "All") {
 
-            result = result.filter(item =>
+            result = result.filter((item) => {
 
-                statusFilter === "Active"
+                if (statusFilter === "Active") {
 
-                    ? item.IsActive
+                    return item.IsActive === true;
 
-                    : !item.IsActive
+                }
 
-            );
+                if (statusFilter === "Inactive") {
+
+                    return item.IsActive === false;
+
+                }
+
+                return true;
+
+            });
 
         }
+
 
         setFilteredWarehouses(result);
 
@@ -123,71 +259,265 @@ const WarehouseList = () => {
         statusFilter
     ]);
 
-    // ==========================================
-    // Pagination
-    // ==========================================
 
-    const totalPages = Math.ceil(filteredWarehouses.length / pageSize);
-    const pagedWarehouses = filteredWarehouses.slice((page - 1) * pageSize,page * pageSize);
-    // ==========================================
-    // Save Warehouse
-    // ==========================================
+    // =====================================================
+    // PAGINATION
+    // =====================================================
+
+    const totalPages =
+        Math.ceil(
+            filteredWarehouses.length /
+            pageSize
+        );
+
+    const pagedWarehouses =
+        filteredWarehouses.slice(
+            (page - 1) * pageSize,
+            page * pageSize
+        );
+
+
+    // =====================================================
+    // CREATE / UPDATE WAREHOUSE
+    // =====================================================
 
     const handleSave = async (data) => {
 
         try {
 
+            setError("");
+
+            setLoading(true);
+
+
+            // -------------------------------------------------
+            // UPDATE
+            // -------------------------------------------------
+
             if (data.WarehouseId) {
 
-                await apiService.updateWarehouse(
-                    data.WarehouseId,
-                    data
+                const response = await fetch(
+                    `${SERVER_URL}/api/warehouse/${data.WarehouseId}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify(data)
+                    }
                 );
+
+
+                if (!response.ok) {
+
+                    const errorText =
+                        await response.text();
+
+                    throw new Error(
+                        errorText ||
+                        `Failed to update warehouse. Status: ${response.status}`
+                    );
+
+                }
+
+
+                setSuccess(
+                    "Warehouse updated successfully."
+                );
+
             }
+
+
+            // -------------------------------------------------
+            // CREATE
+            // -------------------------------------------------
+
             else {
-                await apiService.createWarehouse(data);
+
+                const response = await fetch(
+                    `${SERVER_URL}/api/warehouse`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify(data)
+                    }
+                );
+
+
+                if (!response.ok) {
+
+                    const errorText =
+                        await response.text();
+
+                    throw new Error(
+                        errorText ||
+                        `Failed to create warehouse. Status: ${response.status}`
+                    );
+
+                }
+
+
+                setSuccess(
+                    "Warehouse created successfully."
+                );
+
             }
+
+
+            // -------------------------------------------------
+            // REFRESH
+            // -------------------------------------------------
+
             await loadWarehouses();
+
+
+            // -------------------------------------------------
+            // CLOSE MODAL
+            // -------------------------------------------------
+
             setModalOpen(false);
+
             setSelectedWarehouse(null);
+
         }
         catch (err) {
-            console.log(err);
+
+            console.error(
+                "Save Warehouse Error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "Failed to save warehouse."
+            );
+
         }
+        finally {
+
+            setLoading(false);
+
+        }
+
     };
 
-    // ==========================================
-    // Delete Warehouse
-    // ==========================================
+
+    // =====================================================
+    // DELETE WAREHOUSE
+    // =====================================================
 
     const handleDelete = async (id) => {
 
         try {
 
-            await apiService.deleteWarehouse(id);
+            setError("");
+
+            setLoading(true);
+
+
+            const response = await fetch(
+                `${SERVER_URL}/api/warehouse/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+            if (!response.ok) {
+
+                const errorText =
+                    await response.text();
+
+                throw new Error(
+                    errorText ||
+                    `Failed to delete warehouse. Status: ${response.status}`
+                );
+
+            }
+
+
+            setSuccess(
+                "Warehouse deleted successfully."
+            );
+
+
+            // -------------------------------------------------
+            // REFRESH
+            // -------------------------------------------------
 
             await loadWarehouses();
+
+
+            // -------------------------------------------------
+            // CLOSE DELETE DIALOG
+            // -------------------------------------------------
 
             setDeleteOpen(false);
 
             setSelectedWarehouse(null);
 
         }
-
         catch (err) {
 
-            console.log(err);
+            console.error(
+                "Delete Warehouse Error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "Failed to delete warehouse."
+            );
+
+        }
+        finally {
+
+            setLoading(false);
 
         }
 
     };
-        // ==========================================
-    // Render
-    // ==========================================
+
+
+    // =====================================================
+    // CLOSE SUCCESS MESSAGE
+    // =====================================================
+
+    const handleSuccessClose = () => {
+
+        setSuccess("");
+
+    };
+
+
+    // =====================================================
+    // CLOSE ERROR MESSAGE
+    // =====================================================
+
+    const handleErrorClose = () => {
+
+        setError("");
+
+    };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Box sx={{ p: 3 }}>
+
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
 
             <WarehouseToolbar
 
@@ -201,19 +531,29 @@ const WarehouseList = () => {
 
                 onRefresh={loadWarehouses}
 
-                onExport={() =>
+                onExport={() => {
 
-                    console.log("Export Warehouses")
+                    console.log(
+                        "Export Warehouses"
+                    );
 
-                }
+                }}
 
             />
+
+
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
 
             <WarehouseStatistics
-
                 warehouses={warehouses}
-
             />
+
+
+            {/* =================================================
+                SEARCH
+            ================================================= */}
 
             <WarehouseSearch
 
@@ -226,6 +566,11 @@ const WarehouseList = () => {
                 setStatusFilter={setStatusFilter}
 
             />
+
+
+            {/* =================================================
+                TABLE
+            ================================================= */}
 
             <WarehouseTable
 
@@ -259,6 +604,11 @@ const WarehouseList = () => {
 
             />
 
+
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
+
             <WarehousePagination
 
                 page={page}
@@ -267,7 +617,9 @@ const WarehouseList = () => {
 
                 pageSize={pageSize}
 
-                totalRecords={filteredWarehouses.length}
+                totalRecords={
+                    filteredWarehouses.length
+                }
 
                 onPageChange={setPage}
 
@@ -280,6 +632,11 @@ const WarehouseList = () => {
                 }}
 
             />
+
+
+            {/* =================================================
+                CREATE / EDIT MODAL
+            ================================================= */}
 
             <WarehouseModal
 
@@ -299,6 +656,11 @@ const WarehouseList = () => {
 
             />
 
+
+            {/* =================================================
+                VIEW MODAL
+            ================================================= */}
+
             <WarehouseView
 
                 open={viewOpen}
@@ -314,6 +676,11 @@ const WarehouseList = () => {
                 }}
 
             />
+
+
+            {/* =================================================
+                DELETE DIALOG
+            ================================================= */}
 
             <DeleteWarehouseDialog
 
@@ -332,6 +699,56 @@ const WarehouseList = () => {
                 onDeleted={handleDelete}
 
             />
+
+
+            {/* =================================================
+                SUCCESS MESSAGE
+            ================================================= */}
+
+            <Snackbar
+
+                open={Boolean(success)}
+
+                autoHideDuration={3000}
+
+                onClose={handleSuccessClose}
+
+            >
+
+                <Alert
+                    severity="success"
+                    onClose={handleSuccessClose}
+                    variant="filled"
+                >
+                    {success}
+                </Alert>
+
+            </Snackbar>
+
+
+            {/* =================================================
+                ERROR MESSAGE
+            ================================================= */}
+
+            <Snackbar
+
+                open={Boolean(error)}
+
+                autoHideDuration={5000}
+
+                onClose={handleErrorClose}
+
+            >
+
+                <Alert
+                    severity="error"
+                    onClose={handleErrorClose}
+                    variant="filled"
+                >
+                    {error}
+                </Alert>
+
+            </Snackbar>
 
         </Box>
 

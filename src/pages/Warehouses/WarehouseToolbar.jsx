@@ -1,12 +1,35 @@
+// =========================================================
+// WarehouseToolbar.jsx
+// Frontend Only
+// =========================================================
+
 import React from "react";
-import {Stack,Typography,Button} from "@mui/material";
-import {Add,Refresh,Download} from "@mui/icons-material";
+
+import {
+    Stack,
+    Typography,
+    Button
+} from "@mui/material";
+
+import {
+    Add,
+    Refresh,
+    Download
+} from "@mui/icons-material";
+
+
+// =========================================================
+// WarehouseToolbar
+// =========================================================
+
 const WarehouseToolbar = ({
     onAdd,
     onRefresh,
     onExport
 }) => {
+
     return (
+
         <Stack
             direction="row"
             justifyContent="space-between"
@@ -17,17 +40,36 @@ const WarehouseToolbar = ({
                 gap: 2
             }}
         >
+
+            {/* =============================================
+                TITLE
+            ============================================= */}
+
             <Typography
                 variant="h5"
                 fontWeight="bold"
             >
                 Warehouses
             </Typography>
+
+
+            {/* =============================================
+                ACTION BUTTONS
+            ============================================= */}
+
             <Stack
                 direction="row"
                 spacing={2}
-                flexWrap="wrap"
+                sx={{
+                    flexWrap: "wrap",
+                    gap: 1
+                }}
             >
+
+                {/* =========================================
+                    ADD
+                ========================================= */}
+
                 <Button
                     variant="contained"
                     startIcon={<Add />}
@@ -35,6 +77,12 @@ const WarehouseToolbar = ({
                 >
                     Add Warehouse
                 </Button>
+
+
+                {/* =========================================
+                    REFRESH
+                ========================================= */}
+
                 <Button
                     variant="outlined"
                     startIcon={<Refresh />}
@@ -42,6 +90,12 @@ const WarehouseToolbar = ({
                 >
                     Refresh
                 </Button>
+
+
+                {/* =========================================
+                    EXPORT
+                ========================================= */}
+
                 <Button
                     variant="outlined"
                     color="success"
@@ -50,9 +104,13 @@ const WarehouseToolbar = ({
                 >
                     Export
                 </Button>
+
             </Stack>
+
         </Stack>
+
     );
+
 };
 
 export default WarehouseToolbar;

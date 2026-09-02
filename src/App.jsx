@@ -436,6 +436,32 @@ import PurchaseOrderToolbar from "./pages/PurchaseOrders/PurchaseOrderToolbar";
 import PurchaseOrderView from "./pages/PurchaseOrders/PurchaseOrderView";
 
 // =========================================================
+// WAREHOUSE MANAGEMENT IMPORTS
+// =========================================================
+import WarehouseList from "./pages/Warehouses/WarehouseList";
+import WarehouseDetails from "./pages/Warehouses/WarehouseDetails";
+import WarehouseView from "./pages/Warehouses/WarehouseView";
+import WarehouseModal from "./pages/Warehouses/WarehouseModal";
+import WarehouseTable from "./pages/Warehouses/WarehouseTable";
+import WarehouseCard from "./pages/Warehouses/WarehouseCard";
+import WarehouseToolbar from "./pages/Warehouses/WarehouseToolbar";
+import WarehouseSearch from "./pages/Warehouses/WarehouseSearch";
+import WarehouseStatistics from "./pages/Warehouses/WarehouseStatistics";
+import WarehousePagination from "./pages/Warehouses/WarehousePagination";
+import DeleteWarehouseDialog from "./pages/Warehouses/DeleteWarehouseDialog";
+import WarehouseCreate from "./pages/Warehouses/WarehouseCreate";
+import WarehouseEdit from "./pages/Warehouses/WarehouseEdit";
+
+
+// =========================================================
+// WAREHOUSE locations  IMPORTS
+// =========================================================
+import WarehouseLocationList from "./pages/WarehouseLocation/WarehouseLocationList";
+import WarehouseLocationCreate from "./pages/WarehouseLocation/WarehouseLocationCreate";
+import WarehouseLocationEdit from "./pages/WarehouseLocation/WarehouseLocationEdit";
+import WarehouseLocationDetails from "./pages/WarehouseLocation/WarehouseLocationDetails";
+
+// =========================================================
 // PURCHASE RETURNS
 // =========================================================
 
@@ -665,6 +691,73 @@ function App() {
     element={<BrandStatistics />}
 />
 
+// =========================================================
+// WAREHOUSE MANAGEMENT
+// =========================================================
+
+<Route
+    path="warehouses"
+    element={<WarehouseList />}
+/>
+
+<Route
+    path="warehouses/:id"
+    element={<WarehouseDetails />}
+/>
+<Route
+    path="warehouses/details/:id"
+    element={<WarehouseDetails />}
+/>
+// =========================================================
+// WAREHOUSE MANAGEMENT
+// =========================================================
+
+<Route
+    path="warehouses"
+    element={<WarehouseList />}
+/>
+
+<Route
+    path="warehouses/:id"
+    element={<WarehouseDetails />}
+/>
+
+<Route
+    path="warehouses/view/:id"
+    element={<WarehouseView />}
+/>
+
+<Route
+    path="warehouses/edit/:id"
+    element={<WarehouseList />}
+/>
+<Route
+    path="warehouse-locations"
+    element={
+        <WarehouseLocationList />
+    }
+/>
+
+<Route
+    path="warehouse-locations/create"
+    element={
+        <WarehouseLocationCreate />
+    }
+/>
+
+<Route
+    path="warehouse-locations/edit/:id"
+    element={
+        <WarehouseLocationEdit />
+    }
+/>
+
+<Route
+    path="warehouse-locations/details/:id"
+    element={
+        <WarehouseLocationDetails />
+    }
+/>
 {/* ===================================================
     BRAND MODELS
 =================================================== */}

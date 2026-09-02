@@ -4143,6 +4143,412 @@ app.delete(
 
     }
 );
+
+
+const WAREHOUSE_LOCATION_API =
+    `${DOTNET_API}/WarehouseLocation`;
+
+// =========================================================
+// WAREHOUSE LOCATION
+// =========================================================
+
+// GET ALL
+app.get("/api/warehouse-locations", async (req, res) => {
+    try {
+        const response = await axios.get(
+            WAREHOUSE_LOCATION_API,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET /api/warehouse-locations Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// GET BY ID
+app.get(
+    "/api/warehouse-locations/:locationId",
+    async (req, res) => {
+        try {
+            const { locationId } = req.params;
+
+            const response = await axios.get(
+                `${WAREHOUSE_LOCATION_API}/${locationId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "GET warehouse location by ID Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// GET BY WAREHOUSE
+app.get(
+    "/api/warehouse-locations/warehouse/:warehouseId",
+    async (req, res) => {
+        try {
+            const { warehouseId } = req.params;
+
+            const response = await axios.get(
+                `${WAREHOUSE_LOCATION_API}/warehouse/${warehouseId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "GET warehouse locations Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// GET SPECIFIC LOCATION
+app.get(
+    "/api/warehouse-locations/warehouse/:warehouseId/:locationId",
+    async (req, res) => {
+        try {
+            const {
+                warehouseId,
+                locationId
+            } = req.params;
+
+            const {
+                customerId
+            } = req.query;
+
+            const response = await axios.get(
+                `${WAREHOUSE_LOCATION_API}/${warehouseId}/${locationId}`,
+                {
+                    params: {
+                        customerId
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "GET specific warehouse location Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// CREATE
+app.post(
+    "/api/warehouse-locations",
+    async (req, res) => {
+        try {
+            const response = await axios.post(
+                WAREHOUSE_LOCATION_API,
+                req.body,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "POST /api/warehouse-locations Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// UPDATE
+app.put(
+    "/api/warehouse-locations/:locationId",
+    async (req, res) => {
+        try {
+            const { locationId } = req.params;
+
+            const response = await axios.put(
+                `${WAREHOUSE_LOCATION_API}/${locationId}`,
+                req.body,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "PUT warehouse location Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// SEARCH
+app.get(
+    "/api/warehouse-locations/search",
+    async (req, res) => {
+        try {
+            const { search } = req.query;
+
+            const response = await axios.get(
+                `${WAREHOUSE_LOCATION_API}/search`,
+                {
+                    params: {
+                        search
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "SEARCH warehouse locations Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// SORT
+app.get(
+    "/api/warehouse-locations/sort",
+    async (req, res) => {
+        try {
+            const { sort } = req.query;
+
+            const response = await axios.get(
+                `${WAREHOUSE_LOCATION_API}/sort`,
+                {
+                    params: {
+                        sort
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "SORT warehouse locations Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// PAGINATION
+app.get(
+    "/api/warehouse-locations/page",
+    async (req, res) => {
+        try {
+            const {
+                page = 1,
+                limit = 15
+            } = req.query;
+
+            const response = await axios.get(
+                `${WAREHOUSE_LOCATION_API}/page`,
+                {
+                    params: {
+                        page,
+                        limit
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "PAGE warehouse locations Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// STATISTICS
+app.get(
+    "/api/warehouse-locations/statistics",
+    async (req, res) => {
+        try {
+            const response = await axios.get(
+                `${WAREHOUSE_LOCATION_API}/statistics`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "STATISTICS warehouse locations Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// DELETE
+app.delete(
+    "/api/warehouse-locations/:locationId",
+    async (req, res) => {
+        try {
+            const { locationId } = req.params;
+
+            const response = await axios.delete(
+                `${WAREHOUSE_LOCATION_API}/${locationId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+        } catch (error) {
+            console.error(
+                "DELETE warehouse location Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
 //////////////////// stock transfer Routes /////////////
 
 // =========================================================
@@ -7194,7 +7600,410 @@ app.delete("/api/Shipment/:id", async (req, res) => {
     }
 });
 
+// =========================================================
+// WAREHOUSE API
+// =========================================================
 
+// GET ALL WAREHOUSES
+app.get("/api/warehouse", async (req, res) => {
+
+    try {
+
+        console.log(
+            "GET /api/warehouse"
+        );
+
+
+        const response = await axios.get(
+            `${DOTNET_API}/Warehouse`,
+            {
+                httpsAgent
+            }
+        );
+
+
+        res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "GET /api/warehouse ERROR:",
+            error.message
+        );
+
+
+        if (error.response) {
+
+            return res.status(
+                error.response.status
+            ).json(
+                error.response.data
+            );
+
+        }
+
+
+        res.status(500).json({
+
+            message:
+                "Failed to load warehouses",
+
+            error:
+                error.message
+
+        });
+
+    }
+
+});
+
+
+// =========================================================
+// GET WAREHOUSE BY ID
+// =========================================================
+
+app.get(
+    "/api/warehouse/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } =
+                req.params;
+
+
+            console.log(
+                `GET /api/warehouse/${id}`
+            );
+
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/Warehouse/${id}`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET WAREHOUSE BY ID ERROR:",
+                error.message
+            );
+
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+
+            }
+
+
+            res.status(500).json({
+
+                message:
+                    "Failed to get warehouse",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// CREATE WAREHOUSE
+// =========================================================
+
+app.post(
+    "/api/warehouse",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "POST /api/warehouse"
+            );
+
+            console.log(
+                "Request Body:",
+                req.body
+            );
+
+
+            const response =
+                await axios.post(
+
+                    `${DOTNET_API}/Warehouse`,
+
+                    req.body,
+
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+
+                );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "POST /api/warehouse ERROR:",
+                error.message
+            );
+
+
+            if (error.response) {
+
+                console.error(
+                    "ASP.NET Response:",
+                    error.response.data
+                );
+
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+
+            }
+
+
+            res.status(500).json({
+
+                message:
+                    "Failed to create warehouse",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// UPDATE WAREHOUSE
+// =========================================================
+
+app.put(
+    "/api/warehouse/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } =
+                req.params;
+
+
+            console.log(
+                `PUT /api/warehouse/${id}`
+            );
+
+            console.log(
+                "Request Body:",
+                req.body
+            );
+
+
+            const response =
+                await axios.put(
+
+                    `${DOTNET_API}/Warehouse/${id}`,
+
+                    req.body,
+
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+
+                );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "PUT /api/warehouse ERROR:",
+                error.message
+            );
+
+
+            if (error.response) {
+
+                console.error(
+                    "ASP.NET Response:",
+                    error.response.data
+                );
+
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+
+            }
+
+
+            res.status(500).json({
+
+                message:
+                    "Failed to update warehouse",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// DELETE WAREHOUSE
+// =========================================================
+
+app.delete(
+    "/api/warehouse/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } =
+                req.params;
+
+
+            console.log(
+                `DELETE /api/warehouse/${id}`
+            );
+
+
+            const response =
+                await axios.delete(
+
+                    `${DOTNET_API}/Warehouse/${id}`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            // -------------------------------------------------
+            // Some DELETE APIs return 204
+            // -------------------------------------------------
+
+            if (
+                response.status === 204
+            ) {
+
+                return res.status(204).send();
+
+            }
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE /api/warehouse ERROR:",
+                error.message
+            );
+
+
+            if (error.response) {
+
+                console.error(
+                    "ASP.NET Response:",
+                    error.response.data
+                );
+
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+
+            }
+
+
+            res.status(500).json({
+
+                message:
+                    "Failed to delete warehouse",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
 // =========================================================
 // PRODUCT INVENTORY
 // =========================================================

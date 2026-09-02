@@ -1,27 +1,74 @@
+// =========================================================
+// WarehouseTable.jsx
+// Warehouse Table Component
+// =========================================================
+
 import React from "react";
-import {Paper,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,IconButton,Chip,Tooltip,CircularProgress,Typography,Box} from "@mui/material";
-import {Visibility,Edit,Delete} from "@mui/icons-material";
+
+import {
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    IconButton,
+    Chip,
+    Tooltip,
+    CircularProgress,
+    Typography,
+    Box
+} from "@mui/material";
+
+import {
+    Visibility,
+    Edit,
+    Delete
+} from "@mui/icons-material";
+
+// =========================================================
+// WAREHOUSE TABLE
+// =========================================================
+
 const WarehouseTable = ({
     warehouses = [],
-    loading,
+    loading = false,
     onView,
     onEdit,
     onDelete
 }) => {
+
+    // =========================================================
+    // LOADING
+    // =========================================================
+
     if (loading) {
         return (
             <Box
                 display="flex"
                 justifyContent="center"
+                alignItems="center"
                 mt={5}
+                mb={5}
             >
                 <CircularProgress />
             </Box>
         );
     }
-    if (warehouses.length === 0) {
+
+    // =========================================================
+    // EMPTY STATE
+    // =========================================================
+
+    if (!warehouses || warehouses.length === 0) {
         return (
-            <Paper sx={{ p: 4 }}>
+            <Paper
+                sx={{
+                    p: 4,
+                    borderRadius: 2
+                }}
+            >
                 <Typography
                     align="center"
                     color="text.secondary"
@@ -31,126 +78,271 @@ const WarehouseTable = ({
             </Paper>
         );
     }
+
+    // =========================================================
+    // TABLE
+    // =========================================================
+
     return (
         <TableContainer
             component={Paper}
+            sx={{
+                borderRadius: 2,
+                overflowX: "auto"
+            }}
         >
-            <Table>
+            <Table
+                stickyHeader
+                sx={{
+                    minWidth: 1000
+                }}
+            >
+
+                {/* =================================================
+                    TABLE HEADER
+                ================================================= */}
+
                 <TableHead>
                     <TableRow>
+
                         <TableCell>
                             ID
                         </TableCell>
+
                         <TableCell>
                             Code
                         </TableCell>
+
                         <TableCell>
                             Warehouse Name
                         </TableCell>
+
                         <TableCell>
                             City
                         </TableCell>
+
                         <TableCell>
                             State
                         </TableCell>
+
                         <TableCell>
                             Contact Person
                         </TableCell>
+
                         <TableCell>
                             Phone
                         </TableCell>
+
                         <TableCell>
                             Status
                         </TableCell>
+
                         <TableCell align="center">
                             Actions
                         </TableCell>
+
                     </TableRow>
                 </TableHead>
+
+                {/* =================================================
+                    TABLE BODY
+                ================================================= */}
+
                 <TableBody>
-                    {
-                        warehouses.map((row) => (
-                            <TableRow key={row.WarehouseId}
+
+                    {warehouses.map((row) => {
+
+                        // -------------------------------------------------
+                        // Support PascalCase + camelCase
+                        // -------------------------------------------------
+
+                        const warehouseId =
+                            row.WarehouseId ??
+                            row.warehouseId ??
+                            0;
+
+                        const warehouseCode =
+                            row.WarehouseCode ??
+                            row.warehouseCode ??
+                            "-";
+
+                        const warehouseName =
+                            row.WarehouseName ??
+                            row.warehouseName ??
+                            "-";
+
+                        const city =
+                            row.City ??
+                            row.city ??
+                            "-";
+
+                        const state =
+                            row.State ??
+                            row.state ??
+                            "-";
+
+                        const contactPerson =
+                            row.ContactPerson ??
+                            row.contactPerson ??
+                            "-";
+
+                        const phone =
+                            row.Phone ??
+                            row.phone ??
+                            "-";
+
+                        const isActive =
+                            row.IsActive ??
+                            row.isActive ??
+                            false;
+
+                        return (
+                            <TableRow
+                                key={warehouseId}
                                 hover
                             >
+
+                                {/* -----------------------------------------
+                                    ID
+                                ----------------------------------------- */}
+
                                 <TableCell>
-                                    {row.WarehouseId}
+                                    {warehouseId}
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    CODE
+                                ----------------------------------------- */}
+
                                 <TableCell>
-                                    {row.WarehouseCode}
+                                    {warehouseCode}
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    NAME
+                                ----------------------------------------- */}
+
                                 <TableCell>
-                                    {row.WarehouseName}
+                                    <Typography
+                                        fontWeight={500}
+                                    >
+                                        {warehouseName}
+                                    </Typography>
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    CITY
+                                ----------------------------------------- */}
+
                                 <TableCell>
-                                    {row.City || "-"}
+                                    {city}
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    STATE
+                                ----------------------------------------- */}
+
                                 <TableCell>
-                                    {row.State || "-"}
+                                    {state}
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    CONTACT PERSON
+                                ----------------------------------------- */}
+
                                 <TableCell>
-                                    {
-                                        row.ContactPerson ||"-"
-                                    }
+                                    {contactPerson}
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    PHONE
+                                ----------------------------------------- */}
+
                                 <TableCell>
-                                    {row.Phone || "-"}
+                                    {phone}
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    STATUS
+                                ----------------------------------------- */}
+
                                 <TableCell>
                                     <Chip
                                         label={
-                                            row.IsActive ? "Active" : "Inactive"
+                                            isActive
+                                                ? "Active"
+                                                : "Inactive"
                                         }
                                         color={
-                                            row.IsActive ? "success"  : "error"
+                                            isActive
+                                                ? "success"
+                                                : "error"
                                         }
                                         size="small"
                                     />
                                 </TableCell>
+
+                                {/* -----------------------------------------
+                                    ACTIONS
+                                ----------------------------------------- */}
+
                                 <TableCell
                                     align="center"
                                 >
-                                    <Tooltip
-                                        title="View"
-                                    >
+
+                                    {/* VIEW */}
+
+                                    <Tooltip title="View">
                                         <IconButton
                                             color="primary"
-                                            onClick={() =>
-                                                onView(row)
-                                            }
+                                            onClick={() => {
+                                                if (onView) {
+                                                    onView(row);
+                                                }
+                                            }}
                                         >
                                             <Visibility />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip
-                                        title="Edit"
-                                    >
+
+                                    {/* EDIT */}
+
+                                    <Tooltip title="Edit">
                                         <IconButton
                                             color="warning"
-                                            onClick={() =>
-                                                onEdit(row)
-                                            }
+                                            onClick={() => {
+                                                if (onEdit) {
+                                                    onEdit(row);
+                                                }
+                                            }}
                                         >
                                             <Edit />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip
-                                        title="Delete"
-                                    >
+
+                                    {/* DELETE */}
+
+                                    <Tooltip title="Delete">
                                         <IconButton
                                             color="error"
-                                            onClick={() =>
-                                                onDelete(row)
-                                            }
+                                            onClick={() => {
+                                                if (onDelete) {
+                                                    onDelete(row);
+                                                }
+                                            }}
                                         >
                                             <Delete />
                                         </IconButton>
                                     </Tooltip>
+
                                 </TableCell>
+
                             </TableRow>
-                        ))
-                    }
+                        );
+                    })}
+
                 </TableBody>
+
             </Table>
         </TableContainer>
     );

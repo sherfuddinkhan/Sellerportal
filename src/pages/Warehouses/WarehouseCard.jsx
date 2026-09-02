@@ -1,13 +1,107 @@
+// =========================================================
+// WarehouseCard.jsx
+// Warehouse Card Component
+// =========================================================
+
 import React from "react";
-import {Card,CardContent,CardActions,Typography,Chip,Stack,Divider,IconButton,Tooltip} from "@mui/material";
-import {Visibility,Edit,Delete,Warehouse} from "@mui/icons-material";
+
+import {
+    Card,
+    CardContent,
+    CardActions,
+    Typography,
+    Chip,
+    Stack,
+    Divider,
+    IconButton,
+    Tooltip,
+    Box
+} from "@mui/material";
+
+import {
+    Visibility,
+    Edit,
+    Delete,
+    Warehouse
+} from "@mui/icons-material";
+
+// =========================================================
+// WAREHOUSE CARD
+// =========================================================
+
 const WarehouseCard = ({
     warehouse,
     onView,
     onEdit,
     onDelete
 }) => {
-    if (!warehouse) return null;
+
+    // ---------------------------------------------------------
+    // No warehouse
+    // ---------------------------------------------------------
+
+    if (!warehouse) {
+        return null;
+    }
+
+    // ---------------------------------------------------------
+    // Support PascalCase + camelCase
+    // ---------------------------------------------------------
+
+    const warehouseId =
+        warehouse.WarehouseId ??
+        warehouse.warehouseId ??
+        0;
+
+    const warehouseName =
+        warehouse.WarehouseName ??
+        warehouse.warehouseName ??
+        "-";
+
+    const warehouseCode =
+        warehouse.WarehouseCode ??
+        warehouse.warehouseCode ??
+        "-";
+
+    const city =
+        warehouse.City ??
+        warehouse.city ??
+        "-";
+
+    const state =
+        warehouse.State ??
+        warehouse.state ??
+        "-";
+
+    const country =
+        warehouse.Country ??
+        warehouse.country ??
+        "-";
+
+    const contactPerson =
+        warehouse.ContactPerson ??
+        warehouse.contactPerson ??
+        "-";
+
+    const phone =
+        warehouse.Phone ??
+        warehouse.phone ??
+        "-";
+
+    const email =
+        warehouse.Email ??
+        warehouse.email ??
+        "-";
+
+    const isActive =
+        warehouse.IsActive ??
+        warehouse.isActive ??
+        false;
+
+    // =========================================================
+    // RENDER
+    // =========================================================
+
     return (
         <Card
             elevation={3}
@@ -15,140 +109,233 @@ const WarehouseCard = ({
                 height: "100%",
                 borderRadius: 2,
                 transition: "0.3s",
+
                 "&:hover": {
                     boxShadow: 8,
                     transform: "translateY(-4px)"
                 }
             }}
         >
+
+            {/* =================================================
+                CARD CONTENT
+            ================================================= */}
+
             <CardContent>
+
+                {/* ------------------------------------------------
+                    HEADER
+                ------------------------------------------------ */}
+
                 <Stack
                     direction="row"
                     justifyContent="space-between"
                     alignItems="center"
                     mb={2}
                 >
-                    <Warehouse
-                        color="primary"
-                    />
+
+                    <Warehouse color="primary" />
+
                     <Chip
-                        label={ warehouse.IsActive ? "Active" : "Inactive" }
-                        color={ warehouse.IsActive ? "success" : "error"}
+                        label={
+                            isActive
+                                ? "Active"
+                                : "Inactive"
+                        }
+                        color={
+                            isActive
+                                ? "success"
+                                : "error"
+                        }
                         size="small"
                     />
+
                 </Stack>
+
+                {/* ------------------------------------------------
+                    WAREHOUSE NAME
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="h6"
                     fontWeight="bold"
                     gutterBottom
                 >
-                    {
-                        warehouse.WarehouseName
-                    }
+                    {warehouseName}
                 </Typography>
+
+                {/* ------------------------------------------------
+                    WAREHOUSE ID
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{ mb: 0.5 }}
+                >
+                    <strong>ID:</strong>{" "}
+                    {warehouseId || "-"}
+                </Typography>
+
+                {/* ------------------------------------------------
+                    WAREHOUSE CODE
+                ------------------------------------------------ */}
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 0.5 }}
                 >
                     <strong>Code:</strong>{" "}
-                    {
-                        warehouse.WarehouseCode
-                    }
+                    {warehouseCode}
                 </Typography>
+
+                {/* ------------------------------------------------
+                    CITY
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{ mb: 0.5 }}
                 >
                     <strong>City:</strong>{" "}
-                    {
-                        warehouse.City || "-"
-                    }
+                    {city}
                 </Typography>
+
+                {/* ------------------------------------------------
+                    STATE
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{ mb: 0.5 }}
                 >
                     <strong>State:</strong>{" "}
-                    {
-                        warehouse.State || "-"
-                    }
+                    {state}
                 </Typography>
+
+                {/* ------------------------------------------------
+                    COUNTRY
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{ mb: 0.5 }}
                 >
                     <strong>Country:</strong>{" "}
-                    {
-                        warehouse.Country || "-"
-                    }
+                    {country}
                 </Typography>
+
+                {/* ------------------------------------------------
+                    CONTACT PERSON
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{ mb: 0.5 }}
                 >
                     <strong>Contact:</strong>{" "}
-                    {
-                        warehouse.ContactPerson || "-"
-                    }
+                    {contactPerson}
                 </Typography>
+
+                {/* ------------------------------------------------
+                    PHONE
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{ mb: 0.5 }}
                 >
                     <strong>Phone:</strong>{" "}
-                    {
-                        warehouse.Phone || "-"
-                    }
+                    {phone}
                 </Typography>
+
+                {/* ------------------------------------------------
+                    EMAIL
+                ------------------------------------------------ */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                     noWrap
+                    title={email}
                 >
                     <strong>Email:</strong>{" "}
-                    {
-                        warehouse.Email || "-"
-                    }
+                    {email}
                 </Typography>
+
             </CardContent>
+
             <Divider />
+
+            {/* =================================================
+                ACTION BUTTONS
+            ================================================= */}
+
             <CardActions
                 sx={{
-                    justifyContent:
-                        "flex-end"
+                    justifyContent: "flex-end"
                 }}
             >
+
+                {/* ------------------------------------------------
+                    VIEW
+                ------------------------------------------------ */}
+
                 <Tooltip title="View">
                     <IconButton
                         color="primary"
-                        onClick={() =>
-                            onView(warehouse)
-                        }
+                        onClick={() => {
+                            if (onView) {
+                                onView(warehouse);
+                            }
+                        }}
                     >
                         <Visibility />
                     </IconButton>
                 </Tooltip>
+
+                {/* ------------------------------------------------
+                    EDIT
+                ------------------------------------------------ */}
+
                 <Tooltip title="Edit">
                     <IconButton
                         color="warning"
-                        onClick={() =>
-                            onEdit(warehouse)
-                        }
+                        onClick={() => {
+                            if (onEdit) {
+                                onEdit(warehouse);
+                            }
+                        }}
                     >
                         <Edit />
                     </IconButton>
                 </Tooltip>
+
+                {/* ------------------------------------------------
+                    DELETE
+                ------------------------------------------------ */}
+
                 <Tooltip title="Delete">
                     <IconButton
                         color="error"
-                        onClick={() =>
-                            onDelete(warehouse)
-                        }
+                        onClick={() => {
+                            if (onDelete) {
+                                onDelete(warehouse);
+                            }
+                        }}
                     >
                         <Delete />
                     </IconButton>
                 </Tooltip>
+
             </CardActions>
+
         </Card>
     );
 };
