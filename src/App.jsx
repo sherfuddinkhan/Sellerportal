@@ -320,6 +320,7 @@ import ProductAttributeToolbar from "./pages/ProductAttributes/ProductAttributeT
 
 
 
+
 // =========================================================
 // PRODUCT IMAGES
 // =========================================================
@@ -334,6 +335,9 @@ import ProductImageStatistics from "./pages/ProductImages/ProductImageStatistics
 import ProductImageTable from "./pages/ProductImages/ProductImageTable";
 import ProductImageToolbar from "./pages/ProductImages/ProductImageToolbar";
 import ProductImageView from "./pages/ProductImages/ProductImageView";
+import ProductImageCreate from "./pages/ProductImages/ProductImageCreate"; 
+import ProductImageEdit from "./pages/ProductImages/ProductImageEdit"; 
+import ProductImageDetails from "./pages/ProductImages/ProductImageDetails";
 
 // =========================================================
 // PRODUCT INVENTORY
@@ -1365,6 +1369,30 @@ function App() {
         <Route path="product-images/:id" element={<ProductImageView />} />
         <Route path="product-images/search" element={<ProductImageSearch />} />
         <Route path="product-images/statistics" element={<ProductImageStatistics />} />
+        <Route path="/" element={<MainLayout />}>
+
+    {/* Product Images */}
+    <Route
+        path="product-images"
+        element={<ProductImageList />}
+    />
+
+    <Route
+        path="product-images/create"
+        element={<ProductImageCreate />}
+    />
+
+    <Route
+        path="product-images/edit/:id"
+        element={<ProductImageEdit />}
+    />
+
+    <Route
+        path="product-images/details/:id"
+        element={<ProductImageDetails />}
+    />
+
+</Route>
 
 
         {/* ===================================================

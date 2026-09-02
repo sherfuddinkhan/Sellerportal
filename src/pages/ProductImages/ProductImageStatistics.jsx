@@ -3,162 +3,278 @@
 // Product Image Statistics
 // =========================================================
 
-import React from "react";
+import React, { useMemo } from "react";
 
 import {
+    Box,
+    Card,
+    CardContent,
     Grid,
-    Paper,
     Typography
 } from "@mui/material";
 
+import {
+    Image as ImageIcon,
+    CheckCircle,
+    Cancel,
+    Star
+} from "@mui/icons-material";
+
 // =========================================================
-// ProductImageStatistics
+// PRODUCT IMAGE STATISTICS
 // =========================================================
 
 const ProductImageStatistics = ({
     images = []
 }) => {
 
-    // =====================================================
-    // Ensure images is an array
-    // =====================================================
+    // -----------------------------------------------------
+    // NORMALIZE DATA
+    // -----------------------------------------------------
 
-    const imageList = Array.isArray(images)
-        ? images
-        : [];
+    const normalizedImages = useMemo(() => {
 
-    // =====================================================
-    // Support PascalCase / camelCase
-    // =====================================================
+        if (!Array.isArray(images)) {
+            return [];
+        }
 
-    const getValue = (
-        item,
-        pascalCase,
-        camelCase
-    ) => {
-        return item?.[pascalCase] ??
-               item?.[camelCase];
+        return images;
+
+    }, [images]);
+
+    // -----------------------------------------------------
+    // STATISTICS
+    // -----------------------------------------------------
+
+    const statistics = useMemo(() => {
+
+        const totalImages =
+            normalizedImages.length;
+
+        const activeImages =
+            normalizedImages.filter((image) =>
+                Boolean(
+                    image?.IsActive ??
+                    image?.isActive ??
+                    false
+                )
+            ).length;
+
+        const inactiveImages =
+            normalizedImages.filter((image) =>
+                !Boolean(
+                    image?.IsActive ??
+                    image?.isActive ??
+                    false
+                )
+            ).length;
+
+        const primaryImages =
+            normalizedImages.filter((image) =>
+                Boolean(
+                    image?.IsPrimary ??
+                    image?.isPrimary ??
+                    false
+                )
+            ).length;
+
+        return {
+            totalImages,
+            activeImages,
+            inactiveImages,
+            primaryImages
+        };
+
+    }, [normalizedImages]);
+
+    // -----------------------------------------------------
+    // STATISTIC CARD
+    // -----------------------------------------------------
+
+    const StatisticCard = ({
+        title,
+        value,
+        icon
+    }) => {
+
+        return (
+            <Card
+                elevation={2}
+                sx={{
+                    height: "100%"
+                }}
+            >
+
+                <CardContent>
+
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 2
+                        }}
+                    >
+
+                        <Box>
+
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    mb: 0.5
+                                }}
+                            >
+                                {title}
+                            </Typography>
+
+                            <Typography
+                                variant="h4"
+                                fontWeight="bold"
+                            >
+                                {value}
+                            </Typography>
+
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: 50,
+                                height: 50,
+                                borderRadius: 2,
+                                backgroundColor:
+                                    "action.hover"
+                            }}
+                        >
+                            {icon}
+                        </Box>
+
+                    </Box>
+
+                </CardContent>
+
+            </Card>
+        );
     };
 
-    // =====================================================
-    // Statistics
-    // =====================================================
-
-    const totalImages = imageList.length;
-
-    const activeImages = imageList.filter(
-        item =>
-            Boolean(
-                getValue(
-                    item,
-                    "IsActive",
-                    "isActive"
-                )
-            )
-    ).length;
-
-    const inactiveImages =
-        totalImages - activeImages;
-
-    const primaryImages = imageList.filter(
-        item =>
-            Boolean(
-                getValue(
-                    item,
-                    "IsPrimary",
-                    "isPrimary"
-                )
-            )
-    ).length;
-
-    // =====================================================
-    // Statistics Cards
-    // =====================================================
-
-    const cards = [
-        {
-            title: "Total Images",
-            value: totalImages
-        },
-        {
-            title: "Active",
-            value: activeImages
-        },
-        {
-            title: "Inactive",
-            value: inactiveImages
-        },
-        {
-            title: "Primary Images",
-            value: primaryImages
-        }
-    ];
-
-    // =====================================================
-    // Render
-    // =====================================================
+    // -----------------------------------------------------
+    // UI
+    // -----------------------------------------------------
 
     return (
-        <Grid
-            container
-            spacing={2}
-            sx={{
-                mb: 3
-            }}
-        >
+        <Box sx={{ mb: 3 }}>
 
-            {cards.map((card) => (
+            <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{ mb: 2 }}
+            >
+                Product Image Statistics
+            </Typography>
+
+            <Grid
+                container
+                spacing={2}
+            >
+
+                {/* =================================================
+                    TOTAL IMAGES
+                ================================================= */}
 
                 <Grid
                     item
                     xs={12}
                     sm={6}
                     md={3}
-                    key={card.title}
                 >
 
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 2,
-                            textAlign: "center",
-                            borderRadius: 2,
-                            height: "100%"
-                        }}
-                    >
-
-                        {/* =====================================
-                            TITLE
-                        ===================================== */}
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            {card.title}
-                        </Typography>
-
-                        {/* =====================================
-                            VALUE
-                        ===================================== */}
-
-                        <Typography
-                            variant="h5"
-                            fontWeight="bold"
-                            sx={{
-                                mt: 1
-                            }}
-                        >
-                            {card.value}
-                        </Typography>
-
-                    </Paper>
+                    <StatisticCard
+                        title="Total Images"
+                        value={statistics.totalImages}
+                        icon={
+                            <ImageIcon
+                                fontSize="large"
+                            />
+                        }
+                    />
 
                 </Grid>
 
-            ))}
+                {/* =================================================
+                    ACTIVE IMAGES
+                ================================================= */}
 
-        </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                >
+
+                    <StatisticCard
+                        title="Active Images"
+                        value={statistics.activeImages}
+                        icon={
+                            <CheckCircle
+                                fontSize="large"
+                            />
+                        }
+                    />
+
+                </Grid>
+
+                {/* =================================================
+                    INACTIVE IMAGES
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                >
+
+                    <StatisticCard
+                        title="Inactive Images"
+                        value={statistics.inactiveImages}
+                        icon={
+                            <Cancel
+                                fontSize="large"
+                            />
+                        }
+                    />
+
+                </Grid>
+
+                {/* =================================================
+                    PRIMARY IMAGES
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                >
+
+                    <StatisticCard
+                        title="Primary Images"
+                        value={statistics.primaryImages}
+                        icon={
+                            <Star
+                                fontSize="large"
+                            />
+                        }
+                    />
+
+                </Grid>
+
+            </Grid>
+
+        </Box>
     );
 };
 
