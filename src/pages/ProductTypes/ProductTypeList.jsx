@@ -723,164 +723,112 @@ const ProductTypeList = () => {
                     TABLE
                 ================================================= */}
 
-                <Grid
-                    item
-                    xs={12}
+<Grid
+    item
+    xs={12}
+    sx={{
+        minWidth: 0,
+    }}
+>
+    <Paper
+        elevation={2}
+        sx={{
+            p: { xs: 1, sm: 2 },
+            width: "100%",
+            maxWidth: "100%",
+            minWidth: 0,
+            boxSizing: "border-box",
+            overflow: "hidden",
+        }}
+    >
+
+        {loading ? (
+
+            <Box
+                sx={{
+                    minHeight: 300,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <CircularProgress />
+            </Box>
+
+        ) : filteredProductTypes.length === 0 ? (
+
+            <Box
+                sx={{
+                    minHeight: 300,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 1,
+                }}
+            >
+                <Typography
+                    variant="h6"
+                    color="text.secondary"
                 >
+                    No product types found
+                </Typography>
 
-                    <Paper
-                        elevation={2}
-                        sx={{
-                            p: 2,
-                            width: "100%",
-                            overflow: "hidden",
-                        }}
-                    >
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                >
+                    Try changing your search or filter.
+                </Typography>
+            </Box>
 
-                        {loading ? (
+        ) : (
 
-                            <Box
-                                sx={{
-                                    minHeight: 300,
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                            >
+            <Box
+                sx={{
+                    width: "100%",
+                    maxWidth: "100%",
+                    minWidth: 0,
+                    overflowX: "auto",
+                    overflowY: "hidden",
+                    WebkitOverflowScrolling: "touch",
+                }}
+            >
+                <ProductTypeTable
+                    productTypes={paginatedProductTypes}
+                    loading={loading}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            </Box>
 
-                                <CircularProgress />
+        )}
 
-                            </Box>
+        {!loading &&
+            filteredProductTypes.length > 0 && (
+                <ProductTypePagination
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    totalRecords={filteredProductTypes.length}
+                    onPageChange={(event, newPage) => {
+                        setPage(newPage);
+                    }}
+                    onRowsPerPageChange={(event) => {
+                        const value = parseInt(
+                            event.target.value,
+                            10
+                        );
 
-                        ) : filteredProductTypes.length === 0 ? (
+                        setRowsPerPage(value);
+                        setPage(0);
+                    }}
+                />
+            )}
 
-                            <Box
-                                sx={{
-                                    minHeight: 300,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    gap: 1,
-                                }}
-                            >
+    </Paper>
+</Grid>
 
-                                <Typography
-                                    variant="h6"
-                                    color="text.secondary"
-                                >
-
-                                    No product types found
-
-                                </Typography>
-
-
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                >
-
-                                    Try changing your
-                                    search or filter.
-
-                                </Typography>
-
-                            </Box>
-
-                        ) : (
-
-                            <ProductTypeTable
-
-                                productTypes={
-                                    paginatedProductTypes
-                                }
-
-                                loading={
-                                    loading
-                                }
-
-                                onView={
-                                    handleView
-                                }
-
-                                onEdit={
-                                    handleEdit
-                                }
-
-                                onDelete={
-                                    handleDelete
-                                }
-
-                            />
-
-                        )}
-
-
-                        {/* =================================================
-                            PAGINATION
-                        ================================================= */}
-
-                        {!loading &&
-                            filteredProductTypes.length >
-                                0 && (
-
-                                <ProductTypePagination
-
-                                    page={
-                                        page
-                                    }
-
-                                    rowsPerPage={
-                                        rowsPerPage
-                                    }
-
-                                    totalRecords={
-                                        filteredProductTypes.length
-                                    }
-
-                                    onPageChange={
-                                        (
-                                            event,
-                                            newPage
-                                        ) => {
-
-                                            setPage(
-                                                newPage
-                                            );
-
-                                        }
-                                    }
-
-                                    onRowsPerPageChange={
-                                        (
-                                            event
-                                        ) => {
-
-                                            const value =
-                                                parseInt(
-                                                    event
-                                                        .target
-                                                        .value,
-                                                    10
-                                                );
-
-
-                                            setRowsPerPage(
-                                                value
-                                            );
-
-                                            setPage(0);
-
-                                        }
-                                    }
-
-                                />
-
-                            )}
-
-                    </Paper>
-
-                </Grid>
 
             </Grid>
 
