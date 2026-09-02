@@ -1,13 +1,102 @@
-import React from "react";
-import {Dialog,DialogTitle,DialogContent,DialogActions,Button,Grid,Typography,Divider,Chip,Box} from "@mui/material";
+// =========================================================
+// ProductImageView.jsx
+// View Product Image Details
+// =========================================================
 
+import React from "react";
+
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Grid,
+    Typography,
+    Divider,
+    Chip,
+    Box
+} from "@mui/material";
+
+// =========================================================
+// ProductImageView
+// =========================================================
 
 const ProductImageView = ({
     open,
     image,
     onClose
 }) => {
-    if (!image) return null;
+
+    // =====================================================
+    // No Image Selected
+    // =====================================================
+
+    if (!image) {
+        return null;
+    }
+
+    // =====================================================
+    // Support PascalCase / camelCase
+    // =====================================================
+
+    const getValue = (pascalCase, camelCase) => {
+        return image?.[pascalCase] ?? image?.[camelCase];
+    };
+
+    // =====================================================
+    // Image Values
+    // =====================================================
+
+    const productImageId = getValue(
+        "ProductImageId",
+        "productImageId"
+    );
+
+    const productId = getValue(
+        "ProductId",
+        "productId"
+    );
+
+    const imageName = getValue(
+        "ImageName",
+        "imageName"
+    );
+
+    const imageType = getValue(
+        "ImageType",
+        "imageType"
+    );
+
+    const imageUrl = getValue(
+        "ImageUrl",
+        "imageUrl"
+    );
+
+    const isPrimary = getValue(
+        "IsPrimary",
+        "isPrimary"
+    );
+
+    const isActive = getValue(
+        "IsActive",
+        "isActive"
+    );
+
+    const createdDate = getValue(
+        "CreatedDate",
+        "createdDate"
+    );
+
+    const updatedDate = getValue(
+        "UpdatedDate",
+        "updatedDate"
+    );
+
+    // =====================================================
+    // Field Component
+    // =====================================================
+
     const Field = ({
         label,
         value
@@ -23,14 +112,42 @@ const ProductImageView = ({
             >
                 {label}
             </Typography>
+
             <Typography
                 variant="body1"
                 fontWeight={500}
+                sx={{
+                    wordBreak: "break-word"
+                }}
             >
-                {value || "-"}
+                {value ?? "-"}
             </Typography>
         </Grid>
     );
+
+    // =====================================================
+    // Date Formatter
+    // =====================================================
+
+    const formatDate = (date) => {
+
+        if (!date) {
+            return "-";
+        }
+
+        const parsedDate = new Date(date);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return "-";
+        }
+
+        return parsedDate.toLocaleString();
+    };
+
+    // =====================================================
+    // Render
+    // =====================================================
+
     return (
         <Dialog
             open={open}
@@ -38,17 +155,36 @@ const ProductImageView = ({
             fullWidth
             maxWidth="md"
         >
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <DialogTitle>
                 Product Image Details
             </DialogTitle>
+
             <Divider />
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
             <DialogContent
-                sx={{mt:2}}
+                sx={{
+                    mt: 2
+                }}
             >
+
                 <Grid
                     container
                     spacing={3}
                 >
+
+                    {/* =========================================
+                        IMAGE PREVIEW
+                    ========================================= */}
+
                     <Grid
                         item
                         xs={12}
@@ -59,46 +195,98 @@ const ProductImageView = ({
                         >
                             Image Preview
                         </Typography>
-                        {
-                            image.ImageUrl &&
+
+                        {imageUrl ? (
                             <Box
                                 sx={{
-                                    mt:2,
-                                    textAlign:"center"
+                                    mt: 2,
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    minHeight: 150,
+                                    p: 2,
+                                    border: "1px solid",
+                                    borderColor: "divider",
+                                    borderRadius: 2
                                 }}
                             >
-                                <img
-                                    src={image.ImageUrl}
-                                    alt={image.ImageName}
-                                    style={{
-                                        maxWidth:"100%",
-                                        maxHeight:"300px",
-                                        borderRadius:"8px"
+                                <Box
+                                    component="img"
+                                    src={imageUrl}
+                                    alt={imageName || "Product Image"}
+                                    sx={{
+                                        maxWidth: "100%",
+                                        maxHeight: 300,
+                                        objectFit: "contain",
+                                        borderRadius: 2
+                                    }}
+                                    onError={(event) => {
+                                        event.currentTarget.style.display =
+                                            "none";
                                     }}
                                 />
                             </Box>
-                        }
+                        ) : (
+                            <Typography
+                                color="text.secondary"
+                                sx={{
+                                    mt: 2
+                                }}
+                            >
+                                No image preview available.
+                            </Typography>
+                        )}
                     </Grid>
+
+                    {/* =========================================
+                        PRODUCT IMAGE ID
+                    ========================================= */}
+
                     <Field
                         label="Product Image ID"
-                        value={image.ProductImageId}
+                        value={productImageId}
                     />
+
+                    {/* =========================================
+                        PRODUCT ID
+                    ========================================= */}
+
                     <Field
                         label="Product ID"
-                        value={image.ProductId}
+                        value={productId}
                     />
+
+                    {/* =========================================
+                        IMAGE NAME
+                    ========================================= */}
+
                     <Field
                         label="Image Name"
-                        value={image.ImageName}
+                        value={imageName}
                     />
+
+                    {/* =========================================
+                        IMAGE TYPE
+                    ========================================= */}
+
                     <Field
                         label="Image Type"
-                        value={image.ImageType}
+                        value={imageType}
                     />
+
+                    {/* =========================================
+                        IMAGE URL
+                    ========================================= */}
+
                     <Field
                         label="Image URL"
-                        value={image.ImageUrl}
+                        value={imageUrl}
                     />
+
+                    {/* =========================================
+                        PRIMARY IMAGE
+                    ========================================= */}
+
                     <Grid
                         item
                         xs={12}
@@ -110,12 +298,27 @@ const ProductImageView = ({
                         >
                             Primary Image
                         </Typography>
-                        <br />
-                        <Chip
-                            label={ image.IsPrimary ? "Yes" : "No"}
-                            color={  image.IsPrimary ? "success" : "default"}
-                        />
+
+                        <Box sx={{ mt: 1 }}>
+                            <Chip
+                                label={
+                                    isPrimary
+                                        ? "Yes"
+                                        : "No"
+                                }
+                                color={
+                                    isPrimary
+                                        ? "success"
+                                        : "default"
+                                }
+                            />
+                        </Box>
                     </Grid>
+
+                    {/* =========================================
+                        STATUS
+                    ========================================= */}
+
                     <Grid
                         item
                         xs={12}
@@ -127,23 +330,55 @@ const ProductImageView = ({
                         >
                             Status
                         </Typography>
-                        <br />
-                        <Chip
-                            label={ image.IsActive ? "Active" : "Inactive"}
-                            color={ image.IsActive ? "success" : "error" }
-                        />
+
+                        <Box sx={{ mt: 1 }}>
+                            <Chip
+                                label={
+                                    isActive
+                                        ? "Active"
+                                        : "Inactive"
+                                }
+                                color={
+                                    isActive
+                                        ? "success"
+                                        : "error"
+                                }
+                            />
+                        </Box>
                     </Grid>
+
+                    {/* =========================================
+                        CREATED DATE
+                    ========================================= */}
+
                     <Field
                         label="Created Date"
-                        value={ image.CreatedDate ? new Date(image.CreatedDate).toLocaleString() :"-"}
+                        value={formatDate(createdDate)}
                     />
+
+                    {/* =========================================
+                        UPDATED DATE
+                    ========================================= */}
+
                     <Field
                         label="Updated Date"
-                        value={ image.UpdatedDate ? new Date( image.UpdatedDate).toLocaleString():"-"}
+                        value={formatDate(updatedDate)}
                     />
+
                 </Grid>
+
             </DialogContent>
-            <DialogActions>
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
                 <Button
                     variant="contained"
                     onClick={onClose}
@@ -151,7 +386,9 @@ const ProductImageView = ({
                     Close
                 </Button>
             </DialogActions>
+
         </Dialog>
     );
 };
+
 export default ProductImageView;

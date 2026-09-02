@@ -8987,6 +8987,380 @@ app.delete(
         }
     }
 );
+// =========================================================
+// Product Image Proxy Routes
+// =========================================================
+//
+// React:
+// http://localhost:5173
+//
+// Node:
+// http://localhost:5000
+//
+// ASP.NET Core:
+// https://localhost:7203
+//
+// =========================================================
+
+
+// =========================================================
+// GET ALL PRODUCT IMAGES
+// GET /api/product-images
+// GET /api/product-images/all
+// =========================================================
+
+app.get("/api/product-images", async (req, res) => {
+
+    try {
+
+        console.log(
+            "GET /api/product-images"
+        );
+
+        const response = await axios.get(
+            `${DOTNET_API}/ProductImage`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-images Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to fetch product images."
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET ALL PRODUCT IMAGES
+// GET /api/product-images/all
+// =========================================================
+
+app.get("/api/product-images/all", async (req, res) => {
+
+    try {
+
+        console.log(
+            "GET /api/product-images/all"
+        );
+
+        const response = await axios.get(
+            `${DOTNET_API}/ProductImage/all`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-images/all Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to fetch product images."
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET PRODUCT IMAGES BY PRODUCT ID
+// GET /api/product-images/product/:productId
+// =========================================================
+
+app.get(
+    "/api/product-images/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const { productId } = req.params;
+
+            console.log(
+                `GET /api/product-images/product/${productId}`
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/ProductImage/product/${productId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET product images by product Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch product images."
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET SINGLE PRODUCT IMAGE
+// GET /api/product-images/:id
+// =========================================================
+
+app.get(
+    "/api/product-images/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            console.log(
+                `GET /api/product-images/${id}`
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/ProductImage/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET product image Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch product image."
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// CREATE PRODUCT IMAGE
+// POST /api/product-images
+// =========================================================
+
+app.post(
+    "/api/product-images",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "POST /api/product-images"
+            );
+
+            console.log(
+                "Request Body:",
+                req.body
+            );
+
+            const response = await axios.post(
+                `${DOTNET_API}/ProductImage`,
+                req.body,
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "POST /api/product-images Error:",
+                error.message
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                error.response?.data
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to create product image."
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// UPDATE PRODUCT IMAGE
+// PUT /api/product-images/:id
+// =========================================================
+
+app.put(
+    "/api/product-images/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            console.log(
+                `PUT /api/product-images/${id}`
+            );
+
+            console.log(
+                "Request Body:",
+                req.body
+            );
+
+            const response = await axios.put(
+                `${DOTNET_API}/ProductImage/${id}`,
+                req.body,
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "PUT /api/product-images Error:",
+                error.message
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                error.response?.data
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update product image."
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// DELETE PRODUCT IMAGE
+// DELETE /api/product-images/:id
+// =========================================================
+
+app.delete(
+    "/api/product-images/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            console.log(
+                `DELETE /api/product-images/${id}`
+            );
+
+            const response = await axios.delete(
+                `${DOTNET_API}/ProductImage/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE /api/product-images Error:",
+                error.message
+            );
+
+            console.error(
+                "ASP.NET Response:",
+                error.response?.data
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to delete product image."
+                }
+            );
+        }
+    }
+);
 
 
 // =========================================================
