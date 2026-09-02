@@ -6755,6 +6755,447 @@ app.delete(
     }
 );
 // =========================================================
+// SHIPMENT PROXY ROUTES
+// =========================================================
+
+app.get("/api/Shipment", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET SHIPMENT BY ID
+// GET /api/Shipment/8
+// =========================================================
+
+app.get("/api/Shipment/:id", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/${req.params.id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            `GET /api/Shipment/${req.params.id} Error:`,
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET SHIPMENTS BY ORDER
+// GET /api/Shipment/order/2
+// =========================================================
+
+app.get("/api/Shipment/order/:orderId", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/order/${req.params.orderId}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment/order Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET SHIPMENTS BY STATUS
+// GET /api/Shipment/status/Shipped
+// =========================================================
+
+app.get("/api/Shipment/status/:status", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/status/${encodeURIComponent(
+                req.params.status
+            )}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment/status Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET SHIPMENT BY TRACKING NUMBER
+// GET /api/Shipment/tracking/DLV123456789IN
+// =========================================================
+
+app.get("/api/Shipment/tracking/:trackingNumber", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/tracking/${encodeURIComponent(
+                req.params.trackingNumber
+            )}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment/tracking Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// SEARCH SHIPMENTS
+// GET /api/Shipment/search?search=Delhivery
+// =========================================================
+
+app.get("/api/Shipment/search", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/search`,
+            {
+                params: {
+                    search: req.query.search
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment/search Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// SORT SHIPMENTS
+// GET /api/Shipment/sort?sort=id_asc
+// =========================================================
+
+app.get("/api/Shipment/sort", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/sort`,
+            {
+                params: {
+                    sort: req.query.sort
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment/sort Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// PAGINATION
+// GET /api/Shipment/page?page=1&limit=15
+// =========================================================
+
+app.get("/api/Shipment/page", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/page`,
+            {
+                params: {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 15
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment/page Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// STATISTICS
+// GET /api/Shipment/statistics
+// =========================================================
+
+app.get("/api/Shipment/statistics", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Shipment/statistics`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Shipment/statistics Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// CREATE SHIPMENT
+// POST /api/Shipment
+// =========================================================
+
+app.post("/api/Shipment", async (req, res) => {
+    try {
+
+        const response = await axios.post(
+            `${DOTNET_API}/Shipment`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "POST /api/Shipment Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// UPDATE SHIPMENT
+// PUT /api/Shipment/:id
+// =========================================================
+
+app.put("/api/Shipment/:id", async (req, res) => {
+    try {
+
+        const response = await axios.put(
+            `${DOTNET_API}/Shipment/${req.params.id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            `PUT /api/Shipment/${req.params.id} Error:`,
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// DELETE SHIPMENT
+// DELETE /api/Shipment/:id
+// =========================================================
+
+app.delete("/api/Shipment/:id", async (req, res) => {
+    try {
+
+        const response = await axios.delete(
+            `${DOTNET_API}/Shipment/${req.params.id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            `DELETE /api/Shipment/${req.params.id} Error:`,
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// =========================================================
 // PRODUCT INVENTORY
 // =========================================================
 //

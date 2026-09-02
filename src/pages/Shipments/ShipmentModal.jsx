@@ -1,8 +1,12 @@
+// =========================================================
+// ShipmentModal.jsx
+// Create / Edit Shipment
+// =========================================================
+
 import React, {
     useEffect,
     useState
 } from "react";
-
 
 import {
     Dialog,
@@ -12,1049 +16,736 @@ import {
     Grid,
     TextField,
     Button,
-    MenuItem
+    MenuItem,
+    Alert,
+    Box
 } from "@mui/material";
 
+// =========================================================
+// DEFAULT VALUES
+// =========================================================
 
+const initialState = {
+    shipmentId: 0,
+    sellerId: 6,
+    customerId: 3,
+    orderId: "",
+    courierName: "",
+    trackingNumber: "",
+    shipmentDate: "",
+    deliveryDate: "",
+    shipmentStatus: ""
+};
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const ShipmentModal = ({
-
     open,
-
     item,
-
     onClose,
-
     onSave
-
 }) => {
 
-
-
-    const initialState = {
-
-
-
-        ShipmentId: 0,
-
-        OrderId: "",
-
-        CourierName: "",
-
-        TrackingNumber: "",
-
-        ShipmentDate: "",
-
-        DeliveryDate: "",
-
-        ShipmentStatus: ""
-
-
-
-    };
-
-
-
-
-
-
+    // ---------------------------------------------------------
+    // STATE
+    // ---------------------------------------------------------
 
     const [
-
         formData,
-
         setFormData
-
     ] = useState(initialState);
 
+    const [
+        error,
+        setError
+    ] = useState("");
 
-
-
-
-
-
-
+    // ---------------------------------------------------------
+    // STATUS OPTIONS
+    // ---------------------------------------------------------
 
     const statusOptions = [
-
-
-
         "Pending",
-
         "Processing",
-
         "Packed",
-
         "Shipped",
-
         "In Transit",
-
         "Out for Delivery",
-
         "Delivered",
-
         "Cancelled",
-
         "Returned"
-
-
-
     ];
 
+    // ---------------------------------------------------------
+    // GET VALUE
+    // Supports camelCase + PascalCase
+    // ---------------------------------------------------------
 
+    const getValue = (
+        object,
+        camelCase,
+        pascalCase,
+        defaultValue = ""
+    ) => {
 
+        return (
+            object?.[camelCase] ??
+            object?.[pascalCase] ??
+            defaultValue
+        );
+    };
 
+    // ---------------------------------------------------------
+    // FORMAT DATETIME FOR datetime-local
+    // ---------------------------------------------------------
 
+    const formatDateTimeLocal = (date) => {
 
+        if (!date) {
+            return "";
+        }
 
+        try {
 
+            const parsedDate = new Date(date);
+
+            if (
+                Number.isNaN(
+                    parsedDate.getTime()
+                )
+            ) {
+                return "";
+            }
+
+            const year =
+                parsedDate.getFullYear();
+
+            const month =
+                String(
+                    parsedDate.getMonth() + 1
+                ).padStart(2, "0");
+
+            const day =
+                String(
+                    parsedDate.getDate()
+                ).padStart(2, "0");
+
+            const hours =
+                String(
+                    parsedDate.getHours()
+                ).padStart(2, "0");
+
+            const minutes =
+                String(
+                    parsedDate.getMinutes()
+                ).padStart(2, "0");
+
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        } catch {
+            return "";
+        }
+    };
+
+    // ---------------------------------------------------------
+    // LOAD ITEM INTO FORM
+    // ---------------------------------------------------------
 
     useEffect(() => {
 
+        setError("");
 
+        if (!open) {
+            return;
+        }
 
         if (item) {
 
-
-
             setFormData({
 
+                shipmentId: getValue(
+                    item,
+                    "shipmentId",
+                    "ShipmentId",
+                    0
+                ),
 
+                sellerId: getValue(
+                    item,
+                    "sellerId",
+                    "SellerId",
+                    6
+                ),
 
-                ShipmentId:
+                customerId: getValue(
+                    item,
+                    "customerId",
+                    "CustomerId",
+                    3
+                ),
 
-                    item.ShipmentId || 0,
+                orderId: getValue(
+                    item,
+                    "orderId",
+                    "OrderId",
+                    ""
+                ),
 
+                courierName: getValue(
+                    item,
+                    "courierName",
+                    "CourierName",
+                    ""
+                ),
 
+                trackingNumber: getValue(
+                    item,
+                    "trackingNumber",
+                    "TrackingNumber",
+                    ""
+                ),
 
-                OrderId:
-
-                    item.OrderId || "",
-
-
-
-                CourierName:
-
-                    item.CourierName || "",
-
-
-
-                TrackingNumber:
-
-                    item.TrackingNumber || "",
-
-
-
-                ShipmentDate:
-
-                    item.ShipmentDate
-
-                        ? item.ShipmentDate.substring(
-
-                            0,
-
-                            16
-
+                shipmentDate:
+                    formatDateTimeLocal(
+                        getValue(
+                            item,
+                            "shipmentDate",
+                            "ShipmentDate",
+                            ""
                         )
+                    ),
 
-                        : "",
-
-
-
-                DeliveryDate:
-
-                    item.DeliveryDate
-
-                        ? item.DeliveryDate.substring(
-
-                            0,
-
-                            16
-
+                deliveryDate:
+                    formatDateTimeLocal(
+                        getValue(
+                            item,
+                            "deliveryDate",
+                            "DeliveryDate",
+                            ""
                         )
+                    ),
 
-                        : "",
-
-
-
-                ShipmentStatus:
-
-                    item.ShipmentStatus || ""
-
-
-
+                shipmentStatus: getValue(
+                    item,
+                    "shipmentStatus",
+                    "ShipmentStatus",
+                    ""
+                )
             });
 
+        } else {
 
-
+            setFormData({
+                ...initialState
+            });
         }
-
-        else {
-
-
-
-            setFormData(initialState);
-
-
-
-        }
-
-
 
     }, [item, open]);
 
+    // ---------------------------------------------------------
+    // HANDLE CHANGE
+    // ---------------------------------------------------------
 
-
-
-
-
-
-
-
-    const handleChange = (e) => {
-
-
+    const handleChange = (event) => {
 
         const {
-
             name,
-
             value
-
-        } = e.target;
-
-
+        } = event.target;
 
         setFormData(prev => ({
-
-
-
             ...prev,
-
-
-
             [name]: value
-
-
-
         }));
 
-
-
+        setError("");
     };
 
+    // ---------------------------------------------------------
+    // VALIDATION
+    // ---------------------------------------------------------
 
+    const validateForm = () => {
 
+        if (!formData.sellerId) {
 
+            setError(
+                "Seller ID is required."
+            );
 
+            return false;
+        }
 
+        if (!formData.customerId) {
 
+            setError(
+                "Customer ID is required."
+            );
 
+            return false;
+        }
+
+        if (!formData.orderId) {
+
+            setError(
+                "Order ID is required."
+            );
+
+            return false;
+        }
+
+        if (
+            Number(formData.orderId) <= 0
+        ) {
+
+            setError(
+                "Please enter a valid Order ID."
+            );
+
+            return false;
+        }
+
+        if (!formData.courierName.trim()) {
+
+            setError(
+                "Courier Name is required."
+            );
+
+            return false;
+        }
+
+        if (!formData.trackingNumber.trim()) {
+
+            setError(
+                "Tracking Number is required."
+            );
+
+            return false;
+        }
+
+        if (!formData.shipmentDate) {
+
+            setError(
+                "Shipment Date is required."
+            );
+
+            return false;
+        }
+
+        if (!formData.shipmentStatus) {
+
+            setError(
+                "Shipment Status is required."
+            );
+
+            return false;
+        }
+
+        return true;
+    };
+
+    // ---------------------------------------------------------
+    // SUBMIT
+    // ---------------------------------------------------------
 
     const handleSubmit = () => {
 
+        setError("");
 
-
-        if (
-
-
-
-            !formData.OrderId
-
-
-
-        ) {
-
-
-
-            alert(
-
-                "Order ID is required."
-
-            );
-
-
-
+        if (!validateForm()) {
             return;
-
-
-
         }
 
+        const payload = {
 
-
-
-
-
-
-        onSave({
-
-
-
-            ...formData,
-
-
-
-            OrderId:
-
+            // Identity column
+            // 0 means database generates it
+            shipmentId:
                 Number(
+                    formData.shipmentId || 0
+                ),
 
-                    formData.OrderId
+            sellerId:
+                Number(
+                    formData.sellerId
+                ),
 
-                )
+            customerId:
+                Number(
+                    formData.customerId
+                ),
 
+            orderId:
+                Number(
+                    formData.orderId
+                ),
 
+            courierName:
+                formData.courierName.trim(),
 
-        });
+            trackingNumber:
+                formData.trackingNumber.trim(),
 
+            shipmentDate:
+                formData.shipmentDate
+                    ? new Date(
+                        formData.shipmentDate
+                    ).toISOString()
+                    : null,
 
+            deliveryDate:
+                formData.deliveryDate
+                    ? new Date(
+                        formData.deliveryDate
+                    ).toISOString()
+                    : null,
 
+            shipmentStatus:
+                formData.shipmentStatus
+        };
+
+        console.log(
+            "Shipment payload:",
+            payload
+        );
+
+        onSave(payload);
     };
 
+    // ---------------------------------------------------------
+    // RESET / CLOSE
+    // ---------------------------------------------------------
 
+    const handleClose = () => {
 
+        setError("");
 
+        onClose();
+    };
 
-
-
-
+    // ---------------------------------------------------------
+    // RETURN
+    // ---------------------------------------------------------
 
     return (
 
-
-
         <Dialog
-
-
-
             open={open}
-
-
-
-            onClose={onClose}
-
-
-
+            onClose={handleClose}
             fullWidth
-
-
-
             maxWidth="md"
-
-
-
         >
 
-
-
-
-
-
+            {/* =================================================
+                TITLE
+            ================================================= */}
 
             <DialogTitle>
 
-
-
-
-
                 {
-
-
-
-                    formData.ShipmentId
-
-
-
+                    formData.shipmentId
                         ? "Edit Shipment"
-
-
-
                         : "Add Shipment"
-
-
-
                 }
-
-
-
-
 
             </DialogTitle>
 
+            {/* =================================================
+                CONTENT
+            ================================================= */}
 
+            <DialogContent dividers>
 
+                {/* =================================================
+                    ERROR
+                ================================================= */}
 
+                {error && (
 
+                    <Alert
+                        severity="error"
+                        sx={{
+                            mb: 2
+                        }}
+                    >
+                        {error}
+                    </Alert>
 
-
-
-
-            <DialogContent
-
-
-
-                dividers
-
-
-
-            >
-
-
-
-
-
-
+                )}
 
                 <Grid
-
-
-
                     container
-
-
-
                     spacing={2}
-
-
-
-                    sx={{ mt: 1 }}
-
-
-
+                    sx={{
+                        mt: 0.5
+                    }}
                 >
 
-
-
-
-
-
+                    {/* =================================================
+                        SELLER ID
+                    ================================================= */}
 
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                         md={6}
-
-
-
                     >
 
-
-
-
-
-
-
                         <TextField
-
-
-
                             fullWidth
-
-
-
-                            label="Order ID"
-
-
-
-                            name="OrderId"
-
-
-
+                            label="Seller ID"
+                            name="sellerId"
                             type="number"
-
-
-
                             value={
-
-                                formData.OrderId
-
+                                formData.sellerId
                             }
-
-
-
-                            onChange={handleChange}
-
-
-
+                            onChange={
+                                handleChange
+                            }
+                            disabled
                         />
-
-
-
-
-
-
 
                     </Grid>
 
-
-
-
-
-
-
-
+                    {/* =================================================
+                        CUSTOMER ID
+                    ================================================= */}
 
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                         md={6}
-
-
-
                     >
 
+                        <TextField
+                            fullWidth
+                            label="Customer ID"
+                            name="customerId"
+                            type="number"
+                            value={
+                                formData.customerId
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            disabled
+                        />
 
+                    </Grid>
 
+                    {/* =================================================
+                        ORDER ID
+                    ================================================= */}
 
-
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
-
-
-
                             fullWidth
+                            required
+                            label="Order ID"
+                            name="orderId"
+                            type="number"
+                            value={
+                                formData.orderId
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            helperText="Example: 2"
+                        />
 
+                    </Grid>
 
+                    {/* =================================================
+                        COURIER NAME
+                    ================================================= */}
 
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <TextField
+                            fullWidth
+                            required
                             label="Courier Name"
-
-
-
-                            name="CourierName"
-
-
-
+                            name="courierName"
                             value={
-
-                                formData.CourierName
-
+                                formData.courierName
                             }
-
-
-
-                            onChange={handleChange}
-
-
-
+                            onChange={
+                                handleChange
+                            }
+                            placeholder="Delhivery"
                         />
-
-
-
-
-
-
 
                     </Grid>
 
-
-
-
-
-
-
-
+                    {/* =================================================
+                        TRACKING NUMBER
+                    ================================================= */}
 
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                     >
 
-
-
-
-
-
-
                         <TextField
-
-
-
                             fullWidth
-
-
-
+                            required
                             label="Tracking Number"
-
-
-
-                            name="TrackingNumber"
-
-
-
+                            name="trackingNumber"
                             value={
-
-                                formData.TrackingNumber
-
+                                formData.trackingNumber
                             }
-
-
-
-                            onChange={handleChange}
-
-
-
+                            onChange={
+                                handleChange
+                            }
+                            placeholder="DLV123456789IN"
                         />
-
-
-
-
-
-
 
                     </Grid>
 
-
-
-
-
-
-
-
+                    {/* =================================================
+                        SHIPMENT DATE
+                    ================================================= */}
 
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                         md={6}
-
-
-
                     >
 
-
-
-
-
-
-
                         <TextField
-
-
-
                             fullWidth
-
-
-
+                            required
                             label="Shipment Date"
-
-
-
-                            name="ShipmentDate"
-
-
-
+                            name="shipmentDate"
                             type="datetime-local"
-
-
-
                             value={
-
-                                formData.ShipmentDate
-
+                                formData.shipmentDate
                             }
-
-
-
-                            onChange={handleChange}
-
-
-
+                            onChange={
+                                handleChange
+                            }
                             InputLabelProps={{
-
-
-
                                 shrink: true
-
-
-
                             }}
-
-
-
                         />
-
-
-
-
-
-
 
                     </Grid>
 
-
-
-
-
-
-
-
+                    {/* =================================================
+                        DELIVERY DATE
+                    ================================================= */}
 
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                         md={6}
-
-
-
                     >
 
-
-
-
-
-
-
                         <TextField
-
-
-
                             fullWidth
-
-
-
                             label="Delivery Date"
-
-
-
-                            name="DeliveryDate"
-
-
-
+                            name="deliveryDate"
                             type="datetime-local"
-
-
-
                             value={
-
-                                formData.DeliveryDate
-
+                                formData.deliveryDate
                             }
-
-
-
-                            onChange={handleChange}
-
-
-
+                            onChange={
+                                handleChange
+                            }
                             InputLabelProps={{
-
-
-
                                 shrink: true
-
-
-
                             }}
-
-
-
                         />
-
-
-
-
-
-
 
                     </Grid>
 
-
-
-
-
-
-
-
+                    {/* =================================================
+                        STATUS
+                    ================================================= */}
 
                     <Grid
-
-
-
                         item
-
-
-
                         xs={12}
-
-
-
                     >
 
-
-
-
-
-
-
                         <TextField
-
-
-
                             select
-
-
-
                             fullWidth
-
-
-
+                            required
                             label="Shipment Status"
-
-
-
-                            name="ShipmentStatus"
-
-
-
+                            name="shipmentStatus"
                             value={
-
-                                formData.ShipmentStatus
-
+                                formData.shipmentStatus
                             }
-
-
-
-                            onChange={handleChange}
-
-
-
+                            onChange={
+                                handleChange
+                            }
                         >
 
+                            {statusOptions.map(
+                                status => (
 
-
-
-
-
-
-                            {
-
-
-
-                                statusOptions.map(
-
-                                    status => (
-
-
-
-                                        <MenuItem
-
-
-
-                                            key={status}
-
-
-
-                                            value={status}
-
-
-
-                                        >
-
-
-
-                                            {
-
-                                                status
-
-                                            }
-
-
-
-                                        </MenuItem>
-
-
-
-                                    )
+                                    <MenuItem
+                                        key={status}
+                                        value={status}
+                                    >
+                                        {status}
+                                    </MenuItem>
 
                                 )
-
-
-
-                            }
-
-
-
-
-
-
+                            )}
 
                         </TextField>
 
-
-
-
-
-
-
                     </Grid>
-
-
-
-
-
-
 
                 </Grid>
 
-
-
-
-
-
-
             </DialogContent>
 
-
-
-
-
-
-
-
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
 
             <DialogActions>
 
-
-
-
-
-
-
                 <Button
-
-
-
                     variant="outlined"
-
-
-
-                    onClick={onClose}
-
-
-
+                    onClick={handleClose}
                 >
-
-
-
                     Cancel
-
-
-
                 </Button>
-
-
-
-
-
-
-
-
 
                 <Button
-
-
-
                     variant="contained"
-
-
-
                     onClick={handleSubmit}
-
-
-
                 >
-
-
-
                     {
-
-
-
-                        formData.ShipmentId
-
-
-
+                        formData.shipmentId
                             ? "Update"
-
-
-
                             : "Save"
-
-
-
                     }
-
-
-
                 </Button>
-
-
-
-
-
-
 
             </DialogActions>
 
-
-
-
-
-
-
         </Dialog>
-
-
-
     );
-
 };
 
-
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ShipmentModal;

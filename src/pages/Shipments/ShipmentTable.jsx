@@ -1,5 +1,9 @@
-import React from "react";
+// =========================================================
+// ShipmentTable.jsx
+// Shipment Table
+// =========================================================
 
+import React from "react";
 
 import {
     Paper,
@@ -17,7 +21,6 @@ import {
     Chip
 } from "@mui/material";
 
-
 import {
     Visibility,
     Edit,
@@ -25,947 +28,554 @@ import {
 } from "@mui/icons-material";
 
 
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const ShipmentTable = ({
-
     items = [],
-
     loading,
-
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
 
+    // =====================================================
+    // GET VALUE
+    // Supports camelCase + PascalCase
+    // =====================================================
 
+    const getValue = (row, camelCase, pascalCase) => {
 
-    const getStatusColor = (status) => {
-
-
-
-        switch (
-
-            status?.toLowerCase()
-
-        ) {
-
-
-
-            case "pending":
-
-                return "warning";
-
-
-
-            case "processing":
-
-                return "info";
-
-
-
-            case "packed":
-
-                return "secondary";
-
-
-
-            case "shipped":
-
-                return "primary";
-
-
-
-            case "in transit":
-
-                return "info";
-
-
-
-            case "out for delivery":
-
-                return "warning";
-
-
-
-            case "delivered":
-
-                return "success";
-
-
-
-            case "cancelled":
-
-                return "error";
-
-
-
-            case "returned":
-
-                return "error";
-
-
-
-            default:
-
-                return "default";
-
-
-
-        }
-
-
+        return (
+            row?.[camelCase] ??
+            row?.[pascalCase] ??
+            null
+        );
 
     };
 
 
+    // =====================================================
+    // STATUS COLOR
+    // =====================================================
+
+    const getStatusColor = (status) => {
+
+        switch (
+            String(status || "")
+                .toLowerCase()
+                .trim()
+        ) {
+
+            case "pending":
+                return "warning";
+
+            case "processing":
+                return "info";
+
+            case "packed":
+                return "secondary";
+
+            case "shipped":
+                return "primary";
+
+            case "in transit":
+                return "info";
+
+            case "out for delivery":
+                return "warning";
+
+            case "delivered":
+                return "success";
+
+            case "cancelled":
+                return "error";
+
+            case "returned":
+                return "error";
+
+            default:
+                return "default";
+
+        }
+
+    };
 
 
+    // =====================================================
+    // FORMAT DATE
+    // =====================================================
+
+    const formatDate = (date) => {
+
+        if (!date) {
+            return "-";
+        }
+
+        const parsedDate =
+            new Date(date);
+
+        if (
+            Number.isNaN(
+                parsedDate.getTime()
+            )
+        ) {
+            return "-";
+        }
+
+        return parsedDate.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+
+    };
 
 
+    // =====================================================
+    // LOADING
+    // =====================================================
 
     if (loading) {
 
-
-
         return (
-
-
-
-            <Box
-
-
-
-                display="flex"
-
-
-
-                justifyContent="center"
-
-
-
-                mt={5}
-
-
-
-            >
-
-
-
-                <CircularProgress />
-
-
-
-            </Box>
-
-
-
-        );
-
-
-
-    }
-
-
-
-
-
-
-
-    if (items.length === 0) {
-
-
-
-        return (
-
-
 
             <Paper
-
-
-
                 sx={{
-
-
-
-                    p: 4
-
-
-
+                    p: 5,
+                    mt: 2
                 }}
-
-
-
             >
 
-
-
-                <Typography
-
-
-
-                    align="center"
-
-
-
-                    color="text.secondary"
-
-
-
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={2}
                 >
 
+                    <CircularProgress />
 
+                    <Typography
+                        color="text.secondary"
+                    >
+                        Loading Shipments...
+                    </Typography>
 
-                    No Shipments Found
-
-
-
-                </Typography>
-
-
+                </Box>
 
             </Paper>
 
-
-
         );
-
-
 
     }
 
 
+    // =====================================================
+    // EMPTY
+    // =====================================================
+
+    if (!items || items.length === 0) {
+
+        return (
+
+            <Paper
+                sx={{
+                    p: 4,
+                    mt: 2
+                }}
+            >
+
+                <Typography
+                    align="center"
+                    color="text.secondary"
+                >
+                    No Shipments Found
+                </Typography>
+
+            </Paper>
+
+        );
+
+    }
 
 
-
-
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
-
-
         <TableContainer
-
-
-
             component={Paper}
-
-
-
+            sx={{
+                mt: 2,
+                overflowX: "auto"
+            }}
         >
 
-
-
-
-
-
-
             <Table
-
-
-
                 size="small"
-
-
-
+                sx={{
+                    minWidth: 1100
+                }}
             >
 
-
-
-
-
-
+                {/* =================================================
+                    TABLE HEAD
+                ================================================= */}
 
                 <TableHead>
 
-
-
-
-
-
-
                     <TableRow>
 
-
-
-
-
-
-
                         <TableCell>
-
-                            Shipment ID
-
+                            <strong>
+                                Shipment ID
+                            </strong>
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
-                            Order ID
-
+                            <strong>
+                                Seller ID
+                            </strong>
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
-                            Courier Name
-
+                            <strong>
+                                Customer ID
+                            </strong>
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
-                            Tracking Number
-
+                            <strong>
+                                Order ID
+                            </strong>
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
-                            Shipment Date
-
+                            <strong>
+                                Courier Name
+                            </strong>
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
-                            Delivery Date
-
+                            <strong>
+                                Tracking Number
+                            </strong>
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
-                            Status
-
+                            <strong>
+                                Shipment Date
+                            </strong>
                         </TableCell>
 
+                        <TableCell>
+                            <strong>
+                                Delivery Date
+                            </strong>
+                        </TableCell>
 
-
-
-
-
-
-
+                        <TableCell>
+                            <strong>
+                                Status
+                            </strong>
+                        </TableCell>
 
                         <TableCell
-
-
-
                             align="center"
-
-
-
                         >
-
-
-
-                            Actions
-
-
-
+                            <strong>
+                                Actions
+                            </strong>
                         </TableCell>
 
-
-
-
-
-
-
                     </TableRow>
-
-
-
-
-
-
 
                 </TableHead>
 
 
-
-
-
-
-
-
+                {/* =================================================
+                    TABLE BODY
+                ================================================= */}
 
                 <TableBody>
 
+                    {items.map((row, index) => {
+
+                        // =================================================
+                        // VALUES
+                        // =================================================
+
+                        const shipmentId =
+                            getValue(
+                                row,
+                                "shipmentId",
+                                "ShipmentId"
+                            );
+
+                        const sellerId =
+                            getValue(
+                                row,
+                                "sellerId",
+                                "SellerId"
+                            );
+
+                        const customerId =
+                            getValue(
+                                row,
+                                "customerId",
+                                "CustomerId"
+                            );
+
+                        const orderId =
+                            getValue(
+                                row,
+                                "orderId",
+                                "OrderId"
+                            );
+
+                        const courierName =
+                            getValue(
+                                row,
+                                "courierName",
+                                "CourierName"
+                            );
+
+                        const trackingNumber =
+                            getValue(
+                                row,
+                                "trackingNumber",
+                                "TrackingNumber"
+                            );
+
+                        const shipmentDate =
+                            getValue(
+                                row,
+                                "shipmentDate",
+                                "ShipmentDate"
+                            );
+
+                        const deliveryDate =
+                            getValue(
+                                row,
+                                "deliveryDate",
+                                "DeliveryDate"
+                            );
+
+                        const shipmentStatus =
+                            getValue(
+                                row,
+                                "shipmentStatus",
+                                "ShipmentStatus"
+                            );
 
 
+                        // =================================================
+                        // ROW
+                        // =================================================
 
-
-
-
-                    {
-
-
-
-                        items.map((row) => (
-
-
-
-
-
-
+                        return (
 
                             <TableRow
-
-
-
                                 key={
-
-                                    row.ShipmentId
-
+                                    shipmentId ??
+                                    index
                                 }
-
-
-
                                 hover
-
-
-
                             >
 
-
-
-
-
-
+                                {/* Shipment ID */}
 
                                 <TableCell>
 
-
-
-                                    {
-
-                                        row.ShipmentId
-
-                                    }
-
-
+                                    {shipmentId ?? "-"}
 
                                 </TableCell>
 
 
-
-
-
-
-
-
+                                {/* Seller ID */}
 
                                 <TableCell>
 
-
-
-                                    {
-
-                                        row.OrderId
-
-                                    }
-
-
+                                    {sellerId ?? "-"}
 
                                 </TableCell>
 
 
-
-
-
-
-
-
+                                {/* Customer ID */}
 
                                 <TableCell>
 
-
-
-                                    {
-
-
-
-                                        row.CourierName ||
-
-                                        "-"
-
-
-
-                                    }
-
-
+                                    {customerId ?? "-"}
 
                                 </TableCell>
 
 
-
-
-
-
-
-
+                                {/* Order ID */}
 
                                 <TableCell>
 
-
-
-                                    {
-
-
-
-                                        row.TrackingNumber ||
-
-                                        "-"
-
-
-
-                                    }
-
-
+                                    {orderId ?? "-"}
 
                                 </TableCell>
 
 
-
-
-
-
-
-
+                                {/* Courier */}
 
                                 <TableCell>
 
-
-
-                                    {
-
-
-
-                                        row.ShipmentDate
-
-
-
-                                            ? new Date(
-
-                                                row.ShipmentDate
-
-                                            )
-
-                                            .toLocaleDateString()
-
-
-
-                                            : "-"
-
-
-
-                                    }
-
-
+                                    {courierName || "-"}
 
                                 </TableCell>
 
 
-
-
-
-
-
-
+                                {/* Tracking Number */}
 
                                 <TableCell>
 
-
-
-                                    {
-
-
-
-                                        row.DeliveryDate
-
-
-
-                                            ? new Date(
-
-                                                row.DeliveryDate
-
-                                            )
-
-                                            .toLocaleDateString()
-
-
-
-                                            : "-"
-
-
-
-                                    }
-
-
+                                    {trackingNumber || "-"}
 
                                 </TableCell>
 
 
-
-
-
-
-
-
+                                {/* Shipment Date */}
 
                                 <TableCell>
 
+                                    {formatDate(
+                                        shipmentDate
+                                    )}
+
+                                </TableCell>
 
 
+                                {/* Delivery Date */}
+
+                                <TableCell>
+
+                                    {formatDate(
+                                        deliveryDate
+                                    )}
+
+                                </TableCell>
 
 
+                                {/* Status */}
 
+                                <TableCell>
 
                                     <Chip
-
-
-
                                         label={
-
-
-
-                                            row.ShipmentStatus ||
-
+                                            shipmentStatus ||
                                             "N/A"
-
-
-
                                         }
-
-
-
                                         color={
-
-
-
                                             getStatusColor(
-
-                                                row.ShipmentStatus
-
+                                                shipmentStatus
                                             )
-
-
-
                                         }
-
-
-
                                         size="small"
-
-
-
                                     />
-
-
-
-
-
-
 
                                 </TableCell>
 
 
-
-
-
-
-
-
+                                {/* Actions */}
 
                                 <TableCell
-
-
-
                                     align="center"
-
-
-
                                 >
 
-
-
-
-
-
+                                    {/* VIEW */}
 
                                     <Tooltip
-
-
-
-                                        title="View"
-
-
-
+                                        title="View Shipment"
                                     >
 
-
-
-
-
-
-
                                         <IconButton
-
-
-
                                             color="primary"
-
-
-
+                                            size="small"
                                             onClick={() =>
-
-                                                onView(row)
-
+                                                onView?.(row)
                                             }
-
-
-
                                         >
-
-
 
                                             <Visibility />
 
-
-
                                         </IconButton>
-
-
-
-
-
-
 
                                     </Tooltip>
 
 
-
-
-
-
-
-
+                                    {/* EDIT */}
 
                                     <Tooltip
-
-
-
-                                        title="Edit"
-
-
-
+                                        title="Edit Shipment"
                                     >
 
-
-
-
-
-
-
                                         <IconButton
-
-
-
                                             color="warning"
-
-
-
+                                            size="small"
                                             onClick={() =>
-
-                                                onEdit(row)
-
+                                                onEdit?.(row)
                                             }
-
-
-
                                         >
-
-
 
                                             <Edit />
 
-
-
                                         </IconButton>
-
-
-
-
-
-
 
                                     </Tooltip>
 
 
-
-
-
-
-
-
+                                    {/* DELETE */}
 
                                     <Tooltip
-
-
-
-                                        title="Delete"
-
-
-
+                                        title="Delete Shipment"
                                     >
 
-
-
-
-
-
-
                                         <IconButton
-
-
-
                                             color="error"
-
-
-
+                                            size="small"
                                             onClick={() =>
-
-                                                onDelete(row)
-
+                                                onDelete?.(row)
                                             }
-
-
-
                                         >
-
-
 
                                             <Delete />
 
-
-
                                         </IconButton>
-
-
-
-
-
-
 
                                     </Tooltip>
 
-
-
-
-
-
-
                                 </TableCell>
-
-
-
-
-
-
-
-
 
                             </TableRow>
 
+                        );
 
-
-
-
-
-
-                        ))
-
-
-
-                    }
-
-
-
-
-
-
+                    })}
 
                 </TableBody>
 
-
-
-
-
-
-
-
-
             </Table>
 
-
-
-
-
-
-
         </TableContainer>
-
-
 
     );
 
 };
 
 
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ShipmentTable;
