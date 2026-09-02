@@ -1466,21 +1466,95 @@ element={<ProductInventoryList />}
 path="product-inventory/toolbar"
 element={<ProductInventoryList />}
 />
+{/* =========================================================
+PRODUCT PRICE ROUTES
+========================================================= */}
+
+{/* Product Price List */}
+<Route
+path="product-prices"
+element={<ProductPriceList />}
+/>
+
+{/* Create Product Price */}
+<Route
+path="product-prices/create"
+element={<ProductPriceCreate />}
+/>
+
+{/* Product Price Details */}
+<Route
+path="product-prices/details/:id"
+element={<ProductPriceDetails />}
+/>
+
+{/* Product Price Edit */}
+<Route
+path="product-prices/edit/:id"
+element={<ProductPriceEdit />}
+/>
+
+{/* Product Price View */}
+<Route
+path="product-prices/view/:id"
+element={<ProductPriceView />}
+/>
+
+{/* Product Price Search */}
+<Route
+path="product-prices/search"
+element={<ProductPriceSearch />}
+/>
+
+{/* Product Price Filters */}
+<Route
+path="product-prices/filters"
+element={<ProductPriceFilters />}
+/>
+
+{/* Product Price Statistics */}
+<Route
+path="product-prices/statistics"
+element={<ProductPriceStatistics />}
+/>
+
+{/* Product Price Table */}
+<Route
+path="product-prices/table"
+element={<ProductPriceTable />}
+/>
+
+{/* Product Price Card */}
+<Route
+path="product-prices/card"
+element={<ProductPriceCard />}
+/>
+
+{/* Product Price Form */}
+<Route
+path="product-prices/form"
+element={<ProductPriceForm />}
+/>
+
+{/* Product Price Modal */}
+<Route
+path="product-prices/modal"
+element={<ProductPriceModal />}
+/>
+
+{/* Product Price Pagination */}
+<Route
+path="product-prices/pagination"
+element={<ProductPricePagination />}
+/>
+
+{/* Product Price Toolbar */}
+<Route
+path="product-prices/toolbar"
+element={<ProductPriceToolbar />}
+/>
 
 
-
-        {/* ===================================================
-            PRODUCT PRICES
-        =================================================== */}
-
-        <Route path="product-prices" element={<ProductPriceList />} />
-        <Route path="product-prices/create" element={<ProductPriceCreate />} />
-        <Route path="product-prices/:id" element={<ProductPriceDetails />} />
-        <Route path="product-prices/:id/edit" element={<ProductPriceEdit />} />
-        <Route path="product-prices/view/:id" element={<ProductPriceView />} />
-        <Route path="product-prices/search" element={<ProductPriceSearch />} />
-        <Route path="product-prices/filters" element={<ProductPriceFilters />} />
-        <Route path="product-prices/statistics" element={<ProductPriceStatistics />} />
 
 
         {/* ===================================================
