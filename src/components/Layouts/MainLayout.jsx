@@ -458,6 +458,68 @@ const MainLayout = () => {
     ],
 },
 
+{
+    label: "Product Images",
+    path: "/product-images",
+    icon: "🖼️",
+
+    children: [
+        {
+            label: "Product Image List",
+            path: "/product-images",
+        },
+        {
+            label: "Create Product Image",
+            path: "/product-images/create",
+        },
+        {
+            label: "Product Image Details",
+            path: "/product-images/details/:id",
+        },
+        {
+            label: "Edit Product Image",
+            path: "/product-images/edit/:id",
+        },
+        {
+            label: "Product Image Filters",
+            path: "/product-images/filters",
+        },
+        {
+            label: "Search Product Images",
+            path: "/product-images/search",
+        },
+        {
+            label: "Product Image Statistics",
+            path: "/product-images/statistics",
+        },
+        {
+            label: "Product Image Table",
+            path: "/product-images/table",
+        },
+        {
+            label: "Product Image Card",
+            path: "/product-images/card",
+        },
+        {
+            label: "Product Image Form",
+            path: "/product-images/form",
+        },
+        {
+            label: "Product Image Modal",
+            path: "/product-images/modal",
+        },
+        {
+            label: "Product Image Pagination",
+            path: "/product-images/pagination",
+        },
+        {
+            label: "Product Image Toolbar",
+            path: "/product-images/toolbar",
+        },
+    ],
+},
+
+
                 {
                     label: "Products",
                     path: "/products",
