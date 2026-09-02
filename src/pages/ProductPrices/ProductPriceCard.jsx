@@ -1,3 +1,7 @@
+// =========================================================
+// ProductPriceCard.jsx
+// =========================================================
+
 import React from "react";
 
 import {
@@ -7,10 +11,163 @@ import {
     Chip,
     Grid,
     Stack,
-    Divider
+    Divider,
 } from "@mui/material";
 
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const ProductPriceCard = ({ productPrice }) => {
+
+    // =====================================================
+    // SAFETY
+    // =====================================================
+
+    if (!productPrice) {
+        return null;
+    }
+
+    // =====================================================
+    // HELPERS
+    // =====================================================
+
+    const getValue = (pascalCase, camelCase) => {
+
+        return (
+            productPrice?.[pascalCase] ??
+            productPrice?.[camelCase]
+        );
+    };
+
+    // =====================================================
+    // VALUES
+    // =====================================================
+
+    const productPriceId = getValue(
+        "ProductPriceId",
+        "productPriceId"
+    );
+
+    const productId = getValue(
+        "ProductId",
+        "productId"
+    );
+
+    const productName = getValue(
+        "ProductName",
+        "productName"
+    );
+
+    const sellerId = getValue(
+        "SellerId",
+        "sellerId"
+    );
+
+    const priceType = getValue(
+        "PriceType",
+        "priceType"
+    );
+
+    const price = getValue(
+        "Price",
+        "price"
+    );
+
+    const currency = getValue(
+        "Currency",
+        "currency"
+    );
+
+    const effectiveFrom = getValue(
+        "EffectiveFrom",
+        "effectiveFrom"
+    );
+
+    const effectiveTo = getValue(
+        "EffectiveTo",
+        "effectiveTo"
+    );
+
+    const isActive = getValue(
+        "IsActive",
+        "isActive"
+    );
+
+    const createdDate = getValue(
+        "CreatedDate",
+        "createdDate"
+    );
+
+    const updatedDate = getValue(
+        "UpdatedDate",
+        "updatedDate"
+    );
+
+    // =====================================================
+    // FORMAT PRICE
+    // =====================================================
+
+    const formatPrice = (value) => {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return "-";
+        }
+
+        const number = Number(value);
+
+        if (Number.isNaN(number)) {
+            return "-";
+        }
+
+        return number.toFixed(2);
+    };
+
+    // =====================================================
+    // FORMAT DATE
+    // =====================================================
+
+    const formatDate = (value) => {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "-";
+        }
+
+        return date.toLocaleDateString();
+    };
+
+    // =====================================================
+    // FORMAT DATETIME
+    // =====================================================
+
+    const formatDateTime = (value) => {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "-";
+        }
+
+        return date.toLocaleString();
+    };
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
@@ -18,51 +175,60 @@ const ProductPriceCard = ({ productPrice }) => {
             elevation={3}
             sx={{
                 borderRadius: 2,
-                height: "100%"
+                height: "100%",
             }}
         >
 
             <CardContent>
+
+                {/* =========================================
+                    HEADER
+                ========================================= */}
 
                 <Stack
                     direction="row"
                     justifyContent="space-between"
                     alignItems="center"
                     mb={2}
+                    spacing={2}
                 >
 
                     <Typography
                         variant="h6"
                         fontWeight="bold"
+                        noWrap
                     >
-
-                        {productPrice.PriceType}
-
+                        {priceType || "Product Price"}
                     </Typography>
 
                     <Chip
-
                         label={
-                            productPrice.IsActive
+                            isActive
                                 ? "Active"
                                 : "Inactive"
                         }
-
                         color={
-                            productPrice.IsActive
+                            isActive
                                 ? "success"
                                 : "error"
                         }
-
                         size="small"
-
                     />
 
                 </Stack>
 
                 <Divider sx={{ mb: 2 }} />
 
-                <Grid container spacing={2}>
+                {/* =========================================
+                    DETAILS
+                ========================================= */}
+
+                <Grid
+                    container
+                    spacing={2}
+                >
+
+                    {/* PRODUCT PRICE ID */}
 
                     <Grid item xs={6}>
 
@@ -70,18 +236,16 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Product Price ID
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.ProductPriceId}
-
+                            {productPriceId ?? "-"}
                         </Typography>
 
                     </Grid>
+
+                    {/* PRODUCT ID */}
 
                     <Grid item xs={6}>
 
@@ -89,18 +253,39 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Product ID
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.ProductId}
-
+                            {productId ?? "-"}
                         </Typography>
 
                     </Grid>
+
+                    {/* PRODUCT */}
+
+                    {productName && (
+
+                        <Grid item xs={12}>
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Product
+                            </Typography>
+
+                            <Typography
+                                fontWeight="medium"
+                            >
+                                {productName}
+                            </Typography>
+
+                        </Grid>
+
+                    )}
+
+                    {/* SELLER ID */}
 
                     <Grid item xs={6}>
 
@@ -108,18 +293,16 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Seller ID
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.SellerId}
-
+                            {sellerId ?? "-"}
                         </Typography>
 
                     </Grid>
+
+                    {/* PRICE TYPE */}
 
                     <Grid item xs={6}>
 
@@ -127,18 +310,16 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Price Type
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.PriceType || "-"}
-
+                            {priceType || "-"}
                         </Typography>
 
                     </Grid>
+
+                    {/* PRICE */}
 
                     <Grid item xs={6}>
 
@@ -146,18 +327,20 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Price
-
                         </Typography>
 
-                        <Typography>
-
-                            {productPrice.Price ?? 0}
-
+                        <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                        >
+                            {currency || "₹"}{" "}
+                            {formatPrice(price)}
                         </Typography>
 
                     </Grid>
+
+                    {/* CURRENCY */}
 
                     <Grid item xs={6}>
 
@@ -165,18 +348,16 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Currency
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.Currency || "-"}
-
+                            {currency || "-"}
                         </Typography>
 
                     </Grid>
+
+                    {/* EFFECTIVE FROM */}
 
                     <Grid item xs={6}>
 
@@ -184,18 +365,16 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Effective From
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.EffectiveFrom || "-"}
-
+                            {formatDate(effectiveFrom)}
                         </Typography>
 
                     </Grid>
+
+                    {/* EFFECTIVE TO */}
 
                     <Grid item xs={6}>
 
@@ -203,18 +382,16 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Effective To
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.EffectiveTo || "-"}
-
+                            {formatDate(effectiveTo)}
                         </Typography>
 
                     </Grid>
+
+                    {/* CREATED DATE */}
 
                     <Grid item xs={6}>
 
@@ -222,18 +399,16 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Created Date
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.CreatedDate || "-"}
-
+                            {formatDateTime(createdDate)}
                         </Typography>
 
                     </Grid>
+
+                    {/* UPDATED DATE */}
 
                     <Grid item xs={6}>
 
@@ -241,15 +416,11 @@ const ProductPriceCard = ({ productPrice }) => {
                             variant="caption"
                             color="text.secondary"
                         >
-
                             Updated Date
-
                         </Typography>
 
                         <Typography>
-
-                            {productPrice.UpdatedDate || "-"}
-
+                            {formatDateTime(updatedDate)}
                         </Typography>
 
                     </Grid>
@@ -259,9 +430,7 @@ const ProductPriceCard = ({ productPrice }) => {
             </CardContent>
 
         </Card>
-
     );
-
 };
 
 export default ProductPriceCard;

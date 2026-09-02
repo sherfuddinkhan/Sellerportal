@@ -1,17 +1,89 @@
+// =========================================================
+// ProductPriceFilters.jsx
+// =========================================================
+
 import React from "react";
-import {Paper,Grid,TextField,MenuItem} from "@mui/material";
+
+import {
+    Paper,
+    Grid,
+    TextField,
+    MenuItem,
+} from "@mui/material";
+
+// =========================================================
+// Product Price Filters
+// =========================================================
+
 const ProductPriceFilters = ({
     products = [],
     currencies = [],
-    productFilter,
+
+    productFilter = "",
     setProductFilter,
-    currencyFilter,
-    setCurrencyFilter
+
+    currencyFilter = "",
+    setCurrencyFilter,
 }) => {
+
+    // =====================================================
+    // PRODUCT VALUE
+    // =====================================================
+
+    const getProductId = (product) => {
+        return (
+            product?.ProductId ??
+            product?.productId ??
+            ""
+        );
+    };
+
+
+    // =====================================================
+    // PRODUCT DISPLAY NAME
+    // =====================================================
+
+    const getProductName = (product) => {
+
+        return (
+            product?.ProductName ??
+            product?.productName ??
+            product?.SKU ??
+            product?.sku ??
+            `Product ${getProductId(product)}`
+        );
+    };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
-        <Paper sx={{ p: 2, mb: 3 }}>
-            <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
+
+        <Paper
+            elevation={2}
+            sx={{
+                p: 2,
+                mb: 3,
+            }}
+        >
+
+            <Grid
+                container
+                spacing={2}
+            >
+
+                {/* =================================================
+                    PRODUCT FILTER
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
                     <TextField
                         select
                         fullWidth
@@ -19,30 +91,46 @@ const ProductPriceFilters = ({
                         label="Product"
                         value={productFilter}
                         onChange={(e) =>
-                            setProductFilter(
+                            setProductFilter?.(
                                 e.target.value
                             )
                         }
                     >
+
                         <MenuItem value="">
                             All Products
                         </MenuItem>
-                        {
-                            products.map(product => (
+
+                        {products.map((product) => {
+
+                            const productId =
+                                getProductId(product);
+
+                            return (
                                 <MenuItem
-                                    key={product.ProductId}
-                                    value={product.ProductId}
+                                    key={productId}
+                                    value={productId}
                                 >
-                                    {
-                                        product.ProductName ||
-                                        product.SKU
-                                    }
+                                    {getProductName(product)}
                                 </MenuItem>
-                            ))
-                        }
+                            );
+                        })}
+
                     </TextField>
+
                 </Grid>
-                <Grid item xs={12} md={6}>
+
+
+                {/* =================================================
+                    CURRENCY FILTER
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
                     <TextField
                         select
                         fullWidth
@@ -50,25 +138,33 @@ const ProductPriceFilters = ({
                         label="Currency"
                         value={currencyFilter}
                         onChange={(e) =>
-                            setCurrencyFilter(e.target.value)
+                            setCurrencyFilter?.(
+                                e.target.value
+                            )
                         }
                     >
+
                         <MenuItem value="">
                             All Currencies
                         </MenuItem>
-                        {
-                            currencies.map(currency => (
-                                <MenuItem
-                                    key={currency}
-                                    value={currency}
-                                >
-                                    {currency}
-                                </MenuItem>
-                            ))
-                        }
+
+                        {currencies.map((currency) => (
+
+                            <MenuItem
+                                key={currency}
+                                value={currency}
+                            >
+                                {currency}
+                            </MenuItem>
+
+                        ))}
+
                     </TextField>
+
                 </Grid>
+
             </Grid>
+
         </Paper>
     );
 };

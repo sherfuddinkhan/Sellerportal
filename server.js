@@ -9224,6 +9224,356 @@ app.delete("/api/product-images/:id", async (req, res) => {
         );
     }
 });
+// =========================================================
+// PRODUCT PRICE API PROXY
+// =========================================================
+
+// GET ALL PRODUCT PRICES
+// GET http://localhost:5000/api/product-prices/all
+app.get("/api/product-prices/all", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices/all`,
+            {
+                httpsAgent,
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-prices/all Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to fetch all product prices.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// GET PRODUCT PRICES
+// =========================================================
+
+// GET http://localhost:5000/api/product-prices
+app.get("/api/product-prices", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices`,
+            {
+                params: req.query,
+                httpsAgent,
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-prices Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to fetch product prices.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// GET PAGED PRODUCT PRICES
+// =========================================================
+
+// GET http://localhost:5000/api/product-prices/paged?page=1&limit=15
+app.get("/api/product-prices/paged", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices/paged`,
+            {
+                params: req.query,
+                httpsAgent,
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-prices/paged Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to fetch paged product prices.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// GET PRODUCT PRICE STATISTICS
+// =========================================================
+
+// GET http://localhost:5000/api/product-prices/stats
+app.get("/api/product-prices/stats", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices/stats`,
+            {
+                httpsAgent,
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-prices/stats Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to fetch product price statistics.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// GET PRODUCT PRICES BY PRODUCT ID
+// =========================================================
+
+// GET http://localhost:5000/api/product-prices/product/3
+app.get("/api/product-prices/product/:productId", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices/product/${req.params.productId}`,
+            {
+                httpsAgent,
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-prices/product/:productId Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to fetch product prices by product.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// GET PRODUCT PRICE BY ID
+// =========================================================
+
+// GET http://localhost:5000/api/product-prices/1
+app.get("/api/product-prices/:productPriceId", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices/${req.params.productPriceId}`,
+            {
+                httpsAgent,
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/product-prices/:productPriceId Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to fetch product price.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// CREATE PRODUCT PRICE
+// =========================================================
+
+// POST http://localhost:5000/api/product-prices
+app.post("/api/product-prices", async (req, res) => {
+    try {
+
+        const response = await axios.post(
+            `${DOTNET_API}/product-prices`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "POST /api/product-prices Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to create product price.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// UPDATE PRODUCT PRICE
+// =========================================================
+
+// PUT http://localhost:5000/api/product-prices/1
+app.put("/api/product-prices/:productPriceId", async (req, res) => {
+    try {
+
+        const response = await axios.put(
+            `${DOTNET_API}/product-prices/${req.params.productPriceId}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "PUT /api/product-prices/:productPriceId Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to update product price.",
+            error: error.message,
+        });
+    }
+});
+
+
+// =========================================================
+// DELETE PRODUCT PRICE
+// =========================================================
+
+// DELETE http://localhost:5000/api/product-prices/1
+app.delete("/api/product-prices/:productPriceId", async (req, res) => {
+    try {
+
+        const response = await axios.delete(
+            `${DOTNET_API}/product-prices/${req.params.productPriceId}`,
+            {
+                httpsAgent,
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "DELETE /api/product-prices/:productPriceId Error:",
+            error.message
+        );
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        res.status(500).json({
+            message: "Failed to delete product price.",
+            error: error.message,
+        });
+    }
+});
 
 
 // =========================================================

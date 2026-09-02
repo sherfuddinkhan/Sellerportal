@@ -1,217 +1,219 @@
-import React from "react";
+// =========================================================
+// ProductPriceStatistics.jsx
+// =========================================================
+
+import React, { useMemo } from "react";
 
 import {
     Grid,
     Card,
     CardContent,
-    Typography
+    Typography,
 } from "@mui/material";
 
 import {
     AttachMoney,
     CheckCircle,
     Cancel,
-    TrendingUp
+    TrendingUp,
 } from "@mui/icons-material";
 
-const ProductPriceStatistics = ({ productPrices = [] }) => {
+// =========================================================
+// Product Price Statistics
+// =========================================================
+
+const ProductPriceStatistics = ({
+    productPrices = [],
+}) => {
+
+    // =====================================================
+    // TOTAL PRICES
+    // =====================================================
 
     const totalPrices = productPrices.length;
 
-    const activePrices = productPrices.filter(
 
-        x => x.IsActive
+    // =====================================================
+    // CALCULATE STATISTICS
+    // =====================================================
 
-    ).length;
+    const {
+        activePrices,
+        inactivePrices,
+        averagePrice,
+    } = useMemo(() => {
 
-    const inactivePrices = totalPrices - activePrices;
+        let active = 0;
+        let totalAmount = 0;
 
-    const averagePrice = totalPrices
+        productPrices.forEach((item) => {
 
-        ? (
+            const isActive =
+                item?.IsActive ??
+                item?.isActive ??
+                false;
 
-            productPrices.reduce(
+            const price =
+                item?.Price ??
+                item?.price ??
+                0;
 
-                (sum, item) =>
+            if (isActive) {
+                active++;
+            }
 
-                    sum + Number(item.Price || 0),
+            totalAmount += Number(price) || 0;
+        });
 
-                0
+        const inactive =
+            productPrices.length - active;
 
-            ) / totalPrices
+        const average =
+            productPrices.length > 0
+                ? (totalAmount / productPrices.length).toFixed(2)
+                : "0.00";
 
-        ).toFixed(2)
+        return {
+            activePrices: active,
+            inactivePrices: inactive,
+            averagePrice: average,
+        };
 
-        : 0;
+    }, [productPrices]);
+
+
+    // =====================================================
+    // STATISTIC CARDS
+    // =====================================================
 
     const cards = [
-
         {
-
             title: "Total Prices",
-
             value: totalPrices,
-
             icon: <AttachMoney fontSize="large" />,
-
-            color: "#1976d2"
-
+            color: "#1976d2",
         },
 
         {
-
             title: "Active",
-
             value: activePrices,
-
             icon: <CheckCircle fontSize="large" />,
-
-            color: "#2e7d32"
-
+            color: "#2e7d32",
         },
 
         {
-
             title: "Inactive",
-
             value: inactivePrices,
-
             icon: <Cancel fontSize="large" />,
-
-            color: "#d32f2f"
-
+            color: "#d32f2f",
         },
 
         {
-
             title: "Average Price",
-
             value: `₹ ${averagePrice}`,
-
             icon: <TrendingUp fontSize="large" />,
-
-            color: "#ed6c02"
-
-        }
-
+            color: "#ed6c02",
+        },
     ];
 
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
-
         <Grid
-
             container
-
             spacing={3}
-
-            sx={{ mb: 3 }}
-
+            sx={{
+                mb: 3,
+            }}
         >
 
-            {
+            {cards.map((card) => (
 
-                cards.map((card, index) => (
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                    key={card.title}
+                >
 
-                    <Grid
+                    <Card
+                        sx={{
+                            height: "100%",
+                            borderLeft: `5px solid ${card.color}`,
+                            transition: "0.2s",
 
-                        item
-
-                        xs={12}
-
-                        sm={6}
-
-                        md={3}
-
-                        key={index}
-
+                            "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: 4,
+                            },
+                        }}
                     >
 
-                        <Card
+                        <CardContent>
 
-                            sx={{
+                            <Grid
+                                container
+                                justifyContent="space-between"
+                                alignItems="center"
+                            >
 
-                                borderLeft:
+                                {/* =================================
+                                    TEXT
+                                ================================= */}
 
-                                    `5px solid ${card.color}`,
+                                <Grid item>
 
-                                height: "100%"
-
-                            }}
-
-                        >
-
-                            <CardContent>
-
-                                <Grid
-
-                                    container
-
-                                    justifyContent="space-between"
-
-                                    alignItems="center"
-
-                                >
-
-                                    <Grid item>
-
-                                        <Typography
-
-                                            color="text.secondary"
-
-                                            variant="body2"
-
-                                        >
-
-                                            {card.title}
-
-                                        </Typography>
-
-                                        <Typography
-
-                                            variant="h5"
-
-                                            fontWeight="bold"
-
-                                        >
-
-                                            {card.value}
-
-                                        </Typography>
-
-                                    </Grid>
-
-                                    <Grid
-
-                                        item
-
-                                        sx={{
-
-                                            color: card.color
-
-                                        }}
-
+                                    <Typography
+                                        color="text.secondary"
+                                        variant="body2"
                                     >
+                                        {card.title}
+                                    </Typography>
 
-                                        {card.icon}
-
-                                    </Grid>
+                                    <Typography
+                                        variant="h5"
+                                        fontWeight="bold"
+                                        sx={{
+                                            mt: 0.5,
+                                        }}
+                                    >
+                                        {card.value}
+                                    </Typography>
 
                                 </Grid>
 
-                            </CardContent>
 
-                        </Card>
+                                {/* =================================
+                                    ICON
+                                ================================= */}
 
-                    </Grid>
+                                <Grid
+                                    item
+                                    sx={{
+                                        color: card.color,
+                                        display: "flex",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    {card.icon}
+                                </Grid>
 
-                ))
+                            </Grid>
 
-            }
+                        </CardContent>
+
+                    </Card>
+
+                </Grid>
+
+            ))}
 
         </Grid>
-
     );
-
 };
 
 export default ProductPriceStatistics;

@@ -1,227 +1,392 @@
+// =========================================================
+// ProductPriceView.jsx
+// =========================================================
+
 import React from "react";
-import {Dialog,DialogTitle,DialogContent,DialogActions,Button,Grid,Typography,Divider,Chip} from "@mui/material";
+
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Grid,
+    Typography,
+    Divider,
+    Chip,
+    Box,
+} from "@mui/material";
+
+// =========================================================
+// Product Price View
+// =========================================================
+
 const ProductPriceView = ({
     open,
     productPrice,
-    onClose
+    onClose,
 }) => {
 
-    if (!productPrice) return null;
+    // =====================================================
+    // NO DATA
+    // =====================================================
 
-    const Field = ({ label, value }) => (
+    if (!productPrice) {
+        return null;
+    }
 
-        <Grid item xs={12} md={6}>
+
+    // =====================================================
+    // GET VALUE
+    // Supports PascalCase + camelCase
+    // =====================================================
+
+    const getValue = (
+        pascalCase,
+        camelCase,
+        fallback = "-"
+    ) => {
+
+        const value =
+            productPrice?.[pascalCase] ??
+            productPrice?.[camelCase];
+
+        return value === null ||
+            value === undefined ||
+            value === ""
+            ? fallback
+            : value;
+    };
+
+
+    // =====================================================
+    // DATE FORMATTER
+    // =====================================================
+
+    const formatDate = (pascalCase, camelCase) => {
+
+        const value =
+            productPrice?.[pascalCase] ??
+            productPrice?.[camelCase];
+
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "-";
+        }
+
+        return date.toLocaleString();
+    };
+
+
+    // =====================================================
+    // ACTIVE STATUS
+    // =====================================================
+
+    const isActive =
+        productPrice?.IsActive ??
+        productPrice?.isActive ??
+        false;
+
+
+    // =====================================================
+    // FIELD COMPONENT
+    // =====================================================
+
+    const Field = ({
+        label,
+        value,
+    }) => (
+
+        <Grid
+            item
+            xs={12}
+            md={6}
+        >
 
             <Typography
                 variant="caption"
                 color="text.secondary"
+                display="block"
             >
-
                 {label}
-
             </Typography>
 
             <Typography
                 variant="body1"
                 fontWeight={500}
+                sx={{
+                    mt: 0.5,
+                    wordBreak: "break-word",
+                }}
             >
-
                 {value || "-"}
-
             </Typography>
 
         </Grid>
-
     );
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Dialog
-
             open={open}
-
             onClose={onClose}
-
             fullWidth
-
             maxWidth="md"
-
         >
 
-            <DialogTitle>
+            {/* =================================================
+                TITLE
+            ================================================= */}
 
+            <DialogTitle
+                sx={{
+                    fontWeight: "bold",
+                }}
+            >
                 Product Price Details
-
             </DialogTitle>
 
             <Divider />
 
-            <DialogContent sx={{ mt: 2 }}>
 
-                <Grid container spacing={3}>
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
+            <DialogContent
+                sx={{
+                    mt: 2,
+                }}
+            >
+
+                <Grid
+                    container
+                    spacing={3}
+                >
+
+                    {/* =========================================
+                        PRODUCT PRICE ID
+                    ========================================= */}
 
                     <Field
-
                         label="Product Price ID"
-
-                        value={productPrice.ProductPriceId}
-
+                        value={getValue(
+                            "ProductPriceId",
+                            "productPriceId"
+                        )}
                     />
 
-                    <Field
 
+                    {/* =========================================
+                        PRODUCT ID
+                    ========================================= */}
+
+                    <Field
                         label="Product ID"
-
-                        value={productPrice.ProductId}
-
+                        value={getValue(
+                            "ProductId",
+                            "productId"
+                        )}
                     />
 
-                    <Field
 
+                    {/* =========================================
+                        SELLER ID
+                    ========================================= */}
+
+                    <Field
                         label="Seller ID"
-
-                        value={productPrice.SellerId}
-
+                        value={getValue(
+                            "SellerId",
+                            "sellerId"
+                        )}
                     />
 
-                    <Field
 
+                    {/* =========================================
+                        PRICE TYPE
+                    ========================================= */}
+
+                    <Field
                         label="Price Type"
-
-                        value={productPrice.PriceType}
-
+                        value={getValue(
+                            "PriceType",
+                            "priceType"
+                        )}
                     />
 
-                    <Field
 
+                    {/* =========================================
+                        PRICE
+                    ========================================= */}
+
+                    <Field
                         label="Price"
+                        value={
+                            (() => {
 
-                        value={productPrice.Price}
+                                const price =
+                                    productPrice?.Price ??
+                                    productPrice?.price;
 
+                                if (
+                                    price === null ||
+                                    price === undefined ||
+                                    price === ""
+                                ) {
+                                    return "-";
+                                }
+
+                                const number =
+                                    Number(price);
+
+                                return Number.isNaN(number)
+                                    ? "-"
+                                    : `₹ ${number.toFixed(2)}`;
+
+                            })()
+                        }
                     />
 
-                    <Field
 
+                    {/* =========================================
+                        CURRENCY
+                    ========================================= */}
+
+                    <Field
                         label="Currency"
-
-                        value={productPrice.Currency}
-
+                        value={getValue(
+                            "Currency",
+                            "currency"
+                        )}
                     />
 
-                    <Field
 
+                    {/* =========================================
+                        EFFECTIVE FROM
+                    ========================================= */}
+
+                    <Field
                         label="Effective From"
-
-                        value={
-                            productPrice.EffectiveFrom
-                                ? new Date(
-                                    productPrice.EffectiveFrom
-                                ).toLocaleString()
-                                : "-"
-                        }
-
+                        value={formatDate(
+                            "EffectiveFrom",
+                            "effectiveFrom"
+                        )}
                     />
+
+
+                    {/* =========================================
+                        EFFECTIVE TO
+                    ========================================= */}
 
                     <Field
-
                         label="Effective To"
-
-                        value={
-                            productPrice.EffectiveTo
-                                ? new Date(
-                                    productPrice.EffectiveTo
-                                ).toLocaleString()
-                                : "-"
-                        }
-
+                        value={formatDate(
+                            "EffectiveTo",
+                            "effectiveTo"
+                        )}
                     />
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =========================================
+                        STATUS
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <Typography
-
                             variant="caption"
-
                             color="text.secondary"
-
+                            display="block"
+                            sx={{
+                                mb: 1,
+                            }}
                         >
-
                             Status
-
                         </Typography>
 
-                        <br />
-
                         <Chip
-
                             label={
-                                productPrice.IsActive
+                                isActive
                                     ? "Active"
                                     : "Inactive"
                             }
-
                             color={
-                                productPrice.IsActive
+                                isActive
                                     ? "success"
                                     : "error"
                             }
-
                         />
 
                     </Grid>
 
+
+                    {/* =========================================
+                        CREATED DATE
+                    ========================================= */}
+
                     <Field
-
                         label="Created"
-
-                        value={
-                            productPrice.CreatedDate
-                                ? new Date(
-                                    productPrice.CreatedDate
-                                ).toLocaleString()
-                                : "-"
-                        }
-
+                        value={formatDate(
+                            "CreatedDate",
+                            "createdDate"
+                        )}
                     />
 
+
+                    {/* =========================================
+                        UPDATED DATE
+                    ========================================= */}
+
                     <Field
-
                         label="Updated"
-
-                        value={
-                            productPrice.UpdatedDate
-                                ? new Date(
-                                    productPrice.UpdatedDate
-                                ).toLocaleString()
-                                : "-"
-                        }
-
+                        value={formatDate(
+                            "UpdatedDate",
+                            "updatedDate"
+                        )}
                     />
 
                 </Grid>
 
             </DialogContent>
 
-            <DialogActions>
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2,
+                }}
+            >
 
                 <Button
-
                     variant="contained"
-
                     onClick={onClose}
-
                 >
-
                     Close
-
                 </Button>
 
             </DialogActions>
 
         </Dialog>
-
     );
-
 };
 
 export default ProductPriceView;

@@ -1,3 +1,7 @@
+// =========================================================
+// DeleteProductPriceDialog.jsx
+// =========================================================
+
 import React from "react";
 
 import {
@@ -7,142 +11,229 @@ import {
     DialogActions,
     Button,
     Typography,
-    Divider
+    Divider,
+    Box,
+    CircularProgress,
 } from "@mui/material";
 
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const DeleteProductPriceDialog = ({
-
     open,
-
     productPrice,
-
     onClose,
-
-    onDeleted
-
+    onDeleted,
+    loading = false,
 }) => {
 
+    // =====================================================
+    // SAFETY
+    // =====================================================
 
-    if (!productPrice) return null;
+    if (!productPrice) {
+        return null;
+    }
 
+    // =====================================================
+    // HELPERS
+    // =====================================================
+
+    const getValue = (pascalCase, camelCase) => {
+
+        return (
+            productPrice?.[pascalCase] ??
+            productPrice?.[camelCase]
+        );
+    };
+
+    // =====================================================
+    // VALUES
+    // =====================================================
+
+    const productPriceId = getValue(
+        "ProductPriceId",
+        "productPriceId"
+    );
+
+    const productId = getValue(
+        "ProductId",
+        "productId"
+    );
+
+    const priceType = getValue(
+        "PriceType",
+        "priceType"
+    );
+
+    const price = getValue(
+        "Price",
+        "price"
+    );
+
+    const currency = getValue(
+        "Currency",
+        "currency"
+    );
+
+    // =====================================================
+    // DELETE
+    // =====================================================
 
     const handleDelete = () => {
 
-        onDeleted(productPrice.ProductPriceId);
+        if (
+            productPriceId === null ||
+            productPriceId === undefined
+        ) {
+            return;
+        }
 
+        onDeleted?.(productPriceId);
     };
 
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <Dialog
-
             open={open}
-
-            onClose={onClose}
-
+            onClose={loading ? undefined : onClose}
             fullWidth
-
             maxWidth="sm"
-
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <DialogTitle>
-
                 Delete Product Price
-
             </DialogTitle>
-
 
             <Divider />
 
+            {/* =================================================
+                CONTENT
+            ================================================= */}
 
             <DialogContent sx={{ mt: 2 }}>
 
-
                 <Typography>
-
-                    Are you sure you want to delete this product price?
-
+                    Are you sure you want to delete this product
+                    price?
                 </Typography>
-
 
                 <Typography
-                    sx={{ mt: 2 }}
-                    fontWeight="bold"
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
                 >
-
-                    Price Type :
-                    {" "}
-                    {productPrice.PriceType || "-"}
-
+                    This action cannot be undone.
                 </Typography>
 
+                <Box sx={{ mt: 3 }}>
 
-                <Typography>
+                    {/* PRICE TYPE */}
 
-                    Price :
-                    {" "}
-                    {productPrice.Price || 0}
+                    <Typography
+                        sx={{ mb: 1 }}
+                        fontWeight="bold"
+                    >
+                        Price Type:{" "}
+                        <Typography
+                            component="span"
+                            fontWeight="normal"
+                        >
+                            {priceType || "-"}
+                        </Typography>
+                    </Typography>
 
-                    {" "}
+                    {/* PRICE */}
 
-                    {productPrice.Currency || ""}
+                    <Typography sx={{ mb: 1 }}>
 
-                </Typography>
+                        <strong>Price:</strong>{" "}
 
+                        {price !== null &&
+                        price !== undefined &&
+                        price !== ""
+                            ? Number(price).toFixed(2)
+                            : "0.00"
+                        }
 
-                <Typography>
+                        {" "}
 
-                    Product ID :
-                    {" "}
-                    {productPrice.ProductId}
+                        {currency || ""}
 
-                </Typography>
+                    </Typography>
 
+                    {/* PRODUCT ID */}
+
+                    <Typography sx={{ mb: 1 }}>
+
+                        <strong>Product ID:</strong>{" "}
+
+                        {productId ?? "-"}
+
+                    </Typography>
+
+                    {/* PRODUCT PRICE ID */}
+
+                    <Typography>
+
+                        <strong>Product Price ID:</strong>{" "}
+
+                        {productPriceId ?? "-"}
+
+                    </Typography>
+
+                </Box>
 
             </DialogContent>
 
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
 
-            <DialogActions>
-
+            <DialogActions sx={{ px: 3, pb: 2 }}>
 
                 <Button
-
                     variant="outlined"
-
                     onClick={onClose}
-
+                    disabled={loading}
                 >
-
                     Cancel
-
                 </Button>
-
 
                 <Button
-
                     variant="contained"
-
                     color="error"
-
                     onClick={handleDelete}
-
+                    disabled={
+                        loading ||
+                        productPriceId === null ||
+                        productPriceId === undefined
+                    }
+                    startIcon={
+                        loading
+                            ? <CircularProgress
+                                size={18}
+                                color="inherit"
+                              />
+                            : null
+                    }
                 >
-
-                    Delete
-
+                    {loading ? "Deleting..." : "Delete"}
                 </Button>
-
 
             </DialogActions>
 
-
         </Dialog>
-
     );
-
 };
-
 
 export default DeleteProductPriceDialog;
