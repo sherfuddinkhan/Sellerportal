@@ -1466,6 +1466,15 @@ element={<ProductInventoryList />}
 path="product-inventory/toolbar"
 element={<ProductInventoryList />}
 />
+<Route
+    path="product-inventory/details/:id"
+    element={<ProductInventoryDetails />}
+/>
+<Route
+    path="product-inventory/view/:id"
+    element={<ProductInventoryView />}
+/>
+
 {/* =========================================================
 PRODUCT PRICE ROUTES
 ========================================================= */}
@@ -1487,6 +1496,7 @@ element={<ProductPriceCreate />}
 path="product-prices/details/:id"
 element={<ProductPriceDetails />}
 />
+
 
 {/* Product Price Edit */}
 <Route

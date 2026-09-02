@@ -9612,6 +9612,39 @@ app.delete("/api/product-prices/:productPriceId", async (req, res) => {
 // The ASP.NET controller handles these parameters.
 // =========================================================
 
+// ========================================================= // PRODUCT INVENTORY // ========================================================= // ---------------------------------------------------------
+ //GET ALL PRODUCT INVENTORIES // GET http://localhost:5000/api/product-inventories/all // --------------------------------------------------------- 
+ app.get(
+"/api/product-inventories/all", 
+async (req, res) => 
+{ try 
+    
+    { 
+    const response = await axios.get( `${DOTNET_API}/product-inventories/all`,
+    { httpsAgent } ); 
+    res.status(response.status).json(response.data); } catch (error) 
+    { 
+    console.error( "GET /api/product-inventories/all Error:", error.message );
+     if (error.response) { return res .status(error.response.status) .json(error.response.data); }
+     res.status(500).json({ message: "Failed to fetch all product inventories.", error: error.message }); 
+    }
+ }
+);
+
+// Frontend: // GET http://localhost:5000/api/product // // ASP.NET: // GET https://localhost:7203/api/Product // ---------------------------------------------------------
+ app.get("/api/product", async (req, res) => { 
+try 
+{ 
+const response = await axios.get( `${DOTNET_API}/Product`,
+ { 
+httpsAgent } ); res.status(response.status).json( response.data ); } catch (error) 
+{ 
+console.error( "GET /api/product Error:", error.message ); 
+if (error.response) { return res .status(error.response.status) .json(error.response.data); }
+return res.status(500).json({ message: "Failed to fetch products.", error: error.message }); 
+}
+}
+);
 app.get(
     "/api/product-inventories",
     async (req, res) => {

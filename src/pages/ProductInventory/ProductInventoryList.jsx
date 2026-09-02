@@ -5,40 +5,64 @@
 // React -> Node server.js -> ASP.NET Core API
 // =========================================================
 
-import React, { useEffect, useMemo,useState} from "react";
+import React, {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
 
-import {Alert,Box,CircularProgress,Snackbar
+import {
+    Alert,
+    Box,
+    Snackbar
 } from "@mui/material";
 
 import axios from "axios";
 
-import ProductInventoryToolbar from "./ProductInventoryToolbar";
+import {
+    useNavigate
+} from "react-router-dom";
 
-import ProductInventoryStatistics from "./ProductInventoryStatistics";
+import ProductInventoryToolbar
+    from "./ProductInventoryToolbar";
 
-import ProductInventorySearch from "./ProductInventorySearch";
+import ProductInventoryStatistics
+    from "./ProductInventoryStatistics";
 
-import ProductInventoryFilters from "./ProductInventoryFilters";
+import ProductInventorySearch
+    from "./ProductInventorySearch";
 
-import ProductInventoryTable from "./ProductInventoryTable";
+import ProductInventoryFilters
+    from "./ProductInventoryFilters";
 
-import ProductInventoryPagination from "./ProductInventoryPagination";
+import ProductInventoryTable
+    from "./ProductInventoryTable";
 
-import ProductInventoryModal from "./ProductInventoryModal";
+import ProductInventoryPagination
+    from "./ProductInventoryPagination";
 
-import ProductInventoryView from "./ProductInventoryView";
+import ProductInventoryModal
+    from "./ProductInventoryModal";
 
-import DeleteProductInventoryDialog from "./DeleteProductInventoryDialog";
+import ProductInventoryView
+    from "./ProductInventoryView";
+
+import DeleteProductInventoryDialog
+    from "./DeleteProductInventoryDialog";
 
 
 // =========================================================
 // SERVER CONFIGURATION
 // =========================================================
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
 
+// IMPORTANT:
+// Must match server.js:
+// /api/product-inventories
 const INVENTORY_API =
-    `${SERVER_URL}/api/product-inventory`;
+    `${SERVER_URL}/api/product-inventories`;
 
 
 // =========================================================
@@ -47,15 +71,21 @@ const INVENTORY_API =
 
 const ProductInventoryList = () => {
 
+    const navigate = useNavigate();
+
+
     // =====================================================
     // STATE
     // =====================================================
 
-    const [inventories, setInventories] = useState([]);
+    const [inventories, setInventories] =
+        useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [searchText, setSearchText] = useState("");
+    const [searchText, setSearchText] =
+        useState("");
 
     const [stockStatusFilter, setStockStatusFilter] =
         useState("");
@@ -103,18 +133,33 @@ const ProductInventoryList = () => {
         try {
 
             setLoading(true);
-
             setError("");
+
+            console.log(
+                "Loading Product Inventories:",
+                `${INVENTORY_API}/all`
+            );
 
             const response = await axios.get(
                 `${INVENTORY_API}/all`
             );
 
-            // ---------------------------------------------
-            // Support different response formats
-            // ---------------------------------------------
+            console.log(
+                "Product Inventory Response:",
+                response.data
+            );
 
-            let data = response.data;
+
+            // =================================================
+            // RESPONSE DATA
+            // =================================================
+
+            const data = response.data;
+
+
+            // -------------------------------------------------
+            // ARRAY
+            // -------------------------------------------------
 
             if (Array.isArray(data)) {
 
@@ -122,19 +167,56 @@ const ProductInventoryList = () => {
 
             }
 
-            else if (Array.isArray(data?.data)) {
+            // -------------------------------------------------
+            // { data: [] }
+            // -------------------------------------------------
+
+            else if (
+                Array.isArray(data?.data)
+            ) {
 
                 setInventories(data.data);
 
             }
 
-            else if (Array.isArray(data?.inventories)) {
+            // -------------------------------------------------
+            // { inventories: [] }
+            // -------------------------------------------------
 
-                setInventories(data.inventories);
+            else if (
+                Array.isArray(data?.inventories)
+            ) {
+
+                setInventories(
+                    data.inventories
+                );
 
             }
 
+            // -------------------------------------------------
+            // { items: [] }
+            // -------------------------------------------------
+
+            else if (
+                Array.isArray(data?.items)
+            ) {
+
+                setInventories(
+                    data.items
+                );
+
+            }
+
+            // -------------------------------------------------
+            // UNKNOWN RESPONSE
+            // -------------------------------------------------
+
             else {
+
+                console.warn(
+                    "Unexpected inventory response:",
+                    data
+                );
 
                 setInventories([]);
 
@@ -149,8 +231,20 @@ const ProductInventoryList = () => {
                 err
             );
 
+            console.error(
+                "Request URL:",
+                `${INVENTORY_API}/all`
+            );
+
+            console.error(
+                "Response:",
+                err?.response?.data
+            );
+
+
             setError(
                 err?.response?.data?.message ||
+                err?.response?.data?.title ||
                 "Failed to load product inventory."
             );
 
@@ -191,84 +285,90 @@ const ProductInventoryList = () => {
         // SEARCH
         // =================================================
 
-        if (searchText.trim() !== "") {
+        if (
+            searchText.trim() !== ""
+        ) {
 
             const search =
                 searchText
                     .trim()
                     .toLowerCase();
 
-            result = result.filter((item) => {
 
-                const productId =
-                    item.productId ??
-                    item.ProductId ??
-                    "";
+            result = result.filter(
+                (item) => {
 
-                const sellerId =
-                    item.sellerId ??
-                    item.SellerId ??
-                    "";
+                    const productId =
+                        item.productId ??
+                        item.ProductId ??
+                        "";
 
-                const warehouseId =
-                    item.warehouseId ??
-                    item.WarehouseId ??
-                    "";
+                    const sellerId =
+                        item.sellerId ??
+                        item.SellerId ??
+                        "";
 
-                const stockStatus =
-                    item.stockStatus ??
-                    item.StockStatus ??
-                    "";
+                    const warehouseId =
+                        item.warehouseId ??
+                        item.WarehouseId ??
+                        "";
 
-                const productName =
-                    item.productName ??
-                    item.ProductName ??
-                    "";
+                    const stockStatus =
+                        item.stockStatus ??
+                        item.StockStatus ??
+                        "";
 
-                const warehouseName =
-                    item.warehouseName ??
-                    item.WarehouseName ??
-                    "";
+                    const productName =
+                        item.productName ??
+                        item.ProductName ??
+                        "";
 
-                return (
+                    const warehouseName =
+                        item.warehouseName ??
+                        item.WarehouseName ??
+                        "";
 
-                    String(productId)
-                        .toLowerCase()
-                        .includes(search)
 
-                    ||
+                    return (
 
-                    String(sellerId)
-                        .toLowerCase()
-                        .includes(search)
+                        String(productId)
+                            .toLowerCase()
+                            .includes(search)
 
-                    ||
+                        ||
 
-                    String(warehouseId)
-                        .toLowerCase()
-                        .includes(search)
+                        String(sellerId)
+                            .toLowerCase()
+                            .includes(search)
 
-                    ||
+                        ||
 
-                    String(stockStatus)
-                        .toLowerCase()
-                        .includes(search)
+                        String(warehouseId)
+                            .toLowerCase()
+                            .includes(search)
 
-                    ||
+                        ||
 
-                    String(productName)
-                        .toLowerCase()
-                        .includes(search)
+                        String(stockStatus)
+                            .toLowerCase()
+                            .includes(search)
 
-                    ||
+                        ||
 
-                    String(warehouseName)
-                        .toLowerCase()
-                        .includes(search)
+                        String(productName)
+                            .toLowerCase()
+                            .includes(search)
 
-                );
+                        ||
 
-            });
+                        String(warehouseName)
+                            .toLowerCase()
+                            .includes(search)
+
+                    );
+
+                }
+            );
 
         }
 
@@ -277,30 +377,41 @@ const ProductInventoryList = () => {
         // ACTIVE / INACTIVE
         // =================================================
 
-        if (statusFilter !== "All") {
+        if (
+            statusFilter !== "All"
+        ) {
 
-            result = result.filter((item) => {
+            result = result.filter(
+                (item) => {
 
-                const isActive =
-                    item.isActive ??
-                    item.IsActive ??
-                    false;
+                    const isActive =
+                        item.isActive ??
+                        item.IsActive ??
+                        false;
 
-                if (statusFilter === "Active") {
 
-                    return isActive === true;
+                    if (
+                        statusFilter === "Active"
+                    ) {
+
+                        return isActive === true;
+
+                    }
+
+
+                    if (
+                        statusFilter === "Inactive"
+                    ) {
+
+                        return isActive === false;
+
+                    }
+
+
+                    return true;
 
                 }
-
-                if (statusFilter === "Inactive") {
-
-                    return isActive === false;
-
-                }
-
-                return true;
-
-            });
+            );
 
         }
 
@@ -309,21 +420,26 @@ const ProductInventoryList = () => {
         // STOCK STATUS
         // =================================================
 
-        if (stockStatusFilter !== "") {
+        if (
+            stockStatusFilter !== ""
+        ) {
 
-            result = result.filter((item) => {
+            result = result.filter(
+                (item) => {
 
-                const stockStatus =
-                    item.stockStatus ??
-                    item.StockStatus ??
-                    "";
+                    const stockStatus =
+                        item.stockStatus ??
+                        item.StockStatus ??
+                        "";
 
-                return (
-                    String(stockStatus) ===
-                    String(stockStatusFilter)
-                );
 
-            });
+                    return (
+                        String(stockStatus) ===
+                        String(stockStatusFilter)
+                    );
+
+                }
+            );
 
         }
 
@@ -332,21 +448,26 @@ const ProductInventoryList = () => {
         // WAREHOUSE
         // =================================================
 
-        if (warehouseFilter !== "") {
+        if (
+            warehouseFilter !== ""
+        ) {
 
-            result = result.filter((item) => {
+            result = result.filter(
+                (item) => {
 
-                const warehouseId =
-                    item.warehouseId ??
-                    item.WarehouseId ??
-                    "";
+                    const warehouseId =
+                        item.warehouseId ??
+                        item.WarehouseId ??
+                        "";
 
-                return (
-                    String(warehouseId) ===
-                    String(warehouseFilter)
-                );
 
-            });
+                    return (
+                        String(warehouseId) ===
+                        String(warehouseFilter)
+                    );
+
+                }
+            );
 
         }
 
@@ -355,70 +476,79 @@ const ProductInventoryList = () => {
         // QUANTITY FILTER
         // =================================================
 
-        if (quantityFilter !== "") {
+        if (
+            quantityFilter !== ""
+        ) {
 
-            result = result.filter((item) => {
+            result = result.filter(
+                (item) => {
 
-                const available =
-                    Number(
-                        item.availableQuantity ??
-                        item.AvailableQuantity ??
-                        0
-                    );
-
-                const reorder =
-                    Number(
-                        item.reorderLevel ??
-                        item.ReorderLevel ??
-                        0
-                    );
+                    const available =
+                        Number(
+                            item.availableQuantity ??
+                            item.AvailableQuantity ??
+                            0
+                        );
 
 
-                // -----------------------------------------
-                // OUT OF STOCK
-                // -----------------------------------------
+                    const reorder =
+                        Number(
+                            item.reorderLevel ??
+                            item.ReorderLevel ??
+                            0
+                        );
 
-                if (
-                    quantityFilter === "out"
-                ) {
 
-                    return available === 0;
+                    // -------------------------------------
+                    // OUT OF STOCK
+                    // -------------------------------------
+
+                    if (
+                        quantityFilter === "out"
+                    ) {
+
+                        return (
+                            available === 0
+                        );
+
+                    }
+
+
+                    // -------------------------------------
+                    // LOW STOCK
+                    // -------------------------------------
+
+                    if (
+                        quantityFilter === "low"
+                    ) {
+
+                        return (
+                            available > 0 &&
+                            available <= reorder
+                        );
+
+                    }
+
+
+                    // -------------------------------------
+                    // AVAILABLE
+                    // -------------------------------------
+
+                    if (
+                        quantityFilter === "available"
+                    ) {
+
+                        return (
+                            available > reorder
+                        );
+
+                    }
+
+
+                    return true;
 
                 }
-
-
-                // -----------------------------------------
-                // LOW STOCK
-                // -----------------------------------------
-
-                if (
-                    quantityFilter === "low"
-                ) {
-
-                    return (
-                        available > 0 &&
-                        available <= reorder
-                    );
-
-                }
-
-
-                // -----------------------------------------
-                // AVAILABLE
-                // -----------------------------------------
-
-                if (
-                    quantityFilter === "available"
-                ) {
-
-                    return available > reorder;
-
-                }
-
-
-                return true;
-
-            });
+            );
 
         }
 
@@ -482,12 +612,8 @@ const ProductInventoryList = () => {
         try {
 
             setLoading(true);
-
             setError("");
 
-            // ---------------------------------------------
-            // Detect ID from either naming convention
-            // ---------------------------------------------
 
             const inventoryId =
                 data.productInventoryId ??
@@ -505,11 +631,13 @@ const ProductInventoryList = () => {
                     data
                 );
 
+
                 setSuccess(
                     "Product inventory updated successfully."
                 );
 
             }
+
 
             // =================================================
             // CREATE
@@ -522,6 +650,7 @@ const ProductInventoryList = () => {
                     data
                 );
 
+
                 setSuccess(
                     "Product inventory created successfully."
                 );
@@ -529,11 +658,12 @@ const ProductInventoryList = () => {
             }
 
 
-            // ---------------------------------------------
-            // Reload data
-            // ---------------------------------------------
+            // =================================================
+            // RELOAD
+            // =================================================
 
             await loadInventories();
+
 
             setModalOpen(false);
 
@@ -548,8 +678,10 @@ const ProductInventoryList = () => {
                 err
             );
 
+
             setError(
                 err?.response?.data?.message ||
+                err?.response?.data?.title ||
                 "Failed to save product inventory."
             );
 
@@ -573,8 +705,8 @@ const ProductInventoryList = () => {
         try {
 
             setLoading(true);
-
             setError("");
+
 
             await axios.delete(
                 `${INVENTORY_API}/${id}`
@@ -587,6 +719,7 @@ const ProductInventoryList = () => {
 
 
             await loadInventories();
+
 
             setDeleteOpen(false);
 
@@ -601,8 +734,10 @@ const ProductInventoryList = () => {
                 err
             );
 
+
             setError(
                 err?.response?.data?.message ||
+                err?.response?.data?.title ||
                 "Failed to delete product inventory."
             );
 
@@ -615,208 +750,283 @@ const ProductInventoryList = () => {
         }
 
     };
-const handleView = (row) => {
-    const id =
-        row.productInventoryId ??
-        row.ProductInventoryId;
-
-    if (!id) {
-        setError("Inventory ID is missing.");
-        return;
-    }
-
-    navigate(`/product-inventory/${id}`);
-};
-
-
-const handleEdit = (row) => {
-    const id =
-        row.productInventoryId ??
-        row.ProductInventoryId;
-
-    if (!id) {
-        setError("Inventory ID is missing.");
-        return;
-    }
-
-    navigate(`/product-inventory/edit/${id}`);
-};
 
 
     // =====================================================
-// ADD
-// =====================================================
+    // VIEW
+    // =====================================================
 
-const handleAdd = () => {
+    const handleView = (row) => {
 
-    setSelectedInventory(null);
-
-    setModalOpen(true);
-
-};
+        const id =
+            row.productInventoryId ??
+            row.ProductInventoryId;
 
 
-// =====================================================
-// DELETE CLICK
-// =====================================================
+        if (!id) {
 
-const handleDeleteClick = (row) => {
+            setError(
+                "Inventory ID is missing."
+            );
 
-    if (!row) {
-        setError("No inventory record selected.");
-        return;
-    }
+            return;
 
-    setSelectedInventory(row);
-
-    setDeleteOpen(true);
-
-};
-
-
-// =====================================================
-// EXPORT
-// =====================================================
-
-const handleExport = () => {
-
-    if (!filteredInventories.length) {
-        setError("No inventory records available to export.");
-        return;
-    }
-
-    const headers = [
-        "Inventory ID",
-        "Product ID",
-        "Seller ID",
-        "Customer ID",
-        "Warehouse ID",
-        "Quantity",
-        "Available Quantity",
-        "Reserved Quantity",
-        "Reorder Level",
-        "Min Stock Level",
-        "Max Stock Level",
-        "Stock Status",
-        "Active",
-    ];
-
-    const rows = filteredInventories.map((item) => {
-
-        return [
-            item.productInventoryId ??
-                item.ProductInventoryId ??
-                "",
-
-            item.productId ??
-                item.ProductId ??
-                "",
-
-            item.sellerId ??
-                item.SellerId ??
-                "",
-
-            item.customerId ??
-                item.CustomerId ??
-                "",
-
-            item.warehouseId ??
-                item.WarehouseId ??
-                "",
-
-            item.quantity ??
-                item.Quantity ??
-                0,
-
-            item.availableQuantity ??
-                item.AvailableQuantity ??
-                0,
-
-            item.reservedQuantity ??
-                item.ReservedQuantity ??
-                0,
-
-            item.reorderLevel ??
-                item.ReorderLevel ??
-                0,
-
-            item.minStockLevel ??
-                item.MinStockLevel ??
-                0,
-
-            item.maxStockLevel ??
-                item.MaxStockLevel ??
-                0,
-
-            item.stockStatus ??
-                item.StockStatus ??
-                "",
-
-            (
-                item.isActive ??
-                item.IsActive ??
-                false
-            )
-                ? "Active"
-                : "Inactive",
-        ];
-    });
-
-
-    const csv = [
-        headers,
-        ...rows,
-    ]
-        .map((row) =>
-            row
-                .map((value) => {
-
-                    const text =
-                        String(value ?? "");
-
-                    return `"${text.replace(
-                        /"/g,
-                        '""'
-                    )}"`;
-                })
-                .join(",")
-        )
-        .join("\n");
-
-
-    const blob = new Blob(
-        [csv],
-        {
-            type:
-                "text/csv;charset=utf-8;",
         }
-    );
 
 
-    const url =
-        URL.createObjectURL(blob);
+        // Route matches:
+        // /product-inventory/details/:id
 
-    const link =
-        document.createElement("a");
+        navigate(
+            `/product-inventory/details/${id}`
+        );
 
-    link.href = url;
-
-    link.download =
-        "product-inventory.csv";
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-
-    URL.revokeObjectURL(url);
+    };
 
 
-    setSuccess(
-        "Product inventory exported successfully."
-    );
-};
+    // =====================================================
+    // EDIT
+    // =====================================================
+
+    const handleEdit = (row) => {
+
+        const id =
+            row.productInventoryId ??
+            row.ProductInventoryId;
+
+
+        if (!id) {
+
+            setError(
+                "Inventory ID is missing."
+            );
+
+            return;
+
+        }
+
+
+        // Route matches:
+        // /product-inventory/edit/:id
+
+        navigate(
+            `/product-inventory/edit/${id}`
+        );
+
+    };
+
+
+    // =====================================================
+    // ADD
+    // =====================================================
+
+    const handleAdd = () => {
+
+        setSelectedInventory(null);
+
+        setModalOpen(true);
+
+    };
+
+
+    // =====================================================
+    // DELETE CLICK
+    // =====================================================
+
+    const handleDeleteClick = (row) => {
+
+        if (!row) {
+
+            setError(
+                "No inventory record selected."
+            );
+
+            return;
+
+        }
+
+
+        setSelectedInventory(row);
+
+        setDeleteOpen(true);
+
+    };
+
+
+    // =====================================================
+    // EXPORT
+    // =====================================================
+
+    const handleExport = () => {
+
+        if (
+            !filteredInventories.length
+        ) {
+
+            setError(
+                "No inventory records available to export."
+            );
+
+            return;
+
+        }
+
+
+        const headers = [
+
+            "Inventory ID",
+            "Product ID",
+            "Seller ID",
+            "Customer ID",
+            "Warehouse ID",
+            "Quantity",
+            "Available Quantity",
+            "Reserved Quantity",
+            "Reorder Level",
+            "Min Stock Level",
+            "Max Stock Level",
+            "Stock Status",
+            "Active",
+
+        ];
+
+
+        const rows =
+            filteredInventories.map(
+                (item) => {
+
+                    return [
+
+                        item.productInventoryId ??
+                            item.ProductInventoryId ??
+                            "",
+
+                        item.productId ??
+                            item.ProductId ??
+                            "",
+
+                        item.sellerId ??
+                            item.SellerId ??
+                            "",
+
+                        item.customerId ??
+                            item.CustomerId ??
+                            "",
+
+                        item.warehouseId ??
+                            item.WarehouseId ??
+                            "",
+
+                        item.quantity ??
+                            item.Quantity ??
+                            0,
+
+                        item.availableQuantity ??
+                            item.AvailableQuantity ??
+                            0,
+
+                        item.reservedQuantity ??
+                            item.ReservedQuantity ??
+                            0,
+
+                        item.reorderLevel ??
+                            item.ReorderLevel ??
+                            0,
+
+                        item.minStockLevel ??
+                            item.MinStockLevel ??
+                            0,
+
+                        item.maxStockLevel ??
+                            item.MaxStockLevel ??
+                            0,
+
+                        item.stockStatus ??
+                            item.StockStatus ??
+                            "",
+
+                        (
+                            item.isActive ??
+                            item.IsActive ??
+                            false
+                        )
+                            ? "Active"
+                            : "Inactive",
+
+                    ];
+
+                }
+            );
+
+
+        const csv =
+            [
+                headers,
+                ...rows
+            ]
+                .map(
+                    (row) =>
+                        row
+                            .map(
+                                (value) => {
+
+                                    const text =
+                                        String(
+                                            value ?? ""
+                                        );
+
+
+                                    return `"${text.replace(
+                                        /"/g,
+                                        '""'
+                                    )}"`;
+
+                                }
+                            )
+                            .join(",")
+                )
+                .join("\n");
+
+
+        const blob =
+            new Blob(
+                [csv],
+                {
+                    type:
+                        "text/csv;charset=utf-8;"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href = url;
+
+        link.download =
+            "product-inventory.csv";
+
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+
+        URL.revokeObjectURL(url);
+
+
+        setSuccess(
+            "Product inventory exported successfully."
+        );
+
+    };
 
 
     // =====================================================
@@ -827,9 +1037,9 @@ const handleExport = () => {
 
         <Box sx={{ p: 3 }}>
 
-            {/* ==========================================
+            {/* =================================================
                 TOOLBAR
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventoryToolbar
 
@@ -842,9 +1052,9 @@ const handleExport = () => {
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 STATISTICS
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventoryStatistics
 
@@ -853,9 +1063,9 @@ const handleExport = () => {
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 SEARCH
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventorySearch
 
@@ -863,99 +1073,139 @@ const handleExport = () => {
 
                 setSearchText={setSearchText}
 
-                stockStatusFilter={stockStatusFilter}
+                stockStatusFilter={
+                    stockStatusFilter
+                }
 
                 setStockStatusFilter={
                     setStockStatusFilter
                 }
 
-                warehouseFilter={warehouseFilter}
+                warehouseFilter={
+                    warehouseFilter
+                }
 
                 setWarehouseFilter={
                     setWarehouseFilter
                 }
 
-                inventories={inventories}
+                inventories={
+                    inventories
+                }
 
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 FILTERS
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventoryFilters
 
-                statusFilter={statusFilter}
+                statusFilter={
+                    statusFilter
+                }
 
-                setStatusFilter={setStatusFilter}
+                setStatusFilter={
+                    setStatusFilter
+                }
 
-                quantityFilter={quantityFilter}
+                quantityFilter={
+                    quantityFilter
+                }
 
-                setQuantityFilter={setQuantityFilter}
+                setQuantityFilter={
+                    setQuantityFilter
+                }
 
-                inventories={inventories}
+                inventories={
+                    inventories
+                }
 
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 TABLE
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventoryTable
 
-                inventories={pagedInventories}
+                inventories={
+                    pagedInventories
+                }
 
-                loading={loading}
+                loading={
+                    loading
+                }
 
-                onView={handleView}
+                onView={
+                    handleView
+                }
 
-                onEdit={handleEdit}
+                onEdit={
+                    handleEdit
+                }
 
-                onDelete={handleDeleteClick}
+                onDelete={
+                    handleDeleteClick
+                }
 
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 PAGINATION
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventoryPagination
 
-                page={page}
+                page={
+                    page
+                }
 
-                totalPages={totalPages}
+                totalPages={
+                    totalPages
+                }
 
-                pageSize={pageSize}
+                pageSize={
+                    pageSize
+                }
 
                 totalRecords={
                     filteredInventories.length
                 }
 
-                onPageChange={setPage}
+                onPageChange={
+                    setPage
+                }
 
-                onPageSizeChange={(size) => {
+                onPageSizeChange={
+                    (size) => {
 
-                    setPageSize(size);
+                        setPageSize(size);
 
-                    setPage(1);
+                        setPage(1);
 
-                }}
+                    }
+                }
 
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 CREATE / EDIT MODAL
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventoryModal
 
-                open={modalOpen}
+                open={
+                    modalOpen
+                }
 
-                inventory={selectedInventory}
+                inventory={
+                    selectedInventory
+                }
 
                 onClose={() => {
 
@@ -965,20 +1215,26 @@ const handleExport = () => {
 
                 }}
 
-                onSave={handleSave}
+                onSave={
+                    handleSave
+                }
 
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 VIEW MODAL
-            ========================================== */}
+            ================================================= */}
 
             <ProductInventoryView
 
-                open={viewOpen}
+                open={
+                    viewOpen
+                }
 
-                inventory={selectedInventory}
+                inventory={
+                    selectedInventory
+                }
 
                 onClose={() => {
 
@@ -991,15 +1247,19 @@ const handleExport = () => {
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 DELETE DIALOG
-            ========================================== */}
+            ================================================= */}
 
             <DeleteProductInventoryDialog
 
-                open={deleteOpen}
+                open={
+                    deleteOpen
+                }
 
-                inventory={selectedInventory}
+                inventory={
+                    selectedInventory
+                }
 
                 onClose={() => {
 
@@ -1009,28 +1269,38 @@ const handleExport = () => {
 
                 }}
 
-                onDeleted={handleDelete}
+                onDeleted={
+                    handleDelete
+                }
 
             />
 
 
-            {/* ==========================================
+            {/* =================================================
                 ERROR
-            ========================================== */}
+            ================================================= */}
 
             <Snackbar
 
-                open={Boolean(error)}
+                open={
+                    Boolean(error)
+                }
 
-                autoHideDuration={5000}
+                autoHideDuration={
+                    5000
+                }
 
-                onClose={() => setError("")}
+                onClose={() =>
+                    setError("")
+                }
 
             >
 
                 <Alert
                     severity="error"
-                    onClose={() => setError("")}
+                    onClose={() =>
+                        setError("")
+                    }
                 >
                     {error}
                 </Alert>
@@ -1038,23 +1308,31 @@ const handleExport = () => {
             </Snackbar>
 
 
-            {/* ==========================================
+            {/* =================================================
                 SUCCESS
-            ========================================== */}
+            ================================================= */}
 
             <Snackbar
 
-                open={Boolean(success)}
+                open={
+                    Boolean(success)
+                }
 
-                autoHideDuration={3000}
+                autoHideDuration={
+                    3000
+                }
 
-                onClose={() => setSuccess("")}
+                onClose={() =>
+                    setSuccess("")
+                }
 
             >
 
                 <Alert
                     severity="success"
-                    onClose={() => setSuccess("")}
+                    onClose={() =>
+                        setSuccess("")
+                    }
                 >
                     {success}
                 </Alert>
