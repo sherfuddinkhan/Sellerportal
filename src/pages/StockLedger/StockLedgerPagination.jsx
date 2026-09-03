@@ -1,342 +1,144 @@
 import React from "react";
 
-
 import {
-
     Box,
-
     Pagination,
-
     FormControl,
-
     InputLabel,
-
     Select,
-
     MenuItem,
-
-    Typography
-
+    Typography,
 } from "@mui/material";
 
 
+// =========================================================
+// StockLedgerPagination
+// =========================================================
 
 const StockLedgerPagination = ({
-
-    page,
-
-    totalPages,
-
-    pageSize,
-
-    totalRecords,
-
+    page = 1,
+    totalPages = 1,
+    pageSize = 10,
+    totalRecords = 0,
     onPageChange,
-
-    onPageSizeChange
-
+    onPageSizeChange,
 }) => {
 
+    const pageSizes = [5, 10, 25, 50, 100];
 
 
-    const pageSizes = [
+    // =========================================================
+    // PAGE CHANGE
+    // =========================================================
 
-        5,
+    const handlePageChange = (event, value) => {
 
-        10,
+        if (onPageChange) {
+            onPageChange(value);
+        }
 
-        25,
-
-        50,
-
-        100
-
-    ];
+    };
 
 
+    // =========================================================
+    // PAGE SIZE CHANGE
+    // =========================================================
+
+    const handlePageSizeChange = (event) => {
+
+        const newPageSize = Number(event.target.value);
+
+        if (onPageSizeChange) {
+            onPageSizeChange(newPageSize);
+        }
+
+    };
 
 
-
-
+    // =========================================================
+    // RENDER
+    // =========================================================
 
     return (
-
-
-
         <Box
-
-
-
             className="stock-ledger-pagination"
-
-
-
             sx={{
-
-
-
-                display:"flex",
-
-
-
-                justifyContent:"space-between",
-
-
-
-                alignItems:"center",
-
-
-
-                flexWrap:"wrap",
-
-
-
-                gap:2,
-
-
-
-                mt:3
-
-
-
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 2,
+                mt: 3,
+                width: "100%",
             }}
-
-
-
         >
 
-
-
-
-
+            {/* =====================================================
+                TOTAL RECORDS
+            ===================================================== */}
 
             <Typography
-
-
-
                 variant="body2"
-
-
-
                 color="text.secondary"
-
-
-
             >
-
-
-
-                Total Records:
-
-                {" "}
-
-                {
-
-                    totalRecords
-
-                }
-
-
-
+                Total Records: {totalRecords}
             </Typography>
 
 
-
-
-
-
-
-
+            {/* =====================================================
+                PAGINATION
+            ===================================================== */}
 
             <Pagination
-
-
-
-                count={
-
-                    totalPages || 1
-
-                }
-
-
-
-                page={page}
-
-
-
-                onChange={(event,value)=>
-
-
-
-                    onPageChange(value)
-
-
-
-                }
-
-
-
+                count={Math.max(totalPages, 1)}
+                page={Math.max(page, 1)}
+                onChange={handlePageChange}
                 color="primary"
-
-
-
                 showFirstButton
-
-
-
                 showLastButton
-
-
-
+                siblingCount={1}
+                boundaryCount={1}
             />
 
 
-
-
-
-
-
-
+            {/* =====================================================
+                PAGE SIZE
+            ===================================================== */}
 
             <FormControl
-
-
-
                 size="small"
-
-
-
                 sx={{
-
-                    minWidth:100
-
+                    minWidth: 100,
                 }}
-
-
-
             >
 
-
-
-                <InputLabel>
-
+                <InputLabel id="stock-ledger-rows-label">
                     Rows
-
                 </InputLabel>
 
-
-
-
-
                 <Select
-
-
-
+                    labelId="stock-ledger-rows-label"
                     value={pageSize}
-
-
-
                     label="Rows"
-
-
-
-                    onChange={(e)=>
-
-
-
-                        onPageSizeChange(
-
-                            e.target.value
-
-                        )
-
-
-
-                    }
-
-
-
+                    onChange={handlePageSizeChange}
                 >
 
-
-
-
-
-                    {
-
-
-
-                        pageSizes.map((size)=>(
-
-
-
-                            <MenuItem
-
-
-
-                                key={size}
-
-
-
-                                value={size}
-
-
-
-                            >
-
-
-
-                                {
-
-                                    size
-
-                                }
-
-
-
-                            </MenuItem>
-
-
-
-
-
-                        ))
-
-
-
-                    }
-
-
-
-
+                    {pageSizes.map((size) => (
+                        <MenuItem
+                            key={size}
+                            value={size}
+                        >
+                            {size}
+                        </MenuItem>
+                    ))}
 
                 </Select>
 
-
-
-
-
-
-
             </FormControl>
 
-
-
-
-
-
-
-
-
         </Box>
-
-
-
     );
-
-
 };
-
 
 
 export default StockLedgerPagination;

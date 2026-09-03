@@ -221,6 +221,27 @@ import MarketplaceOrderItemTable from "./pages/MarketplaceOrderItem/MarketplaceO
 import MarketplaceOrderItemToolbar from "./pages/MarketplaceOrderItem/MarketplaceOrderItemToolbar";
 import MarketplaceOrderItemView from "./pages/MarketplaceOrderItem/MarketplaceOrderItemView";
 
+
+// =========================================================
+// STOCK LEDGER IMPORTS
+// =========================================================
+
+import StockLedgerList from "./components/StockLedger/StockLedgerList";
+import StockLedgerCreate  from "./components/StockLedger/StockLedgerCreate";
+import StockLedgerEdit from "./components/StockLedger/StockLedgerEdit";
+import StockLedgerView from "./components/StockLedger/StockLedgerView";
+import StockLedgerDetails from "./components/StockLedger/StockLedgerDetails";
+import StockLedgerTable from "./components/StockLedger/StockLedgerTable";
+import StockLedgerCard from "./components/StockLedger/StockLedgerCard";
+import StockLedgerSearch from "./components/StockLedger/StockLedgerSearch";
+import StockLedgerFilters from "./components/StockLedger/StockLedgerFilters";
+import StockLedgerPagination from "./components/StockLedger/StockLedgerPagination";
+import StockLedgerStatistics from "./components/StockLedger/StockLedgerStatistics";
+import StockLedgerToolbar from "./components/StockLedger/StockLedgerToolbar";
+import DeleteStockLedgerDialog from "./components/StockLedger/DeleteStockLedgerDialog";
+
+
+
 // =========================================================
 // MARKETPLACE RETURNS
 // =========================================================
@@ -1182,8 +1203,50 @@ function App() {
                 path="stock-adjustments/edit/:id"
                 element={<StockAdjustmentEdit />}
             />
+ 
 
-       
+
+    {/* =====================================================
+        STOCK LEDGER
+    ====================================================== */}
+
+    <Route
+        path="/stock-ledger"
+        element={<StockLedgerList />}
+    />
+
+    <Route
+        path="/stock-ledger/create"
+        element={<StockLedgerCreate />}
+    />
+
+    <Route
+        path="/stock-ledger/edit/:id"
+        element={<StockLedgerEdit />}
+    />
+
+    <Route
+        path="/stock-ledger/view/:id"
+        element={<StockLedgerDetails />}
+    />
+                <Route
+                    path="/stock-ledger"
+                    element={<StockLedgerList />}
+                />
+
+                <Route
+                    path="/stock-ledger/create"
+                    element={<StockLedgerCreate />}
+                />
+                <Route
+                    path="/stock-ledger/edit/:id"
+                    element={<StockLedgerEdit /> }
+                />
+                <Route
+                    path="/stock-ledger/view/:id"
+                    element={<StockLedgerDetails />}
+                    />
+        
         {/* ===================================================
             DELIVERY CHALLANS
         =================================================== */}
