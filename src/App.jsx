@@ -295,6 +295,22 @@ import SellerEdit from "./pages/Seller/SellerEdit";
 import SellerCreate from "./pages/Seller/SellerCreate";
 import SellerDetails from "./pages/Seller/SellerDetails";
 
+//////////////// supplier ////////////////////////////
+import SupplierList from "./pages/Supplier/SupplierList";
+import SupplierEdit from "./pages/Supplier/SupplierEdit";
+import SupplierView from "./pages/Supplier/SupplierView";
+import SupplierDetails from "./pages/Supplier/SupplierDetails";
+import SupplierCreate from "./pages/Supplier/SupplierCreate";
+import SupplierStatistics from "./pages/Supplier/SupplierStatistics";
+import SupplierPagination from "./pages/Supplier/SupplierPagination";
+import SupplierFilters from "./pages/Supplier/SupplierFilters";
+import SupplierSearch from "./pages/Supplier/SupplierSearch";
+import SupplierToolbar from "./pages/Supplier/SupplierToolbar";
+import SupplierTable from "./pages/Supplier/SupplierTable";
+import SupplierCard from "./pages/Supplier/SupplierCard";
+
+
+
 // =========================================================
 // ORDER STATUS HISTORY
 // =========================================================
@@ -1251,7 +1267,142 @@ function App() {
     path="/stock-ledger/create"
     element={<StockLedgerCreate />}
 />
-        
+
+
+    {/* =====================================================
+        SUPPLIER MAIN PAGES
+       ===================================================== */}
+
+    <Route
+        path="/suppliers"
+        element={<SupplierList />}
+    />
+
+    <Route
+        path="/suppliers/create"
+        element={<SupplierCreate />}
+    />
+
+    <Route
+        path="/suppliers/edit/:id"
+        element={<SupplierEdit />}
+    />
+
+    <Route
+        path="/suppliers/view/:id"
+        element={<SupplierView />}
+    />
+
+    <Route
+        path="/suppliers/details/:id"
+        element={<SupplierDetails />}
+    />
+<Route
+    path="/suppliers/card"
+    element={
+        <SupplierCard
+            supplier={null}
+        />
+    }
+/>
+
+    {/* =====================================================
+        SUPPLIER STATISTICS
+       ===================================================== */}
+
+    <Route
+        path="/suppliers/statistics"
+        element={
+            <SupplierStatistics
+                suppliers={[]}
+            />
+        }
+    />
+
+
+    {/* =====================================================
+        SUPPLIER PAGINATION
+       ===================================================== */}
+
+    <Route
+        path="/suppliers/pagination"
+        element={
+            <SupplierPagination
+                page={1}
+                setPage={() => {}}
+                rowsPerPage={10}
+                setRowsPerPage={() => {}}
+                totalPages={1}
+                totalItems={0}
+            />
+        }
+    />
+
+
+    {/* =====================================================
+        SUPPLIER FILTERS
+       ===================================================== */}
+
+    <Route
+        path="/suppliers/filters"
+        element={
+            <SupplierFilters
+                sort=""
+                setSort={() => {}}
+            />
+        }
+    />
+
+
+    {/* =====================================================
+        SUPPLIER SEARCH
+       ===================================================== */}
+
+    <Route
+        path="/suppliers/search"
+        element={
+            <SupplierSearch
+                searchText=""
+                setSearchText={() => {}}
+            />
+        }
+    />
+
+
+    {/* =====================================================
+        SUPPLIER TOOLBAR
+       ===================================================== */}
+
+    <Route
+        path="/suppliers/toolbar"
+        element={
+            <SupplierToolbar
+                searchText=""
+                setSearchText={() => {}}
+                sort=""
+                setSort={() => {}}
+                onCreate={() => {}}
+                onRefresh={() => {}}
+            />
+        }
+    />
+
+
+    {/* =====================================================
+        SUPPLIER TABLE
+       ===================================================== */}
+
+    <Route
+        path="/suppliers/table"
+        element={
+            <SupplierTable
+                suppliers={[]}
+                onView={() => {}}
+                onEdit={() => {}}
+                onDelete={() => {}}
+            />
+        }
+    />
         {/* ===================================================
             DELIVERY CHALLANS
         =================================================== */}

@@ -579,7 +579,84 @@ children: [
 
 
 },
+{
+    label: "Suppliers",
+    path: "/suppliers",
+    icon: "🚚",
+    children: [
 
+        {
+            label: "Supplier List",
+            path: "/suppliers",
+        },
+
+        {
+            label: "Create Supplier",
+            path: "/suppliers/create",
+        },
+
+        {
+            label: "Supplier Details",
+            path: "/suppliers/details/:id",
+        },
+
+        {
+            label: "Edit Supplier",
+            path: "/suppliers/edit/:id",
+        },
+
+        {
+            label: "Supplier View",
+            path: "/suppliers/view/:id",
+        },
+
+        {
+            label: "Supplier Filters",
+            path: "/suppliers/filters",
+        },
+
+        {
+            label: "Search Suppliers",
+            path: "/suppliers/search",
+        },
+
+        {
+            label: "Supplier Statistics",
+            path: "/suppliers/statistics",
+        },
+
+        {
+            label: "Supplier Table",
+            path: "/suppliers/table",
+        },
+
+        {
+            label: "Supplier Card",
+            path: "/suppliers/card",
+        },
+
+        {
+            label: "Supplier Form",
+            path: "/suppliers/form",
+        },
+
+        {
+            label: "Supplier Modal",
+            path: "/suppliers/modal",
+        },
+
+        {
+            label: "Supplier Pagination",
+            path: "/suppliers/pagination",
+        },
+
+        {
+            label: "Supplier Toolbar",
+            path: "/suppliers/toolbar",
+        },
+
+    ],
+},
 
                 {
                     label: "Products",

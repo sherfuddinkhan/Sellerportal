@@ -2480,6 +2480,287 @@ app.get(
     }
 );
 
+
+// =========================================================
+// SUPPLIER ROUTES
+// =========================================================
+
+// GET ALL
+app.get("/api/Supplier", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Supplier`,
+            { httpsAgent }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Supplier Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// SEARCH
+app.get("/api/Supplier/search", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Supplier/search`,
+            {
+                params: {
+                    search: req.query.search
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Supplier/search Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// SORT
+app.get("/api/Supplier/sort", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Supplier/sort`,
+            {
+                params: {
+                    sort: req.query.sort
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Supplier/sort Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// PAGINATION
+app.get("/api/Supplier/page", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Supplier/page`,
+            {
+                params: {
+                    page: req.query.page || 1,
+                    limit: req.query.limit || 15
+                },
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Supplier/page Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// STATISTICS
+app.get("/api/Supplier/statistics", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Supplier/statistics`,
+            { httpsAgent }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/Supplier/statistics Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// GET BY SELLER
+app.get("/api/Supplier/seller/:sellerId", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Supplier/seller/${req.params.sellerId}`,
+            { httpsAgent }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET Supplier by seller Error:",
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+
+// GET BY SELLER + SUPPLIER
+app.get(
+    "/api/Supplier/:sellerId/:supplierId",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Supplier/${req.params.sellerId}/${req.params.supplierId}`,
+                { httpsAgent }
+            );
+
+            res.status(response.status).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET Supplier seller/supplier Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// GET BY SUPPLIER ID
+// KEEP THIS LAST
+app.get(
+    "/api/Supplier/:supplierId",
+    async (req, res) => {
+
+        try {
+
+            const supplierId =
+                Number(req.params.supplierId);
+
+            if (!Number.isInteger(supplierId)) {
+
+                return res.status(400).json({
+                    message: "Supplier ID must be a number"
+                });
+
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/Supplier/${supplierId}`,
+                { httpsAgent }
+            );
+
+            res.status(response.status).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/Supplier/:supplierId Error:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+        }
+    }
+);
+
+
+
+
 //////////////////////    STOCK LEDGERS /////////////////
 // ---------------------------------------------------------
 // GET STOCK LEDGERS
