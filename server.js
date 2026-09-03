@@ -2479,6 +2479,688 @@ app.get(
 
     }
 );
+
+//////////////////////    STOCK LEDGERS /////////////////
+// ---------------------------------------------------------
+// GET STOCK LEDGERS
+// Supports search, transactionType, sort,
+// page and limit
+//
+// GET /api/stock-ledgers
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET /api/stock-ledgers",
+                req.query
+            );
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers`,
+                    {
+                        httpsAgent,
+                        params: req.query
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger GET Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load Stock Ledger records."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET STOCK LEDGER STATISTICS
+//
+// GET /api/stock-ledgers/statistics
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/statistics",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET /api/stock-ledgers/statistics"
+            );
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/statistics`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            console.log(
+                "Stock Ledger Statistics:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Statistics Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load Stock Ledger statistics."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET STOCK LEDGER FILTERS
+//
+// GET /api/stock-ledgers/filters
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/filters",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET /api/stock-ledgers/filters"
+            );
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/filters`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Filters Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load Stock Ledger filters."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET STOCK LEDGER BY ID
+//
+// GET /api/stock-ledgers/6
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/:stockLedgerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                stockLedgerId
+            } = req.params;
+
+            console.log(
+                `GET /api/stock-ledgers/${stockLedgerId}`
+            );
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/${stockLedgerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger GET BY ID Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load Stock Ledger record."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET BY SELLER
+//
+// GET /api/stock-ledgers/seller/6
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/seller/${sellerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Seller Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load seller Stock Ledger records."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET BY CUSTOMER
+//
+// GET /api/stock-ledgers/customer/3
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/customer/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Customer Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load customer Stock Ledger records."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET BY SELLER + CUSTOMER
+//
+// GET /api/stock-ledgers/seller/6/customer/3
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/seller/${sellerId}/customer/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Seller Customer Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load seller/customer Stock Ledger records."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET BY PRODUCT
+//
+// GET /api/stock-ledgers/product/6
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/product/${productId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Product Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load product Stock Ledger records."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET BY WAREHOUSE
+//
+// GET /api/stock-ledgers/warehouse/3
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/warehouse/:warehouseId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                warehouseId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/warehouse/${warehouseId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Warehouse Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load warehouse Stock Ledger records."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET BY TRANSACTION TYPE
+//
+// GET /api/stock-ledgers/transaction/Purchase
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/transaction/:transactionType",
+    async (req, res) => {
+
+        try {
+
+            const {
+                transactionType
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/transaction/${encodeURIComponent(transactionType)}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Transaction Type Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load transaction records."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET SPECIFIC STOCK LEDGER
+//
+// GET
+// /api/stock-ledgers/seller/6/product/6/warehouse/3/ledger/6
+// ---------------------------------------------------------
+
+app.get(
+    "/api/stock-ledgers/seller/:sellerId/product/:productId/warehouse/:warehouseId/ledger/:stockLedgerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                productId,
+                warehouseId,
+                stockLedgerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/stock-ledgers/seller/${sellerId}/product/${productId}/warehouse/${warehouseId}/ledger/${stockLedgerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger Detailed Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to load Stock Ledger details."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// CREATE STOCK LEDGER
+//
+// POST /api/stock-ledgers
+// ---------------------------------------------------------
+
+app.post(
+    "/api/stock-ledgers",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "POST /api/stock-ledgers"
+            );
+
+            console.log(
+                "Request Body:",
+                req.body
+            );
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/stock-ledgers`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger POST Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to create Stock Ledger record."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// UPDATE STOCK LEDGER
+//
+// PUT /api/stock-ledgers/6
+// ---------------------------------------------------------
+
+app.put(
+    "/api/stock-ledgers/:stockLedgerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                stockLedgerId
+            } = req.params;
+
+            console.log(
+                `PUT /api/stock-ledgers/${stockLedgerId}`
+            );
+
+            console.log(
+                "Request Body:",
+                req.body
+            );
+
+            const response =
+                await axios.put(
+                    `${DOTNET_API}/stock-ledgers/${stockLedgerId}`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger PUT Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to update Stock Ledger record."
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// DELETE STOCK LEDGER
+//
+// DELETE /api/stock-ledgers/6
+// ---------------------------------------------------------
+
+app.delete(
+    "/api/stock-ledgers/:stockLedgerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                stockLedgerId
+            } = req.params;
+
+            console.log(
+                `DELETE /api/stock-ledgers/${stockLedgerId}`
+            );
+
+            const response =
+                await axios.delete(
+                    `${DOTNET_API}/stock-ledgers/${stockLedgerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Stock Ledger DELETE Error:",
+                error.message
+            );
+
+            return handleProxyError(
+                res,
+                error,
+                "Failed to delete Stock Ledger record."
+            );
+        }
+    }
+);
+
+
+
+
+
+
 // =========================================================
 // PRODUCT TYPE
 // React -> Node server.js -> ASP.NET Core

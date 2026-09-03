@@ -226,19 +226,19 @@ import MarketplaceOrderItemView from "./pages/MarketplaceOrderItem/MarketplaceOr
 // STOCK LEDGER IMPORTS
 // =========================================================
 
-import StockLedgerList from "./components/StockLedger/StockLedgerList";
-import StockLedgerCreate  from "./components/StockLedger/StockLedgerCreate";
-import StockLedgerEdit from "./components/StockLedger/StockLedgerEdit";
-import StockLedgerView from "./components/StockLedger/StockLedgerView";
-import StockLedgerDetails from "./components/StockLedger/StockLedgerDetails";
-import StockLedgerTable from "./components/StockLedger/StockLedgerTable";
-import StockLedgerCard from "./components/StockLedger/StockLedgerCard";
-import StockLedgerSearch from "./components/StockLedger/StockLedgerSearch";
-import StockLedgerFilters from "./components/StockLedger/StockLedgerFilters";
-import StockLedgerPagination from "./components/StockLedger/StockLedgerPagination";
-import StockLedgerStatistics from "./components/StockLedger/StockLedgerStatistics";
-import StockLedgerToolbar from "./components/StockLedger/StockLedgerToolbar";
-import DeleteStockLedgerDialog from "./components/StockLedger/DeleteStockLedgerDialog";
+import StockLedgerList from "./pages/StockLedger/StockLedgerList";
+import StockLedgerCreate  from "./pages/StockLedger/StockLedgerCreate";
+import StockLedgerEdit from "./pages/StockLedger/StockLedgerEdit";
+import StockLedgerView from "./pages/StockLedger/StockLedgerView";
+import StockLedgerDetails from "./pages/StockLedger/StockLedgerDetails";
+import StockLedgerTable from "./pages/StockLedger/StockLedgerTable";
+import StockLedgerCard from "./pages/StockLedger/StockLedgerCard";
+import StockLedgerSearch from "./pages/StockLedger/StockLedgerSearch";
+import StockLedgerFilters from "./pages/StockLedger/StockLedgerFilters";
+import StockLedgerPagination from "./pages/StockLedger/StockLedgerPagination";
+import StockLedgerStatistics from "./pages/StockLedger/StockLedgerStatistics";
+import StockLedgerToolbar from "./pages/StockLedger/StockLedgerToolbar";
+import DeleteStockLedgerDialog from "./pages/StockLedger/DeleteStockLedgerDialog";
 
 
 
@@ -1246,6 +1246,11 @@ function App() {
                     path="/stock-ledger/view/:id"
                     element={<StockLedgerDetails />}
                     />
+
+                    <Route
+    path="/stock-ledger/create"
+    element={<StockLedgerCreate />}
+/>
         
         {/* ===================================================
             DELIVERY CHALLANS
