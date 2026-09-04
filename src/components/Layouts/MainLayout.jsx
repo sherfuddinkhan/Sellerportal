@@ -122,6 +122,80 @@ const MainLayout = () => {
                         },
                     ],
                 },
+                {
+    label: "Reviews",
+    path: "/reviews",
+    icon: "⭐",
+
+    children: [
+
+        {
+            label: "Review List",
+            path: "/reviews",
+        },
+
+        {
+            label: "Create Review",
+            path: "/reviews/create",
+        },
+
+        {
+            label: "Review Details",
+            path: "/reviews/details/:id",
+        },
+
+        {
+            label: "Edit Review",
+            path: "/reviews/edit/:id",
+        },
+
+        {
+            label: "Review Filters",
+            path: "/reviews/filters",
+        },
+
+        {
+            label: "Search Reviews",
+            path: "/reviews/search",
+        },
+
+        {
+            label: "Review Statistics",
+            path: "/reviews/statistics",
+        },
+
+        {
+            label: "Review Table",
+            path: "/reviews/table",
+        },
+
+        {
+            label: "Review Card",
+            path: "/reviews/card",
+        },
+
+        {
+            label: "Review Form",
+            path: "/reviews/form",
+        },
+
+        {
+            label: "Review Modal",
+            path: "/reviews/modal",
+        },
+
+        {
+            label: "Review Pagination",
+            path: "/reviews/pagination",
+        },
+
+        {
+            label: "Review Toolbar",
+            path: "/reviews/toolbar",
+        },
+
+    ],
+},
             ],
         },
 
@@ -579,6 +653,7 @@ children: [
 
 
 },
+
 {
     label: "Suppliers",
     path: "/suppliers",

@@ -1,517 +1,1219 @@
-import React, { useState, useMemo } from "react";
+import React, {
+    useMemo,
+    useState,
+} from "react";
+
 import PropTypes from "prop-types";
-import {Box,Stack,Button,IconButton,Tooltip,Typography,Divider,Menu,MenuItem,Badge,Chip,Avatar,TextField,InputAdornment} from "@mui/material";
-import {Refresh,Search,FilterList,Download,Print,Delete,CheckCircle,Cancel,Reply,MoreVert,FileDownload,PictureAsPdf,TableChart,Star} from "@mui/icons-material";
+
+import {
+    Badge,
+    Box,
+    Button,
+    Chip,
+    Divider,
+    IconButton,
+    InputAdornment,
+    Menu,
+    MenuItem,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography,
+} from "@mui/material";
+
+import {
+    Cancel,
+    CheckCircle,
+    Delete,
+    Download,
+    FilterList,
+    MoreVert,
+    PictureAsPdf,
+    Print,
+    Refresh,
+    Search,
+    Star,
+    TableChart,
+} from "@mui/icons-material";
+
+
+// ======================================================
+// Status Options
+// ======================================================
 
 const STATUS_OPTIONS = [
-  "All",
-  "Pending",
-  "Approved",
-  "Rejected",
+    {
+        label: "All",
+        value: "All",
+    },
+    {
+        label: "Pending",
+        value: "Pending",
+    },
+    {
+        label: "Approved",
+        value: "Approved",
+    },
+    {
+        label: "Rejected",
+        value: "Rejected",
+    },
 ];
+
+
+// ======================================================
+// Rating Options
+// ======================================================
 
 const RATING_OPTIONS = [
-  "All",
-  "★★★★★",
-  "★★★★",
-  "★★★",
-  "★★",
-  "★",
+    {
+        label: "All Ratings",
+        value: "All",
+    },
+    {
+        label: "5 Stars",
+        value: "5",
+    },
+    {
+        label: "4 Stars",
+        value: "4",
+    },
+    {
+        label: "3 Stars",
+        value: "3",
+    },
+    {
+        label: "2 Stars",
+        value: "2",
+    },
+    {
+        label: "1 Star",
+        value: "1",
+    },
 ];
+
+
+// ======================================================
+// Marketplace Options
+// ======================================================
 
 const MARKETPLACE_OPTIONS = [
-  "All",
-  "Amazon",
-  "Flipkart",
-  "Meesho",
-  "Shopify",
+    {
+        label: "All Marketplaces",
+        value: "All",
+    },
+    {
+        label: "Amazon",
+        value: "Amazon",
+    },
+    {
+        label: "Flipkart",
+        value: "Flipkart",
+    },
+    {
+        label: "Meesho",
+        value: "Meesho",
+    },
+    {
+        label: "Shopify",
+        value: "Shopify",
+    },
+    {
+        label: "Myntra",
+        value: "Myntra",
+    },
 ];
 
+
+// ======================================================
+// ReviewToolbar Component
+// ======================================================
+
 const ReviewToolbar = ({
-  searchText,
-  onSearchChange,
-  selectedRows = [],
-  loading = false,
-  onRefresh,
-  onExportExcel,
-  onExportPdf,
-  onPrint,
-  onApproveSelected,
-  onRejectSelected,
-  onDeleteSelected,
-  onStatusFilter,
-  onRatingFilter,
-  onMarketplaceFilter,
+    searchText,
+    onSearchChange,
+
+    selectedRows = [],
+
+    loading = false,
+
+    onRefresh,
+    onExportExcel,
+    onExportPdf,
+    onPrint,
+
+    onApproveSelected,
+    onRejectSelected,
+    onDeleteSelected,
+
+    onStatusFilter,
+    onRatingFilter,
+    onMarketplaceFilter,
 }) => {
 
-  //==================================================
-  // Export Menu
-  //==================================================
 
-  const [exportAnchor, setExportAnchor] =
-    useState(null);
+    // ==================================================
+    // Export Menu State
+    // ==================================================
 
-  //==================================================
-  // Filter Menu
-  //==================================================
+    const [
+        exportAnchor,
+        setExportAnchor,
+    ] = useState(null);
 
-  const [filterAnchor, setFilterAnchor] =
-    useState(null);
 
-  //==================================================
-  // Bulk Menu
-  //==================================================
+    // ==================================================
+    // Filter Menu State
+    // ==================================================
 
-  const [bulkAnchor, setBulkAnchor] =
-    useState(null);
+    const [
+        filterAnchor,
+        setFilterAnchor,
+    ] = useState(null);
 
-  //==================================================
-  // Current Filters
-  //==================================================
 
-  const [statusFilter, setStatusFilter] =
-    useState("All");
+    // ==================================================
+    // Bulk Action Menu State
+    // ==================================================
 
-  const [ratingFilter, setRatingFilter] =
-    useState("All");
+    const [
+        bulkAnchor,
+        setBulkAnchor,
+    ] = useState(null);
 
-  const [marketplaceFilter, setMarketplaceFilter] =
-    useState("All");
 
-  //==================================================
-  // Selected Count
-  //==================================================
+    // ==================================================
+    // Filter State
+    // ==================================================
 
-  const selectedCount = useMemo(
-    () => selectedRows.length,
-    [selectedRows]
-  );
+    const [
+        statusFilter,
+        setStatusFilter,
+    ] = useState("All");
 
-  //==================================================
-  // Menu Handlers
-  //==================================================
 
-  const openExportMenu = (event) =>
-    setExportAnchor(event.currentTarget);
+    const [
+        ratingFilter,
+        setRatingFilter,
+    ] = useState("All");
 
-  const closeExportMenu = () =>
-    setExportAnchor(null);
 
-  const openFilterMenu = (event) =>
-    setFilterAnchor(event.currentTarget);
+    const [
+        marketplaceFilter,
+        setMarketplaceFilter,
+    ] = useState("All");
 
-  const closeFilterMenu = () =>
-    setFilterAnchor(null);
 
-  const openBulkMenu = (event) =>
-    setBulkAnchor(event.currentTarget);
+    // ==================================================
+    // Selected Count
+    // ==================================================
 
-  const closeBulkMenu = () =>
-    setBulkAnchor(null);
-    //==================================================
-  // Filter Handlers
-  //==================================================
+    const selectedCount = useMemo(
+        () =>
+            Array.isArray(selectedRows)
+                ? selectedRows.length
+                : 0,
+        [selectedRows]
+    );
 
-  const handleStatusChange = (status) => {
-    setStatusFilter(status);
-    closeFilterMenu();
 
-    if (onStatusFilter) {
-      onStatusFilter(status);
-    }
-  };
+    // ==================================================
+    // Export Menu Handlers
+    // ==================================================
 
-  const handleRatingChange = (rating) => {
-    setRatingFilter(rating);
-    closeFilterMenu();
+    const openExportMenu = (
+        event
+    ) => {
 
-    if (onRatingFilter) {
-      onRatingFilter(rating);
-    }
-  };
+        setExportAnchor(
+            event.currentTarget
+        );
 
-  const handleMarketplaceChange = (marketplace) => {
-    setMarketplaceFilter(marketplace);
-    closeFilterMenu();
+    };
 
-    if (onMarketplaceFilter) {
-      onMarketplaceFilter(marketplace);
-    }
-  };
 
-  //==================================================
-  // Bulk Actions
-  //==================================================
+    const closeExportMenu = () => {
 
-  const handleApprove = () => {
-    closeBulkMenu();
+        setExportAnchor(null);
 
-    if (onApproveSelected) {
-      onApproveSelected(selectedRows);
-    }
-  };
+    };
 
-  const handleReject = () => {
-    closeBulkMenu();
 
-    if (onRejectSelected) {
-      onRejectSelected(selectedRows);
-    }
-  };
+    // ==================================================
+    // Filter Menu Handlers
+    // ==================================================
 
-  const handleDelete = () => {
-    closeBulkMenu();
+    const openFilterMenu = (
+        event
+    ) => {
 
-    if (onDeleteSelected) {
-      onDeleteSelected(selectedRows);
-    }
-  };
+        setFilterAnchor(
+            event.currentTarget
+        );
 
-  //==================================================
-  // Export
-  //==================================================
+    };
 
-  const handleExportExcel = () => {
-    closeExportMenu();
 
-    if (onExportExcel) {
-      onExportExcel();
-    }
-  };
+    const closeFilterMenu = () => {
 
-  const handleExportPdf = () => {
-    closeExportMenu();
+        setFilterAnchor(null);
 
-    if (onExportPdf) {
-      onExportPdf();
-    }
-  };
+    };
 
-  //==================================================
-  // JSX
-  //==================================================
 
-  return (
-    <Box mb={2}>
+    // ==================================================
+    // Bulk Menu Handlers
+    // ==================================================
 
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={2}
-        justifyContent="space-between"
-        alignItems={{ xs: "stretch", md: "center" }}
-      >
+    const openBulkMenu = (
+        event
+    ) => {
 
-        {/* Left */}
+        setBulkAnchor(
+            event.currentTarget
+        );
 
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          flexWrap="wrap"
-        >
+    };
 
-          <Typography variant="h5" fontWeight={700}>
-            Reviews
-          </Typography>
 
-          <Chip
-            color="primary"
-            label={`${selectedCount} Selected`}
-          />
+    const closeBulkMenu = () => {
 
-        </Stack>
+        setBulkAnchor(null);
 
-        {/* Right */}
+    };
 
-        <Stack
-          direction="row"
-          spacing={1}
-          flexWrap="wrap"
-        >
 
-          <TextField
-            size="small"
-            placeholder="Search reviews..."
-            value={searchText}
-            onChange={onSearchChange}
-            sx={{ minWidth: 260 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
+    // ==================================================
+    // Status Filter
+    // ==================================================
+
+    const handleStatusChange = (
+        status
+    ) => {
+
+        setStatusFilter(
+            status
+        );
+
+        closeFilterMenu();
+
+
+        if (onStatusFilter) {
+
+            onStatusFilter(
+                status
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Rating Filter
+    // ==================================================
+
+    const handleRatingChange = (
+        rating
+    ) => {
+
+        setRatingFilter(
+            rating
+        );
+
+        closeFilterMenu();
+
+
+        if (onRatingFilter) {
+
+            onRatingFilter(
+                rating
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Marketplace Filter
+    // ==================================================
+
+    const handleMarketplaceChange = (
+        marketplace
+    ) => {
+
+        setMarketplaceFilter(
+            marketplace
+        );
+
+        closeFilterMenu();
+
+
+        if (onMarketplaceFilter) {
+
+            onMarketplaceFilter(
+                marketplace
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Bulk Approve
+    // ==================================================
+
+    const handleApprove = () => {
+
+        closeBulkMenu();
+
+
+        if (
+            selectedCount > 0 &&
+            onApproveSelected
+        ) {
+
+            onApproveSelected(
+                selectedRows
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Bulk Reject
+    // ==================================================
+
+    const handleReject = () => {
+
+        closeBulkMenu();
+
+
+        if (
+            selectedCount > 0 &&
+            onRejectSelected
+        ) {
+
+            onRejectSelected(
+                selectedRows
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Bulk Delete
+    // ==================================================
+
+    const handleDelete = () => {
+
+        closeBulkMenu();
+
+
+        if (
+            selectedCount > 0 &&
+            onDeleteSelected
+        ) {
+
+            onDeleteSelected(
+                selectedRows
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Export Excel
+    // ==================================================
+
+    const handleExportExcel = () => {
+
+        closeExportMenu();
+
+
+        if (onExportExcel) {
+
+            onExportExcel();
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Export PDF
+    // ==================================================
+
+    const handleExportPdf = () => {
+
+        closeExportMenu();
+
+
+        if (onExportPdf) {
+
+            onExportPdf();
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Print
+    // ==================================================
+
+    const handlePrint = () => {
+
+        if (onPrint) {
+
+            onPrint();
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Refresh
+    // ==================================================
+
+    const handleRefresh = () => {
+
+        if (
+            !loading &&
+            onRefresh
+        ) {
+
+            onRefresh();
+
+        }
+
+    };
+
+
+    // ==================================================
+    // JSX
+    // ==================================================
+
+    return (
+
+        <Box
+            sx={{
+                mb: 2,
             }}
-          />
-
-          <Tooltip title="Refresh">
-
-            <IconButton
-              color="primary"
-              disabled={loading}
-              onClick={onRefresh}
-            >
-              <Refresh />
-            </IconButton>
-
-          </Tooltip>
-
-          <Tooltip title="Filters">
-
-            <IconButton
-              onClick={openFilterMenu}
-            >
-              <FilterList />
-            </IconButton>
-
-          </Tooltip>
-
-          <Tooltip title="Export">
-
-            <IconButton
-              onClick={openExportMenu}
-            >
-              <Download />
-            </IconButton>
-
-          </Tooltip>
-
-          <Tooltip title="Print">
-
-            <IconButton
-              onClick={onPrint}
-            >
-              <Print />
-            </IconButton>
-
-          </Tooltip>
-
-          <Badge
-            badgeContent={selectedCount}
-            color="error"
-          >
-
-            <Button
-              variant="contained"
-              endIcon={<MoreVert />}
-              onClick={openBulkMenu}
-              disabled={!selectedCount}
-            >
-              Bulk Actions
-            </Button>
-
-          </Badge>
-
-        </Stack>
-
-      </Stack>
-
-      <Divider sx={{ my: 2 }} />
-
-      {/* Export Menu */}
-
-      <Menu
-        anchorEl={exportAnchor}
-        open={Boolean(exportAnchor)}
-        onClose={closeExportMenu}
-      >
-
-        <MenuItem onClick={handleExportExcel}>
-          <TableChart sx={{ mr: 1 }} />
-          Export Excel
-        </MenuItem>
-
-        <MenuItem onClick={handleExportPdf}>
-          <PictureAsPdf sx={{ mr: 1 }} />
-          Export PDF
-        </MenuItem>
-
-      </Menu>
-
-      {/* Filter Menu */}
-
-      <Menu
-        anchorEl={filterAnchor}
-        open={Boolean(filterAnchor)}
-        onClose={closeFilterMenu}
-      >
-
-        <Typography
-          sx={{
-            px: 2,
-            pt: 1,
-            fontWeight: 700,
-          }}
         >
-          Status
-        </Typography>
 
-        {STATUS_OPTIONS.map((item) => (
+            {/* ==================================================
+                Main Toolbar
+            ================================================== */}
 
-          <MenuItem
-            key={item}
-            selected={statusFilter === item}
-            onClick={() => handleStatusChange(item)}
-          >
-            {item}
-          </MenuItem>
+            <Stack
+                direction={{
+                    xs: "column",
+                    md: "row",
+                }}
+                spacing={2}
+                justifyContent="space-between"
+                alignItems={{
+                    xs: "stretch",
+                    md: "center",
+                }}
+            >
 
-        ))}
+                {/* ==================================================
+                    Left Section
+                ================================================== */}
 
-        <Divider />
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    flexWrap="wrap"
+                    useFlexGap
+                >
 
-        <Typography
-          sx={{
-            px: 2,
-            pt: 1,
-            fontWeight: 700,
-          }}
-        >
-          Rating
-        </Typography>
+                    <Typography
+                        variant="h5"
+                        fontWeight={700}
+                    >
+                        Reviews
+                    </Typography>
 
-        {RATING_OPTIONS.map((item) => (
 
-          <MenuItem
-            key={item}
-            selected={ratingFilter === item}
-            onClick={() => handleRatingChange(item)}
-          >
-            <Star
-              sx={{
-                mr: 1,
-                color: "#FFA000",
-              }}
+                    <Chip
+                        size="small"
+                        color="primary"
+                        label={
+                            `${selectedCount} Selected`
+                        }
+                    />
+
+                </Stack>
+
+
+                {/* ==================================================
+                    Right Section
+                ================================================== */}
+
+                <Stack
+                    direction={{
+                        xs: "column",
+                        sm: "row",
+                    }}
+                    spacing={1}
+                    flexWrap="wrap"
+                    useFlexGap
+                    alignItems={{
+                        xs: "stretch",
+                        sm: "center",
+                    }}
+                >
+
+                    {/* ==============================================
+                        Search
+                    ============================================== */}
+
+                    <TextField
+                        size="small"
+                        placeholder="Search reviews..."
+                        value={
+                            searchText || ""
+                        }
+                        onChange={
+                            onSearchChange
+                        }
+                        sx={{
+                            minWidth: {
+                                xs: "100%",
+                                sm: 260,
+                            },
+                        }}
+                        InputProps={{
+                            startAdornment: (
+
+                                <InputAdornment
+                                    position="start"
+                                >
+
+                                    <Search />
+
+                                </InputAdornment>
+
+                            ),
+                        }}
+                    />
+
+
+                    {/* ==============================================
+                        Refresh
+                    ============================================== */}
+
+                    <Tooltip
+                        title="Refresh Reviews"
+                    >
+
+                        <span>
+
+                            <IconButton
+                                color="primary"
+                                disabled={loading}
+                                onClick={
+                                    handleRefresh
+                                }
+                            >
+
+                                <Refresh />
+
+                            </IconButton>
+
+                        </span>
+
+                    </Tooltip>
+
+
+                    {/* ==============================================
+                        Filters
+                    ============================================== */}
+
+                    <Tooltip
+                        title="Review Filters"
+                    >
+
+                        <IconButton
+                            onClick={
+                                openFilterMenu
+                            }
+                        >
+
+                            <FilterList />
+
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* ==============================================
+                        Export
+                    ============================================== */}
+
+                    <Tooltip
+                        title="Export Reviews"
+                    >
+
+                        <IconButton
+                            onClick={
+                                openExportMenu
+                            }
+                        >
+
+                            <Download />
+
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* ==============================================
+                        Print
+                    ============================================== */}
+
+                    <Tooltip
+                        title="Print Reviews"
+                    >
+
+                        <IconButton
+                            onClick={
+                                handlePrint
+                            }
+                        >
+
+                            <Print />
+
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* ==============================================
+                        Bulk Actions
+                    ============================================== */}
+
+                    <Badge
+                        badgeContent={
+                            selectedCount
+                        }
+                        color="error"
+                        invisible={
+                            selectedCount === 0
+                        }
+                    >
+
+                        <Button
+                            variant="contained"
+                            endIcon={
+                                <MoreVert />
+                            }
+                            onClick={
+                                openBulkMenu
+                            }
+                            disabled={
+                                selectedCount === 0 ||
+                                loading
+                            }
+                        >
+                            Bulk Actions
+                        </Button>
+
+                    </Badge>
+
+                </Stack>
+
+            </Stack>
+
+
+            {/* ==================================================
+                Divider
+            ================================================== */}
+
+            <Divider
+                sx={{
+                    my: 2,
+                }}
             />
 
-            {item}
-          </MenuItem>
 
-        ))}
+            {/* ==================================================
+                Export Menu
+            ================================================== */}
 
-        <Divider />
+            <Menu
+                anchorEl={
+                    exportAnchor
+                }
+                open={
+                    Boolean(
+                        exportAnchor
+                    )
+                }
+                onClose={
+                    closeExportMenu
+                }
+            >
 
-        <Typography
-          sx={{
-            px: 2,
-            pt: 1,
-            fontWeight: 700,
-          }}
-        >
-          Marketplace
-        </Typography>
+                <MenuItem
+                    onClick={
+                        handleExportExcel
+                    }
+                >
 
-        {MARKETPLACE_OPTIONS.map((item) => (
+                    <TableChart
+                        sx={{
+                            mr: 1,
+                        }}
+                    />
 
-          <MenuItem
-            key={item}
-            selected={marketplaceFilter === item}
-            onClick={() => handleMarketplaceChange(item)}
-          >
-            {item}
-          </MenuItem>
+                    Export Excel
 
-        ))}
+                </MenuItem>
 
-      </Menu>
 
-      {/* Bulk Menu */}
+                <MenuItem
+                    onClick={
+                        handleExportPdf
+                    }
+                >
 
-      <Menu
-        anchorEl={bulkAnchor}
-        open={Boolean(bulkAnchor)}
-        onClose={closeBulkMenu}
-      >
+                    <PictureAsPdf
+                        sx={{
+                            mr: 1,
+                        }}
+                    />
 
-        <MenuItem onClick={handleApprove}>
-          <CheckCircle
-            color="success"
-            sx={{ mr: 1 }}
-          />
-          Approve Selected
-        </MenuItem>
+                    Export PDF
 
-        <MenuItem onClick={handleReject}>
-          <Cancel
-            color="warning"
-            sx={{ mr: 1 }}
-          />
-          Reject Selected
-        </MenuItem>
+                </MenuItem>
 
-        <MenuItem onClick={handleDelete}>
-          <Delete
-            color="error"
-            sx={{ mr: 1 }}
-          />
-          Delete Selected
-        </MenuItem>
+            </Menu>
 
-      </Menu>
-            <Divider sx={{ mt: 2 }} />
-    </Box>
-  );
+
+            {/* ==================================================
+                Filter Menu
+            ================================================== */}
+
+            <Menu
+                anchorEl={
+                    filterAnchor
+                }
+                open={
+                    Boolean(
+                        filterAnchor
+                    )
+                }
+                onClose={
+                    closeFilterMenu
+                }
+                PaperProps={{
+                    sx: {
+                        minWidth: 240,
+                        maxHeight: 500,
+                    },
+                }}
+            >
+
+                {/* ==============================================
+                    Status
+                ============================================== */}
+
+                <Typography
+                    variant="subtitle2"
+                    sx={{
+                        px: 2,
+                        pt: 1,
+                        pb: 0.5,
+                        fontWeight: 700,
+                    }}
+                >
+                    Status
+                </Typography>
+
+
+                {STATUS_OPTIONS.map(
+                    (option) => (
+
+                        <MenuItem
+                            key={
+                                option.value
+                            }
+                            selected={
+                                statusFilter ===
+                                option.value
+                            }
+                            onClick={() =>
+                                handleStatusChange(
+                                    option.value
+                                )
+                            }
+                        >
+                            {option.label}
+                        </MenuItem>
+
+                    )
+                )}
+
+
+                <Divider />
+
+
+                {/* ==============================================
+                    Rating
+                ============================================== */}
+
+                <Typography
+                    variant="subtitle2"
+                    sx={{
+                        px: 2,
+                        pt: 1,
+                        pb: 0.5,
+                        fontWeight: 700,
+                    }}
+                >
+                    Rating
+                </Typography>
+
+
+                {RATING_OPTIONS.map(
+                    (option) => (
+
+                        <MenuItem
+                            key={
+                                option.value
+                            }
+                            selected={
+                                ratingFilter ===
+                                option.value
+                            }
+                            onClick={() =>
+                                handleRatingChange(
+                                    option.value
+                                )
+                            }
+                        >
+
+                            <Star
+                                sx={{
+                                    mr: 1,
+                                    fontSize: 18,
+                                    color:
+                                        "warning.main",
+                                }}
+                            />
+
+                            {option.label}
+
+                        </MenuItem>
+
+                    )
+                )}
+
+
+                <Divider />
+
+
+                {/* ==============================================
+                    Marketplace
+                ============================================== */}
+
+                <Typography
+                    variant="subtitle2"
+                    sx={{
+                        px: 2,
+                        pt: 1,
+                        pb: 0.5,
+                        fontWeight: 700,
+                    }}
+                >
+                    Marketplace
+                </Typography>
+
+
+                {MARKETPLACE_OPTIONS.map(
+                    (option) => (
+
+                        <MenuItem
+                            key={
+                                option.value
+                            }
+                            selected={
+                                marketplaceFilter ===
+                                option.value
+                            }
+                            onClick={() =>
+                                handleMarketplaceChange(
+                                    option.value
+                                )
+                            }
+                        >
+                            {option.label}
+                        </MenuItem>
+
+                    )
+                )}
+
+            </Menu>
+
+
+            {/* ==================================================
+                Bulk Action Menu
+            ================================================== */}
+
+            <Menu
+                anchorEl={
+                    bulkAnchor
+                }
+                open={
+                    Boolean(
+                        bulkAnchor
+                    )
+                }
+                onClose={
+                    closeBulkMenu
+                }
+            >
+
+                {/* ==============================================
+                    Approve
+                ============================================== */}
+
+                <MenuItem
+                    onClick={
+                        handleApprove
+                    }
+                    disabled={
+                        selectedCount === 0
+                    }
+                >
+
+                    <CheckCircle
+                        color="success"
+                        sx={{
+                            mr: 1,
+                        }}
+                    />
+
+                    Approve Selected
+
+                </MenuItem>
+
+
+                {/* ==============================================
+                    Reject
+                ============================================== */}
+
+                <MenuItem
+                    onClick={
+                        handleReject
+                    }
+                    disabled={
+                        selectedCount === 0
+                    }
+                >
+
+                    <Cancel
+                        color="warning"
+                        sx={{
+                            mr: 1,
+                        }}
+                    />
+
+                    Reject Selected
+
+                </MenuItem>
+
+
+                {/* ==============================================
+                    Delete
+                ============================================== */}
+
+                <MenuItem
+                    onClick={
+                        handleDelete
+                    }
+                    disabled={
+                        selectedCount === 0
+                    }
+                >
+
+                    <Delete
+                        color="error"
+                        sx={{
+                            mr: 1,
+                        }}
+                    />
+
+                    Delete Selected
+
+                </MenuItem>
+
+            </Menu>
+
+
+            {/* ==================================================
+                Bottom Divider
+            ================================================== */}
+
+            <Divider
+                sx={{
+                    mt: 2,
+                }}
+            />
+
+        </Box>
+    );
 };
 
-//==================================================
-// Prop Types
-//==================================================
+
+// ======================================================
+// PropTypes
+// ======================================================
 
 ReviewToolbar.propTypes = {
-  // Search
-  searchText: PropTypes.string,
-  onSearchChange: PropTypes.func,
 
-  // Selected Rows
-  selectedRows: PropTypes.array,
+    // ==================================================
+    // Search
+    // ==================================================
 
-  // Loading
-  loading: PropTypes.bool,
+    searchText:
+        PropTypes.string,
 
-  // Toolbar Actions
-  onRefresh: PropTypes.func,
-  onExportExcel: PropTypes.func,
-  onExportPdf: PropTypes.func,
-  onPrint: PropTypes.func,
+    onSearchChange:
+        PropTypes.func,
 
-  // Bulk Actions
-  onApproveSelected: PropTypes.func,
-  onRejectSelected: PropTypes.func,
-  onDeleteSelected: PropTypes.func,
 
-  // Filters
-  onStatusFilter: PropTypes.func,
-  onRatingFilter: PropTypes.func,
-  onMarketplaceFilter: PropTypes.func,
+    // ==================================================
+    // Selected Rows
+    // ==================================================
+
+    selectedRows:
+        PropTypes.array,
+
+
+    // ==================================================
+    // Loading
+    // ==================================================
+
+    loading:
+        PropTypes.bool,
+
+
+    // ==================================================
+    // Toolbar Actions
+    // ==================================================
+
+    onRefresh:
+        PropTypes.func,
+
+    onExportExcel:
+        PropTypes.func,
+
+    onExportPdf:
+        PropTypes.func,
+
+    onPrint:
+        PropTypes.func,
+
+
+    // ==================================================
+    // Bulk Actions
+    // ==================================================
+
+    onApproveSelected:
+        PropTypes.func,
+
+    onRejectSelected:
+        PropTypes.func,
+
+    onDeleteSelected:
+        PropTypes.func,
+
+
+    // ==================================================
+    // Filters
+    // ==================================================
+
+    onStatusFilter:
+        PropTypes.func,
+
+    onRatingFilter:
+        PropTypes.func,
+
+    onMarketplaceFilter:
+        PropTypes.func,
+
 };
 
-//==================================================
+
+// ======================================================
 // Default Props
-//==================================================
+// ======================================================
 
 ReviewToolbar.defaultProps = {
-  searchText: "",
-  selectedRows: [],
-  loading: false,
 
-  onSearchChange: () => {},
+    searchText: "",
 
-  onRefresh: () => {},
-  onExportExcel: () => {},
-  onExportPdf: () => {},
-  onPrint: () => {},
+    selectedRows: [],
 
-  onApproveSelected: () => {},
-  onRejectSelected: () => {},
-  onDeleteSelected: () => {},
+    loading: false,
 
-  onStatusFilter: () => {},
-  onRatingFilter: () => {},
-  onMarketplaceFilter: () => {},
+
+    onSearchChange:
+        () => {},
+
+
+    onRefresh:
+        () => {},
+
+    onExportExcel:
+        () => {},
+
+    onExportPdf:
+        () => {},
+
+    onPrint:
+        () => {},
+
+
+    onApproveSelected:
+        () => {},
+
+    onRejectSelected:
+        () => {},
+
+    onDeleteSelected:
+        () => {},
+
+
+    onStatusFilter:
+        () => {},
+
+    onRatingFilter:
+        () => {},
+
+    onMarketplaceFilter:
+        () => {},
+
 };
 
-//==================================================
+
+// ======================================================
 // Export
-//==================================================
+// ======================================================
 
 export default ReviewToolbar;

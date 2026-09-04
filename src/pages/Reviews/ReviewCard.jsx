@@ -1,576 +1,1206 @@
 import React from "react";
+
 import PropTypes from "prop-types";
-import {Avatar,Box,Card,CardContent,CardHeader,CardActions,Chip,Divider,Grid,IconButton,ImageList,ImageListItem,Rating,Stack,Tooltip,Typography,Button} from "@mui/material";
-import {CheckCircle,Cancel,Delete,Reply,Visibility,Verified,ThumbUp,Store,Image} from "@mui/icons-material";
 
-//======================================================
+import {
+    Avatar,
+    Box,
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CardHeader,
+    Chip,
+    Divider,
+    Grid,
+    IconButton,
+    ImageList,
+    ImageListItem,
+    Rating,
+    Stack,
+    Tooltip,
+    Typography,
+} from "@mui/material";
+
+import {
+    Cancel,
+    CheckCircle,
+    Delete,
+    Image,
+    Reply,
+    Store,
+    ThumbUp,
+    Verified,
+    Visibility,
+} from "@mui/icons-material";
+
+
+// ======================================================
 // Date Formatter
-//======================================================
+// ======================================================
+
 const formatDate = (date) => {
-  if (!date) return "-";
 
-  return new Date(date).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+    if (!date) {
+        return "-";
+    }
+
+
+    const parsedDate =
+        new Date(date);
+
+
+    if (
+        Number.isNaN(
+            parsedDate.getTime()
+        )
+    ) {
+        return "-";
+    }
+
+
+    return parsedDate.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        }
+    );
 };
 
-//======================================================
+
+// ======================================================
 // Status Chip
-//======================================================
+// ======================================================
 
-const StatusChip = ({ status }) => {
-  const color =
-    status === "Approved"
-      ? "success"
-      : status === "Rejected"
-      ? "error"
-      : "warning";
-
-  return (
-    <Chip
-      size="small"
-      label={status}
-      color={color}
-    />
-  );
-};
-
-//======================================================
-// Marketplace Chip
-//======================================================
-
-const MarketplaceChip = ({ marketplace }) => (
-  <Chip
-    size="small"
-    color="primary"
-    icon={<Store />}
-    label={marketplace}
-  />
-
-);
-//======================================================
-// ReviewCard Component
-//======================================================
-
-const ReviewCard = ({
-  review,
-
-  onView,
-  onReply,
-  onApprove,
-  onReject,
-  onDelete,
+const StatusChip = ({
+    status,
 }) => {
 
-  if (!review) return null;
+    const statusColor = {
 
-  const {
-    reviewId,
-    productName,
-    productSku,
-    productImage,
+        Approved: "success",
 
-    customerName,
-    customerImage,
-    verifiedBuyer,
+        Rejected: "error",
 
-    reviewTitle,
-    reviewText,
-    rating,
+        Pending: "warning",
 
-    status,
+    };
+
+
+    return (
+
+        <Chip
+            size="small"
+            label={
+                status || "Pending"
+            }
+            color={
+                statusColor[
+                    status
+                ] || "default"
+            }
+        />
+
+    );
+};
+
+
+// ======================================================
+// Marketplace Chip
+// ======================================================
+
+const MarketplaceChip = ({
     marketplace,
+}) => {
 
-    helpfulCount,
-    reviewImages,
+    if (!marketplace) {
+        return null;
+    }
 
-    sellerReply,
 
-    createdDate,
-  } = review;
+    return (
 
-  //====================================================
-  // Event Handlers
-  //====================================================
+        <Chip
+            size="small"
+            color="primary"
+            icon={
+                <Store />
+            }
+            label={
+                marketplace
+            }
+        />
 
-  const handleView = () => {
-    if (onView) onView(review);
-  };
+    );
+};
 
-  const handleReply = () => {
-    if (onReply) onReply(review);
-  };
 
-  const handleApprove = () => {
-    if (onApprove) onApprove(review);
-  };
+// ======================================================
+// ReviewCard Component
+// ======================================================
 
-  const handleReject = () => {
-    if (onReject) onReject(review);
-  };
+const ReviewCard = ({
+    review,
 
-  const handleDelete = () => {
-    if (onDelete) onDelete(review);
-  };
+    onView,
+    onReply,
+    onApprove,
+    onReject,
+    onDelete,
+}) => {
 
-  //====================================================
-  // JSX
-  //====================================================
 
-  return (
+    // ==================================================
+    // Empty Review Protection
+    // ==================================================
 
-    <Card
-      elevation={3}
-      sx={{
-        borderRadius: 3,
-        mb: 2,
-        transition: "0.25s",
+    if (!review) {
+        return null;
+    }
 
-        "&:hover": {
-          boxShadow: 8,
-        },
-      }}
-    >
 
-      <CardHeader
+    // ==================================================
+    // Review Data
+    // ==================================================
 
-        avatar={
-          <Avatar
-            src={customerImage}
-          >
-            {customerName?.charAt(0)}
-          </Avatar>
+    const {
+        reviewId,
+
+        productName,
+        productSku,
+        productImage,
+
+        customerName,
+        customerImage,
+        verifiedBuyer,
+
+        reviewTitle,
+        reviewText,
+        rating,
+
+        status,
+        marketplace,
+
+        helpfulCount,
+        reviewImages,
+
+        sellerReply,
+
+        createdDate,
+
+    } = review;
+
+
+    // ==================================================
+    // Safe Values
+    // ==================================================
+
+    const safeCustomerName =
+        customerName ||
+        "Customer";
+
+
+    const safeProductName =
+        productName ||
+        "Unknown Product";
+
+
+    const safeRating =
+        Number(rating) || 0;
+
+
+    const safeHelpfulCount =
+        Number(helpfulCount) || 0;
+
+
+    const safeVerifiedBuyer =
+        verifiedBuyer === true ||
+        verifiedBuyer === "true" ||
+        verifiedBuyer === "Yes";
+
+
+    const safeReviewImages =
+        Array.isArray(reviewImages)
+            ? reviewImages.filter(
+                (image) =>
+                    typeof image === "string" &&
+                    image.trim() !== ""
+            )
+            : [];
+
+
+    // ==================================================
+    // Seller Reply
+    // ==================================================
+
+    const sellerReplyText =
+        typeof sellerReply === "string"
+            ? sellerReply
+            : sellerReply?.replyText;
+
+
+    const sellerReplyDate =
+        typeof sellerReply === "object"
+            ? sellerReply?.replyDate
+            : null;
+
+
+    // ==================================================
+    // Safe Rating
+    // ==================================================
+
+    const displayRating =
+        Math.min(
+            5,
+            Math.max(
+                0,
+                safeRating
+            )
+        );
+
+
+    // ==================================================
+    // Event Handlers
+    // ==================================================
+
+    const handleView = () => {
+
+        if (onView) {
+            onView(review);
         }
 
-        title={
-          <Stack
-            direction="row"
-            spacing={1}
-            alignItems="center"
-          >
+    };
 
-            <Typography
-              variant="h6"
-            >
-              {customerName}
-            </Typography>
 
-            {verifiedBuyer && (
+    const handleReply = () => {
 
-              <Chip
-                size="small"
-                color="success"
-                icon={<Verified />}
-                label="Verified Buyer"
-              />
-
-            )}
-
-          </Stack>
+        if (onReply) {
+            onReply(review);
         }
 
-        subheader={
-          formatDate(createdDate)
+    };
+
+
+    const handleApprove = () => {
+
+        if (onApprove) {
+            onApprove(review);
         }
 
-      />
+    };
 
-      <Divider />
 
-      <CardContent>
+    const handleReject = () => {
 
-        <Grid
-          container
-          spacing={3}
+        if (onReject) {
+            onReject(review);
+        }
+
+    };
+
+
+    const handleDelete = () => {
+
+        if (onDelete) {
+            onDelete(review);
+        }
+
+    };
+
+
+    // ==================================================
+    // JSX
+    // ==================================================
+
+    return (
+
+        <Card
+            elevation={3}
+            sx={{
+                borderRadius: 3,
+                mb: 2,
+
+                transition:
+                    "box-shadow 0.25s, transform 0.25s",
+
+                "&:hover": {
+                    boxShadow: 8,
+                    transform:
+                        "translateY(-2px)",
+                },
+            }}
         >
 
-          {/* Product Section */}
+            {/* ==================================================
+                Customer Header
+            ================================================== */}
 
-          <Grid
-            item
-            xs={12}
-            md={4}
-          >
+            <CardHeader
 
-            <Stack
-              direction="row"
-              spacing={2}
-            >
+                avatar={
 
-              <Avatar
-                src={productImage}
-                variant="rounded"
-                sx={{
-                  width: 72,
-                  height: 72,
-                }}
-              >
-                <Image />
-              </Avatar>
+                    <Avatar
+                        src={
+                            customerImage ||
+                            undefined
+                        }
+                        alt={
+                            safeCustomerName
+                        }
+                    >
+                        {
+                            safeCustomerName
+                                .charAt(0)
+                                .toUpperCase()
+                        }
+                    </Avatar>
 
-              <Box>
+                }
 
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={700}
-                >
-                  {productName}
-                </Typography>
+                title={
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  SKU : {productSku}
-                </Typography>
-
-                <Box mt={1}>
-                  <MarketplaceChip
-                    marketplace={marketplace}
-                  />
-                </Box>
-
-              </Box>
-
-            </Stack>
-
-          </Grid>
-
-          {/* Review Details */}
-
-          <Grid
-            item
-            xs={12}
-            md={8}
-          >
-
-            <Stack spacing={1}>
-
-              <Rating
-                value={rating}
-                precision={0.5}
-                readOnly
-              />
-
-              <Typography
-                variant="h6"
-                fontWeight={700}
-              >
-                {reviewTitle}
-              </Typography>
-
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
-                {reviewText}
-              </Typography>
-
-              <Stack
-                direction="row"
-                spacing={2}
-                mt={1}
-                alignItems="center"
-              >
-
-                <StatusChip
-                  status={status}
-                />
-
-                <Stack
-                  direction="row"
-                  spacing={0.5}
-                  alignItems="center"
-                >
-
-                  <ThumbUp
-                    color="primary"
-                    fontSize="small"
-                  />
-
-                  <Typography
-                    variant="body2"
-                  >
-                    {helpfulCount || 0}
-                  </Typography>
-
-                </Stack>
-
-              </Stack>
-
-            </Stack>
-
-          </Grid>
-
-        </Grid>
-                  {/* ============================================
-              Review Images
-          ============================================ */}
-
-          {reviewImages?.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-
-              <Box>
-
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={700}
-                  mb={1}
-                >
-                  Review Images
-                </Typography>
-
-                <ImageList
-                  cols={4}
-                  gap={8}
-                  rowHeight={120}
-                >
-                  {reviewImages.map((image, index) => (
-
-                    <ImageListItem
-                      key={index}
+                    <Stack
+                        direction={{
+                            xs: "column",
+                            sm: "row",
+                        }}
+                        spacing={1}
+                        alignItems={{
+                            xs: "flex-start",
+                            sm: "center",
+                        }}
                     >
 
-                      <img
-                        src={image}
-                        alt={`Review ${index + 1}`}
-                        loading="lazy"
-                        style={{
-                          borderRadius: 8,
-                          cursor: "pointer",
-                          objectFit: "cover",
-                        }}
-                      />
+                        <Typography
+                            variant="h6"
+                            fontWeight={700}
+                        >
+                            {
+                                safeCustomerName
+                            }
+                        </Typography>
 
-                    </ImageListItem>
 
-                  ))}
-                </ImageList>
+                        {safeVerifiedBuyer && (
 
-              </Box>
-            </>
-          )}
+                            <Chip
+                                size="small"
+                                color="success"
+                                icon={
+                                    <Verified />
+                                }
+                                label="Verified Buyer"
+                            />
 
-          {/* ============================================
-              Seller Reply
-          ============================================ */}
+                        )}
 
-          {sellerReply && (
-            <>
-              <Divider sx={{ my: 2 }} />
+                    </Stack>
 
-              <Box
+                }
+
+                subheader={
+                    formatDate(
+                        createdDate
+                    )
+                }
+
+            />
+
+
+            <Divider />
+
+
+            {/* ==================================================
+                Review Content
+            ================================================== */}
+
+            <CardContent>
+
+                <Grid
+                    container
+                    spacing={3}
+                >
+
+                    {/* ==================================================
+                        Product Section
+                    ================================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={4}
+                    >
+
+                        <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="flex-start"
+                        >
+
+                            {/* Product Image */}
+
+                            <Avatar
+                                src={
+                                    productImage ||
+                                    undefined
+                                }
+                                alt={
+                                    safeProductName
+                                }
+                                variant="rounded"
+                                sx={{
+                                    width: 72,
+                                    height: 72,
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <Image />
+                            </Avatar>
+
+
+                            {/* Product Information */}
+
+                            <Box
+                                sx={{
+                                    minWidth: 0,
+                                }}
+                            >
+
+                                <Typography
+                                    variant="subtitle1"
+                                    fontWeight={700}
+                                    sx={{
+                                        wordBreak:
+                                            "break-word",
+                                    }}
+                                >
+                                    {
+                                        safeProductName
+                                    }
+                                </Typography>
+
+
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    SKU:{" "}
+                                    {
+                                        productSku ||
+                                        "-"
+                                    }
+                                </Typography>
+
+
+                                <Box
+                                    mt={1}
+                                >
+
+                                    <MarketplaceChip
+                                        marketplace={
+                                            marketplace
+                                        }
+                                    />
+
+                                </Box>
+
+                            </Box>
+
+                        </Stack>
+
+                    </Grid>
+
+
+                    {/* ==================================================
+                        Review Details
+                    ================================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={8}
+                    >
+
+                        <Stack
+                            spacing={1}
+                        >
+
+                            {/* ==========================================
+                                Rating
+                            ========================================== */}
+
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                            >
+
+                                <Rating
+                                    value={
+                                        displayRating
+                                    }
+                                    precision={0.5}
+                                    readOnly
+                                />
+
+
+                                <Typography
+                                    variant="body2"
+                                    fontWeight={600}
+                                >
+                                    {
+                                        safeRating.toFixed(
+                                            1
+                                        )
+                                    }
+                                </Typography>
+
+                            </Stack>
+
+
+                            {/* ==========================================
+                                Review Title
+                            ========================================== */}
+
+                            <Typography
+                                variant="h6"
+                                fontWeight={700}
+                                sx={{
+                                    wordBreak:
+                                        "break-word",
+                                }}
+                            >
+                                {
+                                    reviewTitle ||
+                                    "Review"
+                                }
+                            </Typography>
+
+
+                            {/* ==========================================
+                                Review Text
+                            ========================================== */}
+
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    whiteSpace:
+                                        "pre-wrap",
+                                    wordBreak:
+                                        "break-word",
+                                }}
+                            >
+                                {
+                                    reviewText ||
+                                    "No review text provided."
+                                }
+                            </Typography>
+
+
+                            {/* ==========================================
+                                Status & Helpful Count
+                            ========================================== */}
+
+                            <Stack
+                                direction={{
+                                    xs: "column",
+                                    sm: "row",
+                                }}
+                                spacing={2}
+                                mt={1}
+                                alignItems={{
+                                    xs: "flex-start",
+                                    sm: "center",
+                                }}
+                            >
+
+                                <StatusChip
+                                    status={
+                                        status
+                                    }
+                                />
+
+
+                                <Stack
+                                    direction="row"
+                                    spacing={0.5}
+                                    alignItems="center"
+                                >
+
+                                    <ThumbUp
+                                        color="primary"
+                                        fontSize="small"
+                                    />
+
+                                    <Typography
+                                        variant="body2"
+                                    >
+                                        {
+                                            safeHelpfulCount
+                                        }{" "}
+                                        Helpful
+                                    </Typography>
+
+                                </Stack>
+
+                            </Stack>
+
+                        </Stack>
+
+                    </Grid>
+
+                </Grid>
+
+
+                {/* ==================================================
+                    Review Images
+                ================================================== */}
+
+                {safeReviewImages.length >
+                    0 && (
+
+                    <>
+
+                        <Divider
+                            sx={{
+                                my: 2,
+                            }}
+                        />
+
+
+                        <Box>
+
+                            <Typography
+                                variant="subtitle1"
+                                fontWeight={700}
+                                mb={1}
+                            >
+                                Review Images
+                            </Typography>
+
+
+                            <ImageList
+                                cols={{
+                                    xs: 2,
+                                    sm: 3,
+                                    md: 4,
+                                }}
+                                gap={8}
+                                rowHeight={120}
+                            >
+
+                                {
+                                    safeReviewImages.map(
+                                        (
+                                            image,
+                                            index
+                                        ) => (
+
+                                            <ImageListItem
+                                                key={
+                                                    `${reviewId}-image-${index}`
+                                                }
+                                            >
+
+                                                <img
+                                                    src={
+                                                        image
+                                                    }
+                                                    alt={
+                                                        `Review image ${index + 1}`
+                                                    }
+                                                    loading="lazy"
+                                                    style={{
+                                                        borderRadius:
+                                                            8,
+                                                        cursor:
+                                                            "pointer",
+                                                        objectFit:
+                                                            "cover",
+                                                        width:
+                                                            "100%",
+                                                        height:
+                                                            "100%",
+                                                    }}
+                                                />
+
+                                            </ImageListItem>
+
+                                        )
+                                    )
+                                }
+
+                            </ImageList>
+
+                        </Box>
+
+                    </>
+
+                )}
+
+
+                {/* ==================================================
+                    Seller Reply
+                ================================================== */}
+
+                {sellerReplyText && (
+
+                    <>
+
+                        <Divider
+                            sx={{
+                                my: 2,
+                            }}
+                        />
+
+
+                        <Box
+                            sx={{
+                                backgroundColor:
+                                    "action.hover",
+
+                                borderRadius: 2,
+
+                                p: 2,
+
+                                border:
+                                    "1px solid",
+
+                                borderColor:
+                                    "divider",
+                            }}
+                        >
+
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                                mb={1}
+                            >
+
+                                <Avatar
+                                    sx={{
+                                        width: 32,
+                                        height: 32,
+                                    }}
+                                >
+                                    <Store
+                                        fontSize="small"
+                                    />
+                                </Avatar>
+
+
+                                <Typography
+                                    variant="subtitle1"
+                                    fontWeight={700}
+                                >
+                                    Seller Reply
+                                </Typography>
+
+                            </Stack>
+
+
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    whiteSpace:
+                                        "pre-wrap",
+                                    wordBreak:
+                                        "break-word",
+                                }}
+                            >
+                                {
+                                    sellerReplyText
+                                }
+                            </Typography>
+
+
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                mt={1}
+                                alignItems="center"
+                            >
+
+                                <Chip
+                                    size="small"
+                                    color="primary"
+                                    label="Seller"
+                                />
+
+
+                                {sellerReplyDate && (
+
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                    >
+                                        {
+                                            formatDate(
+                                                sellerReplyDate
+                                            )
+                                        }
+                                    </Typography>
+
+                                )}
+
+                            </Stack>
+
+                        </Box>
+
+                    </>
+
+                )}
+
+            </CardContent>
+
+
+            <Divider />
+
+
+            {/* ==================================================
+                Card Actions
+            ================================================== */}
+
+            <CardActions
                 sx={{
-                  backgroundColor: "#F5F5F5",
-                  borderRadius: 2,
-                  p: 2,
+                    justifyContent:
+                        "space-between",
+
+                    flexWrap:
+                        "wrap",
+
+                    gap: 1,
+
+                    px: 2,
+
+                    py: 1.5,
                 }}
-              >
+            >
 
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={700}
-                  gutterBottom
-                >
-                  Seller Reply
-                </Typography>
-
-                <Typography
-                  variant="body2"
-                >
-                  {sellerReply.replyText}
-                </Typography>
+                {/* ==================================================
+                    Icon Actions
+                ================================================== */}
 
                 <Stack
-                  direction="row"
-                  spacing={1}
-                  mt={1}
-                  alignItems="center"
+                    direction="row"
+                    spacing={0.5}
+                    alignItems="center"
                 >
 
-                  <Chip
-                    size="small"
-                    color="primary"
-                    label="Seller"
-                  />
+                    {/* ==========================================
+                        View
+                    ========================================== */}
 
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
-                    {formatDate(
-                      sellerReply.replyDate
-                    )}
-                  </Typography>
+                    <Tooltip
+                        title="View Review"
+                    >
+
+                        <IconButton
+                            color="primary"
+                            onClick={
+                                handleView
+                            }
+                            aria-label="View review"
+                        >
+                            <Visibility />
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* ==========================================
+                        Reply
+                    ========================================== */}
+
+                    <Tooltip
+                        title="Reply"
+                    >
+
+                        <IconButton
+                            color="secondary"
+                            onClick={
+                                handleReply
+                            }
+                            aria-label="Reply"
+                        >
+                            <Reply />
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* ==========================================
+                        Approve
+                    ========================================== */}
+
+                    <Tooltip
+                        title="Approve"
+                    >
+
+                        <IconButton
+                            color="success"
+                            onClick={
+                                handleApprove
+                            }
+                            aria-label="Approve"
+                        >
+                            <CheckCircle />
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* ==========================================
+                        Reject
+                    ========================================== */}
+
+                    <Tooltip
+                        title="Reject"
+                    >
+
+                        <IconButton
+                            color="warning"
+                            onClick={
+                                handleReject
+                            }
+                            aria-label="Reject"
+                        >
+                            <Cancel />
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* ==========================================
+                        Delete
+                    ========================================== */}
+
+                    <Tooltip
+                        title="Delete"
+                    >
+
+                        <IconButton
+                            color="error"
+                            onClick={
+                                handleDelete
+                            }
+                            aria-label="Delete"
+                        >
+                            <Delete />
+                        </IconButton>
+
+                    </Tooltip>
 
                 </Stack>
 
-              </Box>
-            </>
-          )}
 
-      </CardContent>
+                {/* ==================================================
+                    Main Actions
+                ================================================== */}
 
-      <Divider />
-            <CardActions
-        sx={{
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          px: 2,
-          py: 1.5,
-        }}
-      >
-        {/* Left Side */}
+                <Stack
+                    direction={{
+                        xs: "column",
+                        sm: "row",
+                    }}
+                    spacing={1}
+                    sx={{
+                        width: {
+                            xs: "100%",
+                            sm: "auto",
+                        },
+                    }}
+                >
 
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-        >
-          <Tooltip title="View Review">
-            <IconButton
-              color="primary"
-              onClick={handleView}
-            >
-              <Visibility />
-            </IconButton>
-          </Tooltip>
+                    {/* ==========================================
+                        Reply Button
+                    ========================================== */}
 
-          <Tooltip title="Reply">
-            <IconButton
-              color="secondary"
-              onClick={handleReply}
-            >
-              <Reply />
-            </IconButton>
-          </Tooltip>
+                    <Button
+                        variant="outlined"
+                        startIcon={
+                            <Reply />
+                        }
+                        onClick={
+                            handleReply
+                        }
+                        fullWidth={{
+                            xs: true,
+                            sm: false,
+                        }}
+                    >
+                        Reply
+                    </Button>
 
-          <Tooltip title="Approve">
-            <IconButton
-              color="success"
-              onClick={handleApprove}
-            >
-              <CheckCircle />
-            </IconButton>
-          </Tooltip>
 
-          <Tooltip title="Reject">
-            <IconButton
-              color="warning"
-              onClick={handleReject}
-            >
-              <Cancel />
-            </IconButton>
-          </Tooltip>
+                    {/* ==========================================
+                        View Details Button
+                    ========================================== */}
 
-          <Tooltip title="Delete">
-            <IconButton
-              color="error"
-              onClick={handleDelete}
-            >
-              <Delete />
-            </IconButton>
-          </Tooltip>
-        </Stack>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={
+                            <Visibility />
+                        }
+                        onClick={
+                            handleView
+                        }
+                        fullWidth={{
+                            xs: true,
+                            sm: false,
+                        }}
+                    >
+                        View Details
+                    </Button>
 
-        {/* Right Side */}
+                </Stack>
 
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-        >
-          <Button
-            variant="outlined"
-            startIcon={<Reply />}
-            onClick={handleReply}
-          >
-            Reply
-          </Button>
+            </CardActions>
 
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<Visibility />}
-            onClick={handleView}
-          >
-            View Details
-          </Button>
-        </Stack>
-      </CardActions>
-
-    </Card>
-  );
+        </Card>
+    );
 };
 
-//======================================================
+
+// ======================================================
 // PropTypes
-//======================================================
+// ======================================================
 
 ReviewCard.propTypes = {
-  review: PropTypes.shape({
-    reviewId: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]),
 
-    productName: PropTypes.string,
-    productSku: PropTypes.string,
-    productImage: PropTypes.string,
+    review:
+        PropTypes.shape({
 
-    customerName: PropTypes.string,
-    customerImage: PropTypes.string,
+            reviewId:
+                PropTypes.oneOfType([
+                    PropTypes.number,
+                    PropTypes.string,
+                ]),
 
-    verifiedBuyer: PropTypes.bool,
+            productName:
+                PropTypes.string,
 
-    reviewTitle: PropTypes.string,
-    reviewText: PropTypes.string,
+            productSku:
+                PropTypes.string,
 
-    rating: PropTypes.number,
+            productImage:
+                PropTypes.string,
 
-    status: PropTypes.string,
-    marketplace: PropTypes.string,
+            customerName:
+                PropTypes.string,
 
-    helpfulCount: PropTypes.number,
+            customerImage:
+                PropTypes.string,
 
-    reviewImages: PropTypes.arrayOf(
-      PropTypes.string
-    ),
+            verifiedBuyer:
+                PropTypes.oneOfType([
+                    PropTypes.bool,
+                    PropTypes.string,
+                ]),
 
-    sellerReply: PropTypes.shape({
-      replyText: PropTypes.string,
-      replyDate: PropTypes.string,
-    }),
+            reviewTitle:
+                PropTypes.string,
 
-    createdDate: PropTypes.string,
-  }),
+            reviewText:
+                PropTypes.string,
 
-  onView: PropTypes.func,
-  onReply: PropTypes.func,
-  onApprove: PropTypes.func,
-  onReject: PropTypes.func,
-  onDelete: PropTypes.func,
+            rating:
+                PropTypes.oneOfType([
+                    PropTypes.number,
+                    PropTypes.string,
+                ]),
+
+            status:
+                PropTypes.string,
+
+            marketplace:
+                PropTypes.string,
+
+            helpfulCount:
+                PropTypes.oneOfType([
+                    PropTypes.number,
+                    PropTypes.string,
+                ]),
+
+            reviewImages:
+                PropTypes.arrayOf(
+                    PropTypes.string
+                ),
+
+            sellerReply:
+                PropTypes.oneOfType([
+
+                    PropTypes.string,
+
+                    PropTypes.shape({
+
+                        replyText:
+                            PropTypes.string,
+
+                        replyDate:
+                            PropTypes.string,
+
+                    }),
+
+                ]),
+
+            createdDate:
+                PropTypes.string,
+
+        }),
+
+
+    onView:
+        PropTypes.func,
+
+    onReply:
+        PropTypes.func,
+
+    onApprove:
+        PropTypes.func,
+
+    onReject:
+        PropTypes.func,
+
+    onDelete:
+        PropTypes.func,
+
 };
 
-//======================================================
+
+// ======================================================
 // Default Props
-//======================================================
+// ======================================================
 
 ReviewCard.defaultProps = {
-  review: null,
 
-  onView: () => {},
-  onReply: () => {},
-  onApprove: () => {},
-  onReject: () => {},
-  onDelete: () => {},
+    review: null,
+
+    onView:
+        () => {},
+
+    onReply:
+        () => {},
+
+    onApprove:
+        () => {},
+
+    onReject:
+        () => {},
+
+    onDelete:
+        () => {},
+
 };
 
-//======================================================
+
+// ======================================================
 // Export
-//======================================================
+// ======================================================
 
 export default ReviewCard;

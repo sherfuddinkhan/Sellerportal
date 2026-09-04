@@ -567,6 +567,11 @@ import ReviewStatistics from "./pages/Reviews/ReviewStatistics";
 import ReviewTable from "./pages/Reviews/ReviewTable";
 import ReviewToolbar from "./pages/Reviews/ReviewToolbar";
 import ReviewView from "./pages/Reviews/ReviewView";
+import ReviewCreate from "./pages/Reviews/ReviewCreate";
+import ReviewDetails from "./pages/Reviews/ReviewDetails";
+import ReviewEdit from "./pages/Reviews/ReviewEdit";
+import ReviewFilters from "./pages/Reviews/ReviewFilters";
+
 
 // =========================================================
 // SALES INVOICES
@@ -1937,6 +1942,72 @@ element={<ProductPriceToolbar />}
         <Route path="reviews/:id" element={<ReviewView />} />
         <Route path="reviews/search" element={<ReviewSearch />} />
         <Route path="reviews/statistics" element={<ReviewStatistics />} />
+    
+<Route
+    path="/reviews"
+    element={<ReviewList />}
+/>
+
+<Route
+    path="/reviews/create"
+    element={<ReviewCreate />}
+/>
+
+<Route
+    path="/reviews/details/:id"
+    element={<ReviewDetails />}
+/>
+
+<Route
+    path="/reviews/edit/:id"
+    element={<ReviewEdit />}
+/>
+
+<Route
+    path="/reviews/search"
+    element={<ReviewSearch />}
+/>
+
+<Route
+    path="/reviews/filters"
+    element={<ReviewFilters />}
+/>
+
+<Route
+    path="/reviews/statistics"
+    element={<ReviewStatistics />}
+/>
+
+<Route
+    path="/reviews/table"
+    element={<ReviewTable />}
+/>
+
+<Route
+    path="/reviews/card"
+    element={<ReviewCard />}
+/>
+
+<Route
+    path="/reviews/form"
+    element={<ReviewForm />}
+/>
+
+<Route
+    path="/reviews/modal"
+    element={<ReviewModal />}
+/>
+
+<Route
+    path="/reviews/pagination"
+    element={<ReviewPagination />}
+/>
+
+<Route
+    path="/reviews/toolbar"
+    element={<ReviewToolbar />}
+/>
+
 
 
         {/* ===================================================

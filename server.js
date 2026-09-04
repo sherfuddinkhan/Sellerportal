@@ -3910,6 +3910,747 @@ app.delete("/api/sales-invoices/:id", async (req, res) => {
     }
 });
 
+/* =========================================================
+   GET ALL REVIEWS
+========================================================= */
+
+app.get("/api/reviews", async (req, res) => {
+
+    try {
+
+        console.log(
+            "GET ALL REVIEWS"
+        );
+
+
+        const response = await axios.get(
+            `${DOTNET_API}/reviews`,
+            {
+                httpsAgent
+            }
+        );
+
+
+        return res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "GET REVIEWS ERROR:",
+            error.message
+        );
+
+
+        return res.status(
+            error.response?.status || 500
+        ).json({
+
+            success: false,
+
+            message:
+                error.response?.data?.message ||
+                "Failed to load reviews.",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   GET FILTERED / PAGINATED REVIEWS
+========================================================= */
+
+app.get("/api/reviews/filter", async (req, res) => {
+
+    try {
+
+        console.log(
+            "GET FILTERED REVIEWS:",
+            req.query
+        );
+
+
+        const response = await axios.get(
+            `${DOTNET_API}/reviews/filter`,
+            {
+                params: req.query,
+                httpsAgent
+            }
+        );
+
+
+        return res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "FILTER REVIEWS ERROR:",
+            error.message
+        );
+
+
+        return res.status(
+            error.response?.status || 500
+        ).json({
+
+            success: false,
+
+            message:
+                error.response?.data?.message ||
+                "Failed to filter reviews.",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   GET REVIEW STATISTICS
+========================================================= */
+
+app.get("/api/reviews/stats", async (req, res) => {
+
+    try {
+
+        console.log(
+            "GET REVIEW STATISTICS"
+        );
+
+
+        const response = await axios.get(
+            `${DOTNET_API}/reviews/stats`,
+            {
+                httpsAgent
+            }
+        );
+
+
+        return res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "REVIEW STATISTICS ERROR:",
+            error.message
+        );
+
+
+        return res.status(
+            error.response?.status || 500
+        ).json({
+
+            success: false,
+
+            message:
+                error.response?.data?.message ||
+                "Failed to load review statistics.",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   GET REVIEW BY ID
+========================================================= */
+
+app.get("/api/reviews/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+
+        console.log(
+            `GET REVIEW BY ID: ${id}`
+        );
+
+
+        const response = await axios.get(
+            `${DOTNET_API}/reviews/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+
+        return res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "GET REVIEW BY ID ERROR:",
+            error.message
+        );
+
+
+        return res.status(
+            error.response?.status || 500
+        ).json({
+
+            success: false,
+
+            message:
+                error.response?.data?.message ||
+                "Failed to load review.",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   GET REVIEWS BY SELLER
+========================================================= */
+
+app.get(
+    "/api/reviews/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const { sellerId } = req.params;
+
+
+            console.log(
+                `GET REVIEWS BY SELLER: ${sellerId}`
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/reviews/seller/${sellerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "SELLER REVIEWS ERROR:",
+                error.message
+            );
+
+
+            return res.status(
+                error.response?.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load seller reviews.",
+
+                error:
+                    error.response?.data ||
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET REVIEWS BY CUSTOMER
+========================================================= */
+
+app.get(
+    "/api/reviews/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const { customerId } = req.params;
+
+
+            console.log(
+                `GET REVIEWS BY CUSTOMER: ${customerId}`
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/reviews/customer/${customerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "CUSTOMER REVIEWS ERROR:",
+                error.message
+            );
+
+
+            return res.status(
+                error.response?.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load customer reviews.",
+
+                error:
+                    error.response?.data ||
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET REVIEWS BY PRODUCT
+========================================================= */
+
+app.get(
+    "/api/reviews/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const { productId } = req.params;
+
+
+            console.log(
+                `GET REVIEWS BY PRODUCT: ${productId}`
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/reviews/product/${productId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "PRODUCT REVIEWS ERROR:",
+                error.message
+            );
+
+
+            return res.status(
+                error.response?.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load product reviews.",
+
+                error:
+                    error.response?.data ||
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET REVIEWS BY RATING
+========================================================= */
+
+app.get(
+    "/api/reviews/rating/:rating",
+    async (req, res) => {
+
+        try {
+
+            const { rating } = req.params;
+
+
+            console.log(
+                `GET REVIEWS BY RATING: ${rating}`
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/reviews/rating/${rating}`,
+                {
+                    httpsAgent
+                }
+            );
+
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "RATING REVIEWS ERROR:",
+                error.message
+            );
+
+
+            return res.status(
+                error.response?.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load rating reviews.",
+
+                error:
+                    error.response?.data ||
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET REVIEWS BY STATUS
+========================================================= */
+
+app.get(
+    "/api/reviews/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const { status } = req.params;
+
+
+            console.log(
+                `GET REVIEWS BY STATUS: ${status}`
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/reviews/status/${encodeURIComponent(status)}`,
+                {
+                    httpsAgent
+                }
+            );
+
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "STATUS REVIEWS ERROR:",
+                error.message
+            );
+
+
+            return res.status(
+                error.response?.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load status reviews.",
+
+                error:
+                    error.response?.data ||
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CREATE REVIEW
+========================================================= */
+
+app.post("/api/reviews", async (req, res) => {
+
+    try {
+
+        console.log(
+            "CREATE REVIEW:",
+            req.body
+        );
+
+
+        const response = await axios.post(
+            `${DOTNET_API}/reviews`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+
+        return res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "CREATE REVIEW ERROR:",
+            error.message
+        );
+
+
+        return res.status(
+            error.response?.status || 500
+        ).json({
+
+            success: false,
+
+            message:
+                error.response?.data?.message ||
+                "Failed to create review.",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   UPDATE REVIEW
+========================================================= */
+
+app.put("/api/reviews/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+
+        console.log(
+            `UPDATE REVIEW: ${id}`
+        );
+
+
+        const response = await axios.put(
+            `${DOTNET_API}/reviews/${id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+
+        return res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "UPDATE REVIEW ERROR:",
+            error.message
+        );
+
+
+        return res.status(
+            error.response?.status || 500
+        ).json({
+
+            success: false,
+
+            message:
+                error.response?.data?.message ||
+                "Failed to update review.",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+/* =========================================================
+   DELETE REVIEW
+========================================================= */
+
+app.delete("/api/reviews/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+
+        console.log(
+            `DELETE REVIEW: ${id}`
+        );
+
+
+        const response = await axios.delete(
+            `${DOTNET_API}/reviews/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+
+        return res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "DELETE REVIEW ERROR:",
+            error.message
+        );
+
+
+        return res.status(
+            error.response?.status || 500
+        ).json({
+
+            success: false,
+
+            message:
+                error.response?.data?.message ||
+                "Failed to delete review.",
+
+            error:
+                error.response?.data ||
+                error.message
+
+        });
+
+    }
+
+});
+
+
+
+
+
+
+
+
+
 
 
 

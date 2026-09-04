@@ -1,672 +1,1778 @@
-import React, { useMemo } from "react";
-import PropTypes from "prop-types";
-import {Avatar,Box,Chip,IconButton,Rating,Stack,Tooltip,Typography} from "@mui/material";
-import {CheckCircle,Cancel,Delete,Reply,Visibility,Verified,ThumbUp,Image,Store} from "@mui/icons-material";
-import {DataGrid,GridToolbar} from "@mui/x-data-grid";
+import React, {
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 
-//====================================================
+import PropTypes from "prop-types";
+
+import {
+    Avatar,
+    Badge,
+    Box,
+    Chip,
+    IconButton,
+    Rating,
+    Stack,
+    Tooltip,
+    Typography,
+} from "@mui/material";
+
+import {
+    Cancel,
+    CheckCircle,
+    Delete,
+    Image,
+    Reply,
+    Store,
+    ThumbUp,
+    Verified,
+    Visibility,
+} from "@mui/icons-material";
+
+import {
+    DataGrid,
+    GridToolbar,
+} from "@mui/x-data-grid";
+
+
+// ======================================================
 // Status Colors
-//====================================================
+// ======================================================
 
 const STATUS_COLORS = {
-  Pending: "warning",
-  Approved: "success",
-  Rejected: "error",
+
+    Pending: "warning",
+
+    Approved: "success",
+
+    Rejected: "error",
+
 };
 
-//====================================================
+
+// ======================================================
 // Marketplace Colors
-//====================================================
+// ======================================================
 
 const MARKETPLACE_COLORS = {
-  Amazon: "warning",
-  Flipkart: "primary",
-  Meesho: "secondary",
-  Shopify: "success",
+
+    Amazon: "warning",
+
+    Flipkart: "primary",
+
+    Meesho: "secondary",
+
+    Shopify: "success",
+
+    Myntra: "info",
+
 };
 
-//====================================================
+
+// ======================================================
 // Date Formatter
-//====================================================
+// ======================================================
 
 const formatDate = (date) => {
-  if (!date) return "-";
 
-  return new Date(date).toLocaleDateString("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+    if (!date) {
+        return "-";
+    }
+
+    const parsedDate =
+        new Date(date);
+
+    if (
+        Number.isNaN(
+            parsedDate.getTime()
+        )
+    ) {
+        return "-";
+    }
+
+    return parsedDate.toLocaleDateString(
+        "en-IN",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        }
+    );
+
 };
 
-//====================================================
+
+// ======================================================
 // Status Chip
-//====================================================
+// ======================================================
 
-const StatusChip = ({ status }) => (
-  <Chip
-    size="small"
-    label={status}
-    color={STATUS_COLORS[status] || "default"}
-  />
-);
-
-//====================================================
-// Marketplace Chip
-//====================================================
-
-const MarketplaceChip = ({ marketplace }) => (
-  <Chip
-    size="small"
-    label={marketplace}
-    color={
-      MARKETPLACE_COLORS[marketplace] || "default"
-    }
-    icon={<Store />}
-  />
-);
-
-//====================================================
-// Review Rating
-//====================================================
-
-const ReviewRating = ({ value }) => (
-  <Rating
-    size="small"
-    value={value || 0}
-    precision={0.5}
-    readOnly
-  />
-);
-
-//====================================================
-// Customer Avatar
-//====================================================
-
-const CustomerAvatar = ({ customer }) => (
-  <Stack
-    direction="row"
-    spacing={1}
-    alignItems="center"
-  >
-    <Avatar src={customer?.image}>
-      {customer?.name?.charAt(0)}
-    </Avatar>
-
-    <Box>
-
-      <Typography
-        variant="body2"
-        fontWeight={600}
-      >
-        {customer?.name}
-      </Typography>
-
-      {customer?.verifiedBuyer && (
-        <Stack
-          direction="row"
-          spacing={0.5}
-          alignItems="center"
-        >
-          <Verified
-            sx={{
-              fontSize: 14,
-              color: "green",
-            }}
-          />
-
-          <Typography
-            variant="caption"
-            color="green"
-          >
-            Verified Buyer
-          </Typography>
-        </Stack>
-      )}
-
-    </Box>
-  </Stack>
-);
-
-//====================================================
-// Product Cell
-//====================================================
-
-const ProductCell = ({ product }) => (
-  <Stack
-    direction="row"
-    spacing={1}
-    alignItems="center"
-  >
-    <Avatar
-      variant="rounded"
-      src={product?.image}
-    >
-      <Image />
-    </Avatar>
-
-    <Box>
-
-      <Typography
-        variant="body2"
-        fontWeight={600}
-      >
-        {product?.name}
-      </Typography>
-
-      <Typography
-        variant="caption"
-        color="text.secondary"
-      >
-        SKU : {product?.sku}
-      </Typography>
-
-    </Box>
-  </Stack>
-);
-
-//====================================================
-// ReviewTable Component
-//====================================================
-
-const ReviewTable = ({
-  rows = [],
-  loading = false,
-
-  page = 0,
-  pageSize = 10,
-  rowCount = 0,
-
-  selectedRows = [],
-
-  onPageChange,
-  onPageSizeChange,
-  onSelectionChange,
-
-  onView,
-  onReply,
-  onApprove,
-  onReject,
-  onDelete,
+const StatusChip = ({
+    status,
 }) => {
 
-  //==================================================
-  // Selected Model
-  //==================================================
+    const normalizedStatus =
+        String(
+            status || ""
+        )
+            .toLowerCase();
 
-  const selectionModel = useMemo(
-    () => selectedRows,
-    [selectedRows]
-  );
+    const displayStatus =
+        normalizedStatus
+            .charAt(0)
+            .toUpperCase() +
+        normalizedStatus.slice(1);
 
-  //==================================================
-  // Row Selection
-  //==================================================
+    return (
 
-  const handleSelectionChange = (selection) => {
-    if (onSelectionChange) {
-      onSelectionChange(selection);
-    }
-  };
-
-  //==================================================
-  // Pagination
-  //==================================================
-
-  const handlePaginationChange = (model) => {
-
-    if (onPageChange) {
-      onPageChange(model.page);
-    }
-
-    if (onPageSizeChange) {
-      onPageSizeChange(model.pageSize);
-    }
-  };
-
-  //==================================================
-  // Row Click
-  //==================================================
-
-  const handleRowClick = (params) => {
-
-    if (onView) {
-      onView(params.row);
-    }
-
-  };
-
-  //==================================================
-  // Action Handlers
-  //==================================================
-
-  const handleView = (row) => {
-
-    if (onView) {
-      onView(row);
-    }
-
-  };
-
-  const handleReply = (row) => {
-
-    if (onReply) {
-      onReply(row);
-    }
-
-  };
-
-  const handleApprove = (row) => {
-
-    if (onApprove) {
-      onApprove(row);
-    }
-
-  };
-
-  const handleReject = (row) => {
-
-    if (onReject) {
-      onReject(row);
-    }
-
-  };
-
-  const handleDelete = (row) => {
-
-    if (onDelete) {
-      onDelete(row);
-    }
-
-  };
-
-  //==================================================
-  // DataGrid Columns
-  //==================================================
-
-  const columns = useMemo(() => [
-
-    {
-      field: "product",
-      headerName: "Product",
-      flex: 1.6,
-      minWidth: 260,
-      sortable: false,
-
-      renderCell: ({ row }) => (
-        <ProductCell
-          product={{
-            name: row.productName,
-            sku: row.productSku,
-            image: row.productImage,
-          }}
+        <Chip
+            size="small"
+            label={
+                displayStatus ||
+                "Unknown"
+            }
+            color={
+                STATUS_COLORS[
+                    displayStatus
+                ] || "default"
+            }
         />
-      ),
-    },
 
-    {
-      field: "customer",
-      headerName: "Customer",
-      flex: 1.5,
-      minWidth: 250,
-      sortable: false,
+    );
 
-      renderCell: ({ row }) => (
-        <CustomerAvatar
-          customer={{
-            name: row.customerName,
-            image: row.customerImage,
-            verifiedBuyer: row.verifiedBuyer,
-          }}
-        />
-      ),
-    },
+};
 
-    {
-      field: "rating",
-      headerName: "Rating",
-      width: 150,
 
-      renderCell: ({ value }) => (
-        <ReviewRating value={value} />
-      ),
-    },
+// ======================================================
+// Marketplace Chip
+// ======================================================
 
-    {
-      field: "reviewTitle",
-      headerName: "Title",
-      flex: 1.3,
-      minWidth: 220,
-    },
+const MarketplaceChip = ({
+    marketplace,
+}) => (
 
-    {
-      field: "review",
-      headerName: "Review",
-      flex: 2,
-      minWidth: 300,
+    <Chip
+        size="small"
+        label={
+            marketplace ||
+            "Unknown"
+        }
+        color={
+            MARKETPLACE_COLORS[
+                marketplace
+            ] || "default"
+        }
+        icon={
+            <Store />
+        }
+    />
 
-      renderCell: ({ value }) => (
-        <Typography
-          variant="body2"
-          noWrap
-        >
-          {value}
-        </Typography>
-      ),
-    },
+);
 
-    {
-      field: "status",
-      headerName: "Status",
-      width: 140,
 
-      renderCell: ({ value }) => (
-        <StatusChip status={value} />
-      ),
-    },
+// ======================================================
+// Review Rating
+// ======================================================
 
-    {
-      field: "marketplace",
-      headerName: "Marketplace",
-      width: 150,
+const ReviewRating = ({
+    value,
+}) => {
 
-      renderCell: ({ value }) => (
-        <MarketplaceChip marketplace={value} />
-      ),
-    },
+    const rating =
+        Number(value) || 0;
 
-    {
-      field: "createdDate",
-      headerName: "Date",
-      width: 140,
+    return (
 
-      valueFormatter: ({ value }) =>
-        formatDate(value),
-    },
-      {
-      field: "helpfulCount",
-      headerName: "Helpful",
-      width: 110,
-      align: "center",
-      headerAlign: "center",
-
-      renderCell: ({ value }) => (
         <Stack
-          direction="row"
-          spacing={0.5}
-          alignItems="center"
-          justifyContent="center"
-        >
-          <ThumbUp
+            direction="row"
+            spacing={0.5}
+            alignItems="center"
+            justifyContent="center"
             sx={{
-              color: "#1976d2",
-              fontSize: 18,
+                width: "100%",
+                height: "100%",
+                minWidth: 0,
             }}
-          />
-
-          <Typography
-            variant="body2"
-            fontWeight={600}
-          >
-            {value || 0}
-          </Typography>
-        </Stack>
-      ),
-    },
-
-    {
-      field: "images",
-      headerName: "Images",
-      width: 110,
-      align: "center",
-      headerAlign: "center",
-
-      renderCell: ({ row }) => {
-
-        const count = row.reviewImages?.length || 0;
-
-        return (
-          <Badge
-            badgeContent={count}
-            color="primary"
-          >
-            <Image color="action" />
-          </Badge>
-        );
-      },
-    },
-
-    {
-      field: "verifiedBuyer",
-      headerName: "Verified",
-      width: 120,
-      align: "center",
-      headerAlign: "center",
-
-      renderCell: ({ value }) =>
-        value ? (
-          <Chip
-            size="small"
-            color="success"
-            icon={<Verified />}
-            label="Verified"
-          />
-        ) : (
-          <Chip
-            size="small"
-            color="default"
-            label="Guest"
-          />
-        ),
-    },
-
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 240,
-      sortable: false,
-      filterable: false,
-      align: "center",
-      headerAlign: "center",
-
-      renderCell: ({ row }) => (
-
-        <Stack
-          direction="row"
-          spacing={0.5}
         >
 
-          <Tooltip title="View Review">
-            <IconButton
-              color="primary"
-              size="small"
-              onClick={() => handleView(row)}
-            >
-              <Visibility />
-            </IconButton>
-          </Tooltip>
+            <Rating
+                size="small"
+                value={rating}
+                precision={0.5}
+                readOnly
+            />
 
-          <Tooltip title="Reply">
-            <IconButton
-              color="secondary"
-              size="small"
-              onClick={() => handleReply(row)}
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                    flexShrink: 0,
+                }}
             >
-              <Reply />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Approve">
-            <IconButton
-              color="success"
-              size="small"
-              onClick={() => handleApprove(row)}
-            >
-              <CheckCircle />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Reject">
-            <IconButton
-              color="warning"
-              size="small"
-              onClick={() => handleReject(row)}
-            >
-              <Cancel />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Delete">
-            <IconButton
-              color="error"
-              size="small"
-              onClick={() => handleDelete(row)}
-            >
-              <Delete />
-            </IconButton>
-          </Tooltip>
+                {rating.toFixed(1)}
+            </Typography>
 
         </Stack>
 
-      ),
-    },
+    );
 
-  ], [
+};
+
+
+// ======================================================
+// Customer Avatar
+// ======================================================
+
+const CustomerAvatar = ({
+    customer,
+}) => {
+
+    const customerName =
+        customer?.name ||
+        "Customer";
+
+    const firstLetter =
+        customerName
+            .charAt(0)
+            .toUpperCase();
+
+    const verified =
+        customer?.verifiedBuyer === true ||
+        customer?.verifiedBuyer === "true" ||
+        customer?.verifiedBuyer === "True" ||
+        customer?.verifiedBuyer === "Yes" ||
+        customer?.verifiedBuyer === 1;
+
+    return (
+
+        <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+                width: "100%",
+                height: "100%",
+                minWidth: 0,
+                overflow: "hidden",
+            }}
+        >
+
+            <Avatar
+                src={
+                    customer?.image ||
+                    undefined
+                }
+                alt={customerName}
+                sx={{
+                    width: 52,
+                    height: 52,
+                    flexShrink: 0,
+                }}
+            >
+                {firstLetter}
+            </Avatar>
+
+            <Box
+                sx={{
+                    minWidth: 0,
+                    maxWidth: "calc(100% - 68px)",
+                    overflow: "hidden",
+                }}
+            >
+
+                <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    noWrap
+                    sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                    }}
+                >
+                    {customerName}
+                </Typography>
+
+                {verified && (
+
+                    <Stack
+                        direction="row"
+                        spacing={0.5}
+                        alignItems="center"
+                    >
+
+                        <Verified
+                            sx={{
+                                fontSize: 14,
+                                color:
+                                    "success.main",
+                                flexShrink: 0,
+                            }}
+                        />
+
+                        <Typography
+                            variant="caption"
+                            color="success.main"
+                            noWrap
+                        >
+                            Verified Buyer
+                        </Typography>
+
+                    </Stack>
+
+                )}
+
+            </Box>
+
+        </Stack>
+
+    );
+
+};
+
+
+// ======================================================
+// Product Cell
+// ======================================================
+
+const ProductCell = ({
+    product,
+}) => {
+
+    const productName =
+        product?.name ||
+        "Unknown Product";
+
+    return (
+
+        <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+            sx={{
+                width: "100%",
+                height: "100%",
+                minWidth: 0,
+                overflow: "hidden",
+            }}
+        >
+
+            <Avatar
+                variant="rounded"
+                src={
+                    product?.image ||
+                    undefined
+                }
+                alt={productName}
+                sx={{
+                    width: 48,
+                    height: 48,
+                    flexShrink: 0,
+                }}
+            >
+                <Image />
+            </Avatar>
+
+            <Box
+                sx={{
+                    minWidth: 0,
+                    overflow: "hidden",
+                }}
+            >
+
+                <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    noWrap
+                    sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                    }}
+                >
+                    {productName}
+                </Typography>
+
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    noWrap
+                    sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                    }}
+                >
+                    SKU:{" "}
+                    {product?.sku || "-"}
+                </Typography>
+
+            </Box>
+
+        </Stack>
+
+    );
+
+};
+
+
+// ======================================================
+// Review Table Component
+// ======================================================
+
+const ReviewTable = ({
+    rows = [],
+    loading = false,
+
+    selectedRows = [],
+
+    onSelectionChange,
+
     onView,
     onReply,
     onApprove,
     onReject,
     onDelete,
-  ]);
-    return (
-    <Box sx={{ width: "100%", height: 700 }}>
+}) => {
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        loading={loading}
 
-        getRowId={(row) => row.reviewId}
+    // ==================================================
+    // MUI ROW SELECTION MODEL
+    // ==================================================
 
-        checkboxSelection
-        disableRowSelectionOnClick
+    const [
+        rowSelectionModel,
+        setRowSelectionModel,
+    ] = useState({
 
-        rowSelectionModel={selectionModel}
-        onRowSelectionModelChange={handleSelectionChange}
+        type: "include",
 
-        onRowClick={handleRowClick}
+        ids: new Set(),
 
-        paginationMode="server"
+    });
 
-        paginationModel={{
-          page,
-          pageSize,
-        }}
 
-        onPaginationModelChange={
-          handlePaginationChange
+    // ==================================================
+    // Synchronize Parent Selection
+    // ==================================================
+
+    useEffect(() => {
+
+        const ids = new Set(
+            Array.isArray(selectedRows)
+                ? selectedRows
+                : []
+        );
+
+        setRowSelectionModel({
+
+            type: "include",
+
+            ids,
+
+        });
+
+    }, [
+        selectedRows,
+    ]);
+
+
+    // ==================================================
+    // Row Selection Change
+    // ==================================================
+
+    const handleSelectionChange = (
+        selectionModel
+    ) => {
+
+        // ==============================================
+        // New MUI X Selection Model
+        // ==============================================
+
+        if (
+            selectionModel &&
+            selectionModel.ids instanceof Set
+        ) {
+
+            setRowSelectionModel(
+                selectionModel
+            );
+
+            if (
+                onSelectionChange
+            ) {
+
+                onSelectionChange(
+                    Array.from(
+                        selectionModel.ids
+                    )
+                );
+
+            }
+
+            return;
+
         }
 
-        pageSizeOptions={[
-          10,
-          25,
-          50,
-          100,
-        ]}
 
-        rowCount={rowCount}
+        // ==============================================
+        // Older Array Selection Model
+        // ==============================================
 
-        autoHeight={false}
+        if (
+            Array.isArray(
+                selectionModel
+            )
+        ) {
 
-        density="comfortable"
+            const ids =
+                new Set(
+                    selectionModel
+                );
 
-        slots={{
-          toolbar: GridToolbar,
-        }}
+            setRowSelectionModel({
 
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-            quickFilterProps: {
-              debounceMs: 500,
+                type: "include",
+
+                ids,
+
+            });
+
+            if (
+                onSelectionChange
+            ) {
+
+                onSelectionChange(
+                    selectionModel
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        // ==============================================
+        // Empty Selection
+        // ==============================================
+
+        setRowSelectionModel({
+
+            type: "include",
+
+            ids: new Set(),
+
+        });
+
+        if (
+            onSelectionChange
+        ) {
+
+            onSelectionChange([]);
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Row Click
+    // ==================================================
+
+    const handleRowClick = (
+        params
+    ) => {
+
+        if (
+            onView
+        ) {
+
+            onView(
+                params.row
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // View Handler
+    // ==================================================
+
+    const handleView = (
+        row
+    ) => {
+
+        if (
+            onView
+        ) {
+
+            onView(
+                row
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Reply Handler
+    // ==================================================
+
+    const handleReply = (
+        row
+    ) => {
+
+        if (
+            onReply
+        ) {
+
+            onReply(
+                row
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Approve Handler
+    // ==================================================
+
+    const handleApprove = (
+        row
+    ) => {
+
+        if (
+            onApprove
+        ) {
+
+            onApprove(
+                row
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Reject Handler
+    // ==================================================
+
+    const handleReject = (
+        row
+    ) => {
+
+        if (
+            onReject
+        ) {
+
+            onReject(
+                row
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // Delete Handler
+    // ==================================================
+
+    const handleDelete = (
+        row
+    ) => {
+
+        if (
+            onDelete
+        ) {
+
+            onDelete(
+                row
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // DataGrid Columns
+    // ==================================================
+
+    const columns = useMemo(
+        () => [
+
+            // ==========================================
+            // Product
+            // ==========================================
+
+            {
+                field: "product",
+
+                headerName: "Product",
+
+                flex: 1.6,
+
+                minWidth: 260,
+
+                sortable: false,
+
+                renderCell: ({
+                    row,
+                }) => (
+
+                    <ProductCell
+                        product={{
+
+                            name:
+                                row.productName,
+
+                            sku:
+                                row.productSku,
+
+                            image:
+                                row.productImage,
+
+                        }}
+                    />
+
+                ),
+
             },
-          },
-        }}
 
-        sx={{
-          border: 0,
 
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: "#f5f5f5",
-            fontWeight: 700,
-          },
+            // ==========================================
+            // Customer
+            // ==========================================
 
-          "& .MuiDataGrid-cell": {
-            alignItems: "center",
-          },
+            {
+                field: "customer",
 
-          "& .MuiDataGrid-row:hover": {
-            backgroundColor: "#fafafa",
-          },
-        }}
-      />
+                headerName: "Customer",
 
-    </Box>
-  );
+                flex: 1.5,
+
+                minWidth: 250,
+
+                sortable: false,
+
+                renderCell: ({
+                    row,
+                }) => (
+
+                    <CustomerAvatar
+                        customer={{
+
+                            name:
+                                row.customerName,
+
+                            image:
+                                row.customerImage,
+
+                            verifiedBuyer:
+                                row.verifiedBuyer,
+
+                        }}
+                    />
+
+                ),
+
+            },
+
+
+            // ==========================================
+            // Rating
+            // ==========================================
+
+            {
+                field: "rating",
+
+                headerName: "Rating",
+
+                width: 160,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                renderCell: ({
+                    value,
+                }) => (
+
+                    <ReviewRating
+                        value={value}
+                    />
+
+                ),
+
+            },
+
+
+            // ==========================================
+            // Review Title
+            // ==========================================
+
+            {
+                field: "reviewTitle",
+
+                headerName: "Title",
+
+                flex: 1.3,
+
+                minWidth: 220,
+
+                renderCell: ({
+                    value,
+                }) => (
+
+                    <Typography
+                        variant="body2"
+                        fontWeight={600}
+                        noWrap
+                        sx={{
+                            width: "100%",
+                        }}
+                    >
+                        {value || "-"}
+                    </Typography>
+
+                ),
+
+            },
+
+
+            // ==========================================
+            // Review Text
+            // ==========================================
+
+            {
+                field: "reviewText",
+
+                headerName: "Review",
+
+                flex: 2,
+
+                minWidth: 300,
+
+                renderCell: ({
+                    row,
+                }) => (
+
+                    <Tooltip
+                        title={
+                            row.reviewText ||
+                            "No review text"
+                        }
+                        placement="top"
+                    >
+
+                        <Typography
+                            variant="body2"
+                            noWrap
+                            sx={{
+                                width: "100%",
+                            }}
+                        >
+                            {
+                                row.reviewText ||
+                                "-"
+                            }
+                        </Typography>
+
+                    </Tooltip>
+
+                ),
+
+            },
+
+
+            // ==========================================
+            // Status
+            // ==========================================
+
+            {
+                field: "status",
+
+                headerName: "Status",
+
+                width: 140,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                renderCell: ({
+                    value,
+                }) => (
+
+                    <StatusChip
+                        status={value}
+                    />
+
+                ),
+
+            },
+
+
+            // ==========================================
+            // Marketplace
+            // ==========================================
+
+            {
+                field: "marketplace",
+
+                headerName: "Marketplace",
+
+                width: 160,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                renderCell: ({
+                    value,
+                }) => (
+
+                    <MarketplaceChip
+                        marketplace={value}
+                    />
+
+                ),
+
+            },
+
+
+            // ==========================================
+            // Created Date
+            // ==========================================
+
+            {
+                field: "createdDate",
+
+                headerName: "Date",
+
+                width: 140,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                valueFormatter: ({
+                    value,
+                }) =>
+                    formatDate(
+                        value
+                    ),
+
+            },
+
+
+            // ==========================================
+            // Helpful Count
+            // ==========================================
+
+            {
+                field: "helpfulCount",
+
+                headerName: "Helpful",
+
+                width: 110,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                renderCell: ({
+                    value,
+                }) => (
+
+                    <Stack
+                        direction="row"
+                        spacing={0.5}
+                        alignItems="center"
+                        justifyContent="center"
+                        sx={{
+                            width: "100%",
+                        }}
+                    >
+
+                        <ThumbUp
+                            sx={{
+                                color:
+                                    "primary.main",
+
+                                fontSize: 18,
+
+                                flexShrink: 0,
+                            }}
+                        />
+
+                        <Typography
+                            variant="body2"
+                            fontWeight={600}
+                        >
+                            {
+                                Number(value) ||
+                                0
+                            }
+                        </Typography>
+
+                    </Stack>
+
+                ),
+
+            },
+
+
+            // ==========================================
+            // Review Images
+            // ==========================================
+
+            {
+                field: "images",
+
+                headerName: "Images",
+
+                width: 110,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                sortable: false,
+
+                renderCell: ({
+                    row,
+                }) => {
+
+                    const count =
+                        Array.isArray(
+                            row.reviewImages
+                        )
+                            ? row.reviewImages.length
+                            : 0;
+
+                    return (
+
+                        <Badge
+                            badgeContent={count}
+                            color="primary"
+                            max={99}
+                        >
+
+                            <Image
+                                color="action"
+                            />
+
+                        </Badge>
+
+                    );
+
+                },
+
+            },
+
+
+            // ==========================================
+            // Verified Buyer
+            // ==========================================
+
+            {
+                field: "verifiedBuyer",
+
+                headerName: "Verified",
+
+                width: 120,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                renderCell: ({
+                    value,
+                }) => {
+
+                    const verified =
+                        value === true ||
+                        value === "true" ||
+                        value === "True" ||
+                        value === "Yes" ||
+                        value === 1;
+
+                    return verified ? (
+
+                        <Chip
+                            size="small"
+                            color="success"
+                            icon={
+                                <Verified />
+                            }
+                            label="Verified"
+                        />
+
+                    ) : (
+
+                        <Chip
+                            size="small"
+                            color="default"
+                            label="Guest"
+                        />
+
+                    );
+
+                },
+
+            },
+
+
+            // ==========================================
+            // Actions
+            // ==========================================
+
+            {
+                field: "actions",
+
+                headerName: "Actions",
+
+                width: 240,
+
+                sortable: false,
+
+                filterable: false,
+
+                disableColumnMenu: true,
+
+                align: "center",
+
+                headerAlign: "center",
+
+                renderCell: ({
+                    row,
+                }) => (
+
+                    <Stack
+                        direction="row"
+                        spacing={0.25}
+                        alignItems="center"
+                        justifyContent="center"
+                        sx={{
+                            width: "100%",
+                        }}
+                    >
+
+                        {/* ==================================
+                            View
+                        ================================== */}
+
+                        <Tooltip
+                            title="View Review"
+                        >
+
+                            <IconButton
+                                color="primary"
+                                size="small"
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+                                    handleView(
+                                        row
+                                    );
+
+                                }}
+                            >
+
+                                <Visibility />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+
+                        {/* ==================================
+                            Reply
+                        ================================== */}
+
+                        <Tooltip
+                            title="Reply"
+                        >
+
+                            <IconButton
+                                color="secondary"
+                                size="small"
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+                                    handleReply(
+                                        row
+                                    );
+
+                                }}
+                            >
+
+                                <Reply />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+
+                        {/* ==================================
+                            Approve
+                        ================================== */}
+
+                        <Tooltip
+                            title="Approve"
+                        >
+
+                            <IconButton
+                                color="success"
+                                size="small"
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+                                    handleApprove(
+                                        row
+                                    );
+
+                                }}
+                            >
+
+                                <CheckCircle />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+
+                        {/* ==================================
+                            Reject
+                        ================================== */}
+
+                        <Tooltip
+                            title="Reject"
+                        >
+
+                            <IconButton
+                                color="warning"
+                                size="small"
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+                                    handleReject(
+                                        row
+                                    );
+
+                                }}
+                            >
+
+                                <Cancel />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+
+                        {/* ==================================
+                            Delete
+                        ================================== */}
+
+                        <Tooltip
+                            title="Delete"
+                        >
+
+                            <IconButton
+                                color="error"
+                                size="small"
+                                onClick={(event) => {
+
+                                    event.stopPropagation();
+
+                                    handleDelete(
+                                        row
+                                    );
+
+                                }}
+                            >
+
+                                <Delete />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+                    </Stack>
+
+                ),
+
+            },
+
+        ],
+        [
+            onView,
+            onReply,
+            onApprove,
+            onReject,
+            onDelete,
+        ]
+    );
+
+
+    // ==================================================
+    // JSX
+    // ==================================================
+
+    return (
+
+        <Box
+            sx={{
+                width: "100%",
+                height: 820,
+                minHeight: 820,
+                maxHeight: 820,
+            }}
+        >
+
+            <DataGrid
+
+                /* ======================================
+                   Data
+                ====================================== */
+
+                rows={
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                }
+
+                columns={
+                    columns
+                }
+
+                loading={
+                    loading
+                }
+
+
+                /* ======================================
+                   Row Identification
+                ====================================== */
+
+                getRowId={
+                    (row) =>
+                        row.reviewId
+                }
+
+
+                /* ======================================
+                   Selection
+                ====================================== */
+
+                checkboxSelection
+
+                disableRowSelectionOnClick
+
+                rowSelectionModel={
+                    rowSelectionModel
+                }
+
+                onRowSelectionModelChange={
+                    handleSelectionChange
+                }
+
+
+                /* ======================================
+                   Row Click
+                ====================================== */
+
+                onRowClick={
+                    handleRowClick
+                }
+
+
+                /* ======================================
+                   IMPORTANT
+                   
+                   Pagination is handled by ReviewList.
+                   
+                   ReviewTable receives only the rows
+                   for the current page.
+                ====================================== */
+
+                pagination={false}
+
+
+                /* ======================================
+                   Display
+                ====================================== */
+
+                density="comfortable"
+
+                autoHeight={false}
+
+                rowHeight={95}
+
+                columnHeaderHeight={56}
+
+
+                /* ======================================
+                   Toolbar
+                ====================================== */
+
+                slots={{
+                    toolbar:
+                        GridToolbar,
+                }}
+
+                slotProps={{
+                    toolbar: {
+
+                        showQuickFilter:
+                            true,
+
+                        quickFilterProps: {
+
+                            debounceMs:
+                                500,
+
+                        },
+
+                    },
+                }}
+
+
+                /* ======================================
+                   Styling
+                ====================================== */
+
+                sx={{
+
+                    width: "100%",
+
+                    height: "100%",
+
+                    border: 0,
+
+
+                    /* ==================================
+                       Column Headers
+                    ================================== */
+
+                    "& .MuiDataGrid-columnHeaders": {
+
+                        backgroundColor:
+                            "#f5f5f5",
+
+                        fontWeight: 700,
+
+                        minHeight:
+                            "56px !important",
+
+                        maxHeight:
+                            "56px !important",
+
+                        height:
+                            "56px !important",
+
+                    },
+
+
+                    /* ==================================
+                       Rows
+                    ================================== */
+
+                    "& .MuiDataGrid-row": {
+
+                        minHeight:
+                            "95px !important",
+
+                        maxHeight:
+                            "95px !important",
+
+                        height:
+                            "95px !important",
+
+                    },
+
+
+                    /* ==================================
+                       Cells
+                    ================================== */
+
+                    "& .MuiDataGrid-cell": {
+
+                        minHeight:
+                            "95px !important",
+
+                        maxHeight:
+                            "95px !important",
+
+                        height:
+                            "95px !important",
+
+                        display:
+                            "flex",
+
+                        alignItems:
+                            "center",
+
+                        boxSizing:
+                            "border-box",
+
+                        paddingTop:
+                            "8px",
+
+                        paddingBottom:
+                            "8px",
+
+                        overflow:
+                            "hidden",
+
+                    },
+
+
+                    /* ==================================
+                       Cell Content
+                    ================================== */
+
+                    "& .MuiDataGrid-cellContent": {
+
+                        width:
+                            "100%",
+
+                        overflow:
+                            "hidden",
+
+                        textOverflow:
+                            "ellipsis",
+
+                        whiteSpace:
+                            "nowrap",
+
+                    },
+
+
+                    /* ==================================
+                       Stack
+                    ================================== */
+
+                    "& .MuiDataGrid-cell .MuiStack-root": {
+
+                        maxWidth:
+                            "100%",
+
+                    },
+
+
+                    /* ==================================
+                       Typography
+                    ================================== */
+
+                    "& .MuiDataGrid-cell .MuiTypography-root": {
+
+                        overflow:
+                            "hidden",
+
+                        textOverflow:
+                            "ellipsis",
+
+                        whiteSpace:
+                            "nowrap",
+
+                    },
+
+
+                    /* ==================================
+                       Avatar
+                    ================================== */
+
+                    "& .MuiDataGrid-cell .MuiAvatar-root": {
+
+                        flexShrink:
+                            0,
+
+                    },
+
+
+                    /* ==================================
+                       Chips
+                    ================================== */
+
+                    "& .MuiDataGrid-cell .MuiChip-root": {
+
+                        flexShrink:
+                            0,
+
+                    },
+
+
+                    /* ==================================
+                       Rating
+                    ================================== */
+
+                    "& .MuiDataGrid-cell .MuiRating-root": {
+
+                        flexShrink:
+                            0,
+
+                    },
+
+
+                    /* ==================================
+                       Badge
+                    ================================== */
+
+                    "& .MuiDataGrid-cell .MuiBadge-root": {
+
+                        flexShrink:
+                            0,
+
+                    },
+
+
+                    /* ==================================
+                       Action Buttons
+                    ================================== */
+
+                    "& .MuiDataGrid-cell .MuiIconButton-root": {
+
+                        flexShrink:
+                            0,
+
+                    },
+
+
+                    /* ==================================
+                       Checkbox
+                    ================================== */
+
+                    "& .MuiDataGrid-cellCheckbox, & .MuiDataGrid-columnHeaderCheckbox": {
+
+                        flexShrink:
+                            0,
+
+                    },
+
+
+                    /* ==================================
+                       Row Hover
+                    ================================== */
+
+                    "& .MuiDataGrid-row:hover": {
+
+                        backgroundColor:
+                            "#fafafa",
+
+                    },
+
+
+                    /* ==================================
+                       Remove Focus Outline
+                    ================================== */
+
+                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+
+                        outline:
+                            "none",
+
+                    },
+
+
+                    /* ==================================
+                       Prevent Content Overflow
+                    ================================== */
+
+                    "& .MuiDataGrid-virtualScroller": {
+
+                        overflowX:
+                            "auto",
+
+                    },
+
+                }}
+
+            />
+
+        </Box>
+
+    );
+
 };
 
-//====================================================
+
+// ======================================================
 // PropTypes
-//====================================================
+// ======================================================
 
 ReviewTable.propTypes = {
-  rows: PropTypes.array,
-  loading: PropTypes.bool,
 
-  page: PropTypes.number,
-  pageSize: PropTypes.number,
-  rowCount: PropTypes.number,
+    rows:
+        PropTypes.array,
 
-  selectedRows: PropTypes.array,
+    loading:
+        PropTypes.bool,
 
-  onPageChange: PropTypes.func,
-  onPageSizeChange: PropTypes.func,
-  onSelectionChange: PropTypes.func,
+    selectedRows:
+        PropTypes.array,
 
-  onView: PropTypes.func,
-  onReply: PropTypes.func,
-  onApprove: PropTypes.func,
-  onReject: PropTypes.func,
-  onDelete: PropTypes.func,
+    onSelectionChange:
+        PropTypes.func,
+
+    onView:
+        PropTypes.func,
+
+    onReply:
+        PropTypes.func,
+
+    onApprove:
+        PropTypes.func,
+
+    onReject:
+        PropTypes.func,
+
+    onDelete:
+        PropTypes.func,
+
 };
 
-//====================================================
+
+// ======================================================
 // Default Props
-//====================================================
+// ======================================================
 
 ReviewTable.defaultProps = {
-  rows: [],
-  loading: false,
 
-  page: 0,
-  pageSize: 10,
-  rowCount: 0,
+    rows: [],
 
-  selectedRows: [],
+    loading: false,
 
-  onPageChange: () => {},
-  onPageSizeChange: () => {},
-  onSelectionChange: () => {},
+    selectedRows: [],
 
-  onView: () => {},
-  onReply: () => {},
-  onApprove: () => {},
-  onReject: () => {},
-  onDelete: () => {},
+    onSelectionChange: () => {},
+
+    onView: () => {},
+
+    onReply: () => {},
+
+    onApprove: () => {},
+
+    onReject: () => {},
+
+    onDelete: () => {},
+
 };
 
-//====================================================
+
+// ======================================================
 // Export
-//====================================================
+// ======================================================
 
 export default ReviewTable;
