@@ -571,6 +571,9 @@ import ReviewCreate from "./pages/Reviews/ReviewCreate";
 import ReviewDetails from "./pages/Reviews/ReviewDetails";
 import ReviewEdit from "./pages/Reviews/ReviewEdit";
 import ReviewFilters from "./pages/Reviews/ReviewFilters";
+import ReviewForm from "./pages/Reviews/ReviewForm";
+
+
 
 
 // =========================================================
@@ -1942,12 +1945,6 @@ element={<ProductPriceToolbar />}
         <Route path="reviews/:id" element={<ReviewView />} />
         <Route path="reviews/search" element={<ReviewSearch />} />
         <Route path="reviews/statistics" element={<ReviewStatistics />} />
-    
-<Route
-    path="/reviews"
-    element={<ReviewList />}
-/>
-
 <Route
     path="/reviews/create"
     element={<ReviewCreate />}
@@ -1962,12 +1959,6 @@ element={<ProductPriceToolbar />}
     path="/reviews/edit/:id"
     element={<ReviewEdit />}
 />
-
-<Route
-    path="/reviews/search"
-    element={<ReviewSearch />}
-/>
-
 <Route
     path="/reviews/filters"
     element={<ReviewFilters />}
@@ -2007,7 +1998,10 @@ element={<ProductPriceToolbar />}
     path="/reviews/toolbar"
     element={<ReviewToolbar />}
 />
-
+<Route
+    path="/reviews/table"
+    element={<ReviewTable />}
+/>
 
 
         {/* ===================================================

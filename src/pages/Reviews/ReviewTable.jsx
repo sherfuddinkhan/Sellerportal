@@ -1,7 +1,5 @@
 import React, {
-    useEffect,
     useMemo,
-    useState,
 } from "react";
 
 import PropTypes from "prop-types";
@@ -276,7 +274,8 @@ const CustomerAvatar = ({
             <Box
                 sx={{
                     minWidth: 0,
-                    maxWidth: "calc(100% - 68px)",
+                    maxWidth:
+                        "calc(100% - 68px)",
                     overflow: "hidden",
                 }}
             >
@@ -287,7 +286,8 @@ const CustomerAvatar = ({
                     noWrap
                     sx={{
                         overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        textOverflow:
+                            "ellipsis",
                     }}
                 >
                     {customerName}
@@ -386,7 +386,8 @@ const ProductCell = ({
                     noWrap
                     sx={{
                         overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        textOverflow:
+                            "ellipsis",
                     }}
                 >
                     {productName}
@@ -398,7 +399,8 @@ const ProductCell = ({
                     noWrap
                     sx={{
                         overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        textOverflow:
+                            "ellipsis",
                     }}
                 >
                     SKU:{" "}
@@ -436,43 +438,28 @@ const ReviewTable = ({
 
     // ==================================================
     // MUI ROW SELECTION MODEL
+    //
+    // IMPORTANT:
+    // Do NOT store this in React state.
+    //
+    // Parent selectedRows is the single source of truth.
     // ==================================================
 
-    const [
-        rowSelectionModel,
-        setRowSelectionModel,
-    ] = useState({
+    const rowSelectionModel = useMemo(() => {
 
-        type: "include",
-
-        ids: new Set(),
-
-    });
-
-
-    // ==================================================
-    // Synchronize Parent Selection
-    // ==================================================
-
-    useEffect(() => {
-
-        const ids = new Set(
-            Array.isArray(selectedRows)
-                ? selectedRows
-                : []
-        );
-
-        setRowSelectionModel({
+        return {
 
             type: "include",
 
-            ids,
+            ids: new Set(
+                Array.isArray(selectedRows)
+                    ? selectedRows
+                    : []
+            ),
 
-        });
+        };
 
-    }, [
-        selectedRows,
-    ]);
+    }, [selectedRows]);
 
 
     // ==================================================
@@ -492,18 +479,17 @@ const ReviewTable = ({
             selectionModel.ids instanceof Set
         ) {
 
-            setRowSelectionModel(
-                selectionModel
-            );
+            const selectedIds =
+                Array.from(
+                    selectionModel.ids
+                );
 
             if (
                 onSelectionChange
             ) {
 
                 onSelectionChange(
-                    Array.from(
-                        selectionModel.ids
-                    )
+                    selectedIds
                 );
 
             }
@@ -523,19 +509,6 @@ const ReviewTable = ({
             )
         ) {
 
-            const ids =
-                new Set(
-                    selectionModel
-                );
-
-            setRowSelectionModel({
-
-                type: "include",
-
-                ids,
-
-            });
-
             if (
                 onSelectionChange
             ) {
@@ -554,14 +527,6 @@ const ReviewTable = ({
         // ==============================================
         // Empty Selection
         // ==============================================
-
-        setRowSelectionModel({
-
-            type: "include",
-
-            ids: new Set(),
-
-        });
 
         if (
             onSelectionChange
@@ -1005,9 +970,7 @@ const ReviewTable = ({
                             sx={{
                                 color:
                                     "primary.main",
-
                                 fontSize: 18,
-
                                 flexShrink: 0,
                             }}
                         />
@@ -1060,7 +1023,9 @@ const ReviewTable = ({
                     return (
 
                         <Badge
-                            badgeContent={count}
+                            badgeContent={
+                                count
+                            }
                             color="primary"
                             max={99}
                         >
@@ -1399,15 +1364,12 @@ const ReviewTable = ({
 
 
                 /* ======================================
-                   IMPORTANT
-                   
-                   Pagination is handled by ReviewList.
-                   
-                   ReviewTable receives only the rows
-                   for the current page.
+                   Pagination
                 ====================================== */
 
-                pagination={false}
+                pagination={
+                    false
+                }
 
 
                 /* ======================================
@@ -1416,11 +1378,17 @@ const ReviewTable = ({
 
                 density="comfortable"
 
-                autoHeight={false}
+                autoHeight={
+                    false
+                }
 
-                rowHeight={95}
+                rowHeight={
+                    95
+                }
 
-                columnHeaderHeight={56}
+                columnHeaderHeight={
+                    56
+                }
 
 
                 /* ======================================
@@ -1756,17 +1724,23 @@ ReviewTable.defaultProps = {
 
     selectedRows: [],
 
-    onSelectionChange: () => {},
+    onSelectionChange:
+        () => {},
 
-    onView: () => {},
+    onView:
+        () => {},
 
-    onReply: () => {},
+    onReply:
+        () => {},
 
-    onApprove: () => {},
+    onApprove:
+        () => {},
 
-    onReject: () => {},
+    onReject:
+        () => {},
 
-    onDelete: () => {},
+    onDelete:
+        () => {},
 
 };
 
