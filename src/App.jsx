@@ -496,6 +496,12 @@ import PurchaseOrderStatistics from "./pages/PurchaseOrders/PurchaseOrderStatist
 import PurchaseOrderTable from "./pages/PurchaseOrders/PurchaseOrderTable";
 import PurchaseOrderToolbar from "./pages/PurchaseOrders/PurchaseOrderToolbar";
 import PurchaseOrderView from "./pages/PurchaseOrders/PurchaseOrderView";
+import PurchaseOrderCreate from "./pages/PurchaseOrders/PurchaseOrderCreate";
+import PurchaseOrderDetails from "./pages/PurchaseOrders/PurchaseOrderDetails";
+import PurchaseOrderEdit from "./pages/PurchaseOrders/PurchaseOrderEdit";
+import PurchaseOrderView from "./pages/PurchaseOrders/PurchaseOrderView";
+import PurchaseOrderSearch from "./pages/PurchaseOrders/PurchaseOrderSearch";
+
 
 // =========================================================
 // WAREHOUSE MANAGEMENT IMPORTS
@@ -577,16 +583,7 @@ import ReviewFilters from "./pages/Reviews/ReviewFilters";
 import ReviewForm from "./pages/Reviews/ReviewForm";
 
 
-// =========================================================
-// PURCHASE ORDER IMPORTS
-// =========================================================
-import PurchaseOrderList from "./pages/PurchaseOrders/PurchaseOrderList";
-import PurchaseOrderCreate from "./pages/PurchaseOrders/PurchaseOrderCreate";
-import PurchaseOrderDetails from "./pages/PurchaseOrders/PurchaseOrderDetails";
-import PurchaseOrderEdit from "./pages/PurchaseOrders/PurchaseOrderEdit";
-import PurchaseOrderView from "./pages/PurchaseOrders/PurchaseOrderView";
-import PurchaseOrderSearch from "./pages/PurchaseOrders/PurchaseOrderSearch";
-import PurchaseOrderStatistics from "./pages/PurchaseOrders/PurchaseOrderStatistics";
+
 
 
 
