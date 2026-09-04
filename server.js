@@ -3517,7 +3517,330 @@ app.delete(
     }
 );
 
+// =====================================================
+// SALES INVOICE ROUTES
+// =====================================================
 
+// GET ALL SALES INVOICES
+app.get("/api/sales-invoices", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesInvoice`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET SALES INVOICES ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to load Sales Invoices"
+            }
+        );
+    }
+});
+
+
+// GET SALES INVOICE BY ID
+app.get("/api/sales-invoices/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesInvoice/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET SALES INVOICE ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to load Sales Invoice"
+            }
+        );
+    }
+});
+
+
+// GET SALES INVOICES BY SALES ORDER
+app.get(
+    "/api/sales-invoices/salesorder/:salesOrderId",
+    async (req, res) => {
+
+        try {
+
+            const { salesOrderId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesInvoice/salesorder/${salesOrderId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET SALES INVOICES BY SALES ORDER ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Sales Invoices"
+                }
+            );
+        }
+    }
+);
+
+
+// GET SALES INVOICES BY STATUS
+app.get(
+    "/api/sales-invoices/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const { status } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesInvoice/status/${encodeURIComponent(status)}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET SALES INVOICES BY STATUS ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Sales Invoices"
+                }
+            );
+        }
+    }
+);
+
+
+// GET SALES INVOICES BY PAYMENT STATUS
+app.get(
+    "/api/sales-invoices/paymentstatus/:paymentStatus",
+    async (req, res) => {
+
+        try {
+
+            const { paymentStatus } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesInvoice/paymentstatus/${encodeURIComponent(paymentStatus)}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET SALES INVOICES BY PAYMENT STATUS ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Sales Invoices"
+                }
+            );
+        }
+    }
+);
+
+
+// GET SALES INVOICE BY NUMBER
+app.get(
+    "/api/sales-invoices/number/:invoiceNumber",
+    async (req, res) => {
+
+        try {
+
+            const { invoiceNumber } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesInvoice/number/${encodeURIComponent(invoiceNumber)}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET SALES INVOICE BY NUMBER ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Sales Invoice"
+                }
+            );
+        }
+    }
+);
+
+
+// CREATE SALES INVOICE
+app.post("/api/sales-invoices", async (req, res) => {
+
+    try {
+
+        const response = await axios.post(
+            `${DOTNET_API}/SalesInvoice`,
+            req.body,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "CREATE SALES INVOICE ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to create Sales Invoice"
+            }
+        );
+    }
+});
+
+
+// UPDATE SALES INVOICE
+app.put("/api/sales-invoices/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const response = await axios.put(
+            `${DOTNET_API}/SalesInvoice/${id}`,
+            req.body,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "UPDATE SALES INVOICE ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to update Sales Invoice"
+            }
+        );
+    }
+});
+
+
+// DELETE SALES INVOICE
+app.delete("/api/sales-invoices/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const response = await axios.delete(
+            `${DOTNET_API}/SalesInvoice/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "DELETE SALES INVOICE ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to delete Sales Invoice"
+            }
+        );
+    }
+});
 
 
 

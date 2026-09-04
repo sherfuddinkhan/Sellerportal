@@ -56,7 +56,6 @@ import StockAdjustmentEdit from "./pages/StockAdjustment/StockAdjustmentEdit";
 import StockAdjustmentView from "./pages/StockAdjustment/StockAdjustmentView";
 import StockAdjustmentSearch from "./pages/StockAdjustment/StockAdjustmentSearch";
 import StockAdjustmentStatistics from "./pages/StockAdjustment/StockAdjustmentStatistics";
-
 // =========================================================
 // CATALOG
 // =========================================================
@@ -583,7 +582,9 @@ import SalesInvoiceStatistics from "./pages/SalesInvoices/SalesInvoiceStatistics
 import SalesInvoiceTable from "./pages/SalesInvoices/SalesInvoiceTable";
 import SalesInvoiceToolbar from "./pages/SalesInvoices/SalesInvoiceToolbar";
 import SalesInvoiceView from "./pages/SalesInvoices/SalesInvoiceView";
-
+import SalesInvoiceCreate from "./pages/SalesInvoices/SalesInvoiceCreate";
+import SalesInvoiceDetails from "./pages/SalesInvoices/SalesInvoiceDetails";
+import SalesInvoiceEdit from "./pages/SalesInvoices/SalesInvoiceEdit";
 // =========================================================
 // SALES ORDER ITEMS
 // =========================================================
@@ -1946,6 +1947,21 @@ element={<ProductPriceToolbar />}
         <Route path="sales-invoices/:id" element={<SalesInvoiceView />} />
         <Route path="sales-invoices/search" element={<SalesInvoiceSearch />} />
         <Route path="sales-invoices/statistics" element={<SalesInvoiceStatistics />} />
+
+        <Route
+    path="/sales-invoices/create"
+    element={<SalesInvoiceCreate />}
+/>
+
+<Route
+    path="/sales-invoices/details/:id"
+    element={<SalesInvoiceDetails />}
+/>
+
+<Route
+    path="/sales-invoices/edit/:id"
+    element={<SalesInvoiceEdit />}
+/>
 
 
         {/* ===================================================

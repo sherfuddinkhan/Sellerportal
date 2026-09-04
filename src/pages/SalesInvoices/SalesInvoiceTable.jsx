@@ -11,7 +11,8 @@ import {
     IconButton,
     Chip,
     Tooltip,
-    Typography
+    Typography,
+    Box
 } from "@mui/material";
 
 import {
@@ -20,268 +21,454 @@ import {
     Delete
 } from "@mui/icons-material";
 
+
 const SalesInvoiceTable = ({
-    items,
+    items = [],
     onView,
     onEdit,
     onDelete
 }) => {
 
+
+    /* --------------------------------
+       Status Color
+    -------------------------------- */
+
     const getStatusColor = (status) => {
 
-        switch (status?.toLowerCase()) {
+        switch (
+            String(status || "").toLowerCase()
+        ) {
 
             case "paid":
             case "completed":
                 return "success";
 
             case "pending":
+            case "draft":
+            case "open":
                 return "warning";
 
             case "partial":
             case "partially paid":
                 return "info";
 
+            case "processing":
+                return "primary";
+
             case "cancelled":
             case "rejected":
                 return "error";
 
-            case "processing":
-                return "primary";
-
             default:
                 return "default";
-
         }
-
     };
 
-    const formatAmount = (value) =>
 
-        `₹ ${Number(value || 0).toFixed(2)}`;
+    /* --------------------------------
+       Format Currency
+    -------------------------------- */
 
-    const formatDate = (value) =>
+    const formatAmount = (value) => {
 
-        value
-            ? new Date(value).toLocaleDateString()
-            : "-";
+        const amount = Number(value);
 
-    if (!items?.length) {
+        if (Number.isNaN(amount)) {
+            return "₹ 0.00";
+        }
+
+        return `₹ ${amount.toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        )}`;
+    };
+
+
+    /* --------------------------------
+       Format Date
+    -------------------------------- */
+
+    const formatDate = (value) => {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "-";
+        }
+
+        return date.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+    };
+
+
+    /* --------------------------------
+       Empty State
+    -------------------------------- */
+
+    if (!items.length) {
 
         return (
 
-            <Paper sx={{ p: 4 }}>
+            <Paper
+                elevation={1}
+                sx={{
+                    p: 4,
+                    borderRadius: 2
+                }}
+            >
 
                 <Typography
                     align="center"
                     color="text.secondary"
                 >
-
                     No Sales Invoices found.
-
                 </Typography>
 
             </Paper>
 
         );
-
     }
+
+
+    /* --------------------------------
+       Table
+    -------------------------------- */
 
     return (
 
-        <TableContainer component={Paper}>
+        <TableContainer
+            component={Paper}
+            elevation={1}
+            sx={{
+                borderRadius: 2,
+                overflowX: "auto"
+            }}
+        >
 
-            <Table>
+            <Table
+                size="small"
+                sx={{
+                    minWidth: 1200
+                }}
+            >
+
+                {/* =========================
+                    TABLE HEADER
+                ========================= */}
 
                 <TableHead>
 
                     <TableRow>
 
                         <TableCell>
-                            Invoice ID
+                            <strong>Invoice ID</strong>
                         </TableCell>
 
                         <TableCell>
-                            Invoice No
+                            <strong>Invoice No</strong>
                         </TableCell>
 
                         <TableCell>
-                            Order ID
+                            <strong>Order ID</strong>
                         </TableCell>
 
                         <TableCell>
-                            Invoice Date
+                            <strong>Invoice Date</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            Total
+                            <strong>Total</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            Paid
+                            <strong>Paid</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            Balance
+                            <strong>Balance</strong>
                         </TableCell>
 
                         <TableCell>
-                            Payment Status
+                            <strong>Payment Status</strong>
                         </TableCell>
 
                         <TableCell>
-                            Status
+                            <strong>Status</strong>
                         </TableCell>
 
                         <TableCell align="center">
-                            Actions
+                            <strong>Actions</strong>
                         </TableCell>
 
                     </TableRow>
 
                 </TableHead>
 
+
+                {/* =========================
+                    TABLE BODY
+                ========================= */}
+
                 <TableBody>
 
-                    {items.map((item) => (
+                    {items.map((item) => {
 
-                        <TableRow
-                            key={item.SalesInvoiceId}
-                            hover
-                        >
+                        const invoiceId =
+                            item.SalesInvoiceId ??
+                            item.salesInvoiceId ??
+                            item.id;
 
-                            <TableCell>
+                        const invoiceNumber =
+                            item.InvoiceNumber ??
+                            item.invoiceNumber;
 
-                                {item.SalesInvoiceId}
+                        const salesOrderId =
+                            item.SalesOrderId ??
+                            item.salesOrderId;
 
-                            </TableCell>
+                        const invoiceDate =
+                            item.InvoiceDate ??
+                            item.invoiceDate;
 
-                            <TableCell>
+                        const totalAmount =
+                            item.TotalAmount ??
+                            item.totalAmount;
 
-                                {item.InvoiceNumber}
+                        const paidAmount =
+                            item.PaidAmount ??
+                            item.paidAmount;
 
-                            </TableCell>
+                        const balanceAmount =
+                            item.BalanceAmount ??
+                            item.balanceAmount;
 
-                            <TableCell>
+                        const paymentStatus =
+                            item.PaymentStatus ??
+                            item.paymentStatus;
 
-                                {item.SalesOrderId}
+                        const status =
+                            item.Status ??
+                            item.status;
 
-                            </TableCell>
+                        return (
 
-                            <TableCell>
+                            <TableRow
+                                key={invoiceId}
+                                hover
+                            >
 
-                                {formatDate(
-                                    item.InvoiceDate
-                                )}
+                                {/* Invoice ID */}
 
-                            </TableCell>
+                                <TableCell>
+                                    {invoiceId ?? "-"}
+                                </TableCell>
 
-                            <TableCell align="right">
 
-                                {formatAmount(
-                                    item.TotalAmount
-                                )}
+                                {/* Invoice Number */}
 
-                            </TableCell>
+                                <TableCell>
 
-                            <TableCell align="right">
+                                    <Typography
+                                        variant="body2"
+                                        fontWeight="medium"
+                                    >
+                                        {invoiceNumber || "-"}
+                                    </Typography>
 
-                                {formatAmount(
-                                    item.PaidAmount
-                                )}
+                                </TableCell>
 
-                            </TableCell>
 
-                            <TableCell align="right">
+                                {/* Sales Order ID */}
 
-                                {formatAmount(
-                                    item.BalanceAmount
-                                )}
+                                <TableCell>
+                                    {salesOrderId ?? "-"}
+                                </TableCell>
 
-                            </TableCell>
 
-                            <TableCell>
+                                {/* Invoice Date */}
 
-                                <Chip
-                                    size="small"
-                                    label={
-                                        item.PaymentStatus ||
-                                        "-"
-                                    }
-                                    color={getStatusColor(
-                                        item.PaymentStatus
+                                <TableCell>
+                                    {formatDate(invoiceDate)}
+                                </TableCell>
+
+
+                                {/* Total */}
+
+                                <TableCell align="right">
+
+                                    {formatAmount(
+                                        totalAmount
                                     )}
-                                />
 
-                            </TableCell>
+                                </TableCell>
 
-                            <TableCell>
 
-                                <Chip
-                                    size="small"
-                                    label={
-                                        item.Status ||
-                                        "-"
-                                    }
-                                    color={getStatusColor(
-                                        item.Status
+                                {/* Paid */}
+
+                                <TableCell align="right">
+
+                                    {formatAmount(
+                                        paidAmount
                                     )}
-                                />
 
-                            </TableCell>
+                                </TableCell>
 
-                            <TableCell align="center">
 
-                                <Tooltip title="View">
+                                {/* Balance */}
 
-                                    <IconButton
-                                        color="primary"
-                                        onClick={() =>
-                                            onView(item)
+                                <TableCell align="right">
+
+                                    <Typography
+                                        fontWeight="medium"
+                                    >
+                                        {formatAmount(
+                                            balanceAmount
+                                        )}
+                                    </Typography>
+
+                                </TableCell>
+
+
+                                {/* Payment Status */}
+
+                                <TableCell>
+
+                                    <Chip
+                                        size="small"
+                                        label={
+                                            paymentStatus ||
+                                            "-"
                                         }
+                                        color={getStatusColor(
+                                            paymentStatus
+                                        )}
+                                        variant="outlined"
+                                    />
+
+                                </TableCell>
+
+
+                                {/* Invoice Status */}
+
+                                <TableCell>
+
+                                    <Chip
+                                        size="small"
+                                        label={
+                                            status ||
+                                            "-"
+                                        }
+                                        color={getStatusColor(
+                                            status
+                                        )}
+                                        variant="outlined"
+                                    />
+
+                                </TableCell>
+
+
+                                {/* Actions */}
+
+                                <TableCell align="center">
+
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent:
+                                                "center",
+                                            alignItems:
+                                                "center"
+                                        }}
                                     >
 
-                                        <Visibility />
+                                        {/* View */}
 
-                                    </IconButton>
+                                        <Tooltip
+                                            title="View Invoice"
+                                        >
 
-                                </Tooltip>
+                                            <IconButton
+                                                size="small"
+                                                color="primary"
+                                                onClick={() =>
+                                                    onView &&
+                                                    onView(item)
+                                                }
+                                            >
 
-                                <Tooltip title="Edit">
+                                                <Visibility />
 
-                                    <IconButton
-                                        color="warning"
-                                        onClick={() =>
-                                            onEdit(item)
-                                        }
-                                    >
+                                            </IconButton>
 
-                                        <Edit />
+                                        </Tooltip>
 
-                                    </IconButton>
 
-                                </Tooltip>
+                                        {/* Edit */}
 
-                                <Tooltip title="Delete">
+                                        <Tooltip
+                                            title="Edit Invoice"
+                                        >
 
-                                    <IconButton
-                                        color="error"
-                                        onClick={() =>
-                                            onDelete(item)
-                                        }
-                                    >
+                                            <IconButton
+                                                size="small"
+                                                color="warning"
+                                                onClick={() =>
+                                                    onEdit &&
+                                                    onEdit(item)
+                                                }
+                                            >
 
-                                        <Delete />
+                                                <Edit />
 
-                                    </IconButton>
+                                            </IconButton>
 
-                                </Tooltip>
+                                        </Tooltip>
 
-                            </TableCell>
 
-                        </TableRow>
+                                        {/* Delete */}
 
-                    ))}
+                                        <Tooltip
+                                            title="Delete Invoice"
+                                        >
+
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() =>
+                                                    onDelete &&
+                                                    onDelete(item)
+                                                }
+                                            >
+
+                                                <Delete />
+
+                                            </IconButton>
+
+                                        </Tooltip>
+
+                                    </Box>
+
+                                </TableCell>
+
+                            </TableRow>
+
+                        );
+
+                    })}
 
                 </TableBody>
 
@@ -292,5 +479,6 @@ const SalesInvoiceTable = ({
     );
 
 };
+
 
 export default SalesInvoiceTable;

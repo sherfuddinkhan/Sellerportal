@@ -26,6 +26,22 @@ const SalesInvoicePagination = ({
 
 }) => {
 
+    // =========================================================
+    // CALCULATE RECORD RANGE
+    // =========================================================
+
+    const startRecord =
+        totalRecords === 0
+            ? 0
+            : (page - 1) * pageSize + 1;
+
+    const endRecord =
+        Math.min(
+            page * pageSize,
+            totalRecords
+        );
+
+
     return (
 
         <Box
@@ -39,22 +55,38 @@ const SalesInvoicePagination = ({
             }}
         >
 
-            <Typography
-                variant="body2"
-                color="text.secondary"
-            >
+            {/* =====================================================
+                RECORD INFORMATION
+            ===================================================== */}
 
-                Total Records : {totalRecords}
+            <Box>
 
-            </Typography>
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                >
+                    Showing {startRecord}–{endRecord} of {totalRecords}
+                </Typography>
+
+            </Box>
+
+
+            {/* =====================================================
+                PAGINATION CONTROLS
+            ===================================================== */}
 
             <Box
                 sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 2
+                    gap: 2,
+                    flexWrap: "wrap"
                 }}
             >
+
+                {/* =================================================
+                    ROWS PER PAGE
+                ================================================= */}
 
                 <FormControl
                     size="small"
@@ -64,19 +96,19 @@ const SalesInvoicePagination = ({
                 >
 
                     <InputLabel>
-
                         Rows
-
                     </InputLabel>
 
                     <Select
                         value={pageSize}
                         label="Rows"
-                        onChange={(e) =>
+                        onChange={(event) => {
+
                             onPageSizeChange(
-                                Number(e.target.value)
-                            )
-                        }
+                                Number(event.target.value)
+                            );
+
+                        }}
                     >
 
                         <MenuItem value={5}>
@@ -103,14 +135,21 @@ const SalesInvoicePagination = ({
 
                 </FormControl>
 
+
+                {/* =================================================
+                    PAGINATION
+                ================================================= */}
+
                 <Pagination
                     color="primary"
                     shape="rounded"
                     page={page}
                     count={totalPages}
-                    onChange={(_, value) =>
-                        onPageChange(value)
-                    }
+                    onChange={(_, value) => {
+
+                        onPageChange(value);
+
+                    }}
                     showFirstButton
                     showLastButton
                 />

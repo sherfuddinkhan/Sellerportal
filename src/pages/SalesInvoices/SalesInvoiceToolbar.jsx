@@ -12,12 +12,11 @@ import {
     Refresh
 } from "@mui/icons-material";
 
+
 const SalesInvoiceToolbar = ({
-
     onAdd,
-
-    onRefresh
-
+    onRefresh,
+    loading = false
 }) => {
 
     return (
@@ -35,36 +34,54 @@ const SalesInvoiceToolbar = ({
         >
 
             <Stack
-                direction="row"
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
                 spacing={2}
+                width={{
+                    xs: "100%",
+                    sm: "auto"
+                }}
             >
+
+                {/* Add Sales Invoice */}
 
                 <Tooltip title="Add Sales Invoice">
 
                     <Button
+                        fullWidth
                         variant="contained"
                         color="primary"
                         startIcon={<Add />}
                         onClick={onAdd}
+                        disabled={loading}
+                        sx={{
+                            minWidth: 180
+                        }}
                     >
-
                         Add Sales Invoice
-
                     </Button>
 
                 </Tooltip>
 
-                <Tooltip title="Refresh">
+
+                {/* Refresh */}
+
+                <Tooltip title="Refresh Sales Invoices">
 
                     <Button
+                        fullWidth
                         variant="outlined"
                         color="secondary"
                         startIcon={<Refresh />}
                         onClick={onRefresh}
+                        disabled={loading}
+                        sx={{
+                            minWidth: 120
+                        }}
                     >
-
                         Refresh
-
                     </Button>
 
                 </Tooltip>
@@ -74,7 +91,7 @@ const SalesInvoiceToolbar = ({
         </Box>
 
     );
-
 };
+
 
 export default SalesInvoiceToolbar;

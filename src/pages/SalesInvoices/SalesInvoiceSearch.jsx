@@ -3,32 +3,37 @@ import React from "react";
 import {
     Box,
     TextField,
-    InputAdornment
+    InputAdornment,
+    IconButton
 } from "@mui/material";
 
 import {
-    Search
+    Search,
+    Clear
 } from "@mui/icons-material";
 
 const SalesInvoiceSearch = ({
-
     searchText,
-
     setSearchText
-
 }) => {
 
-    return (
+    const handleClear = () => {
+        setSearchText("");
+    };
 
+    return (
         <Box
             sx={{
-                mb: 3
+                mb: 3,
+                width: "100%"
             }}
         >
 
             <TextField
                 fullWidth
-                placeholder="Search by Invoice Number, Sales Order ID, Payment Status, Status or Remarks..."
+                size="small"
+                label="Search Sales Invoices"
+                placeholder="Invoice Number, Sales Order ID, Payment Status, Status or Remarks..."
                 value={searchText}
                 onChange={(e) =>
                     setSearchText(e.target.value)
@@ -38,14 +43,24 @@ const SalesInvoiceSearch = ({
                         <InputAdornment position="start">
                             <Search color="action" />
                         </InputAdornment>
+                    ),
+
+                    endAdornment: searchText && (
+                        <InputAdornment position="end">
+                            <IconButton
+                                size="small"
+                                onClick={handleClear}
+                                aria-label="Clear search"
+                            >
+                                <Clear />
+                            </IconButton>
+                        </InputAdornment>
                     )
                 }}
             />
 
         </Box>
-
     );
-
 };
 
 export default SalesInvoiceSearch;

@@ -4,7 +4,8 @@ import {
     Grid,
     Card,
     CardContent,
-    Typography
+    Typography,
+    Box
 } from "@mui/material";
 
 import {
@@ -14,82 +15,124 @@ import {
     AccountBalance
 } from "@mui/icons-material";
 
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (Number.isNaN(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+
+};
+
+
 const StatCard = ({
     title,
     value,
     icon
-}) => (
+}) => {
 
-    <Card
-        sx={{
-            height: "100%",
-            borderRadius: 2
-        }}
-    >
+    return (
 
-        <CardContent>
+        <Card
+            elevation={2}
+            sx={{
+                height: "100%",
+                borderRadius: 2
+            }}
+        >
 
-            <Grid
-                container
-                alignItems="center"
-                spacing={2}
-            >
+            <CardContent>
 
-                <Grid item>
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2
+                    }}
+                >
 
-                    {icon}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+                        {icon}
+                    </Box>
 
-                </Grid>
-
-                <Grid item xs>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
+                    <Box
+                        sx={{
+                            minWidth: 0
+                        }}
                     >
 
-                        {title}
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                                mb: 0.5
+                            }}
+                        >
+                            {title}
+                        </Typography>
 
-                    </Typography>
+                        <Typography
+                            variant="h5"
+                            fontWeight="bold"
+                            noWrap
+                        >
+                            {value}
+                        </Typography>
 
-                    <Typography
-                        variant="h5"
-                        fontWeight="bold"
-                    >
+                    </Box>
 
-                        {value}
+                </Box>
 
-                    </Typography>
+            </CardContent>
 
-                </Grid>
+        </Card>
 
-            </Grid>
+    );
 
-        </CardContent>
+};
 
-    </Card>
-
-);
 
 const SalesInvoiceStatistics = ({
-
     statistics
-
 }) => {
+
+    const stats = statistics || {};
 
     return (
 
         <Grid
             container
             spacing={3}
-            sx={{ mb: 3 }}
+            sx={{
+                mb: 3
+            }}
         >
 
-            <Grid item xs={12} sm={6} md={3}>
+            {/* Total Invoices */}
+
+            <Grid
+                item
+                xs={12}
+                sm={6}
+                md={3}
+            >
 
                 <StatCard
                     title="Total Invoices"
-                    value={statistics?.totalInvoices ?? 0}
+                    value={Number(stats.totalInvoices) || 0}
                     icon={
                         <ReceiptLong
                             color="primary"
@@ -100,13 +143,21 @@ const SalesInvoiceStatistics = ({
 
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+
+            {/* Total Amount */}
+
+            <Grid
+                item
+                xs={12}
+                sm={6}
+                md={3}
+            >
 
                 <StatCard
                     title="Total Amount"
-                    value={`₹ ${(
-                        statistics?.totalAmount ?? 0
-                    ).toFixed(2)}`}
+                    value={formatCurrency(
+                        stats.totalAmount
+                    )}
                     icon={
                         <Payments
                             color="success"
@@ -117,13 +168,21 @@ const SalesInvoiceStatistics = ({
 
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+
+            {/* Paid Amount */}
+
+            <Grid
+                item
+                xs={12}
+                sm={6}
+                md={3}
+            >
 
                 <StatCard
                     title="Paid Amount"
-                    value={`₹ ${(
-                        statistics?.paidAmount ?? 0
-                    ).toFixed(2)}`}
+                    value={formatCurrency(
+                        stats.paidAmount
+                    )}
                     icon={
                         <AccountBalanceWallet
                             color="info"
@@ -134,13 +193,21 @@ const SalesInvoiceStatistics = ({
 
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+
+            {/* Balance Amount */}
+
+            <Grid
+                item
+                xs={12}
+                sm={6}
+                md={3}
+            >
 
                 <StatCard
                     title="Balance Amount"
-                    value={`₹ ${(
-                        statistics?.balanceAmount ?? 0
-                    ).toFixed(2)}`}
+                    value={formatCurrency(
+                        stats.balanceAmount
+                    )}
                     icon={
                         <AccountBalance
                             color="warning"
