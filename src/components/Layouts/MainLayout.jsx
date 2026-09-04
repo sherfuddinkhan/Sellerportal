@@ -122,6 +122,40 @@ const MainLayout = () => {
                         },
                     ],
                 },
+          
+{
+    label: "Purchase Orders",
+    path: "/purchase-orders",
+    icon: "🧾",
+
+    children: [
+        {
+            label: "Purchase Order List",
+            path: "/purchase-orders",
+        },
+        {
+            label: "Purchase Order Create",
+            path: "/purchase-orders/create",
+        },
+        {
+            label: "Purchase Order Search",
+            path: "/purchase-orders/search",
+        },
+        {
+            label: "Purchase Order Statistics",
+            path: "/purchase-orders/statistics",
+        },
+        {
+            label: "Purchase Order Details",
+            path: "/purchase-orders/details/:id",
+        },
+        {
+            label: "Purchase Order Edit",
+            path: "/purchase-orders/edit/:id",
+        },
+    ],
+},
+
                 {
     label: "Reviews",
     path: "/reviews",
