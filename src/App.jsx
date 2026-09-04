@@ -473,8 +473,10 @@ import ProductTypeView from "./pages/ProductTypes/ProductTypeView";
 
 import DeletePurchaseOrderItemDialog from "./pages/PurchaseOrderItems/DeletePurchaseOrderItemDialog";
 import PurchaseOrderItemCard from "./pages/PurchaseOrderItems/PurchaseOrderItemCard";
+import PurchaseOrderItemCreate from "./pages/PurchaseOrderItems/PurchaseOrderItemCreate";
+import PurchaseOrderItemDetails from "./pages/PurchaseOrderItems/PurchaseOrderItemDetails";
+import PurchaseOrderItemEdit from "./pages/PurchaseOrderItems/PurchaseOrderItemEdit";
 import PurchaseOrderItemList from "./pages/PurchaseOrderItems/PurchaseOrderItemList";
-import PurchaseOrderItemModal from "./pages/PurchaseOrderItems/PurchaseOrderItemModal";
 import PurchaseOrderItemPagination from "./pages/PurchaseOrderItems/PurchaseOrderItemPagination";
 import PurchaseOrderItemSearch from "./pages/PurchaseOrderItems/PurchaseOrderItemSearch";
 import PurchaseOrderItemStatistics from "./pages/PurchaseOrderItems/PurchaseOrderItemStatistics";

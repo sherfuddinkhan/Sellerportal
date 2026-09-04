@@ -25,7 +25,7 @@ return `₹ ${amount.toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
 })}`;
-```
+
 
 };
 
@@ -34,8 +34,6 @@ FORMAT QUANTITY
 ========================================================= */
 
 const formatQuantity = (value) => {
-
-```
 const quantity = Number(value);
 
 if (!Number.isFinite(quantity)) {
@@ -46,7 +44,7 @@ return quantity.toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
 });
-```
+
 
 };
 
@@ -60,7 +58,7 @@ item,
 onClose
 }) => {
 
-```
+
 if (!item) {
     return null;
 }

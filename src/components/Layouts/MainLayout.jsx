@@ -628,6 +628,41 @@ const MainLayout = () => {
     ],
 },
 {
+label: "Purchase Order Items",
+path: "/purchase-order-items",
+icon: "📦",
+children: [
+    {
+        label: "Purchase Order Item List",
+        path: "/purchase-order-items",
+    },
+    {
+        label: "Purchase Order Item Create",
+        path: "/purchase-order-items/create",
+    },
+    {
+        label: "Purchase Order Item Search",
+        path: "/purchase-order-items/search",
+    },
+    {
+        label: "Purchase Order Item Statistics",
+        path: "/purchase-order-items/statistics",
+    },
+    {
+        label: "Purchase Order Item Details",
+        path: "/purchase-order-items/details/:id",
+    },
+    {
+        label: "Purchase Order Item Edit",
+        path: "/purchase-order-items/edit/:id",
+    },
+],
+
+
+},
+
+
+{
 label: "Product Prices",
 path: "/product-prices",
 icon: "💰",
