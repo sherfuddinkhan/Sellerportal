@@ -550,6 +550,9 @@ import SalesOrderTable from "./pages/SalesOrders/SalesOrderTable";
 import SalesOrderCard from "./pages/SalesOrders/SalesOrderCard";
 import SalesOrderPagination from "./pages/SalesOrders/SalesOrderPagination";
 import DeleteSalesOrderDialog from "./pages/SalesOrders/DeleteSalesOrderDialog";
+import SalesOrderCreate from "./pages/SalesOrders/SalesOrderCreate";
+
+
 
 // =========================================================
 // REVIEWS
@@ -1617,9 +1620,7 @@ function App() {
 </Route>
 
 
-        {/* ===================================================
-            PRODUCT INVENTORY
-        =================================================== */}
+     
 {/* =====================================================
 PRODUCT INVENTORY
 ===================================================== */}
@@ -1952,32 +1953,44 @@ element={<ProductPriceToolbar />}
         <Route path="sales-order-items/:id" element={<SalesOrderItemView />} />
         <Route path="sales-order-items/search" element={<SalesOrderItemSearch />} />
         <Route path="sales-order-items/statistics" element={<SalesOrderItemStatistics />} />
+  
+{/* ===================================================
+    SALES ORDERS
+=================================================== */}
 
-
-        {/* ===================================================
-            SALES ORDERS
-        =================================================== */}
-
-     <Route
+{/* Sales Order List */}
+<Route
     path="sales-orders"
     element={<SalesOrderList />}
 />
+{/* Create Sales Order */} 
+<Route path="sales-orders/create" element={<SalesOrderCreate />} />
 
+{/* Sales Order Details */}
 <Route
-    path="sales-orders/:id"
+    path="sales-orders/details/:id"
     element={<SalesOrderDetails />}
 />
 
+{/* Sales Order Search */}
 <Route
     path="sales-orders/search"
     element={<SalesOrderSearch />}
 />
 
+{/* Sales Order Statistics */}
 <Route
     path="sales-orders/statistics"
     element={<SalesOrderStatistics />}
 />
+<Route path="sales-orders/card" element={<SalesOrderCard />} />
 
+<Route path="sales-orders/edit/:id" element={<SalesOrderEdit />} />
+
+<Route path="sales-orders/toolbar" element={<SalesOrderToolbar />} />
+
+<Route path="sales-orders/pagination" element={<SalesOrderPagination />} />
+<Route path="sales-orders/modal" element={<SalesOrderModal />} />
 
         {/* ===================================================
     SELLER CUSTOMERS
@@ -1987,7 +2000,7 @@ element={<ProductPriceToolbar />}
     path="/seller-customers"
     element={<SellerCustomerList />}
 />
-
+<Route path="sales-orders/table" element={<SalesOrderTable />} />
 <Route
     path="/seller-customers/create"
     element={<SellerCustomerCreate />}

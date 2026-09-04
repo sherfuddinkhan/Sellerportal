@@ -2802,6 +2802,54 @@ app.get("/api/sales-orders/all", async (req, res) => {
     }
 });
 
+// =========================================================
+// CREATE SALES ORDER
+// POST /api/sales-orders
+// =========================================================
+
+app.post("/api/sales-orders", async (req, res) => {
+    try {
+        console.log("======================================");
+        console.log("CREATE SALES ORDER");
+        console.log("Request Body:", req.body);
+        console.log("======================================");
+
+        const response = await axios.post(
+            `${DOTNET_API}/SalesOrder`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        console.log(
+            "Sales Order Created:",
+            response.data
+        );
+
+        return res.status(200).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "CREATE SALES ORDER ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to create Sales Order"
+            }
+        );
+    }
+});
+
+
 
 // =========================================================
 // GET SALES ORDER BY ID
