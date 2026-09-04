@@ -10,52 +10,81 @@ import {
     Typography
 } from "@mui/material";
 
+
+// =========================================================
+// SALES ORDER PAGINATION
+// =========================================================
+
 const SalesOrderPagination = ({
-
     page,
-
     totalPages,
-
     pageSize,
-
     totalRecords,
-
     onPageChange,
-
     onPageSizeChange
-
 }) => {
+
+    // Make sure Pagination always receives
+    // a valid page count.
+    const safeTotalPages =
+        Math.max(1, Number(totalPages) || 1);
+
+    // Make sure current page is valid.
+    const safePage =
+        Math.min(
+            Math.max(1, Number(page) || 1),
+            safeTotalPages
+        );
 
     return (
 
         <Box
             className="sales-order-pagination"
+
             sx={{
                 mt: 3,
+
                 display: "flex",
-                justifyContent: "space-between",
+
+                justifyContent:
+                    "space-between",
+
                 alignItems: "center",
+
                 flexWrap: "wrap",
+
                 gap: 2
             }}
         >
+
+            {/* =========================================
+                TOTAL RECORDS
+            ========================================== */}
 
             <Typography
                 variant="body2"
                 color="text.secondary"
             >
-
-                Total Records : {totalRecords}
-
+                Total Records: {totalRecords}
             </Typography>
+
+
+            {/* =========================================
+                PAGE SIZE + PAGINATION
+            ========================================== */}
 
             <Box
                 sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 2
+                    gap: 2,
+                    flexWrap: "wrap"
                 }}
             >
+
+                {/* =====================================
+                    ROWS PER PAGE
+                ====================================== */}
 
                 <FormControl
                     size="small"
@@ -64,20 +93,29 @@ const SalesOrderPagination = ({
                     }}
                 >
 
-                    <InputLabel>
-
+                    <InputLabel id="sales-order-rows-label">
                         Rows
-
                     </InputLabel>
 
+
                     <Select
+                        labelId="sales-order-rows-label"
+                        id="sales-order-rows"
                         value={pageSize}
                         label="Rows"
-                        onChange={(e) =>
+
+                        onChange={(event) => {
+
+                            const newSize =
+                                Number(
+                                    event.target.value
+                                );
+
                             onPageSizeChange(
-                                Number(e.target.value)
-                            )
-                        }
+                                newSize
+                            );
+
+                        }}
                     >
 
                         <MenuItem value={5}>
@@ -104,16 +142,29 @@ const SalesOrderPagination = ({
 
                 </FormControl>
 
+
+                {/* =====================================
+                    PAGINATION
+                ====================================== */}
+
                 <Pagination
-                    page={page}
-                    count={totalPages}
+                    page={safePage}
+                    count={safeTotalPages}
                     color="primary"
                     shape="rounded"
+
                     showFirstButton
                     showLastButton
-                    onChange={(_, value) =>
-                        onPageChange(value)
-                    }
+
+                    onChange={(_, newPage) => {
+
+                        onPageChange(
+                            newPage
+                        );
+
+                    }}
+
+                    aria-label="Sales Order pagination"
                 />
 
             </Box>
@@ -123,5 +174,6 @@ const SalesOrderPagination = ({
     );
 
 };
+
 
 export default SalesOrderPagination;

@@ -1,3 +1,4 @@
+
 import React from "react";
 
 import {
@@ -5,9 +6,9 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Button,
     Grid,
     Typography,
-    Button,
     Divider,
     Chip,
     Box
@@ -85,16 +86,16 @@ const getStatusColor = (status) => {
 
 const DetailItem = ({
     label,
-    value,
-    children
+    value
 }) => {
 
     return (
         <Grid
             item
             xs={12}
-            md={6}
+            sm={6}
         >
+
             <Typography
                 variant="subtitle2"
                 color="text.secondary"
@@ -103,26 +104,23 @@ const DetailItem = ({
                 {label}
             </Typography>
 
-            {children || (
-                <Typography
-                    variant="body1"
-                    sx={{
-                        fontWeight: 500
-                    }}
-                >
-                    {value || "-"}
-                </Typography>
-            )}
+            <Typography
+                variant="body1"
+                fontWeight={500}
+            >
+                {value || "-"}
+            </Typography>
+
         </Grid>
     );
 };
 
 
 /* =========================================================
-   SALES ORDER VIEW
+   SALES ORDER DETAILS
 ========================================================= */
 
-const SalesOrderView = ({
+const SalesOrderDetails = ({
     open,
     item,
     onClose
@@ -141,18 +139,10 @@ const SalesOrderView = ({
             maxWidth="md"
         >
 
-            {/* =================================================
-                TITLE
-            ================================================= */}
-
             <DialogTitle>
                 Sales Order Details
             </DialogTitle>
 
-
-            {/* =================================================
-                CONTENT
-            ================================================= */}
 
             <DialogContent dividers>
 
@@ -161,23 +151,19 @@ const SalesOrderView = ({
                     spacing={3}
                 >
 
-                    {/* Sales Order ID */}
-
                     <DetailItem
                         label="Sales Order ID"
                         value={item.SalesOrderId}
                     />
 
 
-                    {/* Sales Order Number */}
-
                     <DetailItem
                         label="Sales Order Number"
-                        value={item.SalesOrderNumber}
+                        value={
+                            item.SalesOrderNumber
+                        }
                     />
 
-
-                    {/* Seller ID */}
 
                     <DetailItem
                         label="Seller ID"
@@ -185,15 +171,11 @@ const SalesOrderView = ({
                     />
 
 
-                    {/* Customer ID */}
-
                     <DetailItem
                         label="Customer ID"
                         value={item.CustomerId}
                     />
 
-
-                    {/* Order Date */}
 
                     <DetailItem
                         label="Order Date"
@@ -201,46 +183,80 @@ const SalesOrderView = ({
                     />
 
 
-                    {/* Status */}
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                    <DetailItem label="Status">
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                            gutterBottom
+                        >
+                            Status
+                        </Typography>
 
                         <Chip
-                            label={item.Status || "-"}
-                            color={getStatusColor(item.Status)}
+                            label={
+                                item.Status || "-"
+                            }
+                            color={
+                                getStatusColor(
+                                    item.Status
+                                )
+                            }
                             size="small"
                         />
 
-                    </DetailItem>
+                    </Grid>
 
 
-                    {/* Total Amount */}
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                    <DetailItem
-                        label="Total Amount"
-                        value={formatCurrency(item.TotalAmount)}
-                    />
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                            gutterBottom
+                        >
+                            Total Amount
+                        </Typography>
 
+                        <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                        >
+                            {formatCurrency(
+                                item.TotalAmount
+                            )}
+                        </Typography>
 
-                    {/* Created Date */}
+                    </Grid>
+
 
                     <DetailItem
                         label="Created Date"
-                        value={formatDate(item.CreatedDate)}
+                        value={
+                            formatDate(
+                                item.CreatedDate
+                            )
+                        }
                     />
 
-
-                    {/* Updated Date */}
 
                     <DetailItem
                         label="Updated Date"
-                        value={formatDate(item.UpdatedDate)}
+                        value={
+                            formatDate(
+                                item.UpdatedDate
+                            )
+                        }
                     />
 
-
-                    {/* =================================================
-                        DIVIDER
-                    ================================================= */}
 
                     <Grid item xs={12}>
 
@@ -248,10 +264,6 @@ const SalesOrderView = ({
 
                     </Grid>
 
-
-                    {/* =================================================
-                        REMARKS
-                    ================================================= */}
 
                     <Grid item xs={12}>
 
@@ -267,14 +279,12 @@ const SalesOrderView = ({
                             sx={{
                                 p: 2,
                                 borderRadius: 1,
-                                backgroundColor: "background.default",
+                                bgcolor: "background.default",
                                 minHeight: 60
                             }}
                         >
 
-                            <Typography
-                                variant="body1"
-                            >
+                            <Typography variant="body1">
                                 {item.Remarks || "-"}
                             </Typography>
 
@@ -286,10 +296,6 @@ const SalesOrderView = ({
 
             </DialogContent>
 
-
-            {/* =================================================
-                ACTIONS
-            ================================================= */}
 
             <DialogActions>
 
@@ -307,4 +313,5 @@ const SalesOrderView = ({
 };
 
 
-export default SalesOrderView;
+export default SalesOrderDetails;
+

@@ -1,3 +1,4 @@
+
 import React from "react";
 
 import {
@@ -7,170 +8,204 @@ import {
     DialogContentText,
     DialogActions,
     Button,
-    Typography
+    Typography,
+    Stack,
+    Divider
 } from "@mui/material";
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toFixed(2)}`;
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value || 0);
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+};
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+};
+
+
+/* =========================================================
+   DELETE SALES ORDER DIALOG
+========================================================= */
 
 const DeleteSalesOrderDialog = ({
-
     open,
-
     item,
-
     onClose,
-
     onDeleted
-
 }) => {
+
+    /* =====================================================
+       DELETE HANDLER
+    ===================================================== */
 
     const handleDelete = () => {
 
-        if (!item) return;
+        if (!item?.SalesOrderId) {
+            return;
+        }
 
-        onDeleted(item.SalesOrderId);
-
+        onDeleted?.(item.SalesOrderId);
     };
 
-    return (
 
+    return (
         <Dialog
-            open={open}
+            open={Boolean(open)}
             onClose={onClose}
             maxWidth="sm"
             fullWidth
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <DialogTitle>
-
                 Delete Sales Order
-
             </DialogTitle>
+
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
 
             <DialogContent>
 
-                <DialogContentText sx={{ mb: 2 }}>
-
-                    Are you sure you want to delete this Sales Order?
-
-                    This action cannot be undone.
-
+                <DialogContentText
+                    sx={{
+                        mb: 3
+                    }}
+                >
+                    Are you sure you want to delete this Sales
+                    Order? This action cannot be undone.
                 </DialogContentText>
 
-                {
 
-                    item && (
+                {/* =================================================
+                    ORDER DETAILS
+                ================================================= */}
 
-                        <>
+                {item && (
+                    <Stack spacing={1.2}>
 
-                            <Typography>
+                        <Typography variant="body2">
+                            <strong>Sales Order ID:</strong>{" "}
+                            {item.SalesOrderId || "-"}
+                        </Typography>
 
-                                <strong>Sales Order ID:</strong>{" "}
 
-                                {item.SalesOrderId}
+                        <Typography variant="body2">
+                            <strong>Order Number:</strong>{" "}
+                            {item.SalesOrderNumber || "-"}
+                        </Typography>
 
-                            </Typography>
 
-                            <Typography>
+                        <Typography variant="body2">
+                            <strong>Seller ID:</strong>{" "}
+                            {item.SellerId || "-"}
+                        </Typography>
 
-                                <strong>Order Number:</strong>{" "}
 
-                                {item.SalesOrderNumber}
+                        <Typography variant="body2">
+                            <strong>Customer ID:</strong>{" "}
+                            {item.CustomerId || "-"}
+                        </Typography>
 
-                            </Typography>
 
-                            <Typography>
+                        <Typography variant="body2">
+                            <strong>Order Date:</strong>{" "}
+                            {formatDate(item.OrderDate)}
+                        </Typography>
 
-                                <strong>Seller ID:</strong>{" "}
 
-                                {item.SellerId}
+                        <Typography variant="body2">
+                            <strong>Status:</strong>{" "}
+                            {item.Status || "-"}
+                        </Typography>
 
-                            </Typography>
 
-                            <Typography>
+                        <Divider sx={{ my: 1 }} />
 
-                                <strong>Customer ID:</strong>{" "}
 
-                                {item.CustomerId}
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                fontWeight: 600
+                            }}
+                        >
+                            <strong>Total Amount:</strong>{" "}
+                            {formatCurrency(item.TotalAmount)}
+                        </Typography>
 
-                            </Typography>
-
-                            <Typography>
-
-                                <strong>Order Date:</strong>{" "}
-
-                                {
-
-                                    item.OrderDate
-
-                                        ? new Date(
-                                            item.OrderDate
-                                        ).toLocaleDateString()
-
-                                        : "-"
-
-                                }
-
-                            </Typography>
-
-                            <Typography>
-
-                                <strong>Status:</strong>{" "}
-
-                                {item.Status}
-
-                            </Typography>
-
-                            <Typography>
-
-                                <strong>Total Amount:</strong>{" "}
-
-                                {
-
-                                    formatCurrency(
-                                        item.TotalAmount
-                                    )
-
-                                }
-
-                            </Typography>
-
-                        </>
-
-                    )
-
-                }
+                    </Stack>
+                )}
 
             </DialogContent>
 
-            <DialogActions>
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
 
                 <Button
                     onClick={onClose}
                     color="inherit"
                 >
-
                     Cancel
-
                 </Button>
+
 
                 <Button
                     variant="contained"
                     color="error"
                     onClick={handleDelete}
+                    disabled={!item}
                 >
-
                     Delete
-
                 </Button>
 
             </DialogActions>
 
         </Dialog>
-
     );
-
 };
+
 
 export default DeleteSalesOrderDialog;

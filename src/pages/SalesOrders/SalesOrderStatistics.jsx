@@ -4,171 +4,196 @@ import {
     Grid,
     Card,
     CardContent,
-    Typography
+    Typography,
+    Box
 } from "@mui/material";
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+
+// =========================================================
+// CURRENCY FORMATTER
+// =========================================================
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value || 0);
+
+    return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
 
-const SalesOrderStatistics = ({
+};
 
-    statistics
 
+// =========================================================
+// STATISTICS CARD
+// =========================================================
+
+const StatisticCard = ({
+    title,
+    value,
+    color = "text.primary",
+    currency = false
 }) => {
-
-    const {
-
-        totalOrders = 0,
-
-        totalAmount = 0,
-
-        completedOrders = 0,
-
-        pendingOrders = 0
-
-    } = statistics || {};
 
     return (
 
-        <Grid
-            container
-            spacing={3}
-            sx={{ mb: 3 }}
+        <Card
+            className="sales-order-stat-card"
+            sx={{
+                height: "100%"
+            }}
         >
 
-            <Grid item xs={12} sm={6} md={3}>
+            <CardContent>
 
-                <Card className="sales-order-stat-card">
+                <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                >
+                    {title}
+                </Typography>
 
-                    <CardContent>
 
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
-                        >
+                <Typography
+                    variant={
+                        currency
+                            ? "h5"
+                            : "h4"
+                    }
+                    fontWeight="bold"
+                    color={color}
+                >
+                    {currency
+                        ? formatCurrency(value)
+                        : Number(value || 0).toLocaleString("en-IN")}
+                </Typography>
 
-                            Total Orders
+            </CardContent>
 
-                        </Typography>
-
-                        <Typography
-                            variant="h4"
-                            fontWeight="bold"
-                        >
-
-                            {totalOrders}
-
-                        </Typography>
-
-                    </CardContent>
-
-                </Card>
-
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-
-                <Card className="sales-order-stat-card">
-
-                    <CardContent>
-
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
-                        >
-
-                            Total Sales
-
-                        </Typography>
-
-                        <Typography
-                            variant="h5"
-                            fontWeight="bold"
-                        >
-
-                            {formatCurrency(totalAmount)}
-
-                        </Typography>
-
-                    </CardContent>
-
-                </Card>
-
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-
-                <Card className="sales-order-stat-card">
-
-                    <CardContent>
-
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
-                        >
-
-                            Completed Orders
-
-                        </Typography>
-
-                        <Typography
-                            variant="h4"
-                            color="success.main"
-                            fontWeight="bold"
-                        >
-
-                            {completedOrders}
-
-                        </Typography>
-
-                    </CardContent>
-
-                </Card>
-
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-
-                <Card className="sales-order-stat-card">
-
-                    <CardContent>
-
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
-                        >
-
-                            Pending Orders
-
-                        </Typography>
-
-                        <Typography
-                            variant="h4"
-                            color="warning.main"
-                            fontWeight="bold"
-                        >
-
-                            {pendingOrders}
-
-                        </Typography>
-
-                    </CardContent>
-
-                </Card>
-
-            </Grid>
-
-        </Grid>
+        </Card>
 
     );
 
 };
+
+
+// =========================================================
+// SALES ORDER STATISTICS
+// =========================================================
+
+const SalesOrderStatistics = ({
+    statistics
+}) => {
+
+    const {
+        totalOrders = 0,
+        totalAmount = 0,
+        completedOrders = 0,
+        pendingOrders = 0
+    } = statistics || {};
+
+
+    return (
+
+        <Box
+            className="sales-order-statistics"
+            sx={{
+                mb: 3
+            }}
+        >
+
+            <Grid
+                container
+                spacing={3}
+            >
+
+                {/* =====================================
+                    TOTAL ORDERS
+                ====================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                >
+
+                    <StatisticCard
+                        title="Total Orders"
+                        value={totalOrders}
+                    />
+
+                </Grid>
+
+
+                {/* =====================================
+                    TOTAL SALES
+                ====================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                >
+
+                    <StatisticCard
+                        title="Total Sales"
+                        value={totalAmount}
+                        currency
+                    />
+
+                </Grid>
+
+
+                {/* =====================================
+                    COMPLETED ORDERS
+                ====================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                >
+
+                    <StatisticCard
+                        title="Completed Orders"
+                        value={completedOrders}
+                        color="success.main"
+                    />
+
+                </Grid>
+
+
+                {/* =====================================
+                    PENDING ORDERS
+                ====================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                >
+
+                    <StatisticCard
+                        title="Pending Orders"
+                        value={pendingOrders}
+                        color="warning.main"
+                    />
+
+                </Grid>
+
+            </Grid>
+
+        </Box>
+
+    );
+
+};
+
 
 export default SalesOrderStatistics;

@@ -14,6 +14,11 @@ import {
     MenuItem
 } from "@mui/material";
 
+
+// =========================================================
+// INITIAL STATE
+// =========================================================
+
 const initialState = {
 
     SalesOrderId: 0,
@@ -34,6 +39,11 @@ const initialState = {
 
 };
 
+
+// =========================================================
+// STATUS OPTIONS
+// =========================================================
+
 const statusOptions = [
 
     "Pending",
@@ -46,20 +56,28 @@ const statusOptions = [
 
 ];
 
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const SalesOrderModal = ({
-
     open,
-
     item,
-
     onClose,
-
     onSave
-
 }) => {
 
     const [formData, setFormData] =
         useState(initialState);
+
+    const [error, setError] =
+        useState("");
+
+
+    // =====================================================
+    // LOAD ITEM FOR EDIT
+    // =====================================================
 
     useEffect(() => {
 
@@ -71,30 +89,51 @@ const SalesOrderModal = ({
 
                 ...item,
 
-                OrderDate: item.OrderDate
-                    ? item.OrderDate.substring(0, 10)
-                    : ""
+                OrderDate:
+                    item.OrderDate
+                        ? String(item.OrderDate)
+                            .substring(0, 10)
+                        : "",
+
+                SellerId:
+                    item.SellerId ?? "",
+
+                CustomerId:
+                    item.CustomerId ?? "",
+
+                TotalAmount:
+                    item.TotalAmount ?? "",
+
+                Remarks:
+                    item.Remarks ?? ""
 
             });
 
         }
         else {
 
-            setFormData(initialState);
+            setFormData({
+                ...initialState
+            });
 
         }
 
-    }, [item]);
+        setError("");
 
-    const handleChange = (e) => {
+    }, [item, open]);
+
+
+    // =====================================================
+    // HANDLE CHANGE
+    // =====================================================
+
+    const handleChange = (event) => {
 
         const {
-
             name,
-
             value
+        } = event.target;
 
-        } = e.target;
 
         setFormData((prev) => ({
 
@@ -104,13 +143,183 @@ const SalesOrderModal = ({
 
         }));
 
+
+        // Clear validation error
+        if (error) {
+
+            setError("");
+
+        }
+
     };
+
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
+
+    const validateForm = () => {
+
+        if (!formData.SellerId) {
+
+            setError(
+                "Seller ID is required."
+            );
+
+            return false;
+
+        }
+
+
+        if (!formData.CustomerId) {
+
+            setError(
+                "Customer ID is required."
+            );
+
+            return false;
+
+        }
+
+
+        if (!formData.SalesOrderNumber.trim()) {
+
+            setError(
+                "Sales Order Number is required."
+            );
+
+            return false;
+
+        }
+
+
+        if (!formData.OrderDate) {
+
+            setError(
+                "Order Date is required."
+            );
+
+            return false;
+
+        }
+
+
+        if (
+            formData.TotalAmount === "" ||
+            formData.TotalAmount === null
+        ) {
+
+            setError(
+                "Total Amount is required."
+            );
+
+            return false;
+
+        }
+
+
+        if (
+            Number(formData.SellerId) <= 0
+        ) {
+
+            setError(
+                "Seller ID must be greater than 0."
+            );
+
+            return false;
+
+        }
+
+
+        if (
+            Number(formData.CustomerId) <= 0
+        ) {
+
+            setError(
+                "Customer ID must be greater than 0."
+            );
+
+            return false;
+
+        }
+
+
+        if (
+            Number(formData.TotalAmount) < 0
+        ) {
+
+            setError(
+                "Total Amount cannot be negative."
+            );
+
+            return false;
+
+        }
+
+
+        return true;
+
+    };
+
+
+    // =====================================================
+    // SUBMIT
+    // =====================================================
 
     const handleSubmit = () => {
 
-        onSave(formData);
+        if (!validateForm()) {
+
+            return;
+
+        }
+
+
+        // Convert form values to the
+        // correct backend data types.
+
+        const payload = {
+
+            ...formData,
+
+            SalesOrderId:
+                Number(formData.SalesOrderId || 0),
+
+            SellerId:
+                Number(formData.SellerId),
+
+            CustomerId:
+                Number(formData.CustomerId),
+
+            TotalAmount:
+                Number(formData.TotalAmount),
+
+            SalesOrderNumber:
+                formData.SalesOrderNumber.trim(),
+
+            Status:
+                formData.Status || "Pending",
+
+            Remarks:
+                formData.Remarks?.trim() || ""
+
+        };
+
+
+        console.log(
+            "Sales Order Payload:",
+            payload
+        );
+
+
+        onSave(payload);
 
     };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
@@ -123,17 +332,12 @@ const SalesOrderModal = ({
 
             <DialogTitle>
 
-                {
-
-                    formData.SalesOrderId
-
-                        ? "Edit Sales Order"
-
-                        : "Add Sales Order"
-
-                }
+                {formData.SalesOrderId
+                    ? "Edit Sales Order"
+                    : "Add Sales Order"}
 
             </DialogTitle>
+
 
             <DialogContent dividers>
 
@@ -143,106 +347,187 @@ const SalesOrderModal = ({
                     sx={{ mt: 0.5 }}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    {/* =====================================
+                        SELLER ID
+                    ====================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
                             fullWidth
+                            required
                             label="Seller ID"
                             name="SellerId"
                             type="number"
                             value={formData.SellerId}
                             onChange={handleChange}
+                            inputProps={{
+                                min: 1
+                            }}
                         />
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        CUSTOMER ID
+                    ====================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
                             fullWidth
+                            required
                             label="Customer ID"
                             name="CustomerId"
                             type="number"
                             value={formData.CustomerId}
                             onChange={handleChange}
+                            inputProps={{
+                                min: 1
+                            }}
                         />
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        SALES ORDER NUMBER
+                    ====================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
                             fullWidth
+                            required
                             label="Sales Order Number"
                             name="SalesOrderNumber"
-                            value={formData.SalesOrderNumber}
+                            value={
+                                formData.SalesOrderNumber
+                            }
                             onChange={handleChange}
+                            placeholder="SO-001"
                         />
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        ORDER DATE
+                    ====================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
                             fullWidth
+                            required
+                            type="date"
                             label="Order Date"
                             name="OrderDate"
-                            type="date"
+                            value={
+                                formData.OrderDate
+                            }
+                            onChange={handleChange}
                             InputLabelProps={{
                                 shrink: true
                             }}
-                            value={formData.OrderDate}
-                            onChange={handleChange}
                         />
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        STATUS
+                    ====================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
                             select
                             fullWidth
                             label="Status"
                             name="Status"
-                            value={formData.Status}
+                            value={
+                                formData.Status
+                            }
                             onChange={handleChange}
                         >
 
-                            {
-
-                                statusOptions.map((status) => (
+                            {statusOptions.map(
+                                (status) => (
 
                                     <MenuItem
                                         key={status}
                                         value={status}
                                     >
-
                                         {status}
-
                                     </MenuItem>
 
-                                ))
-
-                            }
+                                )
+                            )}
 
                         </TextField>
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+
+                    {/* =====================================
+                        TOTAL AMOUNT
+                    ====================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
                             fullWidth
+                            required
                             label="Total Amount"
                             name="TotalAmount"
                             type="number"
-                            value={formData.TotalAmount}
+                            value={
+                                formData.TotalAmount
+                            }
                             onChange={handleChange}
+                            inputProps={{
+                                min: 0,
+                                step: "0.01"
+                            }}
                         />
 
                     </Grid>
 
-                    <Grid item xs={12}>
+
+                    {/* =====================================
+                        REMARKS
+                    ====================================== */}
+
+                    <Grid
+                        item
+                        xs={12}
+                    >
 
                         <TextField
                             fullWidth
@@ -250,15 +535,48 @@ const SalesOrderModal = ({
                             rows={4}
                             label="Remarks"
                             name="Remarks"
-                            value={formData.Remarks}
+                            value={
+                                formData.Remarks
+                            }
                             onChange={handleChange}
+                            placeholder="Enter remarks..."
                         />
 
                     </Grid>
 
+
+                    {/* =====================================
+                        VALIDATION ERROR
+                    ====================================== */}
+
+                    {error && (
+
+                        <Grid
+                            item
+                            xs={12}
+                        >
+
+                            <TextField
+                                fullWidth
+                                error
+                                value={error}
+                                InputProps={{
+                                    readOnly: true
+                                }}
+                            />
+
+                        </Grid>
+
+                    )}
+
                 </Grid>
 
             </DialogContent>
+
+
+            {/* =========================================
+                ACTIONS
+            ========================================== */}
 
             <DialogActions>
 
@@ -266,25 +584,18 @@ const SalesOrderModal = ({
                     onClick={onClose}
                     color="inherit"
                 >
-
                     Cancel
-
                 </Button>
+
 
                 <Button
                     variant="contained"
                     onClick={handleSubmit}
                 >
 
-                    {
-
-                        formData.SalesOrderId
-
-                            ? "Update"
-
-                            : "Save"
-
-                    }
+                    {formData.SalesOrderId
+                        ? "Update"
+                        : "Save"}
 
                 </Button>
 
@@ -295,5 +606,6 @@ const SalesOrderModal = ({
     );
 
 };
+
 
 export default SalesOrderModal;

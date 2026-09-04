@@ -2758,6 +2758,257 @@ app.get(
     }
 );
 
+// =========================================================
+// GET ALL SALES ORDERS
+//
+// React:
+// GET http://localhost:5000/api/sales-orders/all
+//
+// ASP.NET:
+// GET https://localhost:7203/api/SalesOrder/all
+// =========================================================
+app.get("/api/sales-orders/all", async (req, res) => {
+
+    try {
+
+        console.log("GET ALL SALES ORDERS");
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesOrder/all`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(200).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET ALL SALES ORDERS ERROR:",
+            error.response?.data ||
+            error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to fetch all sales orders"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET SALES ORDER BY ID
+// GET /api/sales-orders/1
+// =========================================================
+app.get("/api/sales-orders/:id", async (req, res) => {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+
+            return res.status(400).json({
+                message: "Invalid Sales Order ID"
+            });
+        }
+
+        console.log(
+            `GET SALES ORDER BY ID: ${id}`
+        );
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesOrder/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(200).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET SALES ORDER BY ID ERROR:",
+            error.response?.data ||
+            error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to fetch sales order"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// CREATE SALES ORDER
+// POST /api/sales-orders
+// =========================================================
+app.post("/api/sales-orders", async (req, res) => {
+
+    try {
+
+        console.log(
+            "CREATE SALES ORDER:",
+            req.body
+        );
+
+        const response = await axios.post(
+            `${DOTNET_API}/SalesOrder`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        return res.status(200).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "CREATE SALES ORDER ERROR:",
+            error.response?.data ||
+            error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to create sales order"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// UPDATE SALES ORDER
+// PUT /api/sales-orders/:id
+// =========================================================
+app.put("/api/sales-orders/:id", async (req, res) => {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+
+            return res.status(400).json({
+                message: "Invalid Sales Order ID"
+            });
+        }
+
+        console.log(
+            `UPDATE SALES ORDER: ${id}`
+        );
+
+        const response = await axios.put(
+            `${DOTNET_API}/SalesOrder/${id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        return res.status(200).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "UPDATE SALES ORDER ERROR:",
+            error.response?.data ||
+            error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to update sales order"
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// DELETE SALES ORDER
+// DELETE /api/sales-orders/:id
+// =========================================================
+app.delete("/api/sales-orders/:id", async (req, res) => {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+
+            return res.status(400).json({
+                message: "Invalid Sales Order ID"
+            });
+        }
+
+        console.log(
+            `DELETE SALES ORDER: ${id}`
+        );
+
+        const response = await axios.delete(
+            `${DOTNET_API}/SalesOrder/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(200).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "DELETE SALES ORDER ERROR:",
+            error.response?.data ||
+            error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to delete sales order"
+            }
+        );
+    }
+});
+
+
+
+
 
 
 

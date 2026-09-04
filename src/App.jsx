@@ -537,6 +537,21 @@ import PurchaseReturnToolbar from "./pages/PurchaseReturns/PurchaseReturnToolbar
 import PurchaseReturnView from "./pages/PurchaseReturns/PurchaseReturnView";
 
 // =========================================================
+// SalesOrder
+// =========================================================
+import SalesOrderList from "./pages/SalesOrders/SalesOrderList";
+import SalesOrderDetails from "./pages/SalesOrders/SalesOrderDetails";
+import SalesOrderSearch from "./pages/SalesOrders/SalesOrderSearch";
+import SalesOrderStatistics from "./pages/SalesOrders/SalesOrderStatistics";
+import SalesOrderEdit from "./pages/SalesOrders/SalesOrderEdit";
+import SalesOrderModal from "./pages/SalesOrders/SalesOrderModal";
+import SalesOrderToolbar from "./pages/SalesOrders/SalesOrderToolbar";
+import SalesOrderTable from "./pages/SalesOrders/SalesOrderTable";
+import SalesOrderCard from "./pages/SalesOrders/SalesOrderCard";
+import SalesOrderPagination from "./pages/SalesOrders/SalesOrderPagination";
+import DeleteSalesOrderDialog from "./pages/SalesOrders/DeleteSalesOrderDialog";
+
+// =========================================================
 // REVIEWS
 // =========================================================
 
@@ -581,20 +596,8 @@ import SalesOrderItemTable from "./pages/SalesOrderItems/SalesOrderItemTable";
 import SalesOrderItemToolbar from "./pages/SalesOrderItems/SalesOrderItemToolbar";
 import SalesOrderItemView from "./pages/SalesOrderItems/SalesOrderItemView";
 
-// =========================================================
-// SALES ORDERS
-// =========================================================
 
-import DeleteSalesOrderDialog from "./pages/SalesOrders/DeleteSalesOrderDialog";
-import SalesOrderCard from "./pages/SalesOrders/SalesOrderCard";
-import SalesOrderList from "./pages/SalesOrders/SalesOrderList";
-import SalesOrderModal from "./pages/SalesOrders/SalesOrderModal";
-import SalesOrderPagination from "./pages/SalesOrders/SalesOrderPagination";
-import SalesOrderSearch from "./pages/SalesOrders/SalesOrderSearch";
-import SalesOrderStatistics from "./pages/SalesOrders/SalesOrderStatistics";
-import SalesOrderTable from "./pages/SalesOrders/SalesOrderTable";
-import SalesOrderToolbar from "./pages/SalesOrders/SalesOrderToolbar";
-import SalesOrderView from "./pages/SalesOrders/SalesOrderView";
+
 
 // =========================================================
 // SELLER CUSTOMERS
@@ -1955,10 +1958,25 @@ element={<ProductPriceToolbar />}
             SALES ORDERS
         =================================================== */}
 
-        <Route path="sales-orders" element={<SalesOrderList />} />
-        <Route path="sales-orders/:id" element={<SalesOrderView />} />
-        <Route path="sales-orders/search" element={<SalesOrderSearch />} />
-        <Route path="sales-orders/statistics" element={<SalesOrderStatistics />} />
+     <Route
+    path="sales-orders"
+    element={<SalesOrderList />}
+/>
+
+<Route
+    path="sales-orders/:id"
+    element={<SalesOrderDetails />}
+/>
+
+<Route
+    path="sales-orders/search"
+    element={<SalesOrderSearch />}
+/>
+
+<Route
+    path="sales-orders/statistics"
+    element={<SalesOrderStatistics />}
+/>
 
 
         {/* ===================================================
