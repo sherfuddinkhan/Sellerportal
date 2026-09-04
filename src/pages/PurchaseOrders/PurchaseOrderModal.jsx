@@ -15,6 +15,10 @@ import {
 } from "@mui/material";
 
 
+/* =========================================================
+   INITIAL FORM STATE
+========================================================= */
+
 const initialState = {
 
     PurchaseOrderId: 0,
@@ -38,6 +42,10 @@ const initialState = {
 };
 
 
+/* =========================================================
+   STATUS OPTIONS
+========================================================= */
+
 const statusOptions = [
 
     "Pending",
@@ -50,6 +58,34 @@ const statusOptions = [
 
 ];
 
+
+/* =========================================================
+   DATE FORMATTER
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+        return "";
+    }
+
+    try {
+
+        return String(value).substring(0, 10);
+
+    }
+    catch {
+
+        return "";
+
+    }
+
+};
+
+
+/* =========================================================
+   PURCHASE ORDER MODAL
+========================================================= */
 
 const PurchaseOrderModal = ({
 
@@ -64,107 +100,342 @@ const PurchaseOrderModal = ({
 }) => {
 
 
+    /* =====================================================
+       STATE
+    ===================================================== */
+
     const [formData, setFormData] =
 
         useState(initialState);
 
 
+    const [errors, setErrors] =
+
+        useState({});
+
+
+    /* =====================================================
+       LOAD ITEM INTO FORM
+    ===================================================== */
 
     useEffect(() => {
 
-
         if (item) {
-
 
             setFormData({
 
-                ...initialState,
+                PurchaseOrderId:
+                    item.PurchaseOrderId ??
+                    item.purchaseOrderId ??
+                    0,
 
-                ...item,
+                SellerId:
+                    item.SellerId ??
+                    item.sellerId ??
+                    "",
 
+                SupplierId:
+                    item.SupplierId ??
+                    item.supplierId ??
+                    "",
+
+                PurchaseOrderNumber:
+                    item.PurchaseOrderNumber ??
+                    item.purchaseOrderNumber ??
+                    "",
 
                 OrderDate:
-
-                    item.OrderDate
-
-                        ? item.OrderDate.substring(0, 10)
-
-                        : "",
-
+                    formatDate(
+                        item.OrderDate ??
+                        item.orderDate
+                    ),
 
                 ExpectedDeliveryDate:
+                    formatDate(
+                        item.ExpectedDeliveryDate ??
+                        item.expectedDeliveryDate
+                    ),
 
-                    item.ExpectedDeliveryDate
+                Status:
+                    item.Status ??
+                    item.status ??
+                    "Pending",
 
-                        ? item.ExpectedDeliveryDate.substring(0, 10)
+                TotalAmount:
+                    item.TotalAmount ??
+                    item.totalAmount ??
+                    "",
 
-                        : ""
+                Remarks:
+                    item.Remarks ??
+                    item.remarks ??
+                    ""
 
             });
 
-
         }
-
         else {
 
-
-            setFormData(initialState);
-
+            setFormData({
+                ...initialState
+            });
 
         }
 
+        setErrors({});
 
-    }, [item]);
+    }, [item, open]);
 
 
+    /* =====================================================
+       HANDLE INPUT CHANGE
+    ===================================================== */
 
-    const handleChange = (e) => {
-
+    const handleChange = (event) => {
 
         const {
-
             name,
-
             value
-
-        } = e.target;
-
+        } = event.target;
 
 
         setFormData((prev) => ({
 
-
             ...prev,
 
-
             [name]: value
-
 
         }));
 
 
+        setErrors((prev) => ({
+
+            ...prev,
+
+            [name]: ""
+
+        }));
+
     };
 
 
+    /* =====================================================
+       VALIDATION
+    ===================================================== */
+
+    const validateForm = () => {
+
+        const newErrors = {};
+
+
+        /* -------------------------------------------------
+           SELLER ID
+        ------------------------------------------------- */
+
+        if (!formData.SellerId) {
+
+            newErrors.SellerId =
+                "Seller ID is required.";
+
+        }
+        else if (
+            Number(formData.SellerId) <= 0
+        ) {
+
+            newErrors.SellerId =
+                "Seller ID must be greater than 0.";
+
+        }
+
+
+        /* -------------------------------------------------
+           SUPPLIER ID
+        ------------------------------------------------- */
+
+        if (!formData.SupplierId) {
+
+            newErrors.SupplierId =
+                "Supplier ID is required.";
+
+        }
+        else if (
+            Number(formData.SupplierId) <= 0
+        ) {
+
+            newErrors.SupplierId =
+                "Supplier ID must be greater than 0.";
+
+        }
+
+
+        /* -------------------------------------------------
+           PURCHASE ORDER NUMBER
+        ------------------------------------------------- */
+
+        if (
+            !String(
+                formData.PurchaseOrderNumber
+            ).trim()
+        ) {
+
+            newErrors.PurchaseOrderNumber =
+                "Purchase Order Number is required.";
+
+        }
+
+
+        /* -------------------------------------------------
+           ORDER DATE
+        ------------------------------------------------- */
+
+        if (!formData.OrderDate) {
+
+            newErrors.OrderDate =
+                "Order Date is required.";
+
+        }
+
+
+        /* -------------------------------------------------
+           EXPECTED DELIVERY DATE
+        ------------------------------------------------- */
+
+        if (
+            !formData.ExpectedDeliveryDate
+        ) {
+
+            newErrors.ExpectedDeliveryDate =
+                "Expected Delivery Date is required.";
+
+        }
+
+
+        /* -------------------------------------------------
+           TOTAL AMOUNT
+        ------------------------------------------------- */
+
+        if (
+            formData.TotalAmount === "" ||
+            formData.TotalAmount === null ||
+            formData.TotalAmount === undefined
+        ) {
+
+            newErrors.TotalAmount =
+                "Total Amount is required.";
+
+        }
+        else if (
+            Number(formData.TotalAmount) < 0
+        ) {
+
+            newErrors.TotalAmount =
+                "Total Amount cannot be negative.";
+
+        }
+
+
+        setErrors(newErrors);
+
+
+        return Object.keys(newErrors).length === 0;
+
+    };
+
+
+    /* =====================================================
+       HANDLE SUBMIT
+    ===================================================== */
 
     const handleSubmit = () => {
 
+        if (!validateForm()) {
 
-        onSave(formData);
+            return;
 
+        }
+
+
+        /* -------------------------------------------------
+           PREPARE API PAYLOAD
+        ------------------------------------------------- */
+
+        const payload = {
+
+            PurchaseOrderId:
+                Number(
+                    formData.PurchaseOrderId || 0
+                ),
+
+            SellerId:
+                Number(
+                    formData.SellerId
+                ),
+
+            SupplierId:
+                Number(
+                    formData.SupplierId
+                ),
+
+            PurchaseOrderNumber:
+                String(
+                    formData.PurchaseOrderNumber
+                ).trim(),
+
+            OrderDate:
+                formData.OrderDate,
+
+            ExpectedDeliveryDate:
+                formData.ExpectedDeliveryDate,
+
+            Status:
+                formData.Status,
+
+            TotalAmount:
+                Number(
+                    formData.TotalAmount || 0
+                ),
+
+            Remarks:
+                String(
+                    formData.Remarks || ""
+                ).trim()
+
+        };
+
+
+        onSave(payload);
 
     };
 
 
+    /* =====================================================
+       HANDLE CLOSE
+    ===================================================== */
+
+    const handleClose = () => {
+
+        setErrors({});
+
+        setFormData({
+            ...initialState
+        });
+
+        onClose();
+
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
-
 
         <Dialog
 
             open={open}
 
-            onClose={onClose}
+            onClose={handleClose}
 
             fullWidth
 
@@ -173,31 +444,30 @@ const PurchaseOrderModal = ({
         >
 
 
-            <DialogTitle>
+            {/* =================================================
+               TITLE
+            ================================================= */}
 
+            <DialogTitle>
 
                 {
 
-
                     formData.PurchaseOrderId
-
 
                         ? "Edit Purchase Order"
 
-
                         : "Add Purchase Order"
 
-
                 }
-
 
             </DialogTitle>
 
 
+            {/* =================================================
+               CONTENT
+            ================================================= */}
 
             <DialogContent dividers>
-
-
 
                 <Grid
 
@@ -205,14 +475,22 @@ const PurchaseOrderModal = ({
 
                     spacing={2}
 
-                    sx={{ mt: 0.5 }}
+                    sx={{
+                        mt: 0.5
+                    }}
 
                 >
 
 
+                    {/* =========================================
+                       SELLER ID
+                    ========================================= */}
 
-                    <Grid item xs={12} md={6}>
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
 
@@ -228,17 +506,38 @@ const PurchaseOrderModal = ({
                                 formData.SellerId
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            error={
+                                Boolean(
+                                    errors.SellerId
+                                )
+                            }
+
+                            helperText={
+                                errors.SellerId
+                            }
+
+                            inputProps={{
+                                min: 1
+                            }}
 
                         />
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       SUPPLIER ID
+                    ========================================= */}
 
-                    <Grid item xs={12} md={6}>
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
 
@@ -254,18 +553,38 @@ const PurchaseOrderModal = ({
                                 formData.SupplierId
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            error={
+                                Boolean(
+                                    errors.SupplierId
+                                )
+                            }
+
+                            helperText={
+                                errors.SupplierId
+                            }
+
+                            inputProps={{
+                                min: 1
+                            }}
 
                         />
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       PURCHASE ORDER NUMBER
+                    ========================================= */}
 
-
-                    <Grid item xs={12} md={6}>
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
 
@@ -279,18 +598,34 @@ const PurchaseOrderModal = ({
                                 formData.PurchaseOrderNumber
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            error={
+                                Boolean(
+                                    errors.PurchaseOrderNumber
+                                )
+                            }
+
+                            helperText={
+                                errors.PurchaseOrderNumber
+                            }
 
                         />
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       ORDER DATE
+                    ========================================= */}
 
-
-                    <Grid item xs={12} md={6}>
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
 
@@ -302,28 +637,42 @@ const PurchaseOrderModal = ({
 
                             type="date"
 
-                            InputLabelProps={{
-
-                                shrink: true
-
-                            }}
-
                             value={
                                 formData.OrderDate
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            InputLabelProps={{
+                                shrink: true
+                            }}
+
+                            error={
+                                Boolean(
+                                    errors.OrderDate
+                                )
+                            }
+
+                            helperText={
+                                errors.OrderDate
+                            }
 
                         />
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       EXPECTED DELIVERY DATE
+                    ========================================= */}
 
-
-                    <Grid item xs={12} md={6}>
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
 
@@ -335,28 +684,42 @@ const PurchaseOrderModal = ({
 
                             type="date"
 
-                            InputLabelProps={{
-
-                                shrink: true
-
-                            }}
-
                             value={
                                 formData.ExpectedDeliveryDate
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            InputLabelProps={{
+                                shrink: true
+                            }}
+
+                            error={
+                                Boolean(
+                                    errors.ExpectedDeliveryDate
+                                )
+                            }
+
+                            helperText={
+                                errors.ExpectedDeliveryDate
+                            }
 
                         />
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       STATUS
+                    ========================================= */}
 
-
-                    <Grid item xs={12} md={6}>
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
 
@@ -372,44 +735,48 @@ const PurchaseOrderModal = ({
                                 formData.Status
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         >
 
-
                             {
 
-                                statusOptions.map((status) => (
+                                statusOptions.map(
+                                    (status) => (
 
+                                        <MenuItem
 
-                                    <MenuItem
+                                            key={status}
 
-                                        key={status}
+                                            value={status}
 
-                                        value={status}
+                                        >
 
-                                    >
+                                            {status}
 
-                                        {status}
+                                        </MenuItem>
 
-                                    </MenuItem>
-
-
-                                ))
+                                    )
+                                )
 
                             }
 
-
                         </TextField>
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       TOTAL AMOUNT
+                    ========================================= */}
 
-
-                    <Grid item xs={12} md={6}>
-
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
                         <TextField
 
@@ -425,18 +792,38 @@ const PurchaseOrderModal = ({
                                 formData.TotalAmount
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
+
+                            error={
+                                Boolean(
+                                    errors.TotalAmount
+                                )
+                            }
+
+                            helperText={
+                                errors.TotalAmount
+                            }
+
+                            inputProps={{
+                                min: 0,
+                                step: "0.01"
+                            }}
 
                         />
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       REMARKS
+                    ========================================= */}
 
-
-                    <Grid item xs={12}>
-
+                    <Grid
+                        item
+                        xs={12}
+                    >
 
                         <TextField
 
@@ -454,31 +841,29 @@ const PurchaseOrderModal = ({
                                 formData.Remarks
                             }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         />
-
 
                     </Grid>
 
 
-
                 </Grid>
-
-
 
             </DialogContent>
 
 
-
+            {/* =================================================
+               ACTIONS
+            ================================================= */}
 
             <DialogActions>
 
-
-
                 <Button
 
-                    onClick={onClose}
+                    onClick={handleClose}
 
                     color="inherit"
 
@@ -489,7 +874,6 @@ const PurchaseOrderModal = ({
                 </Button>
 
 
-
                 <Button
 
                     variant="contained"
@@ -498,35 +882,24 @@ const PurchaseOrderModal = ({
 
                 >
 
-
                     {
-
 
                         formData.PurchaseOrderId
 
-
                             ? "Update"
-
 
                             : "Save"
 
-
                     }
 
-
                 </Button>
-
-
 
             </DialogActions>
 
 
-
         </Dialog>
 
-
     );
-
 
 };
 

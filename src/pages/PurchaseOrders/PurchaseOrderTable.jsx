@@ -11,7 +11,8 @@ import {
     Typography,
     Chip,
     IconButton,
-    Tooltip
+    Tooltip,
+    Box
 } from "@mui/material";
 
 import {
@@ -21,8 +22,21 @@ import {
 } from "@mui/icons-material";
 
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+
+        return "₹ 0.00";
+
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
 
         minimumFractionDigits: 2,
 
@@ -30,30 +44,74 @@ const formatCurrency = (value) =>
 
     })}`;
 
+};
 
-const formatDate = (value) =>
-    value
-        ? new Date(value).toLocaleDateString()
-        : "-";
 
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+
+        return "-";
+
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "-";
+
+    }
+
+    return date.toLocaleDateString("en-IN", {
+
+        day: "2-digit",
+
+        month: "2-digit",
+
+        year: "numeric"
+
+    });
+
+};
+
+
+/* =========================================================
+   GET STATUS COLOR
+========================================================= */
 
 const getStatusColor = (status) => {
 
-    switch ((status || "").toLowerCase()) {
+    switch (
+        String(status || "").toLowerCase()
+    ) {
 
         case "completed":
+
             return "success";
 
+
         case "processing":
+
             return "info";
 
+
         case "pending":
+
             return "warning";
 
+
         case "cancelled":
+
             return "error";
 
+
         default:
+
             return "default";
 
     }
@@ -61,11 +119,32 @@ const getStatusColor = (status) => {
 };
 
 
+/* =========================================================
+   GET STATUS LABEL
+========================================================= */
+
+const getStatusLabel = (status) => {
+
+    if (!status) {
+
+        return "Unknown";
+
+    }
+
+    return String(status);
+
+};
+
+
+/* =========================================================
+   PURCHASE ORDER TABLE
+========================================================= */
+
 const PurchaseOrderTable = ({
 
     items = [],
 
-    loading,
+    loading = false,
 
     onView,
 
@@ -76,22 +155,92 @@ const PurchaseOrderTable = ({
 }) => {
 
 
+    /* =====================================================
+       LOADING
+    ===================================================== */
+
     if (loading) {
 
-        return null;
+        return (
+
+            <TableContainer
+                component={Paper}
+                className="purchase-order-table"
+            >
+
+                <Table>
+
+                    <TableBody>
+
+                        <TableRow>
+
+                            <TableCell
+                                colSpan={10}
+                                align="center"
+                            >
+
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ py: 4 }}
+                                >
+
+                                    Loading Purchase Orders...
+
+                                </Typography>
+
+                            </TableCell>
+
+                        </TableRow>
+
+                    </TableBody>
+
+                </Table>
+
+            </TableContainer>
+
+        );
 
     }
 
 
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
     return (
 
         <TableContainer
+
             component={Paper}
+
             className="purchase-order-table"
+
+            sx={{
+
+                width: "100%",
+
+                overflowX: "auto"
+
+            }}
+
         >
 
-            <Table>
+            <Table
 
+                stickyHeader
+
+                sx={{
+
+                    minWidth: 1250
+
+                }}
+
+            >
+
+
+                {/* =================================================
+                   TABLE HEADER
+                ================================================= */}
 
                 <TableHead>
 
@@ -135,7 +284,9 @@ const PurchaseOrderTable = ({
 
                         <TableCell>
 
-                            <strong>Expected Delivery</strong>
+                            <strong>
+                                Expected Delivery
+                            </strong>
 
                         </TableCell>
 
@@ -149,7 +300,9 @@ const PurchaseOrderTable = ({
 
                         <TableCell align="right">
 
-                            <strong>Total Amount</strong>
+                            <strong>
+                                Total Amount
+                            </strong>
 
                         </TableCell>
 
@@ -173,22 +326,47 @@ const PurchaseOrderTable = ({
                 </TableHead>
 
 
+                {/* =================================================
+                   TABLE BODY
+                ================================================= */}
+
                 <TableBody>
 
 
-                    {
+                    {/* =============================================
+                       EMPTY STATE
+                    ============================================= */}
 
-                        items.length === 0 ? (
+                    {items.length === 0 ? (
 
-                            <TableRow>
+                        <TableRow>
 
-                                <TableCell
-                                    colSpan={10}
-                                    align="center"
+                            <TableCell
+
+                                colSpan={10}
+
+                                align="center"
+
+                            >
+
+                                <Box
+
+                                    sx={{
+
+                                        py: 5
+
+                                    }}
+
                                 >
 
                                     <Typography
+
+                                        variant="body1"
+
+                                        fontWeight="medium"
+
                                         color="text.secondary"
+
                                     >
 
                                         No Purchase Orders Found
@@ -196,192 +374,486 @@ const PurchaseOrderTable = ({
                                     </Typography>
 
 
-                                </TableCell>
+                                    <Typography
 
-                            </TableRow>
+                                        variant="body2"
+
+                                        color="text.disabled"
+
+                                        sx={{ mt: 0.5 }}
+
+                                    >
+
+                                        Try changing your search
+                                        or create a new purchase
+                                        order.
+
+                                    </Typography>
+
+                                </Box>
+
+                            </TableCell>
+
+                        </TableRow>
+
+                    ) : (
 
 
-                        ) : (
+                        /* =========================================
+                           PURCHASE ORDER ROWS
+                        ========================================= */
+
+                        items.map((item) => {
 
 
-                            items.map((item) => (
+                            const purchaseOrderId =
 
+                                item.PurchaseOrderId ??
+                                item.purchaseOrderId ??
+                                0;
+
+
+                            const purchaseOrderNumber =
+
+                                item.PurchaseOrderNumber ??
+                                item.purchaseOrderNumber ??
+                                "-";
+
+
+                            const sellerId =
+
+                                item.SellerId ??
+                                item.sellerId ??
+                                "-";
+
+
+                            const supplierId =
+
+                                item.SupplierId ??
+                                item.supplierId ??
+                                "-";
+
+
+                            const orderDate =
+
+                                item.OrderDate ??
+                                item.orderDate;
+
+
+                            const expectedDeliveryDate =
+
+                                item.ExpectedDeliveryDate ??
+                                item.expectedDeliveryDate;
+
+
+                            const status =
+
+                                item.Status ??
+                                item.status ??
+                                "";
+
+
+                            const totalAmount =
+
+                                item.TotalAmount ??
+                                item.totalAmount ??
+                                0;
+
+
+                            const remarks =
+
+                                item.Remarks ??
+                                item.remarks ??
+                                "";
+
+
+                            return (
 
                                 <TableRow
 
                                     hover
 
                                     key={
-                                        item.PurchaseOrderId
+                                        purchaseOrderId
                                     }
 
                                 >
 
 
+                                    {/* =================================
+                                       ID
+                                    ================================= */}
+
                                     <TableCell>
 
-                                        {item.PurchaseOrderId}
+                                        {purchaseOrderId}
 
                                     </TableCell>
 
 
+                                    {/* =================================
+                                       ORDER NUMBER
+                                    ================================= */}
+
                                     <TableCell>
 
-                                        {item.PurchaseOrderNumber}
+                                        <Typography
+
+                                            variant="body2"
+
+                                            fontWeight="medium"
+
+                                        >
+
+                                            {
+                                                purchaseOrderNumber
+                                            }
+
+                                        </Typography>
 
                                     </TableCell>
 
 
+                                    {/* =================================
+                                       SELLER ID
+                                    ================================= */}
+
                                     <TableCell>
 
-                                        {item.SellerId}
+                                        {sellerId}
 
                                     </TableCell>
 
 
+                                    {/* =================================
+                                       SUPPLIER ID
+                                    ================================= */}
+
                                     <TableCell>
 
-                                        {item.SupplierId}
+                                        {supplierId}
 
                                     </TableCell>
 
 
+                                    {/* =================================
+                                       ORDER DATE
+                                    ================================= */}
+
                                     <TableCell>
 
-                                        {formatDate(
-                                            item.OrderDate
-                                        )}
+                                        {
+                                            formatDate(
+                                                orderDate
+                                            )
+                                        }
 
                                     </TableCell>
 
 
+                                    {/* =================================
+                                       EXPECTED DELIVERY
+                                    ================================= */}
+
                                     <TableCell>
 
-                                        {formatDate(
-                                            item.ExpectedDeliveryDate
-                                        )}
+                                        {
+                                            formatDate(
+                                                expectedDeliveryDate
+                                            )
+                                        }
 
                                     </TableCell>
 
+
+                                    {/* =================================
+                                       STATUS
+                                    ================================= */}
 
                                     <TableCell>
 
                                         <Chip
 
                                             label={
-                                                item.Status || "-"
+                                                getStatusLabel(
+                                                    status
+                                                )
                                             }
 
                                             color={
                                                 getStatusColor(
-                                                    item.Status
+                                                    status
                                                 )
                                             }
 
                                             size="small"
+
+                                            sx={{
+
+                                                fontWeight: 500
+
+                                            }}
 
                                         />
 
                                     </TableCell>
 
 
+                                    {/* =================================
+                                       TOTAL AMOUNT
+                                    ================================= */}
+
                                     <TableCell align="right">
 
-                                        {formatCurrency(
-                                            item.TotalAmount
-                                        )}
+                                        <Typography
+
+                                            variant="body2"
+
+                                            fontWeight="bold"
+
+                                        >
+
+                                            {
+                                                formatCurrency(
+                                                    totalAmount
+                                                )
+                                            }
+
+                                        </Typography>
 
                                     </TableCell>
 
 
-                                    <TableCell>
+                                    {/* =================================
+                                       REMARKS
+                                    ================================= */}
 
-                                        {item.Remarks || "-"}
+                                    <TableCell
+
+                                        sx={{
+
+                                            maxWidth: 250
+
+                                        }}
+
+                                    >
+
+                                        <Tooltip
+
+                                            title={
+                                                remarks || ""
+                                            }
+
+                                            placement="top"
+
+                                        >
+
+                                            <Typography
+
+                                                variant="body2"
+
+                                                color={
+                                                    remarks
+                                                        ? "text.primary"
+                                                        : "text.secondary"
+                                                }
+
+                                                sx={{
+
+                                                    overflow:
+                                                        "hidden",
+
+                                                    textOverflow:
+                                                        "ellipsis",
+
+                                                    whiteSpace:
+                                                        "nowrap"
+
+                                                }}
+
+                                            >
+
+                                                {
+                                                    remarks || "-"
+                                                }
+
+                                            </Typography>
+
+                                        </Tooltip>
 
                                     </TableCell>
 
+
+                                    {/* =================================
+                                       ACTIONS
+                                    ================================= */}
 
                                     <TableCell align="center">
 
+                                        <Box
 
-                                        <Tooltip title="View">
+                                            sx={{
 
-                                            <IconButton
+                                                display: "flex",
 
-                                                color="primary"
+                                                alignItems:
+                                                    "center",
 
-                                                onClick={() =>
-                                                    onView(item)
-                                                }
+                                                justifyContent:
+                                                    "center",
 
-                                            >
+                                                gap: 0.5
 
-                                                <Visibility />
+                                            }}
 
-                                            </IconButton>
-
-
-                                        </Tooltip>
+                                        >
 
 
-                                        <Tooltip title="Edit">
+                                            {/* =============================
+                                               VIEW
+                                            ============================= */}
 
-                                            <IconButton
+                                            <Tooltip title="View">
 
-                                                color="warning"
+                                                <IconButton
 
-                                                onClick={() =>
-                                                    onEdit(item)
-                                                }
+                                                    size="small"
 
-                                            >
+                                                    color="primary"
 
-                                                <Edit />
+                                                    aria-label={
+                                                        `View purchase order ${purchaseOrderId}`
+                                                    }
 
-                                            </IconButton>
+                                                    onClick={() => {
+
+                                                        if (
+                                                            typeof onView ===
+                                                            "function"
+                                                        ) {
+
+                                                            onView(item);
+
+                                                        }
+
+                                                    }}
+
+                                                    disabled={
+                                                        typeof onView !==
+                                                        "function"
+                                                    }
+
+                                                >
+
+                                                    <Visibility />
+
+                                                </IconButton>
+
+                                            </Tooltip>
 
 
-                                        </Tooltip>
+                                            {/* =============================
+                                               EDIT
+                                            ============================= */}
+
+                                            <Tooltip title="Edit">
+
+                                                <IconButton
+
+                                                    size="small"
+
+                                                    color="warning"
+
+                                                    aria-label={
+                                                        `Edit purchase order ${purchaseOrderId}`
+                                                    }
+
+                                                    onClick={() => {
+
+                                                        if (
+                                                            typeof onEdit ===
+                                                            "function"
+                                                        ) {
+
+                                                            onEdit(item);
+
+                                                        }
+
+                                                    }}
+
+                                                    disabled={
+                                                        typeof onEdit !==
+                                                        "function"
+                                                    }
+
+                                                >
+
+                                                    <Edit />
+
+                                                </IconButton>
+
+                                            </Tooltip>
 
 
-                                        <Tooltip title="Delete">
+                                            {/* =============================
+                                               DELETE
+                                            ============================= */}
 
-                                            <IconButton
+                                            <Tooltip title="Delete">
 
-                                                color="error"
+                                                <IconButton
 
-                                                onClick={() =>
-                                                    onDelete(item)
-                                                }
+                                                    size="small"
 
-                                            >
+                                                    color="error"
 
-                                                <Delete />
+                                                    aria-label={
+                                                        `Delete purchase order ${purchaseOrderId}`
+                                                    }
 
-                                            </IconButton>
+                                                    onClick={() => {
+
+                                                        if (
+                                                            typeof onDelete ===
+                                                            "function"
+                                                        ) {
+
+                                                            onDelete(item);
+
+                                                        }
+
+                                                    }}
+
+                                                    disabled={
+                                                        typeof onDelete !==
+                                                        "function"
+                                                    }
+
+                                                >
+
+                                                    <Delete />
+
+                                                </IconButton>
+
+                                            </Tooltip>
 
 
-                                        </Tooltip>
-
+                                        </Box>
 
                                     </TableCell>
 
 
                                 </TableRow>
 
+                            );
 
-                            ))
+                        })
 
-                        )
-
-                    }
-
+                    )}
 
                 </TableBody>
 
-
             </Table>
-
 
         </TableContainer>
 

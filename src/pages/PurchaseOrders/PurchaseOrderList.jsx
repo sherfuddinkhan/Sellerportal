@@ -1,5 +1,20 @@
-import React, {useEffect,useMemo,useState} from "react";
-import {Box,Grid,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
+import React, {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import axios from "axios";
+
+import {
+    Box,
+    Grid,
+    Typography,
+    CircularProgress,
+    Snackbar,
+    Alert
+} from "@mui/material";
+
 import PurchaseOrderToolbar from "./PurchaseOrderToolbar";
 import PurchaseOrderStatistics from "./PurchaseOrderStatistics";
 import PurchaseOrderSearch from "./PurchaseOrderSearch";
@@ -11,23 +26,69 @@ import DeletePurchaseOrderDialog from "./DeletePurchaseOrderDialog";
 
 import "./PurchaseOrders.css";
 
+
+/* =========================================================
+   SERVER CONFIGURATION
+========================================================= */
+
+const SERVER_URL =
+    "http://localhost:5000";
+
+const PURCHASE_ORDER_API =
+    `${SERVER_URL}/api/purchase-orders`;
+
 const DEFAULT_PAGE_SIZE = 10;
 
+
+/* =========================================================
+   PURCHASE ORDER LIST
+========================================================= */
+
 const PurchaseOrderList = () => {
-    const [items, setItems] = useState([]);
-    const [loading, setLoading] =useState(true);
-    const [searchText, setSearchText] = useState("");
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [viewOpen, setViewOpen] =useState(false);
-    const [deleteOpen, setDeleteOpen] =useState(false);
-    const [selectedItem, setSelectedItem] =useState(null);
-    const [snackbar, setSnackbar] =useState({
+
+
+    /* =====================================================
+       STATE
+    ===================================================== */
+
+    const [items, setItems] =
+        useState([]);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [searchText, setSearchText] =
+        useState("");
+
+    const [page, setPage] =
+        useState(1);
+
+    const [pageSize, setPageSize] =
+        useState(DEFAULT_PAGE_SIZE);
+
+    const [modalOpen, setModalOpen] =
+        useState(false);
+
+    const [viewOpen, setViewOpen] =
+        useState(false);
+
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
+
+    const [selectedItem, setSelectedItem] =
+        useState(null);
+
+    const [snackbar, setSnackbar] =
+        useState({
             open: false,
             severity: "success",
             message: ""
         });
+
+
+    /* =====================================================
+       LOAD PURCHASE ORDERS
+    ===================================================== */
 
     const loadItems = async () => {
 
@@ -36,16 +97,64 @@ const PurchaseOrderList = () => {
             setLoading(true);
 
             const response =
-                await apiService.getPurchaseOrders();
+                await axios.get(
+                    PURCHASE_ORDER_API
+                );
 
-            setItems(
-                response.data || []
-            );
+            const data =
+                response?.data;
+
+            /* =================================================
+               NORMALIZE RESPONSE
+            ================================================= */
+
+            if (Array.isArray(data)) {
+
+                setItems(data);
+
+            }
+            else if (
+                Array.isArray(data?.items)
+            ) {
+
+                setItems(
+                    data.items
+                );
+
+            }
+            else if (
+                Array.isArray(data?.data)
+            ) {
+
+                setItems(
+                    data.data
+                );
+
+            }
+            else if (
+                Array.isArray(data?.purchaseOrders)
+            ) {
+
+                setItems(
+                    data.purchaseOrders
+                );
+
+            }
+            else {
+
+                setItems([]);
+
+            }
 
         }
         catch (error) {
 
-            console.error(error);
+            console.error(
+                "LOAD PURCHASE ORDERS ERROR:",
+                error
+            );
+
+            setItems([]);
 
             setSnackbar({
 
@@ -54,6 +163,7 @@ const PurchaseOrderList = () => {
                 severity: "error",
 
                 message:
+                    error?.response?.data?.message ||
                     "Failed to load Purchase Orders."
 
             });
@@ -67,63 +177,125 @@ const PurchaseOrderList = () => {
 
     };
 
+
+    /* =====================================================
+       INITIAL LOAD
+    ===================================================== */
+
     useEffect(() => {
 
         loadItems();
 
     }, []);
 
+
+    /* =====================================================
+       FILTER PURCHASE ORDERS
+    ===================================================== */
+
     const filteredItems =
         useMemo(() => {
 
-            if (!searchText.trim())
+            if (
+                !searchText.trim()
+            ) {
+
                 return items;
 
+            }
+
             const value =
-                searchText.toLowerCase();
-
-            return items.filter((item) =>
-
-                String(item.PurchaseOrderId)
+                searchText
                     .toLowerCase()
-                    .includes(value)
+                    .trim();
 
-                ||
+            return items.filter(
+                (item) => {
 
-                String(item.PurchaseOrderNumber || "")
-                    .toLowerCase()
-                    .includes(value)
+                    return (
 
-                ||
+                        String(
+                            item.PurchaseOrderId ??
+                            item.purchaseOrderId ??
+                            ""
+                        )
+                            .toLowerCase()
+                            .includes(value)
 
-                String(item.SellerId)
-                    .includes(value)
+                        ||
 
-                ||
+                        String(
+                            item.PurchaseOrderNumber ??
+                            item.purchaseOrderNumber ??
+                            ""
+                        )
+                            .toLowerCase()
+                            .includes(value)
 
-                String(item.SupplierId)
-                    .includes(value)
+                        ||
 
-                ||
+                        String(
+                            item.SellerId ??
+                            item.sellerId ??
+                            ""
+                        )
+                            .toLowerCase()
+                            .includes(value)
 
-                String(item.Status || "")
-                    .toLowerCase()
-                    .includes(value)
+                        ||
 
-                ||
+                        String(
+                            item.SupplierId ??
+                            item.supplierId ??
+                            ""
+                        )
+                            .toLowerCase()
+                            .includes(value)
 
-                String(item.Remarks || "")
-                    .toLowerCase()
-                    .includes(value)
+                        ||
 
-                ||
+                        String(
+                            item.Status ??
+                            item.status ??
+                            ""
+                        )
+                            .toLowerCase()
+                            .includes(value)
 
-                String(item.TotalAmount)
-                    .includes(value)
+                        ||
 
+                        String(
+                            item.Remarks ??
+                            item.remarks ??
+                            ""
+                        )
+                            .toLowerCase()
+                            .includes(value)
+
+                        ||
+
+                        String(
+                            item.TotalAmount ??
+                            item.totalAmount ??
+                            ""
+                        )
+                            .toLowerCase()
+                            .includes(value)
+
+                    );
+
+                }
             );
 
-        }, [items, searchText]);
+        }, [
+            items,
+            searchText
+        ]);
+
+
+    /* =====================================================
+       PAGINATION
+    ===================================================== */
 
     const totalRecords =
         filteredItems.length;
@@ -132,28 +304,46 @@ const PurchaseOrderList = () => {
         Math.max(
             1,
             Math.ceil(
-                totalRecords / pageSize
+                totalRecords /
+                pageSize
             )
         );
 
     const pagedItems =
         filteredItems.slice(
 
-            (page - 1) * pageSize,
+            (page - 1) *
+            pageSize,
 
-            page * pageSize
+            page *
+            pageSize
 
         );
 
+
+    /* =====================================================
+       KEEP PAGE VALID
+    ===================================================== */
+
     useEffect(() => {
 
-        if (page > totalPages) {
+        if (
+            page > totalPages
+        ) {
 
             setPage(1);
 
         }
 
-    }, [page, totalPages]);
+    }, [
+        page,
+        totalPages
+    ]);
+
+
+    /* =====================================================
+       ADD
+    ===================================================== */
 
     const handleAdd = () => {
 
@@ -163,7 +353,14 @@ const PurchaseOrderList = () => {
 
     };
 
-    const handleEdit = (item) => {
+
+    /* =====================================================
+       EDIT
+    ===================================================== */
+
+    const handleEdit = (
+        item
+    ) => {
 
         setSelectedItem(item);
 
@@ -171,7 +368,14 @@ const PurchaseOrderList = () => {
 
     };
 
-    const handleView = (item) => {
+
+    /* =====================================================
+       VIEW
+    ===================================================== */
+
+    const handleView = (
+        item
+    ) => {
 
         setSelectedItem(item);
 
@@ -179,22 +383,46 @@ const PurchaseOrderList = () => {
 
     };
 
-    const handleDelete = (item) => {
+
+    /* =====================================================
+       DELETE
+    ===================================================== */
+
+    const handleDelete = (
+        item
+    ) => {
 
         setSelectedItem(item);
 
         setDeleteOpen(true);
 
     };
-        const handleSave = async (purchaseOrder) => {
+
+
+    /* =====================================================
+       CREATE / UPDATE PURCHASE ORDER
+    ===================================================== */
+
+    const handleSave = async (
+        purchaseOrder
+    ) => {
 
         try {
 
-            if (purchaseOrder.PurchaseOrderId) {
+            const id =
+                purchaseOrder?.PurchaseOrderId ??
+                purchaseOrder?.purchaseOrderId;
 
-                await apiService.updatePurchaseOrder(
 
-                    purchaseOrder.PurchaseOrderId,
+            /* =============================================
+               UPDATE
+            ============================================= */
+
+            if (id) {
+
+                await axios.put(
+
+                    `${PURCHASE_ORDER_API}/${id}`,
 
                     purchaseOrder
 
@@ -206,15 +434,26 @@ const PurchaseOrderList = () => {
 
                     severity: "success",
 
-                    message: "Purchase Order updated successfully."
+                    message:
+                        "Purchase Order updated successfully."
 
                 });
 
             }
+
+
+            /* =============================================
+               CREATE
+            ============================================= */
+
             else {
 
-                await apiService.createPurchaseOrder(
+                await axios.post(
+
+                    PURCHASE_ORDER_API,
+
                     purchaseOrder
+
                 );
 
                 setSnackbar({
@@ -223,126 +462,203 @@ const PurchaseOrderList = () => {
 
                     severity: "success",
 
-                    message: "Purchase Order created successfully."
+                    message:
+                        "Purchase Order created successfully."
 
                 });
 
             }
+
+
+            /* =============================================
+               CLOSE MODAL
+            ============================================= */
 
             setModalOpen(false);
 
-            loadItems();
+            setSelectedItem(null);
+
+
+            /* =============================================
+               RELOAD
+            ============================================= */
+
+            await loadItems();
 
         }
         catch (error) {
 
-            console.error(error);
-
-            setSnackbar({
-
-                open: true,
-
-                severity: "error",
-
-                message: "Unable to save Purchase Order."
-
-            });
-
-        }
-
-    };
-
-    const handleDeleteConfirm = async (id) => {
-
-        try {
-
-            await apiService.deletePurchaseOrder(id);
-
-            setDeleteOpen(false);
-
-            setSnackbar({
-
-                open: true,
-
-                severity: "success",
-
-                message: "Purchase Order deleted successfully."
-
-            });
-
-            loadItems();
-
-        }
-        catch (error) {
-
-            console.error(error);
-
-            setSnackbar({
-
-                open: true,
-
-                severity: "error",
-
-                message: "Unable to delete Purchase Order."
-
-            });
-
-        }
-
-    };
-
-    const statistics = useMemo(() => {
-
-        const totalOrders =
-            items.length;
-
-        const totalAmount =
-            items.reduce(
-
-                (sum, item) =>
-
-                    sum +
-                    Number(item.TotalAmount || 0),
-
-                0
-
+            console.error(
+                "SAVE PURCHASE ORDER ERROR:",
+                error
             );
 
-        const pendingOrders =
-            items.filter(
+            setSnackbar({
 
-                x =>
+                open: true,
 
-                    (x.Status || "")
-                        .toLowerCase() ===
-                    "pending"
+                severity: "error",
 
-            ).length;
+                message:
+                    error?.response?.data?.message ||
+                    "Unable to save Purchase Order."
 
-        const completedOrders =
-            items.filter(
+            });
 
-                x =>
+        }
 
-                    (x.Status || "")
-                        .toLowerCase() ===
-                    "completed"
+    };
 
-            ).length;
 
-        return {
+    /* =====================================================
+       DELETE PURCHASE ORDER
+    ===================================================== */
 
-            totalOrders,
+    const handleDeleteConfirm =
+        async (
+            id
+        ) => {
 
-            totalAmount,
+            try {
 
-            pendingOrders,
+                await axios.delete(
 
-            completedOrders
+                    `${PURCHASE_ORDER_API}/${id}`
+
+                );
+
+                setDeleteOpen(false);
+
+                setSelectedItem(null);
+
+                setSnackbar({
+
+                    open: true,
+
+                    severity: "success",
+
+                    message:
+                        "Purchase Order deleted successfully."
+
+                });
+
+                await loadItems();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "DELETE PURCHASE ORDER ERROR:",
+                    error
+                );
+
+                setSnackbar({
+
+                    open: true,
+
+                    severity: "error",
+
+                    message:
+                        error?.response?.data?.message ||
+                        "Unable to delete Purchase Order."
+
+                });
+
+            }
 
         };
 
-    }, [items]);
+
+    /* =====================================================
+       STATISTICS
+    ===================================================== */
+
+    const statistics =
+        useMemo(() => {
+
+            const totalOrders =
+                items.length;
+
+            const totalAmount =
+                items.reduce(
+
+                    (
+                        sum,
+                        item
+                    ) => {
+
+                        const amount =
+                            item.TotalAmount ??
+                            item.totalAmount ??
+                            0;
+
+                        return (
+                            sum +
+                            Number(amount || 0)
+                        );
+
+                    },
+
+                    0
+
+                );
+
+            const pendingOrders =
+                items.filter(
+                    (item) => {
+
+                        const status =
+                            item.Status ??
+                            item.status ??
+                            "";
+
+                        return (
+                            String(status)
+                                .toLowerCase() ===
+                            "pending"
+                        );
+
+                    }
+                ).length;
+
+            const completedOrders =
+                items.filter(
+                    (item) => {
+
+                        const status =
+                            item.Status ??
+                            item.status ??
+                            "";
+
+                        return (
+                            String(status)
+                                .toLowerCase() ===
+                            "completed"
+                        );
+
+                    }
+                ).length;
+
+            return {
+
+                totalOrders,
+
+                totalAmount,
+
+                pendingOrders,
+
+                completedOrders
+
+            };
+
+        }, [
+            items
+        ]);
+
+
+    /* =====================================================
+       LOADING
+    ===================================================== */
 
     if (loading) {
 
@@ -351,7 +667,8 @@ const PurchaseOrderList = () => {
             <Box
                 display="flex"
                 justifyContent="center"
-                mt={5}
+                alignItems="center"
+                minHeight="300px"
             >
 
                 <CircularProgress />
@@ -362,9 +679,20 @@ const PurchaseOrderList = () => {
 
     }
 
+
+    /* =====================================================
+       JSX
+    ===================================================== */
+
     return (
 
-        <Box className="purchase-orders-container">
+        <Box
+            className="purchase-orders-container"
+        >
+
+            {/* =================================================
+                PAGE TITLE
+            ================================================= */}
 
             <Typography
                 variant="h4"
@@ -376,100 +704,268 @@ const PurchaseOrderList = () => {
 
             </Typography>
 
+
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
+
             <PurchaseOrderToolbar
-                onAdd={handleAdd}
-                onRefresh={loadItems}
+
+                onAdd={
+                    handleAdd
+                }
+
+                onRefresh={
+                    loadItems
+                }
+
             />
+
+
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
 
             <PurchaseOrderStatistics
-                statistics={statistics}
+
+                statistics={
+                    statistics
+                }
+
             />
 
+
+            {/* =================================================
+                SEARCH
+            ================================================= */}
+
             <PurchaseOrderSearch
-                searchText={searchText}
-                setSearchText={setSearchText}
+
+                searchText={
+                    searchText
+                }
+
+                setSearchText={
+                    setSearchText
+                }
+
             />
+
+
+            {/* =================================================
+                TABLE
+            ================================================= */}
 
             <Grid
                 container
                 spacing={3}
             >
 
-                <Grid item xs={12}>
+                <Grid
+                    item
+                    xs={12}
+                >
 
                     <PurchaseOrderTable
-                        items={pagedItems}
-                        loading={loading}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
+
+                        items={
+                            pagedItems
+                        }
+
+                        loading={
+                            loading
+                        }
+
+                        onView={
+                            handleView
+                        }
+
+                        onEdit={
+                            handleEdit
+                        }
+
+                        onDelete={
+                            handleDelete
+                        }
+
                     />
 
                 </Grid>
 
             </Grid>
 
+
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
+
             <PurchaseOrderPagination
-                page={page}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                totalRecords={totalRecords}
-                onPageChange={setPage}
-                onPageSizeChange={(size) => {
 
-                    setPageSize(size);
+                page={
+                    page
+                }
 
-                    setPage(1);
+                totalPages={
+                    totalPages
+                }
 
-                }}
+                pageSize={
+                    pageSize
+                }
+
+                totalRecords={
+                    totalRecords
+                }
+
+                onPageChange={
+                    setPage
+                }
+
+                onPageSizeChange={
+                    (size) => {
+
+                        setPageSize(
+                            size
+                        );
+
+                        setPage(1);
+
+                    }
+                }
+
             />
+
+
+            {/* =================================================
+                CREATE / EDIT MODAL
+            ================================================= */}
 
             <PurchaseOrderModal
-                open={modalOpen}
-                item={selectedItem}
-                onClose={() =>
-                    setModalOpen(false)
+
+                open={
+                    modalOpen
                 }
-                onSave={handleSave}
+
+                item={
+                    selectedItem
+                }
+
+                onClose={
+                    () => {
+
+                        setModalOpen(
+                            false
+                        );
+
+                        setSelectedItem(
+                            null
+                        );
+
+                    }
+                }
+
+                onSave={
+                    handleSave
+                }
+
             />
+
+
+            {/* =================================================
+                VIEW
+            ================================================= */}
 
             <PurchaseOrderView
-                open={viewOpen}
-                item={selectedItem}
-                onClose={() =>
-                    setViewOpen(false)
+
+                open={
+                    viewOpen
                 }
+
+                item={
+                    selectedItem
+                }
+
+                onClose={
+                    () => {
+
+                        setViewOpen(
+                            false
+                        );
+
+                    }
+                }
+
             />
+
+
+            {/* =================================================
+                DELETE DIALOG
+            ================================================= */}
 
             <DeletePurchaseOrderDialog
-                open={deleteOpen}
-                item={selectedItem}
-                onClose={() =>
-                    setDeleteOpen(false)
+
+                open={
+                    deleteOpen
                 }
-                onDeleted={handleDeleteConfirm}
+
+                item={
+                    selectedItem
+                }
+
+                onClose={
+                    () => {
+
+                        setDeleteOpen(
+                            false
+                        );
+
+                    }
+                }
+
+                onDeleted={
+                    handleDeleteConfirm
+                }
+
             />
 
+
+            {/* =================================================
+                SNACKBAR
+            ================================================= */}
+
             <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={() =>
-                    setSnackbar({
 
-                        ...snackbar,
-
-                        open: false
-
-                    })
+                open={
+                    snackbar.open
                 }
+
+                autoHideDuration={
+                    3000
+                }
+
+                onClose={
+                    () =>
+                        setSnackbar(
+                            (previous) => ({
+                                ...previous,
+                                open: false
+                            })
+                        )
+                }
+
             >
 
                 <Alert
-                    severity={snackbar.severity}
+                    severity={
+                        snackbar.severity
+                    }
+
                     variant="filled"
                 >
 
-                    {snackbar.message}
+                    {
+                        snackbar.message
+                    }
 
                 </Alert>
 
@@ -480,5 +976,6 @@ const PurchaseOrderList = () => {
     );
 
 };
+
 
 export default PurchaseOrderList;

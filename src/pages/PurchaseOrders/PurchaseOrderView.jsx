@@ -9,13 +9,26 @@ import {
     Typography,
     Divider,
     Button,
-    Chip
+    Chip,
+    Box
 } from "@mui/material";
 
 
-const formatCurrency = (value) =>
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
 
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+
+        return "₹ 0.00";
+
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
 
         minimumFractionDigits: 2,
 
@@ -23,22 +36,51 @@ const formatCurrency = (value) =>
 
     })}`;
 
-
-const formatDate = (value) =>
-
-    value
-
-        ? new Date(value).toLocaleDateString()
-
-        : "-";
+};
 
 
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+
+        return "-";
+
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "-";
+
+    }
+
+    return date.toLocaleDateString("en-IN", {
+
+        day: "2-digit",
+
+        month: "2-digit",
+
+        year: "numeric"
+
+    });
+
+};
+
+
+/* =========================================================
+   GET STATUS COLOR
+========================================================= */
 
 const getStatusColor = (status) => {
 
-
-    switch ((status || "").toLowerCase()) {
-
+    switch (
+        String(status || "").toLowerCase()
+    ) {
 
         case "completed":
 
@@ -64,12 +106,84 @@ const getStatusColor = (status) => {
 
             return "default";
 
-
     }
 
 };
 
 
+/* =========================================================
+   DETAIL ITEM
+========================================================= */
+
+const DetailItem = ({
+
+    label,
+
+    value,
+
+    valueColor,
+
+    fontWeight = "normal"
+
+}) => {
+
+    return (
+
+        <Box>
+
+            <Typography
+
+                variant="body2"
+
+                color="text.secondary"
+
+                sx={{
+                    mb: 0.5
+                }}
+
+            >
+
+                {label}
+
+            </Typography>
+
+
+            <Typography
+
+                variant="body1"
+
+                color={
+                    valueColor || "text.primary"
+                }
+
+                fontWeight={fontWeight}
+
+            >
+
+                {
+
+                    value !== null &&
+                    value !== undefined &&
+                    value !== ""
+
+                        ? value
+
+                        : "-"
+
+                }
+
+            </Typography>
+
+        </Box>
+
+    );
+
+};
+
+
+/* =========================================================
+   PURCHASE ORDER VIEW
+========================================================= */
 
 const PurchaseOrderView = ({
 
@@ -82,14 +196,99 @@ const PurchaseOrderView = ({
 }) => {
 
 
-    if (!item)
+    /* =====================================================
+       NO ITEM
+    ===================================================== */
+
+    if (!item) {
 
         return null;
 
+    }
 
+
+    /* =====================================================
+       NORMALIZE API DATA
+    ===================================================== */
+
+    const purchaseOrderId =
+
+        item.PurchaseOrderId ??
+        item.purchaseOrderId ??
+        0;
+
+
+    const purchaseOrderNumber =
+
+        item.PurchaseOrderNumber ??
+        item.purchaseOrderNumber ??
+        "-";
+
+
+    const sellerId =
+
+        item.SellerId ??
+        item.sellerId ??
+        "-";
+
+
+    const supplierId =
+
+        item.SupplierId ??
+        item.supplierId ??
+        "-";
+
+
+    const orderDate =
+
+        item.OrderDate ??
+        item.orderDate;
+
+
+    const expectedDeliveryDate =
+
+        item.ExpectedDeliveryDate ??
+        item.expectedDeliveryDate;
+
+
+    const status =
+
+        item.Status ??
+        item.status ??
+        "";
+
+
+    const totalAmount =
+
+        item.TotalAmount ??
+        item.totalAmount ??
+        0;
+
+
+    const remarks =
+
+        item.Remarks ??
+        item.remarks ??
+        "";
+
+
+    const createdDate =
+
+        item.CreatedDate ??
+        item.createdDate;
+
+
+    const updatedDate =
+
+        item.UpdatedDate ??
+        item.updatedDate;
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
-
 
         <Dialog
 
@@ -104,378 +303,441 @@ const PurchaseOrderView = ({
         >
 
 
+            {/* =================================================
+               TITLE
+            ================================================= */}
 
             <DialogTitle>
 
+                <Typography
 
-                Purchase Order Details
+                    variant="h6"
 
+                    fontWeight="bold"
+
+                >
+
+                    Purchase Order Details
+
+                </Typography>
 
             </DialogTitle>
 
 
-
+            {/* =================================================
+               CONTENT
+            ================================================= */}
 
             <DialogContent dividers>
-
-
 
                 <Grid
 
                     container
 
-                    spacing={2}
+                    spacing={3}
 
                 >
 
 
+                    {/* =========================================
+                       PURCHASE ORDER ID
+                    ========================================= */}
 
+                    <Grid
 
-                    <Grid item xs={12} md={6}>
+                        item
 
+                        xs={12}
 
-                        <Typography>
+                        md={6}
 
-                            <strong>
-                                Purchase Order ID:
-                            </strong>
+                    >
 
-                        </Typography>
+                        <DetailItem
 
+                            label="Purchase Order ID"
 
-                        <Typography>
+                            value={
+                                purchaseOrderId
+                            }
 
-                            {item.PurchaseOrderId}
+                            fontWeight="bold"
 
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-                    <Grid item xs={12} md={6}>
-
-
-                        <Typography>
-
-                            <strong>
-                                Purchase Order Number:
-                            </strong>
-
-                        </Typography>
-
-
-                        <Typography>
-
-                            {item.PurchaseOrderNumber}
-
-                        </Typography>
-
+                        />
 
                     </Grid>
 
 
+                    {/* =========================================
+                       PURCHASE ORDER NUMBER
+                    ========================================= */}
 
+                    <Grid
 
+                        item
 
-                    <Grid item xs={12} md={6}>
+                        xs={12}
 
+                        md={6}
 
-                        <Typography>
+                    >
 
-                            <strong>
-                                Seller ID:
-                            </strong>
+                        <DetailItem
 
-                        </Typography>
+                            label="Purchase Order Number"
 
+                            value={
+                                purchaseOrderNumber
+                            }
 
-                        <Typography>
+                            fontWeight="bold"
 
-                            {item.SellerId}
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-                    <Grid item xs={12} md={6}>
-
-
-                        <Typography>
-
-                            <strong>
-                                Supplier ID:
-                            </strong>
-
-                        </Typography>
-
-
-                        <Typography>
-
-                            {item.SupplierId}
-
-                        </Typography>
-
+                        />
 
                     </Grid>
 
 
+                    {/* =========================================
+                       SELLER ID
+                    ========================================= */}
 
+                    <Grid
 
+                        item
 
-                    <Grid item xs={12} md={6}>
+                        xs={12}
 
+                        md={6}
 
-                        <Typography>
+                    >
 
-                            <strong>
-                                Order Date:
-                            </strong>
+                        <DetailItem
 
-                        </Typography>
+                            label="Seller ID"
 
+                            value={
+                                sellerId
+                            }
 
-                        <Typography>
-
-                            {formatDate(
-                                item.OrderDate
-                            )}
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-                    <Grid item xs={12} md={6}>
-
-
-                        <Typography>
-
-                            <strong>
-                                Expected Delivery Date:
-                            </strong>
-
-                        </Typography>
-
-
-                        <Typography>
-
-                            {formatDate(
-                                item.ExpectedDeliveryDate
-                            )}
-
-                        </Typography>
-
+                        />
 
                     </Grid>
 
 
+                    {/* =========================================
+                       SUPPLIER ID
+                    ========================================= */}
+
+                    <Grid
+
+                        item
+
+                        xs={12}
+
+                        md={6}
+
+                    >
+
+                        <DetailItem
+
+                            label="Supplier ID"
+
+                            value={
+                                supplierId
+                            }
+
+                        />
+
+                    </Grid>
 
 
+                    {/* =========================================
+                       ORDER DATE
+                    ========================================= */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid
+
+                        item
+
+                        xs={12}
+
+                        md={6}
+
+                    >
+
+                        <DetailItem
+
+                            label="Order Date"
+
+                            value={
+                                formatDate(
+                                    orderDate
+                                )
+                            }
+
+                        />
+
+                    </Grid>
 
 
-                        <Typography>
+                    {/* =========================================
+                       EXPECTED DELIVERY DATE
+                    ========================================= */}
 
-                            <strong>
-                                Status:
-                            </strong>
+                    <Grid
+
+                        item
+
+                        xs={12}
+
+                        md={6}
+
+                    >
+
+                        <DetailItem
+
+                            label="Expected Delivery Date"
+
+                            value={
+                                formatDate(
+                                    expectedDeliveryDate
+                                )
+                            }
+
+                        />
+
+                    </Grid>
+
+
+                    {/* =========================================
+                       STATUS
+                    ========================================= */}
+
+                    <Grid
+
+                        item
+
+                        xs={12}
+
+                        md={6}
+
+                    >
+
+                        <Typography
+
+                            variant="body2"
+
+                            color="text.secondary"
+
+                            sx={{
+                                mb: 0.5
+                            }}
+
+                        >
+
+                            Status
 
                         </Typography>
-
 
 
                         <Chip
 
                             label={
-                                item.Status || "-"
+                                status || "Unknown"
                             }
 
                             color={
                                 getStatusColor(
-                                    item.Status
+                                    status
                                 )
                             }
 
                             size="small"
 
-                            sx={{
-                                mt: 1
-                            }}
-
                         />
-
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       TOTAL AMOUNT
+                    ========================================= */}
+
+                    <Grid
+
+                        item
+
+                        xs={12}
+
+                        md={6}
+
+                    >
+
+                        <DetailItem
+
+                            label="Total Amount"
+
+                            value={
+                                formatCurrency(
+                                    totalAmount
+                                )
+                            }
+
+                            valueColor="success.main"
+
+                            fontWeight="bold"
+
+                        />
+
+                    </Grid>
 
 
+                    {/* =========================================
+                       DIVIDER
+                    ========================================= */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid
+
+                        item
+
+                        xs={12}
+
+                    >
+
+                        <Divider />
+
+                    </Grid>
 
 
-                        <Typography>
+                    {/* =========================================
+                       REMARKS
+                    ========================================= */}
 
-                            <strong>
-                                Total Amount:
-                            </strong>
+                    <Grid
+
+                        item
+
+                        xs={12}
+
+                    >
+
+                        <Typography
+
+                            variant="body2"
+
+                            color="text.secondary"
+
+                            sx={{
+                                mb: 0.5
+                            }}
+
+                        >
+
+                            Remarks
 
                         </Typography>
 
 
                         <Typography
 
-                            fontWeight="bold"
+                            variant="body1"
 
-                            color="success.main"
+                            sx={{
+
+                                whiteSpace:
+                                    "pre-wrap",
+
+                                wordBreak:
+                                    "break-word"
+
+                            }}
 
                         >
 
-                            {formatCurrency(
-                                item.TotalAmount
-                            )}
+                            {
+                                remarks || "-"
+                            }
 
                         </Typography>
-
 
                     </Grid>
 
 
+                    {/* =========================================
+                       CREATED DATE
+                    ========================================= */}
 
+                    <Grid
 
+                        item
 
-                    <Grid item xs={12}>
+                        xs={12}
 
+                        md={6}
 
-                        <Divider sx={{ my: 1 }} />
+                    >
 
+                        <DetailItem
 
-                    </Grid>
+                            label="Created Date"
 
+                            value={
+                                formatDate(
+                                    createdDate
+                                )
+                            }
 
-
-
-
-                    <Grid item xs={12}>
-
-
-                        <Typography>
-
-
-                            <strong>
-                                Remarks:
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {item.Remarks || "-"}
-
-
-                        </Typography>
-
-
+                        />
 
                     </Grid>
 
 
+                    {/* =========================================
+                       UPDATED DATE
+                    ========================================= */}
 
+                    <Grid
 
+                        item
 
-                    <Grid item xs={12} md={6}>
+                        xs={12}
 
+                        md={6}
 
-                        <Typography>
+                    >
 
+                        <DetailItem
 
-                            <strong>
-                                Created Date:
-                            </strong>
+                            label="Updated Date"
 
+                            value={
+                                formatDate(
+                                    updatedDate
+                                )
+                            }
 
-                        </Typography>
-
-
-                        <Typography>
-
-
-                            {formatDate(
-                                item.CreatedDate
-                            )}
-
-
-                        </Typography>
-
+                        />
 
                     </Grid>
-
-
-
-
-
-                    <Grid item xs={12} md={6}>
-
-
-                        <Typography>
-
-
-                            <strong>
-                                Updated Date:
-                            </strong>
-
-
-                        </Typography>
-
-
-                        <Typography>
-
-
-                            {formatDate(
-                                item.UpdatedDate
-                            )}
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
 
 
                 </Grid>
 
-
-
-
             </DialogContent>
 
 
+            {/* =================================================
+               ACTIONS
+            ================================================= */}
 
+            <DialogActions
 
+                sx={{
+                    px: 3,
+                    py: 2
+                }}
 
-            <DialogActions>
-
+            >
 
                 <Button
 
@@ -489,17 +751,12 @@ const PurchaseOrderView = ({
 
                 </Button>
 
-
             </DialogActions>
-
-
 
 
         </Dialog>
 
-
     );
-
 
 };
 

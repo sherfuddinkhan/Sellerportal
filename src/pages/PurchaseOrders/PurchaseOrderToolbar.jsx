@@ -11,6 +11,11 @@ import {
     Refresh
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   PURCHASE ORDER TOOLBAR
+========================================================= */
+
 const PurchaseOrderToolbar = ({
 
     onAdd,
@@ -19,15 +24,57 @@ const PurchaseOrderToolbar = ({
 
 }) => {
 
+
+    /* =====================================================
+       HANDLE ADD
+    ===================================================== */
+
+    const handleAdd = () => {
+
+        if (
+            typeof onAdd === "function"
+        ) {
+
+            onAdd();
+
+        }
+
+    };
+
+
+    /* =====================================================
+       HANDLE REFRESH
+    ===================================================== */
+
+    const handleRefresh = () => {
+
+        if (
+            typeof onRefresh === "function"
+        ) {
+
+            onRefresh();
+
+        }
+
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
     return (
 
         <Box
+
             className="purchase-order-toolbar"
+
             sx={{
 
                 display: "flex",
 
-                justifyContent: "space-between",
+                justifyContent:
+                    "space-between",
 
                 alignItems: "center",
 
@@ -38,15 +85,28 @@ const PurchaseOrderToolbar = ({
                 mb: 3
 
             }}
+
         >
 
-            <Tooltip title="Create New Purchase Order">
+
+            {/* =================================================
+               ADD PURCHASE ORDER
+            ================================================= */}
+
+            <Tooltip
+                title="Create New Purchase Order"
+            >
 
                 <Button
+
                     variant="contained"
+
                     color="primary"
+
                     startIcon={<Add />}
-                    onClick={onAdd}
+
+                    onClick={handleAdd}
+
                 >
 
                     Add Purchase Order
@@ -55,13 +115,25 @@ const PurchaseOrderToolbar = ({
 
             </Tooltip>
 
-            <Tooltip title="Refresh Purchase Orders">
+
+            {/* =================================================
+               REFRESH
+            ================================================= */}
+
+            <Tooltip
+                title="Refresh Purchase Orders"
+            >
 
                 <Button
+
                     variant="outlined"
+
                     color="secondary"
+
                     startIcon={<Refresh />}
-                    onClick={onRefresh}
+
+                    onClick={handleRefresh}
+
                 >
 
                     Refresh
@@ -70,10 +142,12 @@ const PurchaseOrderToolbar = ({
 
             </Tooltip>
 
+
         </Box>
 
     );
 
 };
+
 
 export default PurchaseOrderToolbar;

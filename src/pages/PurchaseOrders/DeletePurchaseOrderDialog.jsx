@@ -7,13 +7,34 @@ import {
     DialogContentText,
     DialogActions,
     Button,
-    Typography
+    Typography,
+    Stack,
+    Divider,
+    Box,
+    Chip
 } from "@mui/material";
 
+import {
+    Delete,
+    Warning
+} from "@mui/icons-material";
 
-const formatCurrency = (value) =>
 
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+
+        return "₹ 0.00";
+
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
 
         minimumFractionDigits: 2,
 
@@ -21,7 +42,85 @@ const formatCurrency = (value) =>
 
     })}`;
 
+};
 
+
+/* =========================================================
+   DETAIL ITEM
+========================================================= */
+
+const DetailItem = ({
+    label,
+    value
+}) => {
+
+    return (
+
+        <Box>
+
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+            >
+
+                {label}
+
+            </Typography>
+
+
+            <Typography
+                variant="body2"
+                fontWeight={500}
+                sx={{
+                    wordBreak: "break-word"
+                }}
+            >
+
+                {value ?? "-"}
+
+            </Typography>
+
+        </Box>
+
+    );
+
+};
+
+
+/* =========================================================
+   STATUS COLOR
+========================================================= */
+
+const getStatusColor = (status) => {
+
+    switch (
+        String(status || "").toLowerCase()
+    ) {
+
+        case "completed":
+            return "success";
+
+        case "processing":
+            return "info";
+
+        case "pending":
+            return "warning";
+
+        case "cancelled":
+            return "error";
+
+        default:
+            return "default";
+
+    }
+
+};
+
+
+/* =========================================================
+   DELETE PURCHASE ORDER DIALOG
+========================================================= */
 
 const DeletePurchaseOrderDialog = ({
 
@@ -36,223 +135,388 @@ const DeletePurchaseOrderDialog = ({
 }) => {
 
 
+    /* =====================================================
+       NORMALIZE API DATA
+    ===================================================== */
+
+    const purchaseOrderId =
+
+        item?.PurchaseOrderId ??
+        item?.purchaseOrderId ??
+        0;
+
+
+    const purchaseOrderNumber =
+
+        item?.PurchaseOrderNumber ??
+        item?.purchaseOrderNumber ??
+        "-";
+
+
+    const sellerId =
+
+        item?.SellerId ??
+        item?.sellerId ??
+        "-";
+
+
+    const supplierId =
+
+        item?.SupplierId ??
+        item?.supplierId ??
+        "-";
+
+
+    const status =
+
+        item?.Status ??
+        item?.status ??
+        "";
+
+
+    const totalAmount =
+
+        item?.TotalAmount ??
+        item?.totalAmount ??
+        0;
+
+
+    const remarks =
+
+        item?.Remarks ??
+        item?.remarks ??
+        "";
+
+
+    /* =====================================================
+       HANDLE DELETE
+    ===================================================== */
 
     const handleDelete = () => {
 
-
-        if (!item)
+        if (!item) {
 
             return;
 
+        }
+
+
+        if (
+            typeof onDeleted !==
+            "function"
+        ) {
+
+            return;
+
+        }
 
 
         onDeleted(
-
-            item.PurchaseOrderId
-
+            purchaseOrderId
         );
-
 
     };
 
 
+    /* =====================================================
+       HANDLE CLOSE
+    ===================================================== */
+
+    const handleClose = () => {
+
+        if (
+            typeof onClose ===
+            "function"
+        ) {
+
+            onClose();
+
+        }
+
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
 
-
         <Dialog
 
-            open={open}
+            open={Boolean(open)}
 
-            onClose={onClose}
+            onClose={handleClose}
 
             fullWidth
 
             maxWidth="sm"
 
+            aria-labelledby="delete-purchase-order-title"
+
         >
 
 
+            {/* =================================================
+               TITLE
+            ================================================= */}
 
-            <DialogTitle>
+            <DialogTitle
+                id="delete-purchase-order-title"
+            >
 
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                >
 
-                Delete Purchase Order
+                    <Warning
+                        color="error"
+                    />
 
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                    >
+
+                        Delete Purchase Order
+
+                    </Typography>
+
+                </Stack>
 
             </DialogTitle>
 
 
-
-
+            {/* =================================================
+               CONTENT
+            ================================================= */}
 
             <DialogContent>
 
 
+                {/* =============================================
+                   WARNING MESSAGE
+                ============================================= */}
 
                 <DialogContentText
-
-                    sx={{ mb: 2 }}
-
+                    sx={{
+                        mb: 2
+                    }}
                 >
 
+                    Are you sure you want to delete this
+                    Purchase Order?
 
-                    Are you sure you want to delete this Purchase Order?
+                    <br />
 
-                    This action cannot be undone.
-
+                    <strong>
+                        This action cannot be undone.
+                    </strong>
 
                 </DialogContentText>
 
 
+                {/* =============================================
+                   PURCHASE ORDER DETAILS
+                ============================================= */}
 
+                {item ? (
 
-                {
+                    <Box>
 
-                    item && (
+                        <Divider sx={{ mb: 2 }} />
 
 
-                        <>
+                        <Stack spacing={2}>
 
 
-                            <Typography>
+                            {/* ---------------------------------
+                               ORDER NUMBER
+                            --------------------------------- */}
 
-                                <strong>
-                                    Purchase Order ID:
-                                </strong>{" "}
+                            <DetailItem
 
-                                {item.PurchaseOrderId}
+                                label="Order Number"
 
+                                value={
+                                    purchaseOrderNumber
+                                }
 
-                            </Typography>
+                            />
 
 
+                            {/* ---------------------------------
+                               PURCHASE ORDER ID
+                            --------------------------------- */}
 
+                            <DetailItem
 
-                            <Typography>
+                                label="Purchase Order ID"
 
-                                <strong>
-                                    Order Number:
-                                </strong>{" "}
+                                value={
+                                    purchaseOrderId
+                                }
 
-                                {item.PurchaseOrderNumber}
+                            />
 
 
-                            </Typography>
+                            {/* ---------------------------------
+                               SELLER ID
+                            --------------------------------- */}
 
+                            <DetailItem
 
+                                label="Seller ID"
 
+                                value={
+                                    sellerId
+                                }
 
+                            />
 
-                            <Typography>
 
-                                <strong>
-                                    Seller ID:
-                                </strong>{" "}
+                            {/* ---------------------------------
+                               SUPPLIER ID
+                            --------------------------------- */}
 
-                                {item.SellerId}
+                            <DetailItem
 
+                                label="Supplier ID"
 
-                            </Typography>
+                                value={
+                                    supplierId
+                                }
 
+                            />
 
 
+                            {/* ---------------------------------
+                               STATUS
+                            --------------------------------- */}
 
+                            <Box>
 
-                            <Typography>
+                                <Typography
 
-                                <strong>
-                                    Supplier ID:
-                                </strong>{" "}
+                                    variant="caption"
 
-                                {item.SupplierId}
+                                    color="text.secondary"
 
+                                    display="block"
 
-                            </Typography>
+                                >
 
+                                    Status
 
+                                </Typography>
 
 
+                                <Chip
 
-                            <Typography>
+                                    label={
+                                        status || "Unknown"
+                                    }
 
-                                <strong>
-                                    Status:
-                                </strong>{" "}
+                                    color={
+                                        getStatusColor(
+                                            status
+                                        )
+                                    }
 
-                                {item.Status || "-"}
+                                    size="small"
 
+                                />
 
-                            </Typography>
+                            </Box>
 
 
+                            {/* ---------------------------------
+                               TOTAL AMOUNT
+                            --------------------------------- */}
 
+                            <DetailItem
 
+                                label="Total Amount"
 
-                            <Typography>
+                                value={
+                                    formatCurrency(
+                                        totalAmount
+                                    )
+                                }
 
-                                <strong>
-                                    Total Amount:
-                                </strong>{" "}
+                            />
 
-                                {formatCurrency(
-                                    item.TotalAmount
-                                )}
 
+                            {/* ---------------------------------
+                               REMARKS
+                            --------------------------------- */}
 
-                            </Typography>
+                            <DetailItem
 
+                                label="Remarks"
 
+                                value={
+                                    remarks || "-"
+                                }
 
+                            />
 
 
-                            <Typography>
+                        </Stack>
 
-                                <strong>
-                                    Remarks:
-                                </strong>{" "}
+                    </Box>
 
-                                {item.Remarks || "-"}
+                ) : (
 
+                    <Typography
+                        color="text.secondary"
+                    >
 
-                            </Typography>
+                        No Purchase Order selected.
 
+                    </Typography>
 
-
-                        </>
-
-
-                    )
-
-                }
-
-
+                )}
 
             </DialogContent>
 
 
+            {/* =================================================
+               ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
 
 
-
-            <DialogActions>
-
-
+                {/* =============================================
+                   CANCEL
+                ============================================= */}
 
                 <Button
 
-                    onClick={onClose}
+                    onClick={handleClose}
 
                     color="inherit"
+
+                    variant="outlined"
 
                 >
 
                     Cancel
 
-
                 </Button>
 
 
-
+                {/* =============================================
+                   DELETE
+                ============================================= */}
 
                 <Button
 
@@ -260,30 +524,31 @@ const DeletePurchaseOrderDialog = ({
 
                     color="error"
 
+                    startIcon={
+                        <Delete />
+                    }
+
                     onClick={handleDelete}
+
+                    disabled={
+                        !item ||
+                        !purchaseOrderId
+                    }
 
                 >
 
                     Delete
 
-
                 </Button>
-
 
 
             </DialogActions>
 
-
-
-
-
         </Dialog>
-
 
     );
 
 };
-
 
 
 export default DeletePurchaseOrderDialog;

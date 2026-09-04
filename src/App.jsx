@@ -1925,6 +1925,25 @@ element={<ProductPriceToolbar />}
         <Route path="purchase-orders/:id" element={<PurchaseOrderView />} />
         <Route path="purchase-orders/search" element={<PurchaseOrderSearch />} />
         <Route path="purchase-orders/statistics" element={<PurchaseOrderStatistics />} />
+        <Route
+    path="/purchase-orders"
+    element={<PurchaseOrderList />}
+/>
+
+<Route
+    path="/purchase-orders/create"
+    element={<PurchaseOrderCreate />}
+/>
+
+<Route
+    path="/purchase-orders/details/:id"
+    element={<PurchaseOrderDetails />}
+/>
+
+<Route
+    path="/purchase-orders/edit/:id"
+    element={<PurchaseOrderEdit />}
+/>
 
 
         {/* ===================================================

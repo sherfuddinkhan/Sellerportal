@@ -8,7 +8,8 @@ import {
     Stack,
     Divider,
     Button,
-    Chip
+    Chip,
+    Box
 } from "@mui/material";
 
 import {
@@ -18,9 +19,21 @@ import {
 } from "@mui/icons-material";
 
 
-const formatCurrency = (value) =>
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
 
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+
+        return "₹ 0.00";
+
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
 
         minimumFractionDigits: 2,
 
@@ -28,23 +41,51 @@ const formatCurrency = (value) =>
 
     })}`;
 
+};
 
 
-const formatDate = (value) =>
+/* =========================================================
+   FORMAT DATE
+========================================================= */
 
-    value
+const formatDate = (value) => {
 
-        ? new Date(value).toLocaleDateString()
+    if (!value) {
 
-        : "-";
+        return "-";
+
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "-";
+
+    }
+
+    return date.toLocaleDateString("en-IN", {
+
+        day: "2-digit",
+
+        month: "2-digit",
+
+        year: "numeric"
+
+    });
+
+};
 
 
+/* =========================================================
+   GET STATUS COLOR
+========================================================= */
 
 const getStatusColor = (status) => {
 
-
-    switch ((status || "").toLowerCase()) {
-
+    switch (
+        String(status || "").toLowerCase()
+    ) {
 
         case "completed":
 
@@ -70,13 +111,14 @@ const getStatusColor = (status) => {
 
             return "default";
 
-
     }
 
 };
 
 
-
+/* =========================================================
+   PURCHASE ORDER CARD
+========================================================= */
 
 const PurchaseOrderCard = ({
 
@@ -91,8 +133,138 @@ const PurchaseOrderCard = ({
 }) => {
 
 
-    return (
+    /* =====================================================
+       NO ITEM
+    ===================================================== */
 
+    if (!item) {
+
+        return null;
+
+    }
+
+
+    /* =====================================================
+       NORMALIZE API DATA
+    ===================================================== */
+
+    const purchaseOrderId =
+
+        item.PurchaseOrderId ??
+        item.purchaseOrderId ??
+        0;
+
+
+    const purchaseOrderNumber =
+
+        item.PurchaseOrderNumber ??
+        item.purchaseOrderNumber ??
+        "-";
+
+
+    const sellerId =
+
+        item.SellerId ??
+        item.sellerId ??
+        "-";
+
+
+    const supplierId =
+
+        item.SupplierId ??
+        item.supplierId ??
+        "-";
+
+
+    const orderDate =
+
+        item.OrderDate ??
+        item.orderDate;
+
+
+    const expectedDeliveryDate =
+
+        item.ExpectedDeliveryDate ??
+        item.expectedDeliveryDate;
+
+
+    const status =
+
+        item.Status ??
+        item.status ??
+        "";
+
+
+    const totalAmount =
+
+        item.TotalAmount ??
+        item.totalAmount ??
+        0;
+
+
+    const remarks =
+
+        item.Remarks ??
+        item.remarks ??
+        "";
+
+
+    /* =====================================================
+       HANDLE VIEW
+    ===================================================== */
+
+    const handleView = () => {
+
+        if (
+            typeof onView === "function"
+        ) {
+
+            onView(item);
+
+        }
+
+    };
+
+
+    /* =====================================================
+       HANDLE EDIT
+    ===================================================== */
+
+    const handleEdit = () => {
+
+        if (
+            typeof onEdit === "function"
+        ) {
+
+            onEdit(item);
+
+        }
+
+    };
+
+
+    /* =====================================================
+       HANDLE DELETE
+    ===================================================== */
+
+    const handleDelete = () => {
+
+        if (
+            typeof onDelete === "function"
+        ) {
+
+            onDelete(item);
+
+        }
+
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    return (
 
         <Card
 
@@ -102,19 +274,39 @@ const PurchaseOrderCard = ({
 
                 height: "100%",
 
-                borderRadius: 2
+                display: "flex",
+
+                flexDirection: "column",
+
+                borderRadius: 2,
+
+                transition:
+                    "transform 0.2s ease, box-shadow 0.2s ease",
+
+                "&:hover": {
+
+                    transform:
+                        "translateY(-3px)",
+
+                    boxShadow: 4
+
+                }
 
             }}
 
         >
 
 
+            {/* =================================================
+               CARD CONTENT
+            ================================================= */}
+
+            <CardContent sx={{ flexGrow: 1 }}>
 
 
-            <CardContent>
-
-
-
+                {/* =============================================
+                   PURCHASE ORDER NUMBER
+                ============================================= */}
 
                 <Typography
 
@@ -126,299 +318,304 @@ const PurchaseOrderCard = ({
 
                 >
 
-                    {
-
-                        item.PurchaseOrderNumber
-
-                    }
-
+                    {purchaseOrderNumber}
 
                 </Typography>
 
 
+                {/* =============================================
+                   BASIC INFORMATION
+                ============================================= */}
 
+                <Stack spacing={0.5}>
 
+                    <Typography
 
-                <Typography
+                        variant="body2"
 
-                    variant="body2"
+                        color="text.secondary"
 
-                    color="text.secondary"
+                    >
 
-                >
+                        Purchase Order ID:{" "}
 
-                    Purchase Order ID :
+                        <strong>
+                            {purchaseOrderId}
+                        </strong>
 
-                    {" "}
-
-                    {item.PurchaseOrderId}
-
-
-                </Typography>
-
-
-
-
-
-                <Typography
-
-                    variant="body2"
-
-                    color="text.secondary"
-
-                >
-
-                    Seller ID :
-
-                    {" "}
-
-                    {item.SellerId}
-
-
-                </Typography>
-
-
-
-
-
-                <Typography
-
-                    variant="body2"
-
-                    color="text.secondary"
-
-                >
-
-                    Supplier ID :
-
-                    {" "}
-
-                    {item.SupplierId}
-
-
-                </Typography>
-
-
-
-
-
-                <Divider
-
-                    sx={{ my: 2 }}
-
-                />
-
-
-
-
-
-                <Stack spacing={1}>
-
-
+                    </Typography>
 
 
                     <Typography
 
                         variant="body2"
 
+                        color="text.secondary"
+
                     >
 
-                        <strong>
+                        Seller ID:{" "}
 
+                        <strong>
+                            {sellerId}
+                        </strong>
+
+                    </Typography>
+
+
+                    <Typography
+
+                        variant="body2"
+
+                        color="text.secondary"
+
+                    >
+
+                        Supplier ID:{" "}
+
+                        <strong>
+                            {supplierId}
+                        </strong>
+
+                    </Typography>
+
+                </Stack>
+
+
+                <Divider sx={{ my: 2 }} />
+
+
+                {/* =============================================
+                   ORDER DETAILS
+                ============================================= */}
+
+                <Stack spacing={1.5}>
+
+
+                    {/* -----------------------------------------
+                       ORDER DATE
+                    ----------------------------------------- */}
+
+                    <Typography variant="body2">
+
+                        <strong>
                             Order Date:
-
-                        </strong>
-
-                        {" "}
+                        </strong>{" "}
 
                         {
-
                             formatDate(
-                                item.OrderDate
+                                orderDate
                             )
-
                         }
-
 
                     </Typography>
 
 
+                    {/* -----------------------------------------
+                       EXPECTED DELIVERY
+                    ----------------------------------------- */}
 
-
-
-                    <Typography
-
-                        variant="body2"
-
-                    >
+                    <Typography variant="body2">
 
                         <strong>
-
                             Expected Delivery:
-
-                        </strong>
-
-                        {" "}
+                        </strong>{" "}
 
                         {
-
                             formatDate(
-                                item.ExpectedDeliveryDate
+                                expectedDeliveryDate
                             )
-
                         }
-
 
                     </Typography>
 
 
+                    {/* -----------------------------------------
+                       STATUS
+                    ----------------------------------------- */}
+
+                    <Box>
+
+                        <Typography
+
+                            variant="body2"
+
+                            sx={{ mb: 0.5 }}
+
+                        >
+
+                            <strong>
+                                Status:
+                            </strong>
+
+                        </Typography>
 
 
+                        <Chip
 
-                    <Typography
+                            label={
+                                status || "Unknown"
+                            }
 
-                        variant="body2"
+                            color={
+                                getStatusColor(
+                                    status
+                                )
+                            }
 
-                    >
+                            size="small"
 
-                        <strong>
+                        />
 
-                            Status:
-
-                        </strong>
-
-
-                    </Typography>
-
-
-
-
-                    <Chip
-
-                        label={
-
-                            item.Status || "-"
-
-                        }
-
-                        color={
-
-                            getStatusColor(
-                                item.Status
-                            )
-
-                        }
-
-                        size="small"
-
-                    />
+                    </Box>
 
 
-
-
+                    {/* -----------------------------------------
+                       TOTAL AMOUNT
+                    ----------------------------------------- */}
 
                     <Typography
 
                         variant="body1"
 
+                        color="success.main"
+
                         fontWeight="bold"
 
                     >
 
-                        Total Amount:
-
-                        {" "}
+                        Total Amount:{" "}
 
                         {
-
                             formatCurrency(
-                                item.TotalAmount
+                                totalAmount
                             )
-
                         }
-
 
                     </Typography>
 
 
+                    {/* -----------------------------------------
+                       REMARKS
+                    ----------------------------------------- */}
 
+                    <Box>
 
+                        <Typography
 
-                    <Typography
+                            variant="body2"
 
-                        variant="body2"
+                            fontWeight="bold"
 
-                    >
+                            sx={{ mb: 0.5 }}
 
-                        <strong>
+                        >
 
                             Remarks:
 
-                        </strong>
-
-                        {" "}
-
-                        {
-
-                            item.Remarks || "-"
-
-                        }
+                        </Typography>
 
 
-                    </Typography>
+                        <Typography
 
+                            variant="body2"
 
+                            color={
+                                remarks
+                                    ? "text.primary"
+                                    : "text.secondary"
+                            }
 
+                            sx={{
+
+                                whiteSpace:
+                                    "pre-wrap",
+
+                                wordBreak:
+                                    "break-word",
+
+                                display:
+                                    "-webkit-box",
+
+                                WebkitLineClamp: 3,
+
+                                WebkitBoxOrient:
+                                    "vertical",
+
+                                overflow:
+                                    "hidden"
+
+                            }}
+
+                        >
+
+                            {
+                                remarks || "-"
+                            }
+
+                        </Typography>
+
+                    </Box>
 
 
                 </Stack>
 
-
-
-
             </CardContent>
 
 
-
-
+            {/* =================================================
+               CARD ACTIONS
+            ================================================= */}
 
             <CardActions
 
                 sx={{
 
-                    justifyContent: "space-between",
+                    justifyContent:
+                        "space-between",
 
                     px: 2,
 
-                    pb: 2
+                    pb: 2,
+
+                    pt: 0
 
                 }}
 
             >
 
 
-
+                {/* =============================================
+                   VIEW
+                ============================================= */}
 
                 <Button
 
                     size="small"
 
-                    startIcon={<Visibility />}
+                    startIcon={
+                        <Visibility />
+                    }
 
-                    onClick={() =>
-                        onView(item)
+                    onClick={
+                        handleView
+                    }
+
+                    disabled={
+                        typeof onView !==
+                        "function"
                     }
 
                 >
 
                     View
 
-
                 </Button>
 
 
-
-
+                {/* =============================================
+                   EDIT
+                ============================================= */}
 
                 <Button
 
@@ -426,22 +623,29 @@ const PurchaseOrderCard = ({
 
                     color="warning"
 
-                    startIcon={<Edit />}
+                    startIcon={
+                        <Edit />
+                    }
 
-                    onClick={() =>
-                        onEdit(item)
+                    onClick={
+                        handleEdit
+                    }
+
+                    disabled={
+                        typeof onEdit !==
+                        "function"
                     }
 
                 >
 
                     Edit
 
-
                 </Button>
 
 
-
-
+                {/* =============================================
+                   DELETE
+                ============================================= */}
 
                 <Button
 
@@ -449,36 +653,33 @@ const PurchaseOrderCard = ({
 
                     color="error"
 
-                    startIcon={<Delete />}
+                    startIcon={
+                        <Delete />
+                    }
 
-                    onClick={() =>
-                        onDelete(item)
+                    onClick={
+                        handleDelete
+                    }
+
+                    disabled={
+                        typeof onDelete !==
+                        "function"
                     }
 
                 >
 
                     Delete
 
-
                 </Button>
-
-
 
 
             </CardActions>
 
-
-
-
-
         </Card>
-
 
     );
 
-
 };
-
 
 
 export default PurchaseOrderCard;

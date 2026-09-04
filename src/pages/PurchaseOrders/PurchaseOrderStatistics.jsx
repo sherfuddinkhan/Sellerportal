@@ -1,17 +1,48 @@
-import React from "react";
+import React, {
+    useMemo
+} from "react";
 
 import {
     Grid,
     Card,
     CardContent,
-    Typography
+    Typography,
+    Box
 } from "@mui/material";
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+import {
+    ReceiptLong,
+    CurrencyRupee,
+    PendingActions,
+    CheckCircle
+} from "@mui/icons-material";
+
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+
+        return "₹ 0.00";
+
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
+
+};
+
+
+/* =========================================================
+   PURCHASE ORDER STATISTICS
+========================================================= */
 
 const PurchaseOrderStatistics = ({
 
@@ -19,161 +50,265 @@ const PurchaseOrderStatistics = ({
 
 }) => {
 
-    const {
 
-        totalOrders = 0,
+    /* =====================================================
+       NORMALIZE STATISTICS
+    ===================================================== */
 
-        totalAmount = 0,
+    const normalizedStatistics = useMemo(() => {
 
-        pendingOrders = 0,
+        const data = statistics || {};
 
-        completedOrders = 0
+        return {
 
-    } = statistics || {};
+            totalOrders:
+                Number(
+                    data.totalOrders ??
+                    data.TotalOrders ??
+                    0
+                ),
+
+            totalAmount:
+                Number(
+                    data.totalAmount ??
+                    data.TotalAmount ??
+                    0
+                ),
+
+            pendingOrders:
+                Number(
+                    data.pendingOrders ??
+                    data.PendingOrders ??
+                    0
+                ),
+
+            completedOrders:
+                Number(
+                    data.completedOrders ??
+                    data.CompletedOrders ??
+                    0
+                )
+
+        };
+
+    }, [statistics]);
+
+
+    /* =====================================================
+       STATISTIC CARDS
+    ===================================================== */
+
+    const cards = [
+
+        {
+            title: "Total Purchase Orders",
+
+            value:
+                normalizedStatistics.totalOrders,
+
+            icon: <ReceiptLong />,
+
+            color: "primary",
+
+            valueVariant: "h4"
+
+        },
+
+        {
+            title: "Total Purchase Amount",
+
+            value:
+                formatCurrency(
+                    normalizedStatistics.totalAmount
+                ),
+
+            icon: <CurrencyRupee />,
+
+            color: "success",
+
+            valueVariant: "h5"
+
+        },
+
+        {
+            title: "Pending Orders",
+
+            value:
+                normalizedStatistics.pendingOrders,
+
+            icon: <PendingActions />,
+
+            color: "warning",
+
+            valueVariant: "h4"
+
+        },
+
+        {
+            title: "Completed Orders",
+
+            value:
+                normalizedStatistics.completedOrders,
+
+            icon: <CheckCircle />,
+
+            color: "primary",
+
+            valueVariant: "h4"
+
+        }
+
+    ];
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
 
         <Grid
+
             container
+
             spacing={3}
-            sx={{ mb: 3 }}
+
+            sx={{
+                mb: 3
+            }}
+
         >
 
-            <Grid item xs={12} sm={6} md={3}>
+            {
 
-                <Card className="purchase-order-stat-card">
+                cards.map((card) => (
 
-                    <CardContent>
+                    <Grid
 
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
+                        item
+
+                        xs={12}
+
+                        sm={6}
+
+                        md={3}
+
+                        key={card.title}
+
+                    >
+
+                        <Card
+
+                            className="purchase-order-stat-card"
+
+                            sx={{
+
+                                height: "100%",
+
+                                transition:
+                                    "transform 0.2s ease, box-shadow 0.2s ease",
+
+                                "&:hover": {
+
+                                    transform:
+                                        "translateY(-3px)",
+
+                                    boxShadow: 4
+
+                                }
+
+                            }}
+
                         >
 
-                            Total Purchase Orders
+                            <CardContent>
 
-                        </Typography>
+                                <Box
 
-                        <Typography
-                            variant="h4"
-                            fontWeight="bold"
-                        >
+                                    sx={{
 
-                            {totalOrders}
+                                        display: "flex",
 
-                        </Typography>
+                                        alignItems: "center",
 
-                    </CardContent>
+                                        justifyContent:
+                                            "space-between",
 
-                </Card>
+                                        mb: 1
 
-            </Grid>
+                                    }}
 
+                                >
 
-            <Grid item xs={12} sm={6} md={3}>
+                                    <Typography
 
-                <Card className="purchase-order-stat-card">
+                                        variant="subtitle2"
 
-                    <CardContent>
+                                        color="text.secondary"
 
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
-                        >
+                                    >
 
-                            Total Purchase Amount
+                                        {card.title}
 
-                        </Typography>
-
-                        <Typography
-                            variant="h5"
-                            color="success.main"
-                            fontWeight="bold"
-                        >
-
-                            {formatCurrency(totalAmount)}
-
-                        </Typography>
-
-                    </CardContent>
-
-                </Card>
-
-            </Grid>
+                                    </Typography>
 
 
-            <Grid item xs={12} sm={6} md={3}>
+                                    <Box
 
-                <Card className="purchase-order-stat-card">
+                                        sx={{
 
-                    <CardContent>
+                                            display: "flex",
 
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
-                        >
+                                            alignItems:
+                                                "center",
 
-                            Pending Orders
+                                            color:
+                                                `${card.color}.main`
 
-                        </Typography>
+                                        }}
 
-                        <Typography
-                            variant="h4"
-                            color="warning.main"
-                            fontWeight="bold"
-                        >
+                                    >
 
-                            {pendingOrders}
+                                        {card.icon}
 
-                        </Typography>
+                                    </Box>
 
-                    </CardContent>
-
-                </Card>
-
-            </Grid>
+                                </Box>
 
 
-            <Grid item xs={12} sm={6} md={3}>
+                                <Typography
 
-                <Card className="purchase-order-stat-card">
+                                    variant={
+                                        card.valueVariant
+                                    }
 
-                    <CardContent>
+                                    color={
+                                        `${card.color}.main`
+                                    }
 
-                        <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                            gutterBottom
-                        >
+                                    fontWeight="bold"
 
-                            Completed Orders
+                                >
 
-                        </Typography>
+                                    {card.value}
 
-                        <Typography
-                            variant="h4"
-                            color="primary"
-                            fontWeight="bold"
-                        >
+                                </Typography>
 
-                            {completedOrders}
+                            </CardContent>
 
-                        </Typography>
+                        </Card>
 
-                    </CardContent>
+                    </Grid>
 
-                </Card>
+                ))
 
-            </Grid>
-
+            }
 
         </Grid>
 
     );
 
 };
+
 
 export default PurchaseOrderStatistics;
