@@ -16,11 +16,15 @@ import {
 } from "@mui/icons-material";
 
 
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
 const formatCurrency = (value) => {
 
     const amount = Number(value);
 
-    if (Number.isNaN(amount)) {
+    if (!Number.isFinite(amount)) {
         return "₹ 0.00";
     }
 
@@ -32,23 +36,42 @@ const formatCurrency = (value) => {
 };
 
 
+/* =========================================================
+   STAT CARD
+========================================================= */
+
 const StatCard = ({
     title,
     value,
-    icon
+    icon,
+    iconColor,
+    iconBackground
 }) => {
 
     return (
-
         <Card
             elevation={2}
             sx={{
                 height: "100%",
-                borderRadius: 2
+                borderRadius: 2,
+                transition: "all 0.2s ease",
+
+                "&:hover": {
+                    transform: "translateY(-3px)",
+                    boxShadow: 5
+                }
             }}
         >
 
-            <CardContent>
+            <CardContent
+                sx={{
+                    p: 2.5,
+
+                    "&:last-child": {
+                        pb: 2.5
+                    }
+                }}
+            >
 
                 <Box
                     sx={{
@@ -58,19 +81,42 @@ const StatCard = ({
                     }}
                 >
 
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                        }}
-                    >
-                        {icon}
-                    </Box>
+                    {/* =================================================
+                       ICON
+                    ================================================= */}
 
                     <Box
                         sx={{
-                            minWidth: 0
+                            width: 54,
+                            height: 54,
+                            minWidth: 54,
+
+                            borderRadius: 2,
+
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+
+                            backgroundColor: iconBackground
+                        }}
+                    >
+
+                        {React.cloneElement(icon, {
+                            color: iconColor,
+                            fontSize: "large"
+                        })}
+
+                    </Box>
+
+
+                    {/* =================================================
+                       VALUE
+                    ================================================= */}
+
+                    <Box
+                        sx={{
+                            minWidth: 0,
+                            flex: 1
                         }}
                     >
 
@@ -78,15 +124,17 @@ const StatCard = ({
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                                mb: 0.5
+                                mb: 0.5,
+                                fontWeight: 500
                             }}
                         >
                             {title}
                         </Typography>
 
+
                         <Typography
                             variant="h5"
-                            fontWeight="bold"
+                            fontWeight={700}
                             noWrap
                         >
                             {value}
@@ -99,20 +147,41 @@ const StatCard = ({
             </CardContent>
 
         </Card>
-
     );
 
 };
 
 
+/* =========================================================
+   SALES INVOICE STATISTICS
+========================================================= */
+
 const SalesInvoiceStatistics = ({
     statistics
 }) => {
 
+    /*
+        Default values prevent the UI from breaking
+        when the API response is empty/null.
+    */
+
     const stats = statistics || {};
 
-    return (
 
+    const totalInvoices =
+        Number(stats.totalInvoices) || 0;
+
+    const totalAmount =
+        Number(stats.totalAmount) || 0;
+
+    const paidAmount =
+        Number(stats.paidAmount) || 0;
+
+    const balanceAmount =
+        Number(stats.balanceAmount) || 0;
+
+
+    return (
         <Grid
             container
             spacing={3}
@@ -121,7 +190,9 @@ const SalesInvoiceStatistics = ({
             }}
         >
 
-            {/* Total Invoices */}
+            {/* =================================================
+               TOTAL INVOICES
+            ================================================= */}
 
             <Grid
                 item
@@ -132,19 +203,18 @@ const SalesInvoiceStatistics = ({
 
                 <StatCard
                     title="Total Invoices"
-                    value={Number(stats.totalInvoices) || 0}
-                    icon={
-                        <ReceiptLong
-                            color="primary"
-                            fontSize="large"
-                        />
-                    }
+                    value={totalInvoices}
+                    icon={<ReceiptLong />}
+                    iconColor="primary"
+                    iconBackground="rgba(25, 118, 210, 0.10)"
                 />
 
             </Grid>
 
 
-            {/* Total Amount */}
+            {/* =================================================
+               TOTAL AMOUNT
+            ================================================= */}
 
             <Grid
                 item
@@ -155,21 +225,18 @@ const SalesInvoiceStatistics = ({
 
                 <StatCard
                     title="Total Amount"
-                    value={formatCurrency(
-                        stats.totalAmount
-                    )}
-                    icon={
-                        <Payments
-                            color="success"
-                            fontSize="large"
-                        />
-                    }
+                    value={formatCurrency(totalAmount)}
+                    icon={<Payments />}
+                    iconColor="success"
+                    iconBackground="rgba(46, 125, 50, 0.10)"
                 />
 
             </Grid>
 
 
-            {/* Paid Amount */}
+            {/* =================================================
+               PAID AMOUNT
+            ================================================= */}
 
             <Grid
                 item
@@ -180,21 +247,18 @@ const SalesInvoiceStatistics = ({
 
                 <StatCard
                     title="Paid Amount"
-                    value={formatCurrency(
-                        stats.paidAmount
-                    )}
-                    icon={
-                        <AccountBalanceWallet
-                            color="info"
-                            fontSize="large"
-                        />
-                    }
+                    value={formatCurrency(paidAmount)}
+                    icon={<AccountBalanceWallet />}
+                    iconColor="info"
+                    iconBackground="rgba(2, 136, 209, 0.10)"
                 />
 
             </Grid>
 
 
-            {/* Balance Amount */}
+            {/* =================================================
+               BALANCE AMOUNT
+            ================================================= */}
 
             <Grid
                 item
@@ -205,23 +269,18 @@ const SalesInvoiceStatistics = ({
 
                 <StatCard
                     title="Balance Amount"
-                    value={formatCurrency(
-                        stats.balanceAmount
-                    )}
-                    icon={
-                        <AccountBalance
-                            color="warning"
-                            fontSize="large"
-                        />
-                    }
+                    value={formatCurrency(balanceAmount)}
+                    icon={<AccountBalance />}
+                    iconColor="warning"
+                    iconBackground="rgba(237, 108, 2, 0.10)"
                 />
 
             </Grid>
 
         </Grid>
-
     );
 
 };
+
 
 export default SalesInvoiceStatistics;

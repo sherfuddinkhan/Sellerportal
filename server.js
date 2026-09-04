@@ -3623,6 +3623,74 @@ app.get(
     }
 );
 
+/*
+    GET SALES INVOICE STATISTICS
+
+    React:
+    GET http://localhost:5000/api/sales-invoices/statistics
+*/
+
+app.get(
+    "/api/sales-invoices/statistics",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET SALES INVOICE STATISTICS",
+                req.query
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesInvoice/statistics`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            console.log(
+                "SALES INVOICE STATISTICS RESPONSE:",
+                response.data
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "SALES INVOICE STATISTICS ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                console.error(
+                    "STATUS:",
+                    error.response.status
+                );
+
+                console.error(
+                    "DATA:",
+                    error.response.data
+                );
+
+                return res
+                    .status(error.response.status)
+                    .json(error.response.data);
+            }
+
+            res.status(500).json({
+                message: "Unable to connect to Sales Invoice statistics API",
+                error: error.message
+            });
+
+        }
+
+    }
+);
 
 // GET SALES INVOICES BY STATUS
 app.get(
