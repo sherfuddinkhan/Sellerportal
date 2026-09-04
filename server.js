@@ -4643,94 +4643,57 @@ app.delete("/api/reviews/:id", async (req, res) => {
 
 });
 
-// =========================================================
-// PURCHASE ORDER - GET ALL
-// React:
-// GET http://localhost:5000/api/purchase-orders
-//
-// .NET:
-// GET https://localhost:7203/api/PurchaseOrder
-// =========================================================
 
-app.get("/api/purchase-orders", async (req, res) => {
+/* =========================================================
+   PURCHASE ORDER APIs
+========================================================= */
 
-    try {
-
-        const response = await dotnetAxios.get(
-            "/PurchaseOrder"
-        );
-
-        res.status(response.status).json(
-            response.data
-        );
-
-    } catch (error) {
-
-        console.error(
-            "GET PURCHASE ORDERS ERROR:",
-            error.response?.data || error.message
-        );
-
-        res.status(
-            error.response?.status || 500
-        ).json({
-            message:
-                error.response?.data?.message ||
-                "Failed to load purchase orders"
-        });
-
-    }
-
-});
+const PURCHASE_ORDER_API =
+    "/purchase-orders";
 
 
-// =========================================================
-// PURCHASE ORDER - GET BY ID
-// React:
-// GET http://localhost:5000/api/purchase-orders/1
-//
-// .NET:
-// GET https://localhost:7203/api/PurchaseOrder/1
-// =========================================================
+/* =========================================================
+   GET ALL PURCHASE ORDERS
+========================================================= */
 
 app.get(
-    "/api/purchase-orders/:id",
+    "/api/purchase-orders",
     async (req, res) => {
 
         try {
 
-            const id = Number(req.params.id);
-
-            if (!Number.isInteger(id) || id <= 0) {
-
-                return res.status(400).json({
-                    message: "Invalid Purchase Order ID"
-                });
-
-            }
-
-            const response = await dotnetAxios.get(
-                `/PurchaseOrder/${id}`
+            console.log(
+                "GET ALL PURCHASE ORDERS"
             );
 
-            res.status(response.status).json(
-                response.data
-            );
+            const response =
+                await dotnetAxios.get(
+                    PURCHASE_ORDER_API
+                );
 
-        } catch (error) {
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
 
             console.error(
-                "GET PURCHASE ORDER ERROR:",
-                error.response?.data || error.message
+                "GET ALL PURCHASE ORDERS ERROR:",
+                error.response?.data ||
+                error.message
             );
 
-            res.status(
-                error.response?.status || 500
-            ).json({
-                message:
-                    error.response?.data?.message ||
-                    "Failed to load purchase order"
-            });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch purchase orders."
+                    }
+                );
 
         }
 
@@ -4738,14 +4701,487 @@ app.get(
 );
 
 
-// =========================================================
-// PURCHASE ORDER - CREATE
-// React:
-// POST http://localhost:5000/api/purchase-orders
-//
-// .NET:
-// POST https://localhost:7203/api/PurchaseOrder
-// =========================================================
+/* =========================================================
+   GET PURCHASE ORDER BY ID
+========================================================= */
+
+app.get(
+    "/api/purchase-orders/:id",
+    async (req, res) => {
+
+        const purchaseOrderId =
+            Number(req.params.id);
+
+        if (
+            !Number.isInteger(purchaseOrderId) ||
+            purchaseOrderId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Purchase Order ID."
+
+            });
+
+        }
+
+        try {
+
+            console.log(
+                `GET PURCHASE ORDER: ${purchaseOrderId}`
+            );
+
+            const response =
+                await dotnetAxios.get(
+
+                    `${PURCHASE_ORDER_API}/${purchaseOrderId}`
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PURCHASE ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch purchase order."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET PURCHASE ORDERS BY SELLER + CUSTOMER
+========================================================= */
+
+app.get(
+    "/api/purchase-orders/seller/:sellerId",
+    async (req, res) => {
+
+        const sellerId =
+            Number(req.params.sellerId);
+
+        const customerId =
+            Number(req.query.customerId);
+
+        if (
+            !Number.isInteger(sellerId) ||
+            sellerId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Seller ID."
+
+            });
+
+        }
+
+        if (
+            !Number.isInteger(customerId) ||
+            customerId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Customer ID."
+
+            });
+
+        }
+
+        try {
+
+            console.log(
+                "GET PURCHASE ORDERS BY SELLER:",
+                sellerId,
+                "CUSTOMER:",
+                customerId
+            );
+
+            const response =
+                await dotnetAxios.get(
+
+                    `${PURCHASE_ORDER_API}/seller/${sellerId}`,
+
+                    {
+                        params: {
+                            customerId
+                        }
+                    }
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET SELLER PURCHASE ORDERS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch seller purchase orders."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET PURCHASE ORDERS BY SUPPLIER
+========================================================= */
+
+app.get(
+    "/api/purchase-orders/supplier/:supplierId",
+    async (req, res) => {
+
+        const supplierId =
+            Number(req.params.supplierId);
+
+        if (
+            !Number.isInteger(supplierId) ||
+            supplierId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Supplier ID."
+
+            });
+
+        }
+
+        try {
+
+            console.log(
+                `GET PURCHASE ORDERS BY SUPPLIER: ${supplierId}`
+            );
+
+            const response =
+                await dotnetAxios.get(
+
+                    `${PURCHASE_ORDER_API}/supplier/${supplierId}`
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET SUPPLIER PURCHASE ORDERS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch supplier purchase orders."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY SELLER + PURCHASE ORDER
+========================================================= */
+
+app.get(
+    "/api/purchase-orders/seller/:sellerId/order/:purchaseOrderId",
+    async (req, res) => {
+
+        const sellerId =
+            Number(req.params.sellerId);
+
+        const purchaseOrderId =
+            Number(req.params.purchaseOrderId);
+
+        if (
+            !Number.isInteger(sellerId) ||
+            sellerId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Seller ID."
+
+            });
+
+        }
+
+        if (
+            !Number.isInteger(purchaseOrderId) ||
+            purchaseOrderId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Purchase Order ID."
+
+            });
+
+        }
+
+        try {
+
+            console.log(
+                "GET PURCHASE ORDER BY SELLER + ORDER:",
+                sellerId,
+                purchaseOrderId
+            );
+
+            const response =
+                await dotnetAxios.get(
+
+                    `${PURCHASE_ORDER_API}`
+                    + `/seller/${sellerId}`
+                    + `/order/${purchaseOrderId}`
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET SELLER PURCHASE ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch seller purchase order."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY SELLER + SUPPLIER + PURCHASE ORDER
+========================================================= */
+
+app.get(
+    "/api/purchase-orders/seller/:sellerId/supplier/:supplierId/order/:purchaseOrderId",
+    async (req, res) => {
+
+        const sellerId =
+            Number(req.params.sellerId);
+
+        const supplierId =
+            Number(req.params.supplierId);
+
+        const purchaseOrderId =
+            Number(req.params.purchaseOrderId);
+
+        if (
+            !Number.isInteger(sellerId) ||
+            sellerId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Seller ID."
+
+            });
+
+        }
+
+        if (
+            !Number.isInteger(supplierId) ||
+            supplierId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Supplier ID."
+
+            });
+
+        }
+
+        if (
+            !Number.isInteger(purchaseOrderId) ||
+            purchaseOrderId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Purchase Order ID."
+
+            });
+
+        }
+
+        try {
+
+            console.log(
+                "GET PURCHASE ORDER BY SELLER + SUPPLIER + ORDER:",
+                sellerId,
+                supplierId,
+                purchaseOrderId
+            );
+
+            const response =
+                await dotnetAxios.get(
+
+                    `${PURCHASE_ORDER_API}`
+                    + `/seller/${sellerId}`
+                    + `/supplier/${supplierId}`
+                    + `/order/${purchaseOrderId}`
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET SELLER SUPPLIER PURCHASE ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch purchase order."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   PURCHASE ORDER STATISTICS
+========================================================= */
+
+app.get(
+    "/api/purchase-orders/stats",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET PURCHASE ORDER STATISTICS"
+            );
+
+            const response =
+                await dotnetAxios.get(
+
+                    `${PURCHASE_ORDER_API}/stats`
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "PURCHASE ORDER STATS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch purchase order statistics."
+                    }
+                );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CREATE PURCHASE ORDER
+========================================================= */
 
 app.post(
     "/api/purchase-orders",
@@ -4753,29 +5189,43 @@ app.post(
 
         try {
 
-            const response = await dotnetAxios.post(
-                "/PurchaseOrder",
+            console.log(
+                "CREATE PURCHASE ORDER:",
                 req.body
             );
 
-            res.status(response.status).json(
-                response.data
-            );
+            const response =
+                await dotnetAxios.post(
 
-        } catch (error) {
+                    PURCHASE_ORDER_API,
+
+                    req.body
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
 
             console.error(
                 "CREATE PURCHASE ORDER ERROR:",
-                error.response?.data || error.message
+                error.response?.data ||
+                error.message
             );
 
-            res.status(
-                error.response?.status || 500
-            ).json({
-                message:
-                    error.response?.data?.message ||
-                    "Failed to create purchase order"
-            });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to create purchase order."
+                    }
+                );
 
         }
 
@@ -4783,54 +5233,70 @@ app.post(
 );
 
 
-// =========================================================
-// PURCHASE ORDER - UPDATE
-// React:
-// PUT http://localhost:5000/api/purchase-orders/1
-//
-// .NET:
-// PUT https://localhost:7203/api/PurchaseOrder/1
-// =========================================================
+/* =========================================================
+   UPDATE PURCHASE ORDER
+========================================================= */
 
 app.put(
     "/api/purchase-orders/:id",
     async (req, res) => {
 
+        const purchaseOrderId =
+            Number(req.params.id);
+
+        if (
+            !Number.isInteger(purchaseOrderId) ||
+            purchaseOrderId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Purchase Order ID."
+
+            });
+
+        }
+
         try {
 
-            const id = Number(req.params.id);
-
-            if (!Number.isInteger(id) || id <= 0) {
-
-                return res.status(400).json({
-                    message: "Invalid Purchase Order ID"
-                });
-
-            }
-
-            const response = await dotnetAxios.put(
-                `/PurchaseOrder/${id}`,
-                req.body
+            console.log(
+                "UPDATE PURCHASE ORDER:",
+                purchaseOrderId
             );
 
-            res.status(response.status).json(
-                response.data
-            );
+            const response =
+                await dotnetAxios.put(
 
-        } catch (error) {
+                    `${PURCHASE_ORDER_API}/${purchaseOrderId}`,
+
+                    req.body
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
 
             console.error(
                 "UPDATE PURCHASE ORDER ERROR:",
-                error.response?.data || error.message
+                error.response?.data ||
+                error.message
             );
 
-            res.status(
-                error.response?.status || 500
-            ).json({
-                message:
-                    error.response?.data?.message ||
-                    "Failed to update purchase order"
-            });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update purchase order."
+                    }
+                );
 
         }
 
@@ -4838,58 +5304,77 @@ app.put(
 );
 
 
-// =========================================================
-// PURCHASE ORDER - DELETE
-// React:
-// DELETE http://localhost:5000/api/purchase-orders/1
-//
-// .NET:
-// DELETE https://localhost:7203/api/PurchaseOrder/1
-// =========================================================
+/* =========================================================
+   DELETE PURCHASE ORDER
+========================================================= */
 
 app.delete(
     "/api/purchase-orders/:id",
     async (req, res) => {
 
+        const purchaseOrderId =
+            Number(req.params.id);
+
+        if (
+            !Number.isInteger(purchaseOrderId) ||
+            purchaseOrderId <= 0
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Invalid Purchase Order ID."
+
+            });
+
+        }
+
         try {
 
-            const id = Number(req.params.id);
-
-            if (!Number.isInteger(id) || id <= 0) {
-
-                return res.status(400).json({
-                    message: "Invalid Purchase Order ID"
-                });
-
-            }
-
-            const response = await dotnetAxios.delete(
-                `/PurchaseOrder/${id}`
+            console.log(
+                "DELETE PURCHASE ORDER:",
+                purchaseOrderId
             );
 
-            res.status(response.status).json(
-                response.data
-            );
+            const response =
+                await dotnetAxios.delete(
 
-        } catch (error) {
+                    `${PURCHASE_ORDER_API}/${purchaseOrderId}`
+
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
 
             console.error(
                 "DELETE PURCHASE ORDER ERROR:",
-                error.response?.data || error.message
+                error.response?.data ||
+                error.message
             );
 
-            res.status(
-                error.response?.status || 500
-            ).json({
-                message:
-                    error.response?.data?.message ||
-                    "Failed to delete purchase order"
-            });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to delete purchase order."
+                    }
+                );
 
         }
 
     }
 );
+
+
+
+
 
 
 

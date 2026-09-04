@@ -1,4 +1,5 @@
 import React, {
+    useCallback,
     useEffect,
     useMemo,
     useState
@@ -87,95 +88,205 @@ const PurchaseOrderList = () => {
 
 
     /* =====================================================
-       LOAD PURCHASE ORDERS
+       SHOW MESSAGE
     ===================================================== */
 
-    const loadItems = async () => {
+    const showMessage = (
+        message,
+        severity = "success"
+    ) => {
 
-        try {
+        setSnackbar({
 
-            setLoading(true);
+            open: true,
 
-            const response =
-                await axios.get(
+            severity,
+
+            message
+
+        });
+
+    };
+
+
+    /* =====================================================
+       LOAD ALL PURCHASE ORDERS
+       
+       GET:
+       http://localhost:5000/api/purchase-orders
+
+       Node forwards to:
+       https://localhost:7203/api/purchase-orders
+    ===================================================== */
+
+    const loadItems = useCallback(
+        async () => {
+
+            try {
+
+                setLoading(true);
+
+                console.log(
+                    "GET ALL PURCHASE ORDERS:",
                     PURCHASE_ORDER_API
                 );
 
-            const data =
-                response?.data;
+                const response =
+                    await axios.get(
+                        PURCHASE_ORDER_API
+                    );
 
-            /* =================================================
-               NORMALIZE RESPONSE
-            ================================================= */
+                const data =
+                    response?.data;
 
-            if (Array.isArray(data)) {
 
-                setItems(data);
+                /* =========================================
+                   NORMALIZE API RESPONSE
+                ========================================= */
 
-            }
-            else if (
-                Array.isArray(data?.items)
-            ) {
+                let purchaseOrders = [];
+
+
+                /*
+                   ASP.NET may return:
+
+                   [
+                       {...},
+                       {...}
+                   ]
+                */
+
+                if (
+                    Array.isArray(data)
+                ) {
+
+                    purchaseOrders =
+                        data;
+
+                }
+
+
+                /*
+                   Or:
+
+                   {
+                       items: [...]
+                   }
+                */
+
+                else if (
+                    Array.isArray(
+                        data?.items
+                    )
+                ) {
+
+                    purchaseOrders =
+                        data.items;
+
+                }
+
+
+                /*
+                   Or:
+
+                   {
+                       data: [...]
+                   }
+                */
+
+                else if (
+                    Array.isArray(
+                        data?.data
+                    )
+                ) {
+
+                    purchaseOrders =
+                        data.data;
+
+                }
+
+
+                /*
+                   Or:
+
+                   {
+                       purchaseOrders: [...]
+                   }
+                */
+
+                else if (
+                    Array.isArray(
+                        data?.purchaseOrders
+                    )
+                ) {
+
+                    purchaseOrders =
+                        data.purchaseOrders;
+
+                }
+
+
+                /*
+                   No valid array
+                */
+
+                else {
+
+                    purchaseOrders =
+                        [];
+
+                }
+
 
                 setItems(
-                    data.items
+                    purchaseOrders
+                );
+
+
+                /*
+                   Keep current page valid
+                */
+
+                setPage(
+                    (currentPage) =>
+                        currentPage < 1
+                            ? 1
+                            : currentPage
                 );
 
             }
-            else if (
-                Array.isArray(data?.data)
-            ) {
+            catch (error) {
 
-                setItems(
-                    data.data
+                console.error(
+                    "LOAD PURCHASE ORDERS ERROR:",
+                    error
                 );
-
-            }
-            else if (
-                Array.isArray(data?.purchaseOrders)
-            ) {
-
-                setItems(
-                    data.purchaseOrders
-                );
-
-            }
-            else {
 
                 setItems([]);
 
+                showMessage(
+
+                    error
+                        ?.response
+                        ?.data
+                        ?.message ||
+
+                    "Failed to load Purchase Orders.",
+
+                    "error"
+
+                );
+
+            }
+            finally {
+
+                setLoading(false);
+
             }
 
-        }
-        catch (error) {
-
-            console.error(
-                "LOAD PURCHASE ORDERS ERROR:",
-                error
-            );
-
-            setItems([]);
-
-            setSnackbar({
-
-                open: true,
-
-                severity: "error",
-
-                message:
-                    error?.response?.data?.message ||
-                    "Failed to load Purchase Orders."
-
-            });
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
+        },
+        []
+    );
 
 
     /* =====================================================
@@ -186,101 +297,142 @@ const PurchaseOrderList = () => {
 
         loadItems();
 
-    }, []);
+    }, [
+        loadItems
+    ]);
 
 
     /* =====================================================
-       FILTER PURCHASE ORDERS
+       SEARCH / FILTER
     ===================================================== */
 
     const filteredItems =
         useMemo(() => {
 
-            if (
-                !searchText.trim()
-            ) {
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
+
+
+            /*
+               No search
+            */
+
+            if (!search) {
 
                 return items;
 
             }
 
-            const value =
-                searchText
-                    .toLowerCase()
-                    .trim();
 
             return items.filter(
                 (item) => {
 
+                    const purchaseOrderId =
+                        String(
+                            item?.PurchaseOrderId ??
+                            item?.purchaseOrderId ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const purchaseOrderNumber =
+                        String(
+                            item?.PurchaseOrderNumber ??
+                            item?.purchaseOrderNumber ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const sellerId =
+                        String(
+                            item?.SellerId ??
+                            item?.sellerId ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const supplierId =
+                        String(
+                            item?.SupplierId ??
+                            item?.supplierId ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const status =
+                        String(
+                            item?.Status ??
+                            item?.status ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const remarks =
+                        String(
+                            item?.Remarks ??
+                            item?.remarks ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const totalAmount =
+                        String(
+                            item?.TotalAmount ??
+                            item?.totalAmount ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
                     return (
 
-                        String(
-                            item.PurchaseOrderId ??
-                            item.purchaseOrderId ??
-                            ""
+                        purchaseOrderId.includes(
+                            search
                         )
-                            .toLowerCase()
-                            .includes(value)
 
                         ||
 
-                        String(
-                            item.PurchaseOrderNumber ??
-                            item.purchaseOrderNumber ??
-                            ""
+                        purchaseOrderNumber.includes(
+                            search
                         )
-                            .toLowerCase()
-                            .includes(value)
 
                         ||
 
-                        String(
-                            item.SellerId ??
-                            item.sellerId ??
-                            ""
+                        sellerId.includes(
+                            search
                         )
-                            .toLowerCase()
-                            .includes(value)
 
                         ||
 
-                        String(
-                            item.SupplierId ??
-                            item.supplierId ??
-                            ""
+                        supplierId.includes(
+                            search
                         )
-                            .toLowerCase()
-                            .includes(value)
 
                         ||
 
-                        String(
-                            item.Status ??
-                            item.status ??
-                            ""
+                        status.includes(
+                            search
                         )
-                            .toLowerCase()
-                            .includes(value)
 
                         ||
 
-                        String(
-                            item.Remarks ??
-                            item.remarks ??
-                            ""
+                        remarks.includes(
+                            search
                         )
-                            .toLowerCase()
-                            .includes(value)
 
                         ||
 
-                        String(
-                            item.TotalAmount ??
-                            item.totalAmount ??
-                            ""
+                        totalAmount.includes(
+                            search
                         )
-                            .toLowerCase()
-                            .includes(value)
 
                     );
 
@@ -294,6 +446,19 @@ const PurchaseOrderList = () => {
 
 
     /* =====================================================
+       RESET PAGE WHEN SEARCH CHANGES
+    ===================================================== */
+
+    useEffect(() => {
+
+        setPage(1);
+
+    }, [
+        searchText
+    ]);
+
+
+    /* =====================================================
        PAGINATION
     ===================================================== */
 
@@ -302,23 +467,38 @@ const PurchaseOrderList = () => {
 
     const totalPages =
         Math.max(
+
             1,
+
             Math.ceil(
                 totalRecords /
                 pageSize
             )
+
         );
+
 
     const pagedItems =
-        filteredItems.slice(
+        useMemo(() => {
 
-            (page - 1) *
-            pageSize,
+            const startIndex =
+                (page - 1) *
+                pageSize;
 
-            page *
+            const endIndex =
+                startIndex +
+                pageSize;
+
+            return filteredItems.slice(
+                startIndex,
+                endIndex
+            );
+
+        }, [
+            filteredItems,
+            page,
             pageSize
-
-        );
+        ]);
 
 
     /* =====================================================
@@ -331,7 +511,9 @@ const PurchaseOrderList = () => {
             page > totalPages
         ) {
 
-            setPage(1);
+            setPage(
+                totalPages
+            );
 
         }
 
@@ -400,7 +582,7 @@ const PurchaseOrderList = () => {
 
 
     /* =====================================================
-       CREATE / UPDATE PURCHASE ORDER
+       CREATE / UPDATE
     ===================================================== */
 
     const handleSave = async (
@@ -420,6 +602,11 @@ const PurchaseOrderList = () => {
 
             if (id) {
 
+                console.log(
+                    "UPDATE PURCHASE ORDER:",
+                    id
+                );
+
                 await axios.put(
 
                     `${PURCHASE_ORDER_API}/${id}`,
@@ -428,16 +615,10 @@ const PurchaseOrderList = () => {
 
                 );
 
-                setSnackbar({
-
-                    open: true,
-
-                    severity: "success",
-
-                    message:
-                        "Purchase Order updated successfully."
-
-                });
+                showMessage(
+                    "Purchase Order updated successfully.",
+                    "success"
+                );
 
             }
 
@@ -448,6 +629,10 @@ const PurchaseOrderList = () => {
 
             else {
 
+                console.log(
+                    "CREATE PURCHASE ORDER"
+                );
+
                 await axios.post(
 
                     PURCHASE_ORDER_API,
@@ -456,16 +641,10 @@ const PurchaseOrderList = () => {
 
                 );
 
-                setSnackbar({
-
-                    open: true,
-
-                    severity: "success",
-
-                    message:
-                        "Purchase Order created successfully."
-
-                });
+                showMessage(
+                    "Purchase Order created successfully.",
+                    "success"
+                );
 
             }
 
@@ -480,7 +659,7 @@ const PurchaseOrderList = () => {
 
 
             /* =============================================
-               RELOAD
+               RELOAD ALL ORDERS
             ============================================= */
 
             await loadItems();
@@ -493,17 +672,18 @@ const PurchaseOrderList = () => {
                 error
             );
 
-            setSnackbar({
+            showMessage(
 
-                open: true,
+                error
+                    ?.response
+                    ?.data
+                    ?.message ||
 
-                severity: "error",
+                "Unable to save Purchase Order.",
 
-                message:
-                    error?.response?.data?.message ||
-                    "Unable to save Purchase Order."
+                "error"
 
-            });
+            );
 
         }
 
@@ -519,28 +699,64 @@ const PurchaseOrderList = () => {
             id
         ) => {
 
+            const purchaseOrderId =
+                Number(id);
+
+
+            if (
+                !Number.isInteger(
+                    purchaseOrderId
+                ) ||
+                purchaseOrderId <= 0
+            ) {
+
+                showMessage(
+                    "Invalid Purchase Order ID.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
             try {
+
+                console.log(
+                    "DELETE PURCHASE ORDER:",
+                    purchaseOrderId
+                );
+
 
                 await axios.delete(
 
-                    `${PURCHASE_ORDER_API}/${id}`
+                    `${PURCHASE_ORDER_API}/${purchaseOrderId}`
 
                 );
+
+
+                /* =========================================
+                   CLOSE DELETE DIALOG
+                ========================================= */
 
                 setDeleteOpen(false);
 
                 setSelectedItem(null);
 
-                setSnackbar({
 
-                    open: true,
+                /* =========================================
+                   MESSAGE
+                ========================================= */
 
-                    severity: "success",
+                showMessage(
+                    "Purchase Order deleted successfully.",
+                    "success"
+                );
 
-                    message:
-                        "Purchase Order deleted successfully."
 
-                });
+                /* =========================================
+                   RELOAD
+                ========================================= */
 
                 await loadItems();
 
@@ -552,17 +768,18 @@ const PurchaseOrderList = () => {
                     error
                 );
 
-                setSnackbar({
+                showMessage(
 
-                    open: true,
+                    error
+                        ?.response
+                        ?.data
+                        ?.message ||
 
-                    severity: "error",
+                    "Unable to delete Purchase Order.",
 
-                    message:
-                        error?.response?.data?.message ||
-                        "Unable to delete Purchase Order."
+                    "error"
 
-                });
+                );
 
             }
 
@@ -579,65 +796,81 @@ const PurchaseOrderList = () => {
             const totalOrders =
                 items.length;
 
+
             const totalAmount =
                 items.reduce(
-
                     (
                         sum,
                         item
                     ) => {
 
                         const amount =
-                            item.TotalAmount ??
-                            item.totalAmount ??
-                            0;
+                            Number(
+                                item?.TotalAmount ??
+                                item?.totalAmount ??
+                                0
+                            );
 
                         return (
                             sum +
-                            Number(amount || 0)
+                            (
+                                Number.isFinite(
+                                    amount
+                                )
+                                    ? amount
+                                    : 0
+                            )
                         );
 
                     },
-
                     0
-
                 );
+
 
             const pendingOrders =
                 items.filter(
                     (item) => {
 
                         const status =
-                            item.Status ??
-                            item.status ??
-                            "";
+                            String(
+                                item?.Status ??
+                                item?.status ??
+                                ""
+                            )
+                                .trim()
+                                .toLowerCase();
 
                         return (
-                            String(status)
-                                .toLowerCase() ===
-                            "pending"
+                            status === "pending"
                         );
 
                     }
                 ).length;
+
 
             const completedOrders =
                 items.filter(
                     (item) => {
 
                         const status =
-                            item.Status ??
-                            item.status ??
-                            "";
+                            String(
+                                item?.Status ??
+                                item?.status ??
+                                ""
+                            )
+                                .trim()
+                                .toLowerCase();
 
                         return (
-                            String(status)
-                                .toLowerCase() ===
+
+                            status ===
                             "completed"
+
                         );
 
                     }
                 ).length;
+
 
             return {
 
@@ -654,6 +887,32 @@ const PurchaseOrderList = () => {
         }, [
             items
         ]);
+
+
+    /* =====================================================
+       CLOSE VIEW
+    ===================================================== */
+
+    const handleCloseView = () => {
+
+        setViewOpen(false);
+
+        setSelectedItem(null);
+
+    };
+
+
+    /* =====================================================
+       CLOSE DELETE
+    ===================================================== */
+
+    const handleCloseDelete = () => {
+
+        setDeleteOpen(false);
+
+        setSelectedItem(null);
+
+    };
 
 
     /* =====================================================
@@ -825,7 +1084,7 @@ const PurchaseOrderList = () => {
                     (size) => {
 
                         setPageSize(
-                            size
+                            Number(size)
                         );
 
                         setPage(1);
@@ -886,13 +1145,7 @@ const PurchaseOrderList = () => {
                 }
 
                 onClose={
-                    () => {
-
-                        setViewOpen(
-                            false
-                        );
-
-                    }
+                    handleCloseView
                 }
 
             />
@@ -913,13 +1166,7 @@ const PurchaseOrderList = () => {
                 }
 
                 onClose={
-                    () => {
-
-                        setDeleteOpen(
-                            false
-                        );
-
-                    }
+                    handleCloseDelete
                 }
 
                 onDeleted={
@@ -961,6 +1208,15 @@ const PurchaseOrderList = () => {
                     }
 
                     variant="filled"
+                    onClose={
+                        () =>
+                            setSnackbar(
+                                (previous) => ({
+                                    ...previous,
+                                    open: false
+                                })
+                            )
+                    }
                 >
 
                     {
