@@ -4643,6 +4643,256 @@ app.delete("/api/reviews/:id", async (req, res) => {
 
 });
 
+// =========================================================
+// PURCHASE ORDER - GET ALL
+// React:
+// GET http://localhost:5000/api/purchase-orders
+//
+// .NET:
+// GET https://localhost:7203/api/PurchaseOrder
+// =========================================================
+
+app.get("/api/purchase-orders", async (req, res) => {
+
+    try {
+
+        const response = await dotnetAxios.get(
+            "/PurchaseOrder"
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET PURCHASE ORDERS ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+            message:
+                error.response?.data?.message ||
+                "Failed to load purchase orders"
+        });
+
+    }
+
+});
+
+
+// =========================================================
+// PURCHASE ORDER - GET BY ID
+// React:
+// GET http://localhost:5000/api/purchase-orders/1
+//
+// .NET:
+// GET https://localhost:7203/api/PurchaseOrder/1
+// =========================================================
+
+app.get(
+    "/api/purchase-orders/:id",
+    async (req, res) => {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id) || id <= 0) {
+
+                return res.status(400).json({
+                    message: "Invalid Purchase Order ID"
+                });
+
+            }
+
+            const response = await dotnetAxios.get(
+                `/PurchaseOrder/${id}`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE ORDER ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load purchase order"
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// PURCHASE ORDER - CREATE
+// React:
+// POST http://localhost:5000/api/purchase-orders
+//
+// .NET:
+// POST https://localhost:7203/api/PurchaseOrder
+// =========================================================
+
+app.post(
+    "/api/purchase-orders",
+    async (req, res) => {
+
+        try {
+
+            const response = await dotnetAxios.post(
+                "/PurchaseOrder",
+                req.body
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "CREATE PURCHASE ORDER ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to create purchase order"
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// PURCHASE ORDER - UPDATE
+// React:
+// PUT http://localhost:5000/api/purchase-orders/1
+//
+// .NET:
+// PUT https://localhost:7203/api/PurchaseOrder/1
+// =========================================================
+
+app.put(
+    "/api/purchase-orders/:id",
+    async (req, res) => {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id) || id <= 0) {
+
+                return res.status(400).json({
+                    message: "Invalid Purchase Order ID"
+                });
+
+            }
+
+            const response = await dotnetAxios.put(
+                `/PurchaseOrder/${id}`,
+                req.body
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE PURCHASE ORDER ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to update purchase order"
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// PURCHASE ORDER - DELETE
+// React:
+// DELETE http://localhost:5000/api/purchase-orders/1
+//
+// .NET:
+// DELETE https://localhost:7203/api/PurchaseOrder/1
+// =========================================================
+
+app.delete(
+    "/api/purchase-orders/:id",
+    async (req, res) => {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id) || id <= 0) {
+
+                return res.status(400).json({
+                    message: "Invalid Purchase Order ID"
+                });
+
+            }
+
+            const response = await dotnetAxios.delete(
+                `/PurchaseOrder/${id}`
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE PURCHASE ORDER ERROR:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json({
+                message:
+                    error.response?.data?.message ||
+                    "Failed to delete purchase order"
+            });
+
+        }
+
+    }
+);
+
+
+
 
 
 
