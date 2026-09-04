@@ -7,7 +7,8 @@ import {
     Typography,
     Stack,
     Divider,
-    Button
+    Button,
+    Box
 } from "@mui/material";
 
 import {
@@ -16,23 +17,50 @@ import {
     Delete
 } from "@mui/icons-material";
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
+// =========================================================
+// CURRENCY FORMATTER
+// =========================================================
+
+const formatCurrency = (value) => {
+
+    return `₹ ${Number(value || 0).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    )}`;
+
+};
+
+// =========================================================
+// NUMBER FORMATTER
+// =========================================================
+
+const formatNumber = (value) => {
+
+    return Number(value || 0).toLocaleString(
+        "en-IN"
+    );
+
+};
+
+// =========================================================
+// SALES ORDER ITEM CARD
+// =========================================================
 
 const SalesOrderItemCard = ({
-
     item,
-
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
+
+    if (!item) {
+
+        return null;
+
+    }
 
     return (
 
@@ -40,11 +68,25 @@ const SalesOrderItemCard = ({
             className="sales-order-item-card"
             sx={{
                 height: "100%",
-                borderRadius: 2
+                borderRadius: 2,
+                display: "flex",
+                flexDirection: "column"
             }}
         >
 
-            <CardContent>
+            {/* =============================================
+                CARD CONTENT
+            ============================================= */}
+
+            <CardContent
+                sx={{
+                    flexGrow: 1
+                }}
+            >
+
+                {/* =========================================
+                    TITLE
+                ========================================= */}
 
                 <Typography
                     variant="h6"
@@ -52,113 +94,224 @@ const SalesOrderItemCard = ({
                     gutterBottom
                 >
 
-                    Sales Order Item #{item.SalesOrderItemId}
+                    Sales Order Item #
+                    {item.SalesOrderItemId}
 
                 </Typography>
+
+                {/* =========================================
+                    SALES ORDER
+                ========================================= */}
 
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
 
-                    Sales Order ID : {item.SalesOrderId}
+                    Sales Order ID :{" "}
+
+                    <strong>
+                        {item.SalesOrderId}
+                    </strong>
 
                 </Typography>
+
+                {/* =========================================
+                    PRODUCT
+                ========================================= */}
 
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
 
-                    Product ID : {item.ProductId}
+                    Product ID :{" "}
+
+                    <strong>
+                        {item.ProductId}
+                    </strong>
 
                 </Typography>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider
+                    sx={{
+                        my: 2
+                    }}
+                />
 
-                <Stack spacing={1}>
+                {/* =========================================
+                    ITEM DETAILS
+                ========================================= */}
+
+                <Stack spacing={1.2}>
+
+                    {/* LINE NUMBER */}
+
+                    <Typography variant="body2">
+
+                        <strong>Line Number:</strong>{" "}
+
+                        {formatNumber(
+                            item.LineNumber
+                        )}
+
+                    </Typography>
+
+                    {/* QUANTITY */}
 
                     <Typography variant="body2">
 
                         <strong>Quantity:</strong>{" "}
 
-                        {Number(item.Quantity || 0).toLocaleString()}
+                        {formatNumber(
+                            item.Quantity
+                        )}
 
                     </Typography>
+
+                    {/* UNIT PRICE */}
 
                     <Typography variant="body2">
 
                         <strong>Unit Price:</strong>{" "}
 
-                        {formatCurrency(item.UnitPrice)}
+                        {formatCurrency(
+                            item.UnitPrice
+                        )}
 
                     </Typography>
+
+                    {/* DISCOUNT */}
 
                     <Typography variant="body2">
 
                         <strong>Discount:</strong>{" "}
 
-                        {formatCurrency(item.Discount)}
+                        {formatCurrency(
+                            item.DiscountAmount
+                        )}
 
                     </Typography>
+
+                    {/* TAX */}
 
                     <Typography variant="body2">
 
                         <strong>Tax Amount:</strong>{" "}
 
-                        {formatCurrency(item.TaxAmount)}
+                        {formatCurrency(
+                            item.TaxAmount
+                        )}
 
                     </Typography>
 
+                    <Divider
+                        sx={{
+                            my: 0.5
+                        }}
+                    />
+
+                    {/* TOTAL */}
+
                     <Typography
-                        variant="body1"
+                        variant="h6"
                         fontWeight="bold"
+                        color="success.main"
                     >
 
                         Total Amount:{" "}
 
-                        {formatCurrency(item.TotalAmount)}
+                        {formatCurrency(
+                            item.TotalAmount
+                        )}
 
                     </Typography>
+
+                    {/* REMARKS */}
+
+                    {item.Remarks && (
+
+                        <Box sx={{ pt: 0.5 }}>
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Remarks
+                            </Typography>
+
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    mt: 0.25,
+                                    wordBreak: "break-word"
+                                }}
+                            >
+                                {item.Remarks}
+                            </Typography>
+
+                        </Box>
+
+                    )}
 
                 </Stack>
 
             </CardContent>
 
+            {/* =============================================
+                CARD ACTIONS
+            ============================================= */}
+
             <CardActions
                 sx={{
                     justifyContent: "space-between",
                     px: 2,
-                    pb: 2
+                    pb: 2,
+                    gap: 1
                 }}
             >
+
+                {/* VIEW */}
 
                 <Button
                     size="small"
                     startIcon={<Visibility />}
-                    onClick={() => onView(item)}
+                    onClick={() =>
+                        onView &&
+                        onView(item)
+                    }
                 >
 
                     View
 
                 </Button>
 
+                {/* EDIT */}
+
                 <Button
                     size="small"
                     color="warning"
                     startIcon={<Edit />}
-                    onClick={() => onEdit(item)}
+                    onClick={() =>
+                        onEdit &&
+                        onEdit(item)
+                    }
                 >
 
                     Edit
 
                 </Button>
 
+                {/* DELETE */}
+
                 <Button
                     size="small"
                     color="error"
                     startIcon={<Delete />}
-                    onClick={() => onDelete(item)}
+                    onClick={() =>
+                        onDelete &&
+                        onDelete(item)
+                    }
                 >
 
                     Delete

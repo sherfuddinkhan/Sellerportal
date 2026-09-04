@@ -8,26 +8,53 @@ import {
     Grid,
     Typography,
     Divider,
-    Button
+    Button,
+    Paper
 } from "@mui/material";
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
+// =========================================================
+// CURRENCY FORMATTER
+// =========================================================
+
+const formatCurrency = (value) => {
+
+    return `₹ ${Number(value || 0).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    )}`;
+
+};
+
+// =========================================================
+// NUMBER FORMATTER
+// =========================================================
+
+const formatNumber = (value) => {
+
+    return Number(value || 0).toLocaleString(
+        "en-IN"
+    );
+
+};
+
+// =========================================================
+// SALES ORDER ITEM VIEW
+// =========================================================
 
 const SalesOrderItemView = ({
-
     open,
-
     item,
-
     onClose
-
 }) => {
 
-    if (!item) return null;
+    if (!item) {
+
+        return null;
+
+    }
 
     return (
 
@@ -38,11 +65,19 @@ const SalesOrderItemView = ({
             maxWidth="md"
         >
 
+            {/* =============================================
+                TITLE
+            ============================================= */}
+
             <DialogTitle>
 
                 Sales Order Item Details
 
             </DialogTitle>
+
+            {/* =============================================
+                CONTENT
+            ============================================= */}
 
             <DialogContent dividers>
 
@@ -51,140 +86,364 @@ const SalesOrderItemView = ({
                     spacing={2}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    {/* =========================================
+                        ITEM ID
+                    ========================================= */}
 
-                        <Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
-                            <strong>Sales Order Item ID:</strong>
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
 
-                        </Typography>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Sales Order Item ID
+                            </Typography>
 
-                        <Typography>
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {item.SalesOrderItemId}
+                            </Typography>
 
-                            {item.SalesOrderItemId}
-
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-
-                        <Typography>
-
-                            <strong>Sales Order ID:</strong>
-
-                        </Typography>
-
-                        <Typography>
-
-                            {item.SalesOrderId}
-
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-
-                        <Typography>
-
-                            <strong>Product ID:</strong>
-
-                        </Typography>
-
-                        <Typography>
-
-                            {item.ProductId}
-
-                        </Typography>
+                        </Paper>
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* =========================================
+                        SALES ORDER ID
+                    ========================================= */}
 
-                        <Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
-                            <strong>Quantity:</strong>
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
 
-                        </Typography>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Sales Order ID
+                            </Typography>
 
-                        <Typography>
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {item.SalesOrderId}
+                            </Typography>
 
-                            {Number(item.Quantity || 0).toLocaleString()}
-
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-
-                        <Typography>
-
-                            <strong>Unit Price:</strong>
-
-                        </Typography>
-
-                        <Typography>
-
-                            {formatCurrency(item.UnitPrice)}
-
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-
-                        <Typography>
-
-                            <strong>Discount:</strong>
-
-                        </Typography>
-
-                        <Typography>
-
-                            {formatCurrency(item.Discount)}
-
-                        </Typography>
+                        </Paper>
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* =========================================
+                        PRODUCT ID
+                    ========================================= */}
 
-                        <Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
-                            <strong>Tax Amount:</strong>
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
 
-                        </Typography>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Product ID
+                            </Typography>
 
-                        <Typography>
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {item.ProductId}
+                            </Typography>
 
-                            {formatCurrency(item.TaxAmount)}
-
-                        </Typography>
+                        </Paper>
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* =========================================
+                        LINE NUMBER
+                    ========================================= */}
 
-                        <Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
 
-                            <strong>Total Amount:</strong>
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
 
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Line Number
+                            </Typography>
+
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {formatNumber(
+                                    item.LineNumber
+                                )}
+                            </Typography>
+
+                        </Paper>
+
+                    </Grid>
+
+                    {/* =========================================
+                        QUANTITY
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Quantity
+                            </Typography>
+
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {formatNumber(
+                                    item.Quantity
+                                )}
+                            </Typography>
+
+                        </Paper>
+
+                    </Grid>
+
+                    {/* =========================================
+                        UNIT PRICE
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Unit Price
+                            </Typography>
+
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {formatCurrency(
+                                    item.UnitPrice
+                                )}
+                            </Typography>
+
+                        </Paper>
+
+                    </Grid>
+
+                    {/* =========================================
+                        DISCOUNT
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Discount Amount
+                            </Typography>
+
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {formatCurrency(
+                                    item.DiscountAmount
+                                )}
+                            </Typography>
+
+                        </Paper>
+
+                    </Grid>
+
+                    {/* =========================================
+                        TAX AMOUNT
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Tax Amount
+                            </Typography>
+
+                            <Typography
+                                variant="body1"
+                                fontWeight="600"
+                            >
+                                {formatCurrency(
+                                    item.TaxAmount
+                                )}
+                            </Typography>
+
+                        </Paper>
+
+                    </Grid>
+
+                    {/* =========================================
+                        TOTAL AMOUNT
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                    >
+
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 2
+                            }}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Total Amount
+                            </Typography>
+
+                            <Typography
+                                variant="h5"
+                                fontWeight="bold"
+                                color="success.main"
+                            >
+                                {formatCurrency(
+                                    item.TotalAmount
+                                )}
+                            </Typography>
+
+                        </Paper>
+
+                    </Grid>
+
+                    {/* =========================================
+                        REMARKS
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                    >
+
+                        <Divider
+                            sx={{
+                                my: 1
+                            }}
+                        />
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Remarks
                         </Typography>
 
                         <Typography
-                            fontWeight="bold"
-                            color="success.main"
+                            variant="body1"
+                            sx={{
+                                mt: 0.5,
+                                whiteSpace: "pre-wrap"
+                            }}
                         >
-
-                            {formatCurrency(item.TotalAmount)}
-
+                            {item.Remarks || "-"}
                         </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12}>
-
-                        <Divider sx={{ mt: 1 }} />
 
                     </Grid>
 
@@ -192,15 +451,17 @@ const SalesOrderItemView = ({
 
             </DialogContent>
 
+            {/* =============================================
+                ACTIONS
+            ============================================= */}
+
             <DialogActions>
 
                 <Button
                     variant="contained"
                     onClick={onClose}
                 >
-
                     Close
-
                 </Button>
 
             </DialogActions>

@@ -598,6 +598,9 @@ import SalesOrderItemStatistics from "./pages/SalesOrderItems/SalesOrderItemStat
 import SalesOrderItemTable from "./pages/SalesOrderItems/SalesOrderItemTable";
 import SalesOrderItemToolbar from "./pages/SalesOrderItems/SalesOrderItemToolbar";
 import SalesOrderItemView from "./pages/SalesOrderItems/SalesOrderItemView";
+import SalesOrderItemDetails from "./pages/SalesOrderItems/SalesOrderItemDetails";
+import SalesOrderItemCreate from "./pages/SalesOrderItems/SalesOrderItemCreate";
+import SalesOrderItemEdit from "./pages/SalesOrderItems/SalesOrderItemEdit";
 
 
 
@@ -1953,6 +1956,25 @@ element={<ProductPriceToolbar />}
         <Route path="sales-order-items/:id" element={<SalesOrderItemView />} />
         <Route path="sales-order-items/search" element={<SalesOrderItemSearch />} />
         <Route path="sales-order-items/statistics" element={<SalesOrderItemStatistics />} />
+        <Route
+    path="/sales-order-items"
+    element={<SalesOrderItemList />}
+/>
+
+<Route
+    path="/sales-order-items/create"
+    element={<SalesOrderItemCreate />}
+/>
+
+<Route
+    path="/sales-order-items/details/:id"
+    element={<SalesOrderItemDetails />}
+/>
+
+<Route
+    path="/sales-order-items/edit/:id"
+    element={<SalesOrderItemEdit />}
+/>
   
 {/* ===================================================
     SALES ORDERS

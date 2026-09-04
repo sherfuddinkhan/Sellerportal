@@ -3053,6 +3053,469 @@ app.delete("/api/sales-orders/:id", async (req, res) => {
         );
     }
 });
+// =========================================================
+// SALES ORDER ITEMS
+// =========================================================
+
+app.get("/api/sales-order-items", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/sales-order-items`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET SALES ORDER ITEMS PROXY ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+// ---------------------------------------------------------
+// GET ALL / SEARCH / PAGINATION / SORT
+// GET /api/sales-order-items
+// ---------------------------------------------------------
+
+app.get("/api/sales-order-items", async (req, res) => {
+    try {
+
+        console.log(
+            "GET SALES ORDER ITEMS:",
+            req.query
+        );
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesOrderItem`,
+            {
+                httpsAgent,
+                params: req.query
+            }
+        );
+
+        return res.status(200).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET SALES ORDER ITEMS ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to fetch Sales Order Items"
+            }
+        );
+    }
+});
+
+
+// ---------------------------------------------------------
+// GET SALES ORDER ITEM BY ID
+// GET /api/sales-order-items/1
+// ---------------------------------------------------------
+
+app.get("/api/sales-order-items/:id", async (req, res) => {
+    try {
+
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+
+            return res.status(400).json({
+                message: "Invalid Sales Order Item ID"
+            });
+
+        }
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesOrderItem/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(200).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET SALES ORDER ITEM BY ID ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to fetch Sales Order Item"
+            }
+        );
+    }
+});
+
+
+// ---------------------------------------------------------
+// GET BY SALES ORDER
+// GET /api/sales-order-items/salesorder/1
+// ---------------------------------------------------------
+
+app.get(
+    "/api/sales-order-items/salesorder/:salesOrderId",
+    async (req, res) => {
+
+        try {
+
+            const salesOrderId =
+                Number(req.params.salesOrderId);
+
+            if (
+                !Number.isInteger(salesOrderId) ||
+                salesOrderId <= 0
+            ) {
+
+                return res.status(400).json({
+                    message: "Invalid Sales Order ID"
+                });
+
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesOrderItem/salesorder/${salesOrderId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(200).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET ITEMS BY SALES ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch items by Sales Order"
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET BY PRODUCT
+// GET /api/sales-order-items/product/1
+// ---------------------------------------------------------
+
+app.get(
+    "/api/sales-order-items/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const productId =
+                Number(req.params.productId);
+
+            if (
+                !Number.isInteger(productId) ||
+                productId <= 0
+            ) {
+
+                return res.status(400).json({
+                    message: "Invalid Product ID"
+                });
+
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesOrderItem/product/${productId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(200).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET ITEMS BY PRODUCT ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch items by Product"
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// STATISTICS
+// GET /api/sales-order-items/stats
+// ---------------------------------------------------------
+
+app.get(
+    "/api/sales-order-items/stats",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET SALES ORDER ITEM STATISTICS"
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/SalesOrderItem/stats`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(200).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET SALES ORDER ITEM STATS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch Sales Order Item statistics"
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// CREATE SALES ORDER ITEM
+// POST /api/sales-order-items
+// ---------------------------------------------------------
+
+app.post(
+    "/api/sales-order-items",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "CREATE SALES ORDER ITEM:",
+                req.body
+            );
+
+            const response = await axios.post(
+                `${DOTNET_API}/SalesOrderItem`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "SALES ORDER ITEM CREATED:",
+                response.data
+            );
+
+            return res.status(200).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "CREATE SALES ORDER ITEM ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to create Sales Order Item"
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// UPDATE SALES ORDER ITEM
+// PUT /api/sales-order-items/1
+// ---------------------------------------------------------
+
+app.put(
+    "/api/sales-order-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid Sales Order Item ID"
+                });
+
+            }
+
+            console.log(
+                "UPDATE SALES ORDER ITEM:",
+                id,
+                req.body
+            );
+
+            const response = await axios.put(
+                `${DOTNET_API}/SalesOrderItem/${id}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            return res.status(200).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE SALES ORDER ITEM ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update Sales Order Item"
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// DELETE SALES ORDER ITEM
+// DELETE /api/sales-order-items/1
+// ---------------------------------------------------------
+
+app.delete(
+    "/api/sales-order-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid Sales Order Item ID"
+                });
+
+            }
+
+            console.log(
+                "DELETE SALES ORDER ITEM:",
+                id
+            );
+
+            const response = await axios.delete(
+                `${DOTNET_API}/SalesOrderItem/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(200).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE SALES ORDER ITEM ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to delete Sales Order Item"
+                }
+            );
+        }
+    }
+);
 
 
 

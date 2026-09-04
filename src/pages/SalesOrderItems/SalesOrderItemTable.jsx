@@ -11,7 +11,8 @@ import {
     Typography,
     Chip,
     IconButton,
-    Tooltip
+    Tooltip,
+    Box
 } from "@mui/material";
 
 import {
@@ -20,212 +21,379 @@ import {
     Delete
 } from "@mui/icons-material";
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
+// =========================================================
+// CURRENCY FORMATTER
+// =========================================================
+
+const formatCurrency = (value) => {
+
+    return `₹ ${Number(value || 0).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    )}`;
+
+};
+
+// =========================================================
+// NUMBER FORMATTER
+// =========================================================
+
+const formatNumber = (value) => {
+
+    return Number(value || 0).toLocaleString(
+        "en-IN"
+    );
+
+};
+
+// =========================================================
+// SALES ORDER ITEM TABLE
+// =========================================================
 
 const SalesOrderItemTable = ({
-
     items = [],
-
-    loading,
-
+    loading = false,
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
+
+    // =====================================================
+    // LOADING STATE
+    // =====================================================
 
     if (loading) {
 
-        return null;
+        return (
+
+            <TableContainer
+                component={Paper}
+                className="sales-order-item-table"
+            >
+
+                <Table>
+
+                    <TableBody>
+
+                        <TableRow>
+
+                            <TableCell
+                                colSpan={11}
+                                align="center"
+                                sx={{
+                                    py: 5
+                                }}
+                            >
+
+                                <Typography
+                                    color="text.secondary"
+                                >
+                                    Loading Sales Order Items...
+                                </Typography>
+
+                            </TableCell>
+
+                        </TableRow>
+
+                    </TableBody>
+
+                </Table>
+
+            </TableContainer>
+
+        );
 
     }
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
         <TableContainer
             component={Paper}
             className="sales-order-item-table"
+            sx={{
+                width: "100%",
+                overflowX: "auto"
+            }}
         >
 
-            <Table>
+            <Table
+                stickyHeader
+                size="small"
+            >
+
+                {/* =========================================
+                    TABLE HEADER
+                ========================================= */}
 
                 <TableHead>
 
                     <TableRow>
 
                         <TableCell>
-
                             <strong>ID</strong>
-
                         </TableCell>
 
                         <TableCell>
-
                             <strong>Sales Order</strong>
-
                         </TableCell>
 
                         <TableCell>
-
                             <strong>Product</strong>
-
-                        </TableCell>
-
-                        <TableCell align="right">
-
-                            <strong>Quantity</strong>
-
-                        </TableCell>
-
-                        <TableCell align="right">
-
-                            <strong>Unit Price</strong>
-
-                        </TableCell>
-
-                        <TableCell align="right">
-
-                            <strong>Discount</strong>
-
-                        </TableCell>
-
-                        <TableCell align="right">
-
-                            <strong>Tax</strong>
-
-                        </TableCell>
-
-                        <TableCell align="right">
-
-                            <strong>Total</strong>
-
                         </TableCell>
 
                         <TableCell align="center">
+                            <strong>Line</strong>
+                        </TableCell>
 
+                        <TableCell align="right">
+                            <strong>Quantity</strong>
+                        </TableCell>
+
+                        <TableCell align="right">
+                            <strong>Unit Price</strong>
+                        </TableCell>
+
+                        <TableCell align="right">
+                            <strong>Discount</strong>
+                        </TableCell>
+
+                        <TableCell align="right">
+                            <strong>Tax</strong>
+                        </TableCell>
+
+                        <TableCell align="right">
+                            <strong>Total</strong>
+                        </TableCell>
+
+                        <TableCell>
+                            <strong>Remarks</strong>
+                        </TableCell>
+
+                        <TableCell align="center">
                             <strong>Actions</strong>
-
                         </TableCell>
 
                     </TableRow>
 
                 </TableHead>
 
+                {/* =========================================
+                    TABLE BODY
+                ========================================= */}
+
                 <TableBody>
 
-                    {
+                    {items.length === 0 ? (
 
-                        items.length === 0 ? (
+                        <TableRow>
 
-                            <TableRow>
+                            <TableCell
+                                colSpan={11}
+                                align="center"
+                                sx={{
+                                    py: 5
+                                }}
+                            >
 
-                                <TableCell
-                                    colSpan={9}
-                                    align="center"
+                                <Typography
+                                    color="text.secondary"
                                 >
 
+                                    No Sales Order Items Found
+
+                                </Typography>
+
+                            </TableCell>
+
+                        </TableRow>
+
+                    ) : (
+
+                        items.map((item) => (
+
+                            <TableRow
+                                hover
+                                key={
+                                    item.SalesOrderItemId
+                                }
+                            >
+
+                                {/* =================================
+                                    ITEM ID
+                                ================================= */}
+
+                                <TableCell>
+
+                                    {item.SalesOrderItemId}
+
+                                </TableCell>
+
+                                {/* =================================
+                                    SALES ORDER
+                                ================================= */}
+
+                                <TableCell>
+
+                                    <Chip
+                                        size="small"
+                                        label={
+                                            item.SalesOrderId
+                                        }
+                                        color="primary"
+                                        variant="outlined"
+                                    />
+
+                                </TableCell>
+
+                                {/* =================================
+                                    PRODUCT
+                                ================================= */}
+
+                                <TableCell>
+
+                                    <Chip
+                                        size="small"
+                                        label={
+                                            item.ProductId
+                                        }
+                                        variant="outlined"
+                                    />
+
+                                </TableCell>
+
+                                {/* =================================
+                                    LINE NUMBER
+                                ================================= */}
+
+                                <TableCell align="center">
+
+                                    {formatNumber(
+                                        item.LineNumber
+                                    )}
+
+                                </TableCell>
+
+                                {/* =================================
+                                    QUANTITY
+                                ================================= */}
+
+                                <TableCell align="right">
+
+                                    {formatNumber(
+                                        item.Quantity
+                                    )}
+
+                                </TableCell>
+
+                                {/* =================================
+                                    UNIT PRICE
+                                ================================= */}
+
+                                <TableCell align="right">
+
+                                    {formatCurrency(
+                                        item.UnitPrice
+                                    )}
+
+                                </TableCell>
+
+                                {/* =================================
+                                    DISCOUNT
+                                ================================= */}
+
+                                <TableCell align="right">
+
+                                    {formatCurrency(
+                                        item.DiscountAmount
+                                    )}
+
+                                </TableCell>
+
+                                {/* =================================
+                                    TAX
+                                ================================= */}
+
+                                <TableCell align="right">
+
+                                    {formatCurrency(
+                                        item.TaxAmount
+                                    )}
+
+                                </TableCell>
+
+                                {/* =================================
+                                    TOTAL
+                                ================================= */}
+
+                                <TableCell
+                                    align="right"
+                                    sx={{
+                                        fontWeight: 600
+                                    }}
+                                >
+
+                                    {formatCurrency(
+                                        item.TotalAmount
+                                    )}
+
+                                </TableCell>
+
+                                {/* =================================
+                                    REMARKS
+                                ================================= */}
+
+                                <TableCell>
+
                                     <Typography
-                                        color="text.secondary"
+                                        variant="body2"
+                                        sx={{
+                                            maxWidth: 220,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap"
+                                        }}
+                                        title={
+                                            item.Remarks || ""
+                                        }
                                     >
 
-                                        No Sales Order Items Found
+                                        {item.Remarks || "-"}
 
                                     </Typography>
 
                                 </TableCell>
 
-                            </TableRow>
+                                {/* =================================
+                                    ACTIONS
+                                ================================= */}
 
-                        ) : (
+                                <TableCell align="center">
 
-                            items.map((item) => (
-
-                                <TableRow
-                                    hover
-                                    key={item.SalesOrderItemId}
-                                >
-
-                                    <TableCell>
-
-                                        {item.SalesOrderItemId}
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        <Chip
-                                            size="small"
-                                            label={item.SalesOrderId}
-                                            color="primary"
-                                            variant="outlined"
-                                        />
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        {item.ProductId}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        {Number(
-                                            item.Quantity || 0
-                                        ).toLocaleString()}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        {formatCurrency(
-                                            item.UnitPrice
-                                        )}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        {formatCurrency(
-                                            item.Discount
-                                        )}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        {formatCurrency(
-                                            item.TaxAmount
-                                        )}
-
-                                    </TableCell>
-
-                                    <TableCell
-                                        align="right"
+                                    <Box
                                         sx={{
-                                            fontWeight: 600
+                                            display: "flex",
+                                            justifyContent:
+                                                "center",
+                                            alignItems: "center"
                                         }}
                                     >
 
-                                        {formatCurrency(
-                                            item.TotalAmount
-                                        )}
-
-                                    </TableCell>
-
-                                    <TableCell align="center">
+                                        {/* VIEW */}
 
                                         <Tooltip title="View">
 
                                             <IconButton
                                                 color="primary"
+                                                size="small"
                                                 onClick={() =>
+                                                    onView &&
                                                     onView(item)
                                                 }
                                             >
@@ -236,11 +404,15 @@ const SalesOrderItemTable = ({
 
                                         </Tooltip>
 
+                                        {/* EDIT */}
+
                                         <Tooltip title="Edit">
 
                                             <IconButton
                                                 color="warning"
+                                                size="small"
                                                 onClick={() =>
+                                                    onEdit &&
                                                     onEdit(item)
                                                 }
                                             >
@@ -251,11 +423,15 @@ const SalesOrderItemTable = ({
 
                                         </Tooltip>
 
+                                        {/* DELETE */}
+
                                         <Tooltip title="Delete">
 
                                             <IconButton
                                                 color="error"
+                                                size="small"
                                                 onClick={() =>
+                                                    onDelete &&
                                                     onDelete(item)
                                                 }
                                             >
@@ -266,15 +442,15 @@ const SalesOrderItemTable = ({
 
                                         </Tooltip>
 
-                                    </TableCell>
+                                    </Box>
 
-                                </TableRow>
+                                </TableCell>
 
-                            ))
+                            </TableRow>
 
-                        )
+                        ))
 
-                    }
+                    )}
 
                 </TableBody>
 

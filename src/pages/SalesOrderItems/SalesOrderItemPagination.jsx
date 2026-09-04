@@ -10,21 +10,68 @@ import {
     Typography
 } from "@mui/material";
 
+// =========================================================
+// SALES ORDER ITEM PAGINATION
+// =========================================================
+
 const SalesOrderItemPagination = ({
-
-    page,
-
-    totalPages,
-
-    pageSize,
-
-    totalRecords,
-
+    page = 1,
+    totalPages = 1,
+    pageSize = 10,
+    totalRecords = 0,
     onPageChange,
-
     onPageSizeChange
-
 }) => {
+
+    // =====================================================
+    // CALCULATE RECORD RANGE
+    // =====================================================
+
+    const startRecord =
+        totalRecords === 0
+            ? 0
+            : (page - 1) * pageSize + 1;
+
+    const endRecord =
+        Math.min(
+            page * pageSize,
+            totalRecords
+        );
+
+    // =====================================================
+    // PAGE CHANGE
+    // =====================================================
+
+    const handlePageChange = (_, value) => {
+
+        if (onPageChange) {
+
+            onPageChange(value);
+
+        }
+
+    };
+
+    // =====================================================
+    // PAGE SIZE CHANGE
+    // =====================================================
+
+    const handlePageSizeChange = (event) => {
+
+        const newPageSize =
+            Number(event.target.value);
+
+        if (onPageSizeChange) {
+
+            onPageSizeChange(newPageSize);
+
+        }
+
+    };
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
@@ -40,22 +87,37 @@ const SalesOrderItemPagination = ({
             }}
         >
 
+            {/* ============================================
+                RECORD INFORMATION
+            ============================================ */}
+
             <Typography
                 variant="body2"
                 color="text.secondary"
             >
 
-                Total Records : {totalRecords}
+                {totalRecords > 0
+                    ? `Showing ${startRecord}-${endRecord} of ${totalRecords} records`
+                    : "No records found"}
 
             </Typography>
+
+            {/* ============================================
+                PAGINATION CONTROLS
+            ============================================ */}
 
             <Box
                 sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 2
+                    gap: 2,
+                    flexWrap: "wrap"
                 }}
             >
+
+                {/* ========================================
+                    PAGE SIZE
+                ======================================== */}
 
                 <FormControl
                     size="small"
@@ -64,20 +126,15 @@ const SalesOrderItemPagination = ({
                     }}
                 >
 
-                    <InputLabel>
-
+                    <InputLabel id="sales-order-item-rows-label">
                         Rows
-
                     </InputLabel>
 
                     <Select
+                        labelId="sales-order-item-rows-label"
                         value={pageSize}
                         label="Rows"
-                        onChange={(e) =>
-                            onPageSizeChange(
-                                Number(e.target.value)
-                            )
-                        }
+                        onChange={handlePageSizeChange}
                     >
 
                         <MenuItem value={5}>
@@ -104,16 +161,19 @@ const SalesOrderItemPagination = ({
 
                 </FormControl>
 
+                {/* ========================================
+                    PAGINATION
+                ======================================== */}
+
                 <Pagination
                     page={page}
-                    count={totalPages}
+                    count={Math.max(totalPages, 1)}
                     color="primary"
                     shape="rounded"
                     showFirstButton
                     showLastButton
-                    onChange={(_, value) =>
-                        onPageChange(value)
-                    }
+                    onChange={handlePageChange}
+                    disabled={totalRecords === 0}
                 />
 
             </Box>
