@@ -5508,6 +5508,623 @@ app.delete(
 
     }
 );
+// ============================================================
+// PURCHASE ORDER ITEMS
+// ============================================================
+
+
+// ============================================================
+// GET ALL PURCHASE ORDER ITEMS
+//
+// React:
+// GET http://localhost:5000/api/purchase-order-items
+//
+// .NET:
+// GET https://localhost:7203/api/purchase-order-items
+// ============================================================
+
+app.get(
+    "/api/purchase-order-items",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "GET ALL PURCHASE ORDER ITEMS"
+            );
+
+            console.log(
+                "================================================"
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-order-items`,
+                {
+                    httpsAgent
+                }
+            );
+
+            console.log(
+                "GET ALL PURCHASE ORDER ITEMS SUCCESS"
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ALL PURCHASE ORDER ITEMS ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                console.error(
+                    "STATUS:",
+                    error.response.status
+                );
+
+                console.error(
+                    "DATA:",
+                    error.response.data
+                );
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to fetch purchase order items.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// SEARCH / SORT / PAGINATION
+//
+// React:
+// GET http://localhost:5000/api/purchase-order-items/search
+//
+// Examples:
+//
+// ?search=SKU-882
+// ?sort=line_no
+// ?page=1&limit=25
+//
+// .NET:
+// GET https://localhost:7203/api/purchase-order-items/search
+// ============================================================
+
+app.get(
+    "/api/purchase-order-items/search",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "PURCHASE ORDER ITEMS SEARCH REQUEST:",
+                req.query
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-order-items/search`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "PURCHASE ORDER ITEMS SEARCH ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to search purchase order items.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// GET PURCHASE ORDER ITEM BY ID
+//
+// React:
+// GET http://localhost:5000/api/purchase-order-items/5
+//
+// .NET:
+// GET https://localhost:7203/api/purchase-order-items/5
+// ============================================================
+
+app.get(
+    "/api/purchase-order-items/:purchaseOrderItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderItemId
+            } = req.params;
+
+            console.log(
+                "GET PURCHASE ORDER ITEM:",
+                purchaseOrderItemId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-order-items/${purchaseOrderItemId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PURCHASE ORDER ITEM ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to fetch purchase order item.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// GET ITEMS BY PURCHASE ORDER
+//
+// React:
+// GET http://localhost:5000/api/purchase-order-items/purchaseorder/10
+//
+// .NET:
+// GET https://localhost:7203/api/purchase-order-items/purchaseorder/10
+// ============================================================
+
+app.get(
+    "/api/purchase-order-items/purchaseorder/:purchaseOrderId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderId
+            } = req.params;
+
+            console.log(
+                "GET PURCHASE ORDER ITEMS:",
+                purchaseOrderId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-order-items/purchaseorder/${purchaseOrderId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PURCHASE ORDER ITEMS ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to fetch purchase order items.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// GET PURCHASE ORDER + ITEM
+//
+// React:
+// GET
+// /api/purchase-order-items/purchaseorder/10/item/25
+//
+// .NET:
+// GET
+// /api/purchase-order-items/purchaseorder/10/item/25
+// ============================================================
+
+app.get(
+    "/api/purchase-order-items/purchaseorder/:purchaseOrderId/item/:purchaseOrderItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderId,
+                purchaseOrderItemId
+            } = req.params;
+
+            console.log(
+                "GET PURCHASE ORDER + ITEM:",
+                purchaseOrderId,
+                purchaseOrderItemId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-order-items/purchaseorder/${purchaseOrderId}/item/${purchaseOrderItemId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PURCHASE ORDER + ITEM ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to fetch purchase order item.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// PURCHASE ORDER ITEM STATISTICS
+//
+// React:
+// GET http://localhost:5000/api/purchase-order-items/stats
+//
+// .NET:
+// GET https://localhost:7203/api/purchase-order-items/stats
+// ============================================================
+
+app.get(
+    "/api/purchase-order-items/stats",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET PURCHASE ORDER ITEM STATISTICS"
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-order-items/stats`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PURCHASE ORDER ITEM STATISTICS ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to fetch purchase order item statistics.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// CREATE PURCHASE ORDER ITEM
+//
+// POST:
+// /api/purchase-order-items
+// ============================================================
+
+app.post(
+    "/api/purchase-order-items",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "CREATE PURCHASE ORDER ITEM"
+            );
+
+            console.log(
+                "REQUEST BODY:",
+                req.body
+            );
+
+            const response = await axios.post(
+                `${DOTNET_API}/purchase-order-items`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE PURCHASE ORDER ITEM ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to create purchase order item.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE PURCHASE ORDER ITEM
+//
+// PUT:
+// /api/purchase-order-items/:purchaseOrderItemId
+// ============================================================
+
+app.put(
+    "/api/purchase-order-items/:purchaseOrderItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderItemId
+            } = req.params;
+
+            console.log(
+                "UPDATE PURCHASE ORDER ITEM:",
+                purchaseOrderItemId
+            );
+
+            const response = await axios.put(
+                `${DOTNET_API}/purchase-order-items/${purchaseOrderItemId}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE PURCHASE ORDER ITEM ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to update purchase order item.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE PURCHASE ORDER ITEM
+//
+// DELETE:
+// /api/purchase-order-items/:purchaseOrderItemId
+// ============================================================
+
+app.delete(
+    "/api/purchase-order-items/:purchaseOrderItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderItemId
+            } = req.params;
+
+            console.log(
+                "DELETE PURCHASE ORDER ITEM:",
+                purchaseOrderItemId
+            );
+
+            const response = await axios.delete(
+                `${DOTNET_API}/purchase-order-items/${purchaseOrderItemId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE PURCHASE ORDER ITEM ERROR:",
+                error.message
+            );
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+            }
+
+            return res.status(500).json({
+                message:
+                    "Failed to delete purchase order item.",
+                error:
+                    error.message
+            });
+        }
+    }
+);
+
+
 
 
 

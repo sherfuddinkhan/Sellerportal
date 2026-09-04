@@ -1,6 +1,5 @@
 import React from "react";
 
-
 import {
     Table,
     TableBody,
@@ -14,7 +13,6 @@ import {
     Typography
 } from "@mui/material";
 
-
 import {
     Visibility,
     Edit,
@@ -22,509 +20,288 @@ import {
 } from "@mui/icons-material";
 
 
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
 
-const formatCurrency = (value) =>
+const formatCurrency = (value) => {
 
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+    const amount = Number(value);
 
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
-
         maximumFractionDigits: 2
-
     })}`;
+};
 
 
+/* =========================================================
+   FORMAT QUANTITY
+========================================================= */
+
+const formatQuantity = (value) => {
+
+    const quantity = Number(value);
+
+    if (!Number.isFinite(quantity)) {
+        return "0.00";
+    }
+
+    return quantity.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
+
+
+/* =========================================================
+   PURCHASE ORDER ITEM TABLE
+========================================================= */
 
 const PurchaseOrderItemTable = ({
-
     items = [],
-
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
 
-
-
     return (
-
-
         <TableContainer
-
             component={Paper}
-
             className="purchase-order-item-table"
-
         >
 
+            <Table stickyHeader>
 
-            <Table
-
-                stickyHeader
-
-            >
-
-
+                {/* =================================================
+                    TABLE HEADER
+                ================================================= */}
 
                 <TableHead>
 
-
                     <TableRow>
 
-
-
                         <TableCell>
-
                             <strong>
                                 Item ID
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell>
-
                             <strong>
                                 Purchase Order ID
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell>
-
                             <strong>
                                 Product ID
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell align="right">
-
                             <strong>
                                 Quantity
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell align="right">
-
                             <strong>
                                 Unit Price
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell align="right">
-
                             <strong>
                                 Discount
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell align="right">
-
                             <strong>
                                 Tax Amount
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell align="right">
-
                             <strong>
                                 Total Amount
                             </strong>
-
                         </TableCell>
 
-
-
                         <TableCell align="center">
-
                             <strong>
                                 Actions
                             </strong>
-
                         </TableCell>
 
-
-
                     </TableRow>
-
 
                 </TableHead>
 
 
-
-
+                {/* =================================================
+                    TABLE BODY
+                ================================================= */}
 
                 <TableBody>
 
+                    {items.length === 0 ? (
 
+                        <TableRow>
 
-                    {
+                            <TableCell
+                                colSpan={9}
+                                align="center"
+                            >
 
-                        items.length === 0 ? (
-
-
-                            <TableRow>
-
-
-                                <TableCell
-
-                                    colSpan={9}
-
-                                    align="center"
-
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ py: 3 }}
                                 >
+                                    No Purchase Order Items Found
+                                </Typography>
 
+                            </TableCell>
 
-                                    <Typography
+                        </TableRow>
 
-                                        color="text.secondary"
+                    ) : (
 
-                                    >
+                        items.map((item) => (
 
-                                        No Purchase Order Items Found
+                            <TableRow
+                                hover
+                                key={item.PurchaseOrderItemId}
+                            >
 
+                                {/* Item ID */}
 
-                                    </Typography>
-
-
+                                <TableCell>
+                                    {item.PurchaseOrderItemId ?? "-"}
                                 </TableCell>
 
 
+                                {/* Purchase Order ID */}
+
+                                <TableCell>
+                                    {item.PurchaseOrderId ?? "-"}
+                                </TableCell>
+
+
+                                {/* Product ID */}
+
+                                <TableCell>
+                                    {item.ProductId ?? "-"}
+                                </TableCell>
+
+
+                                {/* Quantity */}
+
+                                <TableCell align="right">
+                                    {formatQuantity(item.Quantity)}
+                                </TableCell>
+
+
+                                {/* Unit Price */}
+
+                                <TableCell align="right">
+                                    {formatCurrency(item.UnitPrice)}
+                                </TableCell>
+
+
+                                {/* Discount */}
+
+                                <TableCell align="right">
+                                    {formatCurrency(item.Discount)}
+                                </TableCell>
+
+
+                                {/* Tax Amount */}
+
+                                <TableCell align="right">
+                                    {formatCurrency(item.TaxAmount)}
+                                </TableCell>
+
+
+                                {/* Total Amount */}
+
+                                <TableCell align="right">
+                                    <strong>
+                                        {formatCurrency(item.TotalAmount)}
+                                    </strong>
+                                </TableCell>
+
+
+                                {/* =================================================
+                                    ACTIONS
+                                ================================================= */}
+
+                                <TableCell align="center">
+
+                                    {/* View */}
+
+                                    <Tooltip title="View">
+
+                                        <IconButton
+                                            color="primary"
+                                            size="small"
+                                            onClick={() => onView?.(item)}
+                                        >
+                                            <Visibility />
+                                        </IconButton>
+
+                                    </Tooltip>
+
+
+                                    {/* Edit */}
+
+                                    <Tooltip title="Edit">
+
+                                        <IconButton
+                                            color="warning"
+                                            size="small"
+                                            onClick={() => onEdit?.(item)}
+                                        >
+                                            <Edit />
+                                        </IconButton>
+
+                                    </Tooltip>
+
+
+                                    {/* Delete */}
+
+                                    <Tooltip title="Delete">
+
+                                        <IconButton
+                                            color="error"
+                                            size="small"
+                                            onClick={() => onDelete?.(item)}
+                                        >
+                                            <Delete />
+                                        </IconButton>
+
+                                    </Tooltip>
+
+                                </TableCell>
+
                             </TableRow>
 
+                        ))
 
-                        )
-
-                        :
-
-                        (
-
-                            items.map((item) => (
-
-
-                                <TableRow
-
-
-                                    hover
-
-
-                                    key={
-
-                                        item.PurchaseOrderItemId
-
-                                    }
-
-
-                                >
-
-
-
-
-
-                                    <TableCell>
-
-
-                                        {
-
-                                            item.PurchaseOrderItemId
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell>
-
-
-                                        {
-
-                                            item.PurchaseOrderId
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell>
-
-
-                                        {
-
-                                            item.ProductId
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell align="right">
-
-
-                                        {
-
-                                            Number(
-
-                                                item.Quantity || 0
-
-                                            ).toFixed(2)
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell align="right">
-
-
-                                        {
-
-                                            formatCurrency(
-
-                                                item.UnitPrice
-
-                                            )
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell align="right">
-
-
-                                        {
-
-                                            formatCurrency(
-
-                                                item.Discount
-
-                                            )
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell align="right">
-
-
-                                        {
-
-                                            formatCurrency(
-
-                                                item.TaxAmount
-
-                                            )
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell align="right">
-
-
-                                        {
-
-                                            formatCurrency(
-
-                                                item.TotalAmount
-
-                                            )
-
-                                        }
-
-
-                                    </TableCell>
-
-
-
-
-
-                                    <TableCell align="center">
-
-
-
-
-
-                                        <Tooltip title="View">
-
-
-                                            <IconButton
-
-
-                                                color="primary"
-
-
-                                                onClick={() =>
-
-                                                    onView(item)
-
-                                                }
-
-
-                                            >
-
-
-                                                <Visibility />
-
-
-                                            </IconButton>
-
-
-                                        </Tooltip>
-
-
-
-
-
-                                        <Tooltip title="Edit">
-
-
-                                            <IconButton
-
-
-                                                color="warning"
-
-
-                                                onClick={() =>
-
-                                                    onEdit(item)
-
-                                                }
-
-
-                                            >
-
-
-                                                <Edit />
-
-
-                                            </IconButton>
-
-
-                                        </Tooltip>
-
-
-
-
-
-                                        <Tooltip title="Delete">
-
-
-                                            <IconButton
-
-
-                                                color="error"
-
-
-                                                onClick={() =>
-
-                                                    onDelete(item)
-
-                                                }
-
-
-                                            >
-
-
-                                                <Delete />
-
-
-                                            </IconButton>
-
-
-                                        </Tooltip>
-
-
-
-
-
-                                    </TableCell>
-
-
-
-
-                                </TableRow>
-
-
-
-                            ))
-
-
-                        )
-
-
-                    }
-
-
-
+                    )}
 
                 </TableBody>
 
-
-
             </Table>
 
-
-
         </TableContainer>
-
-
     );
-
-
 };
-
 
 
 export default PurchaseOrderItemTable;

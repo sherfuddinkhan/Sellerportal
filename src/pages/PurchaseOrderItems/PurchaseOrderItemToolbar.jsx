@@ -1,126 +1,76 @@
 import React from "react";
 
-
 import {
-    Box,
-    Button,
-    Tooltip
+Box,
+Button,
+Tooltip
 } from "@mui/material";
 
-
 import {
-    Add,
-    Refresh
+Add,
+Refresh
 } from "@mui/icons-material";
 
-
+/* =========================================================
+PURCHASE ORDER ITEM TOOLBAR
+========================================================= */
 
 const PurchaseOrderItemToolbar = ({
-
-    onAdd,
-
-    onRefresh
-
+onAdd,
+onRefresh
 }) => {
+return (
+    <Box
+        className="purchase-order-item-toolbar"
+        sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2,
+            mb: 3
+        }}
+    >
 
+        {/* =================================================
+            ADD ITEM
+        ================================================= */}
 
-    return (
+        <Tooltip title="Add Purchase Order Item">
 
-
-        <Box
-
-            className="purchase-order-item-toolbar"
-
-            sx={{
-
-                display: "flex",
-
-                justifyContent: "space-between",
-
-                alignItems: "center",
-
-                flexWrap: "wrap",
-
-                gap: 2,
-
-                mb: 3
-
-            }}
-
-        >
-
-
-
-            <Tooltip
-
-                title="Add Purchase Order Item"
-
+            <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Add />}
+                onClick={onAdd}
             >
+                Add Item
+            </Button>
+
+        </Tooltip>
 
 
-                <Button
+        {/* =================================================
+            REFRESH
+        ================================================= */}
 
-                    variant="contained"
+        <Tooltip title="Refresh Purchase Order Items">
 
-                    color="primary"
-
-                    startIcon={<Add />}
-
-                    onClick={onAdd}
-
-                >
-
-                    Add Item
-
-
-                </Button>
-
-
-            </Tooltip>
-
-
-
-
-
-            <Tooltip
-
-                title="Refresh Purchase Order Items"
-
+            <Button
+                variant="outlined"
+                color="secondary"
+                startIcon={<Refresh />}
+                onClick={onRefresh}
             >
+                Refresh
+            </Button>
 
+        </Tooltip>
 
-                <Button
-
-                    variant="outlined"
-
-                    color="secondary"
-
-                    startIcon={<Refresh />}
-
-                    onClick={onRefresh}
-
-                >
-
-                    Refresh
-
-
-                </Button>
-
-
-            </Tooltip>
-
-
-
-
-
-        </Box>
-
-
-    );
+    </Box>
+);
 
 
 };
-
-
 
 export default PurchaseOrderItemToolbar;

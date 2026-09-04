@@ -1,17 +1,66 @@
-import React, {useEffect,useMemo,useState} from "react";
-import {Box,Typography,CircularProgress,Snackbar,Alert,Grid} from "@mui/material";
-import {PurchaseOrderItemToolbar,PurchaseOrderItemStatistics,PurchaseOrderItemSearch,PurchaseOrderItemTable,PurchaseOrderItemPagination,PurchaseOrderItemModal,PurchaseOrderItemView,DeletePurchaseOrderItemDialog,PurchaseOrderItemCard} from "./index";
+import React, {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import axios from "axios";
+
+import {
+    Box,
+    Typography,
+    CircularProgress,
+    Snackbar,
+    Alert
+} from "@mui/material";
+
+import {
+    PurchaseOrderItemToolbar,
+    PurchaseOrderItemStatistics,
+    PurchaseOrderItemSearch,
+    PurchaseOrderItemTable,
+    PurchaseOrderItemPagination,
+    PurchaseOrderItemModal,
+    PurchaseOrderItemView,
+    DeletePurchaseOrderItemDialog
+} from "./index";
+
+
+/* =========================================================
+   SERVER URL
+========================================================= */
+
+const SERVER_URL = "http://localhost:5000";
+
+
+/* =========================================================
+   PURCHASE ORDER ITEM LIST
+========================================================= */
 
 const PurchaseOrderItemList = () => {
+
+    /* =====================================================
+       STATE
+    ===================================================== */
+
     const [items, setItems] = useState([]);
+
     const [loading, setLoading] = useState(false);
+
     const [searchText, setSearchText] = useState("");
+
     const [page, setPage] = useState(1);
+
     const [pageSize, setPageSize] = useState(10);
+
     const [selectedItem, setSelectedItem] = useState(null);
+
     const [modalOpen, setModalOpen] = useState(false);
+
     const [viewOpen, setViewOpen] = useState(false);
+
     const [deleteOpen, setDeleteOpen] = useState(false);
+
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: "",
@@ -19,146 +68,478 @@ const PurchaseOrderItemList = () => {
     });
 
 
-
-    // ==========================================================
-    // Load Purchase Order Items
-    // ==========================================================
+    /* =====================================================
+       LOAD ALL PURCHASE ORDER ITEMS
+       
+       GET
+       http://localhost:5000/api/purchase-order-items
+    ===================================================== */
 
     const loadItems = async () => {
+
         try {
+
             setLoading(true);
-            const response = await apiService.getPurchaseOrderItems();
-            setItems(response.data || []);
+
+            const response = await axios.get(
+                `${SERVER_URL}/api/purchase-order-items`
+            );
+
+            console.log(
+                "ALL PURCHASE ORDER ITEMS:",
+                response.data
+            );
+
+            const data = Array.isArray(response.data)
+                ? response.data
+                : [];
+
+            setItems(data);
+
         }
         catch (error) {
-            console.error("Purchase Order Items Load Error",
+
+            console.error(
+                "GET ALL PURCHASE ORDER ITEMS ERROR:",
                 error
             );
+
+            setItems([]);
+
             setSnackbar({
                 open: true,
                 message:
+                    error.response?.data?.message ||
                     "Unable to load Purchase Order Items",
                 severity: "error"
             });
+
         }
         finally {
+
             setLoading(false);
+
         }
     };
+
+
+    /* =====================================================
+       INITIAL LOAD
+    ===================================================== */
+
     useEffect(() => {
+
         loadItems();
+
     }, []);
 
-    // ==========================================================
-    // Search
-    // ==========================================================
+
+    /* =====================================================
+       SEARCH
+       
+       Client-side search because all records are loaded
+       with one API call.
+    ===================================================== */
 
     const filteredItems = useMemo(() => {
 
-        if (!searchText)
+        if (!searchText.trim()) {
+
             return items;
-        const search = searchText.toLowerCase();
-        return items.filter(item => String(item.PurchaseOrderItemId).includes(search) || String(item.PurchaseOrderId).includes(search)
-            || String(item.ProductId).includes(search)
-            || String(item.Quantity) .includes(search)
-            || String(item.UnitPrice).includes(search)
-        );
+
+        }
+
+        const search = searchText
+            .toLowerCase()
+            .trim();
+
+        return items.filter((item) => {
+
+            return (
+
+                String(
+                    item.PurchaseOrderItemId ?? ""
+                )
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(
+                    item.PurchaseOrderId ?? ""
+                )
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(
+                    item.ProductId ?? ""
+                )
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(
+                    item.Quantity ?? ""
+                )
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(
+                    item.UnitPrice ?? ""
+                )
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(
+                    item.TotalAmount ?? ""
+                )
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                String(
+                    item.TaxAmount ?? ""
+                )
+                    .toLowerCase()
+                    .includes(search)
+
+            );
+
+        });
+
     }, [
         items,
         searchText
     ]);
-    // ==========================================================
-    // Pagination
-    // ==========================================================
-    const totalRecords =filteredItems.length;
-    const totalPages = Math.ceil(totalRecords / pageSize);
-    const pagedItems = filteredItems.slice((page - 1) * pageSize, page * pageSize);
-    // ==========================================================
-    // Statistics
-    // ==========================================================
+
+
+    /* =====================================================
+       RESET PAGE WHEN SEARCH CHANGES
+    ===================================================== */
+
+    useEffect(() => {
+
+        setPage(1);
+
+    }, [searchText]);
+
+
+    /* =====================================================
+       PAGINATION
+    ===================================================== */
+
+    const totalRecords = filteredItems.length;
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(totalRecords / pageSize)
+    );
+
+    const pagedItems = filteredItems.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+    );
+
+
+    /* =====================================================
+       STATISTICS
+    ===================================================== */
+
     const statistics = useMemo(() => {
+
         return {
+
             totalItems: items.length,
-            totalQuantity: items.reduce((sum, x) => sum + Number(x.Quantity || 0),0),
-            totalAmount:items.reduce((sum, x) => sum + Number(x.TotalAmount || 0),0),
-            totalTax: items.reduce((sum, x) => sum + Number(x.TaxAmount || 0),0)
+
+            totalQuantity: items.reduce(
+                (sum, item) =>
+                    sum + Number(
+                        item.Quantity || 0
+                    ),
+                0
+            ),
+
+            totalAmount: items.reduce(
+                (sum, item) =>
+                    sum + Number(
+                        item.TotalAmount || 0
+                    ),
+                0
+            ),
+
+            totalTax: items.reduce(
+                (sum, item) =>
+                    sum + Number(
+                        item.TaxAmount || 0
+                    ),
+                0
+            )
+
         };
+
     }, [items]);
-    // ==========================================================
-    // Actions
-    // ==========================================================
+
+
+    /* =====================================================
+       ADD
+    ===================================================== */
+
     const handleAdd = () => {
+
         setSelectedItem(null);
+
         setModalOpen(true);
+
     };
+
+
+    /* =====================================================
+       EDIT
+    ===================================================== */
+
     const handleEdit = (item) => {
+
         setSelectedItem(item);
+
         setModalOpen(true);
+
     };
+
+
+    /* =====================================================
+       VIEW
+    ===================================================== */
+
     const handleView = (item) => {
+
         setSelectedItem(item);
+
         setViewOpen(true);
+
     };
+
+
+    /* =====================================================
+       DELETE
+    ===================================================== */
+
     const handleDelete = (item) => {
+
         setSelectedItem(item);
+
         setDeleteOpen(true);
+
     };
-    const handleSave = async(data) => {
+
+
+    /* =====================================================
+       CREATE / UPDATE
+       
+       POST
+       /api/purchase-order-items
+       
+       PUT
+       /api/purchase-order-items/:id
+    ===================================================== */
+
+    const handleSave = async (data) => {
+
         try {
-            if(data.PurchaseOrderItemId){
-                await apiService.updatePurchaseOrderItem(
-                    data.PurchaseOrderItemId,
+
+            if (
+                data.PurchaseOrderItemId
+            ) {
+
+                await axios.put(
+                    `${SERVER_URL}/api/purchase-order-items/${data.PurchaseOrderItemId}`,
                     data
                 );
+
             }
             else {
-                await apiService.createPurchaseOrderItem(data);
+
+                await axios.post(
+                    `${SERVER_URL}/api/purchase-order-items`,
+                    data
+                );
+
             }
+
+
+            /* ---------------------------------------------
+               Close modal
+            --------------------------------------------- */
+
             setModalOpen(false);
-            loadItems();
+
+            setSelectedItem(null);
+
+
+            /* ---------------------------------------------
+               Reload data
+            --------------------------------------------- */
+
+            await loadItems();
+
+
+            /* ---------------------------------------------
+               Success message
+            --------------------------------------------- */
+
             setSnackbar({
-                open:true,
-                message:"Purchase Order Item saved successfully",
-                severity:"success"
+                open: true,
+                message:
+                    data.PurchaseOrderItemId
+                        ? "Purchase Order Item updated successfully"
+                        : "Purchase Order Item created successfully",
+                severity: "success"
             });
+
         }
-        catch(error){
-            console.error(error);
+        catch (error) {
+
+            console.error(
+                "SAVE PURCHASE ORDER ITEM ERROR:",
+                error
+            );
+
             setSnackbar({
-                open:true,
-                message:"Save failed",
-                severity:"error"
+                open: true,
+                message:
+                    error.response?.data?.message ||
+                    "Failed to save Purchase Order Item",
+                severity: "error"
             });
+
         }
+
     };
-    const handleDeleteConfirm = async(id)=>{
-        try{
-            await apiService.deletePurchaseOrderItem(id);
+
+
+    /* =====================================================
+       DELETE CONFIRM
+       
+       DELETE
+       /api/purchase-order-items/:id
+    ===================================================== */
+
+    const handleDeleteConfirm = async (id) => {
+
+        try {
+
+            await axios.delete(
+                `${SERVER_URL}/api/purchase-order-items/${id}`
+            );
+
+
+            /* ---------------------------------------------
+               Close dialog
+            --------------------------------------------- */
+
             setDeleteOpen(false);
-            loadItems();
+
+            setSelectedItem(null);
+
+
+            /* ---------------------------------------------
+               Reload
+            --------------------------------------------- */
+
+            await loadItems();
+
+
+            /* ---------------------------------------------
+               Success
+            --------------------------------------------- */
+
             setSnackbar({
-                open:true,
-                message:"Deleted successfully",
-                severity:"success"
+                open: true,
+                message:
+                    "Purchase Order Item deleted successfully",
+                severity: "success"
             });
+
         }
-        catch(error){
-            console.error(error);
+        catch (error) {
+
+            console.error(
+                "DELETE PURCHASE ORDER ITEM ERROR:",
+                error
+            );
+
+            setSnackbar({
+                open: true,
+                message:
+                    error.response?.data?.message ||
+                    "Failed to delete Purchase Order Item",
+                severity: "error"
+            });
+
         }
+
     };
-    if(loading){
+
+
+    /* =====================================================
+       CLOSE SNACKBAR
+    ===================================================== */
+
+    const handleSnackbarClose = () => {
+
+        setSnackbar((previous) => ({
+            ...previous,
+            open: false
+        }));
+
+    };
+
+
+    /* =====================================================
+       LOADING
+    ===================================================== */
+
+    if (loading) {
+
         return (
+
             <Box
                 display="flex"
                 justifyContent="center"
-                mt={5}
+                alignItems="center"
+                minHeight="300px"
             >
-                <CircularProgress/>
+
+                <CircularProgress />
+
             </Box>
+
         );
+
     }
+
+
+    /* =====================================================
+       UI
+    ===================================================== */
+
     return (
-        <Box className="purchase-order-items-container">
+
+        <Box
+            className="purchase-order-items-container"
+        >
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <Typography
                 variant="h4"
                 fontWeight="bold"
@@ -166,65 +547,146 @@ const PurchaseOrderItemList = () => {
             >
                 Purchase Order Items
             </Typography>
+
+
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
+
             <PurchaseOrderItemToolbar
                 onAdd={handleAdd}
                 onRefresh={loadItems}
             />
+
+
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
+
             <PurchaseOrderItemStatistics
                 statistics={statistics}
             />
+
+
+            {/* =================================================
+                SEARCH
+            ================================================= */}
+
             <PurchaseOrderItemSearch
                 searchText={searchText}
                 setSearchText={setSearchText}
             />
+
+
+            {/* =================================================
+                TABLE
+            ================================================= */}
+
             <PurchaseOrderItemTable
                 items={pagedItems}
                 onView={handleView}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />
+
+
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
+
             <PurchaseOrderItemPagination
                 page={page}
                 totalPages={totalPages}
                 pageSize={pageSize}
                 totalRecords={totalRecords}
                 onPageChange={setPage}
-                onPageSizeChange={(size)=>{
+                onPageSizeChange={(size) => {
+
                     setPageSize(size);
+
                     setPage(1);
+
                 }}
             />
+
+
+            {/* =================================================
+                CREATE / EDIT MODAL
+            ================================================= */}
+
             <PurchaseOrderItemModal
                 open={modalOpen}
                 item={selectedItem}
-                onClose={()=>setModalOpen(false)}
+                onClose={() => {
+
+                    setModalOpen(false);
+
+                    setSelectedItem(null);
+
+                }}
                 onSave={handleSave}
             />
+
+
+            {/* =================================================
+                VIEW
+            ================================================= */}
+
             <PurchaseOrderItemView
                 open={viewOpen}
                 item={selectedItem}
-                onClose={()=>setViewOpen(false)}
+                onClose={() => {
+
+                    setViewOpen(false);
+
+                    setSelectedItem(null);
+
+                }}
             />
+
+
+            {/* =================================================
+                DELETE
+            ================================================= */}
+
             <DeletePurchaseOrderItemDialog
                 open={deleteOpen}
                 item={selectedItem}
-                onClose={()=>setDeleteOpen(false)}
+                onClose={() => {
+
+                    setDeleteOpen(false);
+
+                    setSelectedItem(null);
+
+                }}
                 onDeleted={handleDeleteConfirm}
             />
+
+
+            {/* =================================================
+                SNACKBAR
+            ================================================= */}
+
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={3000}
-                onClose={()=>setSnackbar({
-                    ...snackbar,
-                    open:false
-                })}
+                onClose={handleSnackbarClose}
             >
-                <Alert severity={snackbar.severity}>
+
+                <Alert
+                    severity={snackbar.severity}
+                    onClose={handleSnackbarClose}
+                    variant="filled"
+                >
                     {snackbar.message}
                 </Alert>
+
             </Snackbar>
+
         </Box>
+
     );
+
 };
 
 

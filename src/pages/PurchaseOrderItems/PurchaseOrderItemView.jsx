@@ -1,585 +1,331 @@
 import React from "react";
 
-
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
-    Typography,
-    Divider
+Dialog,
+DialogTitle,
+DialogContent,
+DialogActions,
+Button,
+Grid,
+Typography,
+Divider
 } from "@mui/material";
 
+/* =========================================================
+FORMAT CURRENCY
+========================================================= */
 
+const formatCurrency = (value) => {
+const amount = Number(value);
+if (!Number.isFinite(amount)) {
+    return "₹ 0.00";
+}
 
-const formatCurrency = (value) =>
+return `₹ ${amount.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+})}`;
+```
 
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+};
 
-        minimumFractionDigits: 2,
+/* =========================================================
+FORMAT QUANTITY
+========================================================= */
 
-        maximumFractionDigits: 2
+const formatQuantity = (value) => {
 
-    })}`;
+```
+const quantity = Number(value);
 
+if (!Number.isFinite(quantity)) {
+    return "0.00";
+}
 
+return quantity.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+});
+```
+
+};
+
+/* =========================================================
+PURCHASE ORDER ITEM VIEW
+========================================================= */
 
 const PurchaseOrderItemView = ({
-
-    open,
-
-    item,
-
-    onClose
-
+open,
+item,
+onClose
 }) => {
 
+```
+if (!item) {
+    return null;
+}
 
 
-    if (!item)
+return (
+    <Dialog
+        open={open}
+        onClose={onClose}
+        fullWidth
+        maxWidth="md"
+    >
 
-        return null;
+        {/* =================================================
+            TITLE
+        ================================================= */}
 
-
-
-
-
-    return (
-
-
-
-        <Dialog
-
-
-            open={open}
-
-
-            onClose={onClose}
+        <DialogTitle>
+            Purchase Order Item Details
+        </DialogTitle>
 
 
-            fullWidth
+        {/* =================================================
+            CONTENT
+        ================================================= */}
 
+        <DialogContent dividers>
 
-            maxWidth="md"
+            <Grid
+                container
+                spacing={2}
+            >
 
-
-
-        >
-
-
-
-            <DialogTitle>
-
-
-                Purchase Order Item Details
-
-
-            </DialogTitle>
-
-
-
-
-
-
-            <DialogContent dividers>
-
-
+                {/* Purchase Order Item ID */}
 
                 <Grid
-
-                    container
-
-                    spacing={2}
-
+                    item
+                    xs={12}
+                    md={6}
                 >
 
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
                     >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Purchase Order Item ID:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {
-
-                                item.PurchaseOrderItemId
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
-                    >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Purchase Order ID:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {
-
-                                item.PurchaseOrderId
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
-                    >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Product ID:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {
-
-                                item.ProductId
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
-                    >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Quantity:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {
-
-                                Number(
-
-                                    item.Quantity || 0
-
-                                ).toFixed(2)
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
-                    >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Unit Price:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {
-
-                                formatCurrency(
-
-                                    item.UnitPrice
-
-                                )
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
-                    >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Discount:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {
-
-                                formatCurrency(
-
-                                    item.Discount
-
-                                )
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
-                    >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Tax Amount:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography>
-
-
-                            {
-
-                                formatCurrency(
-
-                                    item.TaxAmount
-
-                                )
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        md={6}
-
-                    >
-
-
-                        <Typography>
-
-
-                            <strong>
-
-                                Total Amount:
-
-                            </strong>
-
-
-                        </Typography>
-
-
-
-                        <Typography
-
-
-                            fontWeight="bold"
-
-
-                        >
-
-
-                            {
-
-                                formatCurrency(
-
-                                    item.TotalAmount
-
-                                )
-
-                            }
-
-
-                        </Typography>
-
-
-                    </Grid>
-
-
-
-
-
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                    >
-
-
-
-                        <Divider
-
-                            sx={{
-
-                                my: 2
-
-                            }}
-
-                        />
-
-
-
-                    </Grid>
-
-
-
-
+                        <strong>
+                            Purchase Order Item ID:
+                        </strong>
+                    </Typography>
+
+                    <Typography>
+                        {item.PurchaseOrderItemId ?? "-"}
+                    </Typography>
 
                 </Grid>
 
 
+                {/* Purchase Order ID */}
 
-
-
-            </DialogContent>
-
-
-
-
-
-
-
-            <DialogActions>
-
-
-
-                <Button
-
-
-                    variant="contained"
-
-
-                    onClick={onClose}
-
-
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
                 >
 
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>
+                            Purchase Order ID:
+                        </strong>
+                    </Typography>
 
-                    Close
+                    <Typography>
+                        {item.PurchaseOrderId ?? "-"}
+                    </Typography>
 
-
-                </Button>
-
-
-
-
-            </DialogActions>
-
-
-
-
-
-
-        </Dialog>
+                </Grid>
 
 
-    );
+                {/* Product ID */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>
+                            Product ID:
+                        </strong>
+                    </Typography>
+
+                    <Typography>
+                        {item.ProductId ?? "-"}
+                    </Typography>
+
+                </Grid>
 
 
+                {/* Quantity */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>
+                            Quantity:
+                        </strong>
+                    </Typography>
+
+                    <Typography>
+                        {formatQuantity(item.Quantity)}
+                    </Typography>
+
+                </Grid>
+
+
+                {/* Unit Price */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>
+                            Unit Price:
+                        </strong>
+                    </Typography>
+
+                    <Typography>
+                        {formatCurrency(item.UnitPrice)}
+                    </Typography>
+
+                </Grid>
+
+
+                {/* Discount */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>
+                            Discount:
+                        </strong>
+                    </Typography>
+
+                    <Typography>
+                        {formatCurrency(item.Discount)}
+                    </Typography>
+
+                </Grid>
+
+
+                {/* Tax Amount */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>
+                            Tax Amount:
+                        </strong>
+                    </Typography>
+
+                    <Typography>
+                        {formatCurrency(item.TaxAmount)}
+                    </Typography>
+
+                </Grid>
+
+
+                {/* Total Amount */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>
+                            Total Amount:
+                        </strong>
+                    </Typography>
+
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                    >
+                        {formatCurrency(item.TotalAmount)}
+                    </Typography>
+
+                </Grid>
+
+
+                {/* Divider */}
+
+                <Grid
+                    item
+                    xs={12}
+                >
+
+                    <Divider
+                        sx={{
+                            my: 2
+                        }}
+                    />
+
+                </Grid>
+
+            </Grid>
+
+        </DialogContent>
+
+
+        {/* =================================================
+            ACTIONS
+        ================================================= */}
+
+        <DialogActions>
+
+            <Button
+                variant="contained"
+                onClick={onClose}
+            >
+                Close
+            </Button>
+
+        </DialogActions>
+
+    </Dialog>
+);
 };
-
-
 
 export default PurchaseOrderItemView;

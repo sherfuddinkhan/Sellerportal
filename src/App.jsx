@@ -579,14 +579,6 @@ import ReviewDetails from "./pages/Reviews/ReviewDetails";
 import ReviewEdit from "./pages/Reviews/ReviewEdit";
 import ReviewFilters from "./pages/Reviews/ReviewFilters";
 import ReviewForm from "./pages/Reviews/ReviewForm";
-
-
-
-
-
-
-
-
 // =========================================================
 // SALES INVOICES
 // =========================================================
@@ -621,14 +613,9 @@ import SalesOrderItemView from "./pages/SalesOrderItems/SalesOrderItemView";
 import SalesOrderItemDetails from "./pages/SalesOrderItems/SalesOrderItemDetails";
 import SalesOrderItemCreate from "./pages/SalesOrderItems/SalesOrderItemCreate";
 import SalesOrderItemEdit from "./pages/SalesOrderItems/SalesOrderItemEdit";
-
-
-
-
 // =========================================================
 // SELLER CUSTOMERS
 // =========================================================
-
 import DeleteSellerCustomerDialog from "./pages/SellerCustomers/DeleteSellerCustomerDialog";
 import SellerCustomerCard from "./pages/SellerCustomers/SellerCustomerCard";
 import SellerCustomerList from "./pages/SellerCustomers/SellerCustomerList";
