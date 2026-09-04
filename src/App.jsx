@@ -491,7 +491,6 @@ import PurchaseOrderCard from "./pages/PurchaseOrders/PurchaseOrderCard";
 import PurchaseOrderList from "./pages/PurchaseOrders/PurchaseOrderList";
 import PurchaseOrderModal from "./pages/PurchaseOrders/PurchaseOrderModal";
 import PurchaseOrderPagination from "./pages/PurchaseOrders/PurchaseOrderPagination";
-import PurchaseOrderSearch from "./pages/PurchaseOrders/PurchaseOrderSearch";
 import PurchaseOrderStatistics from "./pages/PurchaseOrders/PurchaseOrderStatistics";
 import PurchaseOrderTable from "./pages/PurchaseOrders/PurchaseOrderTable";
 import PurchaseOrderToolbar from "./pages/PurchaseOrders/PurchaseOrderToolbar";
@@ -499,7 +498,6 @@ import PurchaseOrderView from "./pages/PurchaseOrders/PurchaseOrderView";
 import PurchaseOrderCreate from "./pages/PurchaseOrders/PurchaseOrderCreate";
 import PurchaseOrderDetails from "./pages/PurchaseOrders/PurchaseOrderDetails";
 import PurchaseOrderEdit from "./pages/PurchaseOrders/PurchaseOrderEdit";
-import PurchaseOrderView from "./pages/PurchaseOrders/PurchaseOrderView";
 import PurchaseOrderSearch from "./pages/PurchaseOrders/PurchaseOrderSearch";
 
 
