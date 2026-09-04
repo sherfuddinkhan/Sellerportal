@@ -19,22 +19,16 @@ FORMAT NUMBER
 ========================================================= */
 
 const formatNumber = (value, decimals = 0) => {
-
-```
 const number = Number(value);
-
 if (!Number.isFinite(number)) {
     return decimals > 0
         ? Number(0).toFixed(decimals)
         : "0";
 }
-
 return number.toLocaleString("en-IN", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
 });
-```
-
 };
 
 /* =========================================================

@@ -1916,6 +1916,46 @@ element={<ProductPriceToolbar />}
         <Route path="purchase-order-items/search" element={<PurchaseOrderItemSearch />} />
         <Route path="purchase-order-items/statistics" element={<PurchaseOrderItemStatistics />} />
 
+        <Route
+path="/purchase-order-items"
+element={<PurchaseOrderItemList />}
+/>
+
+<Route
+path="/purchase-order-items/create"
+element={<PurchaseOrderItemCreate />}
+/>
+
+<Route
+path="/purchase-order-items/search"
+element={<PurchaseOrderItemSearch />}
+/>
+
+<Route
+path="/purchase-order-items/statistics"
+element={<PurchaseOrderItemStatistics />}
+/>
+
+<Route
+path="/purchase-order-items/details/"
+element={<PurchaseOrderItemDetails />}
+/>
+
+<Route
+path="/purchase-order-items/edit/"
+element={<PurchaseOrderItemEdit />}
+/>
+<Route
+path="/purchase-order-items/details/:id"
+element={<PurchaseOrderItemDetails />}
+/>
+
+<Route
+path="/purchase-order-items/edit/:id"
+element={<PurchaseOrderItemEdit />}
+/>
+
+
 
         {/* ===================================================
             PURCHASE ORDERS
