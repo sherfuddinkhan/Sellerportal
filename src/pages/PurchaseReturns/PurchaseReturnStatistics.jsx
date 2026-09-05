@@ -32,7 +32,20 @@ const formatCurrency = (value) => {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
+};
 
+
+/* =========================================================
+   SAFE NUMBER
+========================================================= */
+
+const safeNumber = (value) => {
+
+    const number = Number(value);
+
+    return Number.isFinite(number)
+        ? number
+        : 0;
 };
 
 
@@ -44,13 +57,59 @@ const PurchaseReturnStatistics = ({
     statistics = {}
 }) => {
 
+    /* =====================================================
+       DEBUG
+    ===================================================== */
+
+    console.log(
+        "STATISTICS RECEIVED BY COMPONENT:",
+        statistics
+    );
+
+    console.log(
+        "TOTAL AMOUNT RECEIVED:",
+        statistics?.totalAmount
+    );
+
+
+    /* =====================================================
+       NORMALIZE STATISTICS
+    ===================================================== */
+
+    const totalReturns = safeNumber(
+        statistics?.totalReturns ??
+        statistics?.totalRecords
+    );
+
+
+    const totalAmount = safeNumber(
+        statistics?.totalAmount ??
+        statistics?.totalReturnAmount
+    );
+
+
+    const completedReturns = safeNumber(
+        statistics?.completedReturns ??
+        statistics?.completedCount
+    );
+
+
+    const pendingReturns = safeNumber(
+        statistics?.pendingReturns ??
+        statistics?.pendingPickupCount
+    );
+
+
+    /* =====================================================
+       STATISTICS CARDS
+    ===================================================== */
+
     const cards = [
 
         {
             title: "Total Returns",
 
-            value:
-                Number(statistics?.totalReturns) || 0,
+            value: totalReturns,
 
             icon: (
                 <AssignmentReturn
@@ -60,13 +119,13 @@ const PurchaseReturnStatistics = ({
             )
         },
 
+
         {
             title: "Total Amount",
 
-            value:
-                formatCurrency(
-                    statistics?.totalAmount
-                ),
+            value: formatCurrency(
+                totalAmount
+            ),
 
             icon: (
                 <Payments
@@ -76,13 +135,11 @@ const PurchaseReturnStatistics = ({
             )
         },
 
+
         {
             title: "Completed",
 
-            value:
-                Number(
-                    statistics?.completedReturns
-                ) || 0,
+            value: completedReturns,
 
             icon: (
                 <CheckCircle
@@ -92,13 +149,11 @@ const PurchaseReturnStatistics = ({
             )
         },
 
+
         {
             title: "Pending",
 
-            value:
-                Number(
-                    statistics?.pendingReturns
-                ) || 0,
+            value: pendingReturns,
 
             icon: (
                 <PendingActions
@@ -111,9 +166,9 @@ const PurchaseReturnStatistics = ({
     ];
 
 
-    /* =========================================================
+    /* =====================================================
        RENDER
-    ========================================================= */
+    ===================================================== */
 
     return (
 
@@ -140,11 +195,16 @@ const PurchaseReturnStatistics = ({
                         elevation={3}
                         className="purchase-return-stat-card"
                         sx={{
-                            height: "100%"
+                            height: "100%",
+                            borderRadius: 2
                         }}
                     >
 
-                        <CardContent>
+                        <CardContent
+                            sx={{
+                                p: 3
+                            }}
+                        >
 
                             <Box
                                 display="flex"
@@ -153,15 +213,21 @@ const PurchaseReturnStatistics = ({
                                 gap={2}
                             >
 
+                                {/* =================================
+                                   CARD CONTENT
+                                ================================= */}
+
                                 <Box
                                     sx={{
-                                        minWidth: 0
+                                        minWidth: 0,
+                                        flex: 1
                                     }}
                                 >
 
                                     <Typography
                                         variant="body2"
                                         color="text.secondary"
+                                        fontWeight={500}
                                     >
                                         {card.title}
                                     </Typography>
@@ -181,14 +247,23 @@ const PurchaseReturnStatistics = ({
                                 </Box>
 
 
+                                {/* =================================
+                                   CARD ICON
+                                ================================= */}
+
                                 <Box
                                     sx={{
+                                        width: 48,
+                                        height: 48,
                                         display: "flex",
                                         alignItems: "center",
+                                        justifyContent: "center",
                                         flexShrink: 0
                                     }}
                                 >
+
                                     {card.icon}
+
                                 </Box>
 
                             </Box>
@@ -202,9 +277,7 @@ const PurchaseReturnStatistics = ({
             ))}
 
         </Grid>
-
     );
-
 };
 
 

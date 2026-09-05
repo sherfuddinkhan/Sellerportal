@@ -116,7 +116,6 @@ import CustomerAddressTable from "./pages/CustomerAddresses/CustomerAddressTable
 import CustomerAddressToolbar from "./pages/CustomerAddresses/CustomerAddressToolbar";
 import CustomerAddressView from "./pages/CustomerAddresses/CustomerAddressView";
 import DeleteCustomerAddressDialog from "./pages/CustomerAddresses/DeleteCustomerAddressDialog";
-
 // =========================================================
 // CUSTOMER PAYMENTS
 // =========================================================
@@ -307,12 +306,6 @@ import SupplierSearch from "./pages/Supplier/SupplierSearch";
 import SupplierToolbar from "./pages/Supplier/SupplierToolbar";
 import SupplierTable from "./pages/Supplier/SupplierTable";
 import SupplierCard from "./pages/Supplier/SupplierCard";
-
-
-
-
-
-
 // =========================================================
 // ORDER STATUS HISTORY
 // =========================================================
@@ -543,6 +536,9 @@ import PurchaseReturnStatistics from "./pages/PurchaseReturns/PurchaseReturnStat
 import PurchaseReturnTable from "./pages/PurchaseReturns/PurchaseReturnTable";
 import PurchaseReturnToolbar from "./pages/PurchaseReturns/PurchaseReturnToolbar";
 import PurchaseReturnView from "./pages/PurchaseReturns/PurchaseReturnView";
+import PurchaseReturnCreate from "./pages/PurchaseReturns/PurchaseReturnCreate";
+import PurchaseReturnEdit from "./pages/PurchaseReturns/PurchaseReturnEdit";
+import PurchaseReturnDetails from "./pages/PurchaseReturns/PurchaseReturnDetails";
 
 // =========================================================
 // SalesOrder
@@ -2197,6 +2193,32 @@ element={<PurchaseOrderItemEdit />}
     path="/seller-customers/statistics"
     element={<SellerCustomerStatistics />}
 />
+
+// Purchase Returns
+
+
+    
+    {/* Purchase Returns */}
+    <Route
+        path="/purchase-returns"
+        element={<PurchaseReturnList />}
+    />
+
+    <Route
+        path="/purchase-returns/create"
+        element={<PurchaseReturnCreate />}
+    />
+
+    <Route
+        path="/purchase-returns/edit/:id"
+        element={<PurchaseReturnEdit />}
+    />
+
+    <Route
+        path="/purchase-returns/details/:id"
+        element={<PurchaseReturnDetails />}
+    />
+
 
 
         {/* ===================================================

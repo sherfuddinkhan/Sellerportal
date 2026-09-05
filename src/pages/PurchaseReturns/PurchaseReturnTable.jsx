@@ -25,6 +25,7 @@ import {
 /* =========================================================
    FORMAT CURRENCY
 ========================================================= */
+
 const formatCurrency = (value) => {
 
     const amount = Number(value);
@@ -61,7 +62,6 @@ const formatDate = (value) => {
         month: "2-digit",
         year: "numeric"
     });
-
 };
 
 
@@ -97,7 +97,6 @@ const getStatusColor = (status) => {
         default:
             return "default";
     }
-
 };
 
 
@@ -116,10 +115,6 @@ const PurchaseReturnTable = ({
         ? purchaseReturns
         : [];
 
-
-    /* =========================================================
-       RENDER
-    ========================================================= */
 
     return (
 
@@ -230,14 +225,12 @@ const PurchaseReturnTable = ({
                         rows.map((item) => {
 
                             const status =
-                                item?.Status || "N/A";
+                                item?.status || "N/A";
 
                             return (
 
                                 <TableRow
-                                    key={
-                                        item?.PurchaseReturnId
-                                    }
+                                    key={item?.purchaseReturnId}
                                     hover
                                 >
 
@@ -246,9 +239,7 @@ const PurchaseReturnTable = ({
                                     ================================== */}
 
                                     <TableCell>
-
-                                        {item?.PurchaseReturnId ?? "-"}
-
+                                        {item?.purchaseReturnId ?? "-"}
                                     </TableCell>
 
 
@@ -263,10 +254,7 @@ const PurchaseReturnTable = ({
                                             fontWeight="bold"
                                             noWrap
                                         >
-                                            {
-                                                item?.PurchaseReturnNumber ||
-                                                "-"
-                                            }
+                                            {item?.purchaseReturnNumber || "-"}
                                         </Typography>
 
                                     </TableCell>
@@ -277,9 +265,7 @@ const PurchaseReturnTable = ({
                                     ================================== */}
 
                                     <TableCell>
-
-                                        {item?.PurchaseOrderId ?? "-"}
-
+                                        {item?.purchaseOrderId ?? "-"}
                                     </TableCell>
 
 
@@ -288,12 +274,7 @@ const PurchaseReturnTable = ({
                                     ================================== */}
 
                                     <TableCell>
-
-                                        {
-                                            item?.GoodsReceiptNoteId ??
-                                            "-"
-                                        }
-
+                                        {item?.goodsReceiptNoteId ?? "-"}
                                     </TableCell>
 
 
@@ -302,9 +283,7 @@ const PurchaseReturnTable = ({
                                     ================================== */}
 
                                     <TableCell>
-
-                                        {item?.SupplierId ?? "-"}
-
+                                        {item?.supplierId ?? "-"}
                                     </TableCell>
 
 
@@ -313,11 +292,7 @@ const PurchaseReturnTable = ({
                                     ================================== */}
 
                                     <TableCell>
-
-                                        {formatDate(
-                                            item?.ReturnDate
-                                        )}
-
+                                        {formatDate(item?.returnDate)}
                                     </TableCell>
 
 
@@ -325,9 +300,7 @@ const PurchaseReturnTable = ({
                                         TOTAL AMOUNT
                                     ================================== */}
 
-                                    <TableCell
-                                        align="right"
-                                    >
+                                    <TableCell align="right">
 
                                         <Typography
                                             variant="body2"
@@ -335,7 +308,7 @@ const PurchaseReturnTable = ({
                                             noWrap
                                         >
                                             {formatCurrency(
-                                                item?.TotalAmount
+                                                item?.totalAmount
                                             )}
                                         </Typography>
 
@@ -351,11 +324,7 @@ const PurchaseReturnTable = ({
                                         <Chip
                                             label={status}
                                             size="small"
-                                            color={
-                                                getStatusColor(
-                                                    status
-                                                )
-                                            }
+                                            color={getStatusColor(status)}
                                         />
 
                                     </TableCell>
@@ -372,9 +341,7 @@ const PurchaseReturnTable = ({
                                     >
 
                                         <Tooltip
-                                            title={
-                                                item?.Reason || ""
-                                            }
+                                            title={item?.reason || ""}
                                         >
 
                                             <Typography
@@ -384,10 +351,7 @@ const PurchaseReturnTable = ({
                                                     maxWidth: 250
                                                 }}
                                             >
-                                                {
-                                                    item?.Reason ||
-                                                    "-"
-                                                }
+                                                {item?.reason || "-"}
                                             </Typography>
 
                                         </Tooltip>
@@ -400,11 +364,7 @@ const PurchaseReturnTable = ({
                                     ================================== */}
 
                                     <TableCell>
-
-                                        {formatDate(
-                                            item?.CreatedDate
-                                        )}
-
+                                        {formatDate(item?.createdDate)}
                                     </TableCell>
 
 
@@ -412,24 +372,18 @@ const PurchaseReturnTable = ({
                                         ACTIONS
                                     ================================== */}
 
-                                    <TableCell
-                                        align="center"
-                                    >
+                                    <TableCell align="center">
 
                                         <Box
                                             sx={{
                                                 display: "flex",
-                                                justifyContent:
-                                                    "center",
-                                                alignItems:
-                                                    "center",
+                                                justifyContent: "center",
+                                                alignItems: "center",
                                                 gap: 0.5
                                             }}
                                         >
 
-                                            {/* =========================
-                                                VIEW
-                                            ========================== */}
+                                            {/* VIEW */}
 
                                             <Tooltip title="View">
 
@@ -437,14 +391,12 @@ const PurchaseReturnTable = ({
                                                     size="small"
                                                     color="primary"
                                                     onClick={() => {
-
                                                         if (
                                                             typeof onView ===
                                                             "function"
                                                         ) {
                                                             onView(item);
                                                         }
-
                                                     }}
                                                 >
 
@@ -457,9 +409,7 @@ const PurchaseReturnTable = ({
                                             </Tooltip>
 
 
-                                            {/* =========================
-                                                EDIT
-                                            ========================== */}
+                                            {/* EDIT */}
 
                                             <Tooltip title="Edit">
 
@@ -467,14 +417,12 @@ const PurchaseReturnTable = ({
                                                     size="small"
                                                     color="warning"
                                                     onClick={() => {
-
                                                         if (
                                                             typeof onEdit ===
                                                             "function"
                                                         ) {
                                                             onEdit(item);
                                                         }
-
                                                     }}
                                                 >
 
@@ -487,9 +435,7 @@ const PurchaseReturnTable = ({
                                             </Tooltip>
 
 
-                                            {/* =========================
-                                                DELETE
-                                            ========================== */}
+                                            {/* DELETE */}
 
                                             <Tooltip title="Delete">
 
@@ -497,14 +443,12 @@ const PurchaseReturnTable = ({
                                                     size="small"
                                                     color="error"
                                                     onClick={() => {
-
                                                         if (
                                                             typeof onDelete ===
                                                             "function"
                                                         ) {
                                                             onDelete(item);
                                                         }
-
                                                     }}
                                                 >
 
@@ -533,9 +477,7 @@ const PurchaseReturnTable = ({
             </Table>
 
         </TableContainer>
-
     );
-
 };
 
 

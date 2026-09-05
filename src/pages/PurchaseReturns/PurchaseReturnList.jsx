@@ -42,8 +42,7 @@ import DeletePurchaseReturnDialog
 // NODE SERVER
 // ==========================================================
 
-const SERVER_URL =
-    "http://localhost:5000";
+const SERVER_URL = "http://localhost:5000";
 
 
 // ==========================================================
@@ -53,69 +52,94 @@ const SERVER_URL =
 const PurchaseReturnList = () => {
 
     // ==========================================================
-    // STATE
+    // PURCHASE RETURNS
     // ==========================================================
 
-    const [
-        purchaseReturns,
-        setPurchaseReturns
-    ] = useState([]);
+    const [purchaseReturns, setPurchaseReturns] =
+        useState([]);
 
-    const [
-        loading,
-        setLoading
-    ] = useState(false);
 
-    const [
-        searchText,
-        setSearchText
-    ] = useState("");
+    // ==========================================================
+    // STATISTICS
+    // ==========================================================
 
-    const [
-        page,
-        setPage
-    ] = useState(1);
+    const [statistics, setStatistics] =
+        useState({
+            totalReturns: 0,
+            totalAmount: 0,
+            completedReturns: 0,
+            pendingReturns: 0
+        });
 
-    const [
-        pageSize,
-        setPageSize
-    ] = useState(10);
+
+    // ==========================================================
+    // LOADING
+    // ==========================================================
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [statisticsLoading, setStatisticsLoading] =
+        useState(false);
+
+
+    // ==========================================================
+    // SEARCH
+    // ==========================================================
+
+    const [searchText, setSearchText] =
+        useState("");
+
+
+    // ==========================================================
+    // PAGINATION
+    // ==========================================================
+
+    const [page, setPage] =
+        useState(1);
+
+    const [pageSize, setPageSize] =
+        useState(10);
+
+
+    // ==========================================================
+    // SELECTED PURCHASE RETURN
+    // ==========================================================
 
     const [
         selectedPurchaseReturn,
         setSelectedPurchaseReturn
     ] = useState(null);
 
-    const [
-        modalOpen,
-        setModalOpen
-    ] = useState(false);
 
-    const [
-        viewOpen,
-        setViewOpen
-    ] = useState(false);
+    // ==========================================================
+    // MODALS
+    // ==========================================================
 
-    const [
-        deleteOpen,
-        setDeleteOpen
-    ] = useState(false);
+    const [modalOpen, setModalOpen] =
+        useState(false);
 
-    const [
-        snackbar,
-        setSnackbar
-    ] = useState({
-        open: false,
-        message: "",
-        severity: "success"
-    });
+    const [viewOpen, setViewOpen] =
+        useState(false);
+
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
+
+
+    // ==========================================================
+    // SNACKBAR
+    // ==========================================================
+
+    const [snackbar, setSnackbar] =
+        useState({
+            open: false,
+            message: "",
+            severity: "success"
+        });
 
 
     // ==========================================================
     // LOAD PURCHASE RETURNS
-    //
-    // Node:
-    // GET /api/purchase-returns/all-details
     // ==========================================================
 
     const loadPurchaseReturns = async () => {
@@ -129,15 +153,21 @@ const PurchaseReturnList = () => {
             );
 
             console.log(
+                "================================================"
+            );
+
+            console.log(
                 "PURCHASE RETURNS RESPONSE:",
                 response.data
             );
 
-            // --------------------------------------------------
-            // Handle different possible response structures
-            // --------------------------------------------------
+            console.log(
+                "================================================"
+            );
 
-            let data = response.data;
+
+            const data = response.data;
+
 
             if (Array.isArray(data)) {
 
@@ -149,10 +179,17 @@ const PurchaseReturnList = () => {
                 Array.isArray(data.items)
             ) {
 
-                setPurchaseReturns(data.items);
+                setPurchaseReturns(
+                    data.items
+                );
 
             }
             else {
+
+                console.warn(
+                    "UNEXPECTED PURCHASE RETURNS RESPONSE:",
+                    data
+                );
 
                 setPurchaseReturns([]);
 
@@ -174,21 +211,123 @@ const PurchaseReturnList = () => {
             setPurchaseReturns([]);
 
             setSnackbar({
-
                 open: true,
-
                 message:
                     error.response?.data?.message ||
+                    error.response?.data?.title ||
                     "Failed to load Purchase Returns.",
-
                 severity: "error"
-
             });
 
         }
         finally {
 
             setLoading(false);
+
+        }
+
+    };
+
+
+    // ==========================================================
+    // LOAD PURCHASE RETURN STATISTICS
+    // ==========================================================
+
+    const loadStatistics = async () => {
+
+        try {
+
+            setStatisticsLoading(true);
+
+
+            const response = await axios.get(
+                `${SERVER_URL}/api/purchase-returns/stats`
+            );
+
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "PURCHASE RETURN STATISTICS API RESPONSE:",
+                response.data
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const data =
+                response.data || {};
+
+
+            const normalizedStatistics = {
+
+                totalReturns:
+                    Number(
+                        data.totalRecords ?? 0
+                    ),
+
+                totalAmount:
+                    Number(
+                        data.totalReturnAmount ?? 0
+                    ),
+
+                completedReturns:
+                    Number(
+                        data.completedCount ?? 0
+                    ),
+
+                pendingReturns:
+                    Number(
+                        data.pendingPickupCount ?? 0
+                    )
+
+            };
+
+
+            console.log(
+                "NORMALIZED PURCHASE RETURN STATISTICS:",
+                normalizedStatistics
+            );
+
+
+            setStatistics(
+                normalizedStatistics
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "LOAD PURCHASE RETURN STATISTICS ERROR:",
+                error
+            );
+
+            console.error(
+                "STATISTICS SERVER RESPONSE:",
+                error.response?.data
+            );
+
+
+            setStatistics({
+
+                totalReturns: 0,
+
+                totalAmount: 0,
+
+                completedReturns: 0,
+
+                pendingReturns: 0
+
+            });
+
+        }
+        finally {
+
+            setStatisticsLoading(false);
 
         }
 
@@ -203,151 +342,123 @@ const PurchaseReturnList = () => {
 
         loadPurchaseReturns();
 
+        loadStatistics();
+
     }, []);
 
 
     // ==========================================================
-    // SEARCH FILTER
+    // SEARCH
     // ==========================================================
 
-    const filteredPurchaseReturns = useMemo(() => {
+    const filteredPurchaseReturns =
+        useMemo(() => {
 
-        if (!searchText.trim()) {
-
-            return purchaseReturns;
-
-        }
-
-        const search =
-            searchText
-                .toLowerCase()
-                .trim();
+            const search =
+                String(searchText ?? "")
+                    .trim()
+                    .toLowerCase();
 
 
-        return purchaseReturns.filter(
-            (item) => {
+            if (!search) {
 
-                return (
-
-                    String(
-                        item.PurchaseReturnId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.PurchaseOrderId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.GoodsReceiptNoteId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.SupplierId ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.PurchaseReturnNumber ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.Status ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.Reason ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.TotalAmount ?? ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                );
+                return purchaseReturns;
 
             }
-        );
-
-    }, [
-        purchaseReturns,
-        searchText
-    ]);
 
 
-    // ==========================================================
-    // STATISTICS
-    // ==========================================================
+            return purchaseReturns.filter(
+                (item) => {
 
-    const statistics = useMemo(() => {
+                    return (
 
-        return {
-
-            totalReturns:
-                purchaseReturns.length,
-
-            totalAmount:
-                purchaseReturns.reduce(
-                    (sum, item) =>
-                        sum +
-                        Number(
-                            item.TotalAmount || 0
-                        ),
-                    0
-                ),
-
-            completedReturns:
-                purchaseReturns.filter(
-                    item =>
                         String(
-                            item.Status || ""
+                            item?.purchaseReturnId ?? ""
                         )
-                            .toLowerCase() ===
-                        "completed"
-                ).length,
+                            .toLowerCase()
+                            .includes(search)
 
-            pendingReturns:
-                purchaseReturns.filter(
-                    item =>
+                        ||
+
                         String(
-                            item.Status || ""
+                            item?.purchaseOrderId ?? ""
                         )
-                            .toLowerCase() ===
-                        "pending"
-                ).length
+                            .toLowerCase()
+                            .includes(search)
 
-        };
+                        ||
 
-    }, [
-        purchaseReturns
-    ]);
+                        String(
+                            item?.goodsReceiptNoteId ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item?.supplierId ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item?.sellerId ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item?.customerId ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item?.purchaseReturnNumber ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item?.status ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item?.reason ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item?.totalAmount ?? ""
+                        )
+                            .toLowerCase()
+                            .includes(search)
+
+                    );
+
+                }
+            );
+
+        }, [
+            purchaseReturns,
+            searchText
+        ]);
 
 
     // ==========================================================
@@ -357,16 +468,58 @@ const PurchaseReturnList = () => {
     const totalRecords =
         filteredPurchaseReturns.length;
 
+
     const totalPages =
-        Math.ceil(
-            totalRecords / pageSize
+        Math.max(
+            1,
+            Math.ceil(
+                totalRecords / pageSize
+            )
         );
 
+
+    // ==========================================================
+    // VALIDATE PAGE
+    // ==========================================================
+
+    useEffect(() => {
+
+        if (page > totalPages) {
+
+            setPage(totalPages);
+
+        }
+
+    }, [
+        page,
+        totalPages
+    ]);
+
+
+    // ==========================================================
+    // PAGINATED DATA
+    // ==========================================================
+
     const paginatedPurchaseReturns =
-        filteredPurchaseReturns.slice(
-            (page - 1) * pageSize,
-            page * pageSize
-        );
+        useMemo(() => {
+
+            const startIndex =
+                (page - 1) * pageSize;
+
+            const endIndex =
+                startIndex + pageSize;
+
+
+            return filteredPurchaseReturns.slice(
+                startIndex,
+                endIndex
+            );
+
+        }, [
+            filteredPurchaseReturns,
+            page,
+            pageSize
+        ]);
 
 
     // ==========================================================
@@ -388,6 +541,11 @@ const PurchaseReturnList = () => {
 
     const handleEdit = (item) => {
 
+        console.log(
+            "EDIT PURCHASE RETURN:",
+            item
+        );
+
         setSelectedPurchaseReturn(item);
 
         setModalOpen(true);
@@ -400,6 +558,11 @@ const PurchaseReturnList = () => {
     // ==========================================================
 
     const handleView = (item) => {
+
+        console.log(
+            "VIEW PURCHASE RETURN:",
+            item
+        );
 
         setSelectedPurchaseReturn(item);
 
@@ -414,6 +577,11 @@ const PurchaseReturnList = () => {
 
     const handleDelete = (item) => {
 
+        console.log(
+            "DELETE PURCHASE RETURN:",
+            item
+        );
+
         setSelectedPurchaseReturn(item);
 
         setDeleteOpen(true);
@@ -423,34 +591,65 @@ const PurchaseReturnList = () => {
 
     // ==========================================================
     // SAVE
-    //
-    // CREATE:
-    // POST /api/purchase-returns
-    //
-    // UPDATE:
-    // PUT /api/purchase-returns/{id}
     // ==========================================================
 
     const handleSave = async (data) => {
 
         try {
 
+            console.log(
+                "PURCHASE RETURN SAVE DATA:",
+                data
+            );
+
+
+            const purchaseReturnId =
+                Number(
+                    data?.purchaseReturnId ?? 0
+                );
+
+
             // ==================================================
             // UPDATE
             // ==================================================
 
-            if (data.PurchaseReturnId) {
+            if (
+                Number.isInteger(
+                    purchaseReturnId
+                ) &&
+                purchaseReturnId > 0
+            ) {
+
+                const payload = {
+
+                    ...data,
+
+                    purchaseReturnId
+
+                };
+
+
+                console.log(
+                    "PURCHASE RETURN UPDATE PAYLOAD:",
+                    payload
+                );
+
 
                 const response =
                     await axios.put(
-                        `${SERVER_URL}/api/purchase-returns/${data.PurchaseReturnId}`,
-                        data
+
+                        `${SERVER_URL}/api/purchase-returns/${purchaseReturnId}`,
+
+                        payload
+
                     );
+
 
                 console.log(
                     "PURCHASE RETURN UPDATED:",
                     response.data
                 );
+
 
                 setSnackbar({
 
@@ -465,22 +664,43 @@ const PurchaseReturnList = () => {
 
             }
 
+
             // ==================================================
             // CREATE
             // ==================================================
 
             else {
 
+                const payload = {
+
+                    ...data,
+
+                    purchaseReturnId: 0
+
+                };
+
+
+                console.log(
+                    "PURCHASE RETURN CREATE PAYLOAD:",
+                    payload
+                );
+
+
                 const response =
                     await axios.post(
+
                         `${SERVER_URL}/api/purchase-returns`,
-                        data
+
+                        payload
+
                     );
+
 
                 console.log(
                     "PURCHASE RETURN CREATED:",
                     response.data
                 );
+
 
                 setSnackbar({
 
@@ -496,18 +716,18 @@ const PurchaseReturnList = () => {
             }
 
 
-            // ==================================================
-            // CLOSE MODAL
-            // ==================================================
-
             setModalOpen(false);
 
+            setSelectedPurchaseReturn(null);
 
-            // ==================================================
-            // RELOAD
-            // ==================================================
 
-            await loadPurchaseReturns();
+            await Promise.all([
+
+                loadPurchaseReturns(),
+
+                loadStatistics()
+
+            ]);
 
         }
         catch (error) {
@@ -522,12 +742,15 @@ const PurchaseReturnList = () => {
                 error.response?.data
             );
 
+
             setSnackbar({
 
                 open: true,
 
                 message:
                     error.response?.data?.message ||
+                    error.response?.data?.title ||
+                    error.message ||
                     "Failed to save Purchase Return.",
 
                 severity: "error"
@@ -540,24 +763,42 @@ const PurchaseReturnList = () => {
 
 
     // ==========================================================
-    // DELETE CONFIRM
-    //
-    // DELETE /api/purchase-returns/{id}
+    // DELETE
     // ==========================================================
 
     const handleDeleted = async (id) => {
 
         try {
 
+            const purchaseReturnId =
+                Number(id);
+
+
+            if (
+                !Number.isInteger(
+                    purchaseReturnId
+                ) ||
+                purchaseReturnId <= 0
+            ) {
+
+                throw new Error(
+                    "Invalid Purchase Return ID."
+                );
+
+            }
+
+
             const response =
                 await axios.delete(
-                    `${SERVER_URL}/api/purchase-returns/${id}`
+                    `${SERVER_URL}/api/purchase-returns/${purchaseReturnId}`
                 );
+
 
             console.log(
                 "PURCHASE RETURN DELETED:",
                 response.data
             );
+
 
             setSnackbar({
 
@@ -571,9 +812,19 @@ const PurchaseReturnList = () => {
 
             });
 
+
             setDeleteOpen(false);
 
-            await loadPurchaseReturns();
+            setSelectedPurchaseReturn(null);
+
+
+            await Promise.all([
+
+                loadPurchaseReturns(),
+
+                loadStatistics()
+
+            ]);
 
         }
         catch (error) {
@@ -588,12 +839,15 @@ const PurchaseReturnList = () => {
                 error.response?.data
             );
 
+
             setSnackbar({
 
                 open: true,
 
                 message:
                     error.response?.data?.message ||
+                    error.response?.data?.title ||
+                    error.message ||
                     "Failed to delete Purchase Return.",
 
                 severity: "error"
@@ -609,9 +863,68 @@ const PurchaseReturnList = () => {
     // REFRESH
     // ==========================================================
 
-    const handleRefresh = () => {
+    const handleRefresh = async () => {
 
-        loadPurchaseReturns();
+        await Promise.all([
+
+            loadPurchaseReturns(),
+
+            loadStatistics()
+
+        ]);
+
+    };
+
+
+    // ==========================================================
+    // SEARCH CHANGE
+    // ==========================================================
+
+    const handleSearchChange = (value) => {
+
+        setSearchText(value);
+
+        setPage(1);
+
+    };
+
+
+    // ==========================================================
+    // PAGE CHANGE
+    // ==========================================================
+
+    const handlePageChange = (newPage) => {
+
+        setPage(newPage);
+
+    };
+
+
+    // ==========================================================
+    // PAGE SIZE CHANGE
+    // ==========================================================
+
+    const handlePageSizeChange = (size) => {
+
+        const newPageSize =
+            Number(size);
+
+
+        if (
+            !Number.isInteger(
+                newPageSize
+            ) ||
+            newPageSize <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        setPageSize(newPageSize);
+
+        setPage(1);
 
     };
 
@@ -623,9 +936,12 @@ const PurchaseReturnList = () => {
     const handleSnackbarClose = () => {
 
         setSnackbar(
-            previous => ({
+            (previous) => ({
+
                 ...previous,
+
                 open: false
+
             })
         );
 
@@ -633,13 +949,16 @@ const PurchaseReturnList = () => {
 
 
     // ==========================================================
-    // RETURN UI
+    // RENDER
     // ==========================================================
 
     return (
 
         <Box
             className="purchase-return-container"
+            sx={{
+                width: "100%"
+            }}
         >
 
             {/* =================================================
@@ -667,55 +986,42 @@ const PurchaseReturnList = () => {
 
             <PurchaseReturnSearch
                 searchText={searchText}
-                setSearchText={(value) => {
-
-                    setPage(1);
-
-                    setSearchText(value);
-
-                }}
+                setSearchText={
+                    handleSearchChange
+                }
             />
 
 
             {/* =================================================
-                TABLE / LOADING
+                TABLE
             ================================================= */}
 
-            {
-                loading
+            {loading ? (
 
-                ?
+                <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    mt={5}
+                    mb={5}
+                >
 
-                (
+                    <CircularProgress />
 
-                    <Box
-                        display="flex"
-                        justifyContent="center"
-                        alignItems="center"
-                        mt={5}
-                    >
+                </Box>
 
-                        <CircularProgress />
+            ) : (
 
-                    </Box>
+                <PurchaseReturnTable
+                    purchaseReturns={
+                        paginatedPurchaseReturns
+                    }
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
 
-                )
-
-                :
-
-                (
-
-                    <PurchaseReturnTable
-                        purchaseReturns={
-                            paginatedPurchaseReturns
-                        }
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />
-
-                )
-            }
+            )}
 
 
             {/* =================================================
@@ -727,19 +1033,17 @@ const PurchaseReturnList = () => {
                 totalPages={totalPages}
                 pageSize={pageSize}
                 totalRecords={totalRecords}
-                onPageChange={setPage}
-                onPageSizeChange={(size) => {
-
-                    setPageSize(size);
-
-                    setPage(1);
-
-                }}
+                onPageChange={
+                    handlePageChange
+                }
+                onPageSizeChange={
+                    handlePageSizeChange
+                }
             />
 
 
             {/* =================================================
-                CREATE / EDIT MODAL
+                CREATE / EDIT
             ================================================= */}
 
             <PurchaseReturnModal
@@ -747,9 +1051,13 @@ const PurchaseReturnList = () => {
                 purchaseReturn={
                     selectedPurchaseReturn
                 }
-                onClose={() =>
-                    setModalOpen(false)
-                }
+                onClose={() => {
+
+                    setModalOpen(false);
+
+                    setSelectedPurchaseReturn(null);
+
+                }}
                 onSave={handleSave}
             />
 
@@ -763,9 +1071,13 @@ const PurchaseReturnList = () => {
                 purchaseReturn={
                     selectedPurchaseReturn
                 }
-                onClose={() =>
-                    setViewOpen(false)
-                }
+                onClose={() => {
+
+                    setViewOpen(false);
+
+                    setSelectedPurchaseReturn(null);
+
+                }}
             />
 
 
@@ -778,9 +1090,13 @@ const PurchaseReturnList = () => {
                 purchaseReturn={
                     selectedPurchaseReturn
                 }
-                onClose={() =>
-                    setDeleteOpen(false)
-                }
+                onClose={() => {
+
+                    setDeleteOpen(false);
+
+                    setSelectedPurchaseReturn(null);
+
+                }}
                 onDeleted={handleDeleted}
             />
 
@@ -792,7 +1108,9 @@ const PurchaseReturnList = () => {
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={3000}
-                onClose={handleSnackbarClose}
+                onClose={
+                    handleSnackbarClose
+                }
                 anchorOrigin={{
                     vertical: "top",
                     horizontal: "right"
@@ -802,7 +1120,9 @@ const PurchaseReturnList = () => {
                 <Alert
                     severity={snackbar.severity}
                     variant="filled"
-                    onClose={handleSnackbarClose}
+                    onClose={
+                        handleSnackbarClose
+                    }
                 >
 
                     {snackbar.message}

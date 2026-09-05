@@ -6123,89 +6123,14 @@ app.delete(
         }
     }
 );
-// =========================================================
-// =========================================================
-// PURCHASE RETURNS APIs
-// =========================================================
-// =========================================================
+/* =========================================================
+   PURCHASE RETURN PROXY
+========================================================= */
 
-
-// =========================================================
-// 1. GET ALL PURCHASE RETURNS WITH COMPLETE DETAILS
-//
-// GET
-// http://localhost:5000/api/purchase-returns/all-details
-//
-// ASP.NET
-// https://localhost:7203/api/purchase-returns/all-details
-// =========================================================
-
-app.get(
-    "/api/purchase-returns/all-details",
-    async (req, res) => {
-
-        try {
-
-            const response = await axios.get(
-                `${DOTNET_API}/purchase-returns/all-details`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "GET PURCHASE RETURNS ALL DETAILS ERROR:",
-                error.response?.data ||
-                error.message
-            );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Unable to fetch purchase return details."
-                    }
-                );
-        }
-    }
-);
-
-
-// =========================================================
-// 2. GET ALL / SEARCH / STATUS / PAGINATION / SORTING
-//
-// GET
-// http://localhost:5000/api/purchase-returns
-//
-// Examples:
-//
-// GET /api/purchase-returns
-//
-// GET /api/purchase-returns?search=PR-3120
-//
-// GET /api/purchase-returns?status=pending_pickup
-//
-// GET /api/purchase-returns?search=PR-3120&status=pending_pickup
-//
-// GET /api/purchase-returns?page=1&limit=10
-//
-// GET /api/purchase-returns?sort=id_asc
-//
-// GET /api/purchase-returns?sort=id_desc
-//
-// GET /api/purchase-returns?sort=status_asc
-//
-// GET /api/purchase-returns?sort=status_desc
-// =========================================================
+/* ---------------------------------------------------------
+   GET ALL PURCHASE RETURNS
+   GET /api/purchase-returns
+--------------------------------------------------------- */
 
 app.get(
     "/api/purchase-returns",
@@ -6225,7 +6150,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS ERROR:",
@@ -6248,12 +6174,56 @@ app.get(
 );
 
 
-// =========================================================
-// 3. GET PURCHASE RETURN STATISTICS
-//
-// GET
-// http://localhost:5000/api/purchase-returns/stats
-// =========================================================
+/* =========================================================
+   GET ALL PURCHASE RETURN DETAILS
+   GET /api/purchase-returns/all-details
+========================================================= */
+
+app.get(
+    "/api/purchase-returns/all-details",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/all-details`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ALL PURCHASE RETURN DETAILS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase return details."
+                    }
+                );
+        }
+    }
+);
+
+
+/* =========================================================
+   GET PURCHASE RETURN STATISTICS
+   GET /api/purchase-returns/stats
+========================================================= */
 
 app.get(
     "/api/purchase-returns/stats",
@@ -6268,11 +6238,17 @@ app.get(
                 }
             );
 
+            console.log(
+                "PURCHASE RETURN STATISTICS:",
+                response.data
+            );
+
             return res
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURN STATISTICS ERROR:",
@@ -6295,12 +6271,10 @@ app.get(
 );
 
 
-// =========================================================
-// 4. GET PURCHASE RETURN BY ID
-//
-// GET
-// http://localhost:5000/api/purchase-returns/1
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURN BY ID
+   GET /api/purchase-returns/:purchaseReturnId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/:purchaseReturnId",
@@ -6323,7 +6297,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURN BY ID ERROR:",
@@ -6346,12 +6321,10 @@ app.get(
 );
 
 
-// =========================================================
-// 5. GET BY PURCHASE ORDER
-//
-// GET
-// http://localhost:5000/api/purchase-returns/purchaseorder/1
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURNS BY PURCHASE ORDER
+   GET /api/purchase-returns/purchaseorder/:purchaseOrderId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/purchaseorder/:purchaseOrderId",
@@ -6374,7 +6347,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS BY PURCHASE ORDER ERROR:",
@@ -6389,7 +6363,7 @@ app.get(
                 .json(
                     error.response?.data || {
                         message:
-                            "Unable to fetch purchase returns by purchase order."
+                            "Unable to fetch purchase returns."
                     }
                 );
         }
@@ -6397,12 +6371,10 @@ app.get(
 );
 
 
-// =========================================================
-// 6. GET BY SUPPLIER
-//
-// GET
-// http://localhost:5000/api/purchase-returns/supplier/1
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURNS BY SUPPLIER
+   GET /api/purchase-returns/supplier/:supplierId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/supplier/:supplierId",
@@ -6425,7 +6397,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS BY SUPPLIER ERROR:",
@@ -6440,7 +6413,7 @@ app.get(
                 .json(
                     error.response?.data || {
                         message:
-                            "Unable to fetch purchase returns by supplier."
+                            "Unable to fetch supplier purchase returns."
                     }
                 );
         }
@@ -6448,12 +6421,10 @@ app.get(
 );
 
 
-// =========================================================
-// 7. GET BY GRN
-//
-// GET
-// http://localhost:5000/api/purchase-returns/grn/1
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURNS BY GRN
+   GET /api/purchase-returns/grn/:goodsReceiptNoteId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/grn/:goodsReceiptNoteId",
@@ -6476,7 +6447,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS BY GRN ERROR:",
@@ -6491,7 +6463,7 @@ app.get(
                 .json(
                     error.response?.data || {
                         message:
-                            "Unable to fetch purchase returns by GRN."
+                            "Unable to fetch GRN purchase returns."
                     }
                 );
         }
@@ -6499,12 +6471,10 @@ app.get(
 );
 
 
-// =========================================================
-// 8. GET BY SELLER
-//
-// GET
-// http://localhost:5000/api/purchase-returns/seller/1
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURNS BY SELLER
+   GET /api/purchase-returns/seller/:sellerId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/seller/:sellerId",
@@ -6527,7 +6497,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS BY SELLER ERROR:",
@@ -6542,7 +6513,7 @@ app.get(
                 .json(
                     error.response?.data || {
                         message:
-                            "Unable to fetch purchase returns by seller."
+                            "Unable to fetch seller purchase returns."
                     }
                 );
         }
@@ -6550,12 +6521,10 @@ app.get(
 );
 
 
-// =========================================================
-// 9. GET BY CUSTOMER
-//
-// GET
-// http://localhost:5000/api/purchase-returns/customer/1
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURNS BY CUSTOMER
+   GET /api/purchase-returns/customer/:customerId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/customer/:customerId",
@@ -6578,7 +6547,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS BY CUSTOMER ERROR:",
@@ -6593,7 +6563,7 @@ app.get(
                 .json(
                     error.response?.data || {
                         message:
-                            "Unable to fetch purchase returns by customer."
+                            "Unable to fetch customer purchase returns."
                     }
                 );
         }
@@ -6601,12 +6571,10 @@ app.get(
 );
 
 
-// =========================================================
-// 10. GET BY SELLER + CUSTOMER
-//
-// GET
-// http://localhost:5000/api/purchase-returns/seller/1/customer/2
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURNS BY SELLER + CUSTOMER
+   GET /api/purchase-returns/seller/:sellerId/customer/:customerId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/seller/:sellerId/customer/:customerId",
@@ -6630,7 +6598,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS BY SELLER CUSTOMER ERROR:",
@@ -6645,7 +6614,7 @@ app.get(
                 .json(
                     error.response?.data || {
                         message:
-                            "Unable to fetch purchase returns by seller and customer."
+                            "Unable to fetch seller customer purchase returns."
                     }
                 );
         }
@@ -6653,12 +6622,10 @@ app.get(
 );
 
 
-// =========================================================
-// 11. GET BY STATUS
-//
-// GET
-// http://localhost:5000/api/purchase-returns/status/pending_pickup
-// =========================================================
+/* =========================================================
+   GET PURCHASE RETURNS BY STATUS
+   GET /api/purchase-returns/status/:status
+========================================================= */
 
 app.get(
     "/api/purchase-returns/status/:status",
@@ -6681,7 +6648,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET PURCHASE RETURNS BY STATUS ERROR:",
@@ -6704,12 +6672,11 @@ app.get(
 );
 
 
-// =========================================================
-// 12. GET SPECIFIC PURCHASE RETURN
-//
-// GET
-// /api/purchase-returns/purchaseorder/1/supplier/2/return/3
-// =========================================================
+/* =========================================================
+   GET SPECIFIC PURCHASE RETURN
+   GET /api/purchase-returns/purchaseorder/:purchaseOrderId/
+       supplier/:supplierId/return/:purchaseReturnId
+========================================================= */
 
 app.get(
     "/api/purchase-returns/purchaseorder/:purchaseOrderId/supplier/:supplierId/return/:purchaseReturnId",
@@ -6734,7 +6701,8 @@ app.get(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET SPECIFIC PURCHASE RETURN ERROR:",
@@ -6757,18 +6725,21 @@ app.get(
 );
 
 
-// =========================================================
-// 13. CREATE PURCHASE RETURN
-//
-// POST
-// http://localhost:5000/api/purchase-returns
-// =========================================================
+/* =========================================================
+   CREATE PURCHASE RETURN
+   POST /api/purchase-returns
+========================================================= */
 
 app.post(
     "/api/purchase-returns",
     async (req, res) => {
 
         try {
+
+            console.log(
+                "CREATE PURCHASE RETURN REQUEST:",
+                req.body
+            );
 
             const response = await axios.post(
                 `${DOTNET_API}/purchase-returns`,
@@ -6785,7 +6756,8 @@ app.post(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "CREATE PURCHASE RETURN ERROR:",
@@ -6808,12 +6780,10 @@ app.post(
 );
 
 
-// =========================================================
-// 14. UPDATE PURCHASE RETURN
-//
-// PUT
-// http://localhost:5000/api/purchase-returns/1
-// =========================================================
+/* =========================================================
+   UPDATE PURCHASE RETURN
+   PUT /api/purchase-returns/:purchaseReturnId
+========================================================= */
 
 app.put(
     "/api/purchase-returns/:purchaseReturnId",
@@ -6824,6 +6794,12 @@ app.put(
             const {
                 purchaseReturnId
             } = req.params;
+
+            console.log(
+                "UPDATE PURCHASE RETURN REQUEST:",
+                purchaseReturnId,
+                req.body
+            );
 
             const response = await axios.put(
                 `${DOTNET_API}/purchase-returns/${purchaseReturnId}`,
@@ -6840,7 +6816,8 @@ app.put(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "UPDATE PURCHASE RETURN ERROR:",
@@ -6863,12 +6840,10 @@ app.put(
 );
 
 
-// =========================================================
-// 15. DELETE PURCHASE RETURN
-//
-// DELETE
-// http://localhost:5000/api/purchase-returns/1
-// =========================================================
+/* =========================================================
+   DELETE PURCHASE RETURN
+   DELETE /api/purchase-returns/:purchaseReturnId
+========================================================= */
 
 app.delete(
     "/api/purchase-returns/:purchaseReturnId",
@@ -6891,7 +6866,8 @@ app.delete(
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "DELETE PURCHASE RETURN ERROR:",
@@ -6912,19 +6888,6 @@ app.delete(
         }
     }
 );
-
-
-;
-
-
-
-
-
-
-
-
-
-
 
 
 

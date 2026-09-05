@@ -660,7 +660,44 @@ children: [
 
 
 },
+{
+    label: "Purchase Returns",
+    path: "/purchase-returns",
+    icon: "↩️",
+    children: [
 
+        {
+            label: "Purchase Return List",
+            path: "/purchase-returns",
+        },
+
+        {
+            label: "Purchase Return Create",
+            path: "/purchase-returns/create",
+        },
+
+        {
+            label: "Purchase Return Search",
+            path: "/purchase-returns/search",
+        },
+
+        {
+            label: "Purchase Return Statistics",
+            path: "/purchase-returns/statistics",
+        },
+
+        {
+            label: "Purchase Return Details",
+            path: "/purchase-returns/details/:id",
+        },
+
+        {
+            label: "Purchase Return Edit",
+            path: "/purchase-returns/edit/:id",
+        },
+
+    ],
+},
 
 {
 label: "Product Prices",

@@ -7,7 +7,8 @@ import {
     Box,
     Stack,
     Chip,
-    Button
+    Button,
+    Divider
 } from "@mui/material";
 
 import {
@@ -17,6 +18,97 @@ import {
     AssignmentReturn
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "₹ 0.00";
+    }
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+};
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+};
+
+
+/* =========================================================
+   STATUS COLOR
+========================================================= */
+
+const getStatusColor = (status) => {
+
+    const normalizedStatus =
+        String(status || "")
+            .trim()
+            .toLowerCase();
+
+    switch (normalizedStatus) {
+
+        case "completed":
+            return "success";
+
+        case "pending":
+            return "warning";
+
+        case "cancelled":
+        case "canceled":
+            return "error";
+
+        case "approved":
+            return "info";
+
+        case "rejected":
+            return "error";
+
+        default:
+            return "default";
+    }
+};
+
+
+/* =========================================================
+   PURCHASE RETURN CARD
+========================================================= */
+
 const PurchaseReturnCard = ({
     purchaseReturn,
     onView,
@@ -24,39 +116,108 @@ const PurchaseReturnCard = ({
     onDelete
 }) => {
 
-    const getStatusColor = (status) => {
+    /* =====================================================
+       NULL CHECK
+    ===================================================== */
 
-        switch ((status || "").toLowerCase()) {
+    if (!purchaseReturn) {
+        return null;
+    }
 
-            case "completed":
-                return "success";
 
-            case "pending":
-                return "warning";
+    /* =====================================================
+       SUPPORT API CAMELCASE + PASCALCASE
+    ===================================================== */
 
-            case "cancelled":
-                return "error";
+    const purchaseReturnId =
+        purchaseReturn.purchaseReturnId ??
+        purchaseReturn.PurchaseReturnId ??
+        0;
 
-            default:
-                return "default";
+    const purchaseReturnNumber =
+        purchaseReturn.purchaseReturnNumber ??
+        purchaseReturn.PurchaseReturnNumber ??
+        "-";
 
-        }
+    const purchaseOrderId =
+        purchaseReturn.purchaseOrderId ??
+        purchaseReturn.PurchaseOrderId ??
+        "-";
 
-    };
+    const goodsReceiptNoteId =
+        purchaseReturn.goodsReceiptNoteId ??
+        purchaseReturn.GoodsReceiptNoteId ??
+        "-";
+
+    const supplierId =
+        purchaseReturn.supplierId ??
+        purchaseReturn.SupplierId ??
+        "-";
+
+    const sellerId =
+        purchaseReturn.sellerId ??
+        purchaseReturn.SellerId ??
+        "-";
+
+    const customerId =
+        purchaseReturn.customerId ??
+        purchaseReturn.CustomerId ??
+        "-";
+
+    const returnDate =
+        purchaseReturn.returnDate ??
+        purchaseReturn.ReturnDate;
+
+    const totalAmount =
+        purchaseReturn.totalAmount ??
+        purchaseReturn.TotalAmount ??
+        0;
+
+    const status =
+        purchaseReturn.status ??
+        purchaseReturn.Status ??
+        "N/A";
+
+    const reason =
+        purchaseReturn.reason ??
+        purchaseReturn.Reason ??
+        "-";
+
+    const createdDate =
+        purchaseReturn.createdDate ??
+        purchaseReturn.CreatedDate;
+
+    const updatedDate =
+        purchaseReturn.updatedDate ??
+        purchaseReturn.UpdatedDate;
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
 
         <Card
             className="purchase-return-card"
             elevation={3}
+            sx={{
+                width: "100%",
+                height: "100%"
+            }}
         >
 
             <CardContent>
+
+                {/* =================================================
+                    HEADER
+                ================================================= */}
 
                 <Box
                     display="flex"
                     justifyContent="space-between"
                     alignItems="center"
+                    gap={2}
                     mb={2}
                 >
 
@@ -64,6 +225,7 @@ const PurchaseReturnCard = ({
                         display="flex"
                         alignItems="center"
                         gap={1}
+                        minWidth={0}
                     >
 
                         <AssignmentReturn
@@ -73,27 +235,29 @@ const PurchaseReturnCard = ({
                         <Typography
                             variant="h6"
                             fontWeight="bold"
+                            noWrap
                         >
-
-                            {purchaseReturn.PurchaseReturnNumber}
-
+                            {purchaseReturnNumber}
                         </Typography>
 
                     </Box>
 
+
                     <Chip
-                        label={
-                            purchaseReturn.Status || "N/A"
-                        }
-                        color={
-                            getStatusColor(
-                                purchaseReturn.Status
-                            )
-                        }
+                        label={status}
+                        color={getStatusColor(status)}
                         size="small"
                     />
 
                 </Box>
+
+
+                <Divider sx={{ mb: 2 }} />
+
+
+                {/* =================================================
+                    PURCHASE RETURN ID
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -102,9 +266,14 @@ const PurchaseReturnCard = ({
 
                     <strong>Purchase Return ID:</strong>{" "}
 
-                    {purchaseReturn.PurchaseReturnId}
+                    {purchaseReturnId}
 
                 </Typography>
+
+
+                {/* =================================================
+                    PURCHASE ORDER
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -113,9 +282,14 @@ const PurchaseReturnCard = ({
 
                     <strong>Purchase Order:</strong>{" "}
 
-                    {purchaseReturn.PurchaseOrderId}
+                    {purchaseOrderId}
 
                 </Typography>
+
+
+                {/* =================================================
+                    GOODS RECEIPT NOTE
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -124,9 +298,14 @@ const PurchaseReturnCard = ({
 
                     <strong>Goods Receipt Note:</strong>{" "}
 
-                    {purchaseReturn.GoodsReceiptNoteId}
+                    {goodsReceiptNoteId}
 
                 </Typography>
+
+
+                {/* =================================================
+                    SUPPLIER
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -135,9 +314,46 @@ const PurchaseReturnCard = ({
 
                     <strong>Supplier:</strong>{" "}
 
-                    {purchaseReturn.SupplierId}
+                    {supplierId}
 
                 </Typography>
+
+
+                {/* =================================================
+                    SELLER
+                ================================================= */}
+
+                <Typography
+                    variant="body2"
+                    gutterBottom
+                >
+
+                    <strong>Seller:</strong>{" "}
+
+                    {sellerId}
+
+                </Typography>
+
+
+                {/* =================================================
+                    CUSTOMER
+                ================================================= */}
+
+                <Typography
+                    variant="body2"
+                    gutterBottom
+                >
+
+                    <strong>Customer:</strong>{" "}
+
+                    {customerId}
+
+                </Typography>
+
+
+                {/* =================================================
+                    RETURN DATE
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -146,23 +362,14 @@ const PurchaseReturnCard = ({
 
                     <strong>Return Date:</strong>{" "}
 
-                    {
-
-                        purchaseReturn.ReturnDate
-
-                            ?
-
-                            new Date(
-                                purchaseReturn.ReturnDate
-                            ).toLocaleDateString()
-
-                            :
-
-                            "-"
-
-                    }
+                    {formatDate(returnDate)}
 
                 </Typography>
+
+
+                {/* =================================================
+                    TOTAL AMOUNT
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -171,69 +378,146 @@ const PurchaseReturnCard = ({
 
                     <strong>Total Amount:</strong>{" "}
 
-                    ₹
-                    {Number(
-                        purchaseReturn.TotalAmount || 0
-                    ).toLocaleString()}
+                     {formatCurrency(
+        purchaseReturn?.totalAmount ??
+        purchaseReturn?.TotalAmount ??
+        0
+    )}
+
 
                 </Typography>
+
+
+                {/* =================================================
+                    REASON
+                ================================================= */}
 
                 <Typography
                     variant="body2"
                     gutterBottom
+                    sx={{
+                        wordBreak: "break-word"
+                    }}
                 >
 
                     <strong>Reason:</strong>{" "}
 
-                    {purchaseReturn.Reason || "-"}
+                    {reason}
 
                 </Typography>
+
+
+                {/* =================================================
+                    CREATED DATE
+                ================================================= */}
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                >
+
+                    <strong>Created Date:</strong>{" "}
+
+                    {formatDate(createdDate)}
+
+                </Typography>
+
+
+                {/* =================================================
+                    UPDATED DATE
+                ================================================= */}
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                >
+
+                    <strong>Updated Date:</strong>{" "}
+
+                    {formatDate(updatedDate)}
+
+                </Typography>
+
+
+                {/* =================================================
+                    ACTIONS
+                ================================================= */}
 
                 <Stack
                     direction="row"
                     spacing={1}
                     mt={3}
+                    flexWrap="wrap"
+                    useFlexGap
                 >
+
+                    {/* =================================================
+                        VIEW
+                    ================================================= */}
 
                     <Button
                         size="small"
                         variant="outlined"
                         startIcon={<Visibility />}
-                        onClick={() =>
-                            onView(purchaseReturn)
-                        }
+                        onClick={() => {
+
+                            if (
+                                typeof onView === "function"
+                            ) {
+                                onView(purchaseReturn);
+                            }
+
+                        }}
                     >
-
                         View
-
                     </Button>
+
+
+                    {/* =================================================
+                        EDIT
+                    ================================================= */}
 
                     <Button
                         size="small"
                         variant="contained"
                         color="warning"
                         startIcon={<Edit />}
-                        onClick={() =>
-                            onEdit(purchaseReturn)
-                        }
+                        onClick={() => {
+
+                            if (
+                                typeof onEdit === "function"
+                            ) {
+                                onEdit(purchaseReturn);
+                            }
+
+                        }}
                     >
-
                         Edit
-
                     </Button>
+
+
+                    {/* =================================================
+                        DELETE
+                    ================================================= */}
 
                     <Button
                         size="small"
                         variant="contained"
                         color="error"
                         startIcon={<Delete />}
-                        onClick={() =>
-                            onDelete(purchaseReturn)
-                        }
+                        onClick={() => {
+
+                            if (
+                                typeof onDelete === "function"
+                            ) {
+                                onDelete(purchaseReturn);
+                            }
+
+                        }}
                     >
-
                         Delete
-
                     </Button>
 
                 </Stack>
@@ -241,9 +525,8 @@ const PurchaseReturnCard = ({
             </CardContent>
 
         </Card>
-
     );
-
 };
+
 
 export default PurchaseReturnCard;
