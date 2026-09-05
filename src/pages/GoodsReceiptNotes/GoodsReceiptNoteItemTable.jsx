@@ -60,6 +60,35 @@ const formatCurrency = (value) => {
 
 
 /* =========================================================
+   GET API FIELD
+   Supports PascalCase + camelCase
+========================================================= */
+
+const getField = (item, pascalCase, camelCase) => {
+
+    if (!item) {
+        return null;
+    }
+
+    if (
+        item[pascalCase] !== undefined &&
+        item[pascalCase] !== null
+    ) {
+        return item[pascalCase];
+    }
+
+    if (
+        item[camelCase] !== undefined &&
+        item[camelCase] !== null
+    ) {
+        return item[camelCase];
+    }
+
+    return null;
+};
+
+
+/* =========================================================
    GOODS RECEIPT NOTE ITEM TABLE
 ========================================================= */
 
@@ -70,19 +99,18 @@ const GoodsReceiptNoteItemTable = ({
     onDelete
 }) => {
 
-
-    /* =========================================================
+    /* =====================================================
        SAFE ITEMS
-    ========================================================= */
+    ===================================================== */
 
     const safeItems = Array.isArray(items)
         ? items
         : [];
 
 
-    /* =========================================================
+    /* =====================================================
        ACTION HANDLERS
-    ========================================================= */
+    ===================================================== */
 
     const handleView = (item) => {
 
@@ -108,9 +136,9 @@ const GoodsReceiptNoteItemTable = ({
     };
 
 
-    /* =========================================================
+    /* =====================================================
        RENDER
-    ========================================================= */
+    ===================================================== */
 
     return (
         <TableContainer
@@ -131,7 +159,7 @@ const GoodsReceiptNoteItemTable = ({
             >
 
                 {/* =================================================
-                    TABLE HEADER
+                   TABLE HEADER
                 ================================================= */}
 
                 <TableHead>
@@ -139,63 +167,43 @@ const GoodsReceiptNoteItemTable = ({
                     <TableRow>
 
                         <TableCell>
-                            <strong>
-                                Item ID
-                            </strong>
+                            <strong>Item ID</strong>
                         </TableCell>
 
                         <TableCell>
-                            <strong>
-                                GRN ID
-                            </strong>
+                            <strong>GRN ID</strong>
                         </TableCell>
 
                         <TableCell>
-                            <strong>
-                                Product ID
-                            </strong>
+                            <strong>Product ID</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            <strong>
-                                Received Qty
-                            </strong>
+                            <strong>Received Qty</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            <strong>
-                                Accepted Qty
-                            </strong>
+                            <strong>Accepted Qty</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            <strong>
-                                Rejected Qty
-                            </strong>
+                            <strong>Rejected Qty</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            <strong>
-                                Unit Price
-                            </strong>
+                            <strong>Unit Price</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            <strong>
-                                Tax Amount
-                            </strong>
+                            <strong>Tax Amount</strong>
                         </TableCell>
 
                         <TableCell align="right">
-                            <strong>
-                                Total Amount
-                            </strong>
+                            <strong>Total Amount</strong>
                         </TableCell>
 
                         <TableCell align="center">
-                            <strong>
-                                Actions
-                            </strong>
+                            <strong>Actions</strong>
                         </TableCell>
 
                     </TableRow>
@@ -204,7 +212,7 @@ const GoodsReceiptNoteItemTable = ({
 
 
                 {/* =================================================
-                    TABLE BODY
+                   TABLE BODY
                 ================================================= */}
 
                 <TableBody>
@@ -254,104 +262,153 @@ const GoodsReceiptNoteItemTable = ({
 
                         safeItems.map((item, index) => {
 
-                            const itemId =
-                                item?.GoodsReceiptNoteItemId;
+                            /* =====================================
+                               API FIELDS
+                            ===================================== */
+
+                            const itemId = getField(
+                                item,
+                                "GoodsReceiptNoteItemId",
+                                "goodsReceiptNoteItemId"
+                            );
+
+                            const grnId = getField(
+                                item,
+                                "GoodsReceiptNoteId",
+                                "goodsReceiptNoteId"
+                            );
+
+                            const productId = getField(
+                                item,
+                                "ProductId",
+                                "productId"
+                            );
+
+                            const receivedQuantity = getField(
+                                item,
+                                "ReceivedQuantity",
+                                "receivedQuantity"
+                            );
+
+                            const acceptedQuantity = getField(
+                                item,
+                                "AcceptedQuantity",
+                                "acceptedQuantity"
+                            );
+
+                            const rejectedQuantity = getField(
+                                item,
+                                "RejectedQuantity",
+                                "rejectedQuantity"
+                            );
+
+                            const unitPrice = getField(
+                                item,
+                                "UnitPrice",
+                                "unitPrice"
+                            );
+
+                            const taxAmount = getField(
+                                item,
+                                "TaxAmount",
+                                "taxAmount"
+                            );
+
+                            const totalAmount = getField(
+                                item,
+                                "TotalAmount",
+                                "totalAmount"
+                            );
+
+
+                            /* =====================================
+                               ROW KEY
+                            ===================================== */
+
+                            const rowKey =
+                                itemId !== null
+                                    ? `grn-item-${itemId}`
+                                    : `grn-item-${index}`;
+
+
+                            /* =====================================
+                               RENDER ROW
+                            ===================================== */
 
                             return (
 
                                 <TableRow
                                     hover
-                                    key={
-                                        itemId ??
-                                        `grn-item-${index}`
-                                    }
+                                    key={rowKey}
                                 >
 
-                                    {/* =================================================
-                                        ITEM ID
-                                    ================================================= */}
+                                    {/* ITEM ID */}
 
                                     <TableCell>
                                         {itemId ?? "-"}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        GRN ID
-                                    ================================================= */}
+                                    {/* GRN ID */}
 
                                     <TableCell>
-                                        {item?.GoodsReceiptNoteId ?? "-"}
+                                        {grnId ?? "-"}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        PRODUCT ID
-                                    ================================================= */}
+                                    {/* PRODUCT ID */}
 
                                     <TableCell>
-                                        {item?.ProductId ?? "-"}
+                                        {productId ?? "-"}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        RECEIVED QUANTITY
-                                    ================================================= */}
+                                    {/* RECEIVED QUANTITY */}
 
                                     <TableCell align="right">
                                         {formatNumber(
-                                            item?.ReceivedQuantity
+                                            receivedQuantity
                                         )}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        ACCEPTED QUANTITY
-                                    ================================================= */}
+                                    {/* ACCEPTED QUANTITY */}
 
                                     <TableCell align="right">
                                         {formatNumber(
-                                            item?.AcceptedQuantity
+                                            acceptedQuantity
                                         )}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        REJECTED QUANTITY
-                                    ================================================= */}
+                                    {/* REJECTED QUANTITY */}
 
                                     <TableCell align="right">
                                         {formatNumber(
-                                            item?.RejectedQuantity
+                                            rejectedQuantity
                                         )}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        UNIT PRICE
-                                    ================================================= */}
+                                    {/* UNIT PRICE */}
 
                                     <TableCell align="right">
                                         {formatCurrency(
-                                            item?.UnitPrice
+                                            unitPrice
                                         )}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        TAX AMOUNT
-                                    ================================================= */}
+                                    {/* TAX AMOUNT */}
 
                                     <TableCell align="right">
                                         {formatCurrency(
-                                            item?.TaxAmount
+                                            taxAmount
                                         )}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        TOTAL AMOUNT
-                                    ================================================= */}
+                                    {/* TOTAL AMOUNT */}
 
                                     <TableCell
                                         align="right"
@@ -360,14 +417,12 @@ const GoodsReceiptNoteItemTable = ({
                                         }}
                                     >
                                         {formatCurrency(
-                                            item?.TotalAmount
+                                            totalAmount
                                         )}
                                     </TableCell>
 
 
-                                    {/* =================================================
-                                        ACTIONS
-                                    ================================================= */}
+                                    {/* ACTIONS */}
 
                                     <TableCell align="center">
 
@@ -391,7 +446,9 @@ const GoodsReceiptNoteItemTable = ({
                                                         handleView(item)
                                                     }
                                                 >
-                                                    <Visibility fontSize="small" />
+                                                    <Visibility
+                                                        fontSize="small"
+                                                    />
                                                 </IconButton>
 
                                             </Tooltip>
@@ -408,7 +465,9 @@ const GoodsReceiptNoteItemTable = ({
                                                         handleEdit(item)
                                                     }
                                                 >
-                                                    <Edit fontSize="small" />
+                                                    <Edit
+                                                        fontSize="small"
+                                                    />
                                                 </IconButton>
 
                                             </Tooltip>
@@ -425,7 +484,9 @@ const GoodsReceiptNoteItemTable = ({
                                                         handleDelete(item)
                                                     }
                                                 >
-                                                    <Delete fontSize="small" />
+                                                    <Delete
+                                                        fontSize="small"
+                                                    />
                                                 </IconButton>
 
                                             </Tooltip>
@@ -435,10 +496,8 @@ const GoodsReceiptNoteItemTable = ({
                                     </TableCell>
 
                                 </TableRow>
-
                             );
                         })
-
                     )}
 
                 </TableBody>

@@ -176,33 +176,28 @@ import DeliveryChallanItemTable from "./pages/DeliveryChallanItem/DeliveryChalla
 import DeliveryChallanItemToolbar from "./pages/DeliveryChallanItem/DeliveryChallanItemToolbar";
 import DeliveryChallanItemView from "./pages/DeliveryChallanItem/DeliveryChallanItemView";
 
-// =========================================================
-// GOODS RECEIPT NOTES
-// =========================================================
-import DeleteGoodsReceiptNoteDialog from "./pages/GoodsReceiptItems/DeleteGoodsReceiptNoteDialog";
-import GoodsReceiptNoteCard from "./pages/GoodsReceiptItems/GoodsReceiptNoteCard";
-import GoodsReceiptNoteList from "./pages/GoodsReceiptItems/GoodsReceiptNoteList";
-import GoodsReceiptNoteModal from "./pages/GoodsReceiptItems/GoodsReceiptNoteModal";
-import GoodsReceiptNotePagination from "./pages/GoodsReceiptItems/GoodsReceiptNotePagination";
-import GoodsReceiptNoteSearch from "./pages/GoodsReceiptItems/GoodsReceiptNoteSearch";
-import GoodsReceiptNoteStatistics from "./pages/GoodsReceiptItems/GoodsReceiptNoteStatistics";
-import GoodsReceiptNoteTable from "./pages/GoodsReceiptItems/GoodsReceiptNoteTable";
-import GoodsReceiptNoteToolbar from "./pages/GoodsReceiptItems/GoodsReceiptNoteToolbar";
-import GoodsReceiptNoteView from "./pages/GoodsReceiptItems/GoodsReceiptNoteView";
 
-// =========================================================
-// GOODS RECEIPT ITEMS
-// =========================================================
-import DeleteGoodsReceiptNoteItemDialog from "./pages/GoodsReceiptNotes/DeleteGoodsReceiptNoteItemDialog";
-import GoodsReceiptNoteItemCard from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemCard";
+
+
+/* =========================================================
+   GOODS RECEIPT NOTE ITEM IMPORTS
+========================================================= */
+
 import GoodsReceiptNoteItemList from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemList";
-import GoodsReceiptNoteItemModal from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemModal";
-import GoodsReceiptNoteItemPagination from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemPagination";
+import GoodsReceiptNoteItemCreate from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemCreate";
+import GoodsReceiptNoteItemDetails from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemDetails";
+import GoodsReceiptNoteItemEdit from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemEdit";
+import GoodsReceiptNoteItemFilters from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemFilters";
 import GoodsReceiptNoteItemSearch from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemSearch";
 import GoodsReceiptNoteItemStatistics from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemStatistics";
 import GoodsReceiptNoteItemTable from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemTable";
+import GoodsReceiptNoteItemCard from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemCard";
+import GoodsReceiptNoteItemForm from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemForm";
+import GoodsReceiptNoteItemModal from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemModal";
+import GoodsReceiptNoteItemPagination from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemPagination";
 import GoodsReceiptNoteItemToolbar from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemToolbar";
 import GoodsReceiptNoteItemView from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemView";
+import DeleteGoodsReceiptNoteItemDialog from "./pages/GoodsReceiptNotes/DeleteGoodsReceiptNoteItemDialog";
 
 // =========================================================
 // MARKETPLACE ORDER ITEMS
@@ -1436,27 +1431,6 @@ function App() {
         <Route path="delivery-challan-items/search" element={<DeliveryChallanItemSearch />} />
         <Route path="delivery-challan-items/statistics" element={<DeliveryChallanItemStatistics />} />
 
-
-        {/* ===================================================
-            GOODS RECEIPT NOTES
-        =================================================== */}
-
-        <Route path="goods-receipt-notes" element={<GoodsReceiptNoteList />} />
-        <Route path="goods-receipt-notes/:id" element={<GoodsReceiptNoteView />} />
-        <Route path="goods-receipt-notes/search" element={<GoodsReceiptNoteSearch />} />
-        <Route path="goods-receipt-notes/statistics" element={<GoodsReceiptNoteStatistics />} />
-
-
-        {/* ===================================================
-            GOODS RECEIPT ITEMS
-        =================================================== */}
-
-        <Route path="goods-receipt-items" element={<GoodsReceiptNoteItemList />} />
-        <Route path="goods-receipt-items/:id" element={<GoodsReceiptNoteItemView />} />
-        <Route path="goods-receipt-items/search" element={<GoodsReceiptNoteItemSearch />} />
-        <Route path="goods-receipt-items/statistics" element={<GoodsReceiptNoteItemStatistics />} />
-
-
         {/* ===================================================
             MARKETPLACE ORDER ITEMS
         =================================================== */}
@@ -1950,6 +1924,125 @@ element={<PurchaseOrderItemDetails />}
 path="/purchase-order-items/edit/:id"
 element={<PurchaseOrderItemEdit />}
 />
+
+{/* =========================================================
+        GOODS RECEIPT NOTE ITEMS
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items"
+        element={<GoodsReceiptNoteItemList />}
+    />
+
+    {/* =========================================================
+        CREATE
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/create"
+        element={<GoodsReceiptNoteItemCreate />}
+    />
+
+    {/* =========================================================
+        DETAILS
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/details/:id"
+        element={<GoodsReceiptNoteItemDetails />}
+    />
+
+    {/* =========================================================
+        EDIT
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/edit/:id"
+        element={<GoodsReceiptNoteItemEdit />}
+    />
+
+    {/* =========================================================
+        FILTERS
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/filters"
+        element={<GoodsReceiptNoteItemFilters />}
+    />
+
+    {/* =========================================================
+        SEARCH
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/search"
+        element={<GoodsReceiptNoteItemSearch />}
+    />
+
+    {/* =========================================================
+        STATISTICS
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/statistics"
+        element={<GoodsReceiptNoteItemStatistics />}
+    />
+
+    {/* =========================================================
+        TABLE
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/table"
+        element={<GoodsReceiptNoteItemTable />}
+    />
+
+    {/* =========================================================
+        CARD
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/card"
+        element={<GoodsReceiptNoteItemCard />}
+    />
+
+    {/* =========================================================
+        FORM
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/form"
+        element={<GoodsReceiptNoteItemForm />}
+    />
+
+    {/* =========================================================
+        MODAL
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/modal"
+        element={<GoodsReceiptNoteItemModal />}
+    />
+
+    {/* =========================================================
+        PAGINATION
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/pagination"
+        element={<GoodsReceiptNoteItemPagination />}
+    />
+
+    {/* =========================================================
+        TOOLBAR
+    ========================================================= */}
+
+    <Route
+        path="/goods-receipt-note-items/toolbar"
+        element={<GoodsReceiptNoteItemToolbar />}
+    />
+
+
 
 
 

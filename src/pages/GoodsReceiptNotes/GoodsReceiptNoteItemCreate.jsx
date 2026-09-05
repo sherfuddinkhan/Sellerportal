@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useState
+} from "react";
+
 import axios from "axios";
 
 import {
@@ -20,7 +23,9 @@ import {
     ArrowBack
 } from "@mui/icons-material";
 
-import { useNavigate } from "react-router-dom";
+import {
+    useNavigate
+} from "react-router-dom";
 
 
 /* =========================================================
@@ -40,14 +45,31 @@ const API_URL =
 const initialForm = {
     GoodsReceiptNoteId: "",
     ProductId: "",
-    OrderedQuantity: "",
     ReceivedQuantity: "",
+    AcceptedQuantity: "",
     RejectedQuantity: "",
     UnitPrice: "",
-    TotalAmount: "",
-    BatchNumber: "",
-    ExpiryDate: "",
-    Remarks: ""
+    TaxAmount: "",
+    TotalAmount: ""
+};
+
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
 };
 
 
@@ -59,9 +81,16 @@ const GoodsReceiptNoteItemCreate = () => {
 
     const navigate = useNavigate();
 
+
+    /* =========================================================
+       STATE
+    ========================================================= */
+
     const [form, setForm] = useState(initialForm);
 
     const [loading, setLoading] = useState(false);
+
+    const [errors, setErrors] = useState({});
 
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -70,152 +99,370 @@ const GoodsReceiptNoteItemCreate = () => {
     });
 
 
-    /* =====================================================
+    /* =========================================================
+       CALCULATE TOTAL
+    ========================================================= */
+
+    const calculateTotal = (
+        acceptedQuantity = form.AcceptedQuantity,
+        unitPrice = form.UnitPrice,
+        taxAmount = form.TaxAmount
+    ) => {
+
+        const quantity = Number(
+            acceptedQuantity || 0
+        );
+
+        const price = Number(
+            unitPrice || 0
+        );
+
+        const tax = Number(
+            taxAmount || 0
+        );
+
+        if (
+            !Number.isFinite(quantity) ||
+            !Number.isFinite(price) ||
+            !Number.isFinite(tax)
+        ) {
+            return 0;
+        }
+
+        return (
+            quantity * price
+        ) + tax;
+    };
+
+
+    /* =========================================================
        HANDLE CHANGE
-    ===================================================== */
+    ========================================================= */
 
     const handleChange = (event) => {
 
-        const { name, value } = event.target;
+        const {
+            name,
+            value
+        } = event.target;
 
-        setForm((previous) => ({
+
+        setForm((previous) => {
+
+            const updatedForm = {
+                ...previous,
+                [name]: value
+            };
+
+
+            /* -----------------------------------------------
+               AUTO CALCULATE TOTAL
+            ------------------------------------------------ */
+
+            if (
+                name === "AcceptedQuantity" ||
+                name === "UnitPrice" ||
+                name === "TaxAmount"
+            ) {
+
+                const total = calculateTotal(
+                    name === "AcceptedQuantity"
+                        ? value
+                        : previous.AcceptedQuantity,
+
+                    name === "UnitPrice"
+                        ? value
+                        : previous.UnitPrice,
+
+                    name === "TaxAmount"
+                        ? value
+                        : previous.TaxAmount
+                );
+
+
+                updatedForm.TotalAmount =
+                    total.toFixed(2);
+            }
+
+
+            return updatedForm;
+        });
+
+
+        setErrors((previous) => ({
             ...previous,
-            [name]: value
+            [name]: ""
         }));
     };
 
 
-    /* =====================================================
-       CALCULATE TOTAL
-    ===================================================== */
+    /* =========================================================
+       VALIDATION
+    ========================================================= */
 
-    useEffect(() => {
+    const validateForm = () => {
 
-        const quantity =
+        const validationErrors = {};
+
+
+        /* -----------------------------------------------------
+           GRN ID
+        ----------------------------------------------------- */
+
+        if (
+            !form.GoodsReceiptNoteId ||
+            Number(form.GoodsReceiptNoteId) <= 0
+        ) {
+
+            validationErrors.GoodsReceiptNoteId =
+                "Goods Receipt Note ID is required.";
+        }
+
+
+        /* -----------------------------------------------------
+           PRODUCT ID
+        ----------------------------------------------------- */
+
+        if (
+            !form.ProductId ||
+            Number(form.ProductId) <= 0
+        ) {
+
+            validationErrors.ProductId =
+                "Product ID is required.";
+        }
+
+
+        /* -----------------------------------------------------
+           RECEIVED QUANTITY
+        ----------------------------------------------------- */
+
+        const receivedQuantity =
             Number(form.ReceivedQuantity || 0);
+
+        if (
+            form.ReceivedQuantity === "" ||
+            !Number.isFinite(receivedQuantity) ||
+            receivedQuantity <= 0
+        ) {
+
+            validationErrors.ReceivedQuantity =
+                "Received Quantity must be greater than 0.";
+        }
+
+
+        /* -----------------------------------------------------
+           ACCEPTED QUANTITY
+        ----------------------------------------------------- */
+
+        const acceptedQuantity =
+            Number(form.AcceptedQuantity || 0);
+
+        if (
+            !Number.isFinite(acceptedQuantity) ||
+            acceptedQuantity < 0
+        ) {
+
+            validationErrors.AcceptedQuantity =
+                "Accepted Quantity cannot be negative.";
+        }
+
+
+        /* -----------------------------------------------------
+           REJECTED QUANTITY
+        ----------------------------------------------------- */
+
+        const rejectedQuantity =
+            Number(form.RejectedQuantity || 0);
+
+        if (
+            !Number.isFinite(rejectedQuantity) ||
+            rejectedQuantity < 0
+        ) {
+
+            validationErrors.RejectedQuantity =
+                "Rejected Quantity cannot be negative.";
+        }
+
+
+        /* -----------------------------------------------------
+           QUANTITY CONSISTENCY
+        ----------------------------------------------------- */
+
+        if (
+            acceptedQuantity +
+            rejectedQuantity >
+            receivedQuantity
+        ) {
+
+            validationErrors.RejectedQuantity =
+                "Accepted Quantity + Rejected Quantity cannot exceed Received Quantity.";
+        }
+
+
+        /* -----------------------------------------------------
+           UNIT PRICE
+        ----------------------------------------------------- */
 
         const unitPrice =
             Number(form.UnitPrice || 0);
 
-        const total =
-            quantity * unitPrice;
+        if (
+            !Number.isFinite(unitPrice) ||
+            unitPrice < 0
+        ) {
 
-        setForm((previous) => ({
-            ...previous,
-            TotalAmount: total.toFixed(2)
-        }));
-
-    }, [
-        form.ReceivedQuantity,
-        form.UnitPrice
-    ]);
-
-
-    /* =====================================================
-       VALIDATION
-    ===================================================== */
-
-    const validateForm = () => {
-
-        if (!form.GoodsReceiptNoteId) {
-            return "Goods Receipt Note Id is required.";
+            validationErrors.UnitPrice =
+                "Unit Price cannot be negative.";
         }
 
-        if (!form.ProductId) {
-            return "Product Id is required.";
+
+        /* -----------------------------------------------------
+           TAX
+        ----------------------------------------------------- */
+
+        const taxAmount =
+            Number(form.TaxAmount || 0);
+
+        if (
+            !Number.isFinite(taxAmount) ||
+            taxAmount < 0
+        ) {
+
+            validationErrors.TaxAmount =
+                "Tax Amount cannot be negative.";
         }
 
-        if (!form.ReceivedQuantity) {
-            return "Received Quantity is required.";
-        }
 
-        return null;
+        setErrors(validationErrors);
+
+        return Object.keys(validationErrors).length === 0;
     };
 
 
-    /* =====================================================
-       CREATE
-    ===================================================== */
+    /* =========================================================
+       SUBMIT
+    ========================================================= */
 
     const handleSubmit = async (event) => {
 
         event.preventDefault();
 
-        const validationError = validateForm();
 
-        if (validationError) {
+        /* -----------------------------------------------------
+           VALIDATE
+        ----------------------------------------------------- */
+
+        if (!validateForm()) {
 
             setSnackbar({
                 open: true,
-                message: validationError,
+                message: "Please correct the highlighted fields.",
                 severity: "error"
             });
 
             return;
         }
 
+
         try {
 
             setLoading(true);
 
+
+            /* -------------------------------------------------
+               PAYLOAD
+            ------------------------------------------------- */
+
             const payload = {
+
                 GoodsReceiptNoteId:
-                    Number(form.GoodsReceiptNoteId),
+                    Number(
+                        form.GoodsReceiptNoteId
+                    ),
 
                 ProductId:
-                    Number(form.ProductId),
-
-                OrderedQuantity:
-                    Number(form.OrderedQuantity || 0),
+                    Number(
+                        form.ProductId
+                    ),
 
                 ReceivedQuantity:
-                    Number(form.ReceivedQuantity || 0),
+                    Number(
+                        form.ReceivedQuantity || 0
+                    ),
+
+                AcceptedQuantity:
+                    Number(
+                        form.AcceptedQuantity || 0
+                    ),
 
                 RejectedQuantity:
-                    Number(form.RejectedQuantity || 0),
+                    Number(
+                        form.RejectedQuantity || 0
+                    ),
 
                 UnitPrice:
-                    Number(form.UnitPrice || 0),
+                    Number(
+                        form.UnitPrice || 0
+                    ),
+
+                TaxAmount:
+                    Number(
+                        form.TaxAmount || 0
+                    ),
 
                 TotalAmount:
-                    Number(form.TotalAmount || 0),
-
-                BatchNumber:
-                    form.BatchNumber || null,
-
-                ExpiryDate:
-                    form.ExpiryDate || null,
-
-                Remarks:
-                    form.Remarks || null
+                    Number(
+                        form.TotalAmount ||
+                        calculateTotal()
+                    )
             };
 
 
             console.log(
-                "CREATE GRN ITEM PAYLOAD:",
+                "CREATE GOODS RECEIPT NOTE ITEM PAYLOAD:",
                 payload
             );
 
 
+            /* -------------------------------------------------
+               POST API
+            ------------------------------------------------- */
+
             const response =
                 await axios.post(
                     API_URL,
-                    payload
+                    payload,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
                 );
 
 
             console.log(
-                "CREATE GRN ITEM RESPONSE:",
+                "CREATE GOODS RECEIPT NOTE ITEM RESPONSE:",
                 response.data
             );
 
 
+            /* -------------------------------------------------
+               SUCCESS
+            ------------------------------------------------- */
+
             setSnackbar({
                 open: true,
-                message: "Goods Receipt Note Item created successfully.",
+                message:
+                    "Goods Receipt Note Item created successfully.",
                 severity: "success"
             });
 
+
+            /* -------------------------------------------------
+               NAVIGATE
+            ------------------------------------------------- */
 
             setTimeout(() => {
 
@@ -229,41 +476,87 @@ const GoodsReceiptNoteItemCreate = () => {
         } catch (error) {
 
             console.error(
-                "CREATE GRN ITEM ERROR:",
+                "CREATE GOODS RECEIPT NOTE ITEM ERROR:",
                 error
             );
 
+
+            let message =
+                "Failed to create Goods Receipt Note Item.";
+
+
+            if (error.response?.data?.message) {
+
+                message =
+                    error.response.data.message;
+
+            } else if (
+                typeof error.response?.data === "string"
+            ) {
+
+                message =
+                    error.response.data;
+
+            } else if (
+                error.message
+            ) {
+
+                message =
+                    error.message;
+            }
+
+
             setSnackbar({
                 open: true,
-                message:
-                    error.response?.data?.message ||
-                    "Failed to create Goods Receipt Note Item.",
+                message,
                 severity: "error"
             });
+
 
         } finally {
 
             setLoading(false);
-
         }
     };
 
 
-    /* =====================================================
+    /* =========================================================
+       BACK
+    ========================================================= */
+
+    const handleBack = () => {
+
+        navigate(
+            "/goods-receipt-note-items"
+        );
+    };
+
+
+    /* =========================================================
        RENDER
-    ===================================================== */
+    ========================================================= */
 
     return (
 
-        <Box sx={{ p: 3 }}>
+        <Box
+            sx={{
+                p: 3
+            }}
+        >
 
-            {/* HEADER */}
+            {/* =================================================
+                HEADER
+            ================================================= */}
 
             <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-                mb={3}
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 2,
+                    mb: 3
+                }}
             >
 
                 <Typography
@@ -277,11 +570,7 @@ const GoodsReceiptNoteItemCreate = () => {
                 <Button
                     variant="outlined"
                     startIcon={<ArrowBack />}
-                    onClick={() =>
-                        navigate(
-                            "/goods-receipt-note-items"
-                        )
-                    }
+                    onClick={handleBack}
                 >
                     Back
                 </Button>
@@ -289,32 +578,53 @@ const GoodsReceiptNoteItemCreate = () => {
             </Box>
 
 
-            {/* FORM */}
+            {/* =================================================
+                FORM CARD
+            ================================================= */}
 
             <Card>
 
                 <CardContent>
 
-                    <form onSubmit={handleSubmit}>
+                    <form
+                        onSubmit={handleSubmit}
+                        noValidate
+                    >
+
+                        {/* =====================================
+                            SECTION TITLE
+                        ====================================== */}
 
                         <Typography
                             variant="h6"
                             fontWeight="bold"
-                            mb={2}
+                            sx={{
+                                mb: 2
+                            }}
                         >
-                            GRN Item Information
+                            Goods Receipt Note Item Information
                         </Typography>
 
 
-                        <Divider sx={{ mb: 3 }} />
+                        <Divider
+                            sx={{
+                                mb: 3
+                            }}
+                        />
 
+
+                        {/* =====================================
+                            FORM FIELDS
+                        ====================================== */}
 
                         <Grid
                             container
                             spacing={2}
                         >
 
-                            {/* GRN ID */}
+                            {/* ---------------------------------
+                                GOODS RECEIPT NOTE ID
+                            ---------------------------------- */}
 
                             <Grid
                                 item
@@ -324,6 +634,7 @@ const GoodsReceiptNoteItemCreate = () => {
 
                                 <TextField
                                     fullWidth
+                                    required
                                     label="Goods Receipt Note ID"
                                     name="GoodsReceiptNoteId"
                                     type="number"
@@ -331,13 +642,26 @@ const GoodsReceiptNoteItemCreate = () => {
                                         form.GoodsReceiptNoteId
                                     }
                                     onChange={handleChange}
-                                    required
+                                    error={
+                                        Boolean(
+                                            errors.GoodsReceiptNoteId
+                                        )
+                                    }
+                                    helperText={
+                                        errors.GoodsReceiptNoteId
+                                    }
+                                    inputProps={{
+                                        min: 1,
+                                        step: 1
+                                    }}
                                 />
 
                             </Grid>
 
 
-                            {/* PRODUCT ID */}
+                            {/* ---------------------------------
+                                PRODUCT ID
+                            ---------------------------------- */}
 
                             <Grid
                                 item
@@ -347,6 +671,7 @@ const GoodsReceiptNoteItemCreate = () => {
 
                                 <TextField
                                     fullWidth
+                                    required
                                     label="Product ID"
                                     name="ProductId"
                                     type="number"
@@ -354,39 +679,26 @@ const GoodsReceiptNoteItemCreate = () => {
                                         form.ProductId
                                     }
                                     onChange={handleChange}
-                                    required
-                                />
-
-                            </Grid>
-
-
-                            {/* ORDERED QUANTITY */}
-
-                            <Grid
-                                item
-                                xs={12}
-                                md={4}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    label="Ordered Quantity"
-                                    name="OrderedQuantity"
-                                    type="number"
-                                    value={
-                                        form.OrderedQuantity
+                                    error={
+                                        Boolean(
+                                            errors.ProductId
+                                        )
                                     }
-                                    onChange={handleChange}
+                                    helperText={
+                                        errors.ProductId
+                                    }
                                     inputProps={{
-                                        min: 0,
-                                        step: "0.01"
+                                        min: 1,
+                                        step: 1
                                     }}
                                 />
 
                             </Grid>
 
 
-                            {/* RECEIVED QUANTITY */}
+                            {/* ---------------------------------
+                                RECEIVED QUANTITY
+                            ---------------------------------- */}
 
                             <Grid
                                 item
@@ -396,6 +708,7 @@ const GoodsReceiptNoteItemCreate = () => {
 
                                 <TextField
                                     fullWidth
+                                    required
                                     label="Received Quantity"
                                     name="ReceivedQuantity"
                                     type="number"
@@ -403,17 +716,62 @@ const GoodsReceiptNoteItemCreate = () => {
                                         form.ReceivedQuantity
                                     }
                                     onChange={handleChange}
+                                    error={
+                                        Boolean(
+                                            errors.ReceivedQuantity
+                                        )
+                                    }
+                                    helperText={
+                                        errors.ReceivedQuantity
+                                    }
                                     inputProps={{
                                         min: 0,
                                         step: "0.01"
                                     }}
-                                    required
                                 />
 
                             </Grid>
 
 
-                            {/* REJECTED QUANTITY */}
+                            {/* ---------------------------------
+                                ACCEPTED QUANTITY
+                            ---------------------------------- */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                md={4}
+                            >
+
+                                <TextField
+                                    fullWidth
+                                    label="Accepted Quantity"
+                                    name="AcceptedQuantity"
+                                    type="number"
+                                    value={
+                                        form.AcceptedQuantity
+                                    }
+                                    onChange={handleChange}
+                                    error={
+                                        Boolean(
+                                            errors.AcceptedQuantity
+                                        )
+                                    }
+                                    helperText={
+                                        errors.AcceptedQuantity
+                                    }
+                                    inputProps={{
+                                        min: 0,
+                                        step: "0.01"
+                                    }}
+                                />
+
+                            </Grid>
+
+
+                            {/* ---------------------------------
+                                REJECTED QUANTITY
+                            ---------------------------------- */}
 
                             <Grid
                                 item
@@ -430,6 +788,14 @@ const GoodsReceiptNoteItemCreate = () => {
                                         form.RejectedQuantity
                                     }
                                     onChange={handleChange}
+                                    error={
+                                        Boolean(
+                                            errors.RejectedQuantity
+                                        )
+                                    }
+                                    helperText={
+                                        errors.RejectedQuantity
+                                    }
                                     inputProps={{
                                         min: 0,
                                         step: "0.01"
@@ -439,12 +805,14 @@ const GoodsReceiptNoteItemCreate = () => {
                             </Grid>
 
 
-                            {/* UNIT PRICE */}
+                            {/* ---------------------------------
+                                UNIT PRICE
+                            ---------------------------------- */}
 
                             <Grid
                                 item
                                 xs={12}
-                                md={6}
+                                md={4}
                             >
 
                                 <TextField
@@ -456,6 +824,14 @@ const GoodsReceiptNoteItemCreate = () => {
                                         form.UnitPrice
                                     }
                                     onChange={handleChange}
+                                    error={
+                                        Boolean(
+                                            errors.UnitPrice
+                                        )
+                                    }
+                                    helperText={
+                                        errors.UnitPrice
+                                    }
                                     inputProps={{
                                         min: 0,
                                         step: "0.01"
@@ -465,12 +841,50 @@ const GoodsReceiptNoteItemCreate = () => {
                             </Grid>
 
 
-                            {/* TOTAL */}
+                            {/* ---------------------------------
+                                TAX AMOUNT
+                            ---------------------------------- */}
 
                             <Grid
                                 item
                                 xs={12}
-                                md={6}
+                                md={4}
+                            >
+
+                                <TextField
+                                    fullWidth
+                                    label="Tax Amount"
+                                    name="TaxAmount"
+                                    type="number"
+                                    value={
+                                        form.TaxAmount
+                                    }
+                                    onChange={handleChange}
+                                    error={
+                                        Boolean(
+                                            errors.TaxAmount
+                                        )
+                                    }
+                                    helperText={
+                                        errors.TaxAmount
+                                    }
+                                    inputProps={{
+                                        min: 0,
+                                        step: "0.01"
+                                    }}
+                                />
+
+                            </Grid>
+
+
+                            {/* ---------------------------------
+                                TOTAL AMOUNT
+                            ---------------------------------- */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                md={4}
                             >
 
                                 <TextField
@@ -479,104 +893,88 @@ const GoodsReceiptNoteItemCreate = () => {
                                     name="TotalAmount"
                                     type="number"
                                     value={
-                                        form.TotalAmount
+                                        form.TotalAmount ||
+                                        calculateTotal()
                                     }
                                     InputProps={{
                                         readOnly: true
                                     }}
                                 />
 
-                            </Grid>
-
-
-                            {/* BATCH */}
-
-                            <Grid
-                                item
-                                xs={12}
-                                md={6}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    label="Batch Number"
-                                    name="BatchNumber"
-                                    value={
-                                        form.BatchNumber
-                                    }
-                                    onChange={handleChange}
-                                />
-
-                            </Grid>
-
-
-                            {/* EXPIRY */}
-
-                            <Grid
-                                item
-                                xs={12}
-                                md={6}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    label="Expiry Date"
-                                    name="ExpiryDate"
-                                    type="date"
-                                    value={
-                                        form.ExpiryDate
-                                    }
-                                    onChange={handleChange}
-                                    InputLabelProps={{
-                                        shrink: true
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        display: "block",
+                                        mt: 0.5
                                     }}
-                                />
-
-                            </Grid>
-
-
-                            {/* REMARKS */}
-
-                            <Grid
-                                item
-                                xs={12}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    rows={4}
-                                    label="Remarks"
-                                    name="Remarks"
-                                    value={
-                                        form.Remarks
-                                    }
-                                    onChange={handleChange}
-                                />
+                                >
+                                    Accepted Quantity × Unit Price
+                                    + Tax Amount
+                                </Typography>
 
                             </Grid>
 
                         </Grid>
 
 
-                        <Divider sx={{ my: 3 }} />
+                        {/* =================================================
+                            TOTAL PREVIEW
+                        ================================================= */}
 
-
-                        {/* ACTIONS */}
+                        <Divider
+                            sx={{
+                                my: 3
+                            }}
+                        />
 
                         <Box
-                            display="flex"
-                            justifyContent="flex-end"
-                            gap={2}
+                            sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                alignItems: "center",
+                                gap: 2
+                            }}
+                        >
+
+                            <Typography
+                                variant="body1"
+                                color="text.secondary"
+                            >
+                                Total Amount:
+                            </Typography>
+
+                            <Typography
+                                variant="h6"
+                                fontWeight="bold"
+                            >
+                                {formatCurrency(
+                                    form.TotalAmount ||
+                                    calculateTotal()
+                                )}
+                            </Typography>
+
+                        </Box>
+
+
+                        {/* =================================================
+                            ACTIONS
+                        ================================================= */}
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                gap: 2,
+                                mt: 3
+                            }}
                         >
 
                             <Button
                                 variant="outlined"
-                                onClick={() =>
-                                    navigate(
-                                        "/goods-receipt-note-items"
-                                    )
-                                }
+                                color="inherit"
+                                onClick={handleBack}
+                                disabled={loading}
                             >
                                 Cancel
                             </Button>
@@ -587,13 +985,20 @@ const GoodsReceiptNoteItemCreate = () => {
                                 variant="contained"
                                 startIcon={
                                     loading
-                                        ? <CircularProgress size={20} />
-                                        : <Save />
+                                        ? (
+                                            <CircularProgress
+                                                size={20}
+                                                color="inherit"
+                                            />
+                                        )
+                                        : (
+                                            <Save />
+                                        )
                                 }
                                 disabled={loading}
                             >
                                 {loading
-                                    ? "Saving..."
+                                    ? "Creating..."
                                     : "Create Item"}
                             </Button>
 
@@ -606,11 +1011,13 @@ const GoodsReceiptNoteItemCreate = () => {
             </Card>
 
 
-            {/* SNACKBAR */}
+            {/* =================================================
+                SNACKBAR
+            ================================================= */}
 
             <Snackbar
                 open={snackbar.open}
-                autoHideDuration={3000}
+                autoHideDuration={4000}
                 onClose={() =>
                     setSnackbar((previous) => ({
                         ...previous,
@@ -621,6 +1028,7 @@ const GoodsReceiptNoteItemCreate = () => {
 
                 <Alert
                     severity={snackbar.severity}
+                    variant="filled"
                     onClose={() =>
                         setSnackbar((previous) => ({
                             ...previous,

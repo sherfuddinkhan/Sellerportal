@@ -14,16 +14,34 @@ import {
     Alert
 } from "@mui/material";
 
-import {
-    GoodsReceiptNoteItemToolbar,
-    GoodsReceiptNoteItemStatistics,
-    GoodsReceiptNoteItemSearch,
-    GoodsReceiptNoteItemTable,
-    GoodsReceiptNoteItemPagination,
-    GoodsReceiptNoteItemModal,
-    GoodsReceiptNoteItemView,
-    DeleteGoodsReceiptNoteItemDialog
-} from "./index";
+
+/* =========================================================
+   GOODS RECEIPT NOTE ITEM COMPONENTS
+========================================================= */
+
+import GoodsReceiptNoteItemToolbar
+    from "./GoodsReceiptNoteItemToolbar";
+
+import GoodsReceiptNoteItemStatistics
+    from "./GoodsReceiptNoteItemStatistics";
+
+import GoodsReceiptNoteItemSearch
+    from "./GoodsReceiptNoteItemSearch";
+
+import GoodsReceiptNoteItemTable
+    from "./GoodsReceiptNoteItemTable";
+
+import GoodsReceiptNoteItemPagination
+    from "./GoodsReceiptNoteItemPagination";
+
+import GoodsReceiptNoteItemModal
+    from "./GoodsReceiptNoteItemModal";
+
+import GoodsReceiptNoteItemView
+    from "./GoodsReceiptNoteItemView";
+
+import DeleteGoodsReceiptNoteItemDialog
+    from "./DeleteGoodsReceiptNoteItemDialog";
 
 
 /* =========================================================
@@ -108,22 +126,28 @@ const GoodsReceiptNoteItemList = () => {
                 response.data
             );
 
-            /*
-             * Handle normal array response
-             */
+
+            /* =============================================
+               NORMAL ARRAY RESPONSE
+            ============================================= */
 
             if (Array.isArray(response.data)) {
 
-                setItems(response.data);
+                setItems(
+                    response.data
+                );
 
             }
 
-            /*
-             * Handle wrapped API response
-             */
+
+            /* =============================================
+               WRAPPED DATA RESPONSE
+            ============================================= */
 
             else if (
-                Array.isArray(response.data?.data)
+                Array.isArray(
+                    response.data?.data
+                )
             ) {
 
                 setItems(
@@ -132,8 +156,15 @@ const GoodsReceiptNoteItemList = () => {
 
             }
 
+
+            /* =============================================
+               WRAPPED ITEMS RESPONSE
+            ============================================= */
+
             else if (
-                Array.isArray(response.data?.items)
+                Array.isArray(
+                    response.data?.items
+                )
             ) {
 
                 setItems(
@@ -142,7 +173,17 @@ const GoodsReceiptNoteItemList = () => {
 
             }
 
+
+            /* =============================================
+               INVALID RESPONSE
+            ============================================= */
+
             else {
+
+                console.warn(
+                    "Unexpected GRN Item response:",
+                    response.data
+                );
 
                 setItems([]);
 
@@ -167,6 +208,7 @@ const GoodsReceiptNoteItemList = () => {
             setSnackbar({
                 open: true,
                 message:
+                    error?.response?.data?.message ||
                     "Failed to load Goods Receipt Note Items",
                 severity: "error"
             });
@@ -209,6 +251,7 @@ const GoodsReceiptNoteItemList = () => {
             searchText
                 .trim()
                 .toLowerCase();
+
 
         return items.filter(
             (item) => {
@@ -263,6 +306,7 @@ const GoodsReceiptNoteItemList = () => {
     const totalRecords =
         filteredItems.length;
 
+
     const totalPages =
         Math.max(
             1,
@@ -270,6 +314,7 @@ const GoodsReceiptNoteItemList = () => {
                 totalRecords / pageSize
             )
         );
+
 
     const paginatedItems =
         filteredItems.slice(
@@ -328,7 +373,7 @@ const GoodsReceiptNoteItemList = () => {
                         return (
                             sum +
                             Number(
-                                item.ReceivedQuantity || 0
+                                item.ReceivedQuantity ?? 0
                             )
                         );
 
@@ -346,7 +391,7 @@ const GoodsReceiptNoteItemList = () => {
                         return (
                             sum +
                             Number(
-                                item.RejectedQuantity || 0
+                                item.RejectedQuantity ?? 0
                             )
                         );
 
@@ -364,7 +409,7 @@ const GoodsReceiptNoteItemList = () => {
                         return (
                             sum +
                             Number(
-                                item.TotalAmount || 0
+                                item.TotalAmount ?? 0
                             )
                         );
 
@@ -851,4 +896,3 @@ const GoodsReceiptNoteItemList = () => {
 
 
 export default GoodsReceiptNoteItemList;
-

@@ -698,6 +698,83 @@ children: [
 
     ],
 },
+{
+    label: "GRN Items",
+
+    path: "/goods-receipt-note-items",
+
+    icon: "📦",
+
+    children: [
+
+        {
+            label: "GRN Item List",
+            path: "/goods-receipt-note-items",
+        },
+
+        {
+            label: "Create GRN Item",
+            path: "/goods-receipt-note-items/create",
+        },
+
+        {
+            label: "GRN Item Details",
+            path: "/goods-receipt-note-items/details/:id",
+        },
+
+        {
+            label: "Edit GRN Item",
+            path: "/goods-receipt-note-items/edit/:id",
+        },
+
+        {
+            label: "GRN Item Filters",
+            path: "/goods-receipt-note-items/filters",
+        },
+
+        {
+            label: "Search GRN Items",
+            path: "/goods-receipt-note-items/search",
+        },
+
+        {
+            label: "GRN Item Statistics",
+            path: "/goods-receipt-note-items/statistics",
+        },
+
+        {
+            label: "GRN Item Table",
+            path: "/goods-receipt-note-items/table",
+        },
+
+        {
+            label: "GRN Item Card",
+            path: "/goods-receipt-note-items/card",
+        },
+
+        {
+            label: "GRN Item Form",
+            path: "/goods-receipt-note-items/form",
+        },
+
+        {
+            label: "GRN Item Modal",
+            path: "/goods-receipt-note-items/modal",
+        },
+
+        {
+            label: "GRN Item Pagination",
+            path: "/goods-receipt-note-items/pagination",
+        },
+
+        {
+            label: "GRN Item Toolbar",
+            path: "/goods-receipt-note-items/toolbar",
+        },
+
+    ],
+},
+
 
 {
 label: "Product Prices",
