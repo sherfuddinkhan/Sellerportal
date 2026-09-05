@@ -1,152 +1,367 @@
 import React from "react";
-import {Card,CardContent,CardActions,Typography,Divider,Stack,Button} from "@mui/material";
-import {Visibility,Edit,Delete} from "@mui/icons-material";
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+import {
+    Card,
+    CardContent,
+    CardActions,
+    Typography,
+    Divider,
+    Stack,
+    Button,
+    Box,
+    Chip
+} from "@mui/material";
+
+import {
+    Visibility,
+    Edit,
+    Delete
+} from "@mui/icons-material";
+
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
+};
+
+
+/* =========================================================
+   FORMAT NUMBER
+========================================================= */
+
+const formatNumber = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "0";
+    }
+
+    return amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    });
+};
+
+
+/* =========================================================
+   GOODS RECEIPT NOTE ITEM CARD
+========================================================= */
+
 const GoodsReceiptNoteItemCard = ({
     item,
     onView,
     onEdit,
     onDelete
 }) => {
+
+    if (!item) {
+        return null;
+    }
+
+
+    /* =====================================================
+       VALUES
+    ===================================================== */
+
+    const itemId =
+        item.GoodsReceiptNoteItemId ?? "-";
+
+    const grnId =
+        item.GoodsReceiptNoteId ?? "-";
+
+    const productId =
+        item.ProductId ?? "-";
+
+    const receivedQuantity =
+        item.ReceivedQuantity ?? 0;
+
+    const acceptedQuantity =
+        item.AcceptedQuantity ?? 0;
+
+    const rejectedQuantity =
+        item.RejectedQuantity ?? 0;
+
+    const unitPrice =
+        item.UnitPrice ?? 0;
+
+    const taxAmount =
+        item.TaxAmount ?? 0;
+
+    const totalAmount =
+        item.TotalAmount ?? 0;
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    const rejected =
+        Number(rejectedQuantity) > 0;
+
+
     return (
+
         <Card
             className="goods-receipt-note-item-card"
             sx={{
-                height:"100%",
-                borderRadius:3
+                height: "100%",
+                borderRadius: 3,
+                display: "flex",
+                flexDirection: "column",
+                transition: "0.2s",
+                "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: 4
+                }
             }}
         >
-            <CardContent>
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    gutterBottom
+
+            {/* =================================================
+                CARD CONTENT
+            ================================================= */}
+
+            <CardContent
+                sx={{
+                    flexGrow: 1
+                }}
+            >
+
+                {/* =============================================
+                    HEADER
+                ============================================= */}
+
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    gap={1}
+                    mb={1}
                 >
-                    GRN Item #
-                    {   item.GoodsReceiptNoteItemId}
-                </Typography>
+
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                    >
+                        GRN Item #{itemId}
+                    </Typography>
+
+
+                    <Chip
+                        size="small"
+                        label={
+                            rejected
+                                ? "Partially Rejected"
+                                : "Received"
+                        }
+                        color={
+                            rejected
+                                ? "warning"
+                                : "success"
+                        }
+                    />
+
+                </Box>
+
+
+                {/* =============================================
+                    REFERENCE INFORMATION
+                ============================================= */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
-                    Goods Receipt Note ID :
-                    {" "}
-                    { item.GoodsReceiptNoteId}
+                    <strong>
+                        Goods Receipt Note ID:
+                    </strong>{" "}
+                    {grnId}
                 </Typography>
+
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
-                    Product ID :
-                    {" "}
-                    { item.ProductId}
+                    <strong>
+                        Product ID:
+                    </strong>{" "}
+                    {productId}
                 </Typography>
+
+
                 <Divider
                     sx={{
-                        my:2
+                        my: 2
                     }}
                 />
-                <Stack
-                    spacing={1}
-                >
+
+
+                {/* =============================================
+                    QUANTITY INFORMATION
+                ============================================= */}
+
+                <Stack spacing={1}>
+
                     <Typography>
                         <strong>
                             Received Qty:
-                        </strong>
-                        {" "}
-                        {item.ReceivedQuantity}
+                        </strong>{" "}
+                        {formatNumber(
+                            receivedQuantity
+                        )}
                     </Typography>
+
+
                     <Typography>
                         <strong>
                             Accepted Qty:
-                        </strong>
-                        {" "}
-                        {item.AcceptedQuantity}
+                        </strong>{" "}
+                        {formatNumber(
+                            acceptedQuantity
+                        )}
                     </Typography>
+
+
                     <Typography>
                         <strong>
                             Rejected Qty:
-                        </strong>
-                        {" "}
-                        {item.RejectedQuantity}
+                        </strong>{" "}
+                        {formatNumber(
+                            rejectedQuantity
+                        )}
                     </Typography>
+
+
+                    <Divider
+                        sx={{
+                            my: 1
+                        }}
+                    />
+
+
+                    {/* =========================================
+                        PRICE
+                    ========================================= */}
+
                     <Typography>
                         <strong>
                             Unit Price:
-                        </strong>
-                        {" "}
-                        {
-                            formatCurrency(item.UnitPrice)
-                        }
+                        </strong>{" "}
+                        {formatCurrency(
+                            unitPrice
+                        )}
                     </Typography>
+
+
                     <Typography>
                         <strong>
                             Tax:
-                        </strong>
-                        {" "}
-                        {
-                            formatCurrency(item.TaxAmount)
-                        }
+                        </strong>{" "}
+                        {formatCurrency(
+                            taxAmount
+                        )}
                     </Typography>
+
+
                     <Typography
                         fontWeight="bold"
+                        variant="h6"
                     >
-                        Total:
-                        {" "}
-                        {
-                            formatCurrency(item.TotalAmount)
-                        }
+                        Total:{" "}
+                        {formatCurrency(
+                            totalAmount
+                        )}
                     </Typography>
+
                 </Stack>
+
             </CardContent>
+
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
             <CardActions
                 sx={{
-                    justifyContent:"space-between",
-                    px:2,
-                    pb:2
+                    px: 2,
+                    pb: 2,
+                    pt: 0,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 1
                 }}
             >
+
+                {/* VIEW */}
+
                 <Button
                     size="small"
+                    variant="outlined"
                     startIcon={
                         <Visibility />
                     }
                     onClick={() =>
-                      onView(item)
+                        onView?.(item)
                     }
                 >
                     View
                 </Button>
+
+
+                {/* EDIT */}
+
                 <Button
                     size="small"
                     color="warning"
-                    startIcon={<Edit />
+                    variant="outlined"
+                    startIcon={
+                        <Edit />
                     }
                     onClick={() =>
-                        onEdit(item)
+                        onEdit?.(item)
                     }
                 >
                     Edit
                 </Button>
+
+
+                {/* DELETE */}
+
                 <Button
                     size="small"
                     color="error"
+                    variant="outlined"
                     startIcon={
                         <Delete />
                     }
                     onClick={() =>
-                        onDelete(item)
+                        onDelete?.(item)
                     }
                 >
                     Delete
                 </Button>
+
             </CardActions>
+
         </Card>
     );
 };
+
+
 export default GoodsReceiptNoteItemCard;
+

@@ -1,13 +1,41 @@
-import React from "react";
-import {Dialog,DialogTitle,DialogContent,DialogContentText,DialogActions,Button,Typography} from "@mui/material";
+import React, { useState } from "react";
+
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Button,
+    Typography,
+    Divider,
+    Box,
+    CircularProgress
+} from "@mui/material";
 
 
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
 
-const formatCurrency = (value) =>
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
+};
+
+
+/* =========================================================
+   DELETE GOODS RECEIPT NOTE ITEM DIALOG
+========================================================= */
 
 const DeleteGoodsReceiptNoteItemDialog = ({
     open,
@@ -16,106 +44,324 @@ const DeleteGoodsReceiptNoteItemDialog = ({
     onDeleted
 }) => {
 
-    const handleDelete = () => {
-        if (!item)
+    const [deleting, setDeleting] = useState(false);
+
+
+    /* =====================================================
+       HANDLE DELETE
+    ===================================================== */
+
+    const handleDelete = async () => {
+
+        if (!item) {
             return;
-        onDeleted(item.GoodsReceiptNoteItemId);
+        }
+
+        const itemId =
+            item.GoodsReceiptNoteItemId;
+
+        if (!itemId) {
+            return;
+        }
+
+        try {
+
+            setDeleting(true);
+
+            await onDeleted(itemId);
+
+        } catch (error) {
+
+            console.error(
+                "DELETE GRN ITEM DIALOG ERROR:",
+                error
+            );
+
+        } finally {
+
+            setDeleting(false);
+
+        }
     };
+
+
+    /* =====================================================
+       HANDLE CLOSE
+    ===================================================== */
+
+    const handleClose = () => {
+
+        if (deleting) {
+            return;
+        }
+
+        onClose();
+    };
+
+
     return (
+
         <Dialog
             open={open}
-            onClose={onClose}
+            onClose={handleClose}
             fullWidth
             maxWidth="sm"
         >
-            <DialogTitle>
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
+            <DialogTitle
+                sx={{
+                    fontWeight: "bold"
+                }}
+            >
                 Delete Goods Receipt Note Item
             </DialogTitle>
+
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
             <DialogContent>
+
                 <DialogContentText
                     sx={{
-                        mb:2
+                        mb: 2
                     }}
                 >
-                    Are you sure you want to delete this Goods Receipt Note Item?
+                    Are you sure you want to delete this Goods
+                    Receipt Note Item?
+                </DialogContentText>
+
+
+                <DialogContentText
+                    sx={{
+                        mb: 3,
+                        color: "error.main",
+                        fontWeight: 500
+                    }}
+                >
                     This action cannot be undone.
                 </DialogContentText>
-                {
-                    item && (
-                        <>
-                            <Typography>
-                                <strong>
-                                    GRN Item ID:
-                                </strong>
-                                {" "}
-                                {
-                                    item.GoodsReceiptNoteItemId
-                                }
-                            </Typography>
-                            <Typography>
-                                <strong>
-                                    GRN ID:
-                                </strong>
-                                {" "}
-                                {item.GoodsReceiptNoteId}
-                            </Typography>
-                            <Typography>
-                                <strong>
-                                    Product ID:
-                                </strong>
-                                {" "}
-                                {
-                                    item.ProductId
-                                }
-                            </Typography>
-                            <Typography>
-                                <strong>
-                                    Received Quantity:
-                                </strong>
-                                {" "}
-                                {
-                                    item.ReceivedQuantity
-                                }
-                            </Typography>
-                            <Typography>
-                                <strong>
-                                    Accepted Quantity:
-                                </strong>
-                                {" "}
-                                {
-                                    item.AcceptedQuantity
-                                }
-                            </Typography>
-                            <Typography>
-                                <strong>
-                                    Total Amount:
-                                </strong>
-                                {" "}
-                                {
-                                    formatCurrency(item.TotalAmount)
-                                }
-                            </Typography>
-                        </>
-                    )
-                }
+
+
+                {item && (
+
+                    <Box>
+
+                        {/* =====================================
+                            GRN ITEM ID
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                GRN Item ID:
+                            </strong>{" "}
+
+                            {item.GoodsReceiptNoteItemId ?? "-"}
+
+                        </Typography>
+
+
+                        {/* =====================================
+                            GRN ID
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                GRN ID:
+                            </strong>{" "}
+
+                            {item.GoodsReceiptNoteId ?? "-"}
+
+                        </Typography>
+
+
+                        {/* =====================================
+                            PRODUCT ID
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                Product ID:
+                            </strong>{" "}
+
+                            {item.ProductId ?? "-"}
+
+                        </Typography>
+
+
+                        <Divider sx={{ my: 2 }} />
+
+
+                        {/* =====================================
+                            RECEIVED QUANTITY
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                Received Quantity:
+                            </strong>{" "}
+
+                            {item.ReceivedQuantity ?? 0}
+
+                        </Typography>
+
+
+                        {/* =====================================
+                            ACCEPTED QUANTITY
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                Accepted Quantity:
+                            </strong>{" "}
+
+                            {item.AcceptedQuantity ?? 0}
+
+                        </Typography>
+
+
+                        {/* =====================================
+                            REJECTED QUANTITY
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                Rejected Quantity:
+                            </strong>{" "}
+
+                            {item.RejectedQuantity ?? 0}
+
+                        </Typography>
+
+
+                        {/* =====================================
+                            UNIT PRICE
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                Unit Price:
+                            </strong>{" "}
+
+                            {formatCurrency(
+                                item.UnitPrice
+                            )}
+
+                        </Typography>
+
+
+                        {/* =====================================
+                            TAX
+                        ===================================== */}
+
+                        <Typography sx={{ mb: 1 }}>
+
+                            <strong>
+                                Tax:
+                            </strong>{" "}
+
+                            {formatCurrency(
+                                item.TaxAmount
+                            )}
+
+                        </Typography>
+
+
+                        {/* =====================================
+                            TOTAL
+                        ===================================== */}
+
+                        <Typography
+                            fontWeight="bold"
+                            sx={{
+                                mt: 1
+                            }}
+                        >
+
+                            <strong>
+                                Total Amount:
+                            </strong>{" "}
+
+                            {formatCurrency(
+                                item.TotalAmount
+                            )}
+
+                        </Typography>
+
+                    </Box>
+                )}
+
             </DialogContent>
-            <DialogActions>
+
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
+
+                {/* CANCEL */}
+
                 <Button
-                    onClick={onClose}
+                    onClick={handleClose}
                     color="inherit"
+                    disabled={deleting}
                 >
                     Cancel
                 </Button>
+
+
+                {/* DELETE */}
+
                 <Button
-                 variant="contained"
+                    variant="contained"
                     color="error"
                     onClick={handleDelete}
+                    disabled={
+                        deleting ||
+                        !item ||
+                        !item.GoodsReceiptNoteItemId
+                    }
+                    startIcon={
+                        deleting
+                            ? (
+                                <CircularProgress
+                                    size={18}
+                                    color="inherit"
+                                />
+                            )
+                            : null
+                    }
                 >
-                    Delete
+
+                    {deleting
+                        ? "Deleting..."
+                        : "Delete"}
+
                 </Button>
+
             </DialogActions>
+
         </Dialog>
     );
 };
+
 
 export default DeleteGoodsReceiptNoteItemDialog;

@@ -1,93 +1,205 @@
 import React from "react";
-import {Grid,Card,CardContent,Typography} from "@mui/material";
-import {Inventory,MoveToInbox,Block,CurrencyRupee} from "@mui/icons-material";
+
+import {
+    Grid,
+    Card,
+    CardContent,
+    Typography,
+    Box
+} from "@mui/material";
+
+import {
+    Inventory,
+    MoveToInbox,
+    Block,
+    CurrencyRupee
+} from "@mui/icons-material";
+
+
+/* =========================================================
+   FORMAT NUMBER
+========================================================= */
+
+const formatNumber = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "0";
+    }
+
+    return amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    });
+};
+
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+};
+
+
+/* =========================================================
+   GOODS RECEIPT NOTE ITEM STATISTICS
+========================================================= */
 
 const GoodsReceiptNoteItemStatistics = ({
     statistics = {}
 }) => {
 
+    /* =========================================================
+       STATISTICS VALUES
+    ========================================================= */
+
+    const totalItems = Number(
+        statistics.totalItems ?? 0
+    );
+
+    const totalReceived = Number(
+        statistics.totalReceived ?? 0
+    );
+
+    const totalRejected = Number(
+        statistics.totalRejected ?? 0
+    );
+
+    const totalAmount = Number(
+        statistics.totalAmount ?? 0
+    );
+
+
+    /* =========================================================
+       STATISTICS CARDS
+    ========================================================= */
+
     const cards = [
 
         {
             title: "Total Items",
-            value:
-                statistics.totalItems || 0,
-            icon:
-                <Inventory />
+            value: formatNumber(totalItems),
+            icon: <Inventory />
         },
+
         {
             title: "Received Quantity",
-            value:
-                statistics.totalReceived || 0,
-            icon:
-                <MoveToInbox />
+            value: formatNumber(totalReceived),
+            icon: <MoveToInbox />
         },
+
         {
             title: "Rejected Quantity",
-            value: statistics.totalRejected || 0,
+            value: formatNumber(totalRejected),
             icon: <Block />
         },
+
         {
             title: "Total Amount",
-            value:
-                `₹ ${Number(
-                    statistics.totalAmount || 0
-                ).toLocaleString(undefined, {
-                    minimumFractionDigits:2,
-                    maximumFractionDigits:2
-                })}`,
+            value: formatCurrency(totalAmount),
             icon: <CurrencyRupee />
         }
+
     ];
+
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
+
     return (
         <Grid
             container
             spacing={2}
             mb={3}
         >
-            {
-                cards.map((card, index) => (
-                    <Grid
-                        item
-                        xs={12}
-                        sm={6}
-                        md={3}
-                        key={index}
+
+            {cards.map((card, index) => (
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                    key={index}
+                >
+
+                    <Card
+                        className="goods-receipt-note-item-stat-card"
+                        sx={{
+                            height: "100%",
+                            borderRadius: 3
+                        }}
                     >
-                        <Card
-                            className="goods-receipt-note-item-stat-card"
-                            sx={{
-                                height:"100%",
-                                borderRadius:3
-                            }}
-                        >
-                            <CardContent>
+
+                        <CardContent>
+
+                            {/* =================================================
+                                CARD HEADER
+                            ================================================= */}
+
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1
+                                }}
+                            >
+
+                                {React.cloneElement(
+                                    card.icon,
+                                    {
+                                        fontSize: "small",
+                                        color: "action"
+                                    }
+                                )}
+
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
-                                    display="flex"
-                                    alignItems="center"
-                                    gap={1}
                                 >
-                                    {card.icon}
                                     {card.title}
                                 </Typography>
-                                <Typography
-                                    variant="h5"
-                                    fontWeight="bold"
-                                    mt={1}
-                                >
-                                    {card.value}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))
-            }
+
+                            </Box>
+
+
+                            {/* =================================================
+                                CARD VALUE
+                            ================================================= */}
+
+                            <Typography
+                                variant="h5"
+                                fontWeight="bold"
+                                mt={1}
+                            >
+                                {card.value}
+                            </Typography>
+
+                        </CardContent>
+
+                    </Card>
+
+                </Grid>
+
+            ))}
+
         </Grid>
     );
 };
-
 
 
 export default GoodsReceiptNoteItemStatistics;

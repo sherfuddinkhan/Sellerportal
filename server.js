@@ -6891,10 +6891,798 @@ app.delete(
 
 
 
+/* =========================================================
+   GOODS RECEIPT NOTES
+========================================================= */
+
+const GRN = "/GoodsReceiptNotes";
+
+/* =========================================================
+   GET ALL
+   GET /api/goods-receipt-notes
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET ALL GOODS RECEIPT NOTES"
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET ALL GOODS RECEIPT NOTES ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
 
 
+/* =========================================================
+   GET BY ID
+   GET /api/goods-receipt-notes/:goodsReceiptNoteId
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptNoteId
+            } = req.params;
+
+            console.log(
+                "GET GOODS RECEIPT NOTE:",
+                goodsReceiptNoteId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/${goodsReceiptNoteId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GOODS RECEIPT NOTE ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
 
 
+/* =========================================================
+   GET BY PURCHASE ORDER
+   GET /api/goods-receipt-notes/purchaseorder/:purchaseOrderId
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/purchaseorder/:purchaseOrderId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderId
+            } = req.params;
+
+            console.log(
+                "GET GRN BY PURCHASE ORDER:",
+                purchaseOrderId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/purchaseorder/${purchaseOrderId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GRN BY PURCHASE ORDER ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   GET BY PURCHASE ORDER + GRN
+   GET /api/goods-receipt-notes/purchaseorder/:purchaseOrderId/grn/:goodsReceiptNoteId
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/purchaseorder/:purchaseOrderId/grn/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderId,
+                goodsReceiptNoteId
+            } = req.params;
+
+            console.log(
+                "GET GRN BY PURCHASE ORDER + GRN:",
+                purchaseOrderId,
+                goodsReceiptNoteId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/purchaseorder/${purchaseOrderId}/grn/${goodsReceiptNoteId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GRN BY PURCHASE ORDER + GRN ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   GET BY SELLER
+   GET /api/goods-receipt-notes/seller/:sellerId
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            console.log(
+                "GET GRN BY SELLER:",
+                sellerId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/seller/${sellerId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GRN BY SELLER ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   GET BY CUSTOMER
+   GET /api/goods-receipt-notes/customer/:customerId
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                customerId
+            } = req.params;
+
+            console.log(
+                "GET GRN BY CUSTOMER:",
+                customerId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/customer/${customerId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GRN BY CUSTOMER ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   GET BY SUPPLIER
+   GET /api/goods-receipt-notes/supplier/:supplierId
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/supplier/:supplierId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                supplierId
+            } = req.params;
+
+            console.log(
+                "GET GRN BY SUPPLIER:",
+                supplierId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/supplier/${supplierId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GRN BY SUPPLIER ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   GET BY SELLER + CUSTOMER
+   GET /api/goods-receipt-notes/seller/:sellerId/customer/:customerId
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            console.log(
+                "GET GRN BY SELLER + CUSTOMER:",
+                sellerId,
+                customerId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/seller/${sellerId}/customer/${customerId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GRN BY SELLER + CUSTOMER ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   GET BY STATUS
+   GET /api/goods-receipt-notes/status/:status
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const {
+                status
+            } = req.params;
+
+            console.log(
+                "GET GRN BY STATUS:",
+                status
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/status/${encodeURIComponent(status)}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GRN BY STATUS ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   SEARCH
+   GET /api/goods-receipt-notes/search?search=GRN-001&status=inspected
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/search",
+    async (req, res) => {
+
+        try {
+
+            const {
+                search,
+                status
+            } = req.query;
+
+            console.log(
+                "SEARCH GOODS RECEIPT NOTES:",
+                {
+                    search,
+                    status
+                }
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/search`,
+                {
+                    params: {
+                        search,
+                        status
+                    },
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "SEARCH GOODS RECEIPT NOTES ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   STATISTICS
+   GET /api/goods-receipt-notes/stats
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/stats",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET GOODS RECEIPT NOTE STATISTICS"
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/stats`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET GOODS RECEIPT NOTE STATISTICS ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   PAGINATION
+   GET /api/goods-receipt-notes/page?page=1&limit=15
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/page",
+    async (req, res) => {
+
+        try {
+
+            const {
+                page = 1,
+                limit = 15
+            } = req.query;
+
+            console.log(
+                "GET PAGED GOODS RECEIPT NOTES:",
+                {
+                    page,
+                    limit
+                }
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/page`,
+                {
+                    params: {
+                        page,
+                        limit
+                    },
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET PAGED GOODS RECEIPT NOTES ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   SORTING
+   GET /api/goods-receipt-notes/sort?sort=date_desc
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-notes/sort",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sort
+            } = req.query;
+
+            console.log(
+                "SORT GOODS RECEIPT NOTES:",
+                sort
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}${GRN}/sort`,
+                {
+                    params: {
+                        sort
+                    },
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "SORT GOODS RECEIPT NOTES ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   CREATE
+   POST /api/goods-receipt-notes
+========================================================= */
+
+app.post(
+    "/api/goods-receipt-notes",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "CREATE GOODS RECEIPT NOTE"
+            );
+
+            console.log(
+                "REQUEST BODY:",
+                req.body
+            );
+
+            const response = await axios.post(
+                `${DOTNET_API}${GRN}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "CREATE GOODS RECEIPT NOTE ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   UPDATE
+   PUT /api/goods-receipt-notes/:goodsReceiptNoteId
+========================================================= */
+
+app.put(
+    "/api/goods-receipt-notes/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptNoteId
+            } = req.params;
+
+            console.log(
+                "UPDATE GOODS RECEIPT NOTE:",
+                goodsReceiptNoteId
+            );
+
+            console.log(
+                "REQUEST BODY:",
+                req.body
+            );
+
+            const response = await axios.put(
+                `${DOTNET_API}${GRN}/${goodsReceiptNoteId}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE GOODS RECEIPT NOTE ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   DELETE
+   DELETE /api/goods-receipt-notes/:goodsReceiptNoteId
+========================================================= */
+
+app.delete(
+    "/api/goods-receipt-notes/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptNoteId
+            } = req.params;
+
+            console.log(
+                "DELETE GOODS RECEIPT NOTE:",
+                goodsReceiptNoteId
+            );
+
+            const response = await axios.delete(
+                `${DOTNET_API}${GRN}/${goodsReceiptNoteId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 30000
+                }
+            );
+
+            return res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE GOODS RECEIPT NOTE ERROR:",
+                error.message
+            );
+
+            return handleAxiosError(res, error);
+        }
+    }
+)
 
 //////////////////////    STOCK LEDGERS /////////////////
 // ---------------------------------------------------------
