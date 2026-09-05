@@ -14,6 +14,7 @@ import {
     MenuItem
 } from "@mui/material";
 
+
 const PurchaseReturnModal = ({
     open,
     onClose,
@@ -21,120 +22,241 @@ const PurchaseReturnModal = ({
     purchaseReturn
 }) => {
 
+    /* =========================================================
+       INITIAL STATE
+    ========================================================= */
+
     const initialState = {
-
         PurchaseReturnId: 0,
-
         PurchaseOrderId: "",
-
         GoodsReceiptNoteId: "",
-
         SupplierId: "",
-
         PurchaseReturnNumber: "",
-
         ReturnDate: "",
-
         Reason: "",
-
         TotalAmount: "",
-
         Status: "Pending"
-
     };
 
-    const [formData,
-        setFormData] = useState(initialState);
+
+    /* =========================================================
+       FORM STATE
+    ========================================================= */
+
+    const [
+        formData,
+        setFormData
+    ] = useState(initialState);
+
+
+    /* =========================================================
+       LOAD / RESET FORM
+    ========================================================= */
 
     useEffect(() => {
+
+        if (!open) {
+            return;
+        }
 
         if (purchaseReturn) {
 
             setFormData({
 
                 PurchaseReturnId:
-                    purchaseReturn.PurchaseReturnId || 0,
+                    purchaseReturn.PurchaseReturnId ?? 0,
 
                 PurchaseOrderId:
-                    purchaseReturn.PurchaseOrderId || "",
+                    purchaseReturn.PurchaseOrderId ?? "",
 
                 GoodsReceiptNoteId:
-                    purchaseReturn.GoodsReceiptNoteId || "",
+                    purchaseReturn.GoodsReceiptNoteId ?? "",
 
                 SupplierId:
-                    purchaseReturn.SupplierId || "",
+                    purchaseReturn.SupplierId ?? "",
 
                 PurchaseReturnNumber:
-                    purchaseReturn.PurchaseReturnNumber || "",
+                    purchaseReturn.PurchaseReturnNumber ?? "",
 
                 ReturnDate:
                     purchaseReturn.ReturnDate
-                        ? purchaseReturn.ReturnDate.substring(0, 10)
+                        ? String(
+                            purchaseReturn.ReturnDate
+                        ).substring(0, 10)
                         : "",
 
                 Reason:
-                    purchaseReturn.Reason || "",
+                    purchaseReturn.Reason ?? "",
 
                 TotalAmount:
-                    purchaseReturn.TotalAmount || "",
+                    purchaseReturn.TotalAmount ?? "",
 
                 Status:
-                    purchaseReturn.Status || "Pending"
+                    purchaseReturn.Status ?? "Pending"
 
             });
 
-        }
-        else {
+        } else {
 
-            setFormData(initialState);
+            setFormData({
+                ...initialState
+            });
 
         }
 
     }, [purchaseReturn, open]);
 
-    const handleChange = (e) => {
+
+    /* =========================================================
+       HANDLE CHANGE
+    ========================================================= */
+
+    const handleChange = (event) => {
 
         const {
-
             name,
-
             value
-
-        } = e.target;
+        } = event.target;
 
         setFormData(prev => ({
-
             ...prev,
-
             [name]: value
-
         }));
 
     };
 
-    const handleSubmit = (e) => {
 
-        e.preventDefault();
+    /* =========================================================
+       HANDLE SUBMIT
+    ========================================================= */
 
-        onSave({
+    const handleSubmit = (event) => {
 
-            ...formData,
+        event.preventDefault();
+
+        const purchaseOrderId =
+            Number(formData.PurchaseOrderId);
+
+        const goodsReceiptNoteId =
+            Number(formData.GoodsReceiptNoteId);
+
+        const supplierId =
+            Number(formData.SupplierId);
+
+        const totalAmount =
+            Number(formData.TotalAmount);
+
+
+        /* =====================================================
+           VALIDATION
+        ===================================================== */
+
+        if (!Number.isInteger(purchaseOrderId) || purchaseOrderId <= 0) {
+
+            alert("Please enter a valid Purchase Order ID.");
+
+            return;
+        }
+
+
+        if (
+            !Number.isInteger(goodsReceiptNoteId) ||
+            goodsReceiptNoteId <= 0
+        ) {
+
+            alert(
+                "Please enter a valid Goods Receipt Note ID."
+            );
+
+            return;
+        }
+
+
+        if (!Number.isInteger(supplierId) || supplierId <= 0) {
+
+            alert("Please enter a valid Supplier ID.");
+
+            return;
+        }
+
+
+        if (
+            !Number.isFinite(totalAmount) ||
+            totalAmount < 0
+        ) {
+
+            alert("Please enter a valid Total Amount.");
+
+            return;
+        }
+
+
+        if (!formData.PurchaseReturnNumber.trim()) {
+
+            alert(
+                "Purchase Return Number is required."
+            );
+
+            return;
+        }
+
+
+        if (!formData.ReturnDate) {
+
+            alert("Return Date is required.");
+
+            return;
+        }
+
+
+        /* =====================================================
+           PAYLOAD
+        ===================================================== */
+
+        const payload = {
+
+            PurchaseReturnId:
+                Number(formData.PurchaseReturnId) || 0,
 
             PurchaseOrderId:
-                Number(formData.PurchaseOrderId),
+                purchaseOrderId,
 
             GoodsReceiptNoteId:
-                Number(formData.GoodsReceiptNoteId),
+                goodsReceiptNoteId,
 
             SupplierId:
-                Number(formData.SupplierId),
+                supplierId,
+
+            PurchaseReturnNumber:
+                formData.PurchaseReturnNumber.trim(),
+
+            ReturnDate:
+                formData.ReturnDate,
+
+            Reason:
+                formData.Reason.trim(),
 
             TotalAmount:
-                Number(formData.TotalAmount)
+                totalAmount,
 
-        });
+            Status:
+                formData.Status
+
+        };
+
+
+        /* =====================================================
+           SEND TO PARENT
+        ===================================================== */
+
+        onSave(payload);
 
     };
+
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
 
     return (
 
@@ -145,19 +267,22 @@ const PurchaseReturnModal = ({
             maxWidth="md"
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <DialogTitle>
 
-                {
-
-                    formData.PurchaseReturnId
-
-                        ? "Edit Purchase Return"
-
-                        : "Add Purchase Return"
-
-                }
+                {formData.PurchaseReturnId > 0
+                    ? "Edit Purchase Return"
+                    : "Add Purchase Return"}
 
             </DialogTitle>
+
+
+            {/* =================================================
+                FORM
+            ================================================= */}
 
             <form onSubmit={handleSubmit}>
 
@@ -166,61 +291,127 @@ const PurchaseReturnModal = ({
                     <Grid
                         container
                         spacing={2}
+                        sx={{ mt: 0.5 }}
                     >
 
-                        <Grid item xs={12} sm={6}>
+                        {/* =====================================
+                            PURCHASE ORDER ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 required
+                                type="number"
                                 label="Purchase Order ID"
                                 name="PurchaseOrderId"
-                                value={formData.PurchaseOrderId}
+                                value={
+                                    formData.PurchaseOrderId
+                                }
                                 onChange={handleChange}
+                                inputProps={{
+                                    min: 1
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            GRN ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 required
+                                type="number"
                                 label="Goods Receipt Note ID"
                                 name="GoodsReceiptNoteId"
-                                value={formData.GoodsReceiptNoteId}
+                                value={
+                                    formData.GoodsReceiptNoteId
+                                }
                                 onChange={handleChange}
+                                inputProps={{
+                                    min: 1
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            SUPPLIER ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 required
+                                type="number"
                                 label="Supplier ID"
                                 name="SupplierId"
-                                value={formData.SupplierId}
+                                value={
+                                    formData.SupplierId
+                                }
                                 onChange={handleChange}
+                                inputProps={{
+                                    min: 1
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            PURCHASE RETURN NUMBER
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 required
                                 label="Purchase Return Number"
                                 name="PurchaseReturnNumber"
-                                value={formData.PurchaseReturnNumber}
+                                value={
+                                    formData.PurchaseReturnNumber
+                                }
                                 onChange={handleChange}
+                                placeholder="PR-001"
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            RETURN DATE
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
 
                             <TextField
                                 fullWidth
@@ -228,7 +419,9 @@ const PurchaseReturnModal = ({
                                 type="date"
                                 label="Return Date"
                                 name="ReturnDate"
-                                value={formData.ReturnDate}
+                                value={
+                                    formData.ReturnDate
+                                }
                                 onChange={handleChange}
                                 InputLabelProps={{
                                     shrink: true
@@ -237,7 +430,16 @@ const PurchaseReturnModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            TOTAL AMOUNT
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
 
                             <TextField
                                 fullWidth
@@ -245,13 +447,27 @@ const PurchaseReturnModal = ({
                                 type="number"
                                 label="Total Amount"
                                 name="TotalAmount"
-                                value={formData.TotalAmount}
+                                value={
+                                    formData.TotalAmount
+                                }
                                 onChange={handleChange}
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01"
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12}>
+
+                        {/* =====================================
+                            REASON
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                        >
 
                             <TextField
                                 fullWidth
@@ -259,20 +475,33 @@ const PurchaseReturnModal = ({
                                 rows={3}
                                 label="Reason"
                                 name="Reason"
-                                value={formData.Reason}
+                                value={
+                                    formData.Reason
+                                }
                                 onChange={handleChange}
+                                placeholder="Enter reason for purchase return"
                             />
 
                         </Grid>
 
-                        <Grid item xs={12}>
+
+                        {/* =====================================
+                            STATUS
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                        >
 
                             <TextField
                                 select
                                 fullWidth
                                 label="Status"
                                 name="Status"
-                                value={formData.Status}
+                                value={
+                                    formData.Status
+                                }
                                 onChange={handleChange}
                             >
 
@@ -296,7 +525,17 @@ const PurchaseReturnModal = ({
 
                 </DialogContent>
 
-                <DialogActions>
+
+                {/* =================================================
+                    ACTIONS
+                ================================================= */}
+
+                <DialogActions
+                    sx={{
+                        px: 3,
+                        pb: 2
+                    }}
+                >
 
                     <Button
                         onClick={onClose}
@@ -305,11 +544,14 @@ const PurchaseReturnModal = ({
                         Cancel
                     </Button>
 
+
                     <Button
                         type="submit"
                         variant="contained"
                     >
-                        Save
+                        {formData.PurchaseReturnId > 0
+                            ? "Update"
+                            : "Save"}
                     </Button>
 
                 </DialogActions>
@@ -321,5 +563,6 @@ const PurchaseReturnModal = ({
     );
 
 };
+
 
 export default PurchaseReturnModal;

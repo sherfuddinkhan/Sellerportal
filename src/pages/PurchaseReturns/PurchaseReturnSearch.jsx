@@ -13,40 +13,77 @@ import {
     Clear
 } from "@mui/icons-material";
 
+
 const PurchaseReturnSearch = ({
-    searchText,
+    searchText = "",
     setSearchText
 }) => {
 
-    const handleClear = () => {
+    /* =========================================================
+       HANDLE SEARCH
+    ========================================================= */
 
-        setSearchText("");
+    const handleSearchChange = (event) => {
+
+        const value = event.target.value;
+
+        if (typeof setSearchText === "function") {
+            setSearchText(value);
+        }
 
     };
+
+
+    /* =========================================================
+       CLEAR SEARCH
+    ========================================================= */
+
+    const handleClear = () => {
+
+        if (typeof setSearchText === "function") {
+            setSearchText("");
+        }
+
+    };
+
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
 
     return (
 
         <Box
             className="purchase-return-search"
-            sx={{ mb: 3 }}
+            sx={{
+                mb: 3,
+                width: "100%"
+            }}
         >
 
             <TextField
                 fullWidth
                 variant="outlined"
                 size="small"
-                placeholder="Search by Return No, Purchase Order, GRN, Supplier, Status, Reason or Total Amount..."
-                value={searchText}
-                onChange={(e) =>
-                    setSearchText(e.target.value)
+
+                placeholder={
+                    "Search by Return No, Purchase Order, " +
+                    "GRN, Supplier, Status, Reason or Total Amount..."
                 }
+
+                value={searchText}
+
+                onChange={handleSearchChange}
+
                 InputProps={{
 
                     startAdornment: (
 
                         <InputAdornment position="start">
 
-                            <Search color="action" />
+                            <Search
+                                color="action"
+                            />
 
                         </InputAdornment>
 
@@ -54,28 +91,32 @@ const PurchaseReturnSearch = ({
 
                     endAdornment:
 
-                        searchText && (
+                        searchText.length > 0
+                            ? (
 
-                            <InputAdornment position="end">
+                                <InputAdornment position="end">
 
-                                <Tooltip title="Clear Search">
+                                    <Tooltip title="Clear Search">
 
-                                    <IconButton
-                                        size="small"
-                                        onClick={handleClear}
-                                    >
+                                        <IconButton
+                                            size="small"
+                                            onClick={handleClear}
+                                            aria-label="Clear search"
+                                        >
 
-                                        <Clear />
+                                            <Clear />
 
-                                    </IconButton>
+                                        </IconButton>
 
-                                </Tooltip>
+                                    </Tooltip>
 
-                            </InputAdornment>
+                                </InputAdornment>
 
-                        )
+                            )
+                            : null
 
                 }}
+
             />
 
         </Box>
@@ -83,5 +124,6 @@ const PurchaseReturnSearch = ({
     );
 
 };
+
 
 export default PurchaseReturnSearch;

@@ -13,10 +13,29 @@ import {
     Refresh
 } from "@mui/icons-material";
 
+
 const PurchaseReturnToolbar = ({
     onAdd,
     onRefresh
 }) => {
+
+    const handleAdd = () => {
+
+        if (typeof onAdd === "function") {
+            onAdd();
+        }
+
+    };
+
+
+    const handleRefresh = () => {
+
+        if (typeof onRefresh === "function") {
+            onRefresh();
+        }
+
+    };
+
 
     return (
 
@@ -25,7 +44,14 @@ const PurchaseReturnToolbar = ({
             sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: {
+                    xs: "flex-start",
+                    sm: "center"
+                },
+                flexDirection: {
+                    xs: "column",
+                    sm: "row"
+                },
                 flexWrap: "wrap",
                 mb: 3,
                 gap: 2
@@ -33,7 +59,7 @@ const PurchaseReturnToolbar = ({
         >
 
             {/* ==========================================================
-                Title
+                TITLE
             ========================================================== */}
 
             <Box>
@@ -48,41 +74,61 @@ const PurchaseReturnToolbar = ({
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{ mt: 0.5 }}
                 >
                     Manage Purchase Returns
                 </Typography>
 
             </Box>
 
+
             {/* ==========================================================
-                Actions
+                ACTIONS
             ========================================================== */}
 
             <Stack
-                direction="row"
-                spacing={2}
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
+                spacing={1.5}
+                width={{
+                    xs: "100%",
+                    sm: "auto"
+                }}
             >
+
+                {/* ======================================================
+                    REFRESH
+                ====================================================== */}
 
                 <Tooltip title="Refresh">
 
                     <Button
+                        fullWidth
                         variant="outlined"
                         color="primary"
                         startIcon={<Refresh />}
-                        onClick={onRefresh}
+                        onClick={handleRefresh}
                     >
                         Refresh
                     </Button>
 
                 </Tooltip>
 
+
+                {/* ======================================================
+                    ADD
+                ====================================================== */}
+
                 <Tooltip title="Add Purchase Return">
 
                     <Button
+                        fullWidth
                         variant="contained"
                         color="primary"
                         startIcon={<Add />}
-                        onClick={onAdd}
+                        onClick={handleAdd}
                     >
                         Add Purchase Return
                     </Button>
@@ -96,5 +142,6 @@ const PurchaseReturnToolbar = ({
     );
 
 };
+
 
 export default PurchaseReturnToolbar;

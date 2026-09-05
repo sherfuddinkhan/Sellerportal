@@ -6123,11 +6123,798 @@ app.delete(
         }
     }
 );
+// =========================================================
+// =========================================================
+// PURCHASE RETURNS APIs
+// =========================================================
+// =========================================================
 
 
+// =========================================================
+// 1. GET ALL PURCHASE RETURNS WITH COMPLETE DETAILS
+//
+// GET
+// http://localhost:5000/api/purchase-returns/all-details
+//
+// ASP.NET
+// https://localhost:7203/api/purchase-returns/all-details
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/all-details",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/all-details`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS ALL DETAILS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase return details."
+                    }
+                );
+        }
+    }
+);
 
 
+// =========================================================
+// 2. GET ALL / SEARCH / STATUS / PAGINATION / SORTING
+//
+// GET
+// http://localhost:5000/api/purchase-returns
+//
+// Examples:
+//
+// GET /api/purchase-returns
+//
+// GET /api/purchase-returns?search=PR-3120
+//
+// GET /api/purchase-returns?status=pending_pickup
+//
+// GET /api/purchase-returns?search=PR-3120&status=pending_pickup
+//
+// GET /api/purchase-returns?page=1&limit=10
+//
+// GET /api/purchase-returns?sort=id_asc
+//
+// GET /api/purchase-returns?sort=id_desc
+//
+// GET /api/purchase-returns?sort=status_asc
+//
+// GET /api/purchase-returns?sort=status_desc
+// =========================================================
 
+app.get(
+    "/api/purchase-returns",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 3. GET PURCHASE RETURN STATISTICS
+//
+// GET
+// http://localhost:5000/api/purchase-returns/stats
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/stats",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/stats`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURN STATISTICS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase return statistics."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 4. GET PURCHASE RETURN BY ID
+//
+// GET
+// http://localhost:5000/api/purchase-returns/1
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/:purchaseReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseReturnId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/${purchaseReturnId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURN BY ID ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 5. GET BY PURCHASE ORDER
+//
+// GET
+// http://localhost:5000/api/purchase-returns/purchaseorder/1
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/purchaseorder/:purchaseOrderId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/purchaseorder/${purchaseOrderId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS BY PURCHASE ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns by purchase order."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 6. GET BY SUPPLIER
+//
+// GET
+// http://localhost:5000/api/purchase-returns/supplier/1
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/supplier/:supplierId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                supplierId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/supplier/${supplierId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS BY SUPPLIER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns by supplier."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 7. GET BY GRN
+//
+// GET
+// http://localhost:5000/api/purchase-returns/grn/1
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/grn/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptNoteId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/grn/${goodsReceiptNoteId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS BY GRN ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns by GRN."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 8. GET BY SELLER
+//
+// GET
+// http://localhost:5000/api/purchase-returns/seller/1
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/seller/${sellerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS BY SELLER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns by seller."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 9. GET BY CUSTOMER
+//
+// GET
+// http://localhost:5000/api/purchase-returns/customer/1
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                customerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/customer/${customerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS BY CUSTOMER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns by customer."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 10. GET BY SELLER + CUSTOMER
+//
+// GET
+// http://localhost:5000/api/purchase-returns/seller/1/customer/2
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/seller/${sellerId}/customer/${customerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS BY SELLER CUSTOMER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns by seller and customer."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 11. GET BY STATUS
+//
+// GET
+// http://localhost:5000/api/purchase-returns/status/pending_pickup
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const {
+                status
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/status/${encodeURIComponent(status)}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET PURCHASE RETURNS BY STATUS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase returns by status."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 12. GET SPECIFIC PURCHASE RETURN
+//
+// GET
+// /api/purchase-returns/purchaseorder/1/supplier/2/return/3
+// =========================================================
+
+app.get(
+    "/api/purchase-returns/purchaseorder/:purchaseOrderId/supplier/:supplierId/return/:purchaseReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseOrderId,
+                supplierId,
+                purchaseReturnId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/purchase-returns/purchaseorder/${purchaseOrderId}/supplier/${supplierId}/return/${purchaseReturnId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET SPECIFIC PURCHASE RETURN ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to fetch purchase return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 13. CREATE PURCHASE RETURN
+//
+// POST
+// http://localhost:5000/api/purchase-returns
+// =========================================================
+
+app.post(
+    "/api/purchase-returns",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.post(
+                `${DOTNET_API}/purchase-returns`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "CREATE PURCHASE RETURN ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to create purchase return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 14. UPDATE PURCHASE RETURN
+//
+// PUT
+// http://localhost:5000/api/purchase-returns/1
+// =========================================================
+
+app.put(
+    "/api/purchase-returns/:purchaseReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseReturnId
+            } = req.params;
+
+            const response = await axios.put(
+                `${DOTNET_API}/purchase-returns/${purchaseReturnId}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE PURCHASE RETURN ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to update purchase return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// 15. DELETE PURCHASE RETURN
+//
+// DELETE
+// http://localhost:5000/api/purchase-returns/1
+// =========================================================
+
+app.delete(
+    "/api/purchase-returns/:purchaseReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                purchaseReturnId
+            } = req.params;
+
+            const response = await axios.delete(
+                `${DOTNET_API}/purchase-returns/${purchaseReturnId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "DELETE PURCHASE RETURN ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to delete purchase return."
+                    }
+                );
+        }
+    }
+);
+
+
+;
 
 
 

@@ -10,14 +10,80 @@ import {
     Typography
 } from "@mui/material";
 
+
 const PurchaseReturnPagination = ({
-    page,
-    totalPages,
-    pageSize,
-    totalRecords,
+    page = 1,
+    totalPages = 0,
+    pageSize = 10,
+    totalRecords = 0,
     onPageChange,
     onPageSizeChange
 }) => {
+
+    /* =========================================================
+       SAFE VALUES
+    ========================================================= */
+
+    const safePage =
+        Number.isInteger(Number(page)) && Number(page) > 0
+            ? Number(page)
+            : 1;
+
+    const safeTotalPages =
+        Number.isInteger(Number(totalPages)) &&
+        Number(totalPages) >= 0
+            ? Number(totalPages)
+            : 0;
+
+    const safePageSize =
+        Number.isInteger(Number(pageSize)) &&
+        Number(pageSize) > 0
+            ? Number(pageSize)
+            : 10;
+
+    const safeTotalRecords =
+        Number.isInteger(Number(totalRecords)) &&
+        Number(totalRecords) >= 0
+            ? Number(totalRecords)
+            : 0;
+
+
+    /* =========================================================
+       PAGE CHANGE
+    ========================================================= */
+
+    const handlePageChange = (event, value) => {
+
+        if (typeof onPageChange === "function") {
+            onPageChange(value);
+        }
+
+    };
+
+
+    /* =========================================================
+       PAGE SIZE CHANGE
+    ========================================================= */
+
+    const handlePageSizeChange = (event) => {
+
+        const newPageSize =
+            Number(event.target.value);
+
+        if (
+            typeof onPageSizeChange === "function" &&
+            Number.isInteger(newPageSize) &&
+            newPageSize > 0
+        ) {
+            onPageSizeChange(newPageSize);
+        }
+
+    };
+
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
 
     return (
 
@@ -25,48 +91,60 @@ const PurchaseReturnPagination = ({
             className="purchase-return-pagination"
             sx={{
                 mt: 3,
+                px: 1,
+                py: 1.5,
+
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+
                 flexWrap: "wrap",
-                gap: 2
+
+                gap: 2,
+
+                borderTop: "1px solid",
+                borderColor: "divider"
             }}
         >
 
-            {/* ==========================================================
-                Total Records
-            ========================================================== */}
+            {/* =================================================
+                TOTAL RECORDS
+            ================================================= */}
 
             <Typography
                 variant="body2"
                 color="text.secondary"
+                sx={{
+                    minWidth: 130
+                }}
             >
-                Total Records: <strong>{totalRecords}</strong>
+                Total Records:{" "}
+                <strong>
+                    {safeTotalRecords}
+                </strong>
             </Typography>
 
-            {/* ==========================================================
-                Page Size
-            ========================================================== */}
+
+            {/* =================================================
+                PAGE SIZE
+            ================================================= */}
 
             <FormControl
                 size="small"
                 sx={{
-                    minWidth: 120
+                    minWidth: 110
                 }}
             >
 
-                <InputLabel>
+                <InputLabel id="purchase-return-rows-label">
                     Rows
                 </InputLabel>
 
                 <Select
-                    value={pageSize}
+                    labelId="purchase-return-rows-label"
+                    value={safePageSize}
                     label="Rows"
-                    onChange={(e) =>
-                        onPageSizeChange(
-                            Number(e.target.value)
-                        )
-                    }
+                    onChange={handlePageSizeChange}
                 >
 
                     <MenuItem value={5}>
@@ -93,19 +171,20 @@ const PurchaseReturnPagination = ({
 
             </FormControl>
 
-            {/* ==========================================================
-                Pagination
-            ========================================================== */}
+
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
 
             <Pagination
-                page={page}
-                count={Math.max(totalPages, 1)}
+                page={safePage}
+                count={Math.max(safeTotalPages, 1)}
                 color="primary"
                 showFirstButton
                 showLastButton
-                onChange={(event, value) =>
-                    onPageChange(value)
-                }
+                siblingCount={1}
+                boundaryCount={1}
+                onChange={handlePageChange}
             />
 
         </Box>
@@ -113,5 +192,6 @@ const PurchaseReturnPagination = ({
     );
 
 };
+
 
 export default PurchaseReturnPagination;

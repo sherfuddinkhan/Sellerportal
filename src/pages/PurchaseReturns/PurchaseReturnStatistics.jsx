@@ -15,13 +15,43 @@ import {
     PendingActions
 } from "@mui/icons-material";
 
-const PurchaseReturnStatistics = ({ statistics }) => {
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+
+};
+
+
+/* =========================================================
+   PURCHASE RETURN STATISTICS
+========================================================= */
+
+const PurchaseReturnStatistics = ({
+    statistics = {}
+}) => {
 
     const cards = [
 
         {
             title: "Total Returns",
-            value: statistics?.totalReturns || 0,
+
+            value:
+                Number(statistics?.totalReturns) || 0,
+
             icon: (
                 <AssignmentReturn
                     fontSize="large"
@@ -32,9 +62,12 @@ const PurchaseReturnStatistics = ({ statistics }) => {
 
         {
             title: "Total Amount",
-            value: `₹ ${Number(
-                statistics?.totalAmount || 0
-            ).toLocaleString()}`,
+
+            value:
+                formatCurrency(
+                    statistics?.totalAmount
+                ),
+
             icon: (
                 <Payments
                     fontSize="large"
@@ -45,7 +78,12 @@ const PurchaseReturnStatistics = ({ statistics }) => {
 
         {
             title: "Completed",
-            value: statistics?.completedReturns || 0,
+
+            value:
+                Number(
+                    statistics?.completedReturns
+                ) || 0,
+
             icon: (
                 <CheckCircle
                     fontSize="large"
@@ -56,7 +94,12 @@ const PurchaseReturnStatistics = ({ statistics }) => {
 
         {
             title: "Pending",
-            value: statistics?.pendingReturns || 0,
+
+            value:
+                Number(
+                    statistics?.pendingReturns
+                ) || 0,
+
             icon: (
                 <PendingActions
                     fontSize="large"
@@ -67,77 +110,102 @@ const PurchaseReturnStatistics = ({ statistics }) => {
 
     ];
 
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
+
     return (
 
         <Grid
             container
             spacing={3}
             className="purchase-return-statistics"
-            sx={{ mb: 3 }}
+            sx={{
+                mb: 3
+            }}
         >
 
-            {
+            {cards.map((card) => (
 
-                cards.map((card, index) => (
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                    key={card.title}
+                >
 
-                    <Grid
-                        item
-                        xs={12}
-                        sm={6}
-                        md={3}
-                        key={index}
+                    <Card
+                        elevation={3}
+                        className="purchase-return-stat-card"
+                        sx={{
+                            height: "100%"
+                        }}
                     >
 
-                        <Card
-                            elevation={3}
-                            className="purchase-return-stat-card"
-                        >
+                        <CardContent>
 
-                            <CardContent>
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                gap={2}
+                            >
 
                                 <Box
-                                    display="flex"
-                                    justifyContent="space-between"
-                                    alignItems="center"
+                                    sx={{
+                                        minWidth: 0
+                                    }}
                                 >
 
-                                    <Box>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
+                                        {card.title}
+                                    </Typography>
 
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                        >
-                                            {card.title}
-                                        </Typography>
 
-                                        <Typography
-                                            variant="h4"
-                                            fontWeight="bold"
-                                            sx={{ mt: 1 }}
-                                        >
-                                            {card.value}
-                                        </Typography>
-
-                                    </Box>
-
-                                    {card.icon}
+                                    <Typography
+                                        variant="h4"
+                                        fontWeight="bold"
+                                        sx={{
+                                            mt: 1,
+                                            wordBreak: "break-word"
+                                        }}
+                                    >
+                                        {card.value}
+                                    </Typography>
 
                                 </Box>
 
-                            </CardContent>
 
-                        </Card>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    {card.icon}
+                                </Box>
 
-                    </Grid>
+                            </Box>
 
-                ))
+                        </CardContent>
 
-            }
+                    </Card>
+
+                </Grid>
+
+            ))}
 
         </Grid>
 
     );
 
 };
+
 
 export default PurchaseReturnStatistics;

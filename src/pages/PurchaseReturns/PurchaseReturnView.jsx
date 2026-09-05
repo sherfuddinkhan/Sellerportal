@@ -8,8 +8,173 @@ import {
     Grid,
     Typography,
     Button,
-    Divider
+    Divider,
+    Chip,
+    Box
 } from "@mui/material";
+
+
+/* =========================================================
+   FORMAT AMOUNT
+========================================================= */
+
+const formatAmount = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+
+};
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+};
+
+
+/* =========================================================
+   STATUS COLOR
+========================================================= */
+
+const getStatusColor = (status) => {
+
+    switch (
+        String(status || "")
+            .trim()
+            .toLowerCase()
+    ) {
+
+        case "completed":
+            return "success";
+
+        case "pending":
+            return "warning";
+
+        case "cancelled":
+        case "canceled":
+            return "error";
+
+        case "approved":
+            return "info";
+
+        case "rejected":
+            return "error";
+
+        default:
+            return "default";
+    }
+
+};
+
+
+/* =========================================================
+   DETAIL FIELD
+========================================================= */
+
+const DetailField = ({
+    label,
+    value,
+    children
+}) => {
+
+    return (
+
+        <Box>
+
+            <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                    mb: 0.5
+                }}
+            >
+                {label}
+            </Typography>
+
+            {children || (
+
+                <Typography
+                    variant="body1"
+                    fontWeight={500}
+                >
+                    {value ?? "-"}
+                </Typography>
+
+            )}
+
+        </Box>
+
+    );
+
+};
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+const SectionTitle = ({
+    children
+}) => {
+
+    return (
+
+        <Grid item xs={12}>
+
+            <Divider
+                sx={{
+                    my: 1
+                }}
+            >
+
+                <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                >
+                    {children}
+                </Typography>
+
+            </Divider>
+
+        </Grid>
+
+    );
+
+};
+
+
+/* =========================================================
+   PURCHASE RETURN VIEW
+========================================================= */
 
 const PurchaseReturnView = ({
     open,
@@ -17,18 +182,14 @@ const PurchaseReturnView = ({
     purchaseReturn
 }) => {
 
-    if (!purchaseReturn) return null;
+    if (!purchaseReturn) {
+        return null;
+    }
 
-    const formatAmount = (value) =>
-        `₹ ${Number(value || 0).toLocaleString()}`;
 
-    const formatDate = (date) => {
+    const status =
+        purchaseReturn.Status || "N/A";
 
-        if (!date) return "-";
-
-        return new Date(date).toLocaleString();
-
-    };
 
     return (
 
@@ -39,11 +200,38 @@ const PurchaseReturnView = ({
             maxWidth="md"
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <DialogTitle>
 
-                Purchase Return Details
+                <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                >
+                    Purchase Return Details
+                </Typography>
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                        mt: 0.5
+                    }}
+                >
+                    {
+                        purchaseReturn.PurchaseReturnNumber ||
+                        "Purchase Return"
+                    }
+                </Typography>
 
             </DialogTitle>
+
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
 
             <DialogContent dividers>
 
@@ -52,183 +240,211 @@ const PurchaseReturnView = ({
                     spacing={3}
                 >
 
-                    <Grid item xs={12}>
+                    {/* =========================================
+                        PURCHASE RETURN INFORMATION
+                    ========================================== */}
 
-                        <Divider sx={{ mb: 2 }}>
+                    <SectionTitle>
+                        Purchase Return Information
+                    </SectionTitle>
 
-                            <Typography
-                                variant="subtitle1"
-                                fontWeight="bold"
-                            >
 
-                                Purchase Return Information
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                            </Typography>
-
-                        </Divider>
-
-                    </Grid>
-
-                    <Grid item xs={12} sm={6}>
-
-                        <Typography variant="subtitle2">
-                            Purchase Return ID
-                        </Typography>
-
-                        <Typography>
-                            {purchaseReturn.PurchaseReturnId}
-                        </Typography>
+                        <DetailField
+                            label="Purchase Return ID"
+                            value={
+                                purchaseReturn.PurchaseReturnId
+                            }
+                        />
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
 
-                        <Typography variant="subtitle2">
-                            Purchase Return Number
-                        </Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                        <Typography>
-                            {purchaseReturn.PurchaseReturnNumber}
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12} sm={6}>
-
-                        <Typography variant="subtitle2">
-                            Purchase Order ID
-                        </Typography>
-
-                        <Typography>
-                            {purchaseReturn.PurchaseOrderId}
-                        </Typography>
+                        <DetailField
+                            label="Purchase Return Number"
+                            value={
+                                purchaseReturn.PurchaseReturnNumber
+                            }
+                        />
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
 
-                        <Typography variant="subtitle2">
-                            Goods Receipt Note ID
-                        </Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                        <Typography>
-                            {purchaseReturn.GoodsReceiptNoteId}
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12} sm={6}>
-
-                        <Typography variant="subtitle2">
-                            Supplier ID
-                        </Typography>
-
-                        <Typography>
-                            {purchaseReturn.SupplierId}
-                        </Typography>
+                        <DetailField
+                            label="Purchase Order ID"
+                            value={
+                                purchaseReturn.PurchaseOrderId
+                            }
+                        />
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
 
-                        <Typography variant="subtitle2">
-                            Return Date
-                        </Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                        <Typography>
-                            {formatDate(
-                                purchaseReturn.ReturnDate
-                            )}
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12}>
-
-                        <Divider sx={{ my: 2 }}>
-
-                            <Typography
-                                variant="subtitle1"
-                                fontWeight="bold"
-                            >
-
-                                Financial Details
-
-                            </Typography>
-
-                        </Divider>
+                        <DetailField
+                            label="Goods Receipt Note ID"
+                            value={
+                                purchaseReturn.GoodsReceiptNoteId
+                            }
+                        />
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
 
-                        <Typography variant="subtitle2">
-                            Total Amount
-                        </Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                        <Typography
-                            color="primary"
-                            fontWeight="bold"
+                        <DetailField
+                            label="Supplier ID"
+                            value={
+                                purchaseReturn.SupplierId
+                            }
+                        />
+
+                    </Grid>
+
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
+
+                        <DetailField
+                            label="Return Date"
+                            value={
+                                formatDate(
+                                    purchaseReturn.ReturnDate
+                                )
+                            }
+                        />
+
+                    </Grid>
+
+
+                    {/* =========================================
+                        FINANCIAL DETAILS
+                    ========================================== */}
+
+                    <SectionTitle>
+                        Financial Details
+                    </SectionTitle>
+
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
+
+                        <DetailField
+                            label="Total Amount"
                         >
-                            {formatAmount(
-                                purchaseReturn.TotalAmount
-                            )}
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12} sm={6}>
-
-                        <Typography variant="subtitle2">
-                            Status
-                        </Typography>
-
-                        <Typography>
-                            {purchaseReturn.Status || "-"}
-                        </Typography>
-
-                    </Grid>
-
-                    <Grid item xs={12}>
-
-                        <Divider sx={{ my: 2 }}>
 
                             <Typography
-                                variant="subtitle1"
+                                variant="h6"
+                                color="primary"
                                 fontWeight="bold"
                             >
-
-                                Additional Information
-
+                                {
+                                    formatAmount(
+                                        purchaseReturn.TotalAmount
+                                    )
+                                }
                             </Typography>
 
-                        </Divider>
+                        </DetailField>
 
                     </Grid>
 
-                    <Grid item xs={12}>
 
-                        <Typography variant="subtitle2">
-                            Reason
-                        </Typography>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
-                        <Typography>
-                            {purchaseReturn.Reason || "-"}
-                        </Typography>
+                        <DetailField
+                            label="Status"
+                        >
+
+                            <Chip
+                                label={status}
+                                size="small"
+                                color={
+                                    getStatusColor(status)
+                                }
+                            />
+
+                        </DetailField>
 
                     </Grid>
 
-                    <Grid item xs={12}>
 
-                        <Typography variant="subtitle2">
-                            Created Date
-                        </Typography>
+                    {/* =========================================
+                        ADDITIONAL INFORMATION
+                    ========================================== */}
 
-                        <Typography>
-                            {formatDate(
-                                purchaseReturn.CreatedDate
-                            )}
-                        </Typography>
+                    <SectionTitle>
+                        Additional Information
+                    </SectionTitle>
+
+
+                    <Grid
+                        item
+                        xs={12}
+                    >
+
+                        <DetailField
+                            label="Reason"
+                            value={
+                                purchaseReturn.Reason ||
+                                "-"
+                            }
+                        />
+
+                    </Grid>
+
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
+
+                        <DetailField
+                            label="Created Date"
+                            value={
+                                formatDate(
+                                    purchaseReturn.CreatedDate
+                                )
+                            }
+                        />
 
                     </Grid>
 
@@ -236,7 +452,17 @@ const PurchaseReturnView = ({
 
             </DialogContent>
 
-            <DialogActions>
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    py: 2
+                }}
+            >
 
                 <Button
                     variant="contained"
@@ -252,5 +478,6 @@ const PurchaseReturnView = ({
     );
 
 };
+
 
 export default PurchaseReturnView;
