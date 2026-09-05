@@ -1,6 +1,5 @@
 import React from "react";
 
-
 import {
     Card,
     CardContent,
@@ -8,9 +7,9 @@ import {
     Typography,
     Divider,
     Stack,
-    Button
+    Button,
+    Box
 } from "@mui/material";
-
 
 import {
     Visibility,
@@ -19,475 +18,268 @@ import {
 } from "@mui/icons-material";
 
 
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
 
-const formatCurrency = (value) =>
+const formatCurrency = (value) => {
 
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+    const amount = Number(value);
 
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
-
         maximumFractionDigits: 2
-
     })}`;
+};
 
 
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+};
+
+
+/* =========================================================
+   STATUS COLOR
+========================================================= */
+
+const getStatusColor = (status) => {
+
+    const value = String(status || "").toLowerCase();
+
+    if (
+        value === "received" ||
+        value === "completed" ||
+        value === "approved"
+    ) {
+        return "success.main";
+    }
+
+    if (
+        value === "pending" ||
+        value === "processing"
+    ) {
+        return "warning.main";
+    }
+
+    if (
+        value === "cancelled" ||
+        value === "rejected"
+    ) {
+        return "error.main";
+    }
+
+    return "text.primary";
+};
+
+
+/* =========================================================
+   GOODS RECEIPT NOTE CARD
+========================================================= */
 
 const GoodsReceiptNoteCard = ({
-
     note,
-
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
 
+    if (!note) {
+        return null;
+    }
 
 
     return (
-
-
-
         <Card
-
             className="goods-receipt-note-card"
-
             sx={{
-
-                height:"100%",
-
-                borderRadius:3
-
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: 3,
+                overflow: "hidden"
             }}
-
         >
 
+            {/* =================================================
+                CARD CONTENT
+            ================================================= */}
 
+            <CardContent sx={{ flexGrow: 1 }}>
 
-
-            <CardContent>
-
-
-
-
+                {/* =================================================
+                    GRN HEADER
+                ================================================= */}
 
                 <Typography
-
                     variant="h6"
-
-                    fontWeight="bold"
-
+                    fontWeight={700}
                     gutterBottom
-
+                    noWrap
                 >
-
-
-                    {
-
-                        note.GRNNumber
-
-                    }
-
-
-
+                    {note.GRNNumber || "GRN"}
                 </Typography>
 
 
-
-
-
-
-
-                <Typography
-
-                    variant="body2"
-
-                    color="text.secondary"
-
-                >
-
-
-
-                    GRN ID :
-
-                    {" "}
-
-
-                    {
-
-                        note.GoodsReceiptNoteId
-
-                    }
-
-
-
-                </Typography>
-
-
-
-
-
-
-
-                <Typography
-
-                    variant="body2"
-
-                    color="text.secondary"
-
-                >
-
-
-
-                    Purchase Order ID :
-
-                    {" "}
-
-
-                    {
-
-                        note.PurchaseOrderId
-
-                    }
-
-
-
-                </Typography>
-
-
-
-
-
-
-
-
-                <Typography
-
-                    variant="body2"
-
-                    color="text.secondary"
-
-                >
-
-
-
-                    Supplier ID :
-
-                    {" "}
-
-
-                    {
-
-                        note.SupplierId
-
-                    }
-
-
-
-                </Typography>
-
-
-
-
-
-
-
-                <Divider
-
-                    sx={{
-
-                        my:2
-
-                    }}
-
-                />
-
-
-
-
-
-
-
-                <Stack
-
-                    spacing={1}
-
-                >
-
-
-
-
-
-                    <Typography>
-
-
-                        <strong>
-
-                            Receipt Date:
-
-                        </strong>
-
-
-                        {" "}
-
-
-
-                        {
-
-                            note.ReceiptDate
-
-                            ?
-
-                            new Date(
-
-                                note.ReceiptDate
-
-                            ).toLocaleDateString()
-
-                            :
-
-                            "-"
-
-                        }
-
-
-
+                {/* =================================================
+                    BASIC IDENTIFIERS
+                ================================================= */}
+
+                <Stack spacing={0.5}>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>GRN ID:</strong>{" "}
+                        {note.GoodsReceiptNoteId ?? "-"}
                     </Typography>
-
-
-
-
-
-
-
-
-                    <Typography>
-
-
-                        <strong>
-
-                            Status:
-
-                        </strong>
-
-
-                        {" "}
-
-
-
-                        {
-
-                            note.Status
-
-                        }
-
-
-
-                    </Typography>
-
-
-
-
-
-
 
 
                     <Typography
-
-                        fontWeight="bold"
-
+                        variant="body2"
+                        color="text.secondary"
                     >
-
-
-                        Total Amount:
-
-                        {" "}
-
-
-
-                        {
-
-                            formatCurrency(
-
-                                note.TotalAmount
-
-                            )
-
-                        }
-
-
-
+                        <strong>Purchase Order ID:</strong>{" "}
+                        {note.PurchaseOrderId ?? "-"}
                     </Typography>
 
 
-
-
-
-
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        <strong>Supplier ID:</strong>{" "}
+                        {note.SupplierId ?? "-"}
+                    </Typography>
 
                 </Stack>
 
 
+                <Divider sx={{ my: 2 }} />
 
 
+                {/* =================================================
+                    GRN DETAILS
+                ================================================= */}
+
+                <Stack spacing={1.25}>
+
+                    <Typography variant="body2">
+                        <strong>Receipt Date:</strong>{" "}
+                        {formatDate(note.ReceiptDate)}
+                    </Typography>
 
 
+                    <Box>
+
+                        <Typography
+                            variant="body2"
+                            component="span"
+                        >
+                            <strong>Status:</strong>{" "}
+                        </Typography>
+
+                        <Typography
+                            variant="body2"
+                            component="span"
+                            fontWeight={700}
+                            sx={{
+                                color: getStatusColor(note.Status)
+                            }}
+                        >
+                            {note.Status || "-"}
+                        </Typography>
+
+                    </Box>
+
+
+                    <Typography
+                        variant="body1"
+                        fontWeight={700}
+                    >
+                        <strong>Total Amount:</strong>{" "}
+                        {formatCurrency(note.TotalAmount)}
+                    </Typography>
+
+                </Stack>
 
             </CardContent>
 
 
-
-
-
-
-
-
+            {/* =================================================
+                CARD ACTIONS
+            ================================================= */}
 
             <CardActions
-
                 sx={{
-
-                    justifyContent:"space-between",
-
-                    px:2,
-
-                    pb:2
-
+                    px: 2,
+                    pb: 2,
+                    pt: 0,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 1
                 }}
-
             >
 
-
-
-
-
-
                 <Button
-
-
                     size="small"
-
-
-                    startIcon={
-
-                        <Visibility />
-
-                    }
-
-
-                    onClick={() =>
-
-                        onView(note)
-
-                    }
-
-
+                    variant="outlined"
+                    startIcon={<Visibility />}
+                    onClick={() => onView?.(note)}
                 >
-
-
                     View
-
-
                 </Button>
 
 
-
-
-
-
-
-
                 <Button
-
-
                     size="small"
-
-
                     color="warning"
-
-
-                    startIcon={
-
-                        <Edit />
-
-                    }
-
-
-                    onClick={() =>
-
-                        onEdit(note)
-
-                    }
-
-
+                    variant="outlined"
+                    startIcon={<Edit />}
+                    onClick={() => onEdit?.(note)}
                 >
-
-
                     Edit
-
-
                 </Button>
-
-
-
-
-
-
 
 
                 <Button
-
-
                     size="small"
-
-
                     color="error"
-
-
-                    startIcon={
-
-                        <Delete />
-
-                    }
-
-
-                    onClick={() =>
-
-                        onDelete(note)
-
-                    }
-
-
+                    variant="outlined"
+                    startIcon={<Delete />}
+                    onClick={() => onDelete?.(note)}
                 >
-
-
                     Delete
-
-
                 </Button>
-
-
-
-
-
 
             </CardActions>
 
-
-
-
-
-
         </Card>
-
-
     );
-
-
 };
-
 
 
 export default GoodsReceiptNoteCard;

@@ -7562,6 +7562,651 @@ app.delete(
         }
     }
 );
+/* =========================================================
+   GOODS RECEIPT NOTE ITEM BASE API
+========================================================= */
+
+const GRN_ITEM_API =
+    `${DOTNET_API}/goods-receipt-note-items`;
+
+/* =========================================================
+   ERROR HANDLER
+========================================================= */
+
+const handleError = (
+    res,
+    error,
+    apiName
+) => {
+
+    console.error("");
+    console.error(
+        "================================================="
+    );
+    console.error(
+        `${apiName} ERROR`
+    );
+    console.error(
+        "================================================="
+    );
+
+    if (error.response) {
+
+        console.error(
+            "STATUS:",
+            error.response.status
+        );
+
+        console.error(
+            "DATA:",
+            error.response.data
+        );
+
+        return res
+            .status(error.response.status)
+            .json(error.response.data);
+    }
+
+    console.error(
+        "MESSAGE:",
+        error.message
+    );
+
+    return res
+        .status(500)
+        .json({
+            success: false,
+            message: `${apiName} failed.`,
+            error: error.message
+        });
+};
+
+/* =========================================================
+   GET ALL
+   GET:
+   /api/goods-receipt-note-items
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items",
+    async (req, res) => {
+
+        try {
+
+            console.log("");
+            console.log(
+                "================================================="
+            );
+            console.log(
+                "GET GOODS RECEIPT NOTE ITEMS"
+            );
+            console.log(
+                "================================================="
+            );
+
+            const response =
+                await axios.get(
+                    GRN_ITEM_API,
+                    {
+                        params: req.query,
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT NOTE ITEMS"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET ALL AT ONCE
+   GET:
+   /api/goods-receipt-note-items/all
+
+   NO PAGINATION
+   NO SEARCH
+   NO SORTING
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/all",
+    async (req, res) => {
+
+        try {
+
+            console.log("");
+            console.log(
+                "================================================="
+            );
+            console.log(
+                "GET ALL GOODS RECEIPT NOTE ITEMS"
+            );
+            console.log(
+                "================================================="
+            );
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/all`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET ALL GOODS RECEIPT NOTE ITEMS"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   STATISTICS
+   GET:
+   /api/goods-receipt-note-items/stats
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/stats",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/stats`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT NOTE ITEM STATISTICS"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET BY ID
+   GET:
+   /api/goods-receipt-note-items/5
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/:goodsReceiptItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptItemId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/${goodsReceiptItemId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT ITEM BY ID"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET BY GRN
+   GET:
+   /api/goods-receipt-note-items/grn/10
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/grn/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptNoteId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/grn/${goodsReceiptNoteId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT ITEMS BY GRN"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET BY GRN + ITEM
+   GET:
+   /api/goods-receipt-note-items/grn/10/item/5
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/grn/:goodsReceiptNoteId/item/:goodsReceiptItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptNoteId,
+                goodsReceiptItemId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/grn/${goodsReceiptNoteId}/item/${goodsReceiptItemId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT ITEM BY GRN AND ITEM"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET BY PRODUCT
+   GET:
+   /api/goods-receipt-note-items/product/5
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/product/${productId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT ITEMS BY PRODUCT"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET BY SELLER
+   GET:
+   /api/goods-receipt-note-items/seller/6
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/seller/${sellerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT ITEMS BY SELLER"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET BY CUSTOMER
+   GET:
+   /api/goods-receipt-note-items/customer/3
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/customer/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT ITEMS BY CUSTOMER"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   GET BY SELLER + CUSTOMER
+   GET:
+   /api/goods-receipt-note-items/seller/6/customer/3
+========================================================= */
+
+app.get(
+    "/api/goods-receipt-note-items/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${GRN_ITEM_API}/seller/${sellerId}/customer/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "GET GOODS RECEIPT ITEMS BY SELLER AND CUSTOMER"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   CREATE
+   POST:
+   /api/goods-receipt-note-items
+========================================================= */
+
+app.post(
+    "/api/goods-receipt-note-items",
+    async (req, res) => {
+
+        try {
+
+            console.log("");
+            console.log(
+                "================================================="
+            );
+            console.log(
+                "CREATE GOODS RECEIPT NOTE ITEM"
+            );
+            console.log(
+                "================================================="
+            );
+
+            console.log(
+                "REQUEST BODY:",
+                req.body
+            );
+
+            const response =
+                await axios.post(
+                    GRN_ITEM_API,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(
+                    response.status || 201
+                )
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "CREATE GOODS RECEIPT NOTE ITEM"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   UPDATE
+   PUT:
+   /api/goods-receipt-note-items/5
+========================================================= */
+
+app.put(
+    "/api/goods-receipt-note-items/:goodsReceiptItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptItemId
+            } = req.params;
+
+            console.log("");
+            console.log(
+                "================================================="
+            );
+            console.log(
+                "UPDATE GOODS RECEIPT NOTE ITEM"
+            );
+            console.log(
+                "================================================="
+            );
+
+            console.log(
+                "ID:",
+                goodsReceiptItemId
+            );
+
+            console.log(
+                "REQUEST BODY:",
+                req.body
+            );
+
+            const response =
+                await axios.put(
+                    `${GRN_ITEM_API}/${goodsReceiptItemId}`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "UPDATE GOODS RECEIPT NOTE ITEM"
+            );
+        }
+    }
+);
+
+/* =========================================================
+   DELETE
+   DELETE:
+   /api/goods-receipt-note-items/5
+========================================================= */
+
+app.delete(
+    "/api/goods-receipt-note-items/:goodsReceiptItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                goodsReceiptItemId
+            } = req.params;
+
+            console.log("");
+            console.log(
+                "================================================="
+            );
+            console.log(
+                "DELETE GOODS RECEIPT NOTE ITEM"
+            );
+            console.log(
+                "================================================="
+            );
+
+            console.log(
+                "ID:",
+                goodsReceiptItemId
+            );
+
+            const response =
+                await axios.delete(
+                    `${GRN_ITEM_API}/${goodsReceiptItemId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res
+                .status(200)
+                .json(response.data);
+
+        } catch (error) {
+
+            return handleError(
+                res,
+                error,
+                "DELETE GOODS RECEIPT NOTE ITEM"
+            );
+        }
+    }
+);
+
+
 
 
 

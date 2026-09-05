@@ -1,13 +1,12 @@
 import React from "react";
 
-
 import {
     Grid,
     Card,
     CardContent,
-    Typography
+    Typography,
+    Box
 } from "@mui/material";
-
 
 import {
     ReceiptLong,
@@ -17,255 +16,134 @@ import {
 } from "@mui/icons-material";
 
 
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const amount = Number(value);
+
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+};
+
+
+/* =========================================================
+   GOODS RECEIPT NOTE STATISTICS
+========================================================= */
 
 const GoodsReceiptNoteStatistics = ({
-
     statistics = {}
-
 }) => {
 
+    const totalGRN = Number(statistics.totalGRN) || 0;
+    const totalAmount = Number(statistics.totalAmount) || 0;
+    const completed = Number(statistics.completed) || 0;
+    const pending = Number(statistics.pending) || 0;
 
 
     const cards = [
-
-
         {
-
             title: "Total GRN",
-
-            value:
-
-                statistics.totalGRN || 0,
-
-            icon:
-
-                <ReceiptLong />
-
-
+            value: totalGRN,
+            icon: <ReceiptLong />
         },
-
-
         {
-
             title: "Total Amount",
-
-            value:
-
-                `₹ ${Number(
-
-                    statistics.totalAmount || 0
-
-                ).toLocaleString(undefined, {
-
-                    minimumFractionDigits: 2,
-
-                    maximumFractionDigits: 2
-
-                })}`,
-
-            icon:
-
-                <CurrencyRupee />
-
-
+            value: formatCurrency(totalAmount),
+            icon: <CurrencyRupee />
         },
-
-
         {
-
             title: "Completed",
-
-            value:
-
-                statistics.completed || 0,
-
-            icon:
-
-                <CheckCircle />
-
-
+            value: completed,
+            icon: <CheckCircle />
         },
-
-
         {
-
             title: "Pending",
-
-            value:
-
-                statistics.pending || 0,
-
-            icon:
-
-                <PendingActions />
-
-
+            value: pending,
+            icon: <PendingActions />
         }
-
-
     ];
 
 
-
-
-
     return (
-
-
-
         <Grid
-
             container
-
             spacing={2}
-
-            mb={3}
-
+            sx={{
+                mb: 3
+            }}
         >
 
+            {cards.map((card) => (
 
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                    key={card.title}
+                >
 
-            {
-
-
-                cards.map((card, index) => (
-
-
-                    <Grid
-
-                        item
-
-                        xs={12}
-
-                        sm={6}
-
-                        md={3}
-
-                        key={index}
-
+                    <Card
+                        className="goods-receipt-note-stat-card"
+                        sx={{
+                            height: "100%",
+                            borderRadius: 3
+                        }}
                     >
 
+                        <CardContent>
 
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                    color: "text.secondary"
+                                }}
+                            >
 
-                        <Card
-
-                            className="goods-receipt-note-stat-card"
-
-                            sx={{
-
-                                height:"100%",
-
-                                borderRadius:3
-
-                            }}
-
-                        >
-
-
-
-                            <CardContent>
-
-
-
+                                {card.icon}
 
                                 <Typography
-
                                     variant="body2"
-
-                                    color="text.secondary"
-
-                                    display="flex"
-
-                                    alignItems="center"
-
-                                    gap={1}
-
+                                    fontWeight={500}
                                 >
-
-
-
-                                    {
-
-                                        card.icon
-
-                                    }
-
-
-
-                                    {
-
-                                        card.title
-
-                                    }
-
-
-
+                                    {card.title}
                                 </Typography>
 
+                            </Box>
 
 
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                                sx={{
+                                    mt: 1
+                                }}
+                            >
+                                {card.value}
+                            </Typography>
 
+                        </CardContent>
 
+                    </Card>
 
+                </Grid>
 
-                                <Typography
-
-                                    variant="h5"
-
-                                    fontWeight="bold"
-
-                                    mt={1}
-
-                                >
-
-
-
-                                    {
-
-                                        card.value
-
-                                    }
-
-
-
-                                </Typography>
-
-
-
-
-
-                            </CardContent>
-
-
-
-
-                        </Card>
-
-
-
-
-
-                    </Grid>
-
-
-                ))
-
-
-
-            }
-
-
-
-
+            ))}
 
         </Grid>
-
-
     );
-
-
 };
-
 
 
 export default GoodsReceiptNoteStatistics;

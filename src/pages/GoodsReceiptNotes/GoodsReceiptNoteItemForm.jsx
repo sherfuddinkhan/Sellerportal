@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
+
+import axios from "axios";
 
 import {
     Box,
@@ -8,7 +13,9 @@ import {
     Typography,
     Divider,
     Paper,
-    Alert
+    Alert,
+    MenuItem,
+    CircularProgress
 } from "@mui/material";
 
 import {
@@ -16,6 +23,14 @@ import {
     Clear,
     ArrowBack
 } from "@mui/icons-material";
+
+
+/* =========================================================
+   API CONFIGURATION
+========================================================= */
+
+const SERVER_URL = "http://localhost:5000";
+
 
 /* =========================================================
    INITIAL FORM STATE
@@ -33,6 +48,7 @@ const initialFormData = {
     TotalAmount: ""
 };
 
+
 /* =========================================================
    GOODS RECEIPT NOTE ITEM FORM
 ========================================================= */
@@ -45,9 +61,114 @@ const GoodsReceiptNoteItemForm = ({
     submitLabel = "Save GRN Item"
 }) => {
 
-    const [formData, setFormData] = useState(initialFormData);
+    const [formData, setFormData] =
+        useState(initialFormData);
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] =
+        useState({});
+
+    /* ---------------------------------------------------------
+       DROPDOWN DATA
+    --------------------------------------------------------- */
+
+    const [goodsReceiptNotes, setGoodsReceiptNotes] =
+        useState([]);
+
+    const [products, setProducts] =
+        useState([]);
+
+    const [dropdownLoading, setDropdownLoading] =
+        useState(true);
+
+    const [dropdownError, setDropdownError] =
+        useState("");
+
+
+    /* =========================================================
+       LOAD GRNs AND PRODUCTS
+    ========================================================= */
+
+    useEffect(() => {
+
+        const loadDropdownData = async () => {
+
+            setDropdownLoading(true);
+            setDropdownError("");
+
+            try {
+
+                const [
+                    grnResponse,
+                    productResponse
+                ] = await Promise.all([
+
+                    axios.get(
+                        `${SERVER_URL}/api/goods-receipt-notes`
+                    ),
+
+                    axios.get(
+                        `${SERVER_URL}/api/products`
+                    )
+
+                ]);
+
+
+                /* -------------------------------------------------
+                   GRNs
+                ------------------------------------------------- */
+
+                const grnData =
+                    Array.isArray(grnResponse.data)
+                        ? grnResponse.data
+                        : Array.isArray(grnResponse.data?.items)
+                            ? grnResponse.data.items
+                            : [];
+
+                setGoodsReceiptNotes(grnData);
+
+
+                /* -------------------------------------------------
+                   PRODUCTS
+                ------------------------------------------------- */
+
+                const productData =
+                    Array.isArray(productResponse.data)
+                        ? productResponse.data
+                        : Array.isArray(productResponse.data?.items)
+                            ? productResponse.data.items
+                            : [];
+
+                setProducts(productData);
+
+
+            } catch (error) {
+
+                console.error(
+                    "LOAD GRN / PRODUCT DROPDOWNS ERROR:",
+                    error
+                );
+
+                setDropdownError(
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    "Failed to load GRNs and Products."
+                );
+
+                setGoodsReceiptNotes([]);
+                setProducts([]);
+
+            } finally {
+
+                setDropdownLoading(false);
+
+            }
+        };
+
+
+        loadDropdownData();
+
+    }, []);
+
 
     /* =========================================================
        LOAD INITIAL DATA
@@ -58,32 +179,52 @@ const GoodsReceiptNoteItemForm = ({
         if (initialData) {
 
             setFormData({
+
                 GoodsReceiptNoteItemId:
-                    initialData.GoodsReceiptNoteItemId ?? null,
+                    initialData.GoodsReceiptNoteItemId ??
+                    initialData.goodsReceiptNoteItemId ??
+                    null,
 
                 GoodsReceiptNoteId:
-                    initialData.GoodsReceiptNoteId ?? "",
+                    initialData.GoodsReceiptNoteId ??
+                    initialData.goodsReceiptNoteId ??
+                    "",
 
                 ProductId:
-                    initialData.ProductId ?? "",
+                    initialData.ProductId ??
+                    initialData.productId ??
+                    "",
 
                 ReceivedQuantity:
-                    initialData.ReceivedQuantity ?? "",
+                    initialData.ReceivedQuantity ??
+                    initialData.receivedQuantity ??
+                    "",
 
                 AcceptedQuantity:
-                    initialData.AcceptedQuantity ?? "",
+                    initialData.AcceptedQuantity ??
+                    initialData.acceptedQuantity ??
+                    "",
 
                 RejectedQuantity:
-                    initialData.RejectedQuantity ?? "",
+                    initialData.RejectedQuantity ??
+                    initialData.rejectedQuantity ??
+                    "",
 
                 UnitPrice:
-                    initialData.UnitPrice ?? "",
+                    initialData.UnitPrice ??
+                    initialData.unitPrice ??
+                    "",
 
                 TaxAmount:
-                    initialData.TaxAmount ?? "",
+                    initialData.TaxAmount ??
+                    initialData.taxAmount ??
+                    "",
 
                 TotalAmount:
-                    initialData.TotalAmount ?? ""
+                    initialData.TotalAmount ??
+                    initialData.totalAmount ??
+                    ""
+
             });
 
         } else {
@@ -95,6 +236,7 @@ const GoodsReceiptNoteItemForm = ({
         setErrors({});
 
     }, [initialData]);
+
 
     /* =========================================================
        HANDLE INPUT CHANGE
@@ -114,6 +256,79 @@ const GoodsReceiptNoteItemForm = ({
             [field]: ""
         }));
     };
+
+
+    /* =========================================================
+       GET GRN ID
+    ========================================================= */
+
+    const getGrnId = (grn) => {
+
+        return (
+            grn?.GoodsReceiptNoteId ??
+            grn?.goodsReceiptNoteId ??
+            grn?.GRNId ??
+            grn?.grnId ??
+            grn?.Id ??
+            grn?.id
+        );
+    };
+
+
+    /* =========================================================
+       GET GRN DISPLAY VALUE
+    ========================================================= */
+
+    const getGrnDisplay = (grn) => {
+
+        const id = getGrnId(grn);
+
+        return (
+            grn?.GoodsReceiptNoteNumber ??
+            grn?.goodsReceiptNoteNumber ??
+            grn?.GRNNumber ??
+            grn?.grnNumber ??
+            grn?.ReceiptNumber ??
+            grn?.receiptNumber ??
+            `GRN #${id}`
+        );
+    };
+
+
+    /* =========================================================
+       GET PRODUCT ID
+    ========================================================= */
+
+    const getProductId = (product) => {
+
+        return (
+            product?.ProductId ??
+            product?.productId ??
+            product?.Id ??
+            product?.id
+        );
+    };
+
+
+    /* =========================================================
+       GET PRODUCT DISPLAY VALUE
+    ========================================================= */
+
+    const getProductDisplay = (product) => {
+
+        const id = getProductId(product);
+
+        return (
+            product?.ProductName ??
+            product?.productName ??
+            product?.Name ??
+            product?.name ??
+            product?.SKU ??
+            product?.sku ??
+            `Product #${id}`
+        );
+    };
+
 
     /* =========================================================
        CALCULATE TOTAL AMOUNT
@@ -155,6 +370,7 @@ const GoodsReceiptNoteItemForm = ({
         formData.TaxAmount
     ]);
 
+
     /* =========================================================
        VALIDATE FORM
     ========================================================= */
@@ -162,6 +378,7 @@ const GoodsReceiptNoteItemForm = ({
     const validate = () => {
 
         const newErrors = {};
+
 
         const receivedQuantity =
             Number(formData.ReceivedQuantity);
@@ -178,8 +395,9 @@ const GoodsReceiptNoteItemForm = ({
         const taxAmount =
             Number(formData.TaxAmount);
 
+
         /* -----------------------------------------------------
-           GRN ID
+           GRN
         ----------------------------------------------------- */
 
         if (
@@ -187,20 +405,25 @@ const GoodsReceiptNoteItemForm = ({
             formData.GoodsReceiptNoteId === null ||
             formData.GoodsReceiptNoteId === undefined
         ) {
+
             newErrors.GoodsReceiptNoteId =
-                "GRN ID is required.";
+                "GRN is required.";
+
         } else if (
             !Number.isInteger(
                 Number(formData.GoodsReceiptNoteId)
             ) ||
             Number(formData.GoodsReceiptNoteId) <= 0
         ) {
+
             newErrors.GoodsReceiptNoteId =
-                "Enter a valid GRN ID.";
+                "Select a valid GRN.";
+
         }
 
+
         /* -----------------------------------------------------
-           PRODUCT ID
+           PRODUCT
         ----------------------------------------------------- */
 
         if (
@@ -208,17 +431,22 @@ const GoodsReceiptNoteItemForm = ({
             formData.ProductId === null ||
             formData.ProductId === undefined
         ) {
+
             newErrors.ProductId =
-                "Product ID is required.";
+                "Product is required.";
+
         } else if (
             !Number.isInteger(
                 Number(formData.ProductId)
             ) ||
             Number(formData.ProductId) <= 0
         ) {
+
             newErrors.ProductId =
-                "Enter a valid Product ID.";
+                "Select a valid product.";
+
         }
+
 
         /* -----------------------------------------------------
            RECEIVED QUANTITY
@@ -228,15 +456,20 @@ const GoodsReceiptNoteItemForm = ({
             formData.ReceivedQuantity === "" ||
             formData.ReceivedQuantity === null
         ) {
+
             newErrors.ReceivedQuantity =
                 "Received quantity is required.";
+
         } else if (
             !Number.isFinite(receivedQuantity) ||
             receivedQuantity <= 0
         ) {
+
             newErrors.ReceivedQuantity =
                 "Received quantity must be greater than 0.";
+
         }
+
 
         /* -----------------------------------------------------
            ACCEPTED QUANTITY
@@ -246,15 +479,20 @@ const GoodsReceiptNoteItemForm = ({
             formData.AcceptedQuantity === "" ||
             formData.AcceptedQuantity === null
         ) {
+
             newErrors.AcceptedQuantity =
                 "Accepted quantity is required.";
+
         } else if (
             !Number.isFinite(acceptedQuantity) ||
             acceptedQuantity < 0
         ) {
+
             newErrors.AcceptedQuantity =
                 "Accepted quantity cannot be negative.";
+
         }
+
 
         /* -----------------------------------------------------
            REJECTED QUANTITY
@@ -264,15 +502,20 @@ const GoodsReceiptNoteItemForm = ({
             formData.RejectedQuantity === "" ||
             formData.RejectedQuantity === null
         ) {
+
             newErrors.RejectedQuantity =
                 "Rejected quantity is required.";
+
         } else if (
             !Number.isFinite(rejectedQuantity) ||
             rejectedQuantity < 0
         ) {
+
             newErrors.RejectedQuantity =
                 "Rejected quantity cannot be negative.";
+
         }
+
 
         /* -----------------------------------------------------
            ACCEPTED + REJECTED
@@ -288,13 +531,17 @@ const GoodsReceiptNoteItemForm = ({
                 acceptedQuantity + rejectedQuantity >
                 receivedQuantity
             ) {
+
                 newErrors.AcceptedQuantity =
                     "Accepted + rejected quantity cannot exceed received quantity.";
 
                 newErrors.RejectedQuantity =
                     "Accepted + rejected quantity cannot exceed received quantity.";
+
             }
+
         }
+
 
         /* -----------------------------------------------------
            UNIT PRICE
@@ -304,38 +551,49 @@ const GoodsReceiptNoteItemForm = ({
             formData.UnitPrice === "" ||
             formData.UnitPrice === null
         ) {
+
             newErrors.UnitPrice =
                 "Unit price is required.";
+
         } else if (
             !Number.isFinite(unitPrice) ||
             unitPrice < 0
         ) {
+
             newErrors.UnitPrice =
                 "Unit price cannot be negative.";
+
         }
 
+
         /* -----------------------------------------------------
-           TAX AMOUNT
+           TAX
         ----------------------------------------------------- */
 
         if (
             formData.TaxAmount === "" ||
             formData.TaxAmount === null
         ) {
+
             newErrors.TaxAmount =
                 "Tax amount is required.";
+
         } else if (
             !Number.isFinite(taxAmount) ||
             taxAmount < 0
         ) {
+
             newErrors.TaxAmount =
                 "Tax amount cannot be negative.";
+
         }
+
 
         setErrors(newErrors);
 
         return Object.keys(newErrors).length === 0;
     };
+
 
     /* =========================================================
        HANDLE SUBMIT
@@ -349,41 +607,65 @@ const GoodsReceiptNoteItemForm = ({
             return;
         }
 
+
         const payload = {
+
             GoodsReceiptNoteItemId:
                 formData.GoodsReceiptNoteItemId
-                    ? Number(formData.GoodsReceiptNoteItemId)
+                    ? Number(
+                        formData.GoodsReceiptNoteItemId
+                    )
                     : null,
 
             GoodsReceiptNoteId:
-                Number(formData.GoodsReceiptNoteId),
+                Number(
+                    formData.GoodsReceiptNoteId
+                ),
 
             ProductId:
-                Number(formData.ProductId),
+                Number(
+                    formData.ProductId
+                ),
 
             ReceivedQuantity:
-                Number(formData.ReceivedQuantity),
+                Number(
+                    formData.ReceivedQuantity
+                ),
 
             AcceptedQuantity:
-                Number(formData.AcceptedQuantity),
+                Number(
+                    formData.AcceptedQuantity
+                ),
 
             RejectedQuantity:
-                Number(formData.RejectedQuantity),
+                Number(
+                    formData.RejectedQuantity
+                ),
 
             UnitPrice:
-                Number(formData.UnitPrice),
+                Number(
+                    formData.UnitPrice
+                ),
 
             TaxAmount:
-                Number(formData.TaxAmount),
+                Number(
+                    formData.TaxAmount
+                ),
 
             TotalAmount:
-                Number(formData.TotalAmount)
+                Number(
+                    formData.TotalAmount
+                )
+
         };
+
 
         if (typeof onSubmit === "function") {
             onSubmit(payload);
         }
+
     };
+
 
     /* =========================================================
        RESET FORM
@@ -394,32 +676,52 @@ const GoodsReceiptNoteItemForm = ({
         if (initialData) {
 
             setFormData({
+
                 GoodsReceiptNoteItemId:
-                    initialData.GoodsReceiptNoteItemId ?? null,
+                    initialData.GoodsReceiptNoteItemId ??
+                    initialData.goodsReceiptNoteItemId ??
+                    null,
 
                 GoodsReceiptNoteId:
-                    initialData.GoodsReceiptNoteId ?? "",
+                    initialData.GoodsReceiptNoteId ??
+                    initialData.goodsReceiptNoteId ??
+                    "",
 
                 ProductId:
-                    initialData.ProductId ?? "",
+                    initialData.ProductId ??
+                    initialData.productId ??
+                    "",
 
                 ReceivedQuantity:
-                    initialData.ReceivedQuantity ?? "",
+                    initialData.ReceivedQuantity ??
+                    initialData.receivedQuantity ??
+                    "",
 
                 AcceptedQuantity:
-                    initialData.AcceptedQuantity ?? "",
+                    initialData.AcceptedQuantity ??
+                    initialData.acceptedQuantity ??
+                    "",
 
                 RejectedQuantity:
-                    initialData.RejectedQuantity ?? "",
+                    initialData.RejectedQuantity ??
+                    initialData.rejectedQuantity ??
+                    "",
 
                 UnitPrice:
-                    initialData.UnitPrice ?? "",
+                    initialData.UnitPrice ??
+                    initialData.unitPrice ??
+                    "",
 
                 TaxAmount:
-                    initialData.TaxAmount ?? "",
+                    initialData.TaxAmount ??
+                    initialData.taxAmount ??
+                    "",
 
                 TotalAmount:
-                    initialData.TotalAmount ?? ""
+                    initialData.TotalAmount ??
+                    initialData.totalAmount ??
+                    ""
+
             });
 
         } else {
@@ -429,13 +731,16 @@ const GoodsReceiptNoteItemForm = ({
         }
 
         setErrors({});
+
     };
+
 
     /* =========================================================
        RENDER
     ========================================================= */
 
     return (
+
         <Paper
             elevation={2}
             sx={{
@@ -475,7 +780,25 @@ const GoodsReceiptNoteItemForm = ({
 
             </Box>
 
+
             <Divider sx={{ mb: 3 }} />
+
+
+            {/* =================================================
+               API ERROR
+            ================================================= */}
+
+            {dropdownError && (
+
+                <Alert
+                    severity="error"
+                    sx={{ mb: 3 }}
+                >
+                    {dropdownError}
+                </Alert>
+
+            )}
+
 
             {/* =================================================
                VALIDATION MESSAGE
@@ -492,11 +815,13 @@ const GoodsReceiptNoteItemForm = ({
 
             )}
 
+
             <Box
                 component="form"
                 onSubmit={handleSubmit}
                 noValidate
             >
+
 
                 {/* =================================================
                    BASIC INFORMATION
@@ -510,22 +835,32 @@ const GoodsReceiptNoteItemForm = ({
                     Basic Information
                 </Typography>
 
+
                 <Grid
                     container
                     spacing={2}
                     sx={{ mb: 4 }}
                 >
 
+
+                    {/* =================================================
+                       GRN DROPDOWN
+                    ================================================= */}
+
                     <Grid item xs={12} md={6}>
 
                         <TextField
                             fullWidth
-                            label="GRN ID"
-                            type="number"
-                            value={formData.GoodsReceiptNoteId}
-                            onChange={handleChange(
-                                "GoodsReceiptNoteId"
-                            )}
+                            select
+                            label="Goods Receipt Note"
+                            value={
+                                formData.GoodsReceiptNoteId
+                            }
+                            onChange={
+                                handleChange(
+                                    "GoodsReceiptNoteId"
+                                )
+                            }
                             error={
                                 Boolean(
                                     errors.GoodsReceiptNoteId
@@ -534,25 +869,84 @@ const GoodsReceiptNoteItemForm = ({
                             helperText={
                                 errors.GoodsReceiptNoteId
                             }
-                            disabled={loading}
-                            inputProps={{
-                                min: 1
-                            }}
+                            disabled={
+                                loading ||
+                                dropdownLoading
+                            }
                             required
-                        />
+                            SelectProps={{
+                                displayEmpty: true
+                            }}
+                            InputProps={{
+                                endAdornment:
+                                    dropdownLoading ? (
+                                        <CircularProgress
+                                            size={20}
+                                            sx={{
+                                                mr: 2
+                                            }}
+                                        />
+                                    ) : null
+                            }}
+                        >
+
+                            <MenuItem value="">
+                                <em>
+                                    Select Goods Receipt Note
+                                </em>
+                            </MenuItem>
+
+
+                            {goodsReceiptNotes.map(
+                                (grn) => {
+
+                                    const id =
+                                        getGrnId(grn);
+
+                                    if (
+                                        id === undefined ||
+                                        id === null
+                                    ) {
+                                        return null;
+                                    }
+
+                                    return (
+
+                                        <MenuItem
+                                            key={id}
+                                            value={id}
+                                        >
+                                            {getGrnDisplay(grn)}
+                                        </MenuItem>
+
+                                    );
+
+                                }
+                            )}
+
+                        </TextField>
 
                     </Grid>
+
+
+                    {/* =================================================
+                       PRODUCT DROPDOWN
+                    ================================================= */}
 
                     <Grid item xs={12} md={6}>
 
                         <TextField
                             fullWidth
-                            label="Product ID"
-                            type="number"
-                            value={formData.ProductId}
-                            onChange={handleChange(
-                                "ProductId"
-                            )}
+                            select
+                            label="Product"
+                            value={
+                                formData.ProductId
+                            }
+                            onChange={
+                                handleChange(
+                                    "ProductId"
+                                )
+                            }
                             error={
                                 Boolean(
                                     errors.ProductId
@@ -561,16 +955,71 @@ const GoodsReceiptNoteItemForm = ({
                             helperText={
                                 errors.ProductId
                             }
-                            disabled={loading}
-                            inputProps={{
-                                min: 1
-                            }}
+                            disabled={
+                                loading ||
+                                dropdownLoading
+                            }
                             required
-                        />
+                            SelectProps={{
+                                displayEmpty: true
+                            }}
+                            InputProps={{
+                                endAdornment:
+                                    dropdownLoading ? (
+                                        <CircularProgress
+                                            size={20}
+                                            sx={{
+                                                mr: 2
+                                            }}
+                                        />
+                                    ) : null
+                            }}
+                        >
+
+                            <MenuItem value="">
+                                <em>
+                                    Select Product
+                                </em>
+                            </MenuItem>
+
+
+                            {products.map(
+                                (product) => {
+
+                                    const id =
+                                        getProductId(
+                                            product
+                                        );
+
+                                    if (
+                                        id === undefined ||
+                                        id === null
+                                    ) {
+                                        return null;
+                                    }
+
+                                    return (
+
+                                        <MenuItem
+                                            key={id}
+                                            value={id}
+                                        >
+                                            {getProductDisplay(
+                                                product
+                                            )}
+                                        </MenuItem>
+
+                                    );
+
+                                }
+                            )}
+
+                        </TextField>
 
                     </Grid>
 
                 </Grid>
+
 
                 {/* =================================================
                    QUANTITY INFORMATION
@@ -584,6 +1033,7 @@ const GoodsReceiptNoteItemForm = ({
                     Quantity Information
                 </Typography>
 
+
                 <Grid
                     container
                     spacing={2}
@@ -596,10 +1046,14 @@ const GoodsReceiptNoteItemForm = ({
                             fullWidth
                             label="Received Quantity"
                             type="number"
-                            value={formData.ReceivedQuantity}
-                            onChange={handleChange(
-                                "ReceivedQuantity"
-                            )}
+                            value={
+                                formData.ReceivedQuantity
+                            }
+                            onChange={
+                                handleChange(
+                                    "ReceivedQuantity"
+                                )
+                            }
                             error={
                                 Boolean(
                                     errors.ReceivedQuantity
@@ -618,16 +1072,21 @@ const GoodsReceiptNoteItemForm = ({
 
                     </Grid>
 
+
                     <Grid item xs={12} md={4}>
 
                         <TextField
                             fullWidth
                             label="Accepted Quantity"
                             type="number"
-                            value={formData.AcceptedQuantity}
-                            onChange={handleChange(
-                                "AcceptedQuantity"
-                            )}
+                            value={
+                                formData.AcceptedQuantity
+                            }
+                            onChange={
+                                handleChange(
+                                    "AcceptedQuantity"
+                                )
+                            }
                             error={
                                 Boolean(
                                     errors.AcceptedQuantity
@@ -646,16 +1105,21 @@ const GoodsReceiptNoteItemForm = ({
 
                     </Grid>
 
+
                     <Grid item xs={12} md={4}>
 
                         <TextField
                             fullWidth
                             label="Rejected Quantity"
                             type="number"
-                            value={formData.RejectedQuantity}
-                            onChange={handleChange(
-                                "RejectedQuantity"
-                            )}
+                            value={
+                                formData.RejectedQuantity
+                            }
+                            onChange={
+                                handleChange(
+                                    "RejectedQuantity"
+                                )
+                            }
                             error={
                                 Boolean(
                                     errors.RejectedQuantity
@@ -676,6 +1140,7 @@ const GoodsReceiptNoteItemForm = ({
 
                 </Grid>
 
+
                 {/* =================================================
                    FINANCIAL INFORMATION
                 ================================================= */}
@@ -687,6 +1152,7 @@ const GoodsReceiptNoteItemForm = ({
                 >
                     Financial Information
                 </Typography>
+
 
                 <Grid
                     container
@@ -700,10 +1166,14 @@ const GoodsReceiptNoteItemForm = ({
                             fullWidth
                             label="Unit Price"
                             type="number"
-                            value={formData.UnitPrice}
-                            onChange={handleChange(
-                                "UnitPrice"
-                            )}
+                            value={
+                                formData.UnitPrice
+                            }
+                            onChange={
+                                handleChange(
+                                    "UnitPrice"
+                                )
+                            }
                             error={
                                 Boolean(
                                     errors.UnitPrice
@@ -722,16 +1192,21 @@ const GoodsReceiptNoteItemForm = ({
 
                     </Grid>
 
+
                     <Grid item xs={12} md={4}>
 
                         <TextField
                             fullWidth
                             label="Tax Amount"
                             type="number"
-                            value={formData.TaxAmount}
-                            onChange={handleChange(
-                                "TaxAmount"
-                            )}
+                            value={
+                                formData.TaxAmount
+                            }
+                            onChange={
+                                handleChange(
+                                    "TaxAmount"
+                                )
+                            }
                             error={
                                 Boolean(
                                     errors.TaxAmount
@@ -750,13 +1225,16 @@ const GoodsReceiptNoteItemForm = ({
 
                     </Grid>
 
+
                     <Grid item xs={12} md={4}>
 
                         <TextField
                             fullWidth
                             label="Total Amount"
                             type="number"
-                            value={formData.TotalAmount}
+                            value={
+                                formData.TotalAmount
+                            }
                             disabled
                             InputProps={{
                                 readOnly: true
@@ -770,6 +1248,7 @@ const GoodsReceiptNoteItemForm = ({
                     </Grid>
 
                 </Grid>
+
 
                 {/* =================================================
                    SUMMARY
@@ -791,13 +1270,15 @@ const GoodsReceiptNoteItemForm = ({
                         Calculation
                     </Typography>
 
+
                     <Typography
                         variant="body2"
                         sx={{ mt: 0.5 }}
                     >
-                        Total Amount = Accepted Quantity × Unit
-                        Price + Tax Amount
+                        Total Amount = Accepted Quantity ×
+                        Unit Price + Tax Amount
                     </Typography>
+
 
                     <Typography
                         variant="h6"
@@ -807,13 +1288,17 @@ const GoodsReceiptNoteItemForm = ({
                         ₹{" "}
                         {Number(
                             formData.TotalAmount || 0
-                        ).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })}
+                        ).toLocaleString(
+                            "en-IN",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        )}
                     </Typography>
 
                 </Box>
+
 
                 {/* =================================================
                    ACTIONS
@@ -838,6 +1323,7 @@ const GoodsReceiptNoteItemForm = ({
                         Cancel
                     </Button>
 
+
                     <Box
                         sx={{
                             display: "flex",
@@ -855,11 +1341,15 @@ const GoodsReceiptNoteItemForm = ({
                             Reset
                         </Button>
 
+
                         <Button
                             type="submit"
                             variant="contained"
                             startIcon={<Save />}
-                            disabled={loading}
+                            disabled={
+                                loading ||
+                                dropdownLoading
+                            }
                         >
                             {loading
                                 ? "Saving..."
@@ -873,7 +1363,10 @@ const GoodsReceiptNoteItemForm = ({
             </Box>
 
         </Paper>
+
     );
+
 };
+
 
 export default GoodsReceiptNoteItemForm;

@@ -1,5 +1,5 @@
-import React from "react";
 
+import React from "react";
 
 import {
     Dialog,
@@ -8,422 +8,258 @@ import {
     DialogContentText,
     DialogActions,
     Button,
-    Typography
+    Typography,
+    Stack,
+    Divider,
+    Box
 } from "@mui/material";
 
 
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
 
-const formatCurrency = (value) =>
+const formatCurrency = (value) => {
 
-    `₹ ${Number(value || 0).toLocaleString(undefined, {
+    const amount = Number(value);
 
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
-
         maximumFractionDigits: 2
-
     })}`;
+};
 
 
+/* =========================================================
+   DELETE GOODS RECEIPT NOTE DIALOG
+========================================================= */
 
 const DeleteGoodsReceiptNoteDialog = ({
-
     open,
-
     note,
-
     onClose,
-
     onDeleted
-
 }) => {
 
 
+    /* =====================================================
+       HANDLE DELETE
+    ===================================================== */
 
     const handleDelete = () => {
 
-
-        if (!note)
-
+        if (!note?.GoodsReceiptNoteId) {
             return;
+        }
 
-
-
-        onDeleted(
-
-            note.GoodsReceiptNoteId
-
-        );
-
-
+        if (typeof onDeleted === "function") {
+            onDeleted(note.GoodsReceiptNoteId);
+        }
     };
 
 
-
-
-
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
-
-
-
         <Dialog
-
-
-
             open={open}
-
-
-
             onClose={onClose}
-
-
-
             fullWidth
-
-
-
             maxWidth="sm"
-
-
-
-
         >
 
-
+            {/* =================================================
+                TITLE
+            ================================================= */}
 
             <DialogTitle>
-
-
                 Delete Goods Receipt Note
-
-
             </DialogTitle>
 
 
-
-
-
-
+            {/* =================================================
+                CONTENT
+            ================================================= */}
 
             <DialogContent>
 
-
-
-
-
                 <DialogContentText
-
                     sx={{
-
-                        mb:2
-
+                        mb: 2
                     }}
-
                 >
-
-
-
-                    Are you sure you want to delete this Goods Receipt Note?
-
-                    This action cannot be undone.
-
-
-
+                    Are you sure you want to delete this Goods
+                    Receipt Note? This action cannot be undone.
                 </DialogContentText>
 
 
+                {note && (
+
+                    <>
 
-
-
-
-
-
-                {
-
-
-                    note && (
-
-
-
-                        <>
-
-
-
-                            <Typography>
-
-
-                                <strong>
-
-                                    GRN ID:
-
-                                </strong>
-
-
-                                {" "}
-
-
-                                {
-
-                                    note.GoodsReceiptNoteId
-
-                                }
-
-
-
-                            </Typography>
-
-
-
-
-
-
-
-                            <Typography>
-
-
-                                <strong>
-
-                                    GRN Number:
-
-                                </strong>
-
-
-                                {" "}
-
-
-                                {
-
-                                    note.GRNNumber
-
-                                }
-
-
-
-                            </Typography>
-
-
-
-
-
-
-
-                            <Typography>
-
-
-                                <strong>
-
-                                    Purchase Order ID:
-
-                                </strong>
-
-
-                                {" "}
-
-
-                                {
-
-                                    note.PurchaseOrderId
-
-                                }
-
-
-
-                            </Typography>
-
-
-
-
-
-
-
-                            <Typography>
-
-
-                                <strong>
-
-                                    Supplier ID:
-
-                                </strong>
-
-
-                                {" "}
-
-
-                                {
-
-                                    note.SupplierId
-
-                                }
-
-
-
-                            </Typography>
-
-
-
-
-
-
-
-                            <Typography>
-
-
-                                <strong>
-
-                                    Status:
-
-                                </strong>
-
-
-                                {" "}
-
-
-                                {
-
-                                    note.Status
-
-                                }
-
-
-
-                            </Typography>
-
-
-
-
-
-
-
-                            <Typography>
-
-
-                                <strong>
-
-                                    Total Amount:
-
-                                </strong>
-
-
-                                {" "}
-
-
-                                {
-
-                                    formatCurrency(
-
-                                        note.TotalAmount
-
-                                    )
-
-                                }
-
-
-
-                            </Typography>
-
-
-
-
-
-
-                        </>
-
-
-
-                    )
-
-
-                }
-
-
-
-
-
+                        <Divider sx={{ mb: 2 }} />
+
+
+                        <Stack spacing={1.25}>
+
+                            {/* =====================================
+                                GRN ID
+                            ===================================== */}
+
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    GRN ID
+                                </Typography>
+
+                                <Typography fontWeight={600}>
+                                    {note.GoodsReceiptNoteId ?? "-"}
+                                </Typography>
+                            </Box>
+
+
+                            {/* =====================================
+                                GRN NUMBER
+                            ===================================== */}
+
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    GRN Number
+                                </Typography>
+
+                                <Typography fontWeight={600}>
+                                    {note.GRNNumber || "-"}
+                                </Typography>
+                            </Box>
+
+
+                            {/* =====================================
+                                PURCHASE ORDER
+                            ===================================== */}
+
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    Purchase Order ID
+                                </Typography>
+
+                                <Typography fontWeight={600}>
+                                    {note.PurchaseOrderId ?? "-"}
+                                </Typography>
+                            </Box>
+
+
+                            {/* =====================================
+                                SUPPLIER
+                            ===================================== */}
+
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    Supplier ID
+                                </Typography>
+
+                                <Typography fontWeight={600}>
+                                    {note.SupplierId ?? "-"}
+                                </Typography>
+                            </Box>
+
+
+                            {/* =====================================
+                                STATUS
+                            ===================================== */}
+
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    Status
+                                </Typography>
+
+                                <Typography fontWeight={600}>
+                                    {note.Status || "-"}
+                                </Typography>
+                            </Box>
+
+
+                            {/* =====================================
+                                TOTAL AMOUNT
+                            ===================================== */}
+
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    Total Amount
+                                </Typography>
+
+                                <Typography
+                                    fontWeight={700}
+                                    color="error.main"
+                                >
+                                    {formatCurrency(note.TotalAmount)}
+                                </Typography>
+                            </Box>
+
+                        </Stack>
+
+                    </>
+                )}
 
             </DialogContent>
 
 
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
 
-
-
-
-
-
-            <DialogActions>
-
-
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
 
                 <Button
-
-
                     onClick={onClose}
-
-
                     color="inherit"
-
-
                 >
-
-
                     Cancel
-
-
                 </Button>
-
-
-
-
-
-
 
 
                 <Button
-
-
-
                     variant="contained"
-
-
-
                     color="error"
-
-
-
                     onClick={handleDelete}
-
-
-
-
+                    disabled={!note?.GoodsReceiptNoteId}
                 >
-
-
                     Delete
-
-
-
                 </Button>
-
-
-
-
-
-
 
             </DialogActions>
 
-
-
-
-
-
         </Dialog>
-
-
     );
-
-
 };
 
 
-
 export default DeleteGoodsReceiptNoteDialog;
+

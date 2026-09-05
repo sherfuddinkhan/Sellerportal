@@ -1,906 +1,757 @@
-import React, {useEffect,useMemo,useState} from "react";
-import {Box,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
-import {GoodsReceiptNoteToolbar,GoodsReceiptNoteStatistics,GoodsReceiptNoteSearch,GoodsReceiptNoteTable,GoodsReceiptNotePagination,GoodsReceiptNoteModal,GoodsReceiptNoteView,DeleteGoodsReceiptNoteDialog} from "./index";
+import React, {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import axios from "axios";
+
+import {
+    Box,
+    Typography,
+    CircularProgress,
+    Snackbar,
+    Alert
+} from "@mui/material";
+
+import GoodsReceiptNoteToolbar
+    from "./GoodsReceiptNoteToolbar";
+
+import GoodsReceiptNoteStatistics
+    from "./GoodsReceiptNoteStatistics";
+
+import GoodsReceiptNoteSearch
+    from "./GoodsReceiptNoteSearch";
+
+import GoodsReceiptNoteTable
+    from "./GoodsReceiptNoteTable";
+
+import GoodsReceiptNotePagination
+    from "./GoodsReceiptNotePagination";
+
+import GoodsReceiptNoteModal
+    from "./GoodsReceiptNoteModal";
+
+import GoodsReceiptNoteView
+    from "./GoodsReceiptNoteView";
+
+import DeleteGoodsReceiptNoteDialog
+    from "./DeleteGoodsReceiptNoteDialog";
+
+
+
+
+/* =========================================================
+   GOODS RECEIPT NOTE API
+========================================================= */
+
+const GRN_API =
+    `${SERVER_URL}/api/goods-receipt-notes`;
+
+
 const GoodsReceiptNoteList = () => {
-    const [goodsReceiptNotes, setGoodsReceiptNotes] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [searchText, setSearchText] = useState("");
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const [selectedGRN, setSelectedGRN] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [viewOpen, setViewOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
-    const [snackbar, setSnackbar] = useState({open: false,message: "",severity: "success"});
 
-    // ==========================================================
-    // Load Goods Receipt Notes
-    // ==========================================================
+    /* =====================================================
+       STATE
+    ===================================================== */
 
+    const [
+        goodsReceiptNotes,
+        setGoodsReceiptNotes
+    ] = useState([]);
+
+    const [
+        loading,
+        setLoading
+    ] = useState(false);
+
+    const [
+        searchText,
+        setSearchText
+    ] = useState("");
+
+    const [
+        page,
+        setPage
+    ] = useState(1);
+
+    const [
+        pageSize,
+        setPageSize
+    ] = useState(10);
+
+    const [
+        selectedGRN,
+        setSelectedGRN
+    ] = useState(null);
+
+    const [
+        modalOpen,
+        setModalOpen
+    ] = useState(false);
+
+    const [
+        viewOpen,
+        setViewOpen
+    ] = useState(false);
+
+    const [
+        deleteOpen,
+        setDeleteOpen
+    ] = useState(false);
+
+    const [
+        snackbar,
+        setSnackbar
+    ] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
+
+
+    /* =====================================================
+       LOAD GOODS RECEIPT NOTES
+       GET:
+       http://localhost:5000/api/goods-receipt-notes/all
+    ===================================================== */
 
     const loadGoodsReceiptNotes = async () => {
 
-
         try {
-
 
             setLoading(true);
 
-
-
-            const response =
-
-                await apiService.getGoodsReceiptNotes();
-
-
-
-            setGoodsReceiptNotes(
-
-                response.data || []
-
+            console.log(
+                "GET ALL GOODS RECEIPT NOTES"
             );
 
+            const response = await axios.get(
+                `${GRN_API}/all`
+            );
 
+            console.log(
+                "GOODS RECEIPT NOTES RESPONSE:",
+                response.data
+            );
+
+            const data = response.data;
+
+            /*
+             * Support both:
+             *
+             * [
+             *   {...},
+             *   {...}
+             * ]
+             *
+             * and:
+             *
+             * {
+             *   items: [...]
+             * }
+             */
+
+            if (Array.isArray(data)) {
+
+                setGoodsReceiptNotes(data);
+
+            }
+            else if (
+                data &&
+                Array.isArray(data.items)
+            ) {
+
+                setGoodsReceiptNotes(
+                    data.items
+                );
+
+            }
+            else {
+
+                setGoodsReceiptNotes([]);
+            }
+
+            setPage(1);
 
         }
-
-        catch(error) {
-
+        catch (error) {
 
             console.error(
-
-                "Error loading Goods Receipt Notes",
-
+                "Error loading Goods Receipt Notes:",
                 error
-
             );
 
-
+            setGoodsReceiptNotes([]);
 
             setSnackbar({
-
                 open: true,
-
                 message:
-
                     "Failed to load Goods Receipt Notes",
-
                 severity: "error"
-
             });
 
-
         }
-
         finally {
 
-
             setLoading(false);
-
-
         }
-
-
     };
 
 
-
-
+    /* =====================================================
+       INITIAL LOAD
+    ===================================================== */
 
     useEffect(() => {
 
-
         loadGoodsReceiptNotes();
-
 
     }, []);
 
 
-
-
-
-
-
-    // ==========================================================
-    // Search Filter
-    // ==========================================================
-
+    /* =====================================================
+       SEARCH FILTER
+    ===================================================== */
 
     const filteredNotes = useMemo(() => {
 
-
-        if(!searchText)
+        if (!searchText.trim()) {
 
             return goodsReceiptNotes;
-
-
+        }
 
         const search =
+            searchText
+                .toLowerCase()
+                .trim();
 
-            searchText.toLowerCase();
+        return goodsReceiptNotes.filter(
+            (note) => {
 
+                return (
 
+                    String(
+                        note.GoodsReceiptNoteId ?? ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
 
+                    ||
 
-        return goodsReceiptNotes.filter(note =>
+                    String(
+                        note.GRNNumber ?? ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
 
+                    ||
 
+                    String(
+                        note.PurchaseOrderId ?? ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
 
-            String(
+                    ||
 
-                note.GoodsReceiptNoteId
+                    String(
+                        note.SupplierId ?? ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
 
-            )
+                    ||
 
-            .includes(search)
+                    String(
+                        note.Status ?? ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
 
-
-
-            ||
-
-
-
-            String(
-
-                note.GRNNumber
-
-            )
-
-            .toLowerCase()
-
-            .includes(search)
-
-
-
-            ||
-
-
-
-            String(
-
-                note.PurchaseOrderId
-
-            )
-
-            .includes(search)
-
-
-
-            ||
-
-
-
-            String(
-
-                note.SupplierId
-
-            )
-
-            .includes(search)
-
-
-
-            ||
-
-
-
-            String(
-
-                note.Status
-
-            )
-
-            .toLowerCase()
-
-            .includes(search)
-
-
-
+                );
+            }
         );
 
-
-
     }, [
-
         goodsReceiptNotes,
-
         searchText
-
     ]);
 
 
-
-
-
-
-    // ==========================================================
-    // Pagination
-    // ==========================================================
-
+    /* =====================================================
+       PAGINATION
+    ===================================================== */
 
     const totalRecords =
-
         filteredNotes.length;
 
-
-
     const totalPages =
-
-        Math.ceil(
-
-            totalRecords / pageSize
-
+        Math.max(
+            1,
+            Math.ceil(
+                totalRecords / pageSize
+            )
         );
-
-
 
     const paginatedNotes =
-
         filteredNotes.slice(
-
             (page - 1) * pageSize,
-
             page * pageSize
-
         );
 
 
-
-
-
-    // ==========================================================
-    // Statistics
-    // ==========================================================
-
+    /* =====================================================
+       STATISTICS
+    ===================================================== */
 
     const statistics = useMemo(() => {
 
-
         return {
 
-
             totalGRN:
-
                 goodsReceiptNotes.length,
 
-
-
             totalAmount:
-
                 goodsReceiptNotes.reduce(
-
                     (sum, item) =>
-
                         sum +
-
                         Number(
-
-                            item.TotalAmount || 0
-
+                            item.TotalAmount ?? 0
                         ),
-
                     0
-
                 ),
 
-
-
             completed:
-
                 goodsReceiptNotes.filter(
-
-                    x =>
-
-                    x.Status === "Completed"
-
+                    (item) =>
+                        String(
+                            item.Status ?? ""
+                        ).toLowerCase() ===
+                        "completed"
                 ).length,
 
-
-
             pending:
-
                 goodsReceiptNotes.filter(
-
-                    x =>
-
-                    x.Status === "Pending"
-
+                    (item) =>
+                        String(
+                            item.Status ?? ""
+                        ).toLowerCase() ===
+                        "pending"
                 ).length
-
-
         };
 
-
     }, [
-
         goodsReceiptNotes
-
     ]);
 
 
-// ==========================================================
-// Add / Edit
-// ==========================================================
+    /* =====================================================
+       ADD
+    ===================================================== */
+
+    const handleAdd = () => {
+
+        setSelectedGRN(null);
+
+        setModalOpen(true);
+    };
 
 
-const handleAdd = () => {
+    /* =====================================================
+       EDIT
+    ===================================================== */
+
+    const handleEdit = (item) => {
+
+        setSelectedGRN(item);
+
+        setModalOpen(true);
+    };
 
 
-    setSelectedGRN(null);
+    /* =====================================================
+       CREATE / UPDATE
+    ===================================================== */
 
+    const handleSave = async (data) => {
 
-    setModalOpen(true);
+        try {
 
-
-};
-
-
-
-
-
-const handleEdit = (item) => {
-
-
-    setSelectedGRN(item);
-
-
-    setModalOpen(true);
-
-
-};
-
-
-
-
-
-
-const handleSave = async (data) => {
-
-
-    try {
-
-
-        if(data.GoodsReceiptNoteId) {
-
-
-            await apiService.updateGoodsReceiptNote(
-
-                data.GoodsReceiptNoteId,
-
+            console.log(
+                "SAVE GOODS RECEIPT NOTE:",
                 data
-
             );
 
-
-
-            setSnackbar({
-
-                open:true,
-
-                message:"Goods Receipt Note updated successfully",
-
-                severity:"success"
-
-            });
-
-
-        }
-
-        else {
-
-
-            await apiService.createGoodsReceiptNote(
-
-                data
-
-            );
-
-
-
-            setSnackbar({
-
-                open:true,
-
-                message:"Goods Receipt Note created successfully",
-
-                severity:"success"
-
-            });
-
-
-        }
-
-
-
-
-        setModalOpen(false);
-
-
-
-        loadGoodsReceiptNotes();
-
-
-
-    }
-
-    catch(error) {
-
-
-        console.error(
-
-            "Save GRN Error",
-
-            error
-
-        );
-
-
-
-        setSnackbar({
-
-            open:true,
-
-            message:"Failed to save Goods Receipt Note",
-
-            severity:"error"
-
-        });
-
-
-    }
-
-
-};
-
-
-
-
-
-
-// ==========================================================
-// View
-// ==========================================================
-
-
-const handleView = (item) => {
-
-
-    setSelectedGRN(item);
-
-
-    setViewOpen(true);
-
-
-};
-
-
-
-
-
-
-
-// ==========================================================
-// Delete
-// ==========================================================
-
-
-const handleDelete = (item) => {
-
-
-    setSelectedGRN(item);
-
-
-    setDeleteOpen(true);
-
-
-};
-
-
-
-
-
-
-
-const confirmDelete = async (id) => {
-
-
-    try {
-
-
-        await apiService.deleteGoodsReceiptNote(
-
-            id
-
-        );
-
-
-
-        setSnackbar({
-
-            open:true,
-
-            message:"Goods Receipt Note deleted successfully",
-
-            severity:"success"
-
-        });
-
-
-
-        setDeleteOpen(false);
-
-
-
-        loadGoodsReceiptNotes();
-
-
-
-    }
-
-    catch(error) {
-
-
-        console.error(
-
-            "Delete GRN Error",
-
-            error
-
-        );
-
-
-
-        setSnackbar({
-
-            open:true,
-
-            message:"Delete failed",
-
-            severity:"error"
-
-        });
-
-
-    }
-
-
-};
-
-
-
-
-
-
-
-const handlePageChange = (
-
-    value
-
-) => {
-
-
-    setPage(value);
-
-
-};
-
-
-
-
-
-
-
-const handlePageSizeChange = (
-
-    value
-
-) => {
-
-
-    setPageSize(value);
-
-
-    setPage(1);
-
-
-};
-
-
-
-
-
-
-
-return (
-
-
-
-    <Box
-
-        className="goods-receipt-notes-container"
-
-    >
-
-
-
-        <Typography
-
-            variant="h4"
-
-            fontWeight="bold"
-
-            mb={3}
-
-        >
-
-
-            Goods Receipt Notes
-
-
-        </Typography>
-
-
-
-
-
-
-        <GoodsReceiptNoteToolbar
-
-
-            onAdd={handleAdd}
-
-
-            onRefresh={loadGoodsReceiptNotes}
-
-
-        />
-
-
-
-
-
-
-        <GoodsReceiptNoteStatistics
-
-
-            statistics={statistics}
-
-
-        />
-
-
-
-
-
-
-        <GoodsReceiptNoteSearch
-
-
-            searchText={searchText}
-
-
-            setSearchText={setSearchText}
-
-
-        />
-
-
-
-
-
-
-        {
-
-            loading ?
-
-
-
-            (
-
-                <Box
-
-                    display="flex"
-
-                    justifyContent="center"
-
-                    mt={5}
-
-                >
-
-
-                    <CircularProgress />
-
-
-                </Box>
-
-            )
-
-            :
-
-            (
-
-                <GoodsReceiptNoteTable
-
-
-                    notes={paginatedNotes}
-
-
-                    onView={handleView}
-
-
-                    onEdit={handleEdit}
-
-
-                    onDelete={handleDelete}
-
-
-                />
-
-            )
-
-
-        }
-
-
-
-
-
-
-
-
-        <GoodsReceiptNotePagination
-
-
-            page={page}
-
-
-            totalPages={totalPages}
-
-
-            pageSize={pageSize}
-
-
-            totalRecords={totalRecords}
-
-
-            onPageChange={handlePageChange}
-
-
-            onPageSizeChange={handlePageSizeChange}
-
-
-        />
-
-
-
-
-
-
-
-
-        <GoodsReceiptNoteModal
-
-
-            open={modalOpen}
-
-
-            note={selectedGRN}
-
-
-            onClose={() => setModalOpen(false)}
-
-
-            onSave={handleSave}
-
-
-        />
-
-
-
-
-
-
-
-        <GoodsReceiptNoteView
-
-
-            open={viewOpen}
-
-
-            note={selectedGRN}
-
-
-            onClose={() => setViewOpen(false)}
-
-
-        />
-
-
-
-
-
-
-
-        <DeleteGoodsReceiptNoteDialog
-
-
-            open={deleteOpen}
-
-
-            note={selectedGRN}
-
-
-            onClose={() => setDeleteOpen(false)}
-
-
-            onDeleted={confirmDelete}
-
-
-        />
-
-
-
-
-
-
-
-        <Snackbar
-
-
-            open={snackbar.open}
-
-
-            autoHideDuration={3000}
-
-
-            onClose={() =>
+            /*
+             * UPDATE
+             */
+
+            if (
+                data.GoodsReceiptNoteId
+            ) {
+
+                const response =
+                    await axios.put(
+                        `${GRN_API}/${data.GoodsReceiptNoteId}`,
+                        data
+                    );
+
+                console.log(
+                    "UPDATE RESPONSE:",
+                    response.data
+                );
 
                 setSnackbar({
-
-                    ...snackbar,
-
-                    open:false
-
-                })
+                    open: true,
+                    message:
+                        "Goods Receipt Note updated successfully",
+                    severity: "success"
+                });
 
             }
 
+            /*
+             * CREATE
+             */
 
+            else {
+
+                const response =
+                    await axios.post(
+                        GRN_API,
+                        data
+                    );
+
+                console.log(
+                    "CREATE RESPONSE:",
+                    response.data
+                );
+
+                setSnackbar({
+                    open: true,
+                    message:
+                        "Goods Receipt Note created successfully",
+                    severity: "success"
+                });
+            }
+
+
+            setModalOpen(false);
+
+            setSelectedGRN(null);
+
+            await loadGoodsReceiptNotes();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Save GRN Error:",
+                error
+            );
+
+            setSnackbar({
+                open: true,
+                message:
+                    error.response?.data?.message ||
+                    "Failed to save Goods Receipt Note",
+                severity: "error"
+            });
+        }
+    };
+
+
+    /* =====================================================
+       VIEW
+    ===================================================== */
+
+    const handleView = (item) => {
+
+        setSelectedGRN(item);
+
+        setViewOpen(true);
+    };
+
+
+    /* =====================================================
+       DELETE
+    ===================================================== */
+
+    const handleDelete = (item) => {
+
+        setSelectedGRN(item);
+
+        setDeleteOpen(true);
+    };
+
+
+    /* =====================================================
+       CONFIRM DELETE
+    ===================================================== */
+
+    const confirmDelete = async (id) => {
+
+        try {
+
+            console.log(
+                "DELETE GOODS RECEIPT NOTE:",
+                id
+            );
+
+            const response =
+                await axios.delete(
+                    `${GRN_API}/${id}`
+                );
+
+            console.log(
+                "DELETE RESPONSE:",
+                response.data
+            );
+
+            setSnackbar({
+                open: true,
+                message:
+                    "Goods Receipt Note deleted successfully",
+                severity: "success"
+            });
+
+            setDeleteOpen(false);
+
+            setSelectedGRN(null);
+
+            await loadGoodsReceiptNotes();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Delete GRN Error:",
+                error
+            );
+
+            setSnackbar({
+                open: true,
+                message:
+                    error.response?.data?.message ||
+                    "Delete failed",
+                severity: "error"
+            });
+        }
+    };
+
+
+    /* =====================================================
+       PAGE CHANGE
+    ===================================================== */
+
+    const handlePageChange = (
+        value
+    ) => {
+
+        setPage(value);
+    };
+
+
+    /* =====================================================
+       PAGE SIZE CHANGE
+    ===================================================== */
+
+    const handlePageSizeChange = (
+        value
+    ) => {
+
+        setPageSize(value);
+
+        setPage(1);
+    };
+
+
+    /* =====================================================
+       SNACKBAR CLOSE
+    ===================================================== */
+
+    const handleSnackbarClose = () => {
+
+        setSnackbar({
+            ...snackbar,
+            open: false
+        });
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    return (
+
+        <Box
+            className="goods-receipt-notes-container"
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
+            <Typography
+                variant="h4"
+                fontWeight="bold"
+                mb={3}
+            >
+                Goods Receipt Notes
+            </Typography>
 
 
-            <Alert
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
 
-                severity={snackbar.severity}
+            <GoodsReceiptNoteToolbar
+                onAdd={handleAdd}
+                onRefresh={loadGoodsReceiptNotes}
+            />
 
+
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
+
+            <GoodsReceiptNoteStatistics
+                statistics={statistics}
+            />
+
+
+            {/* =================================================
+                SEARCH
+            ================================================= */}
+
+            <GoodsReceiptNoteSearch
+                searchText={searchText}
+                setSearchText={setSearchText}
+            />
+
+
+            {/* =================================================
+                TABLE
+            ================================================= */}
+
+            {
+                loading
+
+                    ?
+
+                    (
+                        <Box
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            mt={5}
+                        >
+
+                            <CircularProgress />
+
+                        </Box>
+                    )
+
+                    :
+
+                    (
+                        <GoodsReceiptNoteTable
+                            notes={paginatedNotes}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
+                    )
+            }
+
+
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
+
+            <GoodsReceiptNotePagination
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                totalRecords={totalRecords}
+                onPageChange={handlePageChange}
+                onPageSizeChange={
+                    handlePageSizeChange
+                }
+            />
+
+
+            {/* =================================================
+                CREATE / EDIT MODAL
+            ================================================= */}
+
+            <GoodsReceiptNoteModal
+                open={modalOpen}
+                note={selectedGRN}
+                onClose={() =>
+                    setModalOpen(false)
+                }
+                onSave={handleSave}
+            />
+
+
+            {/* =================================================
+                VIEW MODAL
+            ================================================= */}
+
+            <GoodsReceiptNoteView
+                open={viewOpen}
+                note={selectedGRN}
+                onClose={() =>
+                    setViewOpen(false)
+                }
+            />
+
+
+            {/* =================================================
+                DELETE DIALOG
+            ================================================= */}
+
+            <DeleteGoodsReceiptNoteDialog
+                open={deleteOpen}
+                note={selectedGRN}
+                onClose={() =>
+                    setDeleteOpen(false)
+                }
+                onDeleted={confirmDelete}
+            />
+
+
+            {/* =================================================
+                SNACKBAR
+            ================================================= */}
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={
+                    handleSnackbarClose
+                }
             >
 
+                <Alert
+                    severity={
+                        snackbar.severity
+                    }
+                    onClose={
+                        handleSnackbarClose
+                    }
+                >
+                    {snackbar.message}
+                </Alert>
 
-                {snackbar.message}
+            </Snackbar>
 
-
-            </Alert>
-
-
-
-        </Snackbar>
-
-
-
-
-
-
-
-    </Box>
-
-
-);
-
-
-
+        </Box>
+    );
 };
-
 
 
 export default GoodsReceiptNoteList;
