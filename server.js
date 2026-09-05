@@ -7566,9 +7566,6 @@ app.delete(
    GOODS RECEIPT NOTE ITEM BASE API
 ========================================================= */
 
-const GRN_ITEM_API =
-    `${DOTNET_API}/goods-receipt-note-items`;
-
 /* =========================================================
    ERROR HANDLER
 ========================================================= */

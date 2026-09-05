@@ -774,6 +774,83 @@ children: [
 
     ],
 },
+{
+    label: "GNI Items",
+
+    path: "/goods-receipt-note-items",
+
+    icon: "📦",
+
+    children: [
+
+        {
+            label: "GNI Item List",
+            path: "/goods-receipt-note-items",
+        },
+
+        {
+            label: "Create GNI Item",
+            path: "/goods-receipt-note-items/create",
+        },
+
+        {
+            label: "GNI Item Details",
+            path: "/goods-receipt-note-items/details/:id",
+        },
+
+        {
+            label: "Edit GNI Item",
+            path: "/goods-receipt-note-items/edit/:id",
+        },
+
+        {
+            label: "GNI Item Filters",
+            path: "/goods-receipt-note-items/filters",
+        },
+
+        {
+            label: "Search GNI Items",
+            path: "/goods-receipt-note-items/search",
+        },
+
+        {
+            label: "GNI Item Statistics",
+            path: "/goods-receipt-note-items/statistics",
+        },
+
+        {
+            label: "GNI Item Table",
+            path: "/goods-receipt-note-items/table",
+        },
+
+        {
+            label: "GNI Item Card",
+            path: "/goods-receipt-note-items/card",
+        },
+
+        {
+            label: "GNI Item Form",
+            path: "/goods-receipt-note-items/form",
+        },
+
+        {
+            label: "GNI Item Modal",
+            path: "/goods-receipt-note-items/modal",
+        },
+
+        {
+            label: "GNI Item Pagination",
+            path: "/goods-receipt-note-items/pagination",
+        },
+
+        {
+            label: "GNI Item Toolbar",
+            path: "/goods-receipt-note-items/toolbar",
+        },
+
+    ],
+},
+
 
 
 {

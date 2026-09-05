@@ -1,3 +1,4 @@
+
 import React, {
     useEffect,
     useMemo,
@@ -95,7 +96,7 @@ const GoodsReceiptNoteItemList = () => {
 
 
     /* =====================================================
-       LOAD ALL GRN ITEMS
+       LOAD ALL GNI ITEMS
     ===================================================== */
 
     const loadGoodsReceiptNoteItems = async () => {
@@ -109,20 +110,26 @@ const GoodsReceiptNoteItemList = () => {
             );
 
             console.log(
-                "GET ALL GOODS RECEIPT NOTE ITEMS"
+                "GET ALL GNI ITEMS"
             );
 
             console.log(
                 "URL:",
-                API_URL
+                `${API_URL}/all`
             );
+
+
+            /* =============================================
+               GET ALL
+            ============================================= */
 
             const response = await axios.get(
-                API_URL
+                `${API_URL}/all`
             );
 
+
             console.log(
-                "GRN ITEMS RESPONSE:",
+                "GNI ITEMS RESPONSE:",
                 response.data
             );
 
@@ -133,9 +140,7 @@ const GoodsReceiptNoteItemList = () => {
 
             if (Array.isArray(response.data)) {
 
-                setItems(
-                    response.data
-                );
+                setItems(response.data);
 
             }
 
@@ -181,7 +186,7 @@ const GoodsReceiptNoteItemList = () => {
             else {
 
                 console.warn(
-                    "Unexpected GRN Item response:",
+                    "Unexpected GNI Item response:",
                     response.data
                 );
 
@@ -194,7 +199,7 @@ const GoodsReceiptNoteItemList = () => {
         catch (error) {
 
             console.error(
-                "GET ALL GRN ITEMS ERROR:",
+                "GET ALL GNI ITEMS ERROR:",
                 error
             );
 
@@ -209,7 +214,7 @@ const GoodsReceiptNoteItemList = () => {
                 open: true,
                 message:
                     error?.response?.data?.message ||
-                    "Failed to load Goods Receipt Note Items",
+                    "Failed to load GNI Items",
                 severity: "error"
             });
 
@@ -247,6 +252,7 @@ const GoodsReceiptNoteItemList = () => {
 
         }
 
+
         const search =
             searchText
                 .trim()
@@ -256,35 +262,105 @@ const GoodsReceiptNoteItemList = () => {
         return items.filter(
             (item) => {
 
+                const gniId =
+                    item.goodsReceiptItemId ??
+                    item.GoodsReceiptItemId ??
+                    item.goodsReceiptNoteItemId ??
+                    item.GoodsReceiptNoteItemId ??
+                    "";
+
+                const grnId =
+                    item.goodsReceiptNoteId ??
+                    item.GoodsReceiptNoteId ??
+                    "";
+
+                const productId =
+                    item.productId ??
+                    item.ProductId ??
+                    "";
+
+                const purchaseOrderItemId =
+                    item.purchaseOrderItemId ??
+                    item.PurchaseOrderItemId ??
+                    "";
+
+                const sellerId =
+                    item.sellerId ??
+                    item.SellerId ??
+                    "";
+
+                const customerId =
+                    item.customerId ??
+                    item.CustomerId ??
+                    "";
+
+                const supplierId =
+                    item.supplierId ??
+                    item.SupplierId ??
+                    "";
+
+                const status =
+                    item.status ??
+                    item.Status ??
+                    "";
+
+                const remarks =
+                    item.remarks ??
+                    item.Remarks ??
+                    "";
+
+
                 return (
 
-                    String(
-                        item.GoodsReceiptNoteItemId ?? ""
-                    )
+                    String(gniId)
                         .toLowerCase()
                         .includes(search)
 
                     ||
 
-                    String(
-                        item.GoodsReceiptNoteId ?? ""
-                    )
+                    String(grnId)
                         .toLowerCase()
                         .includes(search)
 
                     ||
 
-                    String(
-                        item.ProductId ?? ""
-                    )
+                    String(productId)
                         .toLowerCase()
                         .includes(search)
 
                     ||
 
-                    String(
-                        item.ProductName ?? ""
-                    )
+                    String(purchaseOrderItemId)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(sellerId)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(customerId)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(supplierId)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(status)
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(remarks)
                         .toLowerCase()
                         .includes(search)
 
@@ -363,6 +439,7 @@ const GoodsReceiptNoteItemList = () => {
             totalItems:
                 items.length,
 
+
             totalReceived:
                 items.reduce(
                     (
@@ -373,13 +450,16 @@ const GoodsReceiptNoteItemList = () => {
                         return (
                             sum +
                             Number(
-                                item.ReceivedQuantity ?? 0
+                                item.receivedQuantity ??
+                                item.ReceivedQuantity ??
+                                0
                             )
                         );
 
                     },
                     0
                 ),
+
 
             totalRejected:
                 items.reduce(
@@ -391,13 +471,16 @@ const GoodsReceiptNoteItemList = () => {
                         return (
                             sum +
                             Number(
-                                item.RejectedQuantity ?? 0
+                                item.rejectedQuantity ??
+                                item.RejectedQuantity ??
+                                0
                             )
                         );
 
                     },
                     0
                 ),
+
 
             totalAmount:
                 items.reduce(
@@ -409,7 +492,9 @@ const GoodsReceiptNoteItemList = () => {
                         return (
                             sum +
                             Number(
-                                item.TotalAmount ?? 0
+                                item.totalAmount ??
+                                item.TotalAmount ??
+                                0
                             )
                         );
 
@@ -457,25 +542,37 @@ const GoodsReceiptNoteItemList = () => {
         try {
 
             console.log(
-                "SAVE GRN ITEM:",
+                "SAVE GNI ITEM:",
                 data
             );
+
+
+            /* =============================================
+               GET GNI ID
+            ============================================= */
+
+            const gniId =
+                data?.goodsReceiptItemId ??
+                data?.GoodsReceiptItemId ??
+                data?.goodsReceiptNoteItemId ??
+                data?.GoodsReceiptNoteItemId ??
+                null;
 
 
             /* =============================================
                UPDATE
             ============================================= */
 
-            if (
-                data.GoodsReceiptNoteItemId
-            ) {
+            if (gniId !== null) {
 
-                const id =
-                    data.GoodsReceiptNoteItemId;
+                console.log(
+                    "UPDATE GNI ITEM ID:",
+                    gniId
+                );
 
 
                 await axios.put(
-                    `${API_URL}/${id}`,
+                    `${API_URL}/${gniId}`,
                     data
                 );
 
@@ -483,7 +580,7 @@ const GoodsReceiptNoteItemList = () => {
                 setSnackbar({
                     open: true,
                     message:
-                        "GRN Item updated successfully",
+                        "GNI Item updated successfully",
                     severity: "success"
                 });
 
@@ -496,6 +593,11 @@ const GoodsReceiptNoteItemList = () => {
 
             else {
 
+                console.log(
+                    "CREATE GNI ITEM"
+                );
+
+
                 await axios.post(
                     API_URL,
                     data
@@ -505,7 +607,7 @@ const GoodsReceiptNoteItemList = () => {
                 setSnackbar({
                     open: true,
                     message:
-                        "GRN Item created successfully",
+                        "GNI Item created successfully",
                     severity: "success"
                 });
 
@@ -532,7 +634,7 @@ const GoodsReceiptNoteItemList = () => {
         catch (error) {
 
             console.error(
-                "SAVE GRN ITEM ERROR:",
+                "SAVE GNI ITEM ERROR:",
                 error
             );
 
@@ -545,7 +647,7 @@ const GoodsReceiptNoteItemList = () => {
                 open: true,
                 message:
                     error?.response?.data?.message ||
-                    "Failed to save GRN Item",
+                    "Failed to save GNI Item",
                 severity: "error"
             });
 
@@ -589,7 +691,7 @@ const GoodsReceiptNoteItemList = () => {
         try {
 
             console.log(
-                "DELETE GRN ITEM:",
+                "DELETE GNI ITEM:",
                 id
             );
 
@@ -602,7 +704,7 @@ const GoodsReceiptNoteItemList = () => {
             setSnackbar({
                 open: true,
                 message:
-                    "GRN Item deleted successfully",
+                    "GNI Item deleted successfully",
                 severity: "success"
             });
 
@@ -619,7 +721,7 @@ const GoodsReceiptNoteItemList = () => {
         catch (error) {
 
             console.error(
-                "DELETE GRN ITEM ERROR:",
+                "DELETE GNI ITEM ERROR:",
                 error
             );
 
@@ -719,7 +821,7 @@ const GoodsReceiptNoteItemList = () => {
                 fontWeight="bold"
                 mb={3}
             >
-                Goods Receipt Note Items
+                GNI Items
             </Typography>
 
 
@@ -896,3 +998,4 @@ const GoodsReceiptNoteItemList = () => {
 
 
 export default GoodsReceiptNoteItemList;
+
