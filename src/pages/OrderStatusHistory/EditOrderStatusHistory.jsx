@@ -1,3 +1,4 @@
+
 import React, {
     useEffect,
     useState
@@ -8,65 +9,33 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Grid,
-    TextField,
     Button,
-    MenuItem
+    TextField,
+    Grid,
+    MenuItem,
+    Divider,
+    CircularProgress
 } from "@mui/material";
-
-
-/* =========================================================
-   INITIAL STATE
-========================================================= */
-
-const initialState = {
-
-    orderStatusHistoryId: 0,
-
-    sellerId: 6,
-
-    customerId: 3,
-
-    orderId: "",
-
-    status: "",
-
-    remarks: "",
-
-    changedOn: "",
-
-    timestamp: ""
-
-};
 
 
 /* =========================================================
    STATUS OPTIONS
 ========================================================= */
 
-const statusOptions = [
-
+const STATUS_OPTIONS = [
     "Pending",
-
     "Confirmed",
-
     "Processing",
-
     "Packed",
-
     "Shipped",
-
     "Delivered",
-
     "Cancelled",
-
     "Returned"
-
 ];
 
 
 /* =========================================================
-   FORMAT DATETIME FOR DATETIME-LOCAL
+   FORMAT DATETIME LOCAL
 ========================================================= */
 
 const formatDateTimeLocal = (value) => {
@@ -77,63 +46,52 @@ const formatDateTimeLocal = (value) => {
 
     const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
         return "";
     }
 
-    const year =
-        date.getFullYear();
+    const offset =
+        date.getTimezoneOffset() *
+        60000;
 
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(2, "0");
-
-    const day =
-        String(
-            date.getDate()
-        ).padStart(2, "0");
-
-    const hours =
-        String(
-            date.getHours()
-        ).padStart(2, "0");
-
-    const minutes =
-        String(
-            date.getMinutes()
-        ).padStart(2, "0");
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-
+    return new Date(
+        date.getTime() - offset
+    )
+        .toISOString()
+        .slice(0, 16);
 };
 
 
 /* =========================================================
-   COMPONENT
+   EDIT ORDER STATUS HISTORY
 ========================================================= */
 
-const OrderStatusHistoryModal = ({
-
+const EditOrderStatusHistory = ({
     open,
-
     item,
-
     onClose,
-
-    onSave
-
+    onSave,
+    loading = false
 }) => {
 
-
     /* =====================================================
-       STATE
+       FORM STATE
     ===================================================== */
 
-    const [
-        formData,
-        setFormData
-    ] = useState(initialState);
+    const [formData, setFormData] = useState({
+        orderStatusHistoryId: 0,
+        sellerId: 6,
+        customerId: 3,
+        orderId: "",
+        status: "",
+        remarks: "",
+        changedOn: "",
+        timestamp: ""
+    });
 
 
     /* =====================================================
@@ -142,7 +100,10 @@ const OrderStatusHistoryModal = ({
 
     useEffect(() => {
 
-        if (item) {
+        if (
+            open &&
+            item
+        ) {
 
             setFormData({
 
@@ -188,32 +149,11 @@ const OrderStatusHistoryModal = ({
                     item.timestamp ??
                     item.Timestamp ??
                     ""
-
-            });
-
-        }
-        else {
-
-            setFormData({
-
-                ...initialState,
-
-                changedOn:
-                    formatDateTimeLocal(
-                        new Date()
-                    ),
-
-                timestamp:
-                    new Date().toISOString()
-
             });
 
         }
 
-    }, [
-        item,
-        open
-    ]);
+    }, [open, item]);
 
 
     /* =====================================================
@@ -227,16 +167,10 @@ const OrderStatusHistoryModal = ({
             value
         } = event.target;
 
-
-        setFormData(
-            previous => ({
-
-                ...previous,
-
-                [name]: value
-
-            })
-        );
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
 
     };
 
@@ -247,79 +181,66 @@ const OrderStatusHistoryModal = ({
 
     const handleSubmit = () => {
 
+        const historyId =
+            Number(
+                formData.orderStatusHistoryId
+            );
+
+        const sellerId =
+            Number(
+                formData.sellerId
+            );
+
+        const customerId =
+            Number(
+                formData.customerId
+            );
+
+        const orderId =
+            Number(
+                formData.orderId
+            );
+
+
         /* ================================================
            VALIDATION
         ================================================ */
 
-        if (!formData.sellerId) {
-
-            alert(
-                "Seller ID is required."
-            );
-
+        if (!historyId) {
             return;
-
         }
 
-
-        if (!formData.customerId) {
-
-            alert(
-                "Customer ID is required."
-            );
-
+        if (!sellerId) {
             return;
-
         }
 
-
-        if (!formData.orderId) {
-
-            alert(
-                "Order ID is required."
-            );
-
+        if (!customerId) {
             return;
-
         }
 
+        if (!orderId) {
+            return;
+        }
 
         if (!formData.status) {
-
-            alert(
-                "Status is required."
-            );
-
             return;
-
         }
 
 
         /* ================================================
-           PREPARE PAYLOAD
+           PAYLOAD
         ================================================ */
 
         const payload = {
 
             orderStatusHistoryId:
-                Number(
-                    formData.orderStatusHistoryId || 0
-                ),
+                historyId,
 
-            sellerId:
-                Number(
-                    formData.sellerId
-                ),
+            sellerId,
 
-            customerId:
-                Number(
-                    formData.customerId
-                ),
+            customerId,
 
-            orderId:
-                Number(
-                    formData.orderId
-                ),
+            orderId,
 
             status:
                 formData.status,
@@ -337,17 +258,20 @@ const OrderStatusHistoryModal = ({
             timestamp:
                 formData.timestamp ||
                 new Date().toISOString()
-
         };
 
 
-        console.log(
-            "ORDER STATUS HISTORY PAYLOAD:",
-            payload
-        );
+        /* ================================================
+           SAVE
+        ================================================ */
 
+        if (
+            typeof onSave === "function"
+        ) {
 
-        onSave(payload);
+            onSave(payload);
+
+        }
 
     };
 
@@ -356,54 +280,68 @@ const OrderStatusHistoryModal = ({
        RENDER
     ===================================================== */
 
+    if (!item) {
+        return null;
+    }
+
+
     return (
 
         <Dialog
-
             open={open}
-
-            onClose={onClose}
-
+            onClose={loading ? undefined : onClose}
             fullWidth
-
             maxWidth="md"
-
         >
 
-            {/* =============================================
-                TITLE
-            ============================================= */}
-
-            <DialogTitle>
-
-                {
-                    formData.orderStatusHistoryId
-                        ? "Edit Order Status History"
-                        : "Add Order Status History"
-                }
-
+            <DialogTitle
+                sx={{
+                    fontWeight: 700
+                }}
+            >
+                Edit Order Status History
             </DialogTitle>
 
-
-            {/* =============================================
-                CONTENT
-            ============================================= */}
+            <Divider />
 
             <DialogContent
-                dividers
+                sx={{
+                    mt: 2
+                }}
             >
 
                 <Grid
                     container
                     spacing={2}
-                    sx={{
-                        mt: 0.5
-                    }}
                 >
 
-                    {/* =====================================
+                    {/* =========================================
+                        HISTORY ID
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <TextField
+                            fullWidth
+                            label="History ID"
+                            value={
+                                formData.orderStatusHistoryId
+                            }
+                            InputProps={{
+                                readOnly: true
+                            }}
+                        />
+
+                    </Grid>
+
+
+                    {/* =========================================
                         SELLER ID
-                    ===================================== */}
+                    ========================================= */}
 
                     <Grid
                         item
@@ -412,31 +350,20 @@ const OrderStatusHistoryModal = ({
                     >
 
                         <TextField
-
                             fullWidth
-
                             label="Seller ID"
-
                             name="sellerId"
-
                             type="number"
-
-                            value={
-                                formData.sellerId
-                            }
-
-                            onChange={
-                                handleChange
-                            }
-
+                            value={formData.sellerId}
+                            onChange={handleChange}
                         />
 
                     </Grid>
 
 
-                    {/* =====================================
+                    {/* =========================================
                         CUSTOMER ID
-                    ===================================== */}
+                    ========================================= */}
 
                     <Grid
                         item
@@ -445,31 +372,20 @@ const OrderStatusHistoryModal = ({
                     >
 
                         <TextField
-
                             fullWidth
-
                             label="Customer ID"
-
                             name="customerId"
-
                             type="number"
-
-                            value={
-                                formData.customerId
-                            }
-
-                            onChange={
-                                handleChange
-                            }
-
+                            value={formData.customerId}
+                            onChange={handleChange}
                         />
 
                     </Grid>
 
 
-                    {/* =====================================
+                    {/* =========================================
                         ORDER ID
-                    ===================================== */}
+                    ========================================= */}
 
                     <Grid
                         item
@@ -478,33 +394,21 @@ const OrderStatusHistoryModal = ({
                     >
 
                         <TextField
-
                             fullWidth
-
                             required
-
                             label="Order ID"
-
                             name="orderId"
-
                             type="number"
-
-                            value={
-                                formData.orderId
-                            }
-
-                            onChange={
-                                handleChange
-                            }
-
+                            value={formData.orderId}
+                            onChange={handleChange}
                         />
 
                     </Grid>
 
 
-                    {/* =====================================
+                    {/* =========================================
                         STATUS
-                    ===================================== */}
+                    ========================================= */}
 
                     <Grid
                         item
@@ -513,52 +417,36 @@ const OrderStatusHistoryModal = ({
                     >
 
                         <TextField
-
-                            select
-
                             fullWidth
-
                             required
-
+                            select
                             label="Status"
-
                             name="status"
-
-                            value={
-                                formData.status
-                            }
-
-                            onChange={
-                                handleChange
-                            }
-
+                            value={formData.status}
+                            onChange={handleChange}
                         >
 
-                            {
-                                statusOptions.map(
-                                    status => (
+                            {STATUS_OPTIONS.map(
+                                (status) => (
 
-                                        <MenuItem
-                                            key={status}
-                                            value={status}
-                                        >
+                                    <MenuItem
+                                        key={status}
+                                        value={status}
+                                    >
+                                        {status}
+                                    </MenuItem>
 
-                                            {status}
-
-                                        </MenuItem>
-
-                                    )
                                 )
-                            }
+                            )}
 
                         </TextField>
 
                     </Grid>
 
 
-                    {/* =====================================
+                    {/* =========================================
                         REMARKS
-                    ===================================== */}
+                    ========================================= */}
 
                     <Grid
                         item
@@ -566,33 +454,21 @@ const OrderStatusHistoryModal = ({
                     >
 
                         <TextField
-
                             fullWidth
-
                             multiline
-
-                            rows={3}
-
+                            minRows={3}
                             label="Remarks"
-
                             name="remarks"
-
-                            value={
-                                formData.remarks
-                            }
-
-                            onChange={
-                                handleChange
-                            }
-
+                            value={formData.remarks}
+                            onChange={handleChange}
                         />
 
                     </Grid>
 
 
-                    {/* =====================================
+                    {/* =========================================
                         CHANGED ON
-                    ===================================== */}
+                    ========================================= */}
 
                     <Grid
                         item
@@ -601,27 +477,40 @@ const OrderStatusHistoryModal = ({
                     >
 
                         <TextField
-
                             fullWidth
-
-                            label="Changed On"
-
-                            name="changedOn"
-
                             type="datetime-local"
-
-                            value={
-                                formData.changedOn
-                            }
-
-                            onChange={
-                                handleChange
-                            }
-
+                            label="Changed On"
+                            name="changedOn"
+                            value={formData.changedOn}
+                            onChange={handleChange}
                             InputLabelProps={{
                                 shrink: true
                             }}
+                        />
 
+                    </Grid>
+
+
+                    {/* =========================================
+                        TIMESTAMP
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <TextField
+                            fullWidth
+                            type="text"
+                            label="Timestamp"
+                            value={
+                                formData.timestamp
+                            }
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
 
                     </Grid>
@@ -631,42 +520,54 @@ const OrderStatusHistoryModal = ({
             </DialogContent>
 
 
-            {/* =============================================
+            {/* =================================================
                 ACTIONS
-            ============================================= */}
+            ================================================= */}
 
-            <DialogActions>
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
 
                 <Button
                     variant="outlined"
                     onClick={onClose}
+                    disabled={loading}
                 >
-
                     Cancel
-
                 </Button>
-
 
                 <Button
                     variant="contained"
+                    color="primary"
                     onClick={handleSubmit}
+                    disabled={
+                        loading ||
+                        !formData.orderStatusHistoryId
+                    }
                 >
 
-                    {
-                        formData.orderStatusHistoryId
-                            ? "Update"
-                            : "Save"
-                    }
+                    {loading ? (
+                        <>
+                            <CircularProgress
+                                size={20}
+                                sx={{ mr: 1 }}
+                            />
+                            Updating...
+                        </>
+                    ) : (
+                        "Update"
+                    )}
 
                 </Button>
 
             </DialogActions>
 
         </Dialog>
-
     );
-
 };
 
 
-export default OrderStatusHistoryModal;
+export default EditOrderStatusHistory;

@@ -10783,7 +10783,777 @@ app.delete(
         }
     }
 );
-//////////////////// stock transfer Routes /////////////
+
+
+
+
+/* =========================================================
+   GET ALL HISTORY
+=========================================================
+
+   FRONTEND:
+
+   GET
+   http://localhost:5000/api/order-status-histories/all
+
+   .NET:
+
+   GET
+   https://localhost:7203/api/order-status-histories/all
+========================================================= */
+
+app.get(
+    "/api/order-status-histories/all",
+
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "GET ALL ORDER STATUS HISTORIES"
+            );
+
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/order-status-histories/all`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ALL ORDER STATUS HISTORIES ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to fetch all order status histories.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET ALL / SEARCH / SORT
+========================================================= */
+
+app.get(
+    "/api/order-status-histories",
+
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/order-status-histories`,
+
+                    {
+                        params: req.query,
+
+                        httpsAgent
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ORDER STATUS HISTORIES ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to fetch order status histories.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY ID
+========================================================= */
+
+app.get(
+    "/api/order-status-histories/:id",
+
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/order-status-histories/${id}`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET HISTORY BY ID ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to fetch order status history.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY ORDER
+========================================================= */
+
+app.get(
+    "/api/order-status-histories/order/:orderId",
+
+    async (req, res) => {
+
+        try {
+
+            const {
+                orderId
+            } = req.params;
+
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/order-status-histories/order/${orderId}`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET HISTORY BY ORDER ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to fetch order status history for this order.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY STATUS
+========================================================= */
+
+app.get(
+    "/api/order-status-histories/status/:status",
+
+    async (req, res) => {
+
+        try {
+
+            const {
+                status
+            } = req.params;
+
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/order-status-histories/status/${encodeURIComponent(status)}`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET HISTORY BY STATUS ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to fetch histories for this status.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+app.get(
+    "/api/order-status-histories/search",
+
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/order-status-histories/search`,
+
+                    {
+
+                        params: {
+                            search:
+                                req.query.search
+                        },
+
+                        httpsAgent
+
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "SEARCH HISTORY ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to search order status histories.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+app.get(
+    "/api/order-status-histories/stats",
+
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/order-status-histories/stats`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "HISTORY STATISTICS ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to fetch order status history statistics.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   PAGINATED HISTORY BY ORDER
+========================================================= */
+
+app.get(
+    "/api/orders/:orderId/status-history",
+
+    async (req, res) => {
+
+        try {
+
+            const {
+                orderId
+            } = req.params;
+
+
+            const response =
+                await axios.get(
+
+                    `${DOTNET_API}/orders/${orderId}/status-history`,
+
+                    {
+
+                        params: {
+
+                            page:
+                                req.query.page || 1,
+
+                            limit:
+                                req.query.limit || 10
+
+                        },
+
+                        httpsAgent
+
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "PAGINATED HISTORY ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Unable to fetch paginated order status history.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CREATE
+========================================================= */
+
+app.post(
+    "/api/order-status-histories",
+
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "CREATE ORDER STATUS HISTORY:",
+                req.body
+            );
+
+
+            const response =
+                await axios.post(
+
+                    `${DOTNET_API}/order-status-histories`,
+
+                    req.body,
+
+                    {
+
+                        httpsAgent,
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        }
+
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE HISTORY ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to create order status history.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   UPDATE
+========================================================= */
+
+app.put(
+    "/api/order-status-histories/:id",
+
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+
+            console.log(
+                `UPDATE ORDER STATUS HISTORY ${id}:`,
+                req.body
+            );
+
+
+            const response =
+                await axios.put(
+
+                    `${DOTNET_API}/order-status-histories/${id}`,
+
+                    req.body,
+
+                    {
+
+                        httpsAgent,
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        }
+
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE HISTORY ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to update order status history.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+app.delete(
+    "/api/order-status-histories/:id",
+
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+
+            console.log(
+                `DELETE ORDER STATUS HISTORY ${id}`
+            );
+
+
+            const response =
+                await axios.delete(
+
+                    `${DOTNET_API}/order-status-histories/${id}`,
+
+                    {
+                        httpsAgent
+                    }
+
+                );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE HISTORY ERROR:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to delete order status history.",
+
+                    error:
+                        error.response?.data ||
+                        error.message
+
+                });
+
+        }
+
+    }
+);
+
+
+
+
+
+
+
+//////////////////// stock transfer  /////////////
 
 // =========================================================
 // STOCK TRANSFER API ROUTES

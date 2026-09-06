@@ -301,21 +301,48 @@ import SupplierSearch from "./pages/Supplier/SupplierSearch";
 import SupplierToolbar from "./pages/Supplier/SupplierToolbar";
 import SupplierTable from "./pages/Supplier/SupplierTable";
 import SupplierCard from "./pages/Supplier/SupplierCard";
-// =========================================================
-// ORDER STATUS HISTORY
-// =========================================================
+/* =========================================================
+   ORDER STATUS HISTORY IMPORTS
+========================================================= */
 
-import DeleteOrderStatusHistoryDialog from "./pages/OrderStatusHistory/DeleteOrderStatusHistoryDialog";
-import OrderStatusHistoryCard from "./pages/OrderStatusHistory/OrderStatusHistoryCard";
-import OrderStatusHistoryList from "./pages/OrderStatusHistory/OrderStatusHistoryList";
-import OrderStatusHistoryModal from "./pages/OrderStatusHistory/OrderStatusHistoryModal";
-import OrderStatusHistoryPagination from "./pages/OrderStatusHistory/OrderStatusHistoryPagination";
-import OrderStatusHistorySearch from "./pages/OrderStatusHistory/OrderStatusHistorySearch";
-import OrderStatusHistoryStatistics from "./pages/OrderStatusHistory/OrderStatusHistoryStatistics";
-import OrderStatusHistoryTable from "./pages/OrderStatusHistory/OrderStatusHistoryTable";
-import OrderStatusHistoryToolbar from "./pages/OrderStatusHistory/OrderStatusHistoryToolbar";
-import OrderStatusHistoryView from "./pages/OrderStatusHistory/OrderStatusHistoryView";
+import DeleteOrderStatusHistoryDialog
+    from "./pages/OrderStatusHistory/DeleteOrderStatusHistoryDialog";
 
+import OrderStatusHistoryCard
+    from "./pages/OrderStatusHistory/OrderStatusHistoryCard";
+
+import OrderStatusHistoryList
+    from "./pages/OrderStatusHistory/OrderStatusHistoryList";
+
+import OrderStatusHistoryModal
+    from "./pages/OrderStatusHistory/OrderStatusHistoryModal";
+
+import OrderStatusHistoryPagination
+    from "./pages/OrderStatusHistory/OrderStatusHistoryPagination";
+
+import OrderStatusHistorySearch
+    from "./pages/OrderStatusHistory/OrderStatusHistorySearch";
+
+import OrderStatusHistoryStatistics
+    from "./pages/OrderStatusHistory/OrderStatusHistoryStatistics";
+
+import OrderStatusHistoryTable
+    from "./pages/OrderStatusHistory/OrderStatusHistoryTable";
+
+import OrderStatusHistoryToolbar
+    from "./pages/OrderStatusHistory/OrderStatusHistoryToolbar";
+
+import OrderStatusHistoryView
+    from "./pages/OrderStatusHistory/OrderStatusHistoryView";
+
+import CreateOrderStatusHistory
+    from "./pages/OrderStatusHistory/CreateOrderStatusHistory";
+
+import EditOrderStatusHistory
+    from "./pages/OrderStatusHistory/EditOrderStatusHistory";
+
+import DetailedOrderStatusHistory
+    from "./pages/OrderStatusHistory/DetailedOrderStatusHistory";
 // =========================================================
 // PAYMENT SETTINGS
 // =========================================================
@@ -1468,16 +1495,132 @@ function App() {
         <Route path="order-items/:id" element={<OrderItemView />} />
         <Route path="order-items/search" element={<OrderItemSearch />} />
         <Route path="order-items/statistics" element={<OrderItemStatistics />} />
+        /* ===================================================
+   ORDER STATUS HISTORY
+=================================================== */
 
+/* ===================================================
+   MAIN LIST
+=================================================== */
 
-        {/* ===================================================
-            ORDER STATUS HISTORY
-        =================================================== */}
+<Route
+    path="order-status-history"
+    element={
+        <OrderStatusHistoryList />
+    }
+/>
 
-        <Route path="order-status-history" element={<OrderStatusHistoryList />} />
-        <Route path="order-status-history/:id" element={<OrderStatusHistoryView />} />
-        <Route path="order-status-history/search" element={<OrderStatusHistorySearch />} />
-        <Route path="order-status-history/statistics" element={<OrderStatusHistoryStatistics />} />
+/* ===================================================
+   SEARCH
+=================================================== */
+
+<Route
+    path="order-status-history/search"
+    element={
+        <OrderStatusHistorySearch />
+    }
+/>
+
+/* ===================================================
+   STATISTICS
+=================================================== */
+
+<Route
+    path="order-status-history/statistics"
+    element={
+        <OrderStatusHistoryStatistics />
+    }
+/>
+
+/* ===================================================
+   ALL
+=================================================== */
+
+<Route
+    path="order-status-history/all"
+    element={
+        <OrderStatusHistoryList />
+    }
+/>
+
+/* ===================================================
+   CARDS
+=================================================== */
+
+<Route
+    path="order-status-history/cards"
+    element={
+        <OrderStatusHistoryList />
+    }
+/>
+
+/* ===================================================
+   TABLE
+=================================================== */
+
+<Route
+    path="order-status-history/table"
+    element={
+        <OrderStatusHistoryList />
+    }
+/>
+
+/* ===================================================
+   PAGINATION
+=================================================== */
+
+<Route
+    path="order-status-history/pagination"
+    element={
+        <OrderStatusHistoryList />
+    }
+/>
+
+/* ===================================================
+   VIEW
+=================================================== */
+
+<Route
+    path="order-status-history/view/:id"
+    element={
+        <OrderStatusHistoryView />
+    }
+/>
+
+/* ===================================================
+   MODAL
+=================================================== */
+
+<Route
+    path="order-status-history/modal"
+    element={
+        <OrderStatusHistoryList />
+    }
+/>
+
+/* ===================================================
+   DELETE
+=================================================== */
+
+<Route
+    path="order-status-history/delete/:id"
+    element={
+        <OrderStatusHistoryList />
+    }
+/>
+
+/* ===================================================
+   DETAILS
+   Keep dynamic route LAST
+=================================================== */
+
+<Route
+    path="order-status-history/:id"
+    element={
+        <OrderStatusHistoryView />
+    }
+/>
+        
 
 
         {/* ===================================================

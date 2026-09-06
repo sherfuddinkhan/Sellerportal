@@ -1,6 +1,5 @@
 import React from "react";
 
-
 import {
     Card,
     CardContent,
@@ -10,9 +9,9 @@ import {
     Divider,
     IconButton,
     Tooltip,
-    Chip
+    Chip,
+    Box
 } from "@mui/material";
-
 
 import {
     History,
@@ -22,659 +21,391 @@ import {
 } from "@mui/icons-material";
 
 
+/* =========================================================
+   ORDER STATUS HISTORY CARD
+========================================================= */
 
 const OrderStatusHistoryCard = ({
-
     item,
-
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
 
+    /* =====================================================
+       EMPTY ITEM
+    ===================================================== */
+
+    if (!item) {
+        return null;
+    }
 
 
-    if (!item) return null;
+    /* =====================================================
+       NORMALIZE API FIELDS
+       Supports camelCase + PascalCase
+    ===================================================== */
+
+    const historyId =
+        item.orderStatusHistoryId ??
+        item.OrderStatusHistoryId ??
+        item.historyId ??
+        item.HistoryId ??
+        "-";
+
+    const orderId =
+        item.orderId ??
+        item.OrderId ??
+        "-";
+
+    const status =
+        item.status ??
+        item.Status ??
+        "";
+
+    const remarks =
+        item.remarks ??
+        item.Remarks ??
+        "";
+
+    const changedOn =
+        item.changedOn ??
+        item.ChangedOn ??
+        null;
 
 
+    /* =====================================================
+       STATUS COLOR
+    ===================================================== */
 
-
-
-
-
-    const getStatusColor = (status) => {
-
-
+    const getStatusColor = (value) => {
 
         switch (
-
-            status?.toLowerCase()
-
+            String(value || "")
+                .toLowerCase()
         ) {
 
-
-
             case "pending":
-
                 return "warning";
 
-
-
             case "confirmed":
-
                 return "info";
 
-
-
             case "processing":
-
                 return "primary";
 
-
-
             case "packed":
-
                 return "secondary";
 
-
-
             case "shipped":
-
                 return "success";
-
-
 
             case "delivered":
-
                 return "success";
 
-
-
             case "cancelled":
-
                 return "error";
-
-
 
             case "returned":
-
                 return "error";
 
-
-
             default:
-
                 return "default";
+        }
+    };
 
 
+    /* =====================================================
+       FORMAT DATE
+    ===================================================== */
 
+    const formatDate = (value) => {
+
+        if (!value) {
+            return "-";
         }
 
+        const date = new Date(value);
 
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "-";
+        }
+
+        return date.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        );
+    };
+
+
+    /* =====================================================
+       EVENT HANDLERS
+    ===================================================== */
+
+    const handleView = () => {
+
+        if (typeof onView === "function") {
+            onView(item);
+        }
 
     };
 
 
+    const handleEdit = () => {
+
+        if (typeof onEdit === "function") {
+            onEdit(item);
+        }
+
+    };
 
 
+    const handleDelete = () => {
+
+        if (typeof onDelete === "function") {
+            onDelete(item);
+        }
+
+    };
 
 
-
-
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
 
-
-
         <Card
-
-
-
             elevation={3}
-
-
-
             sx={{
-
-
-
                 height: "100%",
-
-
-
                 borderRadius: 2,
 
-
+                display: "flex",
+                flexDirection: "column",
 
                 transition: "0.3s",
 
-
-
                 "&:hover": {
-
-
-
                     transform:
-
                         "translateY(-4px)",
-
-
-
                     boxShadow: 8
-
-
-
                 }
-
-
-
             }}
-
-
-
         >
 
+            {/* =================================================
+                CARD CONTENT
+            ================================================= */}
 
+            <CardContent
+                sx={{
+                    flexGrow: 1
+                }}
+            >
 
-
-
-
-
-            <CardContent>
-
-
-
-
-
-
+                {/* =================================================
+                    HEADER
+                ================================================= */}
 
                 <Stack
-
-
-
                     direction="row"
-
-
-
                     justifyContent="space-between"
-
-
-
                     alignItems="center"
-
-
-
                     mb={2}
-
-
-
                 >
 
-
-
-
-
-
-
                     <History
-
-
-
                         color="primary"
-
-
-
                         fontSize="large"
-
-
-
                     />
-
-
-
-
-
-
-
 
 
                     <Chip
-
-
-
                         label={
-
-
-
-                            item.Status ||
-
-                            "N/A"
-
-
-
+                            status || "N/A"
                         }
-
-
-
                         color={
-
-
-
                             getStatusColor(
-
-                                item.Status
-
+                                status
                             )
-
-
-
                         }
-
-
-
                         size="small"
-
-
-
                     />
-
-
-
-
-
-
 
                 </Stack>
 
 
-
-
-
-
-
-
+                {/* =================================================
+                    HISTORY ID
+                ================================================= */}
 
                 <Typography
-
-
-
                     variant="h6"
-
-
-
                     fontWeight="bold"
-
-
-
                     gutterBottom
-
-
-
                 >
-
-
-
-
-
-                    History #
-
-                    {
-
-                        item.HistoryId
-
-                    }
-
-
-
-
-
+                    History #{historyId}
                 </Typography>
 
 
-
-
-
-
-
-
+                {/* =================================================
+                    ORDER ID
+                ================================================= */}
 
                 <Typography
-
-
-
                     variant="body2"
-
-
-
                     color="text.secondary"
-
-
-
+                    sx={{
+                        mb: 1
+                    }}
                 >
-
-
-
-
-
-                    <strong>Order ID:</strong>{" "}
-
-
-
-                    {
-
-                        item.OrderId
-
-                    }
-
-
-
-
-
+                    <Box
+                        component="strong"
+                        sx={{
+                            color: "text.primary"
+                        }}
+                    >
+                        Order ID:
+                    </Box>{" "}
+                    {orderId}
                 </Typography>
 
 
-
-
-
-
-
-
+                {/* =================================================
+                    REMARKS
+                ================================================= */}
 
                 <Typography
-
-
-
                     variant="body2"
-
-
-
                     color="text.secondary"
+                    sx={{
+                        mb: 1,
 
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient:
+                            "vertical",
 
+                        overflow: "hidden",
 
+                        wordBreak:
+                            "break-word"
+                    }}
                 >
-
-
-
-
-
-                    <strong>Remarks:</strong>{" "}
-
-
-
-                    {
-
-
-
-                        item.Remarks ||
-
-                        "-"
-
-
-
-                    }
-
-
-
-
-
+                    <Box
+                        component="strong"
+                        sx={{
+                            color: "text.primary"
+                        }}
+                    >
+                        Remarks:
+                    </Box>{" "}
+                    {remarks || "-"}
                 </Typography>
 
 
-
-
-
-
-
-
+                {/* =================================================
+                    CHANGED ON
+                ================================================= */}
 
                 <Typography
-
-
-
                     variant="body2"
-
-
-
                     color="text.secondary"
-
-
-
                 >
-
-
-
-
-
-                    <strong>Changed On:</strong>{" "}
-
-
-
-                    {
-
-
-
-                        item.ChangedOn
-
-
-
-                            ? new Date(
-
-                                item.ChangedOn
-
-                            )
-
-                            .toLocaleDateString()
-
-
-
-                            : "-"
-
-
-
-                    }
-
-
-
-
-
+                    <Box
+                        component="strong"
+                        sx={{
+                            color: "text.primary"
+                        }}
+                    >
+                        Changed On:
+                    </Box>{" "}
+                    {formatDate(changedOn)}
                 </Typography>
-
-
-
-
-
-
 
             </CardContent>
-
-
-
-
-
-
-
 
 
             <Divider />
 
 
-
-
-
-
-
-
+            {/* =================================================
+                CARD ACTIONS
+            ================================================= */}
 
             <CardActions
-
-
-
                 sx={{
-
-
-
-                    justifyContent:
-
-                        "flex-end"
-
-
-
+                    justifyContent: "flex-end",
+                    px: 2,
+                    py: 1
                 }}
-
-
-
             >
 
-
-
-
-
-
+                {/* =============================================
+                    VIEW
+                ============================================= */}
 
                 <Tooltip title="View">
 
-
-
                     <IconButton
-
-
-
                         color="primary"
-
-
-
-                        onClick={() =>
-
-                            onView(item)
-
-                        }
-
-
-
+                        onClick={handleView}
+                        aria-label="View order status history"
                     >
-
-
-
                         <Visibility />
-
-
-
                     </IconButton>
-
-
 
                 </Tooltip>
 
 
-
-
-
-
-
-
+                {/* =============================================
+                    EDIT
+                ============================================= */}
 
                 <Tooltip title="Edit">
 
-
-
                     <IconButton
-
-
-
                         color="warning"
-
-
-
-                        onClick={() =>
-
-                            onEdit(item)
-
-                        }
-
-
-
+                        onClick={handleEdit}
+                        aria-label="Edit order status history"
                     >
-
-
-
                         <Edit />
-
-
-
                     </IconButton>
-
-
 
                 </Tooltip>
 
 
-
-
-
-
-
-
+                {/* =============================================
+                    DELETE
+                ============================================= */}
 
                 <Tooltip title="Delete">
 
-
-
                     <IconButton
-
-
-
                         color="error"
-
-
-
-                        onClick={() =>
-
-                            onDelete(item)
-
-                        }
-
-
-
+                        onClick={handleDelete}
+                        aria-label="Delete order status history"
                     >
-
-
-
                         <Delete />
-
-
-
                     </IconButton>
-
-
 
                 </Tooltip>
 
-
-
-
-
-
-
             </CardActions>
 
-
-
-
-
-
-
         </Card>
-
-
-
     );
-
 };
 
 
-
 export default OrderStatusHistoryCard;
+
