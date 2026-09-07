@@ -1535,10 +1535,9 @@ function App() {
     element={<MarketplaceOrderItemStatistics />}
 />
 
-
-{/* =================================================
+{/* =========================================================
     MARKETPLACE RETURNS
-================================================= */}
+========================================================= */}
 
 <Route
     path="marketplace-returns"
@@ -1559,29 +1558,8 @@ function App() {
     path="marketplace-returns/:id"
     element={<MarketplaceReturnView />}
 />
-{/* =================================================
-    MARKETPLACE RETURNS
-================================================= */}
 
-<Route
-    path="marketplace-returns"
-    element={<MarketplaceReturnList />}
-/>
 
-<Route
-    path="marketplace-returns/search"
-    element={<MarketplaceReturnSearch />}
-/>
-
-<Route
-    path="marketplace-returns/statistics"
-    element={<MarketplaceReturnStatistics />}
-/>
-
-<Route
-    path="marketplace-returns/:id"
-    element={<MarketplaceReturnView />}
-/>
 
 
                 {/* =================================================
