@@ -16,7 +16,7 @@ import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
 
-import MarketplaceOrderItemModal from "./components/MarketplaceOrderItemModal";
+import MarketplaceOrderItemModal from "./MarketplaceOrderItemModal";
 
 
 /* =========================================================

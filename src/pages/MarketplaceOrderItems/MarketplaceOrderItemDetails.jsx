@@ -1,17 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import {
-    Box,
-    Typography,
-    Alert,
-    Button,
-    CircularProgress
-} from "@mui/material";
-
-import {
-    ArrowBack
-} from "@mui/icons-material";
-
 import axios from "axios";
 
 import {
@@ -19,7 +7,10 @@ import {
     useParams
 } from "react-router-dom";
 
-import MarketplaceOrderItemModal from "./components/MarketplaceOrderItemModal";
+import MarketplaceOrderItemView
+    from "./MarketplaceOrderItemView";
+
+
 
 
 /* =========================================================
@@ -33,10 +24,10 @@ const API_URL =
 
 
 /* =========================================================
-   MARKETPLACE ORDER ITEM EDIT
+   MARKETPLACE ORDER ITEM DETAILS
 ========================================================= */
 
-const MarketplaceOrderItemEdit = () => {
+const MarketplaceOrderItemDetails = () => {
 
     const navigate = useNavigate();
 
@@ -47,13 +38,9 @@ const MarketplaceOrderItemEdit = () => {
 
     const [loading, setLoading] = useState(true);
 
-    const [saving, setSaving] = useState(false);
-
     const [error, setError] = useState("");
 
-    const [success, setSuccess] = useState("");
-
-    const [modalOpen, setModalOpen] = useState(false);
+    const [viewOpen, setViewOpen] = useState(true);
 
 
     /* =====================================================
@@ -72,7 +59,7 @@ const MarketplaceOrderItemEdit = () => {
             );
 
             console.log(
-                "LOAD MARKETPLACE ORDER ITEM RESPONSE:",
+                "LOAD MARKETPLACE ORDER ITEM DETAILS RESPONSE:",
                 response.data
             );
 
@@ -82,12 +69,10 @@ const MarketplaceOrderItemEdit = () => {
 
             setMarketplaceOrderItem(data);
 
-            setModalOpen(true);
-
         } catch (error) {
 
             console.error(
-                "LOAD MARKETPLACE ORDER ITEM EDIT ERROR:",
+                "LOAD MARKETPLACE ORDER ITEM DETAILS ERROR:",
                 error
             );
 
@@ -120,59 +105,16 @@ const MarketplaceOrderItemEdit = () => {
 
 
     /* =====================================================
-       UPDATE ITEM
+       CLOSE DETAILS
     ===================================================== */
 
-    const handleUpdate = async (data) => {
+    const handleClose = () => {
 
-        try {
+        setViewOpen(false);
 
-            setSaving(true);
-            setError("");
-            setSuccess("");
-
-            const response = await axios.put(
-                `${API_URL}/${id}`,
-                data
-            );
-
-            console.log(
-                "UPDATE MARKETPLACE ORDER ITEM RESPONSE:",
-                response.data
-            );
-
-            setSuccess(
-                "Marketplace Order Item updated successfully."
-            );
-
-            setModalOpen(false);
-
-            setTimeout(() => {
-
-                navigate(
-                    "/marketplace-order-items"
-                );
-
-            }, 800);
-
-        } catch (error) {
-
-            console.error(
-                "UPDATE MARKETPLACE ORDER ITEM ERROR:",
-                error
-            );
-
-            setError(
-                error.response?.data?.message ||
-                error.response?.data?.title ||
-                "Failed to update Marketplace Order Item."
-            );
-
-        } finally {
-
-            setSaving(false);
-
-        }
+        navigate(
+            "/marketplace-order-items"
+        );
 
     };
 
@@ -226,6 +168,74 @@ const MarketplaceOrderItemEdit = () => {
 
 
     /* =====================================================
+       ERROR
+    ===================================================== */
+
+    if (error) {
+
+        return (
+
+            <Box
+                sx={{
+                    p: 3
+                }}
+            >
+
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
+                    sx={{ mb: 3 }}
+                >
+                    Back
+                </Button>
+
+                <Alert severity="error">
+                    {error}
+                </Alert>
+
+            </Box>
+
+        );
+
+    }
+
+
+    /* =====================================================
+       NOT FOUND
+    ===================================================== */
+
+    if (!marketplaceOrderItem) {
+
+        return (
+
+            <Box
+                sx={{
+                    p: 3
+                }}
+            >
+
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
+                    sx={{ mb: 3 }}
+                >
+                    Back
+                </Button>
+
+                <Alert severity="warning">
+                    Marketplace Order Item not found.
+                </Alert>
+
+            </Box>
+
+        );
+
+    }
+
+
+    /* =====================================================
        RENDER
     ===================================================== */
 
@@ -262,14 +272,14 @@ const MarketplaceOrderItemEdit = () => {
                         variant="h5"
                         fontWeight="bold"
                     >
-                        Edit Marketplace Order Item
+                        Marketplace Order Item Details
                     </Typography>
 
                     <Typography
                         variant="body2"
                         color="text.secondary"
                     >
-                        Update Marketplace Order Item details
+                        View Marketplace Order Item information
                     </Typography>
 
                 </Box>
@@ -278,90 +288,16 @@ const MarketplaceOrderItemEdit = () => {
 
 
             {/* =================================================
-                ERROR
+                DETAILS DIALOG
             ================================================= */}
 
-            {error && (
-
-                <Alert
-                    severity="error"
-                    sx={{ mb: 3 }}
-                >
-                    {error}
-                </Alert>
-
-            )}
-
-
-            {/* =================================================
-                SUCCESS
-            ================================================= */}
-
-            {success && (
-
-                <Alert
-                    severity="success"
-                    sx={{ mb: 3 }}
-                >
-                    {success}
-                </Alert>
-
-            )}
-
-
-            {/* =================================================
-                SAVING
-            ================================================= */}
-
-            {saving && (
-
-                <Box
-                    display="flex"
-                    alignItems="center"
-                    gap={2}
-                    mb={2}
-                >
-
-                    <CircularProgress size={24} />
-
-                    <Typography>
-                        Updating Marketplace Order Item...
-                    </Typography>
-
-                </Box>
-
-            )}
-
-
-            {/* =================================================
-                ITEM NOT FOUND
-            ================================================= */}
-
-            {!marketplaceOrderItem && !error && (
-
-                <Alert severity="warning">
-                    Marketplace Order Item not found.
-                </Alert>
-
-            )}
-
-
-            {/* =================================================
-                EDIT MODAL
-            ================================================= */}
-
-            {marketplaceOrderItem && (
-
-                <MarketplaceOrderItemModal
-                    open={modalOpen}
-                    onClose={handleBack}
-                    marketplaceOrderItem={
-                        marketplaceOrderItem
-                    }
-                    onSave={handleUpdate}
-                />
-
-            )}
+            <MarketplaceOrderItemView
+                open={viewOpen}
+                onClose={handleClose}
+                marketplaceOrderItem={
+                    marketplaceOrderItem
+                }
+            />
 
         </Box>
 
@@ -370,5 +306,5 @@ const MarketplaceOrderItemEdit = () => {
 };
 
 
-export default MarketplaceOrderItemEdit;
+export default MarketplaceOrderItemDetails;
 

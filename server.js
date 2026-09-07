@@ -21164,77 +21164,964 @@ app.delete(
 
     }
 );
+// =========================================================
+// MARKETPLACE RETURNS API
+// =========================================================
+
+const MARKETPLACE_RETURNS_URL =
+    `${DOTNET_API}/marketplace-returns`;
 
 
-/* =========================================================
-   404
-========================================================= */
+// =========================================================
+// GET ALL RETURNS
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns
+// =========================================================
 
-app.use(
-    (req, res) => {
+app.get(
+    "/api/marketplace-returns",
+    async (req, res) => {
 
-        res.status(404).json({
-            message:
-                "Node proxy route not found.",
-            method: req.method,
-            path: req.originalUrl
-        });
+        try {
 
+            const response = await axios.get(
+                MARKETPLACE_RETURNS_URL,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load marketplace returns."
+                    }
+                );
+        }
     }
 );
 
 
-/* =========================================================
-   GLOBAL ERROR HANDLER
-========================================================= */
+// =========================================================
+// SEARCH
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/search?search=RET-001
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/search?search=RET-001
+// =========================================================
 
-app.use(
-    (error, req, res, next) => {
+app.get(
+    "/api/marketplace-returns/search",
+    async (req, res) => {
 
-        console.error(
-            "Node Server Error:",
-            error
-        );
+        try {
 
-        res.status(500).json({
-            message:
-                "Internal Node server error."
-        });
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/search`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
 
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "SEARCH MARKETPLACE RETURNS ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to search marketplace returns."
+                    }
+                );
+        }
     }
 );
 
 
-/* =========================================================
-   START SERVER
-========================================================= */
+// =========================================================
+// STATISTICS
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/stats
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/stats
+// =========================================================
 
-app.listen(
-    PORT,
-    () => {
+app.get(
+    "/api/marketplace-returns/stats",
+    async (req, res) => {
 
-        console.log(
-            "================================================="
-        );
+        try {
 
-        console.log(
-            `Node Proxy Server running on http://localhost:${PORT}`
-        );
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/stats`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
 
-        console.log(
-            `ASP.NET API: ${DOTNET_API}`
-        );
+            return res
+                .status(response.status)
+                .json(response.data);
 
-        console.log(
-            "Marketplace Order Item proxy enabled."
-        );
+        } catch (error) {
 
-        console.log(
-            "================================================="
-        );
+            console.error(
+                "MARKETPLACE RETURNS STATISTICS ERROR:",
+                error.response?.data || error.message
+            );
 
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load marketplace return statistics."
+                    }
+                );
+        }
     }
 );
+
+
+// =========================================================
+// PAGINATION
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/paged?page=1&limit=20
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/paged?page=1&limit=20
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/paged",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/paged`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "PAGED MARKETPLACE RETURNS ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load paged marketplace returns."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// SORTING
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/sorted?sort=date_desc
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/sorted?sort=date_desc
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/sorted",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/sorted`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "SORTED MARKETPLACE RETURNS ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load sorted marketplace returns."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY MARKETPLACE ORDER ITEM
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/order-item/1
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/order-item/1
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/order-item/:marketplaceOrderItemId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceOrderItemId
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/order-item/${marketplaceOrderItemId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS BY ORDER ITEM ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load returns by order item."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET RETURN BY ORDER ITEM + RETURN ID
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/order-item/1/return/5
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/order-item/1/return/5
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/order-item/:marketplaceOrderItemId/return/:marketplaceReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceOrderItemId,
+                marketplaceReturnId
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/order-item/${marketplaceOrderItemId}/return/${marketplaceReturnId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURN BY ORDER ITEM + RETURN ID ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load marketplace return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY SELLER
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/seller/6
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/seller/6
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/seller/${sellerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS BY SELLER ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load returns by seller."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY SELLER + CUSTOMER
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/seller/6/customer/3
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/seller/6/customer/3
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS BY SELLER CUSTOMER ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load seller/customer returns."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY CUSTOMER
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/customer/3
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/customer/3
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                customerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS BY CUSTOMER ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load returns by customer."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY PRODUCT
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/product/10
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/product/10
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/product/${productId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS BY PRODUCT ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load returns by product."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY STATUS
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/status/pending
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/status/pending
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const {
+                status
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/status/${encodeURIComponent(status)}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS BY STATUS ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load returns by status."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY SKU
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/sku/SKU-001
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/sku/SKU-001
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/sku/:sku",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sku
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/sku/${encodeURIComponent(sku)}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURNS BY SKU ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load returns by SKU."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET BY RETURN NUMBER
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/return-number/RET-001
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/return-number/RET-001
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/return-number/:returnNumber",
+    async (req, res) => {
+
+        try {
+
+            const {
+                returnNumber
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/return-number/${encodeURIComponent(returnNumber)}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURN BY RETURN NUMBER ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load marketplace return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET RETURN BY ID
+//
+// IMPORTANT:
+// This generic route is intentionally placed AFTER
+// all specific GET routes above.
+//
+// GET:
+// http://localhost:5000/api/marketplace-returns/1
+//
+// ASP.NET:
+// GET:
+// https://localhost:7203/api/marketplace-returns/1
+// =========================================================
+
+app.get(
+    "/api/marketplace-returns/:marketplaceReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceReturnId
+            } = req.params;
+
+            const response = await axios.get(
+                `${MARKETPLACE_RETURNS_URL}/${marketplaceReturnId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET MARKETPLACE RETURN BY ID ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load marketplace return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// CREATE MARKETPLACE RETURN
+//
+// POST:
+// http://localhost:5000/api/marketplace-returns
+//
+// ASP.NET:
+// POST:
+// https://localhost:7203/api/marketplace-returns
+// =========================================================
+
+app.post(
+    "/api/marketplace-returns",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.post(
+                MARKETPLACE_RETURNS_URL,
+                req.body,
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "CREATE MARKETPLACE RETURN ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to create marketplace return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// UPDATE MARKETPLACE RETURN
+//
+// PUT:
+// http://localhost:5000/api/marketplace-returns/1
+//
+// ASP.NET:
+// PUT:
+// https://localhost:7203/api/marketplace-returns/1
+// =========================================================
+
+app.put(
+    "/api/marketplace-returns/:marketplaceReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceReturnId
+            } = req.params;
+
+            const response = await axios.put(
+                `${MARKETPLACE_RETURNS_URL}/${marketplaceReturnId}`,
+                req.body,
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE MARKETPLACE RETURN ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update marketplace return."
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// DELETE MARKETPLACE RETURN
+//
+// DELETE:
+// http://localhost:5000/api/marketplace-returns/1
+//
+// ASP.NET:
+// DELETE:
+// https://localhost:7203/api/marketplace-returns/1
+// =========================================================
+
+app.delete(
+    "/api/marketplace-returns/:marketplaceReturnId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceReturnId
+            } = req.params;
+
+            const response = await axios.delete(
+                `${MARKETPLACE_RETURNS_URL}/${marketplaceReturnId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "DELETE MARKETPLACE RETURN ERROR:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to delete marketplace return."
+                    }
+                );
+        }
+    }
+);
+
+
+
+
+
+
+
+
 
 
 // =========================================================
