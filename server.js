@@ -20514,6 +20514,727 @@ app.use(
         });
     }
 );
+///////////////////marketplace-order-items/////////
+app.get(
+    "/api/marketplace-order-items",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items`,
+                    {
+                        params: req.query,
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Marketplace Order Items Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Marketplace Order Items."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY ID
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/:id
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/${req.params.id}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Marketplace Order Item Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Marketplace Order Item."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY MARKETPLACE ORDER
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/order/:marketplaceOrderId
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/order/:marketplaceOrderId",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/order/${req.params.marketplaceOrderId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Order Items By Marketplace Order Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load order items."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY PRODUCT
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/product/:productId
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/product/${req.params.productId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Order Items By Product Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load product order items."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY SELLER
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/seller/:sellerId
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/seller/${req.params.sellerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Order Items By Seller Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load seller order items."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY CUSTOMER
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/customer/:customerId
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/customer/${req.params.customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Order Items By Customer Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load customer order items."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY SELLER + CUSTOMER
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/seller/:sellerId/customer/:customerId
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/seller/${req.params.sellerId}/customer/${req.params.customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Order Items By Seller Customer Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load seller customer order items."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET BY STATUS
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/status/:status
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/status/${encodeURIComponent(
+                        req.params.status
+                    )}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET Order Items By Status Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load order items by status."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   STATISTICS
+=========================================================
+
+GET:
+
+/api/marketplace-order-items/stats
+
+========================================================= */
+
+app.get(
+    "/api/marketplace-order-items/stats",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/marketplace-order-items/stats`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "Marketplace Order Item Statistics Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Marketplace Order Item statistics."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CREATE
+=========================================================
+
+POST:
+
+/api/marketplace-order-items
+
+========================================================= */
+
+app.post(
+    "/api/marketplace-order-items",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/marketplace-order-items`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE Marketplace Order Item Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to create Marketplace Order Item."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   UPDATE
+=========================================================
+
+PUT:
+
+/api/marketplace-order-items/:id
+
+========================================================= */
+
+app.put(
+    "/api/marketplace-order-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.put(
+                    `${DOTNET_API}/marketplace-order-items/${req.params.id}`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE Marketplace Order Item Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update Marketplace Order Item."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DELETE
+=========================================================
+
+DELETE:
+
+/api/marketplace-order-items/:id
+
+========================================================= */
+
+app.delete(
+    "/api/marketplace-order-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.delete(
+                    `${DOTNET_API}/marketplace-order-items/${req.params.id}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE Marketplace Order Item Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to delete Marketplace Order Item."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   404
+========================================================= */
+
+app.use(
+    (req, res) => {
+
+        res.status(404).json({
+            message:
+                "Node proxy route not found.",
+            method: req.method,
+            path: req.originalUrl
+        });
+
+    }
+);
+
+
+/* =========================================================
+   GLOBAL ERROR HANDLER
+========================================================= */
+
+app.use(
+    (error, req, res, next) => {
+
+        console.error(
+            "Node Server Error:",
+            error
+        );
+
+        res.status(500).json({
+            message:
+                "Internal Node server error."
+        });
+
+    }
+);
+
+
+/* =========================================================
+   START SERVER
+========================================================= */
+
+app.listen(
+    PORT,
+    () => {
+
+        console.log(
+            "================================================="
+        );
+
+        console.log(
+            `Node Proxy Server running on http://localhost:${PORT}`
+        );
+
+        console.log(
+            `ASP.NET API: ${DOTNET_API}`
+        );
+
+        console.log(
+            "Marketplace Order Item proxy enabled."
+        );
+
+        console.log(
+            "================================================="
+        );
+
+    }
+);
 
 
 // =========================================================

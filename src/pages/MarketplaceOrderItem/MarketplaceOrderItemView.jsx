@@ -8,8 +8,71 @@ import {
     Grid,
     Typography,
     Button,
-    Divider
+    Divider,
+    Box
 } from "@mui/material";
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleString("en-IN");
+};
+
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "₹ 0.00";
+    }
+
+    return `₹ ${number.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+};
+
+
+/* =========================================================
+   DISPLAY VALUE
+========================================================= */
+
+const displayValue = (value) => {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "-";
+    }
+
+    return value;
+};
+
+
+/* =========================================================
+   MARKETPLACE ORDER ITEM VIEW
+========================================================= */
 
 const MarketplaceOrderItemView = ({
     open,
@@ -17,21 +80,10 @@ const MarketplaceOrderItemView = ({
     marketplaceOrderItem
 }) => {
 
-    if (!marketplaceOrderItem) return null;
+    if (!marketplaceOrderItem) {
+        return null;
+    }
 
-    const formatDate = (date) => {
-
-        if (!date) return "-";
-
-        return new Date(date).toLocaleString();
-
-    };
-
-    const formatCurrency = (value) => {
-
-        return `₹ ${Number(value || 0).toLocaleString()}`;
-
-    };
 
     return (
 
@@ -42,15 +94,31 @@ const MarketplaceOrderItemView = ({
             fullWidth
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <DialogTitle>
 
                 Marketplace Order Item Details
 
             </DialogTitle>
 
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
             <DialogContent dividers>
 
-                <Grid container spacing={3}>
+                <Grid
+                    container
+                    spacing={3}
+                >
+
+                    {/* =================================================
+                        BASIC INFORMATION
+                    ================================================= */}
 
                     <Grid item xs={12}>
 
@@ -60,110 +128,149 @@ const MarketplaceOrderItemView = ({
                                 variant="subtitle1"
                                 fontWeight="bold"
                             >
-
                                 Basic Information
-
                             </Typography>
 
                         </Divider>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        ORDER ITEM ID
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={6}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Marketplace Order Item ID
-
                         </Typography>
 
                         <Typography>
-
-                            {marketplaceOrderItem.MarketplaceOrderItemId}
-
+                            {displayValue(
+                                marketplaceOrderItem.MarketplaceOrderItemId
+                            )}
                         </Typography>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        ORDER ID
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={6}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Marketplace Order ID
-
                         </Typography>
 
                         <Typography>
-
-                            {marketplaceOrderItem.MarketplaceOrderId}
-
+                            {displayValue(
+                                marketplaceOrderItem.MarketplaceOrderId
+                            )}
                         </Typography>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        LISTING ID
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={6}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Marketplace Listing ID
-
                         </Typography>
 
                         <Typography>
-
-                            {marketplaceOrderItem.MarketplaceListingId || "-"}
-
+                            {displayValue(
+                                marketplaceOrderItem.MarketplaceListingId
+                            )}
                         </Typography>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        PRODUCT ID
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={6}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Product ID
-
                         </Typography>
 
                         <Typography>
-
-                            {marketplaceOrderItem.ProductId || "-"}
-
+                            {displayValue(
+                                marketplaceOrderItem.ProductId
+                            )}
                         </Typography>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        ORDER ITEM NUMBER
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={6}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Marketplace Order Item Number
-
                         </Typography>
 
                         <Typography>
-
-                            {marketplaceOrderItem.MarketplaceOrderItemNumber || "-"}
-
+                            {displayValue(
+                                marketplaceOrderItem.MarketplaceOrderItemNumber
+                            )}
                         </Typography>
 
                     </Grid>
+
+
+                    {/* ---------------------------------------------
+                        EXTERNAL ORDER ITEM ID
+                    --------------------------------------------- */}
 
                     <Grid item xs={12} md={6}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             External Order Item ID
-
                         </Typography>
 
                         <Typography>
-
-                            {marketplaceOrderItem.ExternalOrderItemId || "-"}
-
+                            {displayValue(
+                                marketplaceOrderItem.ExternalOrderItemId
+                            )}
                         </Typography>
 
                     </Grid>
+
+
+                    {/* =================================================
+                        PRODUCT INFORMATION
+                    ================================================= */}
 
                     <Grid item xs={12}>
 
@@ -173,46 +280,65 @@ const MarketplaceOrderItemView = ({
                                 variant="subtitle1"
                                 fontWeight="bold"
                             >
-
                                 Product Information
-
                             </Typography>
 
                         </Divider>
 
                     </Grid>
+
+
+                    {/* ---------------------------------------------
+                        PRODUCT TITLE
+                    --------------------------------------------- */}
 
                     <Grid item xs={12} md={8}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Product Title
-
                         </Typography>
 
-                        <Typography>
-
-                            {marketplaceOrderItem.ProductTitle || "-"}
-
+                        <Typography
+                            sx={{
+                                wordBreak: "break-word"
+                            }}
+                        >
+                            {displayValue(
+                                marketplaceOrderItem.ProductTitle
+                            )}
                         </Typography>
 
                     </Grid>
+
+
+                    {/* ---------------------------------------------
+                        SKU
+                    --------------------------------------------- */}
 
                     <Grid item xs={12} md={4}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             SKU
-
                         </Typography>
 
                         <Typography>
-
-                            {marketplaceOrderItem.SKU || "-"}
-
+                            {displayValue(
+                                marketplaceOrderItem.SKU
+                            )}
                         </Typography>
 
                     </Grid>
+
+
+                    {/* =================================================
+                        PRICING DETAILS
+                    ================================================= */}
 
                     <Grid item xs={12}>
 
@@ -222,94 +348,125 @@ const MarketplaceOrderItemView = ({
                                 variant="subtitle1"
                                 fontWeight="bold"
                             >
-
                                 Pricing Details
-
                             </Typography>
 
                         </Divider>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        QUANTITY
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={4}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Quantity
-
                         </Typography>
 
                         <Typography>
-
                             {marketplaceOrderItem.Quantity ?? 0}
-
                         </Typography>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        UNIT PRICE
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={4}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Unit Price
-
                         </Typography>
 
                         <Typography>
-
-                            {formatCurrency(marketplaceOrderItem.UnitPrice)}
-
+                            {formatCurrency(
+                                marketplaceOrderItem.UnitPrice
+                            )}
                         </Typography>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        TAX
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={4}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Tax Amount
-
                         </Typography>
 
                         <Typography>
-
-                            {formatCurrency(marketplaceOrderItem.TaxAmount)}
-
+                            {formatCurrency(
+                                marketplaceOrderItem.TaxAmount
+                            )}
                         </Typography>
 
                     </Grid>
 
+
+                    {/* ---------------------------------------------
+                        SHIPPING
+                    --------------------------------------------- */}
+
                     <Grid item xs={12} md={4}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Shipping Amount
-
                         </Typography>
 
                         <Typography>
-
-                            {formatCurrency(marketplaceOrderItem.ShippingAmount)}
-
+                            {formatCurrency(
+                                marketplaceOrderItem.ShippingAmount
+                            )}
                         </Typography>
 
                     </Grid>
+
+
+                    {/* ---------------------------------------------
+                        DISCOUNT
+                    --------------------------------------------- */}
 
                     <Grid item xs={12} md={4}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Discount Amount
-
                         </Typography>
 
                         <Typography>
-
-                            {formatCurrency(marketplaceOrderItem.DiscountAmount)}
-
+                            {formatCurrency(
+                                marketplaceOrderItem.DiscountAmount
+                            )}
                         </Typography>
 
                     </Grid>
+
+
+                    {/* ---------------------------------------------
+                        TOTAL
+                    --------------------------------------------- */}
 
                     <Grid item xs={12} md={4}>
 
@@ -317,21 +474,25 @@ const MarketplaceOrderItemView = ({
                             variant="subtitle2"
                             color="primary"
                         >
-
                             Total Amount
-
                         </Typography>
 
                         <Typography
+                            variant="h6"
                             fontWeight="bold"
                             color="primary"
                         >
-
-                            {formatCurrency(marketplaceOrderItem.TotalAmount)}
-
+                            {formatCurrency(
+                                marketplaceOrderItem.TotalAmount
+                            )}
                         </Typography>
 
                     </Grid>
+
+
+                    {/* =================================================
+                        DATES
+                    ================================================= */}
 
                     <Grid item xs={12}>
 
@@ -339,18 +500,20 @@ const MarketplaceOrderItemView = ({
 
                     </Grid>
 
+
                     <Grid item xs={12} md={6}>
 
-                        <Typography variant="subtitle2">
-
+                        <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                        >
                             Created Date
-
                         </Typography>
 
                         <Typography>
-
-                            {formatDate(marketplaceOrderItem.CreatedDate)}
-
+                            {formatDate(
+                                marketplaceOrderItem.CreatedDate
+                            )}
                         </Typography>
 
                     </Grid>
@@ -359,15 +522,18 @@ const MarketplaceOrderItemView = ({
 
             </DialogContent>
 
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
             <DialogActions>
 
                 <Button
                     variant="contained"
                     onClick={onClose}
                 >
-
                     Close
-
                 </Button>
 
             </DialogActions>
@@ -377,5 +543,6 @@ const MarketplaceOrderItemView = ({
     );
 
 };
+
 
 export default MarketplaceOrderItemView;

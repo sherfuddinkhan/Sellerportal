@@ -1,3 +1,4 @@
+
 import React from "react";
 
 import {
@@ -15,6 +16,48 @@ import {
     WarningAmber
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   FORMAT NUMBER
+========================================================= */
+
+const formatNumber = (value) => {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "0.00";
+    }
+
+    return number.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
+
+
+/* =========================================================
+   DISPLAY VALUE
+========================================================= */
+
+const displayValue = (value) => {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "-";
+    }
+
+    return value;
+};
+
+
+/* =========================================================
+   DELETE MARKETPLACE ORDER ITEM DIALOG
+========================================================= */
+
 const DeleteMarketplaceOrderItemDialog = ({
     open,
     onClose,
@@ -22,17 +65,28 @@ const DeleteMarketplaceOrderItemDialog = ({
     onDeleted
 }) => {
 
+
+    /* =====================================================
+       HANDLE DELETE
+    ===================================================== */
+
     const handleDelete = () => {
 
-        if (marketplaceOrderItem?.MarketplaceOrderItemId) {
+        const id =
+            marketplaceOrderItem?.MarketplaceOrderItemId;
 
-            onDeleted(
-                marketplaceOrderItem.MarketplaceOrderItemId
-            );
-
+        if (!id) {
+            return;
         }
 
+        onDeleted?.(id);
+
     };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
 
@@ -42,6 +96,10 @@ const DeleteMarketplaceOrderItemDialog = ({
             maxWidth="sm"
             fullWidth
         >
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
 
             <DialogTitle
                 sx={{
@@ -57,6 +115,11 @@ const DeleteMarketplaceOrderItemDialog = ({
 
             </DialogTitle>
 
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
             <DialogContent>
 
                 <DialogContentText>
@@ -67,94 +130,216 @@ const DeleteMarketplaceOrderItemDialog = ({
 
                 </DialogContentText>
 
-                {
 
-                    marketplaceOrderItem && (
+                {/* =================================================
+                    ITEM DETAILS
+                ================================================= */}
 
-                        <Box
+                {marketplaceOrderItem && (
+
+                    <Box
+                        sx={{
+                            mt: 3,
+                            p: 2,
+                            border: "1px solid",
+                            borderColor: "divider",
+                            borderRadius: 2,
+                            backgroundColor: "background.default"
+                        }}
+                    >
+
+                        {/* -----------------------------------------
+                            ITEM ID
+                        ----------------------------------------- */}
+
+                        <Typography
+                            variant="body2"
+                            gutterBottom
+                        >
+
+                            <strong>
+                                Marketplace Order Item ID :
+                            </strong>{" "}
+
+                            {
+                                displayValue(
+                                    marketplaceOrderItem
+                                        .MarketplaceOrderItemId
+                                )
+                            }
+
+                        </Typography>
+
+
+                        {/* -----------------------------------------
+                            ORDER ID
+                        ----------------------------------------- */}
+
+                        <Typography
+                            variant="body2"
+                            gutterBottom
+                        >
+
+                            <strong>
+                                Marketplace Order ID :
+                            </strong>{" "}
+
+                            {
+                                displayValue(
+                                    marketplaceOrderItem
+                                        .MarketplaceOrderId
+                                )
+                            }
+
+                        </Typography>
+
+
+                        {/* -----------------------------------------
+                            ORDER ITEM NUMBER
+                        ----------------------------------------- */}
+
+                        <Typography
+                            variant="body2"
+                            gutterBottom
+                        >
+
+                            <strong>
+                                Order Item Number :
+                            </strong>{" "}
+
+                            {
+                                displayValue(
+                                    marketplaceOrderItem
+                                        .MarketplaceOrderItemNumber
+                                )
+                            }
+
+                        </Typography>
+
+
+                        {/* -----------------------------------------
+                            EXTERNAL ITEM ID
+                        ----------------------------------------- */}
+
+                        <Typography
+                            variant="body2"
+                            gutterBottom
+                        >
+
+                            <strong>
+                                External Item ID :
+                            </strong>{" "}
+
+                            {
+                                displayValue(
+                                    marketplaceOrderItem
+                                        .ExternalOrderItemId
+                                )
+                            }
+
+                        </Typography>
+
+
+                        {/* -----------------------------------------
+                            PRODUCT
+                        ----------------------------------------- */}
+
+                        <Typography
+                            variant="body2"
+                            gutterBottom
                             sx={{
-                                mt: 3,
-                                p: 2,
-                                border: "1px solid #e0e0e0",
-                                borderRadius: 2,
-                                backgroundColor: "#fafafa"
+                                wordBreak: "break-word"
                             }}
                         >
 
-                            <Typography>
+                            <strong>
+                                Product :
+                            </strong>{" "}
 
-                                <strong>Marketplace Order Item ID :</strong>{" "}
+                            {
+                                displayValue(
+                                    marketplaceOrderItem
+                                        .ProductTitle
+                                )
+                            }
 
-                                {marketplaceOrderItem.MarketplaceOrderItemId}
+                        </Typography>
 
-                            </Typography>
 
-                            <Typography>
+                        {/* -----------------------------------------
+                            SKU
+                        ----------------------------------------- */}
 
-                                <strong>Marketplace Order ID :</strong>{" "}
+                        <Typography
+                            variant="body2"
+                            gutterBottom
+                        >
 
-                                {marketplaceOrderItem.MarketplaceOrderId}
+                            <strong>
+                                SKU :
+                            </strong>{" "}
 
-                            </Typography>
+                            {
+                                displayValue(
+                                    marketplaceOrderItem.SKU
+                                )
+                            }
 
-                            <Typography>
+                        </Typography>
 
-                                <strong>Order Item Number :</strong>{" "}
 
-                                {marketplaceOrderItem.MarketplaceOrderItemNumber || "-"}
+                        {/* -----------------------------------------
+                            QUANTITY
+                        ----------------------------------------- */}
 
-                            </Typography>
+                        <Typography
+                            variant="body2"
+                            gutterBottom
+                        >
 
-                            <Typography>
+                            <strong>
+                                Quantity :
+                            </strong>{" "}
 
-                                <strong>External Item ID :</strong>{" "}
+                            {
+                                marketplaceOrderItem.Quantity ?? 0
+                            }
 
-                                {marketplaceOrderItem.ExternalOrderItemId || "-"}
+                        </Typography>
 
-                            </Typography>
 
-                            <Typography>
+                        {/* -----------------------------------------
+                            TOTAL AMOUNT
+                        ----------------------------------------- */}
 
-                                <strong>Product :</strong>{" "}
+                        <Typography
+                            variant="body2"
+                            fontWeight="bold"
+                        >
 
-                                {marketplaceOrderItem.ProductTitle || "-"}
+                            <strong>
+                                Total Amount :
+                            </strong>{" "}
 
-                            </Typography>
+                            ₹ {
+                                formatNumber(
+                                    marketplaceOrderItem
+                                        .TotalAmount
+                                )
+                            }
 
-                            <Typography>
+                        </Typography>
 
-                                <strong>SKU :</strong>{" "}
+                    </Box>
 
-                                {marketplaceOrderItem.SKU || "-"}
-
-                            </Typography>
-
-                            <Typography>
-
-                                <strong>Quantity :</strong>{" "}
-
-                                {marketplaceOrderItem.Quantity ?? 0}
-
-                            </Typography>
-
-                            <Typography>
-
-                                <strong>Total Amount :</strong>{" "}
-
-                                ₹
-                                {Number(
-                                    marketplaceOrderItem.TotalAmount || 0
-                                ).toLocaleString()}
-
-                            </Typography>
-
-                        </Box>
-
-                    )
-
-                }
+                )}
 
             </DialogContent>
+
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
 
             <DialogActions>
 
@@ -162,19 +347,16 @@ const DeleteMarketplaceOrderItemDialog = ({
                     variant="outlined"
                     onClick={onClose}
                 >
-
                     Cancel
-
                 </Button>
 
                 <Button
                     variant="contained"
                     color="error"
                     onClick={handleDelete}
+                    disabled={!marketplaceOrderItem}
                 >
-
                     Delete
-
                 </Button>
 
             </DialogActions>
@@ -184,5 +366,6 @@ const DeleteMarketplaceOrderItemDialog = ({
     );
 
 };
+
 
 export default DeleteMarketplaceOrderItemDialog;

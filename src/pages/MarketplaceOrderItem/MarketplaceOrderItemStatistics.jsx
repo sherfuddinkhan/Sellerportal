@@ -15,13 +15,64 @@ import {
     ReceiptLong
 } from "@mui/icons-material";
 
-const MarketplaceOrderItemStatistics = ({ statistics }) => {
+
+/* =========================================================
+   FORMAT NUMBER
+========================================================= */
+
+const formatNumber = (value) => {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "0";
+    }
+
+    return number.toLocaleString("en-IN");
+};
+
+
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
+
+const formatCurrency = (value) => {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "₹ 0";
+    }
+
+    return `₹ ${number.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+};
+
+
+/* =========================================================
+   MARKETPLACE ORDER ITEM STATISTICS
+========================================================= */
+
+const MarketplaceOrderItemStatistics = ({
+    statistics = {}
+}) => {
+
+
+    /* =====================================================
+       STATISTICS CARDS
+    ===================================================== */
 
     const cards = [
 
         {
             title: "Total Items",
-            value: statistics?.totalItems || 0,
+
+            value: formatNumber(
+                statistics?.totalItems
+            ),
+
             icon: (
                 <ShoppingCart
                     fontSize="large"
@@ -32,7 +83,11 @@ const MarketplaceOrderItemStatistics = ({ statistics }) => {
 
         {
             title: "Total Quantity",
-            value: statistics?.totalQuantity || 0,
+
+            value: formatNumber(
+                statistics?.totalQuantity
+            ),
+
             icon: (
                 <Inventory2
                     fontSize="large"
@@ -43,9 +98,11 @@ const MarketplaceOrderItemStatistics = ({ statistics }) => {
 
         {
             title: "Total Sales",
-            value: `₹ ${Number(
-                statistics?.totalSales || 0
-            ).toLocaleString()}`,
+
+            value: formatCurrency(
+                statistics?.totalSales
+            ),
+
             icon: (
                 <Payments
                     fontSize="large"
@@ -56,9 +113,11 @@ const MarketplaceOrderItemStatistics = ({ statistics }) => {
 
         {
             title: "Total Tax",
-            value: `₹ ${Number(
-                statistics?.totalTax || 0
-            ).toLocaleString()}`,
+
+            value: formatCurrency(
+                statistics?.totalTax
+            ),
+
             icon: (
                 <ReceiptLong
                     fontSize="large"
@@ -69,81 +128,115 @@ const MarketplaceOrderItemStatistics = ({ statistics }) => {
 
     ];
 
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
     return (
 
         <Grid
             container
             spacing={3}
             className="marketplace-order-item-statistics"
-            sx={{ mb: 3 }}
+            sx={{
+                mb: 3
+            }}
         >
 
-            {
+            {cards.map((card) => (
 
-                cards.map((card, index) => (
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={3}
+                    key={card.title}
+                >
 
-                    <Grid
-                        item
-                        xs={12}
-                        sm={6}
-                        md={3}
-                        key={index}
+                    <Card
+                        elevation={3}
+                        className="marketplace-order-item-stat-card"
+                        sx={{
+                            height: "100%"
+                        }}
                     >
 
-                        <Card
-                            elevation={3}
-                            className="marketplace-order-item-stat-card"
-                        >
+                        <CardContent>
 
-                            <CardContent>
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                gap={2}
+                            >
+
+                                {/* ---------------------------------
+                                    CONTENT
+                                --------------------------------- */}
 
                                 <Box
-                                    display="flex"
-                                    justifyContent="space-between"
-                                    alignItems="center"
+                                    sx={{
+                                        minWidth: 0
+                                    }}
                                 >
 
-                                    <Box>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
 
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                        >
+                                        {card.title}
 
-                                            {card.title}
+                                    </Typography>
 
-                                        </Typography>
+                                    <Typography
+                                        variant="h4"
+                                        fontWeight="bold"
+                                        sx={{
+                                            mt: 1,
+                                            wordBreak: "break-word"
+                                        }}
+                                    >
 
-                                        <Typography
-                                            variant="h4"
-                                            fontWeight="bold"
-                                            sx={{ mt: 1 }}
-                                        >
+                                        {card.value}
 
-                                            {card.value}
+                                    </Typography>
 
-                                        </Typography>
+                                </Box>
 
-                                    </Box>
+
+                                {/* ---------------------------------
+                                    ICON
+                                --------------------------------- */}
+
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        flexShrink: 0
+                                    }}
+                                >
 
                                     {card.icon}
 
                                 </Box>
 
-                            </CardContent>
+                            </Box>
 
-                        </Card>
+                        </CardContent>
 
-                    </Grid>
+                    </Card>
 
-                ))
+                </Grid>
 
-            }
+            ))}
 
         </Grid>
 
     );
 
 };
+
 
 export default MarketplaceOrderItemStatistics;

@@ -18,8 +18,52 @@ import {
     Delete
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   FORMAT NUMBER
+========================================================= */
+
+const formatNumber = (value) => {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "0";
+    }
+
+    return number.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+const formatDate = (value) => {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleDateString("en-IN");
+};
+
+
+/* =========================================================
+   MARKETPLACE ORDER ITEM TABLE
+========================================================= */
+
 const MarketplaceOrderItemTable = ({
-    marketplaceOrderItems,
+    marketplaceOrderItems = [],
     onView,
     onEdit,
     onDelete
@@ -30,9 +74,21 @@ const MarketplaceOrderItemTable = ({
         <TableContainer
             component={Paper}
             className="marketplace-order-item-table"
+            sx={{
+                overflowX: "auto"
+            }}
         >
 
-            <Table>
+            <Table
+                stickyHeader
+                sx={{
+                    minWidth: 1500
+                }}
+            >
+
+                {/* =================================================
+                    TABLE HEAD
+                ================================================= */}
 
                 <TableHead>
 
@@ -98,196 +154,257 @@ const MarketplaceOrderItemTable = ({
 
                 </TableHead>
 
+
+                {/* =================================================
+                    TABLE BODY
+                ================================================= */}
+
                 <TableBody>
 
-                    {
+                    {marketplaceOrderItems.length === 0 ? (
 
-                        marketplaceOrderItems.length === 0 ?
+                        <TableRow>
 
-                        (
+                            <TableCell
+                                colSpan={14}
+                                align="center"
+                                sx={{
+                                    py: 5
+                                }}
+                            >
 
-                            <TableRow>
+                                No Marketplace Order Items Found
+
+                            </TableCell>
+
+                        </TableRow>
+
+                    ) : (
+
+                        marketplaceOrderItems.map((item) => (
+
+                            <TableRow
+                                key={item.MarketplaceOrderItemId}
+                                hover
+                            >
+
+                                {/* ---------------------------------
+                                    ID
+                                --------------------------------- */}
+
+                                <TableCell>
+
+                                    {item.MarketplaceOrderItemId ?? "-"}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    ORDER ID
+                                --------------------------------- */}
+
+                                <TableCell>
+
+                                    {item.MarketplaceOrderId ?? "-"}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    ORDER ITEM NUMBER
+                                --------------------------------- */}
+
+                                <TableCell>
+
+                                    {item.MarketplaceOrderItemNumber || "-"}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    EXTERNAL ITEM ID
+                                --------------------------------- */}
+
+                                <TableCell>
+
+                                    {item.ExternalOrderItemId || "-"}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    PRODUCT
+                                --------------------------------- */}
 
                                 <TableCell
-                                    colSpan={14}
-                                    align="center"
+                                    sx={{
+                                        maxWidth: 250,
+                                        whiteSpace: "normal",
+                                        wordBreak: "break-word"
+                                    }}
                                 >
 
-                                    No Marketplace Order Items Found
+                                    {item.ProductTitle || "-"}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    SKU
+                                --------------------------------- */}
+
+                                <TableCell>
+
+                                    {item.SKU || "-"}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    QUANTITY
+                                --------------------------------- */}
+
+                                <TableCell align="center">
+
+                                    {item.Quantity ?? 0}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    UNIT PRICE
+                                --------------------------------- */}
+
+                                <TableCell align="right">
+
+                                    ₹ {formatNumber(item.UnitPrice)}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    TAX
+                                --------------------------------- */}
+
+                                <TableCell align="right">
+
+                                    ₹ {formatNumber(item.TaxAmount)}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    SHIPPING
+                                --------------------------------- */}
+
+                                <TableCell align="right">
+
+                                    ₹ {formatNumber(item.ShippingAmount)}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    DISCOUNT
+                                --------------------------------- */}
+
+                                <TableCell align="right">
+
+                                    ₹ {formatNumber(item.DiscountAmount)}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    TOTAL
+                                --------------------------------- */}
+
+                                <TableCell align="right">
+
+                                    <strong>
+                                        ₹ {formatNumber(item.TotalAmount)}
+                                    </strong>
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    CREATED DATE
+                                --------------------------------- */}
+
+                                <TableCell>
+
+                                    {formatDate(item.CreatedDate)}
+
+                                </TableCell>
+
+
+                                {/* ---------------------------------
+                                    ACTIONS
+                                --------------------------------- */}
+
+                                <TableCell align="center">
+
+                                    <Tooltip title="View">
+
+                                        <IconButton
+                                            color="primary"
+                                            size="small"
+                                            onClick={() =>
+                                                onView?.(item)
+                                            }
+                                            aria-label="View marketplace order item"
+                                        >
+
+                                            <Visibility />
+
+                                        </IconButton>
+
+                                    </Tooltip>
+
+
+                                    <Tooltip title="Edit">
+
+                                        <IconButton
+                                            color="warning"
+                                            size="small"
+                                            onClick={() =>
+                                                onEdit?.(item)
+                                            }
+                                            aria-label="Edit marketplace order item"
+                                        >
+
+                                            <Edit />
+
+                                        </IconButton>
+
+                                    </Tooltip>
+
+
+                                    <Tooltip title="Delete">
+
+                                        <IconButton
+                                            color="error"
+                                            size="small"
+                                            onClick={() =>
+                                                onDelete?.(item)
+                                            }
+                                            aria-label="Delete marketplace order item"
+                                        >
+
+                                            <Delete />
+
+                                        </IconButton>
+
+                                    </Tooltip>
 
                                 </TableCell>
 
                             </TableRow>
 
-                        )
+                        ))
 
-                        :
-
-                        (
-
-                            marketplaceOrderItems.map((item) => (
-
-                                <TableRow
-                                    key={item.MarketplaceOrderItemId}
-                                    hover
-                                >
-
-                                    <TableCell>
-
-                                        {item.MarketplaceOrderItemId}
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        {item.MarketplaceOrderId}
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        {item.MarketplaceOrderItemNumber || "-"}
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        {item.ExternalOrderItemId || "-"}
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        {item.ProductTitle || "-"}
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        {item.SKU || "-"}
-
-                                    </TableCell>
-
-                                    <TableCell align="center">
-
-                                        {item.Quantity ?? 0}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        ₹ {Number(
-                                            item.UnitPrice || 0
-                                        ).toLocaleString()}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        ₹ {Number(
-                                            item.TaxAmount || 0
-                                        ).toLocaleString()}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        ₹ {Number(
-                                            item.ShippingAmount || 0
-                                        ).toLocaleString()}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        ₹ {Number(
-                                            item.DiscountAmount || 0
-                                        ).toLocaleString()}
-
-                                    </TableCell>
-
-                                    <TableCell align="right">
-
-                                        <strong>
-
-                                            ₹ {Number(
-                                                item.TotalAmount || 0
-                                            ).toLocaleString()}
-
-                                        </strong>
-
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        {
-
-                                            item.CreatedDate
-
-                                            ?
-
-                                            new Date(
-                                                item.CreatedDate
-                                            ).toLocaleDateString()
-
-                                            :
-
-                                            "-"
-
-                                        }
-
-                                    </TableCell>
-
-                                    <TableCell align="center">
-
-                                        <Tooltip title="View">
-
-                                            <IconButton
-                                                color="primary"
-                                                onClick={() => onView(item)}
-                                            >
-
-                                                <Visibility />
-
-                                            </IconButton>
-
-                                        </Tooltip>
-
-                                        <Tooltip title="Edit">
-
-                                            <IconButton
-                                                color="warning"
-                                                onClick={() => onEdit(item)}
-                                            >
-
-                                                <Edit />
-
-                                            </IconButton>
-
-                                        </Tooltip>
-
-                                        <Tooltip title="Delete">
-
-                                            <IconButton
-                                                color="error"
-                                                onClick={() => onDelete(item)}
-                                            >
-
-                                                <Delete />
-
-                                            </IconButton>
-
-                                        </Tooltip>
-
-                                    </TableCell>
-
-                                </TableRow>
-
-                            ))
-
-                        )
-
-                    }
+                    )}
 
                 </TableBody>
 
@@ -298,5 +415,6 @@ const MarketplaceOrderItemTable = ({
     );
 
 };
+
 
 export default MarketplaceOrderItemTable;

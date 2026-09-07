@@ -13,10 +13,20 @@ import {
     Clear
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   MARKETPLACE ORDER ITEM SEARCH
+========================================================= */
+
 const MarketplaceOrderItemSearch = ({
     searchText,
     setSearchText
 }) => {
+
+
+    /* =====================================================
+       CLEAR SEARCH
+    ===================================================== */
 
     const handleClear = () => {
 
@@ -24,23 +34,51 @@ const MarketplaceOrderItemSearch = ({
 
     };
 
+
+    /* =====================================================
+       HANDLE SEARCH CHANGE
+    ===================================================== */
+
+    const handleSearchChange = (event) => {
+
+        setSearchText(event.target.value);
+
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
     return (
 
         <Box
             className="marketplace-order-item-search"
-            sx={{ mb: 3 }}
+            sx={{
+                mb: 3
+            }}
         >
 
             <TextField
                 fullWidth
-                variant="outlined"
                 size="small"
-                placeholder="Search by Order Item No, External Item ID, Product Title, SKU, Marketplace Order ID, Listing ID or Product ID..."
-                value={searchText}
-                onChange={(e) =>
-                    setSearchText(e.target.value)
+                variant="outlined"
+
+                placeholder={
+                    "Search by Order Item No, External Item ID, " +
+                    "Product Title, SKU, Marketplace Order ID, " +
+                    "Listing ID or Product ID..."
                 }
+
+                value={searchText || ""}
+
+                onChange={handleSearchChange}
+
                 InputProps={{
+
+                    /* -----------------------------------------
+                       SEARCH ICON
+                    ----------------------------------------- */
 
                     startAdornment: (
 
@@ -52,9 +90,14 @@ const MarketplaceOrderItemSearch = ({
 
                     ),
 
+
+                    /* -----------------------------------------
+                       CLEAR BUTTON
+                    ----------------------------------------- */
+
                     endAdornment:
 
-                        searchText && (
+                        searchText ? (
 
                             <InputAdornment position="end">
 
@@ -63,6 +106,7 @@ const MarketplaceOrderItemSearch = ({
                                     <IconButton
                                         size="small"
                                         onClick={handleClear}
+                                        aria-label="Clear search"
                                     >
 
                                         <Clear />
@@ -73,9 +117,10 @@ const MarketplaceOrderItemSearch = ({
 
                             </InputAdornment>
 
-                        )
+                        ) : null
 
                 }}
+
             />
 
         </Box>
@@ -83,5 +128,6 @@ const MarketplaceOrderItemSearch = ({
     );
 
 };
+
 
 export default MarketplaceOrderItemSearch;

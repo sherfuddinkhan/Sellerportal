@@ -13,6 +13,48 @@ import {
     Button
 } from "@mui/material";
 
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+const initialState = {
+
+    MarketplaceOrderItemId: 0,
+
+    MarketplaceOrderId: "",
+
+    MarketplaceListingId: "",
+
+    ProductId: "",
+
+    MarketplaceOrderItemNumber: "",
+
+    ExternalOrderItemId: "",
+
+    ProductTitle: "",
+
+    SKU: "",
+
+    Quantity: "",
+
+    UnitPrice: "",
+
+    TaxAmount: "",
+
+    ShippingAmount: "",
+
+    DiscountAmount: "",
+
+    TotalAmount: ""
+
+};
+
+
+/* =========================================================
+   COMPONENT
+========================================================= */
+
 const MarketplaceOrderItemModal = ({
     open,
     onClose,
@@ -20,39 +62,13 @@ const MarketplaceOrderItemModal = ({
     marketplaceOrderItem
 }) => {
 
-    const initialState = {
+    const [formData, setFormData] =
+        useState(initialState);
 
-        MarketplaceOrderItemId: 0,
 
-        MarketplaceOrderId: "",
-
-        MarketplaceListingId: "",
-
-        ProductId: "",
-
-        MarketplaceOrderItemNumber: "",
-
-        ExternalOrderItemId: "",
-
-        ProductTitle: "",
-
-        SKU: "",
-
-        Quantity: "",
-
-        UnitPrice: "",
-
-        TaxAmount: "",
-
-        ShippingAmount: "",
-
-        DiscountAmount: "",
-
-        TotalAmount: ""
-
-    };
-
-    const [formData, setFormData] = useState(initialState);
+    /* =====================================================
+       LOAD EDIT DATA
+    ===================================================== */
 
     useEffect(() => {
 
@@ -61,65 +77,92 @@ const MarketplaceOrderItemModal = ({
             setFormData({
 
                 MarketplaceOrderItemId:
-                    marketplaceOrderItem.MarketplaceOrderItemId || 0,
+                    marketplaceOrderItem.MarketplaceOrderItemId ??
+                    0,
 
                 MarketplaceOrderId:
-                    marketplaceOrderItem.MarketplaceOrderId || "",
+                    marketplaceOrderItem.MarketplaceOrderId ??
+                    "",
 
                 MarketplaceListingId:
-                    marketplaceOrderItem.MarketplaceListingId || "",
+                    marketplaceOrderItem.MarketplaceListingId ??
+                    "",
 
                 ProductId:
-                    marketplaceOrderItem.ProductId || "",
+                    marketplaceOrderItem.ProductId ??
+                    "",
 
                 MarketplaceOrderItemNumber:
-                    marketplaceOrderItem.MarketplaceOrderItemNumber || "",
+                    marketplaceOrderItem.MarketplaceOrderItemNumber ??
+                    "",
 
                 ExternalOrderItemId:
-                    marketplaceOrderItem.ExternalOrderItemId || "",
+                    marketplaceOrderItem.ExternalOrderItemId ??
+                    "",
 
                 ProductTitle:
-                    marketplaceOrderItem.ProductTitle || "",
+                    marketplaceOrderItem.ProductTitle ??
+                    "",
 
                 SKU:
-                    marketplaceOrderItem.SKU || "",
+                    marketplaceOrderItem.SKU ??
+                    "",
 
                 Quantity:
-                    marketplaceOrderItem.Quantity || "",
+                    marketplaceOrderItem.Quantity ??
+                    "",
 
                 UnitPrice:
-                    marketplaceOrderItem.UnitPrice || "",
+                    marketplaceOrderItem.UnitPrice ??
+                    "",
 
                 TaxAmount:
-                    marketplaceOrderItem.TaxAmount || "",
+                    marketplaceOrderItem.TaxAmount ??
+                    "",
 
                 ShippingAmount:
-                    marketplaceOrderItem.ShippingAmount || "",
+                    marketplaceOrderItem.ShippingAmount ??
+                    "",
 
                 DiscountAmount:
-                    marketplaceOrderItem.DiscountAmount || "",
+                    marketplaceOrderItem.DiscountAmount ??
+                    "",
 
                 TotalAmount:
-                    marketplaceOrderItem.TotalAmount || ""
+                    marketplaceOrderItem.TotalAmount ??
+                    ""
 
             });
 
         }
         else {
 
-            setFormData(initialState);
+            setFormData({
+                ...initialState
+            });
 
         }
 
-    }, [marketplaceOrderItem, open]);
+    }, [
+        marketplaceOrderItem,
+        open
+    ]);
 
-    const handleChange = (e) => {
 
-        const { name, value } = e.target;
+    /* =====================================================
+       HANDLE CHANGE
+    ===================================================== */
 
-        setFormData(prev => ({
+    const handleChange = (event) => {
 
-            ...prev,
+        const {
+            name,
+            value
+        } = event.target;
+
+        setFormData((previous) => ({
+
+            ...previous,
 
             [name]: value
 
@@ -127,237 +170,599 @@ const MarketplaceOrderItemModal = ({
 
     };
 
-    const handleSubmit = (e) => {
 
-        e.preventDefault();
+    /* =====================================================
+       NUMBER HELPER
+    ===================================================== */
 
-        onSave({
+    const toNumberOrNull = (value) => {
 
-            ...formData,
+        if (
+            value === "" ||
+            value === null ||
+            value === undefined
+        ) {
 
-            MarketplaceOrderId:
-                Number(formData.MarketplaceOrderId),
+            return null;
 
-            MarketplaceListingId:
-                formData.MarketplaceListingId
-                    ? Number(formData.MarketplaceListingId)
-                    : null,
+        }
 
-            ProductId:
-                formData.ProductId
-                    ? Number(formData.ProductId)
-                    : null,
+        const number = Number(value);
 
-            Quantity:
-                Number(formData.Quantity),
-
-            UnitPrice:
-                Number(formData.UnitPrice),
-
-            TaxAmount:
-                Number(formData.TaxAmount),
-
-            ShippingAmount:
-                Number(formData.ShippingAmount),
-
-            DiscountAmount:
-                Number(formData.DiscountAmount),
-
-            TotalAmount:
-                Number(formData.TotalAmount)
-
-        });
+        return Number.isFinite(number)
+            ? number
+            : null;
 
     };
+
+
+    /* =====================================================
+       SUBMIT
+    ===================================================== */
+
+    const handleSubmit = (event) => {
+
+        event.preventDefault();
+
+
+        /* =================================================
+           VALIDATE REQUIRED MARKETPLACE ORDER ID
+        ================================================= */
+
+        const marketplaceOrderId =
+            Number(
+                formData.MarketplaceOrderId
+            );
+
+        if (
+            !Number.isFinite(
+                marketplaceOrderId
+            ) ||
+            marketplaceOrderId <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        /* =================================================
+           PREPARE PAYLOAD
+        ================================================= */
+
+        const payload = {
+
+            MarketplaceOrderItemId:
+                Number(
+                    formData.MarketplaceOrderItemId || 0
+                ),
+
+            MarketplaceOrderId:
+                marketplaceOrderId,
+
+            MarketplaceListingId:
+                toNumberOrNull(
+                    formData.MarketplaceListingId
+                ),
+
+            ProductId:
+                toNumberOrNull(
+                    formData.ProductId
+                ),
+
+            MarketplaceOrderItemNumber:
+                formData.MarketplaceOrderItemNumber
+                    ?.trim() || null,
+
+            ExternalOrderItemId:
+                formData.ExternalOrderItemId
+                    ?.trim() || null,
+
+            ProductTitle:
+                formData.ProductTitle
+                    ?.trim() || null,
+
+            SKU:
+                formData.SKU
+                    ?.trim() || null,
+
+            Quantity:
+                toNumberOrNull(
+                    formData.Quantity
+                ),
+
+            UnitPrice:
+                toNumberOrNull(
+                    formData.UnitPrice
+                ),
+
+            TaxAmount:
+                toNumberOrNull(
+                    formData.TaxAmount
+                ),
+
+            ShippingAmount:
+                toNumberOrNull(
+                    formData.ShippingAmount
+                ),
+
+            DiscountAmount:
+                toNumberOrNull(
+                    formData.DiscountAmount
+                ),
+
+            TotalAmount:
+                toNumberOrNull(
+                    formData.TotalAmount
+                )
+
+        };
+
+
+        /* =================================================
+           SEND TO PARENT
+        ================================================= */
+
+        onSave(payload);
+
+    };
+
+
+    /* =====================================================
+       RESET WHEN CLOSED
+    ===================================================== */
+
+    const handleClose = () => {
+
+        setFormData({
+            ...initialState
+        });
+
+        onClose();
+
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
 
         <Dialog
             open={open}
-            onClose={onClose}
+            onClose={handleClose}
             maxWidth="lg"
             fullWidth
         >
 
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
             <DialogTitle>
 
                 {
-
                     formData.MarketplaceOrderItemId
-
                         ? "Edit Marketplace Order Item"
-
                         : "Add Marketplace Order Item"
-
                 }
 
             </DialogTitle>
+
+
+            {/* =================================================
+                FORM
+            ================================================= */}
 
             <form onSubmit={handleSubmit}>
 
                 <DialogContent>
 
-                    <Grid container spacing={2}>
+                    <Grid
+                        container
+                        spacing={2}
+                        sx={{ mt: 0.5 }}
+                    >
 
-                        <Grid item xs={12} md={6}>
+                        {/* =====================================
+                            MARKETPLACE ORDER ID
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 required
+                                type="number"
                                 label="Marketplace Order ID"
                                 name="MarketplaceOrderId"
-                                value={formData.MarketplaceOrderId}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.MarketplaceOrderId
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 1
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            MARKETPLACE LISTING ID
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
+                                type="number"
                                 label="Marketplace Listing ID"
                                 name="MarketplaceListingId"
-                                value={formData.MarketplaceListingId}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.MarketplaceListingId
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 1
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            PRODUCT ID
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
+                                type="number"
                                 label="Product ID"
                                 name="ProductId"
-                                value={formData.ProductId}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.ProductId
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 1
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            MARKETPLACE ORDER ITEM NUMBER
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 label="Marketplace Order Item No."
                                 name="MarketplaceOrderItemNumber"
-                                value={formData.MarketplaceOrderItemNumber}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.MarketplaceOrderItemNumber
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            EXTERNAL ORDER ITEM ID
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 label="External Order Item ID"
                                 name="ExternalOrderItemId"
-                                value={formData.ExternalOrderItemId}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.ExternalOrderItemId
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            PRODUCT TITLE
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 label="Product Title"
                                 name="ProductTitle"
-                                value={formData.ProductTitle}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.ProductTitle
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            SKU
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 label="SKU"
                                 name="SKU"
-                                value={formData.SKU}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.SKU
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            QUANTITY
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 type="number"
                                 label="Quantity"
                                 name="Quantity"
-                                value={formData.Quantity}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.Quantity
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 0,
+                                    step: "any"
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={3}>
+
+                        {/* =====================================
+                            UNIT PRICE
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={3}
+                        >
 
                             <TextField
                                 fullWidth
                                 type="number"
                                 label="Unit Price"
                                 name="UnitPrice"
-                                value={formData.UnitPrice}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.UnitPrice
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 0,
+                                    step: "any"
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={3}>
+
+                        {/* =====================================
+                            TAX AMOUNT
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={3}
+                        >
 
                             <TextField
                                 fullWidth
                                 type="number"
                                 label="Tax Amount"
                                 name="TaxAmount"
-                                value={formData.TaxAmount}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.TaxAmount
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 0,
+                                    step: "any"
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={3}>
+
+                        {/* =====================================
+                            SHIPPING AMOUNT
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={3}
+                        >
 
                             <TextField
                                 fullWidth
                                 type="number"
                                 label="Shipping Amount"
                                 name="ShippingAmount"
-                                value={formData.ShippingAmount}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.ShippingAmount
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 0,
+                                    step: "any"
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={3}>
+
+                        {/* =====================================
+                            DISCOUNT AMOUNT
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={3}
+                        >
 
                             <TextField
                                 fullWidth
                                 type="number"
                                 label="Discount Amount"
                                 name="DiscountAmount"
-                                value={formData.DiscountAmount}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.DiscountAmount
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 0,
+                                    step: "any"
+                                }}
                             />
 
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+
+                        {/* =====================================
+                            TOTAL AMOUNT
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 type="number"
                                 label="Total Amount"
                                 name="TotalAmount"
-                                value={formData.TotalAmount}
-                                onChange={handleChange}
+
+                                value={
+                                    formData.TotalAmount
+                                }
+
+                                onChange={
+                                    handleChange
+                                }
+
+                                inputProps={{
+                                    min: 0,
+                                    step: "any"
+                                }}
                             />
 
                         </Grid>
@@ -366,16 +771,27 @@ const MarketplaceOrderItemModal = ({
 
                 </DialogContent>
 
-                <DialogActions>
+
+                {/* =================================================
+                    ACTIONS
+                ================================================= */}
+
+                <DialogActions
+                    sx={{
+                        px: 3,
+                        pb: 2
+                    }}
+                >
 
                     <Button
-                        onClick={onClose}
+                        onClick={handleClose}
                         color="inherit"
                     >
 
                         Cancel
 
                     </Button>
+
 
                     <Button
                         type="submit"
@@ -395,5 +811,6 @@ const MarketplaceOrderItemModal = ({
     );
 
 };
+
 
 export default MarketplaceOrderItemModal;

@@ -13,6 +13,11 @@ import {
     Refresh
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   MARKETPLACE ORDER ITEM TOOLBAR
+========================================================= */
+
 const MarketplaceOrderItemToolbar = ({
     onAdd,
     onRefresh
@@ -32,9 +37,9 @@ const MarketplaceOrderItemToolbar = ({
             }}
         >
 
-            {/* ==========================================================
-                Title
-            ========================================================== */}
+            {/* =================================================
+                TITLE
+            ================================================= */}
 
             <Box>
 
@@ -42,30 +47,34 @@ const MarketplaceOrderItemToolbar = ({
                     variant="h5"
                     fontWeight="bold"
                 >
-
                     Marketplace Order Items
-
                 </Typography>
 
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
-
                     Manage Marketplace Order Items
-
                 </Typography>
 
             </Box>
 
-            {/* ==========================================================
-                Actions
-            ========================================================== */}
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
 
             <Stack
                 direction="row"
                 spacing={2}
+                sx={{
+                    flexWrap: "wrap"
+                }}
             >
+
+                {/* ---------------------------------------------
+                    REFRESH
+                --------------------------------------------- */}
 
                 <Tooltip title="Refresh">
 
@@ -73,14 +82,17 @@ const MarketplaceOrderItemToolbar = ({
                         variant="outlined"
                         color="primary"
                         startIcon={<Refresh />}
-                        onClick={onRefresh}
+                        onClick={() => onRefresh?.()}
                     >
-
                         Refresh
-
                     </Button>
 
                 </Tooltip>
+
+
+                {/* ---------------------------------------------
+                    ADD
+                --------------------------------------------- */}
 
                 <Tooltip title="Add Marketplace Order Item">
 
@@ -88,11 +100,9 @@ const MarketplaceOrderItemToolbar = ({
                         variant="contained"
                         color="primary"
                         startIcon={<Add />}
-                        onClick={onAdd}
+                        onClick={() => onAdd?.()}
                     >
-
                         Add Marketplace Order Item
-
                     </Button>
 
                 </Tooltip>
@@ -104,5 +114,6 @@ const MarketplaceOrderItemToolbar = ({
     );
 
 };
+
 
 export default MarketplaceOrderItemToolbar;

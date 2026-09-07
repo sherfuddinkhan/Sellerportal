@@ -17,6 +17,48 @@ import {
     Delete
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   FORMAT NUMBER
+========================================================= */
+
+const formatNumber = (value) => {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "0.00";
+    }
+
+    return number.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
+
+
+/* =========================================================
+   DISPLAY VALUE
+========================================================= */
+
+const displayValue = (value) => {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "-";
+    }
+
+    return value;
+};
+
+
+/* =========================================================
+   MARKETPLACE ORDER ITEM CARD
+========================================================= */
+
 const MarketplaceOrderItemCard = ({
     marketplaceOrderItem,
     onView,
@@ -24,19 +66,38 @@ const MarketplaceOrderItemCard = ({
     onDelete
 }) => {
 
+    if (!marketplaceOrderItem) {
+        return null;
+    }
+
+
     return (
 
         <Card
             className="marketplace-order-item-card"
             elevation={3}
+            sx={{
+                height: "100%"
+            }}
         >
 
-            <CardContent>
+            <CardContent
+                sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column"
+                }}
+            >
+
+                {/* =================================================
+                    HEADER
+                ================================================= */}
 
                 <Box
                     display="flex"
                     justifyContent="space-between"
                     alignItems="center"
+                    gap={2}
                     mb={2}
                 >
 
@@ -44,28 +105,52 @@ const MarketplaceOrderItemCard = ({
                         display="flex"
                         alignItems="center"
                         gap={1}
+                        minWidth={0}
                     >
 
-                        <ShoppingCart color="primary" />
+                        <ShoppingCart
+                            color="primary"
+                            sx={{
+                                flexShrink: 0
+                            }}
+                        />
 
                         <Typography
                             variant="h6"
                             fontWeight="bold"
+                            noWrap
                         >
 
-                            {marketplaceOrderItem.MarketplaceOrderItemNumber || "N/A"}
+                            {
+                                marketplaceOrderItem
+                                    .MarketplaceOrderItemNumber
+                                || "N/A"
+                            }
 
                         </Typography>
 
                     </Box>
 
+
                     <Chip
-                        label={`Qty : ${marketplaceOrderItem.Quantity ?? 0}`}
+                        label={
+                            `Qty : ${
+                                marketplaceOrderItem.Quantity ?? 0
+                            }`
+                        }
                         color="primary"
                         size="small"
+                        sx={{
+                            flexShrink: 0
+                        }}
                     />
 
                 </Box>
+
+
+                {/* =================================================
+                    BASIC INFORMATION
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -74,9 +159,15 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>Marketplace Order Item ID:</strong>{" "}
 
-                    {marketplaceOrderItem.MarketplaceOrderItemId}
+                    {
+                        displayValue(
+                            marketplaceOrderItem
+                                .MarketplaceOrderItemId
+                        )
+                    }
 
                 </Typography>
+
 
                 <Typography
                     variant="body2"
@@ -85,9 +176,15 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>Marketplace Order ID:</strong>{" "}
 
-                    {marketplaceOrderItem.MarketplaceOrderId}
+                    {
+                        displayValue(
+                            marketplaceOrderItem
+                                .MarketplaceOrderId
+                        )
+                    }
 
                 </Typography>
+
 
                 <Typography
                     variant="body2"
@@ -96,20 +193,38 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>External Item ID:</strong>{" "}
 
-                    {marketplaceOrderItem.ExternalOrderItemId || "-"}
+                    {
+                        displayValue(
+                            marketplaceOrderItem
+                                .ExternalOrderItemId
+                        )
+                    }
 
                 </Typography>
+
+
+                {/* =================================================
+                    PRODUCT INFORMATION
+                ================================================= */}
 
                 <Typography
                     variant="body2"
                     gutterBottom
+                    sx={{
+                        wordBreak: "break-word"
+                    }}
                 >
 
                     <strong>Product:</strong>{" "}
 
-                    {marketplaceOrderItem.ProductTitle || "-"}
+                    {
+                        displayValue(
+                            marketplaceOrderItem.ProductTitle
+                        )
+                    }
 
                 </Typography>
+
 
                 <Typography
                     variant="body2"
@@ -118,9 +233,18 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>SKU:</strong>{" "}
 
-                    {marketplaceOrderItem.SKU || "-"}
+                    {
+                        displayValue(
+                            marketplaceOrderItem.SKU
+                        )
+                    }
 
                 </Typography>
+
+
+                {/* =================================================
+                    PRICING
+                ================================================= */}
 
                 <Typography
                     variant="body2"
@@ -129,11 +253,12 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>Unit Price:</strong>{" "}
 
-                    ₹ {Number(
-                        marketplaceOrderItem.UnitPrice || 0
-                    ).toLocaleString()}
+                    ₹ {formatNumber(
+                        marketplaceOrderItem.UnitPrice
+                    )}
 
                 </Typography>
+
 
                 <Typography
                     variant="body2"
@@ -142,11 +267,12 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>Tax:</strong>{" "}
 
-                    ₹ {Number(
-                        marketplaceOrderItem.TaxAmount || 0
-                    ).toLocaleString()}
+                    ₹ {formatNumber(
+                        marketplaceOrderItem.TaxAmount
+                    )}
 
                 </Typography>
+
 
                 <Typography
                     variant="body2"
@@ -155,11 +281,12 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>Shipping:</strong>{" "}
 
-                    ₹ {Number(
-                        marketplaceOrderItem.ShippingAmount || 0
-                    ).toLocaleString()}
+                    ₹ {formatNumber(
+                        marketplaceOrderItem.ShippingAmount
+                    )}
 
                 </Typography>
+
 
                 <Typography
                     variant="body2"
@@ -168,37 +295,58 @@ const MarketplaceOrderItemCard = ({
 
                     <strong>Discount:</strong>{" "}
 
-                    ₹ {Number(
-                        marketplaceOrderItem.DiscountAmount || 0
-                    ).toLocaleString()}
+                    ₹ {formatNumber(
+                        marketplaceOrderItem.DiscountAmount
+                    )}
 
                 </Typography>
+
+
+                {/* =================================================
+                    TOTAL
+                ================================================= */}
 
                 <Typography
                     variant="h6"
                     color="primary"
                     fontWeight="bold"
-                    mt={2}
+                    sx={{
+                        mt: 2
+                    }}
                 >
 
-                    Total : ₹ {Number(
-                        marketplaceOrderItem.TotalAmount || 0
-                    ).toLocaleString()}
+                    Total : ₹ {
+                        formatNumber(
+                            marketplaceOrderItem.TotalAmount
+                        )
+                    }
 
                 </Typography>
+
+
+                {/* =================================================
+                    ACTIONS
+                ================================================= */}
 
                 <Stack
                     direction="row"
                     spacing={1}
                     mt={3}
+                    sx={{
+                        flexWrap: "wrap"
+                    }}
                 >
+
+                    {/* ---------------------------------------------
+                        VIEW
+                    --------------------------------------------- */}
 
                     <Button
                         size="small"
                         variant="outlined"
                         startIcon={<Visibility />}
                         onClick={() =>
-                            onView(marketplaceOrderItem)
+                            onView?.(marketplaceOrderItem)
                         }
                     >
 
@@ -206,13 +354,18 @@ const MarketplaceOrderItemCard = ({
 
                     </Button>
 
+
+                    {/* ---------------------------------------------
+                        EDIT
+                    --------------------------------------------- */}
+
                     <Button
                         size="small"
                         variant="contained"
                         color="warning"
                         startIcon={<Edit />}
                         onClick={() =>
-                            onEdit(marketplaceOrderItem)
+                            onEdit?.(marketplaceOrderItem)
                         }
                     >
 
@@ -220,13 +373,18 @@ const MarketplaceOrderItemCard = ({
 
                     </Button>
 
+
+                    {/* ---------------------------------------------
+                        DELETE
+                    --------------------------------------------- */}
+
                     <Button
                         size="small"
                         variant="contained"
                         color="error"
                         startIcon={<Delete />}
                         onClick={() =>
-                            onDelete(marketplaceOrderItem)
+                            onDelete?.(marketplaceOrderItem)
                         }
                     >
 
@@ -243,5 +401,6 @@ const MarketplaceOrderItemCard = ({
     );
 
 };
+
 
 export default MarketplaceOrderItemCard;
