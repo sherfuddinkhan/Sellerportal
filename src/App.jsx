@@ -203,18 +203,29 @@ import DeleteGoodsReceiptNoteItemDialog from "./pages/GoodsReceiptNotes/DeleteGo
 // MARKETPLACE ORDER ITEMS
 // =========================================================
 
-import DeleteMarketplaceOrderItemDialog from "./pages/MarketplaceOrderItem/DeleteMarketplaceOrderItemDialog";
-import MarketplaceOrderItemCard from "./pages/MarketplaceOrderItem/MarketplaceOrderItemCard";
-import MarketplaceOrderItemList from "./pages/MarketplaceOrderItem/MarketplaceOrderItemList";
-import MarketplaceOrderItemModal from "./pages/MarketplaceOrderItem/MarketplaceOrderItemModal";
-import MarketplaceOrderItemPagination from "./pages/MarketplaceOrderItem/MarketplaceOrderItemPagination";
-import MarketplaceOrderItemSearch from "./pages/MarketplaceOrderItem/MarketplaceOrderItemSearch";
-import MarketplaceOrderItemStatistics from "./pages/MarketplaceOrderItem/MarketplaceOrderItemStatistics";
-import MarketplaceOrderItemTable from "./pages/MarketplaceOrderItem/MarketplaceOrderItemTable";
-import MarketplaceOrderItemToolbar from "./pages/MarketplaceOrderItem/MarketplaceOrderItemToolbar";
-import MarketplaceOrderItemView from "./pages/MarketplaceOrderItem/MarketplaceOrderItemView";
+import MarketplaceOrderItemList
+    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemList";
 
+import MarketplaceOrderItemCreate
+    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemCreate";
 
+import MarketplaceOrderItemEdit
+    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemEdit";
+
+import MarketplaceOrderItemDetails
+    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemDetails";
+
+import MarketplaceReturnList
+    from "./pages/MarketplaceReturns/MarketplaceReturnList";
+
+import MarketplaceReturnSearch
+    from "./pages/MarketplaceReturns/components/MarketplaceReturnSearch";
+
+import MarketplaceReturnStatistics
+    from "./pages/MarketplaceReturns/components/MarketplaceReturnStatistics";
+
+import MarketplaceReturnView
+    from "./pages/MarketplaceReturns/components/MarketplaceReturnView";
 // =========================================================
 // STOCK LEDGER IMPORTS
 // =========================================================
@@ -1481,54 +1492,87 @@ function App() {
                 />
 
 
-                {/* =================================================
-                    MARKETPLACE ORDER ITEMS
-                ================================================= */}
+               {/* =================================================
+    MARKETPLACE ORDER ITEMS
+================================================= */}
 
-                <Route
-                    path="marketplace-order-items"
-                    element={<MarketplaceOrderItemList />}
-                />
+<Route
+    path="marketplace-order-items"
+    element={<MarketplaceOrderItemList />}
+/>
 
-                <Route
-                    path="marketplace-order-items/search"
-                    element={<MarketplaceOrderItemSearch />}
-                />
+<Route
+    path="marketplace-order-items/create"
+    element={<MarketplaceOrderItemCreate />}
+/>
 
-                <Route
-                    path="marketplace-order-items/statistics"
-                    element={<MarketplaceOrderItemStatistics />}
-                />
+<Route
+    path="marketplace-order-items/edit/:id"
+    element={<MarketplaceOrderItemEdit />}
+/>
 
-                <Route
-                    path="marketplace-order-items/:id"
-                    element={<MarketplaceOrderItemView />}
-                />
+<Route
+    path="marketplace-order-items/details/:id"
+    element={<MarketplaceOrderItemDetails />}
+/>
+
+<Route
+    path="marketplace-order-items/search"
+    element={<MarketplaceOrderItemSearch />}
+/>
+
+<Route
+    path="marketplace-order-items/statistics"
+    element={<MarketplaceOrderItemStatistics />}
+/>
 
 
-                {/* =================================================
-                    MARKETPLACE RETURNS
-                ================================================= */}
+{/* =================================================
+    MARKETPLACE RETURNS
+================================================= */}
 
-                <Route
-                    path="marketplace-returns"
-                    element={<MarketplaceReturnList />}
-                />
+<Route
+    path="marketplace-returns"
+    element={<MarketplaceReturnList />}
+/>
 
-                <Route
-                    path="marketplace-returns/search"
-                    element={<MarketplaceReturnSearch />}
-                />
+<Route
+    path="marketplace-returns/search"
+    element={<MarketplaceReturnSearch />}
+/>
 
-                <Route
-                    path="marketplace-returns/statistics"
-                    element={<MarketplaceReturnStatistics />}
-                />
+<Route
+    path="marketplace-returns/statistics"
+    element={<MarketplaceReturnStatistics />}
+/>
 
-                <Route
-                    path="marketplace-returns/:id"
-                    element={<MarketplaceReturnView />}
-                />
+<Route
+    path="marketplace-returns/:id"
+    element={<MarketplaceReturnView />}
+/>
+{/* =================================================
+    MARKETPLACE RETURNS
+================================================= */}
+
+<Route
+    path="marketplace-returns"
+    element={<MarketplaceReturnList />}
+/>
+
+<Route
+    path="marketplace-returns/search"
+    element={<MarketplaceReturnSearch />}
+/>
+
+<Route
+    path="marketplace-returns/statistics"
+    element={<MarketplaceReturnStatistics />}
+/>
+
+<Route
+    path="marketplace-returns/:id"
+    element={<MarketplaceReturnView />}
+/>
 
 
                 {/* =================================================
