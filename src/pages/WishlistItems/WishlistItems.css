@@ -1,0 +1,185 @@
+/* =========================================================
+   WISHLIST ITEMS
+========================================================= */
+
+.wishlist-items-page {
+    width: 100%;
+    min-height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.wishlist-items-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   PAGE TITLE
+========================================================= */
+
+.wishlist-items-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   PAGE SUBTITLE
+========================================================= */
+
+.wishlist-items-subtitle {
+    margin-top: 6px;
+    color: #666;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.wishlist-items-toolbar {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.wishlist-items-content {
+    width: 100%;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.wishlist-items-table {
+    width: 100%;
+    overflow-x: auto;
+}
+
+
+/* =========================================================
+   CARD GRID
+========================================================= */
+
+.wishlist-items-card-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(260px, 1fr)
+    );
+    gap: 24px;
+    width: 100%;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.wishlist-items-empty {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+
+/* =========================================================
+   LOADING STATE
+========================================================= */
+
+.wishlist-items-loading {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+/* =========================================================
+   ERROR STATE
+========================================================= */
+
+.wishlist-items-error {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.wishlist-items-pagination {
+    width: 100%;
+    margin-top: 24px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .wishlist-items-page {
+        padding: 18px;
+    }
+
+    .wishlist-items-title {
+        font-size: 24px;
+    }
+
+    .wishlist-items-card-grid {
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(230px, 1fr)
+        );
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .wishlist-items-page {
+        padding: 12px;
+    }
+
+    .wishlist-items-header {
+        align-items: flex-start;
+    }
+
+    .wishlist-items-title {
+        font-size: 22px;
+    }
+
+    .wishlist-items-card-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+}
