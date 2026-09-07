@@ -16,7 +16,7 @@ import {
 import {
     ArrowBack,
     Edit,
-    DeleteOutline,
+    Delete,
     Favorite
 } from "@mui/icons-material";
 
@@ -76,7 +76,7 @@ const WishlistItemsDetails = ({
 
 
     /* =====================================================
-       LOAD ITEM
+       LOAD WISHLIST ITEM
     ===================================================== */
 
     const loadWishlistItem = async () => {
@@ -129,12 +129,14 @@ const WishlistItemsDetails = ({
     ===================================================== */
 
     useEffect(() => {
+
         loadWishlistItem();
+
     }, [itemId]);
 
 
     /* =====================================================
-       LOADING
+       LOADING STATE
     ===================================================== */
 
     if (loading) {
@@ -163,7 +165,7 @@ const WishlistItemsDetails = ({
 
 
     /* =====================================================
-       ERROR
+       ERROR STATE
     ===================================================== */
 
     if (error) {
@@ -218,7 +220,7 @@ const WishlistItemsDetails = ({
 
 
     /* =====================================================
-       DATA
+       EXTRACT DATA
     ===================================================== */
 
     const wishlistItemIdValue =
@@ -228,15 +230,18 @@ const WishlistItemsDetails = ({
         item.Id ??
         itemId;
 
+
     const wishlistId =
         item.wishlistId ??
         item.WishlistId ??
         "-";
 
+
     const productId =
         item.productId ??
         item.ProductId ??
         "-";
+
 
     const productName =
         item.productName ??
@@ -245,25 +250,30 @@ const WishlistItemsDetails = ({
         item.Name ??
         `Product #${productId}`;
 
+
     const productCode =
         item.productCode ??
         item.ProductCode ??
         "-";
+
 
     const quantity =
         item.quantity ??
         item.Quantity ??
         0;
 
+
     const price =
         item.price ??
         item.Price ??
         0;
 
+
     const status =
         item.status ??
         item.Status ??
         "Active";
+
 
     const createdDate =
         item.createdDate ??
@@ -321,6 +331,8 @@ const WishlistItemsDetails = ({
                     }}
                 >
 
+                    {/* EDIT */}
+
                     <Button
                         variant="outlined"
                         startIcon={<Edit />}
@@ -329,10 +341,13 @@ const WishlistItemsDetails = ({
                         Edit
                     </Button>
 
+
+                    {/* DELETE */}
+
                     <Button
                         variant="outlined"
                         color="error"
-                        startIcon={<DeleteOutline />}
+                        startIcon={<Delete />}
                         onClick={() => onDelete?.(item)}
                     >
                         Delete
@@ -351,7 +366,9 @@ const WishlistItemsDetails = ({
 
                 <CardContent sx={{ p: 3 }}>
 
-                    {/* PRODUCT HEADER */}
+                    {/* =================================================
+                       PRODUCT HEADER
+                    ================================================= */}
 
                     <Box
                         sx={{
@@ -392,12 +409,16 @@ const WishlistItemsDetails = ({
                     <Divider sx={{ mb: 3 }} />
 
 
-                    {/* DETAILS */}
+                    {/* =================================================
+                       DETAILS
+                    ================================================= */}
 
                     <Grid
                         container
                         spacing={3}
                     >
+
+                        {/* WISHLIST ITEM ID */}
 
                         <Grid item xs={12} sm={6} md={3}>
 
@@ -415,6 +436,8 @@ const WishlistItemsDetails = ({
                         </Grid>
 
 
+                        {/* WISHLIST ID */}
+
                         <Grid item xs={12} sm={6} md={3}>
 
                             <Typography
@@ -431,6 +454,8 @@ const WishlistItemsDetails = ({
                         </Grid>
 
 
+                        {/* PRODUCT ID */}
+
                         <Grid item xs={12} sm={6} md={3}>
 
                             <Typography
@@ -446,6 +471,8 @@ const WishlistItemsDetails = ({
 
                         </Grid>
 
+
+                        {/* STATUS */}
 
                         <Grid item xs={12} sm={6} md={3}>
 
@@ -473,6 +500,8 @@ const WishlistItemsDetails = ({
                         </Grid>
 
 
+                        {/* QUANTITY */}
+
                         <Grid item xs={12} sm={6}>
 
                             <Typography
@@ -491,6 +520,8 @@ const WishlistItemsDetails = ({
 
                         </Grid>
 
+
+                        {/* PRICE */}
 
                         <Grid item xs={12} sm={6}>
 
@@ -511,6 +542,8 @@ const WishlistItemsDetails = ({
 
                         </Grid>
 
+
+                        {/* CREATED DATE */}
 
                         {createdDate && (
 
@@ -545,4 +578,3 @@ const WishlistItemsDetails = ({
 
 
 export default WishlistItemsDetails;
-

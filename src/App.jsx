@@ -343,6 +343,7 @@ import EditOrderStatusHistory
 
 import DetailedOrderStatusHistory
     from "./pages/OrderStatusHistory/DetailedOrderStatusHistory";
+
 // =========================================================
 // PAYMENT SETTINGS
 // =========================================================
@@ -679,6 +680,13 @@ import WishlistStatistics from "./pages/Wishlists/WishlistStatistics";
 import WishlistTable from "./pages/Wishlists/WishlistTable";
 import WishlistToolbar from "./pages/Wishlists/WishlistToolbar";
 import WishlistView from "./pages/Wishlists/WishlistView";
+import WishlistItemsDetails from "./pages/WishlistItems/WishlistItemsDetails";
+import WishlistItemsCreate from "./pages/WishlistItems/WishlistItemsCreate";
+import WishlistItemsEdit from "./pages/WishlistItems/WishlistItemsEdit";
+import WishlistCreate from "./pages/Wishlists/WishlistCreate";
+import WishlistDetails from "./pages/Wishlists/WishlistDetails";
+
+
 
 // =========================================================
 // NOT FOUND
@@ -693,1800 +701,1922 @@ import NotFound from "./pages/NotFound/NotFound";
 
 
 function App() {
-  return (
-    <Routes>
-
-      {/* =====================================================
-          PUBLIC ROUTES
-      ===================================================== */}
-
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/unauthorized" element={<Unauthorized />} />
-
-
-      {/* =====================================================
-          PROTECTED APPLICATION
-      ===================================================== */}
-
-      <Route
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-
-        {/* ===================================================
-            DEFAULT
-        =================================================== */}
-
-        <Route
-          index
-          element={<Navigate to="/dashboard"  />}
-        />
-
-        {/* ===================================================
-            DASHBOARD
-        =================================================== */}
-
-        <Route path="dashboard" element={<Dashboard />} />
-
-
-        {/* ===================================================
-            PROFILE
-        =================================================== */}
-
-        <Route path="profile" element={<UserProfile />} />
-        <Route path="profile/card" element={<UserProfileCard />} />
-
-
-      {/* ===================================================
-    BRANDS
-=================================================== */}
-
-<Route
-    path="brands"
-    element={<BrandList />}
-/>
-
-<Route
-    path="brands/create"
-    element={<BrandCreate />}
-/>
-
-<Route
-    path="brands/details/:id"
-    element={<BrandDetails />}
-/>
-
-<Route
-    path="brands/:id/edit"
-    element={<BrandEdit />}
-/>
-
-<Route
-    path="brands/view/:id"
-    element={<BrandView />}
-/>
-
-<Route
-    path="brands/search"
-    element={<BrandSearch />}
-/>
-
-<Route
-    path="brands/filters"
-    element={<BrandFilters />}
-/>
-
-<Route
-    path="brands/statistics"
-    element={<BrandStatistics />}
-/>
-
-// =========================================================
-// WAREHOUSE MANAGEMENT
-// =========================================================
-
-<Route
-    path="warehouses"
-    element={<WarehouseList />}
-/>
-
-<Route
-    path="warehouses/:id"
-    element={<WarehouseDetails />}
-/>
-<Route
-    path="warehouses/details/:id"
-    element={<WarehouseDetails />}
-/>
-// =========================================================
-// WAREHOUSE MANAGEMENT
-// =========================================================
-
-<Route
-    path="warehouses"
-    element={<WarehouseList />}
-/>
-
-<Route
-    path="warehouses/:id"
-    element={<WarehouseDetails />}
-/>
-
-<Route
-    path="warehouses/view/:id"
-    element={<WarehouseView />}
-/>
-
-<Route
-    path="warehouses/edit/:id"
-    element={<WarehouseList />}
-/>
-<Route
-    path="warehouse-locations"
-    element={
-        <WarehouseLocationList />
-    }
-/>
-
-<Route
-    path="warehouse-locations/create"
-    element={
-        <WarehouseLocationCreate />
-    }
-/>
-
-<Route
-    path="warehouse-locations/edit/:id"
-    element={
-        <WarehouseLocationEdit />
-    }
-/>
-
-<Route
-    path="warehouse-locations/details/:id"
-    element={
-        <WarehouseLocationDetails />
-    }
-/>
-{/* ===================================================
-    BRAND MODELS
-=================================================== */}
-
-<Route
-    path="brands/:brandId/models"
-    element={<BrandModelTable />}
-/>
-
-<Route
-    path="brands/:brandId/models/new"
-    element={<BrandModelForm />}
-/>
-
-<Route
-    path="brands/:brandId/models/:modelId"
-    element={<BrandModelView />}
-/>
-
-<Route
-    path="brands/:brandId/models/:modelId/edit"
-    element={<BrandModelForm />}
-/>
-
-{/* =========================================================
-    CATALOG
-========================================================= */}
-
-<Route
-    path="catalog"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/create"
-    element={<CatalogForm />}
-/>
-
-<Route
-    path="catalog/view/:id"
-    element={<CatalogView />}
-/>
-
-<Route
-    path="catalog/:id/edit"
-    element={<CatalogForm />}
-/>
-
-<Route
-    path="catalog/search"
-    element={<CatalogSearch />}
-/>
-
-<Route
-    path="catalog/filters"
-    element={<CatalogFilters />}
-/>
-
-<Route
-    path="catalog/brand/:brandId"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/category/:categoryId"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/producttype/:productTypeId"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/latest"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/featured"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/toprated"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/bestsellers"
-    element={<CatalogList />}
-/>
-
-<Route
-    path="catalog/:productId/images"
-    element={<CatalogImages />}
-/>
-
-<Route
-    path="catalog/:productId/attributes"
-    element={<CatalogAttributes />}
-/>
-
-<Route
-    path="catalog/:productId/reviews"
-    element={<CatalogReviews />}
-/>
-<Route
-    path="/catalog/products"
-    element={<CatalogView />}
-/>
-{/* Catalog Route */}
-        <Route path="catalog" element={<Catalog />} />
-
-
-  {/* ===================================================
-           Seller
-        =================================================== */}
-
-<Route
-    path="/sellers"
-    element={<SellerList />}
-/>
-
-<Route
-    path="/sellers/create"
-    element={<SellerCreate />}
-/>
-
-<Route
-    path="/sellers/details/:id"
-    element={<SellerDetails />}
-/>
-
-<Route
-    path="/sellers/edit/:id"
-    element={<SellerEdit />}
-/>
-
-<Route
-    path="/sellers/search"
-    element={<SellerSearch />}
-/>
-
-<Route
-    path="/sellers/filters"
-    element={<SellerFilters />}
-/>
-
-<Route
-    path="/sellers/statistics"
-    element={<SellerStatistics />}
-/>
-
-<Route
-    path="/sellers/view/:id"
-    element={<SellerView />}
-/>
-
-
-
-        {/* ===================================================
-            CATEGORIES
-        =================================================== */}
-      // =========================================================
-// CATEGORY ROUTES
-// =========================================================
-
-<Route
-    path="categories"
-    element={<CategoryList />}
-/>
-
-<Route
-    path="categories/create"
-    element={<CategoryCreate />}
-/>
-
-<Route
-    path="categories/details/:id"
-    element={<CategoryDetails />}
-/>
-
-<Route
-    path="categories/edit/:categoryId"
-    element={<CategoryEdit />}
-/>
-
-<Route
-    path="categories/view/:id"
-    element={<CategoryView />}
-/>
-
-<Route
-    path="categories/search"
-    element={<CategorySearch />}
-/>
-
-<Route
-    path="categories/filters"
-    element={<CategoryFilters />}
-/>
-
-<Route
-    path="categories/statistics"
-    element={<CategoryStatistics />}
-/>
-
-<Route
-    path="categories/table"
-    element={<CategoryList />}
-/>
-
-<Route
-    path="categories/:id/products"
-    element={<CategoryProducts />}
-/>
-
-<Route
-    path="categories/form"
-    element={<CategoryForm />}
-/>
-
-<Route
-    path="categories/modal"
-    element={<CategoryModal />}
-/>
-
-<Route
-    path="categories/card"
-    element={
-        <CategoryCard
-            category={{
-                categoryId: 1,
-                categoryName: "Mobiles",
-                description:
-                    "Mobile phones and accessories",
-                parentCategoryName:
-                    "Electronics",
-                isActive: true
-            }}
-        />
-    }
-/>
-       
-        
-
-        {/* ===================================================
-            CUSTOMER ADDRESSES
-        =================================================== */}
-
-        <Route path="customer-addresses" element={<CustomerAddressList />} />
-        <Route path="customer-addresses/:id" element={<CustomerAddressView />} />
-        <Route path="customer-addresses/search" element={<CustomerAddressSearch />} />
-        <Route path="customer-addresses/statistics" element={<CustomerAddressStatistics />} />
-
-
-        {/* ===================================================
-            CUSTOMER PAYMENTS
-        =================================================== */}
-
-        <Route path="customer-payments" element={<CustomerPaymentList />} />
-        <Route path="customer-payments/:id" element={<CustomerPaymentView />} />
-        <Route path="customer-payments/search" element={<CustomerPaymentSearch />} />
-        <Route path="customer-payments/statistics" element={<CustomerPaymentStatistics />} />
-
-
-
-// ========================================================= // ROUTES // ========================================================= 
-// =========================================================
-// stock-transfers ROUTES
-// =========================================================
-
-<Route
-    path="stock-transfers"
-    element={<StockTransferList />}
-/>
-
-<Route
-    path="stock-transfers/create"
-    element={
-        <StockTransferForm
-            onSuccess={() => {
-                window.location.href =
-                    "/stock-transfers";
-            }}
-            onCancel={() => {
-                window.location.href =
-                    "/stock-transfers";
-            }}
-        />
-    }
-/>
-
-<Route
-    path="/stock-transfers/create"
-    element={<StockTransferForm />}
-/>
-
-<Route
-    path="/stock-transfers/:stockTransferId"
-    element={<StockTransferView />}
-/>
-
-<Route
-    path="/stock-transfers/:stockTransferId/edit"
-    element={<StockTransferForm />}
-/>
-<Route
-    path="/stock-transfers/:stockTransferId"
-    element={<StockTransferView />}
-/>
-
-<Route
-    path="/stock-transfers/:stockTransferId/edit"
-    element={<StockTransferForm />}
-/>
-<Route path="stock-transfers/:stockTransferId" element={<StockTransferView />} />
-<Route path="stock-transfers/:stockTransferId/edit" element={<StockTransferForm />} />
-<Route path="stock-transfers/details/:stockTransferId" element={<StockTransferDetails />} />
-<Route
-    path="stock-transfers/:stockTransferId/edit"
-    element={<StockTransferEdit />}
-/>
-
-          {/* ===================================================
-    CUSTOMER RETURNS
-=================================================== */}
-
-<Route
-    path="customer-returns"
-    element={<CustomerReturnList />}
-/>
-<Route
-    path="customer-returns"
-    element={<CustomerReturnList />}
-/>
-
-<Route
-    path="customer-returns/search"
-    element={<CustomerReturnSearch />}
-/>
-
-<Route
-    path="customer-returns/statistics"
-    element={<CustomerReturnStatistics />}
-/>
-
-<Route
-    path="customer-returns/:id"
-    element={<CustomerReturnView />}
-/>
-
-<Route
-    path="customer-returns/:id/edit"
-    element={<CustomerReturnEdit />}
-/>
-
-<Route
-    path="customer-returns/details/:id"
-    element={<CustomerReturnView />}
-/>
-
-<Route
-    path="customer-returns/edit/:id"
-    element={<CustomerReturnEdit />}
-/>
-
-            {/* =================================================
-                STOCK ADJUSTMENTS
-            ================================================= */}
+    return (
+        <Routes>
+
+            {/* =====================================================
+                PUBLIC ROUTES
+            ===================================================== */}
 
             <Route
-                path="stock-adjustments"
-                element={<StockAdjustmentList />}
+                path="/login"
+                element={<Login />}
             />
 
             <Route
-                path="stock-adjustments/create"
-                element={<StockAdjustmentCreate />}
+                path="/register"
+                element={<Register />}
             />
 
             <Route
-                path="stock-adjustments/search"
-                element={<StockAdjustmentSearch />}
+                path="/forgot-password"
+                element={<ForgotPassword />}
             />
 
             <Route
-                path="stock-adjustments/statistics"
-                element={<StockAdjustmentStatistics />}
+                path="/reset-password"
+                element={<ResetPassword />}
             />
 
             <Route
-                path="stock-adjustments/view/:id"
-                element={<StockAdjustmentView />}
+                path="/unauthorized"
+                element={<Unauthorized />}
             />
+
+
+            {/* =====================================================
+                PROTECTED APPLICATION
+            ===================================================== */}
 
             <Route
-                path="stock-adjustments/edit/:id"
-                element={<StockAdjustmentEdit />}
-            />
- 
+                element={
+                    <ProtectedRoute>
+                        <MainLayout />
+                    </ProtectedRoute>
+                }
+            >
 
+                {/* =================================================
+                    DEFAULT
+                ================================================= */}
 
-    {/* =====================================================
-        STOCK LEDGER
-    ====================================================== */}
-
-    <Route
-        path="/stock-ledger"
-        element={<StockLedgerList />}
-    />
-
-    <Route
-        path="/stock-ledger/create"
-        element={<StockLedgerCreate />}
-    />
-
-    <Route
-        path="/stock-ledger/edit/:id"
-        element={<StockLedgerEdit />}
-    />
-
-    <Route
-        path="/stock-ledger/view/:id"
-        element={<StockLedgerDetails />}
-    />
                 <Route
-                    path="/stock-ledger"
+                    index
+                    element={
+                        <Navigate to="/dashboard" replace />
+                    }
+                />
+
+
+                {/* =================================================
+                    DASHBOARD
+                ================================================= */}
+
+                <Route
+                    path="dashboard"
+                    element={<Dashboard />}
+                />
+
+
+                {/* =================================================
+                    PROFILE
+                ================================================= */}
+
+                <Route
+                    path="profile"
+                    element={<UserProfile />}
+                />
+
+                <Route
+                    path="profile/card"
+                    element={<UserProfileCard />}
+                />
+
+
+                {/* =================================================
+                    BRANDS
+                ================================================= */}
+
+                <Route
+                    path="brands"
+                    element={<BrandList />}
+                />
+
+                <Route
+                    path="brands/create"
+                    element={<BrandCreate />}
+                />
+
+                <Route
+                    path="brands/details/:id"
+                    element={<BrandDetails />}
+                />
+
+                <Route
+                    path="brands/view/:id"
+                    element={<BrandView />}
+                />
+
+                <Route
+                    path="brands/search"
+                    element={<BrandSearch />}
+                />
+
+                <Route
+                    path="brands/filters"
+                    element={<BrandFilters />}
+                />
+
+                <Route
+                    path="brands/statistics"
+                    element={<BrandStatistics />}
+                />
+
+                <Route
+                    path="brands/:id/edit"
+                    element={<BrandEdit />}
+                />
+
+
+                {/* =================================================
+                    BRAND MODELS
+                ================================================= */}
+
+                <Route
+                    path="brands/:brandId/models"
+                    element={<BrandModelTable />}
+                />
+
+                <Route
+                    path="brands/:brandId/models/new"
+                    element={<BrandModelForm />}
+                />
+
+                <Route
+                    path="brands/:brandId/models/:modelId"
+                    element={<BrandModelView />}
+                />
+
+                <Route
+                    path="brands/:brandId/models/:modelId/edit"
+                    element={<BrandModelForm />}
+                />
+
+
+                {/* =================================================
+                    WAREHOUSE MANAGEMENT
+                ================================================= */}
+
+                <Route
+                    path="warehouses"
+                    element={<WarehouseList />}
+                />
+
+                <Route
+                    path="warehouses/details/:id"
+                    element={<WarehouseDetails />}
+                />
+
+                <Route
+                    path="warehouses/view/:id"
+                    element={<WarehouseView />}
+                />
+
+                <Route
+                    path="warehouses/:id"
+                    element={<WarehouseDetails />}
+                />
+
+                <Route
+                    path="warehouses/edit/:id"
+                    element={<WarehouseList />}
+                />
+
+
+                {/* =================================================
+                    WAREHOUSE LOCATIONS
+                ================================================= */}
+
+                <Route
+                    path="warehouse-locations"
+                    element={<WarehouseLocationList />}
+                />
+
+                <Route
+                    path="warehouse-locations/create"
+                    element={<WarehouseLocationCreate />}
+                />
+
+                <Route
+                    path="warehouse-locations/details/:id"
+                    element={<WarehouseLocationDetails />}
+                />
+
+                <Route
+                    path="warehouse-locations/edit/:id"
+                    element={<WarehouseLocationEdit />}
+                />
+
+
+                {/* =================================================
+                    CATALOG
+                ================================================= */}
+
+                <Route
+                    path="catalog"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/create"
+                    element={<CatalogForm />}
+                />
+
+                <Route
+                    path="catalog/search"
+                    element={<CatalogSearch />}
+                />
+
+                <Route
+                    path="catalog/filters"
+                    element={<CatalogFilters />}
+                />
+
+                <Route
+                    path="catalog/latest"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/featured"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/toprated"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/bestsellers"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/brand/:brandId"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/category/:categoryId"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/producttype/:productTypeId"
+                    element={<CatalogList />}
+                />
+
+                <Route
+                    path="catalog/:productId/images"
+                    element={<CatalogImages />}
+                />
+
+                <Route
+                    path="catalog/:productId/attributes"
+                    element={<CatalogAttributes />}
+                />
+
+                <Route
+                    path="catalog/:productId/reviews"
+                    element={<CatalogReviews />}
+                />
+
+                <Route
+                    path="catalog/view/:id"
+                    element={<CatalogView />}
+                />
+
+                <Route
+                    path="catalog/:id/edit"
+                    element={<CatalogForm />}
+                />
+
+                <Route
+                    path="catalog/products"
+                    element={<CatalogView />}
+                />
+
+
+                {/* =================================================
+                    SELLERS
+                ================================================= */}
+
+                <Route
+                    path="sellers"
+                    element={<SellerList />}
+                />
+
+                <Route
+                    path="sellers/create"
+                    element={<SellerCreate />}
+                />
+
+                <Route
+                    path="sellers/details/:id"
+                    element={<SellerDetails />}
+                />
+
+                <Route
+                    path="sellers/edit/:id"
+                    element={<SellerEdit />}
+                />
+
+                <Route
+                    path="sellers/view/:id"
+                    element={<SellerView />}
+                />
+
+                <Route
+                    path="sellers/search"
+                    element={<SellerSearch />}
+                />
+
+                <Route
+                    path="sellers/filters"
+                    element={<SellerFilters />}
+                />
+
+                <Route
+                    path="sellers/statistics"
+                    element={<SellerStatistics />}
+                />
+
+
+                {/* =================================================
+                    CATEGORIES
+                ================================================= */}
+
+                <Route
+                    path="categories"
+                    element={<CategoryList />}
+                />
+
+                <Route
+                    path="categories/create"
+                    element={<CategoryCreate />}
+                />
+
+                <Route
+                    path="categories/details/:id"
+                    element={<CategoryDetails />}
+                />
+
+                <Route
+                    path="categories/edit/:categoryId"
+                    element={<CategoryEdit />}
+                />
+
+                <Route
+                    path="categories/view/:id"
+                    element={<CategoryView />}
+                />
+
+                <Route
+                    path="categories/search"
+                    element={<CategorySearch />}
+                />
+
+                <Route
+                    path="categories/filters"
+                    element={<CategoryFilters />}
+                />
+
+                <Route
+                    path="categories/statistics"
+                    element={<CategoryStatistics />}
+                />
+
+                <Route
+                    path="categories/table"
+                    element={<CategoryList />}
+                />
+
+                <Route
+                    path="categories/products/:id"
+                    element={<CategoryProducts />}
+                />
+
+                <Route
+                    path="categories/:id/products"
+                    element={<CategoryProducts />}
+                />
+
+                <Route
+                    path="categories/form"
+                    element={<CategoryForm />}
+                />
+
+                <Route
+                    path="categories/modal"
+                    element={<CategoryModal />}
+                />
+
+                <Route
+                    path="categories/card"
+                    element={
+                        <CategoryCard
+                            category={{
+                                categoryId: 1,
+                                categoryName: "Mobiles",
+                                description:
+                                    "Mobile phones and accessories",
+                                parentCategoryName:
+                                    "Electronics",
+                                isActive: true
+                            }}
+                        />
+                    }
+                />
+
+
+                {/* =================================================
+                    CUSTOMER ADDRESSES
+                ================================================= */}
+
+                <Route
+                    path="customer-addresses"
+                    element={<CustomerAddressList />}
+                />
+
+                <Route
+                    path="customer-addresses/search"
+                    element={<CustomerAddressSearch />}
+                />
+
+                <Route
+                    path="customer-addresses/statistics"
+                    element={<CustomerAddressStatistics />}
+                />
+
+                <Route
+                    path="customer-addresses/:id"
+                    element={<CustomerAddressView />}
+                />
+
+
+                {/* =================================================
+                    CUSTOMER PAYMENTS
+                ================================================= */}
+
+                <Route
+                    path="customer-payments"
+                    element={<CustomerPaymentList />}
+                />
+
+                <Route
+                    path="customer-payments/search"
+                    element={<CustomerPaymentSearch />}
+                />
+
+                <Route
+                    path="customer-payments/statistics"
+                    element={<CustomerPaymentStatistics />}
+                />
+
+                <Route
+                    path="customer-payments/:id"
+                    element={<CustomerPaymentView />}
+                />
+
+
+                {/* =================================================
+                    STOCK TRANSFERS
+                ================================================= */}
+
+                <Route
+                    path="stock-transfers"
+                    element={<StockTransferList />}
+                />
+
+                <Route
+                    path="stock-transfers/create"
+                    element={
+                        <StockTransferForm
+                            onSuccess={() => {
+                                window.location.href =
+                                    "/stock-transfers";
+                            }}
+                            onCancel={() => {
+                                window.location.href =
+                                    "/stock-transfers";
+                            }}
+                        />
+                    }
+                />
+
+                <Route
+                    path="stock-transfers/details/:stockTransferId"
+                    element={<StockTransferDetails />}
+                />
+
+                <Route
+                    path="stock-transfers/:stockTransferId/edit"
+                    element={<StockTransferForm />}
+                />
+
+                <Route
+                    path="stock-transfers/:stockTransferId"
+                    element={<StockTransferView />}
+                />
+
+
+                {/* =================================================
+                    CUSTOMER RETURNS
+                ================================================= */}
+
+                <Route
+                    path="customer-returns"
+                    element={<CustomerReturnList />}
+                />
+
+                <Route
+                    path="customer-returns/search"
+                    element={<CustomerReturnSearch />}
+                />
+
+                <Route
+                    path="customer-returns/statistics"
+                    element={<CustomerReturnStatistics />}
+                />
+
+                <Route
+                    path="customer-returns/details/:id"
+                    element={<CustomerReturnView />}
+                />
+
+                <Route
+                    path="customer-returns/edit/:id"
+                    element={<CustomerReturnEdit />}
+                />
+
+                <Route
+                    path="customer-returns/:id"
+                    element={<CustomerReturnView />}
+                />
+
+                <Route
+                    path="customer-returns/:id/edit"
+                    element={<CustomerReturnEdit />}
+                />
+
+
+                {/* =================================================
+                    STOCK ADJUSTMENTS
+                ================================================= */}
+
+                <Route
+                    path="stock-adjustments"
+                    element={<StockAdjustmentList />}
+                />
+
+                <Route
+                    path="stock-adjustments/create"
+                    element={<StockAdjustmentCreate />}
+                />
+
+                <Route
+                    path="stock-adjustments/search"
+                    element={<StockAdjustmentSearch />}
+                />
+
+                <Route
+                    path="stock-adjustments/statistics"
+                    element={<StockAdjustmentStatistics />}
+                />
+
+                <Route
+                    path="stock-adjustments/view/:id"
+                    element={<StockAdjustmentView />}
+                />
+
+                <Route
+                    path="stock-adjustments/edit/:id"
+                    element={<StockAdjustmentEdit />}
+                />
+
+
+                {/* =================================================
+                    STOCK LEDGER
+                ================================================= */}
+
+                <Route
+                    path="stock-ledger"
                     element={<StockLedgerList />}
                 />
 
                 <Route
-                    path="/stock-ledger/create"
+                    path="stock-ledger/create"
                     element={<StockLedgerCreate />}
                 />
+
                 <Route
-                    path="/stock-ledger/edit/:id"
-                    element={<StockLedgerEdit /> }
+                    path="stock-ledger/edit/:id"
+                    element={<StockLedgerEdit />}
                 />
+
                 <Route
-                    path="/stock-ledger/view/:id"
+                    path="stock-ledger/view/:id"
                     element={<StockLedgerDetails />}
-                    />
-
-                    <Route
-    path="/stock-ledger/create"
-    element={<StockLedgerCreate />}
-/>
-
-
-    {/* =====================================================
-        SUPPLIER MAIN PAGES
-       ===================================================== */}
-
-    <Route
-        path="/suppliers"
-        element={<SupplierList />}
-    />
-
-    <Route
-        path="/suppliers/create"
-        element={<SupplierCreate />}
-    />
-
-    <Route
-        path="/suppliers/edit/:id"
-        element={<SupplierEdit />}
-    />
-
-    <Route
-        path="/suppliers/view/:id"
-        element={<SupplierView />}
-    />
-
-    <Route
-        path="/suppliers/details/:id"
-        element={<SupplierDetails />}
-    />
-<Route
-    path="/suppliers/card"
-    element={
-        <SupplierCard
-            supplier={null}
-        />
-    }
-/>
-
-    {/* =====================================================
-        SUPPLIER STATISTICS
-       ===================================================== */}
-
-    <Route
-        path="/suppliers/statistics"
-        element={
-            <SupplierStatistics
-                suppliers={[]}
-            />
-        }
-    />
-
-
-    {/* =====================================================
-        SUPPLIER PAGINATION
-       ===================================================== */}
-
-    <Route
-        path="/suppliers/pagination"
-        element={
-            <SupplierPagination
-                page={1}
-                setPage={() => {}}
-                rowsPerPage={10}
-                setRowsPerPage={() => {}}
-                totalPages={1}
-                totalItems={0}
-            />
-        }
-    />
-
-
-    {/* =====================================================
-        SUPPLIER FILTERS
-       ===================================================== */}
-
-    <Route
-        path="/suppliers/filters"
-        element={
-            <SupplierFilters
-                sort=""
-                setSort={() => {}}
-            />
-        }
-    />
-
-
-    {/* =====================================================
-        SUPPLIER SEARCH
-       ===================================================== */}
-
-    <Route
-        path="/suppliers/search"
-        element={
-            <SupplierSearch
-                searchText=""
-                setSearchText={() => {}}
-            />
-        }
-    />
-
-
-    {/* =====================================================
-        SUPPLIER TOOLBAR
-       ===================================================== */}
-
-    <Route
-        path="/suppliers/toolbar"
-        element={
-            <SupplierToolbar
-                searchText=""
-                setSearchText={() => {}}
-                sort=""
-                setSort={() => {}}
-                onCreate={() => {}}
-                onRefresh={() => {}}
-            />
-        }
-    />
-
-
-    {/* =====================================================
-        SUPPLIER TABLE
-       ===================================================== */}
-
-    <Route
-        path="/suppliers/table"
-        element={
-            <SupplierTable
-                suppliers={[]}
-                onView={() => {}}
-                onEdit={() => {}}
-                onDelete={() => {}}
-            />
-        }
-    />
-        {/* ===================================================
-            DELIVERY CHALLANS
-        =================================================== */}
-
-        <Route path="delivery-challans" element={<DeliveryChallanList />} />
-        <Route path="delivery-challans/:id" element={<DeliveryChallanView />} />
-        <Route path="delivery-challans/search" element={<DeliveryChallanSearch />} />
-        <Route path="delivery-challans/statistics" element={<DeliveryChallanStatistics />} />
-
-
-        {/* ===================================================
-            DELIVERY CHALLAN ITEMS
-        =================================================== */}
-
-        <Route path="delivery-challan-items" element={<DeliveryChallanItemList />} />
-        <Route path="delivery-challan-items/:id" element={<DeliveryChallanItemView />} />
-        <Route path="delivery-challan-items/search" element={<DeliveryChallanItemSearch />} />
-        <Route path="delivery-challan-items/statistics" element={<DeliveryChallanItemStatistics />} />
-
-        {/* ===================================================
-            MARKETPLACE ORDER ITEMS
-        =================================================== */}
-
-        <Route path="marketplace-order-items" element={<MarketplaceOrderItemList />} />
-        <Route path="marketplace-order-items/:id" element={<MarketplaceOrderItemView />} />
-        <Route path="marketplace-order-items/search" element={<MarketplaceOrderItemSearch />} />
-        <Route path="marketplace-order-items/statistics" element={<MarketplaceOrderItemStatistics />} />
-
-
-        {/* ===================================================
-            MARKETPLACE RETURNS
-        =================================================== */}
-
-        <Route path="marketplace-returns" element={<MarketplaceReturnList />} />
-        <Route path="marketplace-returns/:id" element={<MarketplaceReturnView />} />
-        <Route path="marketplace-returns/search" element={<MarketplaceReturnSearch />} />
-        <Route path="marketplace-returns/statistics" element={<MarketplaceReturnStatistics />} />
-
-
-        {/* ===================================================
-            NOTIFICATIONS
-        =================================================== */}
-
-        <Route path="notifications" element={<NotificationList />} />
-        <Route path="notifications/:id" element={<NotificationView />} />
-        <Route path="notifications/settings" element={<NotificationSettings />} />
-
-
-        {/* ===================================================
-            ORDER ITEMS
-        =================================================== */}
-
-        <Route path="order-items" element={<OrderItemList />} />
-        <Route path="order-items/:id" element={<OrderItemView />} />
-        <Route path="order-items/search" element={<OrderItemSearch />} />
-        <Route path="order-items/statistics" element={<OrderItemStatistics />} />
-        /* ===================================================
-   ORDER STATUS HISTORY
-=================================================== */
-
-/* ===================================================
-   MAIN LIST
-=================================================== */
-
-<Route
-    path="order-status-history"
-    element={
-        <OrderStatusHistoryList />
-    }
-/>
-
-/* ===================================================
-   SEARCH
-=================================================== */
-
-<Route
-    path="order-status-history/search"
-    element={
-        <OrderStatusHistorySearch />
-    }
-/>
-
-/* ===================================================
-   STATISTICS
-=================================================== */
-
-<Route
-    path="order-status-history/statistics"
-    element={
-        <OrderStatusHistoryStatistics />
-    }
-/>
-
-/* ===================================================
-   ALL
-=================================================== */
-
-<Route
-    path="order-status-history/all"
-    element={
-        <OrderStatusHistoryList />
-    }
-/>
-
-/* ===================================================
-   CARDS
-=================================================== */
-
-<Route
-    path="order-status-history/cards"
-    element={
-        <OrderStatusHistoryList />
-    }
-/>
-
-/* ===================================================
-   TABLE
-=================================================== */
-
-<Route
-    path="order-status-history/table"
-    element={
-        <OrderStatusHistoryList />
-    }
-/>
-
-/* ===================================================
-   PAGINATION
-=================================================== */
-
-<Route
-    path="order-status-history/pagination"
-    element={
-        <OrderStatusHistoryList />
-    }
-/>
-
-/* ===================================================
-   VIEW
-=================================================== */
-
-<Route
-    path="order-status-history/view/:id"
-    element={
-        <OrderStatusHistoryView />
-    }
-/>
-
-/* ===================================================
-   MODAL
-=================================================== */
-
-<Route
-    path="order-status-history/modal"
-    element={
-        <OrderStatusHistoryList />
-    }
-/>
-
-/* ===================================================
-   DELETE
-=================================================== */
-
-<Route
-    path="order-status-history/delete/:id"
-    element={
-        <OrderStatusHistoryList />
-    }
-/>
-
-/* ===================================================
-   DETAILS
-   Keep dynamic route LAST
-=================================================== */
-
-<Route
-    path="order-status-history/:id"
-    element={
-        <OrderStatusHistoryView />
-    }
-/>
-        
-
-
-        {/* ===================================================
-            PAYMENT SETTINGS
-        =================================================== */}
-
-        <Route path="payment-settings" element={<PaymentSettings />} />
-        <Route path="payment-settings/bank-details" element={<BankDetails />} />
-        <Route path="payment-settings/payment-gateway" element={<PaymentGateway />} />
-        <Route path="payment-settings/upi" element={<UpiSettings />} />
-
-
-   
-{/* =========================================================
-    PRODUCT ATTRIBUTES
-    ========================================================= */}
-
-<Route
-    path="product-attributes"
-    element={<ProductAttributeList />}
-/>
-
-<Route
-    path="product-attributes/create"
-    element={<ProductAttributeCreate />}
-/>
-
-<Route
-    path="product-attributes/details/:id"
-    element={<ProductAttributeDetails />}
-/>
-
-<Route
-    path="product-attributes/view/:id"
-    element={<ProductAttributeView />}
-/>
-
-<Route
-    path="product-attributes/edit/:id"
-    element={<ProductAttributeEdit />}
-/>
-
-<Route
-    path="product-attributes/search"
-    element={<ProductAttributeSearch />}
-/>
-
-<Route
-    path="product-attributes/statistics"
-    element={<ProductAttributeStatistics />}
-/>
-
-<Route
-    path="product-attributes/filters"
-    element={<ProductAttributeFilters />}
-/>
-
-<Route
-    path="product-attributes/table"
-    element={<ProductAttributeTable />}
-/>
-
-<Route
-    path="product-attributes/card"
-    element={<ProductAttributeCard />}
-/>
-
-<Route
-    path="product-attributes/form"
-    element={<ProductAttributeForm />}
-/>
-
-<Route
-    path="product-attributes/modal"
-    element={<ProductAttributeModal />}
-/>
-
-<Route
-    path="product-attributes/pagination"
-    element={<ProductAttributePagination />}
-/>
-
-<Route
-    path="product-attributes/toolbar"
-    element={<ProductAttributeToolbar />}
-/>
-
-
-
-
-        {/* ===================================================
-            PRODUCT IMAGES
-        =================================================== */}
-
-        <Route path="product-images" element={<ProductImageList />} />
-        <Route path="product-images/:id" element={<ProductImageView />} />
-        <Route path="product-images/search" element={<ProductImageSearch />} />
-        <Route path="product-images/statistics" element={<ProductImageStatistics />} />
-        <Route path="/" element={<MainLayout />}>
-
-    {/* Product Images */}
-    <Route
-        path="product-images"
-        element={<ProductImageList />}
-    />
-
-    <Route
-        path="product-images/create"
-        element={<ProductImageCreate />}
-    />
-
-    <Route
-        path="product-images/edit/:id"
-        element={<ProductImageEdit />}
-    />
-
-    <Route
-        path="product-images/details/:id"
-        element={<ProductImageDetails />}
-    />
-
-</Route>
-
-
-     
-{/* =====================================================
-PRODUCT INVENTORY
-===================================================== */}
-
-<Route
-path="product-inventory"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/create"
-element={<ProductInventoryCreate />}
-/>
-
-<Route
-path="product-inventory/details/:id"
-element={<ProductInventoryView />}
-/>
-
-<Route
-path="product-inventory/edit/:id"
-element={<ProductInventoryEdit />}
-/>
-
-<Route
-path="product-inventory/search"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/filters"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/statistics"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/table"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/card"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/form"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/modal"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/pagination"
-element={<ProductInventoryList />}
-/>
-
-<Route
-path="product-inventory/toolbar"
-element={<ProductInventoryList />}
-/>
-<Route
-    path="product-inventory/details/:id"
-    element={<ProductInventoryDetails />}
-/>
-<Route
-    path="product-inventory/view/:id"
-    element={<ProductInventoryView />}
-/>
-
-{/* =========================================================
-PRODUCT PRICE ROUTES
-========================================================= */}
-
-{/* Product Price List */}
-<Route
-path="product-prices"
-element={<ProductPriceList />}
-/>
-
-{/* Create Product Price */}
-<Route
-path="product-prices/create"
-element={<ProductPriceCreate />}
-/>
-
-{/* Product Price Details */}
-<Route
-path="product-prices/details/:id"
-element={<ProductPriceDetails />}
-/>
-
-
-{/* Product Price Edit */}
-<Route
-path="product-prices/edit/:id"
-element={<ProductPriceEdit />}
-/>
-
-{/* Product Price View */}
-<Route
-path="product-prices/view/:id"
-element={<ProductPriceView />}
-/>
-
-{/* Product Price Search */}
-<Route
-path="product-prices/search"
-element={<ProductPriceSearch />}
-/>
-
-{/* Product Price Filters */}
-<Route
-path="product-prices/filters"
-element={<ProductPriceFilters />}
-/>
-
-{/* Product Price Statistics */}
-<Route
-path="product-prices/statistics"
-element={<ProductPriceStatistics />}
-/>
-
-{/* Product Price Table */}
-<Route
-path="product-prices/table"
-element={<ProductPriceTable />}
-/>
-
-{/* Product Price Card */}
-<Route
-path="product-prices/card"
-element={<ProductPriceCard />}
-/>
-
-{/* Product Price Form */}
-<Route
-path="product-prices/form"
-element={<ProductPriceForm />}
-/>
-
-{/* Product Price Modal */}
-<Route
-path="product-prices/modal"
-element={<ProductPriceModal />}
-/>
-
-{/* Product Price Pagination */}
-<Route
-path="product-prices/pagination"
-element={<ProductPricePagination />}
-/>
-
-{/* Product Price Toolbar */}
-<Route
-path="product-prices/toolbar"
-element={<ProductPriceToolbar />}
-/>
-
-
-
-
-        {/* ===================================================
-            PRODUCTS
-        =================================================== */}
-
-
-<Route path="products" element={<Products />} />
-<Route path="products/list" element={<ProductList />} />
-<Route path="products/create" element={<ProductCreate />} />
-
-{/* Product details */}
-<Route path="products/:id" element={<ProductDetails />} />
-
-{/* Product edit - recommended */}
-<Route path="products/:id/edit" element={<ProductEdit />} />
-
-{/* Product edit - also support /products/edit/:id */}
-<Route path="products/edit/:id" element={<ProductEdit />} />
-
-{/* Product view */}
-<Route path="products/view/:id" element={<ProductView />} />
-
-{/* Product search */}
-<Route path="products/search" element={<ProductSearch />} />
-
-{/* Product filters */}
-<Route path="products/filters" element={<ProductFilters />} />
-
-{/* Product statistics */}
-<Route path="products/statistics" element={<ProductStatistics />} />
-
-
-      {/* ===================================================
-    PRODUCT TYPES
-=================================================== */}
-<Route
-    path="product-types"
-    element={<ProductTypeList />}
-/>
-
-<Route
-    path="product-types/create"
-    element={<ProductTypeCreate />}
-/>
-
-<Route
-    path="product-types/details/:id"
-    element={<ProductTypeDetails />}
-/>
-
-<Route
-    path="product-types/edit/:id"
-    element={<ProductTypeEdit />}
-/>
-
-<Route
-    path="product-types/view/:id"
-    element={<ProductTypeView />}
-/>
-
-<Route
-    path="product-types/search"
-    element={<ProductTypeSearch />}
-/>
-
-<Route
-    path="product-types/filters"
-    element={<ProductTypeFilters />}
-/>
-
-<Route
-    path="product-types/statistics"
-    element={<ProductTypeStatistics />}
-/>
-
-<Route
-    path="product-types/table"
-    element={<ProductTypeTable />}
-/>
-
-<Route
-    path="product-types/card"
-    element={<ProductTypeCard />}
-/>
-
-<Route
-    path="product-types/form"
-    element={<ProductTypeForm />}
-/>
-
-<Route
-    path="product-types/modal"
-    element={<ProductTypeModal />}
-/>
-
-<Route
-    path="product-types/pagination"
-    element={<ProductTypePagination />}
-/>
-
-<Route
-    path="product-types/toolbar"
-    element={<ProductTypeToolbar />}
-/>
-
-
-        {/* ===================================================
-            PURCHASE ORDER ITEMS
-        =================================================== */}
-
-        <Route path="purchase-order-items" element={<PurchaseOrderItemList />} />
-        <Route path="purchase-order-items/:id" element={<PurchaseOrderItemView />} />
-        <Route path="purchase-order-items/search" element={<PurchaseOrderItemSearch />} />
-        <Route path="purchase-order-items/statistics" element={<PurchaseOrderItemStatistics />} />
-
-        <Route
-path="/purchase-order-items"
-element={<PurchaseOrderItemList />}
-/>
-
-<Route
-path="/purchase-order-items/create"
-element={<PurchaseOrderItemCreate />}
-/>
-
-<Route
-path="/purchase-order-items/search"
-element={<PurchaseOrderItemSearch />}
-/>
-
-<Route
-path="/purchase-order-items/statistics"
-element={<PurchaseOrderItemStatistics />}
-/>
-
-<Route
-path="/purchase-order-items/details/"
-element={<PurchaseOrderItemDetails />}
-/>
-
-<Route
-path="/purchase-order-items/edit/"
-element={<PurchaseOrderItemEdit />}
-/>
-<Route
-path="/purchase-order-items/details/:id"
-element={<PurchaseOrderItemDetails />}
-/>
-
-<Route
-path="/purchase-order-items/edit/:id"
-element={<PurchaseOrderItemEdit />}
-/>
-
-{/* =========================================================
-        GOODS RECEIPT NOTE ITEMS
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items"
-        element={<GoodsReceiptNoteItemList />}
-    />
-
-    {/* =========================================================
-        CREATE
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/create"
-        element={<GoodsReceiptNoteItemCreate />}
-    />
-
-    {/* =========================================================
-        DETAILS
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/details/:id"
-        element={<GoodsReceiptNoteItemDetails />}
-    />
-
-    {/* =========================================================
-        EDIT
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/edit/:id"
-        element={<GoodsReceiptNoteItemEdit />}
-    />
-
-    {/* =========================================================
-        FILTERS
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/filters"
-        element={<GoodsReceiptNoteItemFilters />}
-    />
-
-    {/* =========================================================
-        SEARCH
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/search"
-        element={<GoodsReceiptNoteItemSearch />}
-    />
-
-    {/* =========================================================
-        STATISTICS
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/statistics"
-        element={<GoodsReceiptNoteItemStatistics />}
-    />
-
-    {/* =========================================================
-        TABLE
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/table"
-        element={<GoodsReceiptNoteItemTable />}
-    />
-
-    {/* =========================================================
-        CARD
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/card"
-        element={<GoodsReceiptNoteItemCard />}
-    />
-
-    {/* =========================================================
-        FORM
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/form"
-        element={<GoodsReceiptNoteItemForm />}
-    />
-
-    {/* =========================================================
-        MODAL
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/modal"
-        element={<GoodsReceiptNoteItemModal />}
-    />
-
-    {/* =========================================================
-        PAGINATION
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/pagination"
-        element={<GoodsReceiptNoteItemPagination />}
-    />
-
-    {/* =========================================================
-        TOOLBAR
-    ========================================================= */}
-
-    <Route
-        path="/goods-receipt-note-items/toolbar"
-        element={<GoodsReceiptNoteItemToolbar />}
-    />
-
-
-
-
-
-        {/* ===================================================
-            PURCHASE ORDERS
-        =================================================== */}
-
-        <Route path="purchase-orders" element={<PurchaseOrderList />} />
-        <Route path="purchase-orders/:id" element={<PurchaseOrderView />} />
-        <Route path="purchase-orders/search" element={<PurchaseOrderSearch />} />
-        <Route path="purchase-orders/statistics" element={<PurchaseOrderStatistics />} />
-        <Route
-    path="/purchase-orders"
-    element={<PurchaseOrderList />}
-/>
-
-<Route
-    path="/purchase-orders/create"
-    element={<PurchaseOrderCreate />}
-/>
-
-<Route
-    path="/purchase-orders/details/:id"
-    element={<PurchaseOrderDetails />}
-/>
-
-<Route
-    path="/purchase-orders/edit/:id"
-    element={<PurchaseOrderEdit />}
-/>
-
-
-        {/* ===================================================
-            PURCHASE RETURNS
-        =================================================== */}
-
-        <Route path="purchase-returns" element={<PurchaseReturnList />} />
-        <Route path="purchase-returns/:id" element={<PurchaseReturnView />} />
-        <Route path="purchase-returns/search" element={<PurchaseReturnSearch />} />
-        <Route path="purchase-returns/statistics" element={<PurchaseReturnStatistics />} />
-
-
-        {/* ===================================================
-            REVIEWS
-        =================================================== */}
-
-        <Route path="reviews" element={<ReviewList />} />
-        <Route path="reviews/:id" element={<ReviewView />} />
-        <Route path="reviews/search" element={<ReviewSearch />} />
-        <Route path="reviews/statistics" element={<ReviewStatistics />} />
-<Route
-    path="/reviews/create"
-    element={<ReviewCreate />}
-/>
-
-<Route
-    path="/reviews/details/:id"
-    element={<ReviewDetails />}
-/>
-
-<Route
-    path="/reviews/edit/:id"
-    element={<ReviewEdit />}
-/>
-<Route
-    path="/reviews/filters"
-    element={<ReviewFilters />}
-/>
-
-<Route
-    path="/reviews/statistics"
-    element={<ReviewStatistics />}
-/>
-
-<Route
-    path="/reviews/table"
-    element={<ReviewTable />}
-/>
-
-<Route
-    path="/reviews/card"
-    element={<ReviewCard />}
-/>
-
-<Route
-    path="/reviews/form"
-    element={<ReviewForm />}
-/>
-
-<Route
-    path="/reviews/modal"
-    element={<ReviewModal />}
-/>
-
-<Route
-    path="/reviews/pagination"
-    element={<ReviewPagination />}
-/>
-
-<Route
-    path="/reviews/toolbar"
-    element={<ReviewToolbar />}
-/>
-<Route
-    path="/reviews/table"
-    element={<ReviewTable />}
-/>
-
-
-        {/* ===================================================
-            SALES INVOICES
-        =================================================== */}
-
-        <Route path="sales-invoices" element={<SalesInvoiceList />} />
-        <Route path="sales-invoices/:id" element={<SalesInvoiceView />} />
-        <Route path="sales-invoices/search" element={<SalesInvoiceSearch />} />
-        <Route path="sales-invoices/statistics" element={<SalesInvoiceStatistics />} />
-
-        <Route
-    path="/sales-invoices/create"
-    element={<SalesInvoiceCreate />}
-/>
-
-<Route
-    path="/sales-invoices/details/:id"
-    element={<SalesInvoiceDetails />}
-/>
-
-<Route
-    path="/sales-invoices/edit/:id"
-    element={<SalesInvoiceEdit />}
-/>
-
-
-        {/* ===================================================
-            SALES ORDER ITEMS
-        =================================================== */}
-
-        <Route path="sales-order-items" element={<SalesOrderItemList />} />
-        <Route path="sales-order-items/:id" element={<SalesOrderItemView />} />
-        <Route path="sales-order-items/search" element={<SalesOrderItemSearch />} />
-        <Route path="sales-order-items/statistics" element={<SalesOrderItemStatistics />} />
-        <Route
-    path="/sales-order-items"
-    element={<SalesOrderItemList />}
-/>
-
-<Route
-    path="/sales-order-items/create"
-    element={<SalesOrderItemCreate />}
-/>
-
-<Route
-    path="/sales-order-items/details/:id"
-    element={<SalesOrderItemDetails />}
-/>
-
-<Route
-    path="/sales-order-items/edit/:id"
-    element={<SalesOrderItemEdit />}
-/>
-  
-{/* ===================================================
-    SALES ORDERS
-=================================================== */}
-
-{/* Sales Order List */}
-<Route
-    path="sales-orders"
-    element={<SalesOrderList />}
-/>
-{/* Create Sales Order */} 
-<Route path="sales-orders/create" element={<SalesOrderCreate />} />
-
-{/* Sales Order Details */}
-<Route
-    path="sales-orders/details/:id"
-    element={<SalesOrderDetails />}
-/>
-
-{/* Sales Order Search */}
-<Route
-    path="sales-orders/search"
-    element={<SalesOrderSearch />}
-/>
-
-{/* Sales Order Statistics */}
-<Route
-    path="sales-orders/statistics"
-    element={<SalesOrderStatistics />}
-/>
-<Route path="sales-orders/card" element={<SalesOrderCard />} />
-
-<Route path="sales-orders/edit/:id" element={<SalesOrderEdit />} />
-
-<Route path="sales-orders/toolbar" element={<SalesOrderToolbar />} />
-
-<Route path="sales-orders/pagination" element={<SalesOrderPagination />} />
-<Route path="sales-orders/modal" element={<SalesOrderModal />} />
-
-        {/* ===================================================
-    SELLER CUSTOMERS
-=================================================== */}
-
-<Route
-    path="/seller-customers"
-    element={<SellerCustomerList />}
-/>
-<Route path="sales-orders/table" element={<SalesOrderTable />} />
-<Route
-    path="/seller-customers/create"
-    element={<SellerCustomerCreate />}
-/>
-<Route path="/seller-customers/:customerId" element={<SellerCustomerView />} />
-<Route
-    path="/seller-customers/:id"
-    element={<SellerCustomerDetails />}
-/>
-
-<Route
-    path="/seller-customers/details/:sellerId/:customerId"
-    element={<SellerCustomerDetails />}
-/>
-
-<Route
-    path="/seller-customers/edit/:sellerId/:customerId"
-    element={<SellerCustomerEdit />}
-/>
-
-<Route
-    path="/seller-customers/edit/:id"
-    element={<SellerCustomerEdit />}
-/>
-
-<Route
-    path="/seller-customers/search"
-    element={<SellerCustomerSearch />}
-/>
-
-<Route
-    path="/seller-customers/statistics"
-    element={<SellerCustomerStatistics />}
-/>
-
-// Purchase Returns
-
-
-    
-    {/* Purchase Returns */}
-    <Route
-        path="/purchase-returns"
-        element={<PurchaseReturnList />}
-    />
-
-    <Route
-        path="/purchase-returns/create"
-        element={<PurchaseReturnCreate />}
-    />
-
-    <Route
-        path="/purchase-returns/edit/:id"
-        element={<PurchaseReturnEdit />}
-    />
-
-    <Route
-        path="/purchase-returns/details/:id"
-        element={<PurchaseReturnDetails />}
-    />
-
-
-
-        {/* ===================================================
-            SHIPMENTS
-        =================================================== */}
-
-        <Route path="shipments" element={<ShipmentList />} />
-        <Route path="shipments/:id" element={<ShipmentView />} />
-        <Route path="shipments/search" element={<ShipmentSearch />} />
-        <Route path="shipments/statistics" element={<ShipmentStatistics />} />
-
-
-        {/* ===================================================
-            WISHLISTS
-        =================================================== */}
-
-        <Route path="wishlists" element={<WishlistList />} />
-        <Route path="wishlists/:id" element={<WishlistView />} />
-        <Route path="wishlists/search" element={<WishlistSearch />} />
-        <Route path="wishlists/statistics" element={<WishlistStatistics />} />
-
-      </Route>
-
-
-      {/* =====================================================
-          GLOBAL 404
-      ===================================================== */}
-
-      <Route path="*" element={<NotFound />} />
-
-    </Routes>
-  );
+                />
+
+
+                {/* =================================================
+                    SUPPLIERS
+                ================================================= */}
+
+                <Route
+                    path="suppliers"
+                    element={<SupplierList />}
+                />
+
+                <Route
+                    path="suppliers/create"
+                    element={<SupplierCreate />}
+                />
+
+                <Route
+                    path="suppliers/details/:id"
+                    element={<SupplierDetails />}
+                />
+
+                <Route
+                    path="suppliers/edit/:id"
+                    element={<SupplierEdit />}
+                />
+
+                <Route
+                    path="suppliers/view/:id"
+                    element={<SupplierView />}
+                />
+
+                <Route
+                    path="suppliers/statistics"
+                    element={
+                        <SupplierStatistics
+                            suppliers={[]}
+                        />
+                    }
+                />
+
+                <Route
+                    path="suppliers/pagination"
+                    element={
+                        <SupplierPagination
+                            page={1}
+                            setPage={() => {}}
+                            rowsPerPage={10}
+                            setRowsPerPage={() => {}}
+                            totalPages={1}
+                            totalItems={0}
+                        />
+                    }
+                />
+
+                <Route
+                    path="suppliers/filters"
+                    element={
+                        <SupplierFilters
+                            sort=""
+                            setSort={() => {}}
+                        />
+                    }
+                />
+
+                <Route
+                    path="suppliers/search"
+                    element={
+                        <SupplierSearch
+                            searchText=""
+                            setSearchText={() => {}}
+                        />
+                    }
+                />
+
+                <Route
+                    path="suppliers/toolbar"
+                    element={
+                        <SupplierToolbar
+                            searchText=""
+                            setSearchText={() => {}}
+                            sort=""
+                            setSort={() => {}}
+                            onCreate={() => {}}
+                            onRefresh={() => {}}
+                        />
+                    }
+                />
+
+                <Route
+                    path="suppliers/table"
+                    element={
+                        <SupplierTable
+                            suppliers={[]}
+                            onView={() => {}}
+                            onEdit={() => {}}
+                            onDelete={() => {}}
+                        />
+                    }
+                />
+
+                <Route
+                    path="suppliers/card"
+                    element={
+                        <SupplierCard
+                            supplier={null}
+                        />
+                    }
+                />
+
+
+                {/* =================================================
+                    DELIVERY CHALLANS
+                ================================================= */}
+
+                <Route
+                    path="delivery-challans"
+                    element={<DeliveryChallanList />}
+                />
+
+                <Route
+                    path="delivery-challans/search"
+                    element={<DeliveryChallanSearch />}
+                />
+
+                <Route
+                    path="delivery-challans/statistics"
+                    element={<DeliveryChallanStatistics />}
+                />
+
+                <Route
+                    path="delivery-challans/:id"
+                    element={<DeliveryChallanView />}
+                />
+
+
+                {/* =================================================
+                    DELIVERY CHALLAN ITEMS
+                ================================================= */}
+
+                <Route
+                    path="delivery-challan-items"
+                    element={<DeliveryChallanItemList />}
+                />
+
+                <Route
+                    path="delivery-challan-items/search"
+                    element={<DeliveryChallanItemSearch />}
+                />
+
+                <Route
+                    path="delivery-challan-items/statistics"
+                    element={<DeliveryChallanItemStatistics />}
+                />
+
+                <Route
+                    path="delivery-challan-items/:id"
+                    element={<DeliveryChallanItemView />}
+                />
+
+
+                {/* =================================================
+                    MARKETPLACE ORDER ITEMS
+                ================================================= */}
+
+                <Route
+                    path="marketplace-order-items"
+                    element={<MarketplaceOrderItemList />}
+                />
+
+                <Route
+                    path="marketplace-order-items/search"
+                    element={<MarketplaceOrderItemSearch />}
+                />
+
+                <Route
+                    path="marketplace-order-items/statistics"
+                    element={<MarketplaceOrderItemStatistics />}
+                />
+
+                <Route
+                    path="marketplace-order-items/:id"
+                    element={<MarketplaceOrderItemView />}
+                />
+
+
+                {/* =================================================
+                    MARKETPLACE RETURNS
+                ================================================= */}
+
+                <Route
+                    path="marketplace-returns"
+                    element={<MarketplaceReturnList />}
+                />
+
+                <Route
+                    path="marketplace-returns/search"
+                    element={<MarketplaceReturnSearch />}
+                />
+
+                <Route
+                    path="marketplace-returns/statistics"
+                    element={<MarketplaceReturnStatistics />}
+                />
+
+                <Route
+                    path="marketplace-returns/:id"
+                    element={<MarketplaceReturnView />}
+                />
+
+
+                {/* =================================================
+                    NOTIFICATIONS
+                ================================================= */}
+
+                <Route
+                    path="notifications"
+                    element={<NotificationList />}
+                />
+
+                <Route
+                    path="notifications/settings"
+                    element={<NotificationSettings />}
+                />
+
+                <Route
+                    path="notifications/:id"
+                    element={<NotificationView />}
+                />
+
+
+                {/* =================================================
+                    ORDER ITEMS
+                ================================================= */}
+
+                <Route
+                    path="order-items"
+                    element={<OrderItemList />}
+                />
+
+                <Route
+                    path="order-items/search"
+                    element={<OrderItemSearch />}
+                />
+
+                <Route
+                    path="order-items/statistics"
+                    element={<OrderItemStatistics />}
+                />
+
+                <Route
+                    path="order-items/:id"
+                    element={<OrderItemView />}
+                />
+
+
+                {/* =================================================
+                    ORDER STATUS HISTORY
+                ================================================= */}
+
+                <Route
+                    path="order-status-history"
+                    element={<OrderStatusHistoryList />}
+                />
+
+                <Route
+                    path="order-status-history/search"
+                    element={<OrderStatusHistorySearch />}
+                />
+
+                <Route
+                    path="order-status-history/statistics"
+                    element={<OrderStatusHistoryStatistics />}
+                />
+
+                <Route
+                    path="order-status-history/all"
+                    element={<OrderStatusHistoryList />}
+                />
+
+                <Route
+                    path="order-status-history/cards"
+                    element={<OrderStatusHistoryList />}
+                />
+
+                <Route
+                    path="order-status-history/table"
+                    element={<OrderStatusHistoryList />}
+                />
+
+                <Route
+                    path="order-status-history/pagination"
+                    element={<OrderStatusHistoryList />}
+                />
+
+                <Route
+                    path="order-status-history/modal"
+                    element={<OrderStatusHistoryList />}
+                />
+
+                <Route
+                    path="order-status-history/delete/:id"
+                    element={<OrderStatusHistoryList />}
+                />
+
+                <Route
+                    path="order-status-history/view/:id"
+                    element={<OrderStatusHistoryView />}
+                />
+
+                <Route
+                    path="order-status-history/:id"
+                    element={<OrderStatusHistoryView />}
+                />
+
+
+                {/* =================================================
+                    PAYMENT SETTINGS
+                ================================================= */}
+
+                <Route
+                    path="payment-settings"
+                    element={<PaymentSettings />}
+                />
+
+                <Route
+                    path="payment-settings/bank-details"
+                    element={<BankDetails />}
+                />
+
+                <Route
+                    path="payment-settings/payment-gateway"
+                    element={<PaymentGateway />}
+                />
+
+                <Route
+                    path="payment-settings/upi"
+                    element={<UpiSettings />}
+                />
+
+
+                {/* =================================================
+                    PRODUCT ATTRIBUTES
+                ================================================= */}
+
+                <Route
+                    path="product-attributes"
+                    element={<ProductAttributeList />}
+                />
+
+                <Route
+                    path="product-attributes/create"
+                    element={<ProductAttributeCreate />}
+                />
+
+                <Route
+                    path="product-attributes/details/:id"
+                    element={<ProductAttributeDetails />}
+                />
+
+                <Route
+                    path="product-attributes/view/:id"
+                    element={<ProductAttributeView />}
+                />
+
+                <Route
+                    path="product-attributes/edit/:id"
+                    element={<ProductAttributeEdit />}
+                />
+
+                <Route
+                    path="product-attributes/search"
+                    element={<ProductAttributeSearch />}
+                />
+
+                <Route
+                    path="product-attributes/statistics"
+                    element={<ProductAttributeStatistics />}
+                />
+
+                <Route
+                    path="product-attributes/filters"
+                    element={<ProductAttributeFilters />}
+                />
+
+                <Route
+                    path="product-attributes/table"
+                    element={<ProductAttributeTable />}
+                />
+
+                <Route
+                    path="product-attributes/card"
+                    element={<ProductAttributeCard />}
+                />
+
+                <Route
+                    path="product-attributes/form"
+                    element={<ProductAttributeForm />}
+                />
+
+                <Route
+                    path="product-attributes/modal"
+                    element={<ProductAttributeModal />}
+                />
+
+                <Route
+                    path="product-attributes/pagination"
+                    element={<ProductAttributePagination />}
+                />
+
+                <Route
+                    path="product-attributes/toolbar"
+                    element={<ProductAttributeToolbar />}
+                />
+
+
+                {/* =================================================
+                    PRODUCT IMAGES
+                ================================================= */}
+
+                <Route
+                    path="product-images"
+                    element={<ProductImageList />}
+                />
+
+                <Route
+                    path="product-images/create"
+                    element={<ProductImageCreate />}
+                />
+
+                <Route
+                    path="product-images/search"
+                    element={<ProductImageSearch />}
+                />
+
+                <Route
+                    path="product-images/statistics"
+                    element={<ProductImageStatistics />}
+                />
+
+                <Route
+                    path="product-images/details/:id"
+                    element={<ProductImageDetails />}
+                />
+
+                <Route
+                    path="product-images/edit/:id"
+                    element={<ProductImageEdit />}
+                />
+
+                <Route
+                    path="product-images/:id"
+                    element={<ProductImageView />}
+                />
+
+
+                {/* =================================================
+                    PRODUCT INVENTORY
+                ================================================= */}
+
+                <Route
+                    path="product-inventory"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/create"
+                    element={<ProductInventoryCreate />}
+                />
+
+                <Route
+                    path="product-inventory/details/:id"
+                    element={<ProductInventoryDetails />}
+                />
+
+                <Route
+                    path="product-inventory/edit/:id"
+                    element={<ProductInventoryEdit />}
+                />
+
+                <Route
+                    path="product-inventory/search"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/filters"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/statistics"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/table"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/card"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/form"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/modal"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/pagination"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/toolbar"
+                    element={<ProductInventoryList />}
+                />
+
+                <Route
+                    path="product-inventory/view/:id"
+                    element={<ProductInventoryView />}
+                />
+
+
+                {/* =================================================
+                    PRODUCT PRICES
+                ================================================= */}
+
+                <Route
+                    path="product-prices"
+                    element={<ProductPriceList />}
+                />
+
+                <Route
+                    path="product-prices/create"
+                    element={<ProductPriceCreate />}
+                />
+
+                <Route
+                    path="product-prices/details/:id"
+                    element={<ProductPriceDetails />}
+                />
+
+                <Route
+                    path="product-prices/edit/:id"
+                    element={<ProductPriceEdit />}
+                />
+
+                <Route
+                    path="product-prices/view/:id"
+                    element={<ProductPriceView />}
+                />
+
+                <Route
+                    path="product-prices/search"
+                    element={<ProductPriceSearch />}
+                />
+
+                <Route
+                    path="product-prices/filters"
+                    element={<ProductPriceFilters />}
+                />
+
+                <Route
+                    path="product-prices/statistics"
+                    element={<ProductPriceStatistics />}
+                />
+
+                <Route
+                    path="product-prices/table"
+                    element={<ProductPriceTable />}
+                />
+
+                <Route
+                    path="product-prices/card"
+                    element={<ProductPriceCard />}
+                />
+
+                <Route
+                    path="product-prices/form"
+                    element={<ProductPriceForm />}
+                />
+
+                <Route
+                    path="product-prices/modal"
+                    element={<ProductPriceModal />}
+                />
+
+                <Route
+                    path="product-prices/pagination"
+                    element={<ProductPricePagination />}
+                />
+
+                <Route
+                    path="product-prices/toolbar"
+                    element={<ProductPriceToolbar />}
+                />
+
+
+                {/* =================================================
+                    PRODUCTS
+                ================================================= */}
+
+                <Route
+                    path="products"
+                    element={<Products />}
+                />
+
+                <Route
+                    path="products/list"
+                    element={<ProductList />}
+                />
+
+                <Route
+                    path="products/create"
+                    element={<ProductCreate />}
+                />
+
+                <Route
+                    path="products/search"
+                    element={<ProductSearch />}
+                />
+
+                <Route
+                    path="products/filters"
+                    element={<ProductFilters />}
+                />
+
+                <Route
+                    path="products/statistics"
+                    element={<ProductStatistics />}
+                />
+
+                <Route
+                    path="products/view/:id"
+                    element={<ProductView />}
+                />
+
+                <Route
+                    path="products/edit/:id"
+                    element={<ProductEdit />}
+                />
+
+                <Route
+                    path="products/:id/edit"
+                    element={<ProductEdit />}
+                />
+
+                <Route
+                    path="products/:id"
+                    element={<ProductDetails />}
+                />
+
+
+                {/* =================================================
+                    PRODUCT TYPES
+                ================================================= */}
+
+                <Route
+                    path="product-types"
+                    element={<ProductTypeList />}
+                />
+
+                <Route
+                    path="product-types/create"
+                    element={<ProductTypeCreate />}
+                />
+
+                <Route
+                    path="product-types/details/:id"
+                    element={<ProductTypeDetails />}
+                />
+
+                <Route
+                    path="product-types/edit/:id"
+                    element={<ProductTypeEdit />}
+                />
+
+                <Route
+                    path="product-types/view/:id"
+                    element={<ProductTypeView />}
+                />
+
+                <Route
+                    path="product-types/search"
+                    element={<ProductTypeSearch />}
+                />
+
+                <Route
+                    path="product-types/filters"
+                    element={<ProductTypeFilters />}
+                />
+
+                <Route
+                    path="product-types/statistics"
+                    element={<ProductTypeStatistics />}
+                />
+
+                <Route
+                    path="product-types/table"
+                    element={<ProductTypeTable />}
+                />
+
+                <Route
+                    path="product-types/card"
+                    element={<ProductTypeCard />}
+                />
+
+                <Route
+                    path="product-types/form"
+                    element={<ProductTypeForm />}
+                />
+
+                <Route
+                    path="product-types/modal"
+                    element={<ProductTypeModal />}
+                />
+
+                <Route
+                    path="product-types/pagination"
+                    element={<ProductTypePagination />}
+                />
+
+                <Route
+                    path="product-types/toolbar"
+                    element={<ProductTypeToolbar />}
+                />
+
+
+                {/* =================================================
+                    PURCHASE ORDER ITEMS
+                ================================================= */}
+
+                <Route
+                    path="purchase-order-items"
+                    element={<PurchaseOrderItemList />}
+                />
+
+                <Route
+                    path="purchase-order-items/create"
+                    element={<PurchaseOrderItemCreate />}
+                />
+
+                <Route
+                    path="purchase-order-items/search"
+                    element={<PurchaseOrderItemSearch />}
+                />
+
+                <Route
+                    path="purchase-order-items/statistics"
+                    element={<PurchaseOrderItemStatistics />}
+                />
+
+                <Route
+                    path="purchase-order-items/details/:id"
+                    element={<PurchaseOrderItemDetails />}
+                />
+
+                <Route
+                    path="purchase-order-items/edit/:id"
+                    element={<PurchaseOrderItemEdit />}
+                />
+
+                <Route
+                    path="purchase-order-items/:id"
+                    element={<PurchaseOrderItemView />}
+                />
+
+
+                {/* =================================================
+                    GOODS RECEIPT NOTE ITEMS
+                ================================================= */}
+
+                <Route
+                    path="goods-receipt-note-items"
+                    element={<GoodsReceiptNoteItemList />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/create"
+                    element={<GoodsReceiptNoteItemCreate />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/details/:id"
+                    element={<GoodsReceiptNoteItemDetails />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/edit/:id"
+                    element={<GoodsReceiptNoteItemEdit />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/filters"
+                    element={<GoodsReceiptNoteItemFilters />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/search"
+                    element={<GoodsReceiptNoteItemSearch />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/statistics"
+                    element={<GoodsReceiptNoteItemStatistics />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/table"
+                    element={<GoodsReceiptNoteItemTable />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/card"
+                    element={<GoodsReceiptNoteItemCard />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/form"
+                    element={<GoodsReceiptNoteItemForm />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/modal"
+                    element={<GoodsReceiptNoteItemModal />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/pagination"
+                    element={<GoodsReceiptNoteItemPagination />}
+                />
+
+                <Route
+                    path="goods-receipt-note-items/toolbar"
+                    element={<GoodsReceiptNoteItemToolbar />}
+                />
+
+
+                {/* =================================================
+                    PURCHASE ORDERS
+                ================================================= */}
+
+                <Route
+                    path="purchase-orders"
+                    element={<PurchaseOrderList />}
+                />
+
+                <Route
+                    path="purchase-orders/create"
+                    element={<PurchaseOrderCreate />}
+                />
+
+                <Route
+                    path="purchase-orders/details/:id"
+                    element={<PurchaseOrderDetails />}
+                />
+
+                <Route
+                    path="purchase-orders/edit/:id"
+                    element={<PurchaseOrderEdit />}
+                />
+
+                <Route
+                    path="purchase-orders/search"
+                    element={<PurchaseOrderSearch />}
+                />
+
+                <Route
+                    path="purchase-orders/statistics"
+                    element={<PurchaseOrderStatistics />}
+                />
+
+                <Route
+                    path="purchase-orders/:id"
+                    element={<PurchaseOrderView />}
+                />
+
+
+                {/* =================================================
+                    PURCHASE RETURNS
+                ================================================= */}
+
+                <Route
+                    path="purchase-returns"
+                    element={<PurchaseReturnList />}
+                />
+
+                <Route
+                    path="purchase-returns/create"
+                    element={<PurchaseReturnCreate />}
+                />
+
+                <Route
+                    path="purchase-returns/edit/:id"
+                    element={<PurchaseReturnEdit />}
+                />
+
+                <Route
+                    path="purchase-returns/details/:id"
+                    element={<PurchaseReturnDetails />}
+                />
+
+                <Route
+                    path="purchase-returns/search"
+                    element={<PurchaseReturnSearch />}
+                />
+
+                <Route
+                    path="purchase-returns/statistics"
+                    element={<PurchaseReturnStatistics />}
+                />
+
+                <Route
+                    path="purchase-returns/:id"
+                    element={<PurchaseReturnView />}
+                />
+
+
+                {/* =================================================
+                    REVIEWS
+                ================================================= */}
+
+                <Route
+                    path="reviews"
+                    element={<ReviewList />}
+                />
+
+                <Route
+                    path="reviews/create"
+                    element={<ReviewCreate />}
+                />
+
+                <Route
+                    path="reviews/details/:id"
+                    element={<ReviewDetails />}
+                />
+
+                <Route
+                    path="reviews/edit/:id"
+                    element={<ReviewEdit />}
+                />
+
+                <Route
+                    path="reviews/search"
+                    element={<ReviewSearch />}
+                />
+
+                <Route
+                    path="reviews/filters"
+                    element={<ReviewFilters />}
+                />
+
+                <Route
+                    path="reviews/statistics"
+                    element={<ReviewStatistics />}
+                />
+
+                <Route
+                    path="reviews/table"
+                    element={<ReviewTable />}
+                />
+
+                <Route
+                    path="reviews/card"
+                    element={<ReviewCard />}
+                />
+
+                <Route
+                    path="reviews/form"
+                    element={<ReviewForm />}
+                />
+
+                <Route
+                    path="reviews/modal"
+                    element={<ReviewModal />}
+                />
+
+                <Route
+                    path="reviews/pagination"
+                    element={<ReviewPagination />}
+                />
+
+                <Route
+                    path="reviews/toolbar"
+                    element={<ReviewToolbar />}
+                />
+
+                <Route
+                    path="reviews/:id"
+                    element={<ReviewView />}
+                />
+
+
+                {/* =================================================
+                    SALES INVOICES
+                ================================================= */}
+
+                <Route
+                    path="sales-invoices"
+                    element={<SalesInvoiceList />}
+                />
+
+                <Route
+                    path="sales-invoices/create"
+                    element={<SalesInvoiceCreate />}
+                />
+
+                <Route
+                    path="sales-invoices/details/:id"
+                    element={<SalesInvoiceDetails />}
+                />
+
+                <Route
+                    path="sales-invoices/edit/:id"
+                    element={<SalesInvoiceEdit />}
+                />
+
+                <Route
+                    path="sales-invoices/search"
+                    element={<SalesInvoiceSearch />}
+                />
+
+                <Route
+                    path="sales-invoices/statistics"
+                    element={<SalesInvoiceStatistics />}
+                />
+
+                <Route
+                    path="sales-invoices/:id"
+                    element={<SalesInvoiceView />}
+                />
+
+
+                {/* =================================================
+                    SALES ORDER ITEMS
+                ================================================= */}
+
+                <Route
+                    path="sales-order-items"
+                    element={<SalesOrderItemList />}
+                />
+
+                <Route
+                    path="sales-order-items/create"
+                    element={<SalesOrderItemCreate />}
+                />
+
+                <Route
+                    path="sales-order-items/details/:id"
+                    element={<SalesOrderItemDetails />}
+                />
+
+                <Route
+                    path="sales-order-items/edit/:id"
+                    element={<SalesOrderItemEdit />}
+                />
+
+                <Route
+                    path="sales-order-items/search"
+                    element={<SalesOrderItemSearch />}
+                />
+
+                <Route
+                    path="sales-order-items/statistics"
+                    element={<SalesOrderItemStatistics />}
+                />
+
+                <Route
+                    path="sales-order-items/:id"
+                    element={<SalesOrderItemView />}
+                />
+
+
+                {/* =================================================
+                    SALES ORDERS
+                ================================================= */}
+
+                <Route
+                    path="sales-orders"
+                    element={<SalesOrderList />}
+                />
+
+                <Route
+                    path="sales-orders/create"
+                    element={<SalesOrderCreate />}
+                />
+
+                <Route
+                    path="sales-orders/details/:id"
+                    element={<SalesOrderDetails />}
+                />
+
+                <Route
+                    path="sales-orders/edit/:id"
+                    element={<SalesOrderEdit />}
+                />
+
+                <Route
+                    path="sales-orders/search"
+                    element={<SalesOrderSearch />}
+                />
+
+                <Route
+                    path="sales-orders/statistics"
+                    element={<SalesOrderStatistics />}
+                />
+
+                <Route
+                    path="sales-orders/card"
+                    element={<SalesOrderCard />}
+                />
+
+                <Route
+                    path="sales-orders/table"
+                    element={<SalesOrderTable />}
+                />
+
+                <Route
+                    path="sales-orders/toolbar"
+                    element={<SalesOrderToolbar />}
+                />
+
+                <Route
+                    path="sales-orders/pagination"
+                    element={<SalesOrderPagination />}
+                />
+
+                <Route
+                    path="sales-orders/modal"
+                    element={<SalesOrderModal />}
+                />
+
+
+                {/* =================================================
+                    SELLER CUSTOMERS
+                ================================================= */}
+
+                <Route
+                    path="seller-customers"
+                    element={<SellerCustomerList />}
+                />
+
+                <Route
+                    path="seller-customers/create"
+                    element={<SellerCustomerCreate />}
+                />
+
+                <Route
+                    path="seller-customers/search"
+                    element={<SellerCustomerSearch />}
+                />
+
+                <Route
+                    path="seller-customers/statistics"
+                    element={<SellerCustomerStatistics />}
+                />
+
+                <Route
+                    path="seller-customers/details/:sellerId/:customerId"
+                    element={<SellerCustomerDetails />}
+                />
+
+                <Route
+                    path="seller-customers/edit/:sellerId/:customerId"
+                    element={<SellerCustomerEdit />}
+                />
+
+                <Route
+                    path="seller-customers/edit/:id"
+                    element={<SellerCustomerEdit />}
+                />
+
+                <Route
+                    path="seller-customers/:id"
+                    element={<SellerCustomerDetails />}
+                />
+
+                <Route
+                    path="seller-customers/:customerId"
+                    element={<SellerCustomerView />}
+                />
+
+
+                {/* =================================================
+                    SHIPMENTS
+                ================================================= */}
+
+                <Route
+                    path="shipments"
+                    element={<ShipmentList />}
+                />
+
+                <Route
+                    path="shipments/search"
+                    element={<ShipmentSearch />}
+                />
+
+                <Route
+                    path="shipments/statistics"
+                    element={<ShipmentStatistics />}
+                />
+
+                <Route
+                    path="shipments/:id"
+                    element={<ShipmentView />}
+                />
+
+
+                {/* =================================================
+                    WISHLISTS
+                ================================================= */}
+
+                <Route
+                    path="wishlists"
+                    element={<WishlistList />}
+                />
+
+                <Route
+                    path="wishlists/create"
+                    element={<WishlistCreate />}
+                />
+
+                <Route
+                    path="wishlists/search"
+                    element={<WishlistSearch />}
+                />
+
+                <Route
+                    path="wishlists/statistics"
+                    element={<WishlistStatistics />}
+                />
+
+                <Route
+                    path="wishlists/details/:id"
+                    element={<WishlistDetails />}
+                />
+
+                <Route
+                    path="wishlists/edit/:id"
+                    element={<WishlistEdit />}
+                />
+
+                <Route
+                    path="wishlists/:id"
+                    element={<WishlistView />}
+                />
+
+
+                {/* =================================================
+                    WISHLIST ITEMS
+                ================================================= */}
+
+                <Route
+                    path="wishlist-items"
+                    element={<WishlistItemList />}
+                />
+
+                <Route
+                    path="wishlist-items/create"
+                    element={<WishlistItemsCreate />}
+                />
+
+                <Route
+                    path="wishlist-items/details/:id"
+                    element={<WishlistItemsDetails />}
+                />
+
+                <Route
+                    path="wishlist-items/edit/:id"
+                    element={<WishlistItemsEdit />}
+                />
+
+                <Route
+                    path="wishlist-items/:id"
+                    element={<WishlistItemView />}
+                />
+
+
+                {/* =================================================
+                    GLOBAL 404
+                ================================================= */}
+
+                <Route
+                    path="*"
+                    element={<NotFound />}
+                />
+
+            </Route>
+
+        </Routes>
+    );
 }
 
 export default App;
