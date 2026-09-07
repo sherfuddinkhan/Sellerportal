@@ -685,7 +685,9 @@ import WishlistItemsCreate from "./pages/WishlistItems/WishlistItemsCreate";
 import WishlistItemsEdit from "./pages/WishlistItems/WishlistItemsEdit";
 import WishlistCreate from "./pages/Wishlists/WishlistCreate";
 import WishlistDetails from "./pages/Wishlists/WishlistDetails";
-
+import WishlistEdit from "./pages/Wishlists/WishlistEdit";
+import WishlistItemList from "./pages/WishlistItems/WishlistItemList";
+import WishlistItemView from "./pages/WishlistItems/WishlistItemView";
 
 
 // =========================================================

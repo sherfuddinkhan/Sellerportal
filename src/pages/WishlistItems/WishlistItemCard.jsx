@@ -16,7 +16,7 @@ import {
 import {
     Visibility,
     Edit,
-    DeleteOutline,
+    Delete,
     Favorite,
     Inventory2
 } from "@mui/icons-material";
@@ -561,7 +561,7 @@ const WishlistItemCard = ({
                                 onClick={handleDelete}
                                 size="small"
                             >
-                                <DeleteOutline />
+                                <Delete/>
                             </IconButton>
 
                         </Tooltip>

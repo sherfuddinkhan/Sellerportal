@@ -17,7 +17,7 @@ import {
 import {
     Close,
     Edit,
-    DeleteOutline,
+    Delete,
     Favorite
 } from "@mui/icons-material";
 
@@ -344,7 +344,7 @@ const WishlistItemView = ({
                 <Button
                     variant="outlined"
                     color="error"
-                    startIcon={<DeleteOutline />}
+                    startIcon={<Delete/>}
                     onClick={handleDelete}
                 >
                     Delete
