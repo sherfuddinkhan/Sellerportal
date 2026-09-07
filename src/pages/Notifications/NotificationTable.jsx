@@ -1,8 +1,3 @@
-
-// =========================================================
-// NotificationTable.jsx
-// =========================================================
-
 import React from "react";
 
 import {
@@ -29,74 +24,164 @@ import {
     Visibility,
 } from "@mui/icons-material";
 
+
 // =========================================================
 // HELPERS
 // =========================================================
 
-const getNotificationId = (notification) =>
-    notification?.notificationId ??
-    notification?.NotificationId ??
-    notification?.id ??
-    notification?.Id;
+// =========================================================
+// NOTIFICATION ID
+// =========================================================
 
-const getIsRead = (notification) =>
-    notification?.isRead ??
-    notification?.IsRead ??
-    false;
+const getNotificationId = (
+    notification
+) => {
 
-const getTitle = (notification) =>
-    notification?.title ??
-    notification?.Title ??
-    notification?.notificationTitle ??
-    notification?.NotificationTitle ??
-    "Notification";
+    return (
+        notification?.notificationId ??
+        notification?.NotificationId ??
+        notification?.id ??
+        notification?.Id
+    );
+};
 
-const getMessage = (notification) =>
-    notification?.message ??
-    notification?.Message ??
-    notification?.notificationMessage ??
-    notification?.NotificationMessage ??
-    "";
 
-const getType = (notification) =>
-    notification?.type ??
-    notification?.Type ??
-    notification?.notificationType ??
-    notification?.NotificationType ??
-    "General";
+// =========================================================
+// CUSTOMER ID
+// =========================================================
 
-const getCreatedDate = (notification) =>
-    notification?.createdDate ??
-    notification?.CreatedDate ??
-    notification?.createdAt ??
-    notification?.CreatedAt ??
-    notification?.notificationDate ??
-    notification?.NotificationDate;
+const getCustomerId = (
+    notification
+) => {
+
+    return (
+        notification?.customerId ??
+        notification?.CustomerId ??
+        "-"
+    );
+};
+
+
+// =========================================================
+// SELLER ID
+// =========================================================
+
+const getSellerId = (
+    notification
+) => {
+
+    return (
+        notification?.sellerId ??
+        notification?.SellerId ??
+        "-"
+    );
+};
+
+
+// =========================================================
+// READ STATUS
+// =========================================================
+
+const getIsRead = (
+    notification
+) => {
+
+    return (
+        notification?.isRead ??
+        notification?.IsRead ??
+        false
+    );
+};
+
+
+// =========================================================
+// TITLE
+// =========================================================
+
+const getTitle = (
+    notification
+) => {
+
+    return (
+        notification?.title ??
+        notification?.Title ??
+        "Notification"
+    );
+};
+
+
+// =========================================================
+// MESSAGE
+// =========================================================
+
+const getMessage = (
+    notification
+) => {
+
+    return (
+        notification?.message ??
+        notification?.Message ??
+        ""
+    );
+};
+
+
+// =========================================================
+// CREATED DATE
+// =========================================================
+
+const getCreatedDate = (
+    notification
+) => {
+
+    return (
+        notification?.createdDate ??
+        notification?.CreatedDate ??
+        null
+    );
+};
+
 
 // =========================================================
 // DATE FORMAT
 // =========================================================
 
-const formatDate = (value) => {
+const formatDate = (
+    value
+) => {
 
     if (!value) {
+
         return "-";
     }
 
-    const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
         return value;
     }
 
-    return date.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }
+    );
 };
+
 
 // =========================================================
 // COMPONENT
@@ -116,40 +201,57 @@ const NotificationTable = ({
     // =========================================================
 
     const notificationItems =
-        Array.isArray(notifications)
+        Array.isArray(
+            notifications
+        )
             ? notifications
-            : Array.isArray(notifications?.data)
+            : Array.isArray(
+                notifications?.data
+            )
                 ? notifications.data
-                : Array.isArray(notifications?.items)
+                : Array.isArray(
+                    notifications?.items
+                )
                     ? notifications.items
                     : [];
+
 
     // =========================================================
     // LOADING
     // =========================================================
 
     if (loading) {
+
         return (
+
             <Paper
                 elevation={0}
                 sx={{
                     width: "100%",
+
                     border: "1px solid",
                     borderColor: "divider",
+
                     borderRadius: 2,
                 }}
             >
+
                 <Box
                     sx={{
                         minHeight: 300,
+
                         display: "flex",
                         flexDirection: "column",
+
                         alignItems: "center",
                         justifyContent: "center",
+
                         gap: 2,
                     }}
                 >
+
                     <CircularProgress />
+
 
                     <Typography
                         variant="body2"
@@ -157,17 +259,22 @@ const NotificationTable = ({
                     >
                         Loading notifications...
                     </Typography>
+
                 </Box>
+
             </Paper>
         );
     }
+
 
     // =========================================================
     // ERROR
     // =========================================================
 
     if (error) {
+
         return (
+
             <Alert
                 severity="error"
                 sx={{
@@ -179,35 +286,49 @@ const NotificationTable = ({
         );
     }
 
+
     // =========================================================
     // EMPTY
     // =========================================================
 
-    if (notificationItems.length === 0) {
+    if (
+        notificationItems.length === 0
+    ) {
+
         return (
+
             <Paper
                 elevation={0}
                 sx={{
                     width: "100%",
+
                     border: "1px solid",
                     borderColor: "divider",
+
                     borderRadius: 2,
                 }}
             >
+
                 <Box
                     sx={{
                         py: 8,
                         px: 3,
+
                         textAlign: "center",
                     }}
                 >
+
                     <NotificationsNone
                         sx={{
                             fontSize: 56,
-                            color: "text.disabled",
+
+                            color:
+                                "text.disabled",
+
                             mb: 1,
                         }}
                     />
+
 
                     <Typography
                         variant="h6"
@@ -216,38 +337,49 @@ const NotificationTable = ({
                         No Notifications
                     </Typography>
 
+
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ mt: 0.5 }}
+                        sx={{
+                            mt: 0.5,
+                        }}
                     >
-                        You don't have any notifications
-                        at the moment.
+                        You don't have any
+                        notifications at the moment.
                     </Typography>
+
                 </Box>
+
             </Paper>
         );
     }
 
+
     // =========================================================
-    // RENDER
+    // TABLE
     // =========================================================
 
     return (
+
         <TableContainer
             component={Paper}
             elevation={0}
             sx={{
                 width: "100%",
+
                 border: "1px solid",
                 borderColor: "divider",
+
                 borderRadius: 2,
+
                 overflowX: "auto",
             }}
         >
+
             <Table
                 sx={{
-                    minWidth: 900,
+                    minWidth: 1100,
                 }}
             >
 
@@ -256,7 +388,10 @@ const NotificationTable = ({
                    ================================================= */}
 
                 <TableHead>
+
                     <TableRow>
+
+                        {/* ID */}
 
                         <TableCell
                             sx={{
@@ -267,6 +402,33 @@ const NotificationTable = ({
                             ID
                         </TableCell>
 
+
+                        {/* CUSTOMER */}
+
+                        <TableCell
+                            sx={{
+                                fontWeight: 700,
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            Customer ID
+                        </TableCell>
+
+
+                        {/* SELLER */}
+
+                        <TableCell
+                            sx={{
+                                fontWeight: 700,
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            Seller ID
+                        </TableCell>
+
+
+                        {/* TITLE */}
+
                         <TableCell
                             sx={{
                                 fontWeight: 700,
@@ -276,23 +438,20 @@ const NotificationTable = ({
                             Title
                         </TableCell>
 
+
+                        {/* MESSAGE */}
+
                         <TableCell
                             sx={{
                                 fontWeight: 700,
-                                minWidth: 300,
+                                minWidth: 350,
                             }}
                         >
                             Message
                         </TableCell>
 
-                        <TableCell
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap",
-                            }}
-                        >
-                            Type
-                        </TableCell>
+
+                        {/* STATUS */}
 
                         <TableCell
                             sx={{
@@ -303,6 +462,9 @@ const NotificationTable = ({
                             Status
                         </TableCell>
 
+
+                        {/* CREATED */}
+
                         <TableCell
                             sx={{
                                 fontWeight: 700,
@@ -311,6 +473,9 @@ const NotificationTable = ({
                         >
                             Created
                         </TableCell>
+
+
+                        {/* ACTIONS */}
 
                         <TableCell
                             align="center"
@@ -323,7 +488,9 @@ const NotificationTable = ({
                         </TableCell>
 
                     </TableRow>
+
                 </TableHead>
+
 
                 {/* =================================================
                     TABLE BODY
@@ -332,42 +499,60 @@ const NotificationTable = ({
                 <TableBody>
 
                     {notificationItems.map(
-                        (notification, index) => {
+                        (
+                            notification,
+                            index
+                        ) => {
 
                             const id =
                                 getNotificationId(
                                     notification
-                                ) ?? index;
+                                ) ??
+                                index;
 
-                            const isRead =
-                                getIsRead(
+
+                            const customerId =
+                                getCustomerId(
                                     notification
                                 );
+
+
+                            const sellerId =
+                                getSellerId(
+                                    notification
+                                );
+
 
                             const title =
                                 getTitle(
                                     notification
                                 );
 
+
                             const message =
                                 getMessage(
                                     notification
                                 );
 
-                            const type =
-                                getType(
+
+                            const isRead =
+                                getIsRead(
                                     notification
                                 );
+
 
                             const createdDate =
                                 getCreatedDate(
                                     notification
                                 );
 
+
                             return (
+
                                 <TableRow
                                     key={id}
                                     hover
+
                                     sx={{
                                         cursor:
                                             onNotificationClick
@@ -384,6 +569,7 @@ const NotificationTable = ({
                                                 border: 0,
                                             },
                                     }}
+
                                     onClick={() =>
                                         onNotificationClick?.(
                                             notification
@@ -391,20 +577,58 @@ const NotificationTable = ({
                                     }
                                 >
 
-                                    {/* ID */}
+                                    {/* =================================================
+                                        ID
+                                       ================================================= */}
 
                                     <TableCell>
+
                                         <Typography
                                             variant="body2"
                                             fontWeight={600}
                                         >
                                             #{id}
                                         </Typography>
+
                                     </TableCell>
 
-                                    {/* TITLE */}
+
+                                    {/* =================================================
+                                        CUSTOMER ID
+                                       ================================================= */}
 
                                     <TableCell>
+
+                                        <Typography
+                                            variant="body2"
+                                        >
+                                            {customerId}
+                                        </Typography>
+
+                                    </TableCell>
+
+
+                                    {/* =================================================
+                                        SELLER ID
+                                       ================================================= */}
+
+                                    <TableCell>
+
+                                        <Typography
+                                            variant="body2"
+                                        >
+                                            {sellerId}
+                                        </Typography>
+
+                                    </TableCell>
+
+
+                                    {/* =================================================
+                                        TITLE
+                                       ================================================= */}
+
+                                    <TableCell>
+
                                         <Typography
                                             variant="body2"
                                             fontWeight={
@@ -415,42 +639,47 @@ const NotificationTable = ({
                                         >
                                             {title}
                                         </Typography>
+
                                     </TableCell>
 
-                                    {/* MESSAGE */}
+
+                                    {/* =================================================
+                                        MESSAGE
+                                       ================================================= */}
 
                                     <TableCell>
+
                                         <Typography
                                             variant="body2"
                                             color="text.secondary"
+
                                             sx={{
-                                                maxWidth: 400,
+                                                maxWidth: 450,
+
                                                 overflow:
                                                     "hidden",
+
                                                 textOverflow:
                                                     "ellipsis",
+
                                                 whiteSpace:
                                                     "nowrap",
                                             }}
                                         >
                                             {message || "-"}
                                         </Typography>
+
                                     </TableCell>
 
-                                    {/* TYPE */}
+
+                                    {/* =================================================
+                                        STATUS
+                                       ================================================= */}
 
                                     <TableCell>
-                                        <Chip
-                                            label={type}
-                                            size="small"
-                                            variant="outlined"
-                                        />
-                                    </TableCell>
 
-                                    {/* STATUS */}
-
-                                    <TableCell>
                                         {isRead ? (
+
                                             <Chip
                                                 label="Read"
                                                 size="small"
@@ -458,21 +687,30 @@ const NotificationTable = ({
                                                     <Done />
                                                 }
                                             />
+
                                         ) : (
+
                                             <Chip
                                                 label="Unread"
                                                 size="small"
                                                 color="primary"
                                             />
+
                                         )}
+
                                     </TableCell>
 
-                                    {/* CREATED */}
+
+                                    {/* =================================================
+                                        CREATED
+                                       ================================================= */}
 
                                     <TableCell>
+
                                         <Typography
                                             variant="body2"
                                             color="text.secondary"
+
                                             sx={{
                                                 whiteSpace:
                                                     "nowrap",
@@ -482,83 +720,123 @@ const NotificationTable = ({
                                                 createdDate
                                             )}
                                         </Typography>
+
                                     </TableCell>
 
-                                    {/* ACTIONS */}
+
+                                    {/* =================================================
+                                        ACTIONS
+                                       ================================================= */}
 
                                     <TableCell
                                         align="center"
-                                        onClick={(event) =>
+
+                                        onClick={(
+                                            event
+                                        ) =>
                                             event.stopPropagation()
                                         }
                                     >
+
                                         <Box
                                             sx={{
                                                 display:
                                                     "flex",
+
                                                 justifyContent:
                                                     "center",
+
                                                 gap: 0.5,
                                             }}
                                         >
 
-                                            {/* VIEW */}
+                                            {/* =================================================
+                                                VIEW
+                                               ================================================= */}
 
-                                            <Tooltip title="View">
+                                            <Tooltip
+                                                title="View"
+                                            >
+
                                                 <IconButton
                                                     size="small"
+
                                                     onClick={() =>
                                                         onNotificationClick?.(
                                                             notification
                                                         )
                                                     }
                                                 >
+
                                                     <Visibility
                                                         fontSize="small"
                                                     />
+
                                                 </IconButton>
+
                                             </Tooltip>
 
-                                            {/* MARK READ */}
+
+                                            {/* =================================================
+                                                MARK AS READ
+                                               ================================================= */}
 
                                             {!isRead && (
+
                                                 <Tooltip
                                                     title="Mark as read"
                                                 >
+
                                                     <IconButton
                                                         size="small"
+
                                                         onClick={() =>
                                                             onMarkRead?.(
                                                                 notification
                                                             )
                                                         }
                                                     >
+
                                                         <Done
                                                             fontSize="small"
                                                         />
+
                                                     </IconButton>
+
                                                 </Tooltip>
+
                                             )}
 
-                                            {/* DELETE */}
 
-                                            <Tooltip title="Delete">
+                                            {/* =================================================
+                                                DELETE
+                                               ================================================= */}
+
+                                            <Tooltip
+                                                title="Delete"
+                                            >
+
                                                 <IconButton
                                                     size="small"
                                                     color="error"
+
                                                     onClick={() =>
                                                         onDelete?.(
                                                             notification
                                                         )
                                                     }
                                                 >
+
                                                     <DeleteOutline
                                                         fontSize="small"
                                                     />
+
                                                 </IconButton>
+
                                             </Tooltip>
 
                                         </Box>
+
                                     </TableCell>
 
                                 </TableRow>
@@ -569,8 +847,15 @@ const NotificationTable = ({
                 </TableBody>
 
             </Table>
+
         </TableContainer>
     );
 };
 
+
+// =========================================================
+// EXPORT
+// =========================================================
+
 export default NotificationTable;
+

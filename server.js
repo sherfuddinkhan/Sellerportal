@@ -22120,9 +22120,7 @@ app.delete(
 
 // GET ALL NOTIFICATIONS
 app.get("/api/Notification", async (req, res) => {
-
     try {
-
         const response = await axios.get(
             `${DOTNET_API}/Notification`,
             {
@@ -22130,30 +22128,29 @@ app.get("/api/Notification", async (req, res) => {
                 headers: {
                     Authorization:
                         req.headers.authorization || "",
+                    Accept: "application/json",
                 },
             }
         );
 
-        res.status(response.status).json(
-            response.data
-        );
+        return res
+            .status(response.status)
+            .json(response.data);
 
     } catch (error) {
 
         console.error(
             "GET NOTIFICATIONS ERROR:",
-            error.response?.data ||
-            error.message
+            error.response?.data || error.message
         );
 
-        res.status(
-            error.response?.status || 500
-        ).json(
-            error.response?.data || {
-                message:
-                    "Unable to load notifications.",
-            }
-        );
+        return res
+            .status(error.response?.status || 500)
+            .json(
+                error.response?.data || {
+                    message: "Unable to load notifications.",
+                }
+            );
     }
 });
 
