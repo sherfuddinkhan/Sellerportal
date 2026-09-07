@@ -1,369 +1,418 @@
-// =========================================================
-// WishlistList.jsx
-// =========================================================
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import {
     Box,
-    Paper,
     Typography,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
-    Avatar,
-    IconButton,
-    Tooltip,
-    Chip,
-    Divider,
+    Alert,
+    Button,
+    CircularProgress
 } from "@mui/material";
 
 import {
-    Favorite,
-    Visibility,
-    Delete,
-    ShoppingCart,
-    Inventory2,
+    Refresh
 } from "@mui/icons-material";
 
-// =========================================================
-// COMPONENT
-// =========================================================
+import axios from "axios";
 
-const WishlistList = ({
-    wishlists = [],
-    onView,
-    onDelete,
-    loading = false,
-}) => {
-    // =========================================================
-    // EMPTY STATE
-    // =========================================================
+import WishlistItemTable from "./WishlistTable";
 
-    if (!loading && wishlists.length === 0) {
-        return (
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 6,
-                    textAlign: "center",
-                    borderRadius: 2,
-                }}
-            >
-                <Favorite
-                    sx={{
-                        fontSize: 70,
-                        color: "text.secondary",
-                        mb: 2,
-                    }}
-                />
 
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                >
-                    No Wishlist Items
-                </Typography>
+/* =========================================================
+   SERVER URL
+========================================================= */
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                >
-                    There are currently no products in the wishlist.
-                </Typography>
-            </Paper>
+const SERVER_URL = "http://localhost:5000";
+
+
+/* =========================================================
+   WISHLIST ITEM LIST
+========================================================= */
+
+const WishlistList = () => {
+
+    /* =====================================================
+       STATE
+    ===================================================== */
+
+    const [wishlistItems, setWishlistItems] = useState([]);
+
+    const [loading, setLoading] = useState(false);
+
+    const [error, setError] = useState("");
+
+
+    /* =====================================================
+       LOAD ALL WISHLIST ITEMS
+    ===================================================== */
+
+    const loadWishlistItems = async () => {
+
+        try {
+
+            setLoading(true);
+            setError("");
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "GET ALL WISHLIST ITEMS"
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response = await axios.get(
+                `${SERVER_URL}/api/WishlistItem`
+            );
+
+
+            console.log(
+                "WISHLIST ITEMS RESPONSE:",
+                response.data
+            );
+
+
+            /* =============================================
+               NORMALIZE API RESPONSE
+            ============================================= */
+
+            let data = [];
+
+
+            if (Array.isArray(response.data)) {
+
+                data = response.data;
+
+            } else if (
+                Array.isArray(response.data?.data)
+            ) {
+
+                data = response.data.data;
+
+            } else if (
+                Array.isArray(response.data?.items)
+            ) {
+
+                data = response.data.items;
+
+            } else if (
+                Array.isArray(response.data?.wishlistItems)
+            ) {
+
+                data = response.data.wishlistItems;
+
+            }
+
+
+            console.log(
+                "NORMALIZED WISHLIST ITEMS:",
+                data
+            );
+
+
+            setWishlistItems(data);
+
+        } catch (error) {
+
+            console.error(
+                "LOAD WISHLIST ITEMS ERROR:",
+                error.response?.data || error.message
+            );
+
+
+            setError(
+                error.response?.data?.message ||
+                error.response?.data ||
+                "Failed to load wishlist items."
+            );
+
+
+            setWishlistItems([]);
+
+        } finally {
+
+            setLoading(false);
+
+        }
+    };
+
+
+    /* =====================================================
+       LOAD ON COMPONENT MOUNT
+    ===================================================== */
+
+    useEffect(() => {
+
+        loadWishlistItems();
+
+    }, []);
+
+
+    /* =====================================================
+       VIEW
+    ===================================================== */
+
+    const handleView = (wishlistItemId) => {
+
+        console.log(
+            "VIEW WISHLIST ITEM:",
+            wishlistItemId
         );
-    }
+
+        // Navigation can be added here if required.
+        // Example:
+        //
+        // navigate(
+        //     `/wishlist-items/details/${wishlistItemId}`
+        // );
+    };
+
+
+    /* =====================================================
+       EDIT
+    ===================================================== */
+
+    const handleEdit = (wishlistItemId) => {
+
+        console.log(
+            "EDIT WISHLIST ITEM:",
+            wishlistItemId
+        );
+
+        // Example:
+        //
+        // navigate(
+        //     `/wishlist-items/edit/${wishlistItemId}`
+        // );
+    };
+
+
+    /* =====================================================
+       DELETE
+    ===================================================== */
+
+    const handleDelete = async (wishlistItemId) => {
+
+        if (!wishlistItemId) {
+
+            console.error(
+                "Wishlist Item ID not found."
+            );
+
+            return;
+        }
+
+
+        const confirmed = window.confirm(
+            "Are you sure you want to remove this wishlist item?"
+        );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            console.log(
+                `DELETE WISHLIST ITEM: ${wishlistItemId}`
+            );
+
+
+            await axios.delete(
+                `${SERVER_URL}/api/WishlistItem/${wishlistItemId}`
+            );
+
+
+            /* =============================================
+               REMOVE FROM UI
+            ============================================= */
+
+            setWishlistItems((previous) =>
+                previous.filter((item) => {
+
+                    const id =
+                        item?.wishlistItemId ??
+                        item?.WishlistItemId ??
+                        item?.id ??
+                        item?.Id;
+
+                    return id !== wishlistItemId;
+
+                })
+            );
+
+
+            console.log(
+                "WISHLIST ITEM DELETED SUCCESSFULLY"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE WISHLIST ITEM ERROR:",
+                error.response?.data || error.message
+            );
+
+
+            setError(
+                error.response?.data?.message ||
+                error.response?.data ||
+                "Failed to delete wishlist item."
+            );
+        }
+    };
+
+
+    /* =====================================================
+       RETRY / REFRESH
+    ===================================================== */
+
+    const handleRetry = () => {
+
+        loadWishlistItems();
+
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
-        <Paper
-            elevation={2}
+
+        <Box
             sx={{
-                borderRadius: 2,
-                overflow: "hidden",
+                width: "100%",
+                p: 3
             }}
         >
-            {/* =====================================================
-                HEADER
-               ===================================================== */}
+
+            {/* =================================================
+                PAGE HEADER
+            ================================================= */}
 
             <Box
                 sx={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    p: 2,
+                    mb: 3
                 }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                    }}
-                >
-                    <Favorite color="error" />
+
+                <Box>
 
                     <Typography
-                        variant="h6"
-                        fontWeight="bold"
+                        variant="h5"
+                        fontWeight={700}
                     >
-                        Wishlist
+                        Wishlist Items
                     </Typography>
 
-                    <Chip
-                        label={wishlists.length}
-                        size="small"
-                    />
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Manage wishlist items
+                    </Typography>
+
                 </Box>
+
+
+                <Button
+                    variant="outlined"
+                    startIcon={<Refresh />}
+                    onClick={handleRetry}
+                    disabled={loading}
+                >
+                    Refresh
+                </Button>
+
             </Box>
 
-            <Divider />
 
-            {/* =====================================================
+            {/* =================================================
+                ERROR
+            ================================================= */}
+
+            {error && (
+
+                <Alert
+                    severity="error"
+                    sx={{ mb: 3 }}
+                    action={
+                        <Button
+                            color="inherit"
+                            size="small"
+                            onClick={handleRetry}
+                        >
+                            Retry
+                        </Button>
+                    }
+                >
+                    {error}
+                </Alert>
+
+            )}
+
+
+            {/* =================================================
                 LOADING
-               ===================================================== */}
+            ================================================= */}
 
-            {loading ? (
+            {loading && wishlistItems.length === 0 ? (
+
                 <Box
                     sx={{
-                        py: 6,
-                        textAlign: "center",
+                        minHeight: 300,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 2
                     }}
                 >
-                    <Typography color="text.secondary">
-                        Loading wishlist...
+
+                    <CircularProgress />
+
+
+                    <Typography
+                        color="text.secondary"
+                    >
+                        Loading wishlist items...
                     </Typography>
+
                 </Box>
+
             ) : (
-                <List disablePadding>
-                    {wishlists.map((wishlist, index) => {
-                        const product =
-                            wishlist.product || {};
 
-                        const productName =
-                            wishlist.productName ||
-                            product.productName ||
-                            "Unknown Product";
+                /* =============================================
+                   WISHLIST ITEM TABLE
+                ============================================= */
 
-                        const productCode =
-                            wishlist.productCode ||
-                            product.productCode ||
-                            "N/A";
+                <WishlistItemTable
+                    items={wishlistItems}
+                    wishlistItems={wishlistItems}
+                    loading={loading}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
 
-                        const customerName =
-                            wishlist.customerName ||
-                            wishlist.customer
-                                ?.customerName ||
-                            "N/A";
-
-                        const category =
-                            wishlist.categoryName ||
-                            wishlist.category
-                                ?.categoryName ||
-                            "N/A";
-
-                        const price =
-                            wishlist.price ??
-                            product.price ??
-                            0;
-
-                        const stock =
-                            wishlist.stock ??
-                            product.stock ??
-                            0;
-
-                        const image =
-                            wishlist.productImage ||
-                            wishlist.image ||
-                            product.image ||
-                            "";
-
-                        return (
-                            <React.Fragment
-                                key={
-                                    wishlist.wishlistId ??
-                                    wishlist.id ??
-                                    index
-                                }
-                            >
-                                <ListItem
-                                    sx={{
-                                        px: 3,
-                                        py: 2,
-                                    }}
-                                    secondaryAction={
-                                        <Box
-                                            sx={{
-                                                display: "flex",
-                                                alignItems:
-                                                    "center",
-                                                gap: 0.5,
-                                            }}
-                                        >
-                                            {/* VIEW */}
-
-                                            <Tooltip title="View">
-                                                <IconButton
-                                                    color="primary"
-                                                    onClick={() =>
-                                                        onView &&
-                                                        onView(
-                                                            wishlist
-                                                        )
-                                                    }
-                                                >
-                                                    <Visibility />
-                                                </IconButton>
-                                            </Tooltip>
-
-                                            {/* DELETE */}
-
-                                            <Tooltip title="Remove">
-                                                <IconButton
-                                                    color="error"
-                                                    onClick={() =>
-                                                        onDelete &&
-                                                        onDelete(
-                                                            wishlist
-                                                        )
-                                                    }
-                                                >
-                                                    <Delete />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Box>
-                                    }
-                                >
-                                    {/* =================================================
-                                        PRODUCT IMAGE
-                                       ================================================= */}
-
-                                    <ListItemAvatar>
-                                        <Avatar
-                                            variant="rounded"
-                                            src={image}
-                                            sx={{
-                                                width: 56,
-                                                height: 56,
-                                            }}
-                                        >
-                                            <ShoppingCart />
-                                        </Avatar>
-                                    </ListItemAvatar>
-
-                                    {/* =================================================
-                                        PRODUCT INFORMATION
-                                       ================================================= */}
-
-                                    <ListItemText
-                                        sx={{
-                                            mr: 12,
-                                        }}
-                                        primary={
-                                            <Typography
-                                                variant="subtitle1"
-                                                fontWeight="bold"
-                                            >
-                                                {productName}
-                                            </Typography>
-                                        }
-                                        secondary={
-                                            <Box sx={{ mt: 0.5 }}>
-                                                {/* Product Code */}
-
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                >
-                                                    Product Code:{" "}
-                                                    {productCode}
-                                                </Typography>
-
-                                                {/* Customer */}
-
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                >
-                                                    Customer:{" "}
-                                                    {customerName}
-                                                </Typography>
-
-                                                {/* Category */}
-
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                >
-                                                    Category:{" "}
-                                                    {category}
-                                                </Typography>
-
-                                                {/* Price & Stock */}
-
-                                                <Box
-                                                    sx={{
-                                                        display:
-                                                            "flex",
-                                                        alignItems:
-                                                            "center",
-                                                        gap: 1,
-                                                        mt: 1,
-                                                        flexWrap:
-                                                            "wrap",
-                                                    }}
-                                                >
-                                                    <Chip
-                                                        label={`₹${Number(
-                                                            price
-                                                        ).toLocaleString(
-                                                            "en-IN"
-                                                        )}`}
-                                                        size="small"
-                                                        color="primary"
-                                                        variant="outlined"
-                                                    />
-
-                                                    {Number(
-                                                        stock
-                                                    ) > 0 ? (
-                                                        <Chip
-                                                            icon={
-                                                                <Inventory2 />
-                                                            }
-                                                            label={`${stock} Available`}
-                                                            size="small"
-                                                            color="success"
-                                                        />
-                                                    ) : (
-                                                        <Chip
-                                                            label="Out of Stock"
-                                                            size="small"
-                                                            color="error"
-                                                        />
-                                                    )}
-                                                </Box>
-                                            </Box>
-                                        }
-                                    />
-                                </ListItem>
-
-                                {index <
-                                    wishlists.length - 1 && (
-                                    <Divider
-                                        component="li"
-                                    />
-                                )}
-                            </React.Fragment>
-                        );
-                    })}
-                </List>
             )}
-        </Paper>
+
+        </Box>
     );
 };
+
 
 export default WishlistList;

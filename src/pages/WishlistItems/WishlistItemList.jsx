@@ -1,226 +1,687 @@
-import React from "react";
+
+import React, {
+    useEffect,
+    useState
+} from "react";
 
 import {
-    Grid,
     Box,
-    Typography,
-    CircularProgress,
     Alert,
-    Button
+    CircularProgress
 } from "@mui/material";
 
 import {
-    FavoriteBorder,
-    Refresh
-} from "@mui/icons-material";
+    useNavigate
+} from "react-router-dom";
 
-import WishlistItemCard from "./WishlistItemCard";
+import axios from "axios";
 
-
-/* =========================================================
-   WISHLIST ITEM LIST
-========================================================= */
-
-const WishlistItemList = ({
-    items = [],
-    wishlistItems = [],
-
-    loading = false,
-    error = "",
-
-    onView,
-    onEdit,
-    onDelete,
-    onRetry,
-
-    emptyMessage = "No wishlist items found."
-}) => {
+import WishlistItemToolbar from "./WishlistItemToolbar";
+import WishlistItemStatistics from "./WishlistItemStatistics";
+import WishlistItemTable from "./WishlistItemTable";
+import WishlistItemPagination from "./WishlistItemPagination";
 
 
-    /* =====================================================
-       NORMALIZE ITEMS
-    ===================================================== */
+// =========================================================
+// NODE SERVER / PROXY URL
+// =========================================================
 
-    const data =
-        Array.isArray(items)
-            ? items
-            : Array.isArray(wishlistItems)
-                ? wishlistItems
-                : [];
+const API_URL = "http://localhost:5000/api";
 
 
-    /* =====================================================
-       LOADING STATE
-    ===================================================== */
+// =========================================================
+// WISHLIST ITEM LIST
+// =========================================================
+
+const WishlistItemList = () => {
+
+    const navigate = useNavigate();
+
+
+    // =====================================================
+    // STATE
+    // =====================================================
+
+    const [wishlistItems, setWishlistItems] =
+        useState([]);
+
+    const [filteredWishlistItems, setFilteredWishlistItems] =
+        useState([]);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [error, setError] =
+        useState("");
+
+    const [searchText, setSearchText] =
+        useState("");
+
+    const [sort, setSort] =
+        useState("");
+
+    const [page, setPage] =
+        useState(1);
+
+    const [rowsPerPage, setRowsPerPage] =
+        useState(10);
+
+
+    // =====================================================
+    // GET ALL WISHLIST ITEMS
+    //
+    // Node:
+    // GET http://localhost:5000/api/WishlistItem
+    //
+    // Node forwards to:
+    // GET https://localhost:7203/api/WishlistItem
+    // =====================================================
+
+    const loadWishlistItems = async () => {
+
+        try {
+
+            setLoading(true);
+
+            setError("");
+
+
+            console.log(
+                "GET ALL WISHLIST ITEMS"
+            );
+
+
+            const response = await axios.get(
+                `${API_URL}/WishlistItem`
+            );
+
+
+            console.log(
+                "WISHLIST ITEM RESPONSE:",
+                response.data
+            );
+
+
+            const data =
+                Array.isArray(response.data)
+                    ? response.data
+                    : [];
+
+
+            setWishlistItems(data);
+
+            setFilteredWishlistItems(data);
+
+        }
+
+        catch (err) {
+
+            console.error(
+                "Wishlist item loading error:",
+                err
+            );
+
+
+            console.error(
+                "Wishlist item server response:",
+                err.response?.data
+            );
+
+
+            setError(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to load wishlist items"
+            );
+
+
+            setWishlistItems([]);
+
+            setFilteredWishlistItems([]);
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+
+    // =====================================================
+    // LOAD WISHLIST ITEMS ON PAGE LOAD
+    // =====================================================
+
+    useEffect(() => {
+
+        loadWishlistItems();
+
+    }, []);
+
+
+    // =====================================================
+    // SEARCH + SORT
+    // =====================================================
+
+    useEffect(() => {
+
+        let result =
+            [...wishlistItems];
+
+
+        // =================================================
+        // SEARCH
+        //
+        // Searches all returned API fields
+        // =================================================
+
+        if (searchText.trim()) {
+
+            const search =
+                searchText
+                    .toLowerCase()
+                    .trim();
+
+
+            result =
+                result.filter(
+                    (item) =>
+
+                        Object.values(item)
+                            .some(
+                                (value) => {
+
+                                    if (
+                                        value === null ||
+                                        value === undefined
+                                    ) {
+                                        return false;
+                                    }
+
+
+                                    // Do not search nested objects
+                                    // such as wishlist/product
+                                    if (
+                                        typeof value ===
+                                        "object"
+                                    ) {
+                                        return false;
+                                    }
+
+
+                                    return String(value)
+                                        .toLowerCase()
+                                        .includes(search);
+
+                                }
+                            )
+
+                );
+
+        }
+
+
+        // =================================================
+        // SORT
+        // =================================================
+
+        if (sort === "id_asc") {
+
+            result.sort(
+                (a, b) =>
+                    Number(
+                        a.wishlistItemId ??
+                        a.WishlistItemId ??
+                        0
+                    ) -
+                    Number(
+                        b.wishlistItemId ??
+                        b.WishlistItemId ??
+                        0
+                    )
+            );
+
+        }
+
+        else if (sort === "id_desc") {
+
+            result.sort(
+                (a, b) =>
+                    Number(
+                        b.wishlistItemId ??
+                        b.WishlistItemId ??
+                        0
+                    ) -
+                    Number(
+                        a.wishlistItemId ??
+                        a.WishlistItemId ??
+                        0
+                    )
+            );
+
+        }
+
+        else if (sort === "wishlist_asc") {
+
+            result.sort(
+                (a, b) =>
+                    Number(
+                        a.wishlistId ??
+                        a.WishlistId ??
+                        0
+                    ) -
+                    Number(
+                        b.wishlistId ??
+                        b.WishlistId ??
+                        0
+                    )
+            );
+
+        }
+
+        else if (sort === "wishlist_desc") {
+
+            result.sort(
+                (a, b) =>
+                    Number(
+                        b.wishlistId ??
+                        b.WishlistId ??
+                        0
+                    ) -
+                    Number(
+                        a.wishlistId ??
+                        a.WishlistId ??
+                        0
+                    )
+            );
+
+        }
+
+        else if (sort === "product_asc") {
+
+            result.sort(
+                (a, b) =>
+                    Number(
+                        a.productId ??
+                        a.ProductId ??
+                        0
+                    ) -
+                    Number(
+                        b.productId ??
+                        b.ProductId ??
+                        0
+                    )
+            );
+
+        }
+
+        else if (sort === "product_desc") {
+
+            result.sort(
+                (a, b) =>
+                    Number(
+                        b.productId ??
+                        b.ProductId ??
+                        0
+                    ) -
+                    Number(
+                        a.productId ??
+                        a.ProductId ??
+                        0
+                    )
+            );
+
+        }
+
+        else if (sort === "date_asc") {
+
+            result.sort(
+                (a, b) =>
+                    new Date(
+                        a.createdDate ??
+                        a.CreatedDate ??
+                        0
+                    ) -
+                    new Date(
+                        b.createdDate ??
+                        b.CreatedDate ??
+                        0
+                    )
+            );
+
+        }
+
+        else if (sort === "date_desc") {
+
+            result.sort(
+                (a, b) =>
+                    new Date(
+                        b.createdDate ??
+                        b.CreatedDate ??
+                        0
+                    ) -
+                    new Date(
+                        a.createdDate ??
+                        a.CreatedDate ??
+                        0
+                    )
+            );
+
+        }
+
+
+        setFilteredWishlistItems(result);
+
+        setPage(1);
+
+    }, [
+        searchText,
+        sort,
+        wishlistItems
+    ]);
+
+
+    // =====================================================
+    // VIEW
+    // =====================================================
+
+    const handleView = (wishlistItemId) => {
+
+        console.log(
+            "VIEW WISHLIST ITEM:",
+            wishlistItemId
+        );
+
+
+        navigate(
+            `/wishlist-items/details/${wishlistItemId}`
+        );
+
+    };
+
+
+    // =====================================================
+    // EDIT
+    // =====================================================
+
+    const handleEdit = (wishlistItemId) => {
+
+        console.log(
+            "EDIT WISHLIST ITEM:",
+            wishlistItemId
+        );
+
+
+        navigate(
+            `/wishlist-items/edit/${wishlistItemId}`
+        );
+
+    };
+
+
+    // =====================================================
+    // DELETE
+    //
+    // Node:
+    // DELETE /api/WishlistItem/:id
+    //
+    // Node forwards to:
+    // DELETE https://localhost:7203/api/WishlistItem/:id
+    // =====================================================
+
+    const handleDelete = async (
+        wishlistItemId
+    ) => {
+
+        const confirmed =
+            window.confirm(
+                "Are you sure you want to delete this wishlist item?"
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        try {
+
+            setError("");
+
+
+            console.log(
+                "DELETE WISHLIST ITEM:",
+                wishlistItemId
+            );
+
+
+            await axios.delete(
+                `${API_URL}/WishlistItem/${wishlistItemId}`
+            );
+
+
+            // Reload list after deletion
+
+            await loadWishlistItems();
+
+        }
+
+        catch (err) {
+
+            console.error(
+                "Wishlist item delete error:",
+                err
+            );
+
+
+            setError(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to delete wishlist item"
+            );
+
+        }
+
+    };
+
+
+    // =====================================================
+    // PAGINATION
+    // =====================================================
+
+    const totalPages =
+        Math.ceil(
+            filteredWishlistItems.length /
+            rowsPerPage
+        );
+
+
+    const startIndex =
+        (page - 1) *
+        rowsPerPage;
+
+
+    const paginatedWishlistItems =
+        filteredWishlistItems.slice(
+            startIndex,
+            startIndex + rowsPerPage
+        );
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
 
     if (loading) {
 
         return (
+
             <Box
-                sx={{
-                    width: "100%",
-                    minHeight: 250,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 2
-                }}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="300px"
             >
 
                 <CircularProgress />
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    Loading wishlist items...
-                </Typography>
-
             </Box>
+
         );
+
     }
 
 
-    /* =====================================================
-       ERROR STATE
-    ===================================================== */
-
-    if (error) {
-
-        return (
-            <Box
-                sx={{
-                    width: "100%",
-                    p: 2
-                }}
-            >
-
-                <Alert
-                    severity="error"
-                    action={
-                        typeof onRetry === "function" ? (
-                            <Button
-                                color="inherit"
-                                size="small"
-                                startIcon={<Refresh />}
-                                onClick={onRetry}
-                            >
-                                Retry
-                            </Button>
-                        ) : null
-                    }
-                >
-                    {error}
-                </Alert>
-
-            </Box>
-        );
-    }
-
-
-    /* =====================================================
-       EMPTY STATE
-    ===================================================== */
-
-    if (data.length === 0) {
-
-        return (
-            <Box
-                sx={{
-                    width: "100%",
-                    minHeight: 300,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    p: 4
-                }}
-            >
-
-                <FavoriteBorder
-                    sx={{
-                        fontSize: 72,
-                        color: "text.disabled",
-                        mb: 2
-                    }}
-                />
-
-                <Typography
-                    variant="h6"
-                    fontWeight={600}
-                    color="text.secondary"
-                >
-                    {emptyMessage}
-                </Typography>
-
-                <Typography
-                    variant="body2"
-                    color="text.disabled"
-                    sx={{ mt: 1 }}
-                >
-                    Add products to your wishlist to see them here.
-                </Typography>
-
-            </Box>
-        );
-    }
-
-
-    /* =====================================================
-       RENDER LIST
-    ===================================================== */
+    // =====================================================
+    // UI
+    // =====================================================
 
     return (
+
         <Box
+            className="wishlist-item-list"
             sx={{
                 width: "100%"
             }}
         >
 
-            <Grid
-                container
-                spacing={3}
-            >
+            {/* ============================================
+                ERROR
+            ============================================ */}
 
-                {data.map((wishlistItem, index) => {
+            {error && (
 
-                    const key =
-                        wishlistItem?.wishlistItemId ??
-                        wishlistItem?.WishlistItemId ??
-                        wishlistItem?.id ??
-                        wishlistItem?.Id ??
-                        index;
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                    onClose={() =>
+                        setError("")
+                    }
+                >
 
-                    return (
-                        <Grid
-                            item
-                            key={key}
-                            xs={12}
-                            sm={6}
-                            md={4}
-                            lg={3}
-                        >
+                    {error}
 
-                            <WishlistItemCard
-                                item={wishlistItem}
-                                onView={onView}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
-                            />
+                </Alert>
 
-                        </Grid>
+            )}
+
+
+            {/* ============================================
+                TOOLBAR
+            ============================================ */}
+
+            <WishlistItemToolbar
+
+                searchText={
+                    searchText
+                }
+
+                setSearchText={
+                    setSearchText
+                }
+
+                sort={
+                    sort
+                }
+
+                setSort={
+                    setSort
+                }
+
+                onRefresh={
+                    loadWishlistItems
+                }
+
+            />
+
+
+            {/* ============================================
+                STATISTICS
+            ============================================ */}
+
+            <WishlistItemStatistics
+                wishlistItems={
+                    wishlistItems
+                }
+            />
+
+
+            {/* ============================================
+                TABLE
+            ============================================ */}
+
+            <WishlistItemTable
+
+                items={
+                    paginatedWishlistItems
+                }
+
+                wishlistItems={
+                    paginatedWishlistItems
+                }
+
+                onView={
+                    handleView
+                }
+
+                onEdit={
+                    handleEdit
+                }
+
+                onDelete={
+                    handleDelete
+                }
+
+            />
+
+
+            {/* ============================================
+                PAGINATION
+            ============================================ */}
+
+            <WishlistItemPagination
+
+                page={
+                    page
+                }
+
+                setPage={
+                    setPage
+                }
+
+                rowsPerPage={
+                    rowsPerPage
+                }
+
+                setRowsPerPage={(value) => {
+
+                    setRowsPerPage(
+                        value
                     );
 
-                })}
+                    setPage(1);
 
-            </Grid>
+                }}
+
+                totalPages={
+                    totalPages
+                }
+
+                totalItems={
+                    filteredWishlistItems.length
+                }
+
+            />
 
         </Box>
+
     );
+
 };
 
 
 export default WishlistItemList;
-

@@ -35,6 +35,58 @@ const PRODUCT_API =
 
 
 /* =========================================================
+   RESPONSE HELPER
+========================================================= */
+
+const getResponseData = (response) => {
+
+    if (!response) {
+        return null;
+    }
+
+    return (
+        response.data?.data ??
+        response.data
+    );
+};
+
+
+/* =========================================================
+   ID HELPER
+========================================================= */
+
+const getItemId = ({
+    wishlistItemId,
+    id,
+    item,
+    wishlistItem
+}) => {
+
+    const value =
+        wishlistItemId ??
+        id ??
+        item?.wishlistItemId ??
+        item?.WishlistItemId ??
+        wishlistItem?.wishlistItemId ??
+        wishlistItem?.WishlistItemId;
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return null;
+    }
+
+    const numericId = Number(value);
+
+    return Number.isFinite(numericId)
+        ? numericId
+        : null;
+};
+
+
+/* =========================================================
    COMPONENT
 ========================================================= */
 
@@ -49,14 +101,21 @@ const WishlistItemsEdit = ({
     onUpdated
 }) => {
 
-    const itemId =
-        wishlistItemId ??
-        id ??
-        item?.wishlistItemId ??
-        item?.WishlistItemId ??
-        wishlistItem?.wishlistItemId ??
-        wishlistItem?.WishlistItemId;
+    /* =====================================================
+       ITEM ID
+    ===================================================== */
 
+    const itemId = getItemId({
+        wishlistItemId,
+        id,
+        item,
+        wishlistItem
+    });
+
+
+    /* =====================================================
+       INITIAL ITEM
+    ===================================================== */
 
     const initialItem =
         item ||
@@ -64,16 +123,18 @@ const WishlistItemsEdit = ({
         null;
 
 
+    /* =====================================================
+       STATE
+    ===================================================== */
+
     const [currentItem, setCurrentItem] =
         useState(initialItem);
-
 
     const [wishlists, setWishlists] =
         useState([]);
 
     const [products, setProducts] =
         useState([]);
-
 
     const [loading, setLoading] =
         useState(true);
@@ -89,7 +150,211 @@ const WishlistItemsEdit = ({
 
 
     /* =====================================================
-       LOAD DATA
+       LOAD WISHLIST ITEM
+    ===================================================== */
+
+    const loadWishlistItem = async () => {
+
+        /*
+         * If the parent already supplied the item,
+         * don't unnecessarily call GET /{id}.
+         */
+
+        if (currentItem) {
+
+            console.log(
+                "WISHLIST ITEM PROVIDED BY PARENT:",
+                currentItem
+            );
+
+            return currentItem;
+        }
+
+
+        if (!itemId) {
+
+            throw new Error(
+                "Wishlist Item ID is missing."
+            );
+        }
+
+
+        const url =
+            `${WISHLIST_ITEM_API}/${itemId}`;
+
+
+        console.log(
+            "LOADING WISHLIST ITEM:",
+            url
+        );
+
+
+        try {
+
+            const response =
+                await axios.get(url);
+
+
+            const data =
+                getResponseData(response);
+
+
+            console.log(
+                "WISHLIST ITEM RESPONSE:",
+                data
+            );
+
+
+            if (!data) {
+
+                throw new Error(
+                    "Wishlist item was not returned by the API."
+                );
+            }
+
+
+            setCurrentItem(data);
+
+            return data;
+
+        } catch (err) {
+
+            console.error(
+                "WISHLIST ITEM GET ERROR:",
+                {
+                    url,
+                    status: err.response?.status,
+                    response: err.response?.data,
+                    error: err
+                }
+            );
+
+            throw err;
+        }
+    };
+
+
+    /* =====================================================
+       LOAD WISHLISTS
+    ===================================================== */
+
+    const loadWishlists = async () => {
+
+        const url =
+            WISHLIST_API;
+
+
+        console.log(
+            "LOADING WISHLISTS:",
+            url
+        );
+
+
+        try {
+
+            const response =
+                await axios.get(url);
+
+
+            const data =
+                getResponseData(response);
+
+
+            console.log(
+                "WISHLISTS RESPONSE:",
+                data
+            );
+
+
+            setWishlists(
+                Array.isArray(data)
+                    ? data
+                    : []
+            );
+
+        } catch (err) {
+
+            console.error(
+                "WISHLIST LIST ERROR:",
+                {
+                    url,
+                    status: err.response?.status,
+                    response: err.response?.data,
+                    error: err
+                }
+            );
+
+            /*
+             * Don't prevent the edit form from opening
+             * just because the dropdown API failed.
+             */
+
+            setWishlists([]);
+        }
+    };
+
+
+    /* =====================================================
+       LOAD PRODUCTS
+    ===================================================== */
+
+    const loadProducts = async () => {
+
+        const url =
+            PRODUCT_API;
+
+
+        console.log(
+            "LOADING PRODUCTS:",
+            url
+        );
+
+
+        try {
+
+            const response =
+                await axios.get(url);
+
+
+            const data =
+                getResponseData(response);
+
+
+            console.log(
+                "PRODUCTS RESPONSE:",
+                data
+            );
+
+
+            setProducts(
+                Array.isArray(data)
+                    ? data
+                    : []
+            );
+
+        } catch (err) {
+
+            console.error(
+                "PRODUCT LIST ERROR:",
+                {
+                    url,
+                    status: err.response?.status,
+                    response: err.response?.data,
+                    error: err
+                }
+            );
+
+            /*
+             * Don't prevent the edit form from opening.
+             */
+
+            setProducts([]);
+        }
+    };
+
+
+    /* =====================================================
+       LOAD ALL DATA
     ===================================================== */
 
     const loadData = async () => {
@@ -100,61 +365,23 @@ const WishlistItemsEdit = ({
             setError("");
 
 
-            const requests = [
+            /*
+             * First load the actual item.
+             *
+             * This is the important request for Edit.
+             */
 
-                axios.get(WISHLIST_API),
-
-                axios.get(PRODUCT_API)
-
-            ];
-
-
-            if (!currentItem && itemId) {
-
-                requests.push(
-                    axios.get(
-                        `${WISHLIST_ITEM_API}/${itemId}`
-                    )
-                );
-
-            }
+            await loadWishlistItem();
 
 
-            const responses =
-                await Promise.all(requests);
+            /*
+             * Load dropdown data independently.
+             */
 
-
-            const wishlistData =
-                responses[0].data?.data ??
-                responses[0].data;
-
-            const productData =
-                responses[1].data?.data ??
-                responses[1].data;
-
-
-            setWishlists(
-                Array.isArray(wishlistData)
-                    ? wishlistData
-                    : []
-            );
-
-            setProducts(
-                Array.isArray(productData)
-                    ? productData
-                    : []
-            );
-
-
-            if (!currentItem && responses[2]) {
-
-                const itemData =
-                    responses[2].data?.data ??
-                    responses[2].data;
-
-                setCurrentItem(itemData);
-            }
-
+            await Promise.all([
+                loadWishlists(),
+                loadProducts()
+            ]);
 
         } catch (err) {
 
@@ -163,23 +390,59 @@ const WishlistItemsEdit = ({
                 err
             );
 
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                "Unable to load wishlist item."
-            );
+
+            const status =
+                err.response?.status;
+
+
+            if (status === 404) {
+
+                setError(
+                    `Wishlist item ${itemId} was not found. ` +
+                    `Please verify that this WishlistItemId exists in the database.`
+                );
+
+            } else {
+
+                setError(
+                    err.response?.data?.message ||
+                    err.response?.data?.title ||
+                    err.message ||
+                    "Unable to load wishlist item."
+                );
+            }
 
         } finally {
 
             setLoading(false);
-
         }
     };
 
 
+    /* =====================================================
+       EFFECT
+    ===================================================== */
+
     useEffect(() => {
+
+        /*
+         * Reset state when editing another item.
+         */
+
+        setCurrentItem(
+            item ||
+            wishlistItem ||
+            null
+        );
+
+        setOpen(true);
+
         loadData();
-    }, [itemId]);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        itemId
+    ]);
 
 
     /* =====================================================
@@ -195,34 +458,83 @@ const WishlistItemsEdit = ({
 
 
             const updateId =
-                payload.wishlistItemId ??
-                payload.WishlistItemId ??
+                payload?.wishlistItemId ??
+                payload?.WishlistItemId ??
+                currentItem?.wishlistItemId ??
+                currentItem?.WishlistItemId ??
                 itemId;
+
+
+            const numericUpdateId =
+                Number(updateId);
+
+
+            if (
+                !Number.isFinite(numericUpdateId) ||
+                numericUpdateId <= 0
+            ) {
+
+                setError(
+                    "Invalid Wishlist Item ID."
+                );
+
+                return;
+            }
+
+
+            const url =
+                `${WISHLIST_ITEM_API}/${numericUpdateId}`;
+
+
+            console.log(
+                "UPDATING WISHLIST ITEM:",
+                url
+            );
+
+            console.log(
+                "UPDATE PAYLOAD:",
+                payload
+            );
 
 
             const response =
                 await axios.put(
-                    `${WISHLIST_ITEM_API}/${updateId}`,
+                    url,
                     payload
                 );
 
 
             const updatedItem =
-                response.data?.data ??
-                response.data;
+                getResponseData(response);
 
 
-            setCurrentItem(updatedItem);
+            console.log(
+                "WISHLIST ITEM UPDATED:",
+                updatedItem
+            );
+
+
+            setCurrentItem(
+                updatedItem
+            );
 
             setOpen(false);
 
 
-            if (typeof onUpdated === "function") {
-                onUpdated(updatedItem);
+            if (
+                typeof onUpdated === "function"
+            ) {
+
+                onUpdated(
+                    updatedItem
+                );
             }
 
 
-            if (typeof onBack === "function") {
+            if (
+                typeof onBack === "function"
+            ) {
+
                 onBack();
             }
 
@@ -230,8 +542,21 @@ const WishlistItemsEdit = ({
 
             console.error(
                 "UPDATE WISHLIST ITEM ERROR:",
-                err
+                {
+                    url:
+                        `${WISHLIST_ITEM_API}/${payload?.wishlistItemId ?? payload?.WishlistItemId ?? itemId}`,
+
+                    status:
+                        err.response?.status,
+
+                    response:
+                        err.response?.data,
+
+                    error:
+                        err
+                }
             );
+
 
             setError(
                 err.response?.data?.message ||
@@ -242,7 +567,6 @@ const WishlistItemsEdit = ({
         } finally {
 
             setSaving(false);
-
         }
     };
 
@@ -255,7 +579,10 @@ const WishlistItemsEdit = ({
 
         setOpen(false);
 
-        if (typeof onBack === "function") {
+        if (
+            typeof onBack === "function"
+        ) {
+
             onBack();
         }
     };
@@ -285,6 +612,15 @@ const WishlistItemsEdit = ({
                     Loading Wishlist Item...
                 </Typography>
 
+                {itemId && (
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                    >
+                        Wishlist Item ID: {itemId}
+                    </Typography>
+                )}
+
             </Box>
         );
     }
@@ -302,6 +638,30 @@ const WishlistItemsEdit = ({
                 <Alert severity="error">
                     {error}
                 </Alert>
+
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 2 }}
+                >
+                    API Endpoint:
+                </Typography>
+
+
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontFamily: "monospace",
+                        wordBreak: "break-all"
+                    }}
+                >
+                    {itemId
+                        ? `${WISHLIST_ITEM_API}/${itemId}`
+                        : WISHLIST_ITEM_API
+                    }
+                </Typography>
+
 
                 <Button
                     sx={{ mt: 2 }}
@@ -329,6 +689,7 @@ const WishlistItemsEdit = ({
                     Wishlist item not found.
                 </Alert>
 
+
                 <Button
                     sx={{ mt: 2 }}
                     startIcon={<ArrowBack />}
@@ -349,7 +710,9 @@ const WishlistItemsEdit = ({
     return (
         <Box sx={{ p: 3 }}>
 
-            {/* HEADER */}
+            {/* =========================================
+               HEADER
+            ========================================= */}
 
             <Box sx={{ mb: 3 }}>
 
@@ -360,6 +723,7 @@ const WishlistItemsEdit = ({
                     Back
                 </Button>
 
+
                 <Typography
                     variant="h4"
                     fontWeight={700}
@@ -368,10 +732,24 @@ const WishlistItemsEdit = ({
                     Edit Wishlist Item
                 </Typography>
 
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 0.5 }}
+                >
+                    Wishlist Item ID:{" "}
+                    {currentItem?.wishlistItemId ??
+                        currentItem?.WishlistItemId ??
+                        itemId}
+                </Typography>
+
             </Box>
 
 
-            {/* ERROR */}
+            {/* =========================================
+               ERROR
+            ========================================= */}
 
             {error && (
 
@@ -381,11 +759,12 @@ const WishlistItemsEdit = ({
                 >
                     {error}
                 </Alert>
-
             )}
 
 
-            {/* MODAL */}
+            {/* =========================================
+               MODAL
+            ========================================= */}
 
             <WishlistItemModal
                 open={open}
@@ -403,4 +782,3 @@ const WishlistItemsEdit = ({
 
 
 export default WishlistItemsEdit;
-

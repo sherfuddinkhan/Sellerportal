@@ -12,49 +12,59 @@ import {
     Tooltip,
     Typography,
     Box,
-    Chip
+    Chip,
 } from "@mui/material";
 
 import {
     Visibility,
     Edit,
-    DeleteOutline,
-    FavoriteBorder
+    Delete,
+    FavoriteBorder,
 } from "@mui/icons-material";
 
 
 /* =========================================================
-   FORMAT NUMBER
+   GET FIELD
+   Supports camelCase + PascalCase API responses
 ========================================================= */
 
-const formatNumber = (value) => {
-
-    const number = Number(value);
-
-    if (!Number.isFinite(number)) {
-        return "0";
-    }
-
-    return number.toLocaleString("en-IN");
+const getField = (
+    item,
+    camelCase,
+    pascalCase,
+    fallback = null
+) => {
+    return (
+        item?.[camelCase] ??
+        item?.[pascalCase] ??
+        fallback
+    );
 };
 
 
 /* =========================================================
-   FORMAT CURRENCY
+   FORMAT DATE
 ========================================================= */
 
-const formatCurrency = (value) => {
+const formatDate = (value) => {
 
-    const number = Number(value);
-
-    if (!Number.isFinite(number)) {
-        return "₹ 0.00";
+    if (!value) {
+        return "N/A";
     }
 
-    return `₹ ${number.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "N/A";
+    }
+
+    return date.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
 };
 
 
@@ -68,8 +78,12 @@ const WishlistItemTable = ({
 
     onView,
     onEdit,
-    onDelete
+    onDelete,
 }) => {
+
+    /* =====================================================
+       NORMALIZE DATA
+    ===================================================== */
 
     const data = Array.isArray(items)
         ? items
@@ -87,14 +101,18 @@ const WishlistItemTable = ({
             component={Paper}
             elevation={2}
             sx={{
+                width: "100%",
                 borderRadius: 2,
-                overflow: "auto"
+                overflowX: "auto",
             }}
         >
 
             <Table
                 stickyHeader
                 size="small"
+                sx={{
+                    minWidth: 900,
+                }}
             >
 
                 {/* =================================================
@@ -114,19 +132,19 @@ const WishlistItemTable = ({
                         </TableCell>
 
                         <TableCell>
-                            Product
+                            Seller ID
+                        </TableCell>
+
+                        <TableCell>
+                            Customer ID
                         </TableCell>
 
                         <TableCell>
                             Product ID
                         </TableCell>
 
-                        <TableCell align="right">
-                            Quantity
-                        </TableCell>
-
-                        <TableCell align="right">
-                            Price
+                        <TableCell>
+                            Created Date
                         </TableCell>
 
                         <TableCell>
@@ -148,6 +166,10 @@ const WishlistItemTable = ({
 
                 <TableBody>
 
+                    {/* =================================================
+                       EMPTY STATE
+                    ================================================= */}
+
                     {data.length === 0 ? (
 
                         <TableRow>
@@ -163,19 +185,21 @@ const WishlistItemTable = ({
                                         display: "flex",
                                         flexDirection: "column",
                                         alignItems: "center",
-                                        gap: 1
+                                        justifyContent: "center",
+                                        gap: 1,
                                     }}
                                 >
 
                                     <FavoriteBorder
                                         sx={{
                                             fontSize: 50,
-                                            color: "text.disabled"
+                                            color: "text.disabled",
                                         }}
                                     />
 
                                     <Typography
                                         color="text.secondary"
+                                        fontWeight={500}
                                     >
                                         No wishlist items found.
                                     </Typography>
@@ -188,115 +212,185 @@ const WishlistItemTable = ({
 
                     ) : (
 
+                        /* =================================================
+                           DATA
+                        ================================================= */
+
                         data.map((item, index) => {
 
-                            const wishlistItemId =
-                                item?.wishlistItemId ??
-                                item?.WishlistItemId ??
-                                item?.id ??
-                                index;
+                            /* =============================================
+                               IDENTIFIERS
+                            ============================================= */
 
-                            const wishlistId =
-                                item?.wishlistId ??
-                                item?.WishlistId ??
-                                "-";
+                            const wishlistItemId = getField(
+                                item,
+                                "wishlistItemId",
+                                "WishlistItemId",
+                                `wishlist-item-${index}`
+                            );
 
-                            const productId =
-                                item?.productId ??
-                                item?.ProductId ??
-                                "-";
+                            const wishlistId = getField(
+                                item,
+                                "wishlistId",
+                                "WishlistId",
+                                "-"
+                            );
 
-                            const productName =
-                                item?.productName ??
-                                item?.ProductName ??
-                                item?.name ??
-                                item?.Name ??
-                                `Product #${productId}`;
+                            const sellerId = getField(
+                                item,
+                                "sellerId",
+                                "SellerId",
+                                "-"
+                            );
 
-                            const productCode =
-                                item?.productCode ??
-                                item?.ProductCode ??
-                                "";
+                            const customerId = getField(
+                                item,
+                                "customerId",
+                                "CustomerId",
+                                "-"
+                            );
 
-                            const quantity =
-                                item?.quantity ??
-                                item?.Quantity ??
-                                0;
+                            const productId = getField(
+                                item,
+                                "productId",
+                                "ProductId",
+                                "-"
+                            );
 
-                            const price =
-                                item?.price ??
-                                item?.Price ??
-                                0;
+                            const createdDate = getField(
+                                item,
+                                "createdDate",
+                                "CreatedDate",
+                                null
+                            );
 
-                            const status =
-                                item?.status ??
-                                item?.Status ??
-                                "Active";
+
+                            /* =============================================
+                               STATUS
+
+                               WishlistItem API currently does not return
+                               status, so Active is only a display fallback.
+                            ============================================= */
+
+                            const status = getField(
+                                item,
+                                "status",
+                                "Status",
+                                "Active"
+                            ) ?? "Active";
+
+                            const normalizedStatus =
+                                String(status).toLowerCase();
+
+
+                            /* =============================================
+                               ACTION ID
+
+                               Use the real numeric WishlistItemId for
+                               View/Edit/Delete callbacks.
+                            ============================================= */
+
+                            const actionId = getField(
+                                item,
+                                "wishlistItemId",
+                                "WishlistItemId",
+                                null
+                            );
 
 
                             return (
 
                                 <TableRow
                                     hover
-                                    key={wishlistItemId}
+                                    key={
+                                        actionId ??
+                                        `wishlist-item-${index}`
+                                    }
                                 >
 
+                                    {/* =====================================
+                                       WISHLIST ITEM ID
+                                    ===================================== */}
+
                                     <TableCell>
+
                                         <Typography
                                             fontWeight={600}
                                         >
                                             #{wishlistItemId}
                                         </Typography>
+
                                     </TableCell>
 
+
+                                    {/* =====================================
+                                       WISHLIST ID
+                                    ===================================== */}
 
                                     <TableCell>
-                                        {wishlistId}
+
+                                        <Chip
+                                            label={`#${wishlistId}`}
+                                            size="small"
+                                            color="primary"
+                                            variant="outlined"
+                                        />
+
                                     </TableCell>
 
+
+                                    {/* =====================================
+                                       SELLER ID
+                                    ===================================== */}
+
+                                    <TableCell>
+                                        {sellerId}
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                       CUSTOMER ID
+                                    ===================================== */}
+
+                                    <TableCell>
+                                        {customerId}
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                       PRODUCT ID
+                                    ===================================== */}
 
                                     <TableCell>
 
-                                        <Box>
-
-                                            <Typography
-                                                fontWeight={600}
-                                            >
-                                                {productName}
-                                            </Typography>
-
-                                            {productCode && (
-                                                <Typography
-                                                    variant="caption"
-                                                    color="text.secondary"
-                                                >
-                                                    SKU: {productCode}
-                                                </Typography>
-                                            )}
-
-                                        </Box>
-
-                                    </TableCell>
-
-
-                                    <TableCell>
-                                        {productId}
-                                    </TableCell>
-
-
-                                    <TableCell align="right">
-                                        {formatNumber(quantity)}
-                                    </TableCell>
-
-
-                                    <TableCell align="right">
                                         <Typography
                                             fontWeight={600}
                                         >
-                                            {formatCurrency(price)}
+                                            #{productId}
                                         </Typography>
+
                                     </TableCell>
 
+
+                                    {/* =====================================
+                                       CREATED DATE
+                                    ===================================== */}
+
+                                    <TableCell>
+
+                                        <Typography
+                                            variant="body2"
+                                            whiteSpace="nowrap"
+                                        >
+                                            {formatDate(createdDate)}
+                                        </Typography>
+
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                       STATUS
+                                    ===================================== */}
 
                                     <TableCell>
 
@@ -304,60 +398,104 @@ const WishlistItemTable = ({
                                             size="small"
                                             label={status}
                                             color={
-                                                String(status).toLowerCase() === "active"
+                                                normalizedStatus === "active"
                                                     ? "success"
-                                                    : "default"
+                                                    : normalizedStatus === "inactive"
+                                                        ? "default"
+                                                        : "warning"
                                             }
                                         />
 
                                     </TableCell>
 
 
+                                    {/* =====================================
+                                       ACTIONS
+                                    ===================================== */}
+
                                     <TableCell align="center">
 
-                                        <Tooltip title="View">
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                gap: 0.5,
+                                            }}
+                                        >
 
-                                            <IconButton
-                                                size="small"
-                                                color="info"
-                                                onClick={() =>
-                                                    onView?.(item)
-                                                }
-                                            >
-                                                <Visibility />
-                                            </IconButton>
+                                            {/* =============================
+                                               VIEW
+                                            ============================= */}
 
-                                        </Tooltip>
+                                            <Tooltip title="View">
 
+                                                <IconButton
+                                                    size="small"
+                                                    color="info"
+                                                    disabled={!actionId}
+                                                    onClick={() =>
+                                                        onView?.(actionId)
+                                                    }
+                                                >
 
-                                        <Tooltip title="Edit">
+                                                    <Visibility
+                                                        fontSize="small"
+                                                    />
 
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                onClick={() =>
-                                                    onEdit?.(item)
-                                                }
-                                            >
-                                                <Edit />
-                                            </IconButton>
+                                                </IconButton>
 
-                                        </Tooltip>
+                                            </Tooltip>
 
 
-                                        <Tooltip title="Delete">
+                                            {/* =============================
+                                               EDIT
+                                            ============================= */}
 
-                                            <IconButton
-                                                size="small"
-                                                color="error"
-                                                onClick={() =>
-                                                    onDelete?.(item)
-                                                }
-                                            >
-                                                <DeleteOutline />
-                                            </IconButton>
+                                            <Tooltip title="Edit">
 
-                                        </Tooltip>
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    disabled={!actionId}
+                                                    onClick={() =>
+                                                        onEdit?.(actionId)
+                                                    }
+                                                >
+
+                                                    <Edit
+                                                        fontSize="small"
+                                                    />
+
+                                                </IconButton>
+
+                                            </Tooltip>
+
+
+                                            {/* =============================
+                                               DELETE
+                                            ============================= */}
+
+                                            <Tooltip title="Delete">
+
+                                                <IconButton
+                                                    size="small"
+                                                    color="error"
+                                                    disabled={!actionId}
+                                                    onClick={() =>
+                                                        onDelete?.(actionId)
+                                                    }
+                                                >
+
+                                                    <Delete
+                                                        fontSize="small"
+                                                    />
+
+                                                </IconButton>
+
+                                            </Tooltip>
+
+                                        </Box>
 
                                     </TableCell>
 
