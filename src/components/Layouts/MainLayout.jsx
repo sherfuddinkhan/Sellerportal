@@ -2787,6 +2787,84 @@ const MainLayout = () => {
 
                     ],
                 },
+                // -------------------------------------------------
+// WISHLIST ITEMS
+// -------------------------------------------------
+
+{
+    label: "Wishlist Items",
+    path: "/wishlist-items",
+    icon: "🛍️",
+
+    children: [
+
+        {
+            label: "Wishlist Item List",
+            path: "/wishlist-items",
+        },
+
+        {
+            label: "Create Wishlist Item",
+            path: "/wishlist-items/create",
+        },
+
+        {
+            label: "Wishlist Item Card",
+            path: "/wishlist-items/card",
+        },
+
+        {
+            label: "Wishlist Item Details",
+            path: "/wishlist-items/details/:id",
+        },
+
+        {
+            label: "Edit Wishlist Item",
+            path: "/wishlist-items/edit/:id",
+        },
+
+        {
+            label: "Wishlist Item Filters",
+            path: "/wishlist-items/filters",
+        },
+
+        {
+            label: "Wishlist Item Form",
+            path: "/wishlist-items/form",
+        },
+
+        {
+            label: "Wishlist Item Modal",
+            path: "/wishlist-items/modal",
+        },
+
+        {
+            label: "Pagination",
+            path: "/wishlist-items/pagination",
+        },
+
+        {
+            label: "Search",
+            path: "/wishlist-items/search",
+        },
+
+        {
+            label: "Statistics",
+            path: "/wishlist-items/statistics",
+        },
+
+        {
+            label: "Table",
+            path: "/wishlist-items/table",
+        },
+
+        {
+            label: "Toolbar",
+            path: "/wishlist-items/toolbar",
+        },
+
+    ],
+},
 
             ],
         },
