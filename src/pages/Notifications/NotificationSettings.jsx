@@ -1,5 +1,13 @@
-import React, { useState } from "react";
+// =========================================================
+// NotificationSettings.jsx
+// =========================================================
+
+import React, { useEffect, useState } from "react";
+
+import axios from "axios";
+
 import {
+    Alert,
     Box,
     Paper,
     Typography,
@@ -8,72 +16,334 @@ import {
     FormControlLabel,
     Button,
     Grid,
-    Alert,
+    CircularProgress,
 } from "@mui/material";
 
-const NotificationSettings = () => {
-    const [settings, setSettings] = useState({
-        emailNotifications: true,
-        smsNotifications: false,
-        pushNotifications: true,
-        orderNotifications: true,
-        paymentNotifications: true,
-        inventoryNotifications: true,
-        lowStockNotifications: true,
-        customerNotifications: false,
-        reportNotifications: false,
-        marketingNotifications: false,
-    });
+import {
+    Save,
+    RestartAlt,
+} from "@mui/icons-material";
 
-    const [saved, setSaved] = useState(false);
+// =========================================================
+// SERVER CONFIGURATION
+// =========================================================
+
+const SERVER_URL = "http://localhost:5000";
+
+const NOTIFICATION_SETTINGS_URL =
+    `${SERVER_URL}/api/NotificationSettings`;
+
+// =========================================================
+// DEFAULT SETTINGS
+// =========================================================
+
+const DEFAULT_SETTINGS = {
+    emailNotifications: true,
+    smsNotifications: false,
+    pushNotifications: true,
+
+    orderNotifications: true,
+    paymentNotifications: true,
+    inventoryNotifications: true,
+    lowStockNotifications: true,
+    customerNotifications: false,
+    reportNotifications: false,
+
+    marketingNotifications: false,
+};
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
+const NotificationSettings = () => {
+
+    // =========================================================
+    // STATE
+    // =========================================================
+
+    const [settings, setSettings] =
+        useState(DEFAULT_SETTINGS);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [saving, setSaving] =
+        useState(false);
+
+    const [saved, setSaved] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
+    // =========================================================
+    // LOAD SETTINGS
+    // =========================================================
+
+    useEffect(() => {
+
+        const loadSettings = async () => {
+
+            try {
+
+                setLoading(true);
+                setError("");
+
+                /*
+                 * Try backend first.
+                 *
+                 * If NotificationSettings endpoint is not
+                 * available yet, fall back to localStorage.
+                 */
+
+                try {
+
+                    const response = await axios.get(
+                        NOTIFICATION_SETTINGS_URL
+                    );
+
+                    const data = response.data;
+
+                    if (data) {
+
+                        setSettings({
+                            ...DEFAULT_SETTINGS,
+                            ...data,
+                        });
+
+                        return;
+                    }
+
+                } catch (apiError) {
+
+                    console.warn(
+                        "Notification settings API unavailable. Using localStorage.",
+                        apiError
+                    );
+                }
+
+                // =================================================
+                // LOCAL STORAGE FALLBACK
+                // =================================================
+
+                const stored =
+                    localStorage.getItem(
+                        "notificationSettings"
+                    );
+
+                if (stored) {
+
+                    try {
+
+                        const parsed =
+                            JSON.parse(stored);
+
+                        setSettings({
+                            ...DEFAULT_SETTINGS,
+                            ...parsed,
+                        });
+
+                    } catch (parseError) {
+
+                        console.error(
+                            "INVALID NOTIFICATION SETTINGS:",
+                            parseError
+                        );
+
+                        setSettings(
+                            DEFAULT_SETTINGS
+                        );
+                    }
+
+                } else {
+
+                    setSettings(
+                        DEFAULT_SETTINGS
+                    );
+                }
+
+            } catch (err) {
+
+                console.error(
+                    "LOAD NOTIFICATION SETTINGS ERROR:",
+                    err
+                );
+
+                setError(
+                    "Unable to load notification settings."
+                );
+
+            } finally {
+
+                setLoading(false);
+            }
+        };
+
+        loadSettings();
+
+    }, []);
+
+    // =========================================================
+    // HANDLE SWITCH
+    // =========================================================
 
     const handleChange = (event) => {
-        const { name, checked } = event.target;
 
-        setSettings((prev) => ({
-            ...prev,
+        const {
+            name,
+            checked,
+        } = event.target;
+
+        setSettings((previous) => ({
+            ...previous,
             [name]: checked,
         }));
 
         setSaved(false);
+        setError("");
     };
 
-    const handleSave = () => {
-        // Save to localStorage for now.
-        // Replace this with an API call when your backend is ready.
-        localStorage.setItem(
-            "notificationSettings",
-            JSON.stringify(settings)
-        );
+    // =========================================================
+    // SAVE SETTINGS
+    // =========================================================
 
-        setSaved(true);
+    const handleSave = async () => {
+
+        try {
+
+            setSaving(true);
+            setSaved(false);
+            setError("");
+
+            /*
+             * Try saving through backend.
+             */
+
+            try {
+
+                await axios.put(
+                    NOTIFICATION_SETTINGS_URL,
+                    settings
+                );
+
+            } catch (apiError) {
+
+                /*
+                 * Backend endpoint may not exist yet.
+                 * Keep localStorage fallback.
+                 */
+
+                console.warn(
+                    "Notification settings API unavailable. Saving locally.",
+                    apiError
+                );
+
+                localStorage.setItem(
+                    "notificationSettings",
+                    JSON.stringify(settings)
+                );
+            }
+
+            /*
+             * Always keep local copy.
+             * This also makes the page work before
+             * the backend settings API is implemented.
+             */
+
+            localStorage.setItem(
+                "notificationSettings",
+                JSON.stringify(settings)
+            );
+
+            setSaved(true);
+
+        } catch (err) {
+
+            console.error(
+                "SAVE NOTIFICATION SETTINGS ERROR:",
+                err
+            );
+
+            setError(
+                "Unable to save notification settings."
+            );
+
+        } finally {
+
+            setSaving(false);
+        }
     };
+
+    // =========================================================
+    // RESET
+    // =========================================================
 
     const handleReset = () => {
-        const defaultSettings = {
-            emailNotifications: true,
-            smsNotifications: false,
-            pushNotifications: true,
-            orderNotifications: true,
-            paymentNotifications: true,
-            inventoryNotifications: true,
-            lowStockNotifications: true,
-            customerNotifications: false,
-            reportNotifications: false,
-            marketingNotifications: false,
-        };
 
-        setSettings(defaultSettings);
+        setSettings({
+            ...DEFAULT_SETTINGS,
+        });
+
         localStorage.setItem(
             "notificationSettings",
-            JSON.stringify(defaultSettings)
+            JSON.stringify(
+                DEFAULT_SETTINGS
+            )
         );
 
         setSaved(false);
+        setError("");
     };
 
+    // =========================================================
+    // LOADING
+    // =========================================================
+
+    if (loading) {
+
+        return (
+            <Box
+                sx={{
+                    width: "100%",
+                    minHeight: 400,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2,
+                }}
+            >
+
+                <CircularProgress />
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                >
+                    Loading notification settings...
+                </Typography>
+
+            </Box>
+        );
+    }
+
+    // =========================================================
+    // RENDER
+    // =========================================================
+
     return (
-        <Box sx={{ p: 3 }}>
+        <Box
+            sx={{
+                p: 3,
+                width: "100%",
+            }}
+        >
+
+            {/* =================================================
+                PAGE HEADER
+               ================================================= */}
+
             <Typography
                 variant="h4"
                 fontWeight="bold"
@@ -85,23 +355,55 @@ const NotificationSettings = () => {
             <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ mb: 3 }}
+                sx={{
+                    mb: 3,
+                }}
             >
-                Manage how and when you receive notifications from the
-                Seller Portal.
+                Manage how and when you receive
+                notifications from the Seller Portal.
             </Typography>
+
+            {/* =================================================
+                ERROR
+               ================================================= */}
+
+            {error && (
+                <Alert
+                    severity="error"
+                    sx={{
+                        mb: 3,
+                    }}
+                    onClose={() =>
+                        setError("")
+                    }
+                >
+                    {error}
+                </Alert>
+            )}
+
+            {/* =================================================
+                SUCCESS
+               ================================================= */}
 
             {saved && (
                 <Alert
                     severity="success"
-                    sx={{ mb: 3 }}
-                    onClose={() => setSaved(false)}
+                    sx={{
+                        mb: 3,
+                    }}
+                    onClose={() =>
+                        setSaved(false)
+                    }
                 >
-                    Notification settings saved successfully.
+                    Notification settings saved
+                    successfully.
                 </Alert>
             )}
 
-            {/* Notification Channels */}
+            {/* =================================================
+                NOTIFICATION CHANNELS
+               ================================================= */}
+
             <Paper
                 elevation={2}
                 sx={{
@@ -110,6 +412,7 @@ const NotificationSettings = () => {
                     borderRadius: 2,
                 }}
             >
+
                 <Typography
                     variant="h6"
                     fontWeight="bold"
@@ -121,20 +424,41 @@ const NotificationSettings = () => {
                 <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 2 }}
+                    sx={{
+                        mb: 2,
+                    }}
                 >
-                    Choose how you want to receive notifications.
+                    Choose how you want to receive
+                    notifications.
                 </Typography>
 
-                <Divider sx={{ mb: 2 }} />
+                <Divider
+                    sx={{
+                        mb: 2,
+                    }}
+                />
 
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
+                <Grid
+                    container
+                    spacing={2}
+                >
+
+                    {/* EMAIL */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={4}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.emailNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.emailNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="emailNotifications"
                                 />
                             }
@@ -142,12 +466,22 @@ const NotificationSettings = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    {/* SMS */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={4}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.smsNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.smsNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="smsNotifications"
                                 />
                             }
@@ -155,22 +489,37 @@ const NotificationSettings = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    {/* PUSH */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={4}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.pushNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.pushNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="pushNotifications"
                                 />
                             }
                             label="Push Notifications"
                         />
                     </Grid>
+
                 </Grid>
+
             </Paper>
 
-            {/* Business Notifications */}
+            {/* =================================================
+                BUSINESS NOTIFICATIONS
+               ================================================= */}
+
             <Paper
                 elevation={2}
                 sx={{
@@ -179,6 +528,7 @@ const NotificationSettings = () => {
                     borderRadius: 2,
                 }}
             >
+
                 <Typography
                     variant="h6"
                     fontWeight="bold"
@@ -190,20 +540,41 @@ const NotificationSettings = () => {
                 <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 2 }}
+                    sx={{
+                        mb: 2,
+                    }}
                 >
-                    Select the business events you want to be notified about.
+                    Select the business events you want
+                    to be notified about.
                 </Typography>
 
-                <Divider sx={{ mb: 2 }} />
+                <Divider
+                    sx={{
+                        mb: 2,
+                    }}
+                />
 
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
+                <Grid
+                    container
+                    spacing={2}
+                >
+
+                    {/* ORDERS */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.orderNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.orderNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="orderNotifications"
                                 />
                             }
@@ -211,12 +582,22 @@ const NotificationSettings = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* PAYMENTS */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.paymentNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.paymentNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="paymentNotifications"
                                 />
                             }
@@ -224,12 +605,22 @@ const NotificationSettings = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* INVENTORY */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.inventoryNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.inventoryNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="inventoryNotifications"
                                 />
                             }
@@ -237,12 +628,22 @@ const NotificationSettings = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* LOW STOCK */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.lowStockNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.lowStockNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="lowStockNotifications"
                                 />
                             }
@@ -250,12 +651,22 @@ const NotificationSettings = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* CUSTOMER */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.customerNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.customerNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="customerNotifications"
                                 />
                             }
@@ -263,22 +674,37 @@ const NotificationSettings = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    {/* REPORT */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
-                                    checked={settings.reportNotifications}
-                                    onChange={handleChange}
+                                    checked={
+                                        settings.reportNotifications
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="reportNotifications"
                                 />
                             }
                             label="Report Notifications"
                         />
                     </Grid>
+
                 </Grid>
+
             </Paper>
 
-            {/* Marketing */}
+            {/* =================================================
+                MARKETING
+               ================================================= */}
+
             <Paper
                 elevation={2}
                 sx={{
@@ -287,6 +713,7 @@ const NotificationSettings = () => {
                     borderRadius: 2,
                 }}
             >
+
                 <Typography
                     variant="h6"
                     fontWeight="bold"
@@ -298,27 +725,41 @@ const NotificationSettings = () => {
                 <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 2 }}
+                    sx={{
+                        mb: 2,
+                    }}
                 >
-                    Receive promotional offers, product updates and
-                    marketplace announcements.
+                    Receive promotional offers, product
+                    updates and marketplace announcements.
                 </Typography>
 
-                <Divider sx={{ mb: 2 }} />
+                <Divider
+                    sx={{
+                        mb: 2,
+                    }}
+                />
 
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={settings.marketingNotifications}
-                            onChange={handleChange}
+                            checked={
+                                settings.marketingNotifications
+                            }
+                            onChange={
+                                handleChange
+                            }
                             name="marketingNotifications"
                         />
                     }
                     label="Marketing & Promotional Notifications"
                 />
+
             </Paper>
 
-            {/* Actions */}
+            {/* =================================================
+                ACTIONS
+               ================================================= */}
+
             <Box
                 sx={{
                     display: "flex",
@@ -326,21 +767,43 @@ const NotificationSettings = () => {
                     gap: 2,
                 }}
             >
+
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={handleReset}
+                    startIcon={
+                        <RestartAlt />
+                    }
+                    onClick={
+                        handleReset
+                    }
+                    disabled={saving}
                 >
                     Reset
                 </Button>
 
                 <Button
                     variant="contained"
-                    onClick={handleSave}
+                    startIcon={
+                        saving
+                            ? <CircularProgress
+                                size={18}
+                                color="inherit"
+                            />
+                            : <Save />
+                    }
+                    onClick={
+                        handleSave
+                    }
+                    disabled={saving}
                 >
-                    Save Settings
+                    {saving
+                        ? "Saving..."
+                        : "Save Settings"}
                 </Button>
+
             </Box>
+
         </Box>
     );
 };

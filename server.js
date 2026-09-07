@@ -22114,7 +22114,576 @@ app.delete(
         }
     }
 );
+// =========================================================
+// NOTIFICATION ROUTES
+// =========================================================
 
+// GET ALL NOTIFICATIONS
+app.get("/api/Notification", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/Notification`,
+            {
+                httpsAgent,
+                headers: {
+                    Authorization:
+                        req.headers.authorization || "",
+                },
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET NOTIFICATIONS ERROR:",
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Unable to load notifications.",
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET NOTIFICATION BY ID
+// =========================================================
+
+app.get(
+    "/api/Notification/:id",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Notification/${req.params.id}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET NOTIFICATION BY ID ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to load notification.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET CUSTOMER NOTIFICATIONS
+// =========================================================
+
+app.get(
+    "/api/Notification/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Notification/customer/${req.params.customerId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET CUSTOMER NOTIFICATIONS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to load customer notifications.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET UNREAD NOTIFICATIONS
+// =========================================================
+
+app.get(
+    "/api/Notification/customer/:customerId/unread",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Notification/customer/${req.params.customerId}/unread`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET UNREAD NOTIFICATIONS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to load unread notifications.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// CREATE NOTIFICATION
+// =========================================================
+
+app.post(
+    "/api/Notification",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.post(
+                `${DOTNET_API}/Notification`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                        "Content-Type":
+                            "application/json",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "CREATE NOTIFICATION ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to create notification.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// UPDATE NOTIFICATION
+// =========================================================
+
+app.put(
+    "/api/Notification/:id",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.put(
+                `${DOTNET_API}/Notification/${req.params.id}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                        "Content-Type":
+                            "application/json",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE NOTIFICATION ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to update notification.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// MARK NOTIFICATION AS READ
+// =========================================================
+
+app.put(
+    "/api/Notification/:id/read",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.put(
+                `${DOTNET_API}/Notification/${req.params.id}/read`,
+                {},
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "MARK NOTIFICATION READ ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to mark notification as read.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// SEARCH NOTIFICATIONS
+// =========================================================
+
+app.get(
+    "/api/Notification/search",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Notification/search`,
+                {
+                    httpsAgent,
+                    params: {
+                        search:
+                            req.query.search || "",
+                    },
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "SEARCH NOTIFICATIONS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to search notifications.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// SORT NOTIFICATIONS
+// =========================================================
+
+app.get(
+    "/api/Notification/sort",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Notification/sort`,
+                {
+                    httpsAgent,
+                    params: {
+                        sort:
+                            req.query.sort || "",
+                    },
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "SORT NOTIFICATIONS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to sort notifications.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// PAGED NOTIFICATIONS
+// =========================================================
+
+app.get(
+    "/api/Notification/paged",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Notification/paged`,
+                {
+                    httpsAgent,
+                    params: {
+                        page:
+                            req.query.page || 1,
+
+                        limit:
+                            req.query.limit || 15,
+                    },
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "PAGED NOTIFICATIONS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to load paged notifications.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// NOTIFICATION STATISTICS
+// =========================================================
+
+app.get(
+    "/api/Notification/statistics",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/Notification/statistics`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "NOTIFICATION STATISTICS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to load notification statistics.",
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// DELETE NOTIFICATION
+// =========================================================
+
+app.delete(
+    "/api/Notification/:id",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.delete(
+                `${DOTNET_API}/Notification/${req.params.id}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Authorization:
+                            req.headers.authorization || "",
+                    },
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE NOTIFICATION ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Unable to delete notification.",
+                }
+            );
+        }
+    }
+);
 
 
 

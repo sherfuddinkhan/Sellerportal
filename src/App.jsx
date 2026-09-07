@@ -1577,9 +1577,13 @@ function App() {
                 />
 
                 <Route
-                    path="notifications/:id"
-                    element={<NotificationView />}
-                />
+    path="notifications/view/:id"
+    element={<NotificationView />}
+/>
+<Route
+    path="notifications/card"
+    element={<NotificationCard />}
+/>
 
 
                 {/* =================================================
