@@ -23210,6 +23210,830 @@ app.delete("/api/OrderItem/:id", async (req, res) => {
     }
 });
 // =========================================================
+// =========================================================
+// MARKETPLACES
+// =========================================================
+// =========================================================
+
+
+// ---------------------------------------------------------
+// GET ALL MARKETPLACES
+// GET: /api/marketplaces
+// ---------------------------------------------------------
+
+app.get("/api/marketplaces", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/marketplaces`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "GET /api/marketplaces ERROR:",
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to fetch marketplaces."
+            }
+        );
+    }
+});
+
+
+// ---------------------------------------------------------
+// GET MARKETPLACE BY ID
+// GET: /api/marketplaces/1
+// ---------------------------------------------------------
+
+app.get(
+    "/api/marketplaces/:marketplaceId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/marketplaces/${marketplaceId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/marketplaces/:marketplaceId ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch marketplace."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET MARKETPLACE BY CODE
+// GET: /api/marketplaces/code/AMAZON
+// ---------------------------------------------------------
+
+app.get(
+    "/api/marketplaces/code/:marketplaceCode",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceCode
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/marketplaces/code/${encodeURIComponent(
+                    marketplaceCode
+                )}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/marketplaces/code/:marketplaceCode ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch marketplace by code."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET ACTIVE MARKETPLACES
+// GET: /api/marketplaces/active
+// ---------------------------------------------------------
+
+app.get(
+    "/api/marketplaces/active",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/marketplaces/active`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/marketplaces/active ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch active marketplaces."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// SEARCH MARKETPLACES
+// GET: /api/marketplaces/search?search=amazon
+// ---------------------------------------------------------
+
+app.get(
+    "/api/marketplaces/search",
+    async (req, res) => {
+
+        try {
+
+            const {
+                search
+            } = req.query;
+
+            const response = await axios.get(
+                `${DOTNET_API}/marketplaces/search`,
+                {
+                    params: {
+                        search
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/marketplaces/search ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to search marketplaces."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// SORT MARKETPLACES
+// GET: /api/marketplaces/sort?sort=name_asc
+// ---------------------------------------------------------
+
+app.get(
+    "/api/marketplaces/sort",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sort
+            } = req.query;
+
+            const response = await axios.get(
+                `${DOTNET_API}/marketplaces/sort`,
+                {
+                    params: {
+                        sort
+                    },
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/marketplaces/sort ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to sort marketplaces."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// CREATE MARKETPLACE
+// POST: /api/marketplaces
+// ---------------------------------------------------------
+
+app.post(
+    "/api/marketplaces",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.post(
+                `${DOTNET_API}/marketplaces`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "POST /api/marketplaces ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to create marketplace."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// UPDATE MARKETPLACE
+// PUT: /api/marketplaces/1
+// ---------------------------------------------------------
+
+app.put(
+    "/api/marketplaces/:marketplaceId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceId
+            } = req.params;
+
+            const response = await axios.put(
+                `${DOTNET_API}/marketplaces/${marketplaceId}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "PUT /api/marketplaces/:marketplaceId ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update marketplace."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// DELETE MARKETPLACE
+// DELETE: /api/marketplaces/1
+// ---------------------------------------------------------
+
+app.delete(
+    "/api/marketplaces/:marketplaceId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceId
+            } = req.params;
+
+            const response = await axios.delete(
+                `${DOTNET_API}/marketplaces/${marketplaceId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE /api/marketplaces/:marketplaceId ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to delete marketplace."
+                }
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// =========================================================
+// MARKETPLACE ORDERS
+// =========================================================
+// =========================================================
+
+
+// ---------------------------------------------------------
+// GET ALL MARKETPLACE ORDERS
+// GET: /api/MarketplaceOrder
+// ---------------------------------------------------------
+
+app.get(
+    "/api/MarketplaceOrder",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/MarketplaceOrder`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/MarketplaceOrder ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch marketplace orders."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET MARKETPLACE ORDER BY ID
+// GET: /api/MarketplaceOrder/1
+// ---------------------------------------------------------
+
+app.get(
+    "/api/MarketplaceOrder/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/MarketplaceOrder/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/MarketplaceOrder/:id ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch marketplace order."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET ORDERS BY SELLER
+// GET: /api/MarketplaceOrder/seller/6
+// ---------------------------------------------------------
+
+app.get(
+    "/api/MarketplaceOrder/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/MarketplaceOrder/seller/${sellerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/MarketplaceOrder/seller/:sellerId ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch seller marketplace orders."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET ORDERS BY CUSTOMER
+// GET: /api/MarketplaceOrder/customer/3
+// ---------------------------------------------------------
+
+app.get(
+    "/api/MarketplaceOrder/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                customerId
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/MarketplaceOrder/customer/${customerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/MarketplaceOrder/customer/:customerId ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch customer marketplace orders."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// GET ORDER BY ORDER NUMBER
+// GET: /api/MarketplaceOrder/number/AMZ-ORD-001
+// ---------------------------------------------------------
+
+app.get(
+    "/api/MarketplaceOrder/number/:marketplaceOrderNumber",
+    async (req, res) => {
+
+        try {
+
+            const {
+                marketplaceOrderNumber
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/MarketplaceOrder/number/${encodeURIComponent(
+                    marketplaceOrderNumber
+                )}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/MarketplaceOrder/number/:marketplaceOrderNumber ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch marketplace order by number."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// CREATE MARKETPLACE ORDER
+// POST: /api/MarketplaceOrder
+// ---------------------------------------------------------
+
+app.post(
+    "/api/MarketplaceOrder",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.post(
+                `${DOTNET_API}/MarketplaceOrder`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "POST /api/MarketplaceOrder ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to create marketplace order."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// UPDATE MARKETPLACE ORDER
+// PUT: /api/MarketplaceOrder/1
+// ---------------------------------------------------------
+
+app.put(
+    "/api/MarketplaceOrder/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.put(
+                `${DOTNET_API}/MarketplaceOrder/${id}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "PUT /api/MarketplaceOrder/:id ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update marketplace order."
+                }
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// DELETE MARKETPLACE ORDER
+// DELETE: /api/MarketplaceOrder/1
+// ---------------------------------------------------------
+
+app.delete(
+    "/api/MarketplaceOrder/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.delete(
+                `${DOTNET_API}/MarketplaceOrder/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DELETE /api/MarketplaceOrder/:id ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to delete marketplace order."
+                }
+            );
+        }
+    }
+);
+
+
+
+
+
+
+
+// =========================================================
 // START SERVER
 // =========================================================
 
