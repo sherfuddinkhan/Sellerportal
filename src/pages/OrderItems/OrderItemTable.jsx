@@ -1,6 +1,5 @@
 import React from "react";
 
-
 import {
     Paper,
     Table,
@@ -16,783 +15,246 @@ import {
     Box
 } from "@mui/material";
 
-
 import {
     Visibility,
     Edit,
     Delete
 } from "@mui/icons-material";
 
-
-
 const OrderItemTable = ({
-
     items = [],
-
-    loading,
-
+    loading = false,
     onView,
-
     onEdit,
-
     onDelete
-
 }) => {
 
-
+    // =========================================================
+    // Loading State
+    // =========================================================
 
     if (loading) {
-
-
-
         return (
-
-
-
             <Box
-
-
-
                 display="flex"
-
-
-
                 justifyContent="center"
-
-
-
+                alignItems="center"
                 mt={5}
-
-
-
             >
-
-
-
                 <CircularProgress />
-
-
-
             </Box>
-
-
-
         );
-
-
-
     }
 
 
+    // =========================================================
+    // Empty State
+    // =========================================================
 
-
-
-
-
-    if (items.length === 0) {
-
-
-
+    if (!items || items.length === 0) {
         return (
-
-
-
-            <Paper
-
-
-
-                sx={{
-
-
-
-                    p: 4
-
-
-
-                }}
-
-
-
-            >
-
-
-
+            <Paper sx={{ p: 4 }}>
                 <Typography
-
-
-
                     align="center"
-
-
-
                     color="text.secondary"
-
-
-
                 >
-
-
-
                     No Order Items Found
-
-
-
                 </Typography>
-
-
-
             </Paper>
-
-
-
         );
-
-
-
     }
 
 
-
-
-
-
+    // =========================================================
+    // Table
+    // =========================================================
 
     return (
+        <TableContainer component={Paper}>
+            <Table size="small">
 
-
-
-        <TableContainer
-
-
-
-            component={Paper}
-
-
-
-        >
-
-
-
-
-
-
-
-            <Table
-
-
-
-                size="small"
-
-
-
-            >
-
-
-
-
-
-
+                {/* =================================================
+                    Table Header
+                ================================================= */}
 
                 <TableHead>
-
-
-
-
-
-
-
                     <TableRow>
 
-
-
-
-
-
-
                         <TableCell>
-
                             Item ID
-
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
                             Order ID
-
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
                             Product ID
-
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
                             Quantity
-
                         </TableCell>
 
-
-
-
-
-
-
-
-
                         <TableCell>
-
                             Unit Price
-
                         </TableCell>
-
-
-
-
-
-
-
-
 
                         <TableCell>
-
                             Total Amount
-
                         </TableCell>
 
-
-
-
-
-
-
-
-
-                        <TableCell
-
-
-
-                            align="center"
-
-
-
-                        >
-
-
-
+                        <TableCell align="center">
                             Actions
-
-
-
                         </TableCell>
-
-
-
-
-
-
 
                     </TableRow>
-
-
-
-
-
-
-
                 </TableHead>
 
 
-
-
-
-
-
-
+                {/* =================================================
+                    Table Body
+                ================================================= */}
 
                 <TableBody>
 
+                    {items.map((row) => {
 
+                        const orderItemId =
+                            row.OrderItemId ??
+                            row.orderItemId;
 
+                        const orderId =
+                            row.OrderId ??
+                            row.orderId;
 
+                        const productId =
+                            row.ProductId ??
+                            row.productId;
 
+                        const quantity =
+                            row.Quantity ??
+                            row.quantity ??
+                            0;
 
+                        const unitPrice =
+                            row.UnitPrice ??
+                            row.unitPrice ??
+                            0;
 
-                    {
+                        const totalAmount =
+                            row.TotalAmount ??
+                            row.totalAmount ??
+                            0;
 
-
-
-                        items.map((row) => (
-
-
-
-
-
-
-
+                        return (
                             <TableRow
-
-
-
-                                key={
-
-                                    row.OrderItemId
-
-                                }
-
-
-
+                                key={orderItemId}
                                 hover
-
-
-
                             >
 
-
-
-
-
-
-
+                                {/* Item ID */}
                                 <TableCell>
-
-
-
-                                    {
-
-                                        row.OrderItemId
-
-                                    }
-
-
-
+                                    {orderItemId}
                                 </TableCell>
 
 
-
-
-
-
-
-
-
+                                {/* Order ID */}
                                 <TableCell>
-
-
-
-                                    {
-
-                                        row.OrderId
-
-                                    }
-
-
-
+                                    {orderId}
                                 </TableCell>
 
 
-
-
-
-
-
-
-
+                                {/* Product ID */}
                                 <TableCell>
-
-
-
-                                    {
-
-                                        row.ProductId
-
-                                    }
-
-
-
+                                    {productId}
                                 </TableCell>
 
 
-
-
-
-
-
-
-
+                                {/* Quantity */}
                                 <TableCell>
-
-
-
-                                    {
-
-
-
-                                        Number(
-
-                                            row.Quantity || 0
-
-                                        )
-
-                                        .toFixed(2)
-
-
-
-                                    }
-
-
-
+                                    {Number(quantity).toFixed(2)}
                                 </TableCell>
 
 
-
-
-
-
-
-
-
+                                {/* Unit Price */}
                                 <TableCell>
-
-
-
                                     ₹{" "}
-
-
-
-                                    {
-
-
-
-                                        Number(
-
-                                            row.UnitPrice || 0
-
-                                        )
-
-                                        .toLocaleString()
-
-
-
-                                    }
-
-
-
+                                    {Number(unitPrice).toLocaleString(
+                                        "en-IN",
+                                        {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        }
+                                    )}
                                 </TableCell>
 
 
-
-
-
-
-
-
-
+                                {/* Total Amount */}
                                 <TableCell>
-
-
-
                                     ₹{" "}
-
-
-
-                                    {
-
-
-
-                                        Number(
-
-                                            row.TotalAmount || 0
-
-                                        )
-
-                                        .toLocaleString()
-
-
-
-                                    }
-
-
-
+                                    {Number(totalAmount).toLocaleString(
+                                        "en-IN",
+                                        {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        }
+                                    )}
                                 </TableCell>
 
 
+                                {/* Actions */}
+                                <TableCell align="center">
 
-
-
-
-
-
-
-                                <TableCell
-
-
-
-                                    align="center"
-
-
-
-                                >
-
-
-
-
-
-
-
-                                    <Tooltip
-
-
-
-                                        title="View"
-
-
-
-                                    >
-
-
-
-
-
-
-
+                                    {/* View */}
+                                    <Tooltip title="View">
                                         <IconButton
-
-
-
                                             color="primary"
-
-
-
                                             onClick={() =>
-
-                                                onView(row)
-
+                                                onView?.(row)
                                             }
-
-
-
                                         >
-
-
-
                                             <Visibility />
-
-
-
                                         </IconButton>
-
-
-
-
-
-
-
                                     </Tooltip>
 
 
-
-
-
-
-
-
-
-                                    <Tooltip
-
-
-
-                                        title="Edit"
-
-
-
-                                    >
-
-
-
-
-
-
-
+                                    {/* Edit */}
+                                    <Tooltip title="Edit">
                                         <IconButton
-
-
-
                                             color="warning"
-
-
-
                                             onClick={() =>
-
-                                                onEdit(row)
-
+                                                onEdit?.(row)
                                             }
-
-
-
                                         >
-
-
-
                                             <Edit />
-
-
-
                                         </IconButton>
-
-
-
-
-
-
-
                                     </Tooltip>
 
 
-
-
-
-
-
-
-
-                                    <Tooltip
-
-
-
-                                        title="Delete"
-
-
-
-                                    >
-
-
-
-
-
-
-
+                                    {/* Delete */}
+                                    <Tooltip title="Delete">
                                         <IconButton
-
-
-
                                             color="error"
-
-
-
                                             onClick={() =>
-
-                                                onDelete(row)
-
+                                                onDelete?.(row)
                                             }
-
-
-
                                         >
-
-
-
                                             <Delete />
-
-
-
                                         </IconButton>
-
-
-
-
-
-
-
                                     </Tooltip>
-
-
-
-
-
-
 
                                 </TableCell>
-
-
-
-
-
-
-
-
 
                             </TableRow>
-
-
-
-
-
-
-
-                        ))
-
-
-
-                    }
-
-
-
-
-
-
+                        );
+                    })}
 
                 </TableBody>
 
-
-
-
-
-
-
-
-
             </Table>
-
-
-
-
-
-
-
         </TableContainer>
-
-
-
     );
-
 };
-
-
 
 export default OrderItemTable;

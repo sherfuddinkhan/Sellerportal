@@ -23,7 +23,6 @@ import {
 } from "@mui/icons-material";
 
 
-
 const OrderTable = ({
 
     orders = [],
@@ -39,12 +38,13 @@ const OrderTable = ({
 }) => {
 
 
+    // =========================================================
+    // LOADING
+    // =========================================================
 
     if (loading) {
 
-
         return (
-
 
             <Box
 
@@ -52,41 +52,38 @@ const OrderTable = ({
 
                 justifyContent="center"
 
+                alignItems="center"
+
                 mt={5}
+
+                mb={5}
 
             >
 
-
                 <CircularProgress />
-
 
             </Box>
 
-
         );
-
 
     }
 
 
-
+    // =========================================================
+    // EMPTY
+    // =========================================================
 
     if (orders.length === 0) {
 
-
         return (
-
 
             <Paper
 
                 sx={{
-
                     p: 4
-
                 }}
 
             >
-
 
                 <Typography
 
@@ -96,107 +93,76 @@ const OrderTable = ({
 
                 >
 
-
                     No Orders Found
-
 
                 </Typography>
 
-
             </Paper>
 
-
         );
-
 
     }
 
 
-
+    // =========================================================
+    // STATUS COLOR
+    // =========================================================
 
     const getStatusColor = (status) => {
 
-
         switch (
 
-            status?.toLowerCase()
+            status
+                ?.toString()
+                .toLowerCase()
 
         ) {
 
-
             case "pending":
-
                 return "warning";
 
-
-
             case "confirmed":
-
                 return "info";
 
-
-
             case "processing":
-
                 return "primary";
 
-
-
             case "packed":
-
                 return "secondary";
 
-
-
             case "shipped":
-
                 return "success";
-
-
 
             case "delivered":
-
                 return "success";
 
-
-
             case "cancelled":
-
                 return "error";
-
-
 
             case "returned":
-
                 return "error";
 
-
-
             default:
-
                 return "default";
 
-
         }
-
 
     };
 
 
-
-
+    // =========================================================
+    // RENDER
+    // =========================================================
 
     return (
-
-
 
         <TableContainer
 
             component={Paper}
 
+            elevation={2}
+
         >
-
-
 
             <Table
 
@@ -204,534 +170,344 @@ const OrderTable = ({
 
             >
 
-
+                {/* =================================================
+                    TABLE HEADER
+                ================================================= */}
 
                 <TableHead>
 
-
-
                     <TableRow>
 
-
-
                         <TableCell>
-
                             Order ID
-
                         </TableCell>
 
-
-
-
                         <TableCell>
-
                             Seller ID
-
                         </TableCell>
 
-
-
-
                         <TableCell>
-
                             Customer ID
-
                         </TableCell>
 
-
-
-
                         <TableCell>
-
                             Order Number
-
                         </TableCell>
 
-
-
-
                         <TableCell>
-
                             Order Date
-
                         </TableCell>
 
-
-
-
                         <TableCell>
-
                             Status
-
                         </TableCell>
-
-
-
 
                         <TableCell>
-
                             Total Amount
-
                         </TableCell>
-
-
-
 
                         <TableCell
-
                             align="center"
-
                         >
-
                             Actions
-
                         </TableCell>
 
-
-
                     </TableRow>
-
-
 
                 </TableHead>
 
 
-
-
+                {/* =================================================
+                    TABLE BODY
+                ================================================= */}
 
                 <TableBody>
 
-
-
-
-
                     {
 
+                        orders.map((row) => {
 
-                        orders.map((row) => (
 
+                            // -----------------------------------------
+                            // SUPPORT BOTH CASE STYLES
+                            // -----------------------------------------
 
+                            const orderId =
+                                row.OrderId ??
+                                row.orderId;
 
-                            <TableRow
 
+                            const sellerId =
+                                row.SellerId ??
+                                row.sellerId;
 
 
-                                key={
+                            const customerId =
+                                row.CustomerId ??
+                                row.customerId;
 
-                                    row.OrderId
 
-                                }
+                            const orderNumber =
+                                row.OrderNumber ??
+                                row.orderNumber;
 
 
+                            const orderDate =
+                                row.OrderDate ??
+                                row.orderDate;
 
-                                hover
 
+                            const orderStatus =
+                                row.OrderStatus ??
+                                row.orderStatus;
 
 
-                            >
+                            const totalAmount =
+                                row.TotalAmount ??
+                                row.totalAmount ??
+                                0;
 
 
+                            return (
 
+                                <TableRow
 
+                                    key={orderId}
 
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.OrderId
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.SellerId
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.CustomerId
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-                                        row.OrderNumber
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    {
-
-
-                                        row.OrderDate
-
-
-
-                                            ? new Date(
-
-                                                row.OrderDate
-
-                                              )
-
-                                              .toLocaleDateString()
-
-
-
-                                            : "-"
-
-
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-
-
-                                    <Chip
-
-
-
-                                        label={
-
-                                            row.OrderStatus ||
-
-                                            "N/A"
-
-                                        }
-
-
-
-                                        color={
-
-                                            getStatusColor(
-
-                                                row.OrderStatus
-
-                                            )
-
-                                        }
-
-
-
-                                        size="small"
-
-
-
-                                    />
-
-
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                                <TableCell>
-
-
-
-                                    ₹{" "}
-
-
-
-                                    {
-
-
-
-                                        Number(
-
-                                            row.TotalAmount || 0
-
-                                        )
-
-                                        .toLocaleString()
-
-
-
-                                    }
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                                <TableCell
-
-                                    align="center"
+                                    hover
 
                                 >
 
 
+                                    {/* =================================
+                                        ORDER ID
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {orderId ?? "-"}
+
+                                    </TableCell>
 
 
+                                    {/* =================================
+                                        SELLER ID
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {sellerId ?? "-"}
+
+                                    </TableCell>
 
 
+                                    {/* =================================
+                                        CUSTOMER ID
+                                    ================================= */}
 
-                                    <Tooltip
+                                    <TableCell>
 
-                                        title="View"
+                                        {customerId ?? "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        ORDER NUMBER
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {orderNumber || "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        ORDER DATE
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {
+
+                                            orderDate
+
+                                                ? new Date(
+                                                    orderDate
+                                                ).toLocaleDateString()
+
+                                                : "-"
+
+                                        }
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        STATUS
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        <Chip
+
+                                            label={
+                                                orderStatus ||
+                                                "N/A"
+                                            }
+
+                                            color={
+
+                                                getStatusColor(
+                                                    orderStatus
+                                                )
+
+                                            }
+
+                                            size="small"
+
+                                        />
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        TOTAL AMOUNT
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        ₹{" "}
+
+                                        {
+
+                                            Number(
+                                                totalAmount
+                                            ).toLocaleString(
+                                                "en-IN",
+                                                {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }
+                                            )
+
+                                        }
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        ACTIONS
+                                    ================================= */}
+
+                                    <TableCell
+
+                                        align="center"
 
                                     >
 
 
+                                        {/* -----------------------------
+                                            VIEW
+                                        ----------------------------- */}
 
-                                        <IconButton
+                                        <Tooltip
 
-
-
-                                            color="primary"
-
-
-
-                                            onClick={() =>
-
-                                                onView(row)
-
-                                            }
-
-
+                                            title="View"
 
                                         >
 
+                                            <IconButton
+
+                                                color="primary"
+
+                                                onClick={() =>
+                                                    onView(row)
+                                                }
+
+                                            >
+
+                                                <Visibility />
+
+                                            </IconButton>
+
+                                        </Tooltip>
 
 
-                                            <Visibility />
+                                        {/* -----------------------------
+                                            EDIT
+                                        ----------------------------- */}
 
+                                        <Tooltip
 
-
-                                        </IconButton>
-
-
-
-                                    </Tooltip>
-
-
-
-
-
-
-
-
-
-                                    <Tooltip
-
-                                        title="Edit"
-
-                                    >
-
-
-
-                                        <IconButton
-
-
-
-                                            color="warning"
-
-
-
-                                            onClick={() =>
-
-                                                onEdit(row)
-
-                                            }
-
-
+                                            title="Edit"
 
                                         >
 
+                                            <IconButton
+
+                                                color="warning"
+
+                                                onClick={() =>
+                                                    onEdit(row)
+                                                }
+
+                                            >
+
+                                                <Edit />
+
+                                            </IconButton>
+
+                                        </Tooltip>
 
 
-                                            <Edit />
+                                        {/* -----------------------------
+                                            DELETE
+                                        ----------------------------- */}
 
+                                        <Tooltip
 
-
-                                        </IconButton>
-
-
-
-                                    </Tooltip>
-
-
-
-
-
-
-
-
-
-                                    <Tooltip
-
-                                        title="Delete"
-
-                                    >
-
-
-
-                                        <IconButton
-
-
-
-                                            color="error"
-
-
-
-                                            onClick={() =>
-
-                                                onDelete(row)
-
-                                            }
-
-
+                                            title="Delete"
 
                                         >
 
+                                            <IconButton
+
+                                                color="error"
+
+                                                onClick={() =>
+                                                    onDelete(row)
+                                                }
+
+                                            >
+
+                                                <Delete />
+
+                                            </IconButton>
+
+                                        </Tooltip>
 
 
-                                            <Delete />
+                                    </TableCell>
 
+                                </TableRow>
 
+                            );
 
-                                        </IconButton>
-
-
-
-                                    </Tooltip>
-
-
-
-
-
-
-
-                                </TableCell>
-
-
-
-
-
-
-
-                            </TableRow>
-
-
-
-
-
-                        ))
-
-
+                        })
 
                     }
 
-
-
-
-
                 </TableBody>
-
-
-
-
-
-
 
             </Table>
 
-
-
-
-
-
-
         </TableContainer>
-
-
 
     );
 
 };
-
 
 
 export default OrderTable;

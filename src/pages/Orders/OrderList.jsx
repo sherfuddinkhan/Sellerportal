@@ -3,14 +3,11 @@ import React, {
     useState
 } from "react";
 
-
 import {
     Box
 } from "@mui/material";
 
-
-import apiService from "../../services/apiService";
-
+import axios from "axios";
 
 import OrderToolbar from "./OrderToolbar";
 import OrderStatistics from "./OrderStatistics";
@@ -22,935 +19,488 @@ import OrderView from "./OrderView";
 import DeleteOrderDialog from "./DeleteOrderDialog";
 
 
+// =========================================================
+// CONFIG
+// =========================================================
+
+const SERVER_URL = "http://localhost:5000";
+
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const OrderList = () => {
 
+    // =====================================================
+    // STATE
+    // =====================================================
 
+    const [orders, setOrders] = useState([]);
 
-    // ==========================================
-    // State
-    // ==========================================
+    const [filteredOrders, setFilteredOrders] = useState([]);
 
+    const [loading, setLoading] = useState(false);
 
-    const [
+    const [searchText, setSearchText] = useState("");
 
-        orders,
+    const [statusFilter, setStatusFilter] = useState("All");
 
-        setOrders
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
-    ] = useState([]);
+    const [modalOpen, setModalOpen] = useState(false);
 
+    const [viewOpen, setViewOpen] = useState(false);
 
+    const [deleteOpen, setDeleteOpen] = useState(false);
 
+    const [page, setPage] = useState(1);
 
-    const [
+    const [pageSize, setPageSize] = useState(10);
 
-        filteredOrders,
 
-        setFilteredOrders
-
-    ] = useState([]);
-
-
-
-
-    const [
-
-        loading,
-
-        setLoading
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        searchText,
-
-        setSearchText
-
-    ] = useState("");
-
-
-
-
-    const [
-
-        statusFilter,
-
-        setStatusFilter
-
-    ] = useState("All");
-
-
-
-
-    const [
-
-        selectedOrder,
-
-        setSelectedOrder
-
-    ] = useState(null);
-
-
-
-
-    const [
-
-        modalOpen,
-
-        setModalOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        viewOpen,
-
-        setViewOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        deleteOpen,
-
-        setDeleteOpen
-
-    ] = useState(false);
-
-
-
-
-    const [
-
-        page,
-
-        setPage
-
-    ] = useState(1);
-
-
-
-
-    const [
-
-        pageSize,
-
-        setPageSize
-
-    ] = useState(10);
-
-
-
-
-
-
-    // ==========================================
-    // Load Orders
-    // ==========================================
-
+    // =====================================================
+    // LOAD ORDERS
+    // =====================================================
 
     const loadOrders = async () => {
 
-
         try {
-
 
             setLoading(true);
 
-
-
-            const response =
-
-                await apiService.getOrders();
-
-
-
-            setOrders(
-
-                response.data
-
+            const response = await axios.get(
+                `${SERVER_URL}/api/Order`
             );
 
+            const data = Array.isArray(response.data)
+                ? response.data
+                : [];
 
+            setOrders(data);
 
-            setFilteredOrders(
-
-                response.data
-
-            );
-
-
+            setFilteredOrders(data);
 
         }
+        catch (error) {
 
-        catch(error) {
-
-
-            console.log(
-
-                "Load Orders Error",
-
+            console.error(
+                "Load Orders Error:",
                 error
-
             );
 
-
         }
-
         finally {
-
 
             setLoading(false);
 
-
         }
-
 
     };
 
 
-
-
-
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
 
     useEffect(() => {
 
-
         loadOrders();
-
-
 
     }, []);
 
 
-
-
-
-
-
-
-    // ==========================================
-    // Search & Filter
-    // ==========================================
-
+    // =====================================================
+    // SEARCH & FILTER
+    // =====================================================
 
     useEffect(() => {
 
+        let result = [...orders];
 
 
-        let result = [
+        // ---------------------------------------------
+        // SEARCH
+        // ---------------------------------------------
 
-            ...orders
-
-        ];
-
-
-
-
-
-        if (
-
-            searchText.trim() !== ""
-
-        ) {
-
-
+        if (searchText.trim() !== "") {
 
             const search =
-
-                searchText.toLowerCase();
-
-
+                searchText
+                    .toLowerCase()
+                    .trim();
 
 
             result = result.filter(item =>
 
-
-
-
                 item.OrderNumber
-
                     ?.toLowerCase()
-
                     .includes(search)
-
-
-
 
                 ||
 
-
-
-
-                item.OrderStatus
-
+                item.orderNumber
                     ?.toLowerCase()
-
                     .includes(search)
 
+                ||
 
+                item.OrderStatus
+                    ?.toLowerCase()
+                    .includes(search)
+
+                ||
+
+                item.orderStatus
+                    ?.toLowerCase()
+                    .includes(search)
 
             );
-
-
 
         }
 
 
+        // ---------------------------------------------
+        // STATUS FILTER
+        // ---------------------------------------------
 
-
-
-
-
-        if (
-
-            statusFilter !== "All"
-
-        ) {
-
-
+        if (statusFilter !== "All") {
 
             result = result.filter(item =>
 
-
-
-                item.OrderStatus ===
-
-                statusFilter
-
-
+                (
+                    item.OrderStatus ??
+                    item.orderStatus
+                ) === statusFilter
 
             );
-
-
 
         }
 
 
-
-
-
-
-        setFilteredOrders(
-
-            result
-
-        );
-
-
+        setFilteredOrders(result);
 
         setPage(1);
 
-
-
     }, [
-
         orders,
-
         searchText,
-
         statusFilter
-
     ]);
 
 
-
-
-
-
-
-
-
-    // ==========================================
-    // Pagination
-    // ==========================================
-
+    // =====================================================
+    // PAGINATION
+    // =====================================================
 
     const totalPages = Math.ceil(
+        filteredOrders.length / pageSize
+    );
 
 
-        filteredOrders.length /
+    const pagedOrders = filteredOrders.slice(
 
-        pageSize
+        (page - 1) * pageSize,
 
+        page * pageSize
 
     );
 
 
+    // =====================================================
+    // SAVE ORDER
+    // =====================================================
 
-
-    const pagedOrders =
-
-
-
-        filteredOrders.slice(
-
-
-
-            (page - 1) * pageSize,
-
-
-
-            page * pageSize
-
-
-
-        );
-
-
-
-
-
-
-
-
-    // ==========================================
-    // Save Order
-    // ==========================================
-
-
-    const handleSave = async(data) => {
-
+    const handleSave = async (data) => {
 
         try {
 
+            if (data.OrderId || data.orderId) {
 
-            if (
-
-                data.OrderId
-
-            ) {
-
+                const id =
+                    data.OrderId ??
+                    data.orderId;
 
 
-                await apiService.updateOrder(
+                await axios.put(
 
-                    data.OrderId,
+                    `${SERVER_URL}/api/Order/${id}`,
 
                     data
 
                 );
 
-
-
             }
-
             else {
 
+                await axios.post(
 
-
-                await apiService.createOrder(
+                    `${SERVER_URL}/api/Order`,
 
                     data
 
                 );
 
-
-
             }
-
-
 
 
             await loadOrders();
-
-
 
 
             setModalOpen(false);
 
-
-
             setSelectedOrder(null);
 
-
-
         }
+        catch (error) {
 
-        catch(error) {
-
-
-            console.log(
-
-                "Save Order Error",
-
+            console.error(
+                "Save Order Error:",
                 error
-
             );
 
-
         }
 
-
     };
-        // ==========================================
-    // Delete Order
-    // ==========================================
 
+
+    // =====================================================
+    // DELETE ORDER
+    // =====================================================
 
     const handleDelete = async (id) => {
 
-
         try {
 
+            await axios.delete(
 
-            await apiService.deleteOrder(id);
+                `${SERVER_URL}/api/Order/${id}`
 
+            );
 
 
             await loadOrders();
 
 
-
             setDeleteOpen(false);
-
-
 
             setSelectedOrder(null);
 
-
-
         }
+        catch (error) {
 
-        catch(error) {
-
-
-            console.log(
-
-                "Delete Order Error",
-
+            console.error(
+                "Delete Order Error:",
                 error
-
             );
 
-
         }
-
 
     };
 
 
-
-
-
-
-    // ==========================================
-    // Render
-    // ==========================================
-
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
 
-
         <Box
-
             sx={{
-
                 p: 3
-
             }}
-
         >
 
-
-
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
 
             <OrderToolbar
 
-
-
                 onAdd={() => {
-
-
 
                     setSelectedOrder(null);
 
-
-
                     setModalOpen(true);
 
-
-
                 }}
-
-
-
 
                 onRefresh={loadOrders}
 
-
-
-
-                onExport={() =>
-
-
+                onExport={() => {
 
                     console.log(
-
                         "Export Orders"
+                    );
 
-                    )
-
-
-
-                }
-
-
+                }}
 
             />
 
 
-
-
-
-
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
 
             <OrderStatistics
-
-
-
                 orders={orders}
-
-
-
             />
 
 
-
-
-
-
+            {/* =================================================
+                SEARCH
+            ================================================= */}
 
             <OrderSearch
 
-
-
                 searchText={searchText}
-
-
 
                 setSearchText={setSearchText}
 
-
-
                 statusFilter={statusFilter}
 
-
-
-                setStatusFilter={
-
-                    setStatusFilter
-
-                }
-
-
+                setStatusFilter={setStatusFilter}
 
             />
 
 
-
-
-
-
-
-
+            {/* =================================================
+                TABLE
+            ================================================= */}
 
             <OrderTable
 
-
-
                 orders={pagedOrders}
-
-
 
                 loading={loading}
 
-
-
-
                 onView={(row) => {
 
-
-
                     setSelectedOrder(row);
-
-
 
                     setViewOpen(true);
 
-
-
                 }}
-
-
-
-
-
-
 
                 onEdit={(row) => {
 
-
-
                     setSelectedOrder(row);
-
-
 
                     setModalOpen(true);
 
-
-
                 }}
-
-
-
-
-
-
 
                 onDelete={(row) => {
 
-
-
                     setSelectedOrder(row);
-
-
 
                     setDeleteOpen(true);
 
-
-
                 }}
-
-
 
             />
 
 
-
-
-
-
-
-
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
 
             <OrderPagination
 
-
-
                 page={page}
-
-
 
                 totalPages={totalPages}
 
-
-
                 pageSize={pageSize}
 
-
-
                 totalRecords={
-
                     filteredOrders.length
-
                 }
-
-
-
-
 
                 onPageChange={setPage}
 
-
-
-
-
-
-
                 onPageSizeChange={(size) => {
-
-
 
                     setPageSize(size);
 
-
-
                     setPage(1);
 
-
-
                 }}
-
-
 
             />
 
 
-
-
-
-
-
-
+            {/* =================================================
+                ADD / EDIT MODAL
+            ================================================= */}
 
             <OrderModal
 
-
-
                 open={modalOpen}
-
-
 
                 order={selectedOrder}
 
-
-
-
-
-
-
                 onClose={() => {
-
-
 
                     setModalOpen(false);
 
-
-
                     setSelectedOrder(null);
 
-
-
                 }}
-
-
-
-
-
-
 
                 onSave={handleSave}
 
-
-
             />
 
 
-
-
-
-
-
-
+            {/* =================================================
+                VIEW
+            ================================================= */}
 
             <OrderView
 
-
-
                 open={viewOpen}
-
-
 
                 order={selectedOrder}
 
-
-
-
-
-
-
                 onClose={() => {
-
-
 
                     setViewOpen(false);
 
-
-
                     setSelectedOrder(null);
 
-
-
                 }}
-
-
 
             />
 
 
-
-
-
-
-
-
+            {/* =================================================
+                DELETE
+            ================================================= */}
 
             <DeleteOrderDialog
 
-
-
                 open={deleteOpen}
-
-
 
                 order={selectedOrder}
 
-
-
-
-
-
-
                 onClose={() => {
-
-
 
                     setDeleteOpen(false);
 
-
-
                     setSelectedOrder(null);
-
-
 
                 }}
 
-
-
-
-
-
-
                 onDeleted={handleDelete}
-
-
 
             />
 
-
-
-
-
-
         </Box>
-
 
     );
 
 };
-
 
 
 export default OrderList;

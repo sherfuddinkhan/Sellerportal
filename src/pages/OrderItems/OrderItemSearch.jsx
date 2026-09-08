@@ -1,6 +1,5 @@
 import React from "react";
 
-
 import {
     Paper,
     Grid,
@@ -8,215 +7,49 @@ import {
     InputAdornment
 } from "@mui/material";
 
-
 import {
     Search
 } from "@mui/icons-material";
 
-
-
 const OrderItemSearch = ({
-
-    searchText,
-
+    searchText = "",
     setSearchText
-
 }) => {
 
-
+    const handleSearchChange = (event) => {
+        if (setSearchText) {
+            setSearchText(event.target.value);
+        }
+    };
 
     return (
-
-
-
         <Paper
-
-
-
             elevation={2}
-
-
-
             sx={{
-
-
-
                 p: 2,
-
-
-
                 mb: 3
-
-
-
             }}
-
-
-
         >
-
-
-
-
-
-
-
-            <Grid
-
-
-
-                container
-
-
-
-                spacing={2}
-
-
-
-            >
-
-
-
-
-
-
-
-                <Grid
-
-
-
-                    item
-
-
-
-                    xs={12}
-
-
-
-                >
-
-
-
-
-
-
-
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
                     <TextField
-
-
-
                         fullWidth
-
-
-
                         label="Search Order Items"
-
-
-
                         placeholder="Search by Order ID or Product ID"
-
-
-
                         value={searchText}
-
-
-
-
-
-
-
-                        onChange={(e) =>
-
-
-
-                            setSearchText(
-
-                                e.target.value
-
-                            )
-
-
-
-                        }
-
-
-
-
-
-
-
+                        onChange={handleSearchChange}
                         InputProps={{
-
-
-
                             startAdornment: (
-
-
-
-                                <InputAdornment
-
-
-
-                                    position="start"
-
-
-
-                                >
-
-
-
+                                <InputAdornment position="start">
                                     <Search />
-
-
-
                                 </InputAdornment>
-
-
-
                             )
-
-
-
                         }}
-
-
-
-
-
-
-
                     />
-
-
-
-
-
-
-
                 </Grid>
-
-
-
-
-
-
-
             </Grid>
-
-
-
-
-
-
-
         </Paper>
-
-
-
     );
-
 };
-
-
 
 export default OrderItemSearch;

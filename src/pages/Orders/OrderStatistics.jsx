@@ -16,7 +16,6 @@ import {
 } from "@mui/icons-material";
 
 
-
 const OrderStatistics = ({
 
     orders = []
@@ -24,146 +23,154 @@ const OrderStatistics = ({
 }) => {
 
 
+    // =========================================================
+    // TOTAL ORDERS
+    // =========================================================
 
-    const totalOrders = orders.length;
+    const totalOrders =
+        orders.length;
 
 
+    // =========================================================
+    // TOTAL AMOUNT
+    // =========================================================
 
     const totalAmount = orders.reduce(
 
-        (sum, item) =>
+        (sum, item) => {
 
-            sum + Number(item.TotalAmount || 0),
+            const amount =
+                item.TotalAmount ??
+                item.totalAmount ??
+                0;
+
+            return sum + Number(amount);
+
+        },
 
         0
 
     );
 
 
+    // =========================================================
+    // PENDING ORDERS
+    // =========================================================
 
     const pendingOrders = orders.filter(
 
-        item =>
+        item => {
 
-            item.OrderStatus
+            const status =
+                item.OrderStatus ??
+                item.orderStatus ??
+                "";
 
-                ?.toLowerCase()
+            return (
 
-                === "pending"
+                status
+                    .toString()
+                    .toLowerCase() === "pending"
+
+            );
+
+        }
 
     ).length;
 
 
+    // =========================================================
+    // SHIPPED ORDERS
+    // =========================================================
 
     const shippedOrders = orders.filter(
 
-        item =>
+        item => {
 
-            item.OrderStatus
+            const status =
+                item.OrderStatus ??
+                item.orderStatus ??
+                "";
 
-                ?.toLowerCase()
+            return (
 
-                === "shipped"
+                status
+                    .toString()
+                    .toLowerCase() === "shipped"
+
+            );
+
+        }
 
     ).length;
 
 
-
+    // =========================================================
+    // STATISTICS
+    // =========================================================
 
     const statistics = [
 
-
-
         {
-
             title: "Total Orders",
 
             value: totalOrders,
 
             icon: (
-
                 <ShoppingCart
-
                     fontSize="large"
-
                 />
-
             )
-
         },
 
 
-
         {
-
             title: "Total Amount",
 
             value:
-
                 `₹ ${totalAmount.toFixed(2)}`,
 
             icon: (
-
                 <CurrencyRupee
-
                     fontSize="large"
-
                 />
-
             )
-
         },
 
 
-
         {
-
             title: "Pending Orders",
 
             value: pendingOrders,
 
             icon: (
-
                 <PendingActions
-
                     fontSize="large"
-
                 />
-
             )
-
         },
 
 
-
         {
-
             title: "Shipped Orders",
 
             value: shippedOrders,
 
             icon: (
-
                 <LocalShipping
-
                     fontSize="large"
-
                 />
-
             )
-
         }
-
-
 
     ];
 
 
-
+    // =========================================================
+    // RENDER
+    // =========================================================
 
     return (
-
-
 
         <Grid
 
@@ -171,156 +178,143 @@ const OrderStatistics = ({
 
             spacing={3}
 
-            sx={{ mb: 3 }}
+            sx={{
+                mb: 3
+            }}
 
         >
 
-
-
             {
 
-                statistics.map((item, index) => (
+                statistics.map(
 
+                    (item, index) => (
 
+                        <Grid
 
-                    <Grid
+                            item
 
-                        item
+                            xs={12}
 
-                        xs={12}
+                            sm={6}
 
-                        sm={6}
+                            md={3}
 
-                        md={3}
-
-                        key={index}
-
-                    >
-
-
-
-                        <Card
-
-                            elevation={3}
-
-                            sx={{
-
-                                borderRadius: 2,
-
-                                height: "100%",
-
-                                transition: "0.3s",
-
-                                "&:hover": {
-
-                                    transform:
-
-                                        "translateY(-4px)",
-
-                                    boxShadow: 6
-
-                                }
-
-                            }}
+                            key={index}
 
                         >
 
+                            <Card
 
+                                elevation={3}
 
-                            <CardContent>
+                                sx={{
 
+                                    borderRadius: 2,
 
+                                    height: "100%",
 
-                                <Stack
+                                    transition:
+                                        "0.3s",
 
-                                    direction="row"
+                                    "&:hover": {
 
-                                    justifyContent="space-between"
+                                        transform:
+                                            "translateY(-4px)",
 
-                                    alignItems="center"
+                                        boxShadow: 6
 
-                                >
+                                    }
 
+                                }}
 
+                            >
 
-                                    <div>
-
-
-
-                                        <Typography
-
-                                            variant="subtitle2"
-
-                                            color="text.secondary"
-
-                                        >
-
-                                            {item.title}
-
-                                        </Typography>
-
-
-
-                                        <Typography
-
-                                            variant="h5"
-
-                                            fontWeight="bold"
-
-                                        >
-
-                                            {item.value}
-
-                                        </Typography>
-
-
-
-                                    </div>
-
-
+                                <CardContent>
 
                                     <Stack
 
-                                        color="primary.main"
+                                        direction="row"
+
+                                        justifyContent="space-between"
+
+                                        alignItems="center"
 
                                     >
 
-                                        {item.icon}
+                                        {/* =================================
+                                            STATISTIC VALUE
+                                        ================================= */}
+
+                                        <div>
+
+                                            <Typography
+
+                                                variant="subtitle2"
+
+                                                color="text.secondary"
+
+                                            >
+
+                                                {
+                                                    item.title
+                                                }
+
+                                            </Typography>
+
+
+                                            <Typography
+
+                                                variant="h5"
+
+                                                fontWeight="bold"
+
+                                            >
+
+                                                {
+                                                    item.value
+                                                }
+
+                                            </Typography>
+
+                                        </div>
+
+
+                                        {/* =================================
+                                            ICON
+                                        ================================= */}
+
+                                        <Stack
+
+                                            color="primary.main"
+
+                                        >
+
+                                            {
+                                                item.icon
+                                            }
+
+                                        </Stack>
 
                                     </Stack>
 
+                                </CardContent>
 
+                            </Card>
 
-                                </Stack>
+                        </Grid>
 
+                    )
 
-
-                            </CardContent>
-
-
-
-                        </Card>
-
-
-
-                    </Grid>
-
-
-
-                ))
+                )
 
             }
 
-
-
         </Grid>
-
-
 
     );
 
 };
-
 
 
 export default OrderStatistics;

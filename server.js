@@ -22681,15 +22681,508 @@ app.delete(
         }
     }
 );
+// =========================================================
+// GET ALL ORDERS
+// =========================================================
+
+app.get(
+    "/api/Order",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+
+                `${DOTNET_API}/Order`,
+
+                {
+                    httpsAgent
+                }
+
+            );
 
 
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ORDERS ERROR:",
+                error.response?.data ||
+                error.message
+            );
 
 
+            res.status(
+
+                error.response?.status || 500
+
+            ).json(
+
+                error.response?.data || {
+
+                    message:
+                        "Failed to load orders."
+
+                }
+
+            );
+
+        }
+
+    }
+);
 
 
+// =========================================================
+// GET ORDER BY ID
+// =========================================================
+
+app.get(
+    "/api/Order/:id",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+
+                `${DOTNET_API}/Order/${req.params.id}`,
+
+                {
+                    httpsAgent
+                }
+
+            );
 
 
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
 
+        }
+        catch (error) {
+
+            console.error(
+                "GET ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+
+                error.response?.status || 500
+
+            ).json(
+
+                error.response?.data || {
+
+                    message:
+                        "Failed to load order."
+
+                }
+
+            );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// CREATE ORDER
+// =========================================================
+
+app.post(
+    "/api/Order",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "CREATE ORDER REQUEST:",
+                req.body
+            );
+
+
+            const response = await axios.post(
+
+                `${DOTNET_API}/Order`,
+
+                req.body,
+
+                {
+
+                    httpsAgent,
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    }
+
+                }
+
+            );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+
+                error.response?.status || 500
+
+            ).json(
+
+                error.response?.data || {
+
+                    message:
+                        "Failed to create order."
+
+                }
+
+            );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// UPDATE ORDER
+// =========================================================
+
+app.put(
+    "/api/Order/:id",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "UPDATE ORDER:",
+                req.params.id,
+                req.body
+            );
+
+
+            const response = await axios.put(
+
+                `${DOTNET_API}/Order/${req.params.id}`,
+
+                req.body,
+
+                {
+
+                    httpsAgent,
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    }
+
+                }
+
+            );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+
+                error.response?.status || 500
+
+            ).json(
+
+                error.response?.data || {
+
+                    message:
+                        "Failed to update order."
+
+                }
+
+            );
+
+        }
+
+    }
+);
+
+
+// =========================================================
+// DELETE ORDER
+// =========================================================
+
+app.delete(
+    "/api/Order/:id",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "DELETE ORDER:",
+                req.params.id
+            );
+
+
+            const response = await axios.delete(
+
+                `${DOTNET_API}/Order/${req.params.id}`,
+
+                {
+                    httpsAgent
+                }
+
+            );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+
+                error.response?.status || 500
+
+            ).json(
+
+                error.response?.data || {
+
+                    message:
+                        "Failed to delete order."
+
+                }
+
+            );
+
+        }
+
+    }
+);
+// =========================================================
+// OrderItem API Proxy
+// =========================================================
+
+// GET ALL ORDER ITEMS
+app.get("/api/OrderItem", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/OrderItem`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "GET /api/OrderItem ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to fetch order items."
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// GET ORDER ITEM BY ID
+// =========================================================
+
+app.get("/api/OrderItem/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const response = await axios.get(
+            `${DOTNET_API}/OrderItem/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "GET /api/OrderItem/:id ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to fetch order item."
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// CREATE ORDER ITEM
+// =========================================================
+
+app.post("/api/OrderItem", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${DOTNET_API}/OrderItem`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "POST /api/OrderItem ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to create order item."
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// UPDATE ORDER ITEM
+// =========================================================
+
+app.put("/api/OrderItem/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const response = await axios.put(
+            `${DOTNET_API}/OrderItem/${id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "PUT /api/OrderItem/:id ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to update order item."
+            }
+        );
+    }
+});
+
+
+// =========================================================
+// DELETE ORDER ITEM
+// =========================================================
+
+app.delete("/api/OrderItem/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const response = await axios.delete(
+            `${DOTNET_API}/OrderItem/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "DELETE /api/OrderItem/:id ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to delete order item."
+            }
+        );
+    }
+});
 // =========================================================
 // START SERVER
 // =========================================================
