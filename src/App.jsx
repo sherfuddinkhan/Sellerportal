@@ -706,7 +706,7 @@ import MarketplaceCreate from "./pages/Marketplaces/MarketplaceCreate";
 import MarketplaceDetails from "./pages/Marketplaces/MarketplaceDetails";
 import MarketplaceEdit from "./pages/Marketplaces/MarketplaceEdit";
 import MarketplaceCardPage from "./pages/Marketplaces/MarketplaceCardPage";
-import MarketplaceSelector from "./pages/MarketplaceSelector";
+import MarketplaceSelector from "./pages/Marketplaces/MarketplaceSelector";
 
 // =========================================================
 // MARKETPLACE ORDER IMPORTS
