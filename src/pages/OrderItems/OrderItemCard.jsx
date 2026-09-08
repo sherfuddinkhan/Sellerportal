@@ -1,3 +1,4 @@
+
 import React from "react";
 
 import {
@@ -18,18 +19,15 @@ import {
     Delete
 } from "@mui/icons-material";
 
-
 const OrderItemCard = ({
     item,
     onView,
     onEdit,
     onDelete
 }) => {
-
     if (!item) {
         return null;
     }
-
 
     // =====================================================
     // Values
@@ -62,29 +60,22 @@ const OrderItemCard = ({
         item.totalAmount ??
         0;
 
-
     // =====================================================
     // Format Currency
     // =====================================================
 
     const formatCurrency = (value) => {
-
-        return Number(
-            value || 0
-        ).toLocaleString("en-IN", {
+        return Number(value || 0).toLocaleString("en-IN", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
-
     };
-
 
     // =====================================================
     // Render
     // =====================================================
 
     return (
-
         <Card
             elevation={3}
             sx={{
@@ -98,12 +89,9 @@ const OrderItemCard = ({
                 }
             }}
         >
-
             <CardContent>
 
-                {/* =========================================
-                    Header
-                ========================================== */}
+                {/* Header */}
 
                 <Stack
                     direction="row"
@@ -111,32 +99,23 @@ const OrderItemCard = ({
                     alignItems="center"
                     mb={2}
                 >
-
                     <Inventory2
                         color="primary"
                         fontSize="large"
                     />
-
                 </Stack>
 
-
-                {/* =========================================
-                    Order Item ID
-                ========================================== */}
+                {/* Order Item ID */}
 
                 <Typography
                     variant="h6"
                     fontWeight="bold"
                     gutterBottom
                 >
-                    Order Item #
-                    {orderItemId ?? "-"}
+                    Order Item #{orderItemId ?? "-"}
                 </Typography>
 
-
-                {/* =========================================
-                    Order ID
-                ========================================== */}
+                {/* Order ID */}
 
                 <Typography
                     variant="body2"
@@ -147,10 +126,7 @@ const OrderItemCard = ({
                     {orderId ?? "-"}
                 </Typography>
 
-
-                {/* =========================================
-                    Product ID
-                ========================================== */}
+                {/* Product ID */}
 
                 <Typography
                     variant="body2"
@@ -161,10 +137,7 @@ const OrderItemCard = ({
                     {productId ?? "-"}
                 </Typography>
 
-
-                {/* =========================================
-                    Quantity
-                ========================================== */}
+                {/* Quantity */}
 
                 <Typography
                     variant="body2"
@@ -175,10 +148,7 @@ const OrderItemCard = ({
                     {Number(quantity).toFixed(2)}
                 </Typography>
 
-
-                {/* =========================================
-                    Unit Price
-                ========================================== */}
+                {/* Unit Price */}
 
                 <Typography
                     variant="body2"
@@ -189,10 +159,7 @@ const OrderItemCard = ({
                     ₹ {formatCurrency(unitPrice)}
                 </Typography>
 
-
-                {/* =========================================
-                    Total Amount
-                ========================================== */}
+                {/* Total Amount */}
 
                 <Typography
                     variant="body2"
@@ -204,66 +171,52 @@ const OrderItemCard = ({
 
             </CardContent>
 
-
             <Divider />
 
-
-            {/* =============================================
-                Actions
-            ============================================== */}
+            {/* Actions */}
 
             <CardActions
                 sx={{
                     justifyContent: "flex-end"
                 }}
             >
-
                 {/* View */}
 
                 <Tooltip title="View">
-
                     <IconButton
                         color="primary"
-                        onClick={() => onView(item)}
+                        onClick={() => onView?.(orderItemId)}
                     >
                         <Visibility />
                     </IconButton>
-
                 </Tooltip>
-
 
                 {/* Edit */}
 
                 <Tooltip title="Edit">
-
                     <IconButton
                         color="warning"
-                        onClick={() => onEdit(item)}
+                        onClick={() => onEdit?.(orderItemId)}
                     >
                         <Edit />
                     </IconButton>
-
                 </Tooltip>
-
 
                 {/* Delete */}
 
                 <Tooltip title="Delete">
-
                     <IconButton
                         color="error"
-                        onClick={() => onDelete(item)}
+                        onClick={() => onDelete?.(orderItemId)}
                     >
                         <Delete />
                     </IconButton>
-
                 </Tooltip>
 
             </CardActions>
-
         </Card>
     );
 };
 
-
 export default OrderItemCard;
+

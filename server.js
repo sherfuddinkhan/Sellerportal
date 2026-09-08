@@ -23041,7 +23041,33 @@ app.get("/api/OrderItem", async (req, res) => {
         );
     }
 });
+app.get("/api/OrderItem/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
 
+        console.log("GET OrderItem ID:", id);
+
+        const response = await axios.get(
+            `${DOTNET_API}/OrderItem/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET /api/OrderItem/:id ERROR:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to fetch order item."
+            }
+        );
+    }
+});
 
 // =========================================================
 // GET ORDER ITEM BY ID

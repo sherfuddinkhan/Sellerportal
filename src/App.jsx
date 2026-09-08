@@ -279,20 +279,6 @@ import NotificationList from "./pages/Notifications/NotificationList";
 import NotificationSettings from "./pages/Notifications/NotificationSettings";
 import NotificationView from "./pages/Notifications/NotificationView";
 
-// =========================================================
-// ORDER ITEMS
-// =========================================================
-
-import DeleteOrderItemDialog from "./pages/OrderItems/DeleteOrderItemDialog";
-import OrderItemCard from "./pages/OrderItems/OrderItemCard";
-import OrderItemList from "./pages/OrderItems/OrderItemList";
-import OrderItemModal from "./pages/OrderItems/OrderItemModal";
-import OrderItemPagination from "./pages/OrderItems/OrderItemPagination";
-import OrderItemSearch from "./pages/OrderItems/OrderItemSearch";
-import OrderItemStatistics from "./pages/OrderItems/OrderItemStatistics";
-import OrderItemTable from "./pages/OrderItems/OrderItemTable";
-import OrderItemToolbar from "./pages/OrderItems/OrderItemToolbar";
-import OrderItemView from "./pages/OrderItems/OrderItemView";
 
 //////////////// seller ////////////////////////////
 import SellerList from "./pages/Seller/SellerList";
@@ -709,6 +695,44 @@ import WishlistEdit from "./pages/Wishlists/WishlistEdit";
 import WishlistItemList from "./pages/WishlistItems/WishlistItemList";
 import WishlistItemView from "./pages/WishlistItems/WishlistItemView";
 
+// =========================================================
+// ORDERS
+// =========================================================
+
+import DeleteOrderDialog from "./pages/Orders/DeleteOrderDialog";
+import OrderCard from "./pages/Orders/OrderCard";
+import OrderList from "./pages/Orders/OrderList";
+import OrderModal from "./pages/Orders/OrderModal";
+import OrderPagination from "./pages/Orders/OrderPagination";
+import OrderSearch from "./pages/Orders/OrderSearch";
+import OrderStatistics from "./pages/Orders/OrderStatistics";
+import OrderTable from "./pages/Orders/OrderTable";
+import OrderToolbar from "./pages/Orders/OrderToolbar";
+import OrderView from "./pages/Orders/OrderView";
+import OrderCreate from "./pages/Orders/OrderCreate";
+import OrderDetails from "./pages/Orders/OrderDetails";
+import OrderEdit from "./pages/Orders/OrderEdit";
+
+
+// =========================================================
+// ORDER ITEMS
+// =========================================================
+
+import DeleteOrderItemDialog from "./pages/OrderItems/DeleteOrderItemDialog";
+import OrderItemCard from "./pages/OrderItems/OrderItemCard";
+import OrderItemList from "./pages/OrderItems/OrderItemList";
+import OrderItemModal from "./pages/OrderItems/OrderItemModal";
+import OrderItemPagination from "./pages/OrderItems/OrderItemPagination";
+import OrderItemSearch from "./pages/OrderItems/OrderItemSearch";
+import OrderItemStatistics from "./pages/OrderItems/OrderItemStatistics";
+import OrderItemTable from "./pages/OrderItems/OrderItemTable";
+import OrderItemToolbar from "./pages/OrderItems/OrderItemToolbar";
+import OrderItemView from "./pages/OrderItems/OrderItemView";
+import OrderItemCreate from "./pages/OrderItems/OrderItemCreate";
+import OrderItemDetails from "./pages/OrderItems/OrderItemDetails";
+import OrderItemEdit from "./pages/OrderItems/OrderItemEdit";
+
+
 
 // =========================================================
 // NOT FOUND
@@ -848,6 +872,56 @@ function App() {
                     path="brands/:id/edit"
                     element={<BrandEdit />}
                 />
+
+{/* =========================================================
+    ORDERS
+========================================================= */}
+
+<Route
+    path="orders"
+    element={<OrderList />}
+/>
+
+<Route
+    path="orders/create"
+    element={<OrderCreate />}
+/>
+
+<Route
+    path="orders/details/:id"
+    element={<OrderDetails />}
+/>
+
+<Route
+    path="orders/edit/:id"
+    element={<OrderEdit />}
+/>
+
+
+{/* =========================================================
+    ORDER ITEMS
+========================================================= */}
+
+<Route
+    path="order-items"
+    element={<OrderItemList />}
+/>
+
+<Route
+    path="order-items/create"
+    element={<OrderItemCreate />}
+/>
+
+<Route
+    path="order-items/details/:id"
+    element={<OrderItemDetails />}
+/>
+
+<Route
+    path="order-items/edit/:id"
+    element={<OrderItemEdit />}
+/>
+
 
 
                 {/* =================================================
@@ -2279,7 +2353,25 @@ function App() {
                     path="purchase-returns/:id"
                     element={<PurchaseReturnView />}
                 />
+                ////////////order-items//////////
+                <Route
+    path="order-items"
+    element={<OrderItemList />}
+/>
+<Route
+    path="order-items/create"
+    element={<OrderItemCreate />}
+/>
 
+<Route
+    path="order-items/details/:id"
+    element={<OrderItemDetails />}
+/>
+
+<Route
+    path="order-items/edit/:id"
+    element={<OrderItemEdit />}
+/>
 
                 {/* =================================================
                     REVIEWS
