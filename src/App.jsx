@@ -202,37 +202,22 @@ import DeleteGoodsReceiptNoteItemDialog from "./pages/GoodsReceiptNotes/DeleteGo
 // =========================================================
 // MARKETPLACE ORDER ITEMS
 // =========================================================
-import MarketplaceOrderItemList
-    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemList";
-
-import MarketplaceOrderItemCreate
-    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemCreate";
-
-import MarketplaceOrderItemEdit
-    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemEdit";
-
-import MarketplaceOrderItemDetails
-    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemDetails";
+import MarketplaceOrderItemList from "./pages/MarketplaceOrderItems/MarketplaceOrderItemList";
+import MarketplaceOrderItemCreate from "./pages/MarketplaceOrderItems/MarketplaceOrderItemCreate";
+import MarketplaceOrderItemEdit from "./pages/MarketplaceOrderItems/MarketplaceOrderItemEdit";
+import MarketplaceOrderItemDetails from "./pages/MarketplaceOrderItems/MarketplaceOrderItemDetails";
 import MarketplaceOrderItemSearch from "./pages/MarketplaceOrderItems/MarketplaceOrderItemSearch";
-import MarketplaceOrderItemStatistics
-    from "./pages/MarketplaceOrderItems/MarketplaceOrderItemStatistics";
+import MarketplaceOrderItemStatistics from "./pages/MarketplaceOrderItems/MarketplaceOrderItemStatistics";
 
 
 // =========================================================
 // MARKETPLACE RETURNS
 // =========================================================
 
-import MarketplaceReturnList
-    from "./pages/MarketplaceReturns/MarketplaceReturnList";
-
-import MarketplaceReturnSearch
-    from "./pages/MarketplaceReturns/MarketplaceReturnSearch";
-
-import MarketplaceReturnStatistics
-    from "./pages/MarketplaceReturns/MarketplaceReturnStatistics";
-
-import MarketplaceReturnView
-    from "./pages/MarketplaceReturns/MarketplaceReturnView";
+import MarketplaceReturnList from "./pages/MarketplaceReturns/MarketplaceReturnList";
+import MarketplaceReturnSearch from "./pages/MarketplaceReturns/MarketplaceReturnSearch";
+import MarketplaceReturnStatistics from "./pages/MarketplaceReturns/MarketplaceReturnStatistics";
+import MarketplaceReturnView from "./pages/MarketplaceReturns/MarketplaceReturnView";
 
 
 // =========================================================
@@ -261,11 +246,8 @@ import DeleteStockLedgerDialog from "./pages/StockLedger/DeleteStockLedgerDialog
 
 import DeleteMarketplaceReturnDialog from "./pages/MarketplaceReturns/DeleteMarketplaceReturnDialog";
 import MarketplaceReturnCard from "./pages/MarketplaceReturns/MarketplaceReturnCard";
-
 import MarketplaceReturnModal from "./pages/MarketplaceReturns/MarketplaceReturnModal";
 import MarketplaceReturnPagination from "./pages/MarketplaceReturns/MarketplaceReturnPagination";
-
-
 import MarketplaceReturnTable from "./pages/MarketplaceReturns/MarketplaceReturnTable";
 import MarketplaceReturnToolbar from "./pages/MarketplaceReturns/MarketplaceReturnToolbar";
 
@@ -311,44 +293,19 @@ import SupplierCard from "./pages/Supplier/SupplierCard";
    ORDER STATUS HISTORY IMPORTS
 ========================================================= */
 
-import DeleteOrderStatusHistoryDialog
-    from "./pages/OrderStatusHistory/DeleteOrderStatusHistoryDialog";
-
-import OrderStatusHistoryCard
-    from "./pages/OrderStatusHistory/OrderStatusHistoryCard";
-
-import OrderStatusHistoryList
-    from "./pages/OrderStatusHistory/OrderStatusHistoryList";
-
-import OrderStatusHistoryModal
-    from "./pages/OrderStatusHistory/OrderStatusHistoryModal";
-
-import OrderStatusHistoryPagination
-    from "./pages/OrderStatusHistory/OrderStatusHistoryPagination";
-
-import OrderStatusHistorySearch
-    from "./pages/OrderStatusHistory/OrderStatusHistorySearch";
-
-import OrderStatusHistoryStatistics
-    from "./pages/OrderStatusHistory/OrderStatusHistoryStatistics";
-
-import OrderStatusHistoryTable
-    from "./pages/OrderStatusHistory/OrderStatusHistoryTable";
-
-import OrderStatusHistoryToolbar
-    from "./pages/OrderStatusHistory/OrderStatusHistoryToolbar";
-
-import OrderStatusHistoryView
-    from "./pages/OrderStatusHistory/OrderStatusHistoryView";
-
-import CreateOrderStatusHistory
-    from "./pages/OrderStatusHistory/CreateOrderStatusHistory";
-
-import EditOrderStatusHistory
-    from "./pages/OrderStatusHistory/EditOrderStatusHistory";
-
-import DetailedOrderStatusHistory
-    from "./pages/OrderStatusHistory/DetailedOrderStatusHistory";
+import DeleteOrderStatusHistoryDialog from "./pages/OrderStatusHistory/DeleteOrderStatusHistoryDialog";
+import OrderStatusHistoryCard from "./pages/OrderStatusHistory/OrderStatusHistoryCard";
+import OrderStatusHistoryList from "./pages/OrderStatusHistory/OrderStatusHistoryList";
+import OrderStatusHistoryModal from "./pages/OrderStatusHistory/OrderStatusHistoryModal";
+import OrderStatusHistoryPagination from "./pages/OrderStatusHistory/OrderStatusHistoryPagination";
+import OrderStatusHistorySearch from "./pages/OrderStatusHistory/OrderStatusHistorySearch";
+import OrderStatusHistoryStatistics from "./pages/OrderStatusHistory/OrderStatusHistoryStatistics";
+import OrderStatusHistoryTable from "./pages/OrderStatusHistory/OrderStatusHistoryTable";
+import OrderStatusHistoryToolbar from "./pages/OrderStatusHistory/OrderStatusHistoryToolbar";
+import OrderStatusHistoryView from "./pages/OrderStatusHistory/OrderStatusHistoryView";
+import CreateOrderStatusHistory from "./pages/OrderStatusHistory/CreateOrderStatusHistory";
+import EditOrderStatusHistory from "./pages/OrderStatusHistory/EditOrderStatusHistory";
+import DetailedOrderStatusHistory from "./pages/OrderStatusHistory/DetailedOrderStatusHistory";
 
 // =========================================================
 // PAYMENT SETTINGS
@@ -749,7 +706,7 @@ import MarketplaceCreate from "./pages/Marketplaces/MarketplaceCreate";
 import MarketplaceDetails from "./pages/Marketplaces/MarketplaceDetails";
 import MarketplaceEdit from "./pages/Marketplaces/MarketplaceEdit";
 import MarketplaceCardPage from "./pages/Marketplaces/MarketplaceCardPage";
-
+import MarketplaceSelector from "./pages/MarketplaceSelector";
 
 // =========================================================
 // MARKETPLACE ORDER IMPORTS
@@ -2241,8 +2198,17 @@ function App() {
                     path="purchase-order-items/:id"
                     element={<PurchaseOrderItemView />}
                 />
+                {/* Default */}
+                <Route
+                    path="/"
+                    element={<Navigate to="/marketplaces" replace />}
+                />
 
-
+                {/* Marketplace selection */}
+                <Route
+                    path="/marketplaces"
+                    element={<MarketplaceSelector />}
+                />
                 {/* =================================================
                     GOODS RECEIPT NOTE ITEMS
                 ================================================= */}
