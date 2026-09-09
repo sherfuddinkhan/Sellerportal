@@ -676,12 +676,6 @@ const MainLayout = () => {
                             label: "Edit Product Image",
                             path: "/product-images/edit/:id",
                         },
-
-                        {
-                            label: "Product Image Filters",
-                            path: "/product-images/filters",
-                        },
-
                         {
                             label: "Search Product Images",
                             path: "/product-images/search",
