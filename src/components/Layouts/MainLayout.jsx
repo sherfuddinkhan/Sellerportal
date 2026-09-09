@@ -687,10 +687,7 @@ const MainLayout = () => {
                             label: "Inventory Statistics",
                             path: "/product-inventory/statistics",
                         },
-                        {
-                            label: "Inventory Table",
-                            path: "/product-inventory/table",
-                        },
+                     
                     ],
                 },
 
