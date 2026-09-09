@@ -656,6 +656,44 @@ const MainLayout = () => {
 
                     ],
                 },
+                  // -------------------------------------------------
+                // PRODUCT INVENTORY
+                // -------------------------------------------------
+
+                {
+                    label: "Product Inventory",
+                    path: "/product-inventory",
+                    icon: "📦",
+
+                    children: [
+
+                        {
+                            label: "Inventory List",
+                            path: "/product-inventory",
+                        },
+                        {
+                            label: "Create Inventory",
+                            path: "/product-inventory/create",
+                        },
+                        {
+                            label: "Inventory Filters",
+                            path: "/product-inventory/filters",
+                        },
+                        {
+                            label: "Search Inventory",
+                            path: "/product-inventory/search",
+                        },
+                        {
+                            label: "Inventory Statistics",
+                            path: "/product-inventory/statistics",
+                        },
+                        {
+                            label: "Inventory Table",
+                            path: "/product-inventory/table",
+                        },
+                    ],
+                },
+
 
             ],
         },
@@ -1243,44 +1281,7 @@ const MainLayout = () => {
                     ],
                 },
 
-                // -------------------------------------------------
-                // PRODUCT INVENTORY
-                // -------------------------------------------------
-
-                {
-                    label: "Product Inventory",
-                    path: "/product-inventory",
-                    icon: "📦",
-
-                    children: [
-
-                        {
-                            label: "Inventory List",
-                            path: "/product-inventory",
-                        },
-                        {
-                            label: "Create Inventory",
-                            path: "/product-inventory/create",
-                        },
-                        {
-                            label: "Inventory Filters",
-                            path: "/product-inventory/filters",
-                        },
-                        {
-                            label: "Search Inventory",
-                            path: "/product-inventory/search",
-                        },
-                        {
-                            label: "Inventory Statistics",
-                            path: "/product-inventory/statistics",
-                        },
-                        {
-                            label: "Inventory Table",
-                            path: "/product-inventory/table",
-                        },
-                    ],
-                },
-
+              
                 // -------------------------------------------------
                 // WAREHOUSE LOCATIONS
                 // -------------------------------------------------
