@@ -666,16 +666,6 @@ const MainLayout = () => {
                             label: "Create Product Image",
                             path: "/product-images/create",
                         },
-
-                        {
-                            label: "Product Image Details",
-                            path: "/product-images/details/:id",
-                        },
-
-                        {
-                            label: "Edit Product Image",
-                            path: "/product-images/edit/:id",
-                        },
                         {
                             label: "Search Product Images",
                             path: "/product-images/search",
