@@ -1,13 +1,7 @@
-// =========================================================
-// ProductFilters.jsx
-// Marketplace Seller Portal
-// Product Management
-//
-// Uses server.js directly
-// No apiService
-// =========================================================
-
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState,
+} from "react";
 
 import axios from "axios";
 
@@ -23,19 +17,19 @@ import {
     Button,
 } from "@mui/material";
 
-
 // =========================================================
-// SERVER URL
+// NODE SERVER
 // =========================================================
 
-const SERVER_URL = "http://localhost:5000";
-
+const SERVER_URL =
+    "http://localhost:5000";
 
 // =========================================================
 // COMPONENT
 // =========================================================
 
 const ProductFilters = ({
+
     sellerFilter,
     setSellerFilter,
 
@@ -50,32 +44,57 @@ const ProductFilters = ({
 
     statusFilter,
     setStatusFilter,
+
 }) => {
 
     // =====================================================
     // MASTER DATA
     // =====================================================
 
-    const [sellers, setSellers] = useState([]);
+    const [sellers, setSellers] =
+        useState([]);
 
-    const [brands, setBrands] = useState([]);
+    const [brands, setBrands] =
+        useState([]);
 
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] =
+        useState([]);
 
-    const [productTypes, setProductTypes] = useState([]);
-
+    const [productTypes, setProductTypes] =
+        useState([]);
 
     // =====================================================
     // UI STATE
     // =====================================================
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [error, setError] = useState("");
-
+    const [error, setError] =
+        useState("");
 
     // =====================================================
     // SAFE ARRAY
+    //
+    // Supports:
+    //
+    // [
+    //   {...}
+    // ]
+    //
+    // {
+    //   items: [...]
+    // }
+    //
+    // {
+    //   data: [...]
+    // }
+    //
+    // {
+    //   results: [...]
+    // }
+    //
+    // PascalCase variants are also supported.
     // =====================================================
 
     const getArray = (data) => {
@@ -88,16 +107,49 @@ const ProductFilters = ({
             return data.items;
         }
 
+        if (Array.isArray(data?.Items)) {
+            return data.Items;
+        }
+
         if (Array.isArray(data?.data)) {
             return data.data;
+        }
+
+        if (Array.isArray(data?.Data)) {
+            return data.Data;
+        }
+
+        if (Array.isArray(data?.results)) {
+            return data.results;
+        }
+
+        if (Array.isArray(data?.Results)) {
+            return data.Results;
         }
 
         return [];
     };
 
+    // =====================================================
+    // GET ERROR MESSAGE
+    // =====================================================
+
+    const getErrorMessage = (
+        error,
+        defaultMessage
+    ) => {
+
+        return (
+            error?.response?.data?.message ||
+            error?.response?.data?.title ||
+            error?.response?.data?.error ||
+            error?.message ||
+            defaultMessage
+        );
+    };
 
     // =====================================================
-    // LOAD ALL DROPDOWN DATA
+    // LOAD MASTER DATA ON COMPONENT LOAD
     // =====================================================
 
     useEffect(() => {
@@ -106,139 +158,329 @@ const ProductFilters = ({
 
     }, []);
 
-
     // =====================================================
     // LOAD DROPDOWN DATA
+    // =====================================================
+    //
+    // IMPORTANT:
+    //
+    // Do NOT use Promise.all().
+    //
+    // Every API is loaded independently so that:
+    //
+    // Brands failure
+    //     DOES NOT
+    // prevent Categories from loading.
+    //
     // =====================================================
 
     const loadDropdownData = async () => {
 
+        setLoading(true);
+
+        setError("");
+
+        console.log(
+            "=================================================="
+        );
+
+        console.log(
+            "PRODUCT FILTER MASTER DATA"
+        );
+
+        console.log(
+            "=================================================="
+        );
+
+        // =================================================
+        // SELLERS
+        // =================================================
+
         try {
 
-            setLoading(true);
+            console.log(
+                "GET:",
+                `${SERVER_URL}/api/sellers/list`
+            );
 
-            setError("");
+            const response =
+                await axios.get(
+                    `${SERVER_URL}/api/sellers/list`,
+                    {
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
 
+            console.log(
+                "SELLERS STATUS:",
+                response.status
+            );
 
-            const [
+            console.log(
+                "SELLERS RAW RESPONSE:",
+                response.data
+            );
 
-                sellersResponse,
+            const sellerList =
+                getArray(response.data);
 
-                brandsResponse,
-
-                categoriesResponse,
-
-                productTypesResponse,
-
-            ] = await Promise.all([
-
-                // ---------------------------------------------
-                // SELLERS
-                // ---------------------------------------------
-
-                axios.get(
-                    `${SERVER_URL}/api/sellers/list`
-                ),
-
-                // ---------------------------------------------
-                // BRANDS
-                // ---------------------------------------------
-
-                axios.get(
-                    `${SERVER_URL}/api/brands`
-                ),
-
-                // ---------------------------------------------
-                // CATEGORIES
-                // ---------------------------------------------
-
-                axios.get(
-                    `${SERVER_URL}/api/categories`
-                ),
-
-                // ---------------------------------------------
-                // PRODUCT TYPES
-                // ---------------------------------------------
-
-                axios.get(
-                    `${SERVER_URL}/api/producttype`
-                ),
-
-            ]);
-
-
-            // =================================================
-            // SET SELLERS
-            // =================================================
+            console.log(
+                "SELLERS ARRAY:",
+                sellerList
+            );
 
             setSellers(
-                getArray(
-                    sellersResponse.data
-                )
+                sellerList
             );
 
+        }
+        catch (error) {
 
-            // =================================================
-            // SET BRANDS
-            // =================================================
+            console.error(
+                "SELLERS API ERROR:",
+                error
+            );
+
+            console.error(
+                "SELLERS STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "SELLERS RESPONSE:",
+                error?.response?.data
+            );
+
+            setSellers([]);
+
+        }
+
+        // =================================================
+        // BRANDS
+        // =================================================
+
+        try {
+
+            console.log(
+                "GET:",
+                `${SERVER_URL}/api/brands`
+            );
+
+            const response =
+                await axios.get(
+                    `${SERVER_URL}/api/brands`,
+                    {
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "BRANDS STATUS:",
+                response.status
+            );
+
+            console.log(
+                "BRANDS RAW RESPONSE:",
+                response.data
+            );
+
+            const brandList =
+                getArray(response.data);
+
+            console.log(
+                "BRANDS ARRAY:",
+                brandList
+            );
 
             setBrands(
-                getArray(
-                    brandsResponse.data
-                )
+                brandList
             );
 
+        }
+        catch (error) {
 
-            // =================================================
-            // SET CATEGORIES
-            // =================================================
+            console.error(
+                "BRANDS API ERROR:",
+                error
+            );
+
+            console.error(
+                "BRANDS STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "BRANDS RESPONSE:",
+                error?.response?.data
+            );
+
+            setBrands([]);
+
+        }
+
+        // =================================================
+        // CATEGORIES
+        // =================================================
+
+        try {
+
+            console.log(
+                "GET:",
+                `${SERVER_URL}/api/categories`
+            );
+
+            const response =
+                await axios.get(
+                    `${SERVER_URL}/api/categories`,
+                    {
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "CATEGORIES STATUS:",
+                response.status
+            );
+
+            console.log(
+                "CATEGORIES RAW RESPONSE:",
+                response.data
+            );
+
+            const categoryList =
+                getArray(response.data);
+
+            console.log(
+                "CATEGORIES ARRAY:",
+                categoryList
+            );
 
             setCategories(
-                getArray(
-                    categoriesResponse.data
-                )
+                categoryList
             );
 
+        }
+        catch (error) {
 
-            // =================================================
-            // SET PRODUCT TYPES
-            // =================================================
+            console.error(
+                "CATEGORIES API ERROR:",
+                error
+            );
+
+            console.error(
+                "CATEGORIES STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "CATEGORIES RESPONSE:",
+                error?.response?.data
+            );
+
+            setCategories([]);
+
+        }
+
+        // =================================================
+        // PRODUCT TYPES
+        // =================================================
+
+        try {
+
+            console.log(
+                "GET:",
+                `${SERVER_URL}/api/producttype`
+            );
+
+            const response =
+                await axios.get(
+                    `${SERVER_URL}/api/producttype`,
+                    {
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+            console.log(
+                "PRODUCT TYPES STATUS:",
+                response.status
+            );
+
+            console.log(
+                "PRODUCT TYPES RAW RESPONSE:",
+                response.data
+            );
+
+            const productTypeList =
+                getArray(response.data);
+
+            console.log(
+                "PRODUCT TYPES ARRAY:",
+                productTypeList
+            );
 
             setProductTypes(
-                getArray(
-                    productTypesResponse.data
-                )
+                productTypeList
             );
 
         }
-        catch (err) {
+        catch (error) {
 
             console.error(
-                "Product filter loading error:",
-                err
+                "PRODUCT TYPES API ERROR:",
+                error
             );
 
             console.error(
-                "Response:",
-                err.response?.data
+                "PRODUCT TYPES STATUS:",
+                error?.response?.status
             );
 
-            setError(
-                "Unable to load filter data."
+            console.error(
+                "PRODUCT TYPES RESPONSE:",
+                error?.response?.data
             );
 
-        }
-        finally {
-
-            setLoading(false);
+            setProductTypes([]);
 
         }
 
+        // =================================================
+        // FINISHED
+        // =================================================
+
+        console.log(
+            "=================================================="
+        );
+
+        console.log(
+            "PRODUCT FILTER MASTER DATA LOADING FINISHED"
+        );
+
+        console.log(
+            "=================================================="
+        );
+
+        setLoading(false);
     };
 
-
     // =====================================================
-    // CLEAR ALL FILTERS
+    // CLEAR FILTERS
     // =====================================================
 
     const handleClearFilters = () => {
@@ -252,9 +494,7 @@ const ProductFilters = ({
         setProductTypeFilter("");
 
         setStatusFilter("All");
-
     };
-
 
     // =====================================================
     // SELECT STYLE
@@ -275,36 +515,31 @@ const ProductFilters = ({
             minHeight:
                 "58px !important",
 
-            boxSizing: "border-box",
+            boxSizing:
+                "border-box",
 
             fontSize: "16px",
 
             paddingLeft: 2,
 
             paddingRight: 5,
-
         },
 
         "& .MuiOutlinedInput-notchedOutline": {
 
             borderWidth: 1,
-
         },
 
         "&:hover .MuiOutlinedInput-notchedOutline": {
 
             borderWidth: 2,
-
         },
 
         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
 
             borderWidth: 2,
-
         },
-
     };
-
 
     // =====================================================
     // FORM CONTROL STYLE
@@ -317,17 +552,13 @@ const ProductFilters = ({
         "& .MuiInputLabel-root": {
 
             fontSize: "15px",
-
         },
 
         "& .MuiInputLabel-shrink": {
 
             fontSize: "15px",
-
         },
-
     };
-
 
     // =====================================================
     // RENDER
@@ -341,7 +572,8 @@ const ProductFilters = ({
 
                 display: "flex",
 
-                justifyContent: "center",
+                justifyContent:
+                    "center",
 
                 py: 2,
             }}
@@ -350,7 +582,6 @@ const ProductFilters = ({
             <Paper
                 elevation={2}
                 sx={{
-
                     width: "100%",
 
                     maxWidth: 1400,
@@ -363,7 +594,8 @@ const ProductFilters = ({
 
                     borderRadius: 3,
 
-                    boxSizing: "border-box",
+                    boxSizing:
+                        "border-box",
                 }}
             >
 
@@ -373,7 +605,9 @@ const ProductFilters = ({
 
                 <Box
                     sx={{
-                        textAlign: "center",
+                        textAlign:
+                            "center",
+
                         mb: 4,
                     }}
                 >
@@ -392,12 +626,12 @@ const ProductFilters = ({
                         variant="body2"
                         color="text.secondary"
                     >
-                        Filter products by seller, brand,
-                        category, product type and status
+                        Filter products by seller,
+                        brand, category,
+                        product type and status
                     </Typography>
 
                 </Box>
-
 
                 {/* =================================================
                     LOADING
@@ -407,8 +641,12 @@ const ProductFilters = ({
 
                     <Box
                         sx={{
-                            display: "flex",
-                            justifyContent: "center",
+                            display:
+                                "flex",
+
+                            justifyContent:
+                                "center",
+
                             mb: 3,
                         }}
                     >
@@ -418,9 +656,7 @@ const ProductFilters = ({
                         />
 
                     </Box>
-
                 )}
-
 
                 {/* =================================================
                     ERROR
@@ -431,15 +667,15 @@ const ProductFilters = ({
                     <Typography
                         color="error"
                         sx={{
-                            textAlign: "center",
+                            textAlign:
+                                "center",
+
                             mb: 3,
                         }}
                     >
                         {error}
                     </Typography>
-
                 )}
-
 
                 {/* =================================================
                     FILTER GRID
@@ -447,25 +683,27 @@ const ProductFilters = ({
 
                 <Box
                     sx={{
-
-                        display: "grid",
+                        display:
+                            "grid",
 
                         gridTemplateColumns: {
 
-                            xs: "1fr",
+                            xs:
+                                "1fr",
 
-                            sm: "1fr 1fr",
+                            sm:
+                                "1fr 1fr",
 
-                            md: "repeat(3, 1fr)",
+                            md:
+                                "repeat(3, 1fr)",
 
-                            lg: "repeat(5, 1fr)",
-
+                            lg:
+                                "repeat(5, 1fr)",
                         },
 
                         gap: 3,
 
                         width: "100%",
-
                     }}
                 >
 
@@ -487,11 +725,13 @@ const ProductFilters = ({
                                 sellerFilter ?? ""
                             }
                             label="Seller"
-                            onChange={(e) =>
+                            onChange={(event) => {
+
                                 setSellerFilter(
-                                    e.target.value
-                                )
-                            }
+                                    event.target.value
+                                );
+
+                            }}
                             sx={selectStyle}
                         >
 
@@ -500,37 +740,52 @@ const ProductFilters = ({
                             </MenuItem>
 
                             {sellers.map(
-                                (seller) => {
+                                (seller, index) => {
 
-                                    const id =
-                                        seller.sellerId ??
-                                        seller.SellerId;
+                                    const sellerId =
+                                        seller?.sellerId ??
+                                        seller?.SellerId;
 
-                                    const name =
-                                        seller.sellerName ??
-                                        seller.SellerName ??
+                                    const sellerName =
+                                        seller?.sellerName ??
+                                        seller?.SellerName ??
+                                        seller?.name ??
+                                        seller?.Name ??
                                         "Unnamed Seller";
+
+                                    if (
+                                        sellerId ===
+                                        undefined ||
+                                        sellerId === null
+                                    ) {
+                                        return null;
+                                    }
 
                                     return (
 
                                         <MenuItem
-                                            key={id}
-                                            value={String(id)}
+                                            key={
+                                                sellerId ??
+                                                index
+                                            }
+                                            value={
+                                                String(
+                                                    sellerId
+                                                )
+                                            }
                                         >
 
-                                            {id} - {name}
+                                            {sellerId} -{" "}
+                                            {sellerName}
 
                                         </MenuItem>
-
                                     );
-
                                 }
                             )}
 
                         </Select>
 
                     </FormControl>
-
 
                     {/* =================================================
                         BRAND
@@ -550,11 +805,13 @@ const ProductFilters = ({
                                 brandFilter ?? ""
                             }
                             label="Brand"
-                            onChange={(e) =>
+                            onChange={(event) => {
+
                                 setBrandFilter(
-                                    e.target.value
-                                )
-                            }
+                                    event.target.value
+                                );
+
+                            }}
                             sx={selectStyle}
                         >
 
@@ -563,37 +820,51 @@ const ProductFilters = ({
                             </MenuItem>
 
                             {brands.map(
-                                (brand) => {
+                                (brand, index) => {
 
-                                    const id =
-                                        brand.brandId ??
-                                        brand.BrandId;
+                                    const brandId =
+                                        brand?.brandId ??
+                                        brand?.BrandId;
 
-                                    const name =
-                                        brand.brandName ??
-                                        brand.BrandName ??
+                                    const brandName =
+                                        brand?.brandName ??
+                                        brand?.BrandName ??
+                                        brand?.name ??
+                                        brand?.Name ??
                                         "Unnamed Brand";
+
+                                    if (
+                                        brandId ===
+                                        undefined ||
+                                        brandId === null
+                                    ) {
+                                        return null;
+                                    }
 
                                     return (
 
                                         <MenuItem
-                                            key={id}
-                                            value={String(id)}
+                                            key={
+                                                brandId ??
+                                                index
+                                            }
+                                            value={
+                                                String(
+                                                    brandId
+                                                )
+                                            }
                                         >
 
-                                            {name}
+                                            {brandName}
 
                                         </MenuItem>
-
                                     );
-
                                 }
                             )}
 
                         </Select>
 
                     </FormControl>
-
 
                     {/* =================================================
                         CATEGORY
@@ -613,11 +884,13 @@ const ProductFilters = ({
                                 categoryFilter ?? ""
                             }
                             label="Category"
-                            onChange={(e) =>
+                            onChange={(event) => {
+
                                 setCategoryFilter(
-                                    e.target.value
-                                )
-                            }
+                                    event.target.value
+                                );
+
+                            }}
                             sx={selectStyle}
                         >
 
@@ -626,37 +899,51 @@ const ProductFilters = ({
                             </MenuItem>
 
                             {categories.map(
-                                (category) => {
+                                (category, index) => {
 
-                                    const id =
-                                        category.categoryId ??
-                                        category.CategoryId;
+                                    const categoryId =
+                                        category?.categoryId ??
+                                        category?.CategoryId;
 
-                                    const name =
-                                        category.categoryName ??
-                                        category.CategoryName ??
+                                    const categoryName =
+                                        category?.categoryName ??
+                                        category?.CategoryName ??
+                                        category?.name ??
+                                        category?.Name ??
                                         "Unnamed Category";
+
+                                    if (
+                                        categoryId ===
+                                        undefined ||
+                                        categoryId === null
+                                    ) {
+                                        return null;
+                                    }
 
                                     return (
 
                                         <MenuItem
-                                            key={id}
-                                            value={String(id)}
+                                            key={
+                                                categoryId ??
+                                                index
+                                            }
+                                            value={
+                                                String(
+                                                    categoryId
+                                                )
+                                            }
                                         >
 
-                                            {name}
+                                            {categoryName}
 
                                         </MenuItem>
-
                                     );
-
                                 }
                             )}
 
                         </Select>
 
                     </FormControl>
-
 
                     {/* =================================================
                         PRODUCT TYPE
@@ -676,11 +963,13 @@ const ProductFilters = ({
                                 productTypeFilter ?? ""
                             }
                             label="Product Type"
-                            onChange={(e) =>
+                            onChange={(event) => {
+
                                 setProductTypeFilter(
-                                    e.target.value
-                                )
-                            }
+                                    event.target.value
+                                );
+
+                            }}
                             sx={selectStyle}
                         >
 
@@ -689,37 +978,51 @@ const ProductFilters = ({
                             </MenuItem>
 
                             {productTypes.map(
-                                (type) => {
+                                (type, index) => {
 
-                                    const id =
-                                        type.productTypeId ??
-                                        type.ProductTypeId;
+                                    const productTypeId =
+                                        type?.productTypeId ??
+                                        type?.ProductTypeId;
 
-                                    const name =
-                                        type.productTypeName ??
-                                        type.ProductTypeName ??
+                                    const productTypeName =
+                                        type?.productTypeName ??
+                                        type?.ProductTypeName ??
+                                        type?.name ??
+                                        type?.Name ??
                                         "Unnamed Product Type";
+
+                                    if (
+                                        productTypeId ===
+                                        undefined ||
+                                        productTypeId === null
+                                    ) {
+                                        return null;
+                                    }
 
                                     return (
 
                                         <MenuItem
-                                            key={id}
-                                            value={String(id)}
+                                            key={
+                                                productTypeId ??
+                                                index
+                                            }
+                                            value={
+                                                String(
+                                                    productTypeId
+                                                )
+                                            }
                                         >
 
-                                            {name}
+                                            {productTypeName}
 
                                         </MenuItem>
-
                                     );
-
                                 }
                             )}
 
                         </Select>
 
                     </FormControl>
-
 
                     {/* =================================================
                         STATUS
@@ -736,14 +1039,17 @@ const ProductFilters = ({
 
                         <Select
                             value={
-                                statusFilter ?? "All"
+                                statusFilter ??
+                                "All"
                             }
                             label="Status"
-                            onChange={(e) =>
+                            onChange={(event) => {
+
                                 setStatusFilter(
-                                    e.target.value
-                                )
-                            }
+                                    event.target.value
+                                );
+
+                            }}
                             sx={selectStyle}
                         >
 
@@ -765,6 +1071,83 @@ const ProductFilters = ({
 
                 </Box>
 
+                {/* =================================================
+                    SELECTED FILTER SUMMARY
+                ================================================= */}
+
+                <Box
+                    sx={{
+                        mt: 3,
+
+                        display: "flex",
+
+                        justifyContent:
+                            "center",
+
+                        flexWrap:
+                            "wrap",
+
+                        gap: 2,
+                    }}
+                >
+
+                    {sellerFilter && (
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            Seller:{" "}
+                            {sellerFilter}
+                        </Typography>
+                    )}
+
+                    {brandFilter && (
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            Brand:{" "}
+                            {brandFilter}
+                        </Typography>
+                    )}
+
+                    {categoryFilter && (
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            Category:{" "}
+                            {categoryFilter}
+                        </Typography>
+                    )}
+
+                    {productTypeFilter && (
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            Product Type:{" "}
+                            {productTypeFilter}
+                        </Typography>
+                    )}
+
+                    {statusFilter &&
+                        statusFilter !== "All" && (
+
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                            >
+                                Status:{" "}
+                                {statusFilter}
+                            </Typography>
+                        )}
+
+                </Box>
 
                 {/* =================================================
                     CLEAR BUTTON
@@ -772,9 +1155,11 @@ const ProductFilters = ({
 
                 <Box
                     sx={{
-                        display: "flex",
+                        display:
+                            "flex",
 
-                        justifyContent: "center",
+                        justifyContent:
+                            "center",
 
                         mt: 4,
                     }}
@@ -782,9 +1167,12 @@ const ProductFilters = ({
 
                     <Button
                         variant="outlined"
-                        onClick={handleClearFilters}
+                        onClick={
+                            handleClearFilters
+                        }
                         sx={{
                             minWidth: 160,
+
                             minHeight: 44,
                         }}
                     >
@@ -798,5 +1186,9 @@ const ProductFilters = ({
         </Box>
     );
 };
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductFilters;

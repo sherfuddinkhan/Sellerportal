@@ -2028,62 +2028,258 @@ function App() {
                     path="product-prices/toolbar"
                     element={<ProductPriceToolbar />}
                 />
+{/* =================================================
+    PRODUCTS
+================================================= */}
+
+{/* -------------------------------------------------
+    PRODUCT HOME
+------------------------------------------------- */}
+
+<Route
+    path="products"
+    element={<Products />}
+/>
 
 
-                {/* =================================================
-                    PRODUCTS
-                ================================================= */}
+{/* -------------------------------------------------
+    PRODUCT LIST
+------------------------------------------------- */}
 
-                <Route
-                    path="products"
-                    element={<Products />}
-                />
+<Route
+    path="products/list"
+    element={<ProductList />}
+/>
 
-                <Route
-                    path="products/list"
-                    element={<ProductList />}
-                />
 
-                <Route
-                    path="products/create"
-                    element={<ProductCreate />}
-                />
+{/* -------------------------------------------------
+    CREATE PRODUCT
+------------------------------------------------- */}
 
-                <Route
-                    path="products/search"
-                    element={<ProductSearch />}
-                />
+<Route
+    path="products/create"
+    element={<ProductCreate />}
+/>
 
-                <Route
-                    path="products/filters"
-                    element={<ProductFilters />}
-                />
 
-                <Route
-                    path="products/statistics"
-                    element={<ProductStatistics />}
-                />
+{/* -------------------------------------------------
+    SEARCH PRODUCTS
+------------------------------------------------- */}
 
-                <Route
-                    path="products/view/:id"
-                    element={<ProductView />}
-                />
+<Route
+    path="products/search"
+    element={<ProductSearch />}
+/>
 
-                <Route
-                    path="products/edit/:id"
-                    element={<ProductEdit />}
-                />
 
-                <Route
-                    path="products/:id/edit"
-                    element={<ProductEdit />}
-                />
+{/* -------------------------------------------------
+    PRODUCT FILTERS
+------------------------------------------------- */}
 
-                <Route
-                    path="products/:id"
-                    element={<ProductDetails />}
-                />
+<Route
+    path="products/filters"
+    element={<ProductFilters />}
+/>
 
+
+{/* -------------------------------------------------
+    PRODUCT STATISTICS
+------------------------------------------------- */}
+
+<Route
+    path="products/statistics"
+    element={<ProductStatistics />}
+/>
+
+
+{/* =================================================
+    PRODUCT LOOKUP ROUTES
+================================================= */}
+
+
+{/* -------------------------------------------------
+    PRODUCT BY SKU
+    Backend:
+    GET /api/products/sku/{sku}
+------------------------------------------------- */}
+
+<Route
+    path="products/sku/:sku"
+    element={<ProductView />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCTS BY SELLER
+    Backend:
+    GET /api/products/seller/{sellerId}
+------------------------------------------------- */}
+
+<Route
+    path="products/seller/:sellerId"
+    element={<ProductList />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCTS BY CUSTOMER
+    Backend:
+    GET /api/products/customer/{customerId}
+------------------------------------------------- */}
+
+<Route
+    path="products/customer/:customerId"
+    element={<ProductList />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCTS BY SELLER + CUSTOMER
+    Backend:
+    GET /api/products/seller/{sellerId}/customer/{customerId}
+------------------------------------------------- */}
+
+<Route
+    path="products/seller/:sellerId/customer/:customerId"
+    element={<ProductList />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCTS BY BRAND
+    Backend:
+    GET /api/products/brand/{brandId}
+------------------------------------------------- */}
+
+<Route
+    path="products/brand/:brandId"
+    element={<ProductList />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCTS BY CATEGORY
+    Backend:
+    GET /api/products/category/{categoryId}
+------------------------------------------------- */}
+
+<Route
+    path="products/category/:categoryId"
+    element={<ProductList />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCTS BY PRODUCT TYPE
+    Backend:
+    GET /api/products/product-type/{productTypeId}
+------------------------------------------------- */}
+
+<Route
+    path="products/product-type/:productTypeId"
+    element={<ProductList />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCTS BY STATUS
+    Backend:
+    GET /api/products/status/{status}
+------------------------------------------------- */}
+
+<Route
+    path="products/status/:status"
+    element={<ProductList />}
+/>
+
+
+{/* =================================================
+    PRODUCT PAGINATION / SORTING
+================================================= */}
+
+
+{/* -------------------------------------------------
+    PAGED PRODUCTS
+    Backend:
+    GET /api/products/paged?page=1&limit=15
+------------------------------------------------- */}
+
+<Route
+    path="products/paged"
+    element={<ProductList />}
+/>
+
+
+{/* -------------------------------------------------
+    SORTED PRODUCTS
+    Backend:
+    GET /api/products/sorted?sort=name_asc
+------------------------------------------------- */}
+
+<Route
+    path="products/sorted"
+    element={<ProductList />}
+/>
+
+
+{/* =================================================
+    PRODUCT DETAILS
+================================================= */}
+
+
+{/* -------------------------------------------------
+    VIEW PRODUCT
+    React:
+    /products/view/:id
+
+    Backend:
+    GET /api/products/{id}
+------------------------------------------------- */}
+
+<Route
+    path="products/view/:id"
+    element={<ProductView />}
+/>
+
+
+{/* -------------------------------------------------
+    EDIT PRODUCT
+    React:
+    /products/edit/:id
+
+    Backend:
+    PUT /api/products/{id}
+------------------------------------------------- */}
+
+<Route
+    path="products/edit/:id"
+    element={<ProductEdit />}
+/>
+
+
+{/* -------------------------------------------------
+    ALTERNATIVE EDIT ROUTE
+    /products/:id/edit
+------------------------------------------------- */}
+
+<Route
+    path="products/:id/edit"
+    element={<ProductEdit />}
+/>
+
+
+{/* -------------------------------------------------
+    PRODUCT DETAILS
+    /products/:id
+
+    IMPORTANT:
+    Keep this AFTER all specific routes.
+------------------------------------------------- */}
+
+<Route
+    path="products/:id"
+    element={<ProductDetails />}
+/>
 
                 {/* =================================================
                     PRODUCT TYPES

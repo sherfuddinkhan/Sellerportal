@@ -762,12 +762,6 @@ const MainLayout = () => {
                     icon: "📦",
 
                     children: [
-
-                        {
-                            label: "Products Dashboard",
-                            path: "/products",
-                        },
-
                         {
                             label: "Product List",
                             path: "/products/list",

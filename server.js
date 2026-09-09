@@ -573,29 +573,25 @@ app.post(
 // =========================================================
 
 // =========================================================
-// GET ALL CATALOG PRODUCTS
+// GET ALL PRODUCTS
+// ASP.NET:
+// GET /api/products
 // =========================================================
 
 app.get(
-    "/api/catalog/products/all",
+    "/api/products",
     async (req, res) => {
 
         try {
 
             const response =
                 await axios.get(
-
-                    `${DOTNET_API}/catalog/products/all`,
-
+                    `${DOTNET_API}/products`,
                     {
-                        params:
-                            req.query,
-
                         httpsAgent,
 
                         headers: {
-                            Accept:
-                                "application/json"
+                            Accept: "application/json"
                         },
 
                         timeout: 30000
@@ -612,18 +608,21 @@ app.get(
             return handleAxiosError(
                 res,
                 error,
-                "GET ALL CATALOG PRODUCTS"
+                "GET ALL PRODUCTS"
             );
         }
     }
 );
 
+
 // =========================================================
-// GET CATALOG PRODUCT BY ID
+// GET PRODUCT BY ID
+// ASP.NET:
+// GET /api/products/{id}
 // =========================================================
 
 app.get(
-    "/api/catalog/products/:id",
+    "/api/products/:id",
     async (req, res) => {
 
         const { id } = req.params;
@@ -632,18 +631,12 @@ app.get(
 
             const response =
                 await axios.get(
-
-                    `${DOTNET_API}/catalog/products/${encodeURIComponent(id)}`,
-
+                    `${DOTNET_API}/products/${encodeURIComponent(id)}`,
                     {
-                        params:
-                            req.query,
-
                         httpsAgent,
 
                         headers: {
-                            Accept:
-                                "application/json"
+                            Accept: "application/json"
                         },
 
                         timeout: 30000
@@ -660,65 +653,173 @@ app.get(
             return handleAxiosError(
                 res,
                 error,
-                `GET CATALOG PRODUCT ${id}`
+                `GET PRODUCT ${id}`
             );
         }
     }
 );
 
+
 // =========================================================
-// GET CATALOG PRODUCTS
+// GET PRODUCT BY SKU
+// ASP.NET:
+// GET /api/products/sku/{sku}
 // =========================================================
 
 app.get(
-    "/api/catalog/products",
+    "/api/products/sku/:sku",
+    async (req, res) => {
+
+        const { sku } = req.params;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/sku/${encodeURIComponent(sku)}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET PRODUCT BY SKU ${sku}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCTS BY SELLER
+// ASP.NET:
+// GET /api/products/seller/{sellerId}
+// =========================================================
+
+app.get(
+    "/api/products/seller/:sellerId",
+    async (req, res) => {
+
+        const { sellerId } = req.params;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/seller/${encodeURIComponent(sellerId)}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET PRODUCTS BY SELLER ${sellerId}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCTS BY CUSTOMER
+// ASP.NET:
+// GET /api/products/customer/{customerId}
+// =========================================================
+
+app.get(
+    "/api/products/customer/:customerId",
+    async (req, res) => {
+
+        const { customerId } = req.params;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/customer/${encodeURIComponent(customerId)}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET PRODUCTS BY CUSTOMER ${customerId}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCTS BY SELLER + CUSTOMER
+// ASP.NET:
+// GET /api/products/seller/{sellerId}/customer/{customerId}
+// =========================================================
+
+app.get(
+    "/api/products/seller/:sellerId/customer/:customerId",
     async (req, res) => {
 
         const {
             sellerId,
             customerId
-        } = req.query;
+        } = req.params;
 
         try {
 
-            if (!sellerId) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "sellerId is required."
-                });
-            }
-
-            if (!customerId) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        "customerId is required."
-                });
-            }
-
             const response =
                 await axios.get(
-
-                    `${DOTNET_API}/catalog/products`,
-
+                    `${DOTNET_API}/products/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
                     {
-                        params: {
-                            sellerId,
-                            customerId
-                        },
-
                         httpsAgent,
 
                         headers: {
-                            Accept:
-                                "application/json"
+                            Accept: "application/json"
                         },
 
                         timeout: 30000
@@ -735,34 +836,407 @@ app.get(
             return handleAxiosError(
                 res,
                 error,
-                "GET CATALOG PRODUCTS"
+                `GET PRODUCTS SELLER ${sellerId} CUSTOMER ${customerId}`
             );
         }
     }
 );
 
+
 // =========================================================
-// CREATE CATALOG PRODUCT
+// GET PRODUCTS BY BRAND
+// ASP.NET:
+// GET /api/products/brand/{brandId}
+// =========================================================
+
+app.get(
+    "/api/products/brand/:brandId",
+    async (req, res) => {
+
+        const { brandId } = req.params;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/brand/${encodeURIComponent(brandId)}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET PRODUCTS BY BRAND ${brandId}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCTS BY CATEGORY
+// ASP.NET:
+// GET /api/products/category/{categoryId}
+// =========================================================
+
+app.get(
+    "/api/products/category/:categoryId",
+    async (req, res) => {
+
+        const { categoryId } = req.params;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/category/${encodeURIComponent(categoryId)}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET PRODUCTS BY CATEGORY ${categoryId}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCTS BY PRODUCT TYPE
+// ASP.NET:
+// GET /api/products/product-type/{productTypeId}
+// =========================================================
+
+app.get(
+    "/api/products/product-type/:productTypeId",
+    async (req, res) => {
+
+        const { productTypeId } = req.params;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/product-type/${encodeURIComponent(productTypeId)}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET PRODUCTS BY PRODUCT TYPE ${productTypeId}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCTS BY STATUS
+// ASP.NET:
+// GET /api/products/status/{status}
+// =========================================================
+
+app.get(
+    "/api/products/status/:status",
+    async (req, res) => {
+
+        const { status } = req.params;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/status/${encodeURIComponent(status)}`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                `GET PRODUCTS BY STATUS ${status}`
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// SEARCH PRODUCTS
+// ASP.NET:
+// GET /api/products/search?search=phone
+// =========================================================
+
+app.get(
+    "/api/products/search",
+    async (req, res) => {
+
+        const { search } = req.query;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/search`,
+                    {
+                        params: {
+                            search
+                        },
+
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "SEARCH PRODUCTS"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// PRODUCT STATISTICS
+// ASP.NET:
+// GET /api/products/stats
+// =========================================================
+
+app.get(
+    "/api/products/stats",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/stats`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET PRODUCT STATISTICS"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// PAGED PRODUCTS
+// ASP.NET:
+// GET /api/products/paged?page=1&limit=15
+// =========================================================
+
+app.get(
+    "/api/products/paged",
+    async (req, res) => {
+
+        const {
+            page = 1,
+            limit = 15
+        } = req.query;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/paged`,
+                    {
+                        params: {
+                            page,
+                            limit
+                        },
+
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET PAGED PRODUCTS"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// SORT PRODUCTS
+// ASP.NET:
+// GET /api/products/sorted?sort=name_asc
+// =========================================================
+
+app.get(
+    "/api/products/sorted",
+    async (req, res) => {
+
+        const { sort } = req.query;
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/products/sorted`,
+                    {
+                        params: {
+                            sort
+                        },
+
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        },
+
+                        timeout: 30000
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return handleAxiosError(
+                res,
+                error,
+                "GET SORTED PRODUCTS"
+            );
+        }
+    }
+);
+
+
+// =========================================================
+// CREATE PRODUCT
+// ASP.NET:
+// POST /api/products
 // =========================================================
 
 app.post(
-    "/api/catalog/products",
+    "/api/products",
     async (req, res) => {
 
         try {
 
             const response =
                 await axios.post(
-
-                    `${DOTNET_API}/catalog/products`,
-
+                    `${DOTNET_API}/products`,
                     req.body,
-
                     {
                         httpsAgent,
 
                         headers: {
-
                             "Content-Type":
                                 "application/json",
 
@@ -784,18 +1258,21 @@ app.post(
             return handleAxiosError(
                 res,
                 error,
-                "CREATE CATALOG PRODUCT"
+                "CREATE PRODUCT"
             );
         }
     }
 );
 
+
 // =========================================================
-// UPDATE CATALOG PRODUCT
+// UPDATE PRODUCT
+// ASP.NET:
+// PUT /api/products/{id}
 // =========================================================
 
 app.put(
-    "/api/catalog/:id",
+    "/api/products/:id",
     async (req, res) => {
 
         const { id } = req.params;
@@ -804,19 +1281,12 @@ app.put(
 
             const response =
                 await axios.put(
-
-                    `${DOTNET_API}/catalog/${encodeURIComponent(id)}`,
-
+                    `${DOTNET_API}/products/${encodeURIComponent(id)}`,
                     req.body,
-
                     {
-                        params:
-                            req.query,
-
                         httpsAgent,
 
                         headers: {
-
                             "Content-Type":
                                 "application/json",
 
@@ -838,18 +1308,21 @@ app.put(
             return handleAxiosError(
                 res,
                 error,
-                `UPDATE CATALOG ${id}`
+                `UPDATE PRODUCT ${id}`
             );
         }
     }
 );
 
+
 // =========================================================
-// DELETE CATALOG PRODUCT
+// DELETE PRODUCT
+// ASP.NET:
+// DELETE /api/products/{id}
 // =========================================================
 
 app.delete(
-    "/api/catalog/products/:id",
+    "/api/products/:id",
     async (req, res) => {
 
         const { id } = req.params;
@@ -858,13 +1331,8 @@ app.delete(
 
             const response =
                 await axios.delete(
-
-                    `${DOTNET_API}/catalog/products/${encodeURIComponent(id)}`,
-
+                    `${DOTNET_API}/products/${encodeURIComponent(id)}`,
                     {
-                        params:
-                            req.query,
-
                         httpsAgent,
 
                         headers: {
@@ -876,16 +1344,6 @@ app.delete(
                     }
                 );
 
-            if (
-                response.data === undefined ||
-                response.data === null
-            ) {
-
-                return res
-                    .status(response.status)
-                    .send();
-            }
-
             return res
                 .status(response.status)
                 .json(response.data);
@@ -896,7 +1354,7 @@ app.delete(
             return handleAxiosError(
                 res,
                 error,
-                `DELETE CATALOG PRODUCT ${id}`
+                `DELETE PRODUCT ${id}`
             );
         }
     }

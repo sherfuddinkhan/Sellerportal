@@ -3,72 +3,107 @@
 // Marketplace Seller Portal
 // Create / Edit Product
 // Uses Node.js server.js proxy
+// No apiService
 // =========================================================
 
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, {
+    useEffect,
+    useState,
+} from "react";
+
+import {
+    useNavigate,
+    useParams,
+} from "react-router-dom";
+
 import axios from "axios";
 
 // =========================================================
 // NODE SERVER
 // =========================================================
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
+
+// =========================================================
+// DEFAULT PRODUCT
+// =========================================================
+
+const DEFAULT_PRODUCT = {
+    sellerId: "",
+    customerId: "",
+    sku: "",
+    productName: "",
+    description: "",
+    brandId: "",
+    categoryId: "",
+    productTypeId: "",
+    isActive: true,
+};
 
 // =========================================================
 // COMPONENT
 // =========================================================
 
-const ProductForm = () => {
+const ProductForm = ({
+    initialValues = null,
+    loading: parentLoading = false,
+    onSubmit,
+    onCancel,
+}) => {
 
     const navigate = useNavigate();
 
-    // IMPORTANT:
-    // App route should be:
-    // /products/edit/:id
-    //
-    // Therefore we MUST use "id", not "productId".
+    // =========================================================
+    // ROUTE PARAMETER
+    // =========================================================
+
     const { id } = useParams();
 
-    const isEditMode = Boolean(id);
+    const isEditMode =
+        Boolean(id);
 
     // =========================================================
     // PRODUCT STATE
     // =========================================================
 
-    const [product, setProduct] = useState({
-        sellerId: "",
-        customerId: "",
-        sku: "",
-        productName: "",
-        description: "",
-        brandId: "",
-        categoryId: "",
-        productTypeId: "",
-        isActive: true,
-    });
+    const [product, setProduct] =
+        useState(DEFAULT_PRODUCT);
 
     // =========================================================
     // MASTER DATA
     // =========================================================
 
-    const [brands, setBrands] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [productTypes, setProductTypes] = useState([]);
+    const [brands, setBrands] =
+        useState([]);
+
+    const [categories, setCategories] =
+        useState([]);
+
+    const [productTypes, setProductTypes] =
+        useState([]);
 
     // =========================================================
     // UI STATE
     // =========================================================
 
-    const [loading, setLoading] = useState(false);
-    const [masterLoading, setMasterLoading] = useState(false);
-    const [saving, setSaving] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    const [masterLoading, setMasterLoading] =
+        useState(false);
+
+    const [saving, setSaving] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
+    const [success, setSuccess] =
+        useState("");
 
     // =========================================================
-    // DEBUG ROUTE PARAMETER
+    // DEBUG
     // =========================================================
 
     useEffect(() => {
@@ -97,10 +132,19 @@ const ProductForm = () => {
         );
 
         console.log(
+            "INITIAL VALUES:",
+            initialValues
+        );
+
+        console.log(
             "=========================================="
         );
 
-    }, [id, isEditMode]);
+    }, [
+        id,
+        isEditMode,
+        initialValues,
+    ]);
 
     // =========================================================
     // INITIAL LOAD
@@ -110,193 +154,651 @@ const ProductForm = () => {
 
         loadMasterData();
 
-        if (isEditMode) {
-            loadProduct();
+    }, []);
+
+    // =========================================================
+    // LOAD INITIAL PRODUCT
+    // =========================================================
+
+    useEffect(() => {
+
+        if (!isEditMode) {
+
+            setProduct(
+                DEFAULT_PRODUCT
+            );
+
+            return;
         }
 
-    }, [id]);
+        // =====================================================
+        // PRODUCT RECEIVED FROM PRODUCT EDIT
+        // =====================================================
+
+        if (initialValues) {
+
+            console.log(
+                "Using product received from ProductEdit:"
+            );
+
+            console.log(
+                initialValues
+            );
+
+            setProduct({
+
+                sellerId:
+                    initialValues.sellerId ??
+                    initialValues.SellerId ??
+                    "",
+
+                customerId:
+                    initialValues.customerId ??
+                    initialValues.CustomerId ??
+                    "",
+
+                sku:
+                    initialValues.sku ??
+                    initialValues.SKU ??
+                    "",
+
+                productName:
+                    initialValues.productName ??
+                    initialValues.ProductName ??
+                    "",
+
+                description:
+                    initialValues.description ??
+                    initialValues.Description ??
+                    "",
+
+                brandId:
+                    initialValues.brandId ??
+                    initialValues.BrandId ??
+                    "",
+
+                categoryId:
+                    initialValues.categoryId ??
+                    initialValues.CategoryId ??
+                    "",
+
+                productTypeId:
+                    initialValues.productTypeId ??
+                    initialValues.ProductTypeId ??
+                    "",
+
+                isActive:
+                    initialValues.isActive ??
+                    initialValues.IsActive ??
+                    true,
+            });
+
+            return;
+        }
+
+        // =====================================================
+        // FETCH PRODUCT BY ID
+        // =====================================================
+
+        loadProductById(id);
+
+    }, [
+        id,
+        isEditMode,
+        initialValues,
+    ]);
+
+    // =========================================================
+    // NORMALIZE API RESPONSE
+    // =========================================================
+    //
+    // Supports:
+    //
+    // []
+    //
+    // { items: [] }
+    //
+    // { data: [] }
+    //
+    // { results: [] }
+    //
+    // { Items: [] }
+    //
+    // { Data: [] }
+    //
+    // =========================================================
+
+    const normalizeListResponse = (
+        responseData
+    ) => {
+
+        if (Array.isArray(responseData)) {
+
+            return responseData;
+        }
+
+        if (
+            Array.isArray(
+                responseData?.items
+            )
+        ) {
+
+            return responseData.items;
+        }
+
+        if (
+            Array.isArray(
+                responseData?.data
+            )
+        ) {
+
+            return responseData.data;
+        }
+
+        if (
+            Array.isArray(
+                responseData?.results
+            )
+        ) {
+
+            return responseData.results;
+        }
+
+        if (
+            Array.isArray(
+                responseData?.Items
+            )
+        ) {
+
+            return responseData.Items;
+        }
+
+        if (
+            Array.isArray(
+                responseData?.Data
+            )
+        ) {
+
+            return responseData.Data;
+        }
+
+        return [];
+    };
 
     // =========================================================
     // LOAD MASTER DATA
     // =========================================================
+    //
+    // IMPORTANT:
+    //
+    // Each API is loaded separately.
+    //
+    // Therefore if Brands fails, Categories and Product Types
+    // can still load.
+    //
+    // =========================================================
 
     const loadMasterData = async () => {
 
+        setMasterLoading(true);
+
+        setError("");
+
+        console.log(
+            "================================================="
+        );
+
+        console.log(
+            "LOADING MASTER DATA"
+        );
+
+        console.log(
+            "================================================="
+        );
+
+        // =====================================================
+        // GET ALL BRANDS
+        // =====================================================
+
         try {
 
-            setMasterLoading(true);
-
-            setError("");
-
             console.log(
-                "Loading master data..."
-            );
-
-            const [
-                brandsResponse,
-                categoriesResponse,
-                productTypesResponse
-            ] = await Promise.all([
-
-                // Node server.js
-                axios.get(
-                    `${SERVER_URL}/api/brand`
-                ),
-
-                // Node server.js
-                axios.get(
-                    `${SERVER_URL}/api/category`
-                ),
-
-                // Node server.js
-                axios.get(
-                    `${SERVER_URL}/api/producttype`
-                )
-
-            ]);
-
-            console.log(
-                "BRANDS:",
-                brandsResponse.data
+                "GET ALL BRANDS"
             );
 
             console.log(
-                "CATEGORIES:",
-                categoriesResponse.data
+                "URL:",
+                `${SERVER_URL}/api/brands`
+            );
+
+            const response =
+                await axios.get(
+
+                    `${SERVER_URL}/api/brands`,
+
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "BRANDS STATUS:",
+                response.status
             );
 
             console.log(
-                "PRODUCT TYPES:",
-                productTypesResponse.data
+                "BRANDS RAW RESPONSE:",
+                response.data
+            );
+
+            const brandList =
+                normalizeListResponse(
+                    response.data
+                );
+
+            console.log(
+                "BRANDS NORMALIZED:",
+                brandList
             );
 
             setBrands(
-                Array.isArray(brandsResponse.data)
-                    ? brandsResponse.data
-                    : []
-            );
-
-            setCategories(
-                Array.isArray(categoriesResponse.data)
-                    ? categoriesResponse.data
-                    : []
-            );
-
-            setProductTypes(
-                Array.isArray(productTypesResponse.data)
-                    ? productTypesResponse.data
-                    : []
+                brandList
             );
 
         }
         catch (err) {
 
             console.error(
-                "MASTER DATA ERROR:",
+                "GET ALL BRANDS FAILED"
+            );
+
+            console.error(
+                "BRANDS ERROR:",
                 err
             );
 
             console.error(
-                "MASTER DATA RESPONSE:",
+                "BRANDS STATUS:",
+                err.response?.status
+            );
+
+            console.error(
+                "BRANDS RESPONSE:",
+                err.response?.data
+            );
+
+            setBrands([]);
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                "GET ALL BRANDS failed."
+            );
+        }
+
+        // =====================================================
+        // GET ALL CATEGORIES
+        // =====================================================
+
+        try {
+
+            console.log(
+                "GET ALL CATEGORIES"
+            );
+
+            console.log(
+                "URL:",
+                `${SERVER_URL}/api/category`
+            );
+
+            const response =
+                await axios.get(
+
+                    `${SERVER_URL}/api/category`,
+
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "CATEGORIES STATUS:",
+                response.status
+            );
+
+            console.log(
+                "CATEGORIES RAW RESPONSE:",
+                response.data
+            );
+
+            const categoryList =
+                normalizeListResponse(
+                    response.data
+                );
+
+            console.log(
+                "CATEGORIES NORMALIZED:",
+                categoryList
+            );
+
+            setCategories(
+                categoryList
+            );
+
+        }
+        catch (err) {
+
+            console.error(
+                "GET ALL CATEGORIES FAILED"
+            );
+
+            console.error(
+                "CATEGORIES ERROR:",
+                err
+            );
+
+            console.error(
+                "CATEGORIES STATUS:",
+                err.response?.status
+            );
+
+            console.error(
+                "CATEGORIES RESPONSE:",
+                err.response?.data
+            );
+
+            setCategories([]);
+
+        }
+
+        // =====================================================
+        // GET ALL PRODUCT TYPES
+        // =====================================================
+
+        try {
+
+            console.log(
+                "GET ALL PRODUCT TYPES"
+            );
+
+            console.log(
+                "URL:",
+                `${SERVER_URL}/api/producttype`
+            );
+
+            const response =
+                await axios.get(
+
+                    `${SERVER_URL}/api/producttype`,
+
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "PRODUCT TYPES STATUS:",
+                response.status
+            );
+
+            console.log(
+                "PRODUCT TYPES RAW RESPONSE:",
+                response.data
+            );
+
+            const productTypeList =
+                normalizeListResponse(
+                    response.data
+                );
+
+            console.log(
+                "PRODUCT TYPES NORMALIZED:",
+                productTypeList
+            );
+
+            setProductTypes(
+                productTypeList
+            );
+
+        }
+        catch (err) {
+
+            console.error(
+                "GET ALL PRODUCT TYPES FAILED"
+            );
+
+            console.error(
+                "PRODUCT TYPES ERROR:",
+                err
+            );
+
+            console.error(
+                "PRODUCT TYPES STATUS:",
+                err.response?.status
+            );
+
+            console.error(
+                "PRODUCT TYPES RESPONSE:",
+                err.response?.data
+            );
+
+            setProductTypes([]);
+
+        }
+
+        // =====================================================
+        // FINISH MASTER DATA
+        // =====================================================
+
+        setMasterLoading(false);
+
+        console.log(
+            "================================================="
+        );
+
+        console.log(
+            "MASTER DATA LOAD COMPLETE"
+        );
+
+        console.log(
+            "================================================="
+        );
+    };
+
+    // =========================================================
+    // GET PRODUCT BY ID
+    // =========================================================
+
+    const loadProductById = async (
+        productId
+    ) => {
+
+        if (!productId) {
+
+            setError(
+                "Product ID is missing."
+            );
+
+            return;
+        }
+
+        try {
+
+            setLoading(true);
+
+            setError("");
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "LOADING PRODUCT BY ID"
+            );
+
+            console.log(
+                "PRODUCT ID:",
+                productId
+            );
+
+            console.log(
+                "GET:",
+                `${SERVER_URL}/api/products/${productId}`
+            );
+
+            console.log(
+                "=========================================="
+            );
+
+            const response =
+                await axios.get(
+
+                    `${SERVER_URL}/api/products/${encodeURIComponent(productId)}`,
+
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+            console.log(
+                "PRODUCT RESPONSE:",
+                response.data
+            );
+
+            const data =
+                response.data;
+
+            if (!data) {
+
+                throw new Error(
+                    "Product data is empty."
+                );
+            }
+
+            setProduct({
+
+                sellerId:
+                    data.sellerId ??
+                    data.SellerId ??
+                    "",
+
+                customerId:
+                    data.customerId ??
+                    data.CustomerId ??
+                    "",
+
+                sku:
+                    data.sku ??
+                    data.SKU ??
+                    "",
+
+                productName:
+                    data.productName ??
+                    data.ProductName ??
+                    "",
+
+                description:
+                    data.description ??
+                    data.Description ??
+                    "",
+
+                brandId:
+                    data.brandId ??
+                    data.BrandId ??
+                    "",
+
+                categoryId:
+                    data.categoryId ??
+                    data.CategoryId ??
+                    "",
+
+                productTypeId:
+                    data.productTypeId ??
+                    data.ProductTypeId ??
+                    "",
+
+                isActive:
+                    data.isActive ??
+                    data.IsActive ??
+                    true,
+            });
+
+        }
+        catch (err) {
+
+            console.error(
+                "PRODUCT LOAD ERROR:",
+                err
+            );
+
+            console.error(
+                "STATUS:",
+                err.response?.status
+            );
+
+            console.error(
+                "DATA:",
                 err.response?.data
             );
 
             setError(
                 err.response?.data?.message ||
-                "Unable to load brands, categories or product types."
+                `Unable to load product. HTTP ${
+                    err.response?.status ||
+                    "Unknown"
+                }`
             );
 
         }
         finally {
 
-            setMasterLoading(false);
+            setLoading(false);
 
         }
     };
 
     // =========================================================
-    // LOAD PRODUCT
-    // =========================================================
-
-   const loadProduct = async () => {
-
-    try {
-
-        setLoading(true);
-        setError("");
-
-        console.log("PRODUCT ID:", productId);
-
-        const response = await axios.get(
-            `${BASE_URL}/Product/${productId}`
-        );
-
-        console.log(
-            "PRODUCT RESPONSE:",
-            response.data
-        );
-
-        const data = response.data;
-
-        setProduct({
-            sellerId: data.sellerId ?? "",
-            sku: data.sku ?? "",
-            productName: data.productName ?? "",
-            description: data.description ?? "",
-            brandId: data.brandId ?? "",
-            categoryId: data.categoryId ?? "",
-            productTypeId: data.productTypeId ?? "",
-        });
-
-    }
-    catch (err) {
-
-        console.error(
-            "PRODUCT LOAD ERROR:",
-            err
-        );
-
-        console.error(
-            "STATUS:",
-            err.response?.status
-        );
-
-        console.error(
-            "DATA:",
-            err.response?.data
-        );
-
-        setError(
-            `Unable to load product. HTTP ${
-                err.response?.status || "Unknown"
-            }`
-        );
-
-    }
-    finally {
-
-        setLoading(false);
-
-    }
-};
-
-    // =========================================================
     // INPUT CHANGE
     // =========================================================
 
-    const handleChange = (event) => {
+    const handleChange = (
+        event
+    ) => {
 
         const {
             name,
-            value
+            value,
         } = event.target;
 
-        setProduct(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setProduct(
+            (previous) => ({
+                ...previous,
+                [name]: value,
+            })
+        );
 
         setError("");
+
         setSuccess("");
     };
 
@@ -315,7 +817,7 @@ const ProductForm = () => {
             return false;
         }
 
-        if (!product.sku.trim()) {
+        if (!product.sku?.trim()) {
 
             setError(
                 "SKU is required."
@@ -324,7 +826,7 @@ const ProductForm = () => {
             return false;
         }
 
-        if (!product.productName.trim()) {
+        if (!product.productName?.trim()) {
 
             setError(
                 "Product name is required."
@@ -367,14 +869,18 @@ const ProductForm = () => {
     // SUBMIT
     // =========================================================
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (
+        event
+    ) => {
 
         event.preventDefault();
 
         setError("");
+
         setSuccess("");
 
         if (!validateForm()) {
+
             return;
         }
 
@@ -382,14 +888,22 @@ const ProductForm = () => {
 
             setSaving(true);
 
+            // =================================================
+            // PAYLOAD
+            // =================================================
+
             const payload = {
 
                 sellerId:
-                    Number(product.sellerId),
+                    Number(
+                        product.sellerId
+                    ),
 
                 customerId:
                     product.customerId
-                        ? Number(product.customerId)
+                        ? Number(
+                            product.customerId
+                        )
                         : null,
 
                 sku:
@@ -399,56 +913,104 @@ const ProductForm = () => {
                     product.productName.trim(),
 
                 description:
-                    product.description.trim(),
+                    product.description?.trim() ||
+                    "",
 
                 brandId:
-                    Number(product.brandId),
+                    Number(
+                        product.brandId
+                    ),
 
                 categoryId:
-                    Number(product.categoryId),
+                    Number(
+                        product.categoryId
+                    ),
 
                 productTypeId:
-                    Number(product.productTypeId),
+                    Number(
+                        product.productTypeId
+                    ),
 
                 isActive:
-                    product.isActive
-
+                    Boolean(
+                        product.isActive
+                    ),
             };
 
             console.log(
-                "PRODUCT PAYLOAD:",
+                "=========================================="
+            );
+
+            console.log(
+                "PRODUCT SAVE"
+            );
+
+            console.log(
+                "EDIT MODE:",
+                isEditMode
+            );
+
+            console.log(
+                "PRODUCT ID:",
+                id
+            );
+
+            console.log(
+                "PAYLOAD:",
                 payload
             );
 
+            console.log(
+                "=========================================="
+            );
+
             // =================================================
-            // UPDATE
+            // PARENT HANDLER
+            // =================================================
+
+            if (onSubmit) {
+
+                await onSubmit(
+                    payload
+                );
+
+                return;
+            }
+
+            // =================================================
+            // UPDATE PRODUCT
             // =================================================
 
             if (isEditMode) {
 
                 console.log(
-                    "UPDATING PRODUCT:",
+                    "UPDATING PRODUCT ID:",
                     id
                 );
 
-                await axios.put(
+                const response =
+                    await axios.put(
 
-                    `${SERVER_URL}/api/Product/${encodeURIComponent(id)}`,
+                        `${SERVER_URL}/api/products/${encodeURIComponent(id)}`,
 
-                    payload,
+                        payload,
 
-                    {
-                        headers: {
-                            "Content-Type":
-                                "application/json",
+                        {
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
 
-                            Accept:
-                                "application/json"
-                        },
+                                Accept:
+                                    "application/json",
+                            },
 
-                        timeout: 30000
-                    }
+                            timeout: 30000,
+                        }
+                    );
 
+                console.log(
+                    "UPDATE RESPONSE:",
+                    response.data
                 );
 
                 setSuccess(
@@ -463,21 +1025,21 @@ const ProductForm = () => {
 
                 }, 1000);
 
+                return;
             }
 
             // =================================================
-            // CREATE
+            // CREATE PRODUCT
             // =================================================
 
-            else {
+            console.log(
+                "CREATING PRODUCT"
+            );
 
-                console.log(
-                    "CREATING PRODUCT"
-                );
-
+            const response =
                 await axios.post(
 
-                    `${SERVER_URL}/api/Product`,
+                    `${SERVER_URL}/api/products`,
 
                     payload,
 
@@ -487,33 +1049,25 @@ const ProductForm = () => {
                                 "application/json",
 
                             Accept:
-                                "application/json"
+                                "application/json",
                         },
 
-                        timeout: 30000
+                        timeout: 30000,
                     }
-
                 );
 
-                setSuccess(
-                    "Product created successfully."
-                );
+            console.log(
+                "CREATE RESPONSE:",
+                response.data
+            );
 
-                setProduct({
+            setSuccess(
+                "Product created successfully."
+            );
 
-                    sellerId: "",
-                    customerId: "",
-                    sku: "",
-                    productName: "",
-                    description: "",
-                    brandId: "",
-                    categoryId: "",
-                    productTypeId: "",
-                    isActive: true,
-
-                });
-
-            }
+            setProduct(
+                DEFAULT_PRODUCT
+            );
 
         }
         catch (err) {
@@ -524,15 +1078,30 @@ const ProductForm = () => {
             );
 
             console.error(
+                "SAVE STATUS:",
+                err.response?.status
+            );
+
+            console.error(
                 "SAVE RESPONSE:",
                 err.response?.data
             );
 
+            const apiError =
+                err.response?.data;
+
             setError(
 
-                err.response?.data?.message ||
+                apiError?.message ||
 
-                err.response?.data ||
+                apiError?.title ||
+
+                (
+                    typeof apiError ===
+                    "string"
+                        ? apiError
+                        : null
+                ) ||
 
                 err.message ||
 
@@ -554,30 +1123,51 @@ const ProductForm = () => {
 
     const handleCancel = () => {
 
+        if (onCancel) {
+
+            onCancel();
+
+            return;
+        }
+
         navigate(
             "/products"
         );
-
     };
 
     // =========================================================
     // LOADING
     // =========================================================
 
-    if (loading) {
+    if (
+        loading ||
+        parentLoading
+    ) {
 
         return (
 
-            <div className="product-form-container">
+            <div
+                className="product-form-container"
+            >
 
-                <div className="product-form-card">
+                <div
+                    className="product-form-card"
+                >
 
                     <h2>
-                        Edit Product
+
+                        {isEditMode
+                            ? "Edit Product"
+                            : "Create Product"}
+
                     </h2>
 
                     <p>
-                        Loading Product ID: {id}
+
+                        {isEditMode
+                            ? `Loading Product ID: ${id}`
+                            : "Loading..."}
+
                     </p>
 
                 </div>
@@ -585,7 +1175,6 @@ const ProductForm = () => {
             </div>
 
         );
-
     }
 
     // =========================================================
@@ -594,13 +1183,21 @@ const ProductForm = () => {
 
     return (
 
-        <div className="product-form-container">
+        <div
+            className="product-form-container"
+        >
 
-            <div className="product-form-card">
+            <div
+                className="product-form-card"
+            >
 
-                {/* HEADER */}
+                {/* =================================================
+                    HEADER
+                ================================================== */}
 
-                <div className="product-form-header">
+                <div
+                    className="product-form-header"
+                >
 
                     <div>
 
@@ -634,11 +1231,15 @@ const ProductForm = () => {
 
                 </div>
 
-                {/* ERROR */}
+                {/* =================================================
+                    ERROR
+                ================================================== */}
 
                 {error && (
 
-                    <div className="product-form-error">
+                    <div
+                        className="product-form-error"
+                    >
 
                         {String(error)}
 
@@ -646,11 +1247,15 @@ const ProductForm = () => {
 
                 )}
 
-                {/* SUCCESS */}
+                {/* =================================================
+                    SUCCESS
+                ================================================== */}
 
                 {success && (
 
-                    <div className="product-form-success">
+                    <div
+                        className="product-form-success"
+                    >
 
                         {success}
 
@@ -658,7 +1263,9 @@ const ProductForm = () => {
 
                 )}
 
-                {/* MASTER LOADING */}
+                {/* =================================================
+                    MASTER LOADING
+                ================================================== */}
 
                 {masterLoading && (
 
@@ -671,15 +1278,25 @@ const ProductForm = () => {
 
                 )}
 
-                {/* FORM */}
+                {/* =================================================
+                    FORM
+                ================================================== */}
 
-                <form onSubmit={handleSubmit}>
+                <form
+                    onSubmit={handleSubmit}
+                >
 
-                    <div className="form-grid">
+                    <div
+                        className="form-grid"
+                    >
 
-                        {/* SELLER ID */}
+                        {/* =================================================
+                            SELLER ID
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 Seller ID *
@@ -688,16 +1305,24 @@ const ProductForm = () => {
                             <input
                                 type="number"
                                 name="sellerId"
-                                value={product.sellerId}
-                                onChange={handleChange}
+                                value={
+                                    product.sellerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
                                 placeholder="Enter Seller ID"
                             />
 
                         </div>
 
-                        {/* CUSTOMER ID */}
+                        {/* =================================================
+                            CUSTOMER ID
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 Customer ID
@@ -706,16 +1331,24 @@ const ProductForm = () => {
                             <input
                                 type="number"
                                 name="customerId"
-                                value={product.customerId}
-                                onChange={handleChange}
+                                value={
+                                    product.customerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
                                 placeholder="Enter Customer ID"
                             />
 
                         </div>
 
-                        {/* SKU */}
+                        {/* =================================================
+                            SKU
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 SKU *
@@ -724,16 +1357,24 @@ const ProductForm = () => {
                             <input
                                 type="text"
                                 name="sku"
-                                value={product.sku}
-                                onChange={handleChange}
+                                value={
+                                    product.sku
+                                }
+                                onChange={
+                                    handleChange
+                                }
                                 placeholder="Enter SKU"
                             />
 
                         </div>
 
-                        {/* PRODUCT NAME */}
+                        {/* =================================================
+                            PRODUCT NAME
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 Product Name *
@@ -742,16 +1383,24 @@ const ProductForm = () => {
                             <input
                                 type="text"
                                 name="productName"
-                                value={product.productName}
-                                onChange={handleChange}
+                                value={
+                                    product.productName
+                                }
+                                onChange={
+                                    handleChange
+                                }
                                 placeholder="Enter Product Name"
                             />
 
                         </div>
 
-                        {/* BRAND */}
+                        {/* =================================================
+                            BRAND
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 Brand *
@@ -759,41 +1408,81 @@ const ProductForm = () => {
 
                             <select
                                 name="brandId"
-                                value={product.brandId}
-                                onChange={handleChange}
+                                value={
+                                    product.brandId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                disabled={
+                                    masterLoading
+                                }
                             >
 
                                 <option value="">
                                     Select Brand
                                 </option>
 
-                                {brands.map((brand) => (
+                                {brands.map(
+                                    (brand) => {
 
-                                    <option
-                                        key={
+                                        const brandId =
                                             brand.brandId ??
-                                            brand.BrandId
-                                        }
-                                        value={
-                                            brand.brandId ??
-                                            brand.BrandId
-                                        }
-                                    >
-                                        {
+                                            brand.BrandId ??
+                                            brand.id ??
+                                            brand.Id;
+
+                                        const brandName =
                                             brand.brandName ??
-                                            brand.BrandName
-                                        }
-                                    </option>
+                                            brand.BrandName ??
+                                            brand.name ??
+                                            brand.Name ??
+                                            `Brand ${brandId}`;
 
-                                ))}
+                                        return (
+
+                                            <option
+                                                key={
+                                                    brandId
+                                                }
+                                                value={
+                                                    brandId
+                                                }
+                                            >
+
+                                                {
+                                                    brandName
+                                                }
+
+                                            </option>
+
+                                        );
+
+                                    }
+                                )}
 
                             </select>
 
+                            {!masterLoading &&
+                                brands.length === 0 && (
+
+                                    <small>
+
+                                        No brands found.
+
+                                    </small>
+
+                                )}
+
                         </div>
 
-                        {/* CATEGORY */}
+                        {/* =================================================
+                            CATEGORY
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 Category *
@@ -801,41 +1490,70 @@ const ProductForm = () => {
 
                             <select
                                 name="categoryId"
-                                value={product.categoryId}
-                                onChange={handleChange}
+                                value={
+                                    product.categoryId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                disabled={
+                                    masterLoading
+                                }
                             >
 
                                 <option value="">
                                     Select Category
                                 </option>
 
-                                {categories.map((category) => (
+                                {categories.map(
+                                    (category) => {
 
-                                    <option
-                                        key={
+                                        const categoryId =
                                             category.categoryId ??
-                                            category.CategoryId
-                                        }
-                                        value={
-                                            category.categoryId ??
-                                            category.CategoryId
-                                        }
-                                    >
-                                        {
+                                            category.CategoryId ??
+                                            category.id ??
+                                            category.Id;
+
+                                        const categoryName =
                                             category.categoryName ??
-                                            category.CategoryName
-                                        }
-                                    </option>
+                                            category.CategoryName ??
+                                            category.name ??
+                                            category.Name ??
+                                            `Category ${categoryId}`;
 
-                                ))}
+                                        return (
+
+                                            <option
+                                                key={
+                                                    categoryId
+                                                }
+                                                value={
+                                                    categoryId
+                                                }
+                                            >
+
+                                                {
+                                                    categoryName
+                                                }
+
+                                            </option>
+
+                                        );
+
+                                    }
+                                )}
 
                             </select>
 
                         </div>
 
-                        {/* PRODUCT TYPE */}
+                        {/* =================================================
+                            PRODUCT TYPE
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 Product Type *
@@ -843,41 +1561,70 @@ const ProductForm = () => {
 
                             <select
                                 name="productTypeId"
-                                value={product.productTypeId}
-                                onChange={handleChange}
+                                value={
+                                    product.productTypeId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                disabled={
+                                    masterLoading
+                                }
                             >
 
                                 <option value="">
                                     Select Product Type
                                 </option>
 
-                                {productTypes.map((type) => (
+                                {productTypes.map(
+                                    (type) => {
 
-                                    <option
-                                        key={
+                                        const typeId =
                                             type.productTypeId ??
-                                            type.ProductTypeId
-                                        }
-                                        value={
-                                            type.productTypeId ??
-                                            type.ProductTypeId
-                                        }
-                                    >
-                                        {
+                                            type.ProductTypeId ??
+                                            type.id ??
+                                            type.Id;
+
+                                        const typeName =
                                             type.productTypeName ??
-                                            type.ProductTypeName
-                                        }
-                                    </option>
+                                            type.ProductTypeName ??
+                                            type.name ??
+                                            type.Name ??
+                                            `Product Type ${typeId}`;
 
-                                ))}
+                                        return (
+
+                                            <option
+                                                key={
+                                                    typeId
+                                                }
+                                                value={
+                                                    typeId
+                                                }
+                                            >
+
+                                                {
+                                                    typeName
+                                                }
+
+                                            </option>
+
+                                        );
+
+                                    }
+                                )}
 
                             </select>
 
                         </div>
 
-                        {/* STATUS */}
+                        {/* =================================================
+                            STATUS
+                        ================================================= */}
 
-                        <div className="form-group">
+                        <div
+                            className="form-group"
+                        >
 
                             <label>
                                 Status
@@ -890,13 +1637,29 @@ const ProductForm = () => {
                                         ? "true"
                                         : "false"
                                 }
-                                onChange={(event) =>
-                                    setProduct(prev => ({
-                                        ...prev,
-                                        isActive:
-                                            event.target.value === "true"
-                                    }))
-                                }
+                                onChange={(
+                                    event
+                                ) => {
+
+                                    setProduct(
+                                        (previous) => ({
+
+                                            ...previous,
+
+                                            isActive:
+                                                event
+                                                    .target
+                                                    .value ===
+                                                "true",
+
+                                        })
+                                    );
+
+                                    setError("");
+
+                                    setSuccess("");
+
+                                }}
                             >
 
                                 <option value="true">
@@ -913,9 +1676,13 @@ const ProductForm = () => {
 
                     </div>
 
-                    {/* DESCRIPTION */}
+                    {/* =================================================
+                        DESCRIPTION
+                    ================================================== */}
 
-                    <div className="form-group full-width">
+                    <div
+                        className="form-group full-width"
+                    >
 
                         <label>
                             Description
@@ -923,23 +1690,35 @@ const ProductForm = () => {
 
                         <textarea
                             name="description"
-                            value={product.description}
-                            onChange={handleChange}
+                            value={
+                                product.description
+                            }
+                            onChange={
+                                handleChange
+                            }
                             placeholder="Enter product description"
                             rows="5"
                         />
 
                     </div>
 
-                    {/* BUTTONS */}
+                    {/* =================================================
+                        BUTTONS
+                    ================================================== */}
 
-                    <div className="form-actions">
+                    <div
+                        className="form-actions"
+                    >
 
                         <button
                             type="button"
                             className="cancel-button"
-                            onClick={handleCancel}
-                            disabled={saving}
+                            onClick={
+                                handleCancel
+                            }
+                            disabled={
+                                saving
+                            }
                         >
                             Cancel
                         </button>
@@ -947,7 +1726,10 @@ const ProductForm = () => {
                         <button
                             type="submit"
                             className="save-button"
-                            disabled={saving}
+                            disabled={
+                                saving ||
+                                masterLoading
+                            }
                         >
 
                             {saving
@@ -969,7 +1751,10 @@ const ProductForm = () => {
         </div>
 
     );
-
 };
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductForm;

@@ -8,21 +8,22 @@ import React, {
     useCallback,
     useEffect,
     useMemo,
-    useState
+    useState,
 } from "react";
 
 import {
     Alert,
     Box,
-    Snackbar
+    Snackbar,
 } from "@mui/material";
+
+import { useNavigate } from "react-router-dom";
 
 import ProductToolbar from "./ProductToolbar";
 import ProductStatistics from "./ProductStatistics";
 import ProductSearch from "./ProductSearch";
 import ProductTable from "./ProductTable";
 import ProductPagination from "./ProductPagination";
-import ProductModal from "./ProductModal";
 import DeleteProductDialog from "./DeleteProductDialog";
 
 // =========================================================
@@ -31,17 +32,14 @@ import DeleteProductDialog from "./DeleteProductDialog";
 
 const SERVER_URL = "http://localhost:5000";
 
-const PRODUCT_API =
-    `${SERVER_URL}/api/products`;
+const PRODUCT_API = `${SERVER_URL}/api/products`;
 
 // =========================================================
-// HELPER
+// HELPERS
 // =========================================================
 
 const getValue = (item, ...keys) => {
-
     for (const key of keys) {
-
         if (
             item &&
             item[key] !== undefined &&
@@ -49,7 +47,6 @@ const getValue = (item, ...keys) => {
         ) {
             return item[key];
         }
-
     }
 
     return "";
@@ -57,15 +54,10 @@ const getValue = (item, ...keys) => {
 
 // =========================================================
 // NORMALIZE PRODUCT
-// Supports:
-// productId / ProductId
-// productName / ProductName
 // =========================================================
 
 const normalizeProduct = (item = {}) => {
-
     return {
-
         ...item,
 
         ProductId: getValue(
@@ -131,26 +123,22 @@ const normalizeProduct = (item = {}) => {
         IsActive:
             item.isActive ??
             item.IsActive ??
-            true
+            true,
     };
 };
 
 // =========================================================
 // EXTRACT PRODUCT ARRAY
-//
 // Supports:
 // []
 // { data: [] }
 // { products: [] }
 // { items: [] }
 // { result: [] }
-// { items: [] , totalCount: 10 }
 // =========================================================
 
 const extractProducts = (responseData) => {
-
     if (Array.isArray(responseData)) {
-
         return responseData;
     }
 
@@ -158,7 +146,6 @@ const extractProducts = (responseData) => {
         responseData &&
         Array.isArray(responseData.data)
     ) {
-
         return responseData.data;
     }
 
@@ -166,7 +153,6 @@ const extractProducts = (responseData) => {
         responseData &&
         Array.isArray(responseData.products)
     ) {
-
         return responseData.products;
     }
 
@@ -174,7 +160,6 @@ const extractProducts = (responseData) => {
         responseData &&
         Array.isArray(responseData.items)
     ) {
-
         return responseData.items;
     }
 
@@ -182,7 +167,6 @@ const extractProducts = (responseData) => {
         responseData &&
         Array.isArray(responseData.result)
     ) {
-
         return responseData.result;
     }
 
@@ -190,23 +174,16 @@ const extractProducts = (responseData) => {
 };
 
 // =========================================================
-// GET JSON RESPONSE SAFELY
+// SAFE JSON RESPONSE
 // =========================================================
 
 const getJsonResponse = async (response) => {
-
     const contentType =
-        response.headers.get(
-            "content-type"
-        );
+        response.headers.get("content-type") || "";
 
     if (
-        contentType &&
-        contentType.includes(
-            "application/json"
-        )
+        contentType.includes("application/json")
     ) {
-
         return await response.json();
     }
 
@@ -218,22 +195,20 @@ const getJsonResponse = async (response) => {
 // =========================================================
 
 const ProductList = () => {
+    const navigate = useNavigate();
 
     // =====================================================
     // STATE
     // =====================================================
 
-    const [products, setProducts] =
-        useState([]);
+    const [products, setProducts] = useState([]);
 
     const [filteredProducts, setFilteredProducts] =
         useState([]);
 
-    const [loading, setLoading] =
-        useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const [searchText, setSearchText] =
-        useState("");
+    const [searchText, setSearchText] = useState("");
 
     const [statusFilter, setStatusFilter] =
         useState("All");
@@ -253,11 +228,9 @@ const ProductList = () => {
     const [deleteOpen, setDeleteOpen] =
         useState(false);
 
-    const [page, setPage] =
-        useState(1);
+    const [page, setPage] = useState(1);
 
-    const [pageSize, setPageSize] =
-        useState(10);
+    const [pageSize, setPageSize] = useState(10);
 
     const [errorMessage, setErrorMessage] =
         useState("");
@@ -268,148 +241,105 @@ const ProductList = () => {
     // =====================================================
     // LOAD ALL PRODUCTS
     //
-    // Node:
-    // GET /api/products
-    //
-    // ASP.NET:
     // GET /api/products
     // =====================================================
 
-    const loadProducts = useCallback(
-        async () => {
+    const loadProducts = useCallback(async () => {
+        try {
+            setLoading(true);
+            setErrorMessage("");
 
-            try {
+            console.log(
+                "========================================"
+            );
 
-                setLoading(true);
+            console.log("GET ALL PRODUCTS");
 
-                console.log(
-                    "========================================"
-                );
+            console.log(
+                "URL:",
+                PRODUCT_API
+            );
 
-                console.log(
-                    "GET ALL PRODUCTS"
-                );
+            console.log(
+                "========================================"
+            );
 
-                console.log(
-                    "URL:",
-                    PRODUCT_API
-                );
-
-                console.log(
-                    "========================================"
-                );
-
-                const response =
-                    await fetch(
-                        PRODUCT_API,
-                        {
-                            method: "GET",
-
-                            headers: {
-                                Accept:
-                                    "application/json"
-                            }
-                        }
-                    );
-
-                const responseData =
-                    await getJsonResponse(
-                        response
-                    );
-
-                console.log(
-                    "PRODUCT STATUS:",
-                    response.status
-                );
-
-                console.log(
-                    "PRODUCT RESPONSE:",
-                    responseData
-                );
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        responseData?.message ||
-                        "Failed to load products."
-                    );
+            const response = await fetch(
+                PRODUCT_API,
+                {
+                    method: "GET",
+                    headers: {
+                        Accept: "application/json",
+                    },
                 }
+            );
 
-                const data =
-                    extractProducts(
-                        responseData
-                    );
+            const responseData =
+                await getJsonResponse(response);
 
-                const normalized =
-                    data.map(
-                        normalizeProduct
-                    );
+            console.log(
+                "PRODUCT STATUS:",
+                response.status
+            );
 
-                setProducts(
-                    normalized
-                );
+            console.log(
+                "PRODUCT RESPONSE:",
+                responseData
+            );
 
-            }
-            catch (error) {
-
-                console.error(
-                    "LOAD PRODUCTS ERROR:",
-                    error
-                );
-
-                setProducts([]);
-
-                setFilteredProducts([]);
-
-                setErrorMessage(
-                    error.message ||
+            if (!response.ok) {
+                throw new Error(
+                    responseData?.message ||
                     "Failed to load products."
                 );
-
-            }
-            finally {
-
-                setLoading(false);
-
             }
 
-        },
-        []
-    );
+            const data =
+                extractProducts(responseData);
+
+            const normalized =
+                data.map(normalizeProduct);
+
+            setProducts(normalized);
+
+            setFilteredProducts(normalized);
+        } catch (error) {
+            console.error(
+                "LOAD PRODUCTS ERROR:",
+                error
+            );
+
+            setProducts([]);
+
+            setFilteredProducts([]);
+
+            setErrorMessage(
+                error?.message ||
+                "Failed to load products."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     // =====================================================
     // INITIAL LOAD
     // =====================================================
 
     useEffect(() => {
-
         loadProducts();
-
     }, [loadProducts]);
 
     // =====================================================
     // SEARCH + FILTER
-    //
-    // Client-side filtering for the currently loaded list.
-    //
-    // Dedicated server routes are also available:
-    //
-    // /api/products/search
-    // /api/products/status/{status}
-    // /api/products/brand/{brandId}
-    // /api/products/category/{categoryId}
-    // /api/products/product-type/{productTypeId}
     // =====================================================
 
     useEffect(() => {
+        let result = [...products];
 
-        let result = [
-            ...products
-        ];
-
-        // =================================================
+        // -------------------------------------------------
         // SEARCH
-        // =================================================
+        // -------------------------------------------------
 
         const search =
             searchText
@@ -417,220 +347,138 @@ const ProductList = () => {
                 .toLowerCase();
 
         if (search) {
+            result = result.filter((item) => {
+                const searchableValues = [
+                    item.ProductId,
+                    item.ProductName,
+                    item.ProductCode,
+                    item.SKU,
+                    item.SellerId,
+                    item.CustomerId,
+                    item.BrandId,
+                    item.CategoryId,
+                    item.ProductTypeId,
+                    item.Description,
 
-            result =
-                result.filter(
-                    (item) => {
+                    item.brandName,
+                    item.BrandName,
 
-                        const searchableValues = [
+                    item.categoryName,
+                    item.CategoryName,
 
-                            item.ProductId,
+                    item.productTypeName,
+                    item.ProductTypeName,
+                ];
 
-                            item.ProductName,
-
-                            item.ProductCode,
-
-                            item.SKU,
-
-                            item.SellerId,
-
-                            item.CustomerId,
-
-                            item.BrandId,
-
-                            item.CategoryId,
-
-                            item.ProductTypeId,
-
-                            item.Description,
-
-                            item.brandName,
-
-                            item.BrandName,
-
-                            item.categoryName,
-
-                            item.CategoryName,
-
-                            item.productTypeName,
-
-                            item.ProductTypeName
-
-                        ];
-
-                        return searchableValues.some(
-                            (value) =>
-                                String(
-                                    value ?? ""
-                                )
-                                    .toLowerCase()
-                                    .includes(
-                                        search
-                                    )
-                        );
-
-                    }
+                return searchableValues.some(
+                    (value) =>
+                        String(value ?? "")
+                            .toLowerCase()
+                            .includes(search)
                 );
-
+            });
         }
 
-        // =================================================
+        // -------------------------------------------------
         // STATUS
-        // =================================================
+        // -------------------------------------------------
 
-        if (
-            statusFilter !== "All"
-        ) {
+        if (statusFilter !== "All") {
+            result = result.filter((item) => {
+                const active =
+                    item.IsActive === true ||
+                    item.IsActive === 1 ||
+                    item.IsActive === "true";
 
-            result =
-                result.filter(
-                    (item) => {
-
-                        const active =
-                            item.IsActive === true ||
-                            item.IsActive === 1 ||
-                            item.IsActive === "true";
-
-                        return statusFilter ===
-                            "Active"
-                            ? active
-                            : !active;
-
-                    }
-                );
-
+                return statusFilter === "Active"
+                    ? active
+                    : !active;
+            });
         }
 
-        // =================================================
+        // -------------------------------------------------
         // CATEGORY
-        // =================================================
+        // -------------------------------------------------
 
-        if (
-            categoryFilter !== ""
-        ) {
-
-            result =
-                result.filter(
-                    (item) =>
-                        String(
-                            item.CategoryId
-                        ) ===
-                        String(
-                            categoryFilter
-                        )
-                );
-
+        if (categoryFilter !== "") {
+            result = result.filter(
+                (item) =>
+                    String(item.CategoryId) ===
+                    String(categoryFilter)
+            );
         }
 
-        // =================================================
+        // -------------------------------------------------
         // BRAND
-        // =================================================
+        // -------------------------------------------------
 
-        if (
-            brandFilter !== ""
-        ) {
-
-            result =
-                result.filter(
-                    (item) =>
-                        String(
-                            item.BrandId
-                        ) ===
-                        String(
-                            brandFilter
-                        )
-                );
-
+        if (brandFilter !== "") {
+            result = result.filter(
+                (item) =>
+                    String(item.BrandId) ===
+                    String(brandFilter)
+            );
         }
 
-        // =================================================
+        // -------------------------------------------------
         // PRODUCT TYPE
-        // =================================================
+        // -------------------------------------------------
 
-        if (
-            productTypeFilter !== ""
-        ) {
-
-            result =
-                result.filter(
-                    (item) =>
-                        String(
-                            item.ProductTypeId
-                        ) ===
-                        String(
-                            productTypeFilter
-                        )
-                );
-
+        if (productTypeFilter !== "") {
+            result = result.filter(
+                (item) =>
+                    String(item.ProductTypeId) ===
+                    String(productTypeFilter)
+            );
         }
 
-        setFilteredProducts(
-            result
-        );
-
+        setFilteredProducts(result);
     }, [
         products,
         searchText,
         statusFilter,
         categoryFilter,
         brandFilter,
-        productTypeFilter
+        productTypeFilter,
     ]);
 
     // =====================================================
     // PAGINATION
     // =====================================================
 
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(
-                filteredProducts.length /
-                pageSize
-            )
-        );
+    const totalPages = Math.max(
+        1,
+        Math.ceil(
+            filteredProducts.length /
+            pageSize
+        )
+    );
 
     useEffect(() => {
-
-        if (
-            page > totalPages
-        ) {
-
-            setPage(
-                totalPages
-            );
-
+        if (page > totalPages) {
+            setPage(totalPages);
         }
-
     }, [
         page,
-        totalPages
+        totalPages,
     ]);
 
-    const pagedProducts =
-        useMemo(
-            () => {
+    const pagedProducts = useMemo(() => {
+        const start =
+            (page - 1) * pageSize;
 
-                const start =
-                    (page - 1) *
-                    pageSize;
+        const end =
+            start + pageSize;
 
-                const end =
-                    start +
-                    pageSize;
-
-                return filteredProducts.slice(
-                    start,
-                    end
-                );
-
-            },
-            [
-                filteredProducts,
-                page,
-                pageSize
-            ]
+        return filteredProducts.slice(
+            start,
+            end
         );
+    }, [
+        filteredProducts,
+        page,
+        pageSize,
+    ]);
 
     // =====================================================
     // GET PRODUCT BY ID
@@ -638,41 +486,43 @@ const ProductList = () => {
     // GET /api/products/{id}
     // =====================================================
 
-    const getProductById =
-        async (id) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/${encodeURIComponent(id)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Product not found."
-                );
-            }
-
-            return (
-                responseData?.data ||
-                responseData?.product ||
-                responseData
+    const getProductById = async (id) => {
+        if (
+            id === null ||
+            id === undefined ||
+            id === ""
+        ) {
+            throw new Error(
+                "Product ID is missing."
             );
-        };
+        }
+
+        const response = await fetch(
+            `${PRODUCT_API}/${encodeURIComponent(id)}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
+            }
+        );
+
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Product not found."
+            );
+        }
+
+        return (
+            responseData?.data ||
+            responseData?.product ||
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCT BY SKU
@@ -680,37 +530,39 @@ const ProductList = () => {
     // GET /api/products/sku/{sku}
     // =====================================================
 
-    const getProductBySKU =
-        async (sku) => {
+    const getProductBySKU = async (sku) => {
+        if (!sku) {
+            throw new Error(
+                "Product SKU is missing."
+            );
+        }
 
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/sku/${encodeURIComponent(sku)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Product with SKU not found."
-                );
+        const response = await fetch(
+            `${PRODUCT_API}/sku/${encodeURIComponent(sku)}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return responseData;
-        };
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Product with the specified SKU was not found."
+            );
+        }
+
+        return (
+            responseData?.data ||
+            responseData?.product ||
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCTS BY SELLER
@@ -718,39 +570,35 @@ const ProductList = () => {
     // GET /api/products/seller/{sellerId}
     // =====================================================
 
-    const getProductsBySeller =
-        async (sellerId) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/seller/${encodeURIComponent(sellerId)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load seller products."
-                );
+    const getProductsBySeller = async (
+        sellerId
+    ) => {
+        const response = await fetch(
+            `${PRODUCT_API}/seller/${encodeURIComponent(
+                sellerId
+            )}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return extractProducts(
-                responseData
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load seller products."
             );
-        };
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCTS BY CUSTOMER
@@ -758,39 +606,35 @@ const ProductList = () => {
     // GET /api/products/customer/{customerId}
     // =====================================================
 
-    const getProductsByCustomer =
-        async (customerId) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/customer/${encodeURIComponent(customerId)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load customer products."
-                );
+    const getProductsByCustomer = async (
+        customerId
+    ) => {
+        const response = await fetch(
+            `${PRODUCT_API}/customer/${encodeURIComponent(
+                customerId
+            )}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return extractProducts(
-                responseData
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load customer products."
             );
-        };
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCTS BY SELLER + CUSTOMER
@@ -798,42 +642,38 @@ const ProductList = () => {
     // GET /api/products/seller/{sellerId}/customer/{customerId}
     // =====================================================
 
-    const getProductsBySellerCustomer =
-        async (
-            sellerId,
-            customerId
-        ) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load seller/customer products."
-                );
+    const getProductsBySellerCustomer = async (
+        sellerId,
+        customerId
+    ) => {
+        const response = await fetch(
+            `${PRODUCT_API}/seller/${encodeURIComponent(
+                sellerId
+            )}/customer/${encodeURIComponent(
+                customerId
+            )}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return extractProducts(
-                responseData
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load seller/customer products."
             );
-        };
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCTS BY BRAND
@@ -841,39 +681,35 @@ const ProductList = () => {
     // GET /api/products/brand/{brandId}
     // =====================================================
 
-    const getProductsByBrand =
-        async (brandId) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/brand/${encodeURIComponent(brandId)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load brand products."
-                );
+    const getProductsByBrand = async (
+        brandId
+    ) => {
+        const response = await fetch(
+            `${PRODUCT_API}/brand/${encodeURIComponent(
+                brandId
+            )}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return extractProducts(
-                responseData
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load brand products."
             );
-        };
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCTS BY CATEGORY
@@ -881,39 +717,35 @@ const ProductList = () => {
     // GET /api/products/category/{categoryId}
     // =====================================================
 
-    const getProductsByCategory =
-        async (categoryId) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/category/${encodeURIComponent(categoryId)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load category products."
-                );
+    const getProductsByCategory = async (
+        categoryId
+    ) => {
+        const response = await fetch(
+            `${PRODUCT_API}/category/${encodeURIComponent(
+                categoryId
+            )}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return extractProducts(
-                responseData
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load category products."
             );
-        };
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCTS BY PRODUCT TYPE
@@ -921,39 +753,35 @@ const ProductList = () => {
     // GET /api/products/product-type/{productTypeId}
     // =====================================================
 
-    const getProductsByProductType =
-        async (productTypeId) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/product-type/${encodeURIComponent(productTypeId)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load product type products."
-                );
+    const getProductsByProductType = async (
+        productTypeId
+    ) => {
+        const response = await fetch(
+            `${PRODUCT_API}/product-type/${encodeURIComponent(
+                productTypeId
+            )}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return extractProducts(
-                responseData
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load product type products."
             );
-        };
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // GET PRODUCTS BY STATUS
@@ -961,39 +789,35 @@ const ProductList = () => {
     // GET /api/products/status/{status}
     // =====================================================
 
-    const getProductsByStatus =
-        async (status) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/status/${encodeURIComponent(status)}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load products by status."
-                );
+    const getProductsByStatus = async (
+        status
+    ) => {
+        const response = await fetch(
+            `${PRODUCT_API}/status/${encodeURIComponent(
+                status
+            )}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return extractProducts(
-                responseData
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load products by status."
             );
-        };
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // SEARCH PRODUCTS
@@ -1001,54 +825,46 @@ const ProductList = () => {
     // GET /api/products/search?search=phone
     // =====================================================
 
-    const searchProducts =
-        async (search) => {
+    const searchProducts = async (
+        search
+    ) => {
+        const params =
+            new URLSearchParams();
 
-            const params =
-                new URLSearchParams();
-
-            if (
-                search &&
+        if (
+            search &&
+            search.trim()
+        ) {
+            params.set(
+                "search",
                 search.trim()
-            ) {
-
-                params.set(
-                    "search",
-                    search.trim()
-                );
-
-            }
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/search?${params.toString()}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Product search failed."
-                );
-            }
-
-            return extractProducts(
-                responseData
             );
-        };
+        }
+
+        const response = await fetch(
+            `${PRODUCT_API}/search?${params.toString()}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
+            }
+        );
+
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Product search failed."
+            );
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // GET STATISTICS
@@ -1056,37 +872,29 @@ const ProductList = () => {
     // GET /api/products/stats
     // =====================================================
 
-    const getStatistics =
-        async () => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/stats`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load product statistics."
-                );
+    const getStatistics = async () => {
+        const response = await fetch(
+            `${PRODUCT_API}/stats`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return responseData;
-        };
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load product statistics."
+            );
+        }
+
+        return responseData;
+    };
 
     // =====================================================
     // GET PAGED PRODUCTS
@@ -1094,51 +902,42 @@ const ProductList = () => {
     // GET /api/products/paged?page=1&limit=15
     // =====================================================
 
-    const getPagedProducts =
-        async (
-            requestedPage = 1,
-            requestedLimit = 15
-        ) => {
+    const getPagedProducts = async (
+        requestedPage = 1,
+        requestedLimit = 15
+    ) => {
+        const params =
+            new URLSearchParams({
+                page: String(
+                    requestedPage
+                ),
+                limit: String(
+                    requestedLimit
+                ),
+            });
 
-            const params =
-                new URLSearchParams({
-
-                    page:
-                        requestedPage,
-
-                    limit:
-                        requestedLimit
-
-                });
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/paged?${params.toString()}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to load paged products."
-                );
+        const response = await fetch(
+            `${PRODUCT_API}/paged?${params.toString()}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
             }
+        );
 
-            return responseData;
-        };
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to load paged products."
+            );
+        }
+
+        return responseData;
+    };
 
     // =====================================================
     // GET SORTED PRODUCTS
@@ -1146,51 +945,43 @@ const ProductList = () => {
     // GET /api/products/sorted?sort=name_asc
     // =====================================================
 
-    const getSortedProducts =
-        async (sort) => {
+    const getSortedProducts = async (
+        sort
+    ) => {
+        const params =
+            new URLSearchParams();
 
-            const params =
-                new URLSearchParams();
-
-            if (sort) {
-
-                params.set(
-                    "sort",
-                    sort
-                );
-
-            }
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/sorted?${params.toString()}`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to sort products."
-                );
-            }
-
-            return extractProducts(
-                responseData
+        if (sort) {
+            params.set(
+                "sort",
+                sort
             );
-        };
+        }
+
+        const response = await fetch(
+            `${PRODUCT_API}/sorted?${params.toString()}`,
+            {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                },
+            }
+        );
+
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to sort products."
+            );
+        }
+
+        return extractProducts(
+            responseData
+        );
+    };
 
     // =====================================================
     // CREATE PRODUCT
@@ -1198,47 +989,34 @@ const ProductList = () => {
     // POST /api/products
     // =====================================================
 
-    const createProduct =
-        async (data) => {
-
-            const response =
-                await fetch(
-                    PRODUCT_API,
-                    {
-                        method: "POST",
-
-                        headers: {
-
-                            Accept:
-                                "application/json",
-
-                            "Content-Type":
-                                "application/json"
-
-                        },
-
-                        body:
-                            JSON.stringify(
-                                data
-                            )
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to create product."
-                );
+    const createProduct = async (
+        data
+    ) => {
+        const response = await fetch(
+            PRODUCT_API,
+            {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type":
+                        "application/json",
+                },
+                body: JSON.stringify(data),
             }
+        );
 
-            return responseData;
-        };
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to create product."
+            );
+        }
+
+        return responseData;
+    };
 
     // =====================================================
     // UPDATE PRODUCT
@@ -1246,50 +1024,45 @@ const ProductList = () => {
     // PUT /api/products/{id}
     // =====================================================
 
-    const updateProduct =
-        async (
-            id,
-            data
-        ) => {
+    const updateProduct = async (
+        id,
+        data
+    ) => {
+        if (
+            id === null ||
+            id === undefined ||
+            id === ""
+        ) {
+            throw new Error(
+                "Product ID is required for update."
+            );
+        }
 
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/${encodeURIComponent(id)}`,
-                    {
-                        method: "PUT",
-
-                        headers: {
-
-                            Accept:
-                                "application/json",
-
-                            "Content-Type":
-                                "application/json"
-
-                        },
-
-                        body:
-                            JSON.stringify(
-                                data
-                            )
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to update product."
-                );
+        const response = await fetch(
+            `${PRODUCT_API}/${encodeURIComponent(id)}`,
+            {
+                method: "PUT",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type":
+                        "application/json",
+                },
+                body: JSON.stringify(data),
             }
+        );
 
-            return responseData;
-        };
+        const responseData =
+            await getJsonResponse(response);
+
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to update product."
+            );
+        }
+
+        return responseData;
+    };
 
     // =====================================================
     // DELETE PRODUCT
@@ -1297,379 +1070,370 @@ const ProductList = () => {
     // DELETE /api/products/{id}
     // =====================================================
 
-    const deleteProduct =
-        async (id) => {
-
-            const response =
-                await fetch(
-                    `${PRODUCT_API}/${encodeURIComponent(id)}`,
-                    {
-                        method: "DELETE",
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        }
-                    }
-                );
-
-            const responseData =
-                await getJsonResponse(
-                    response
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    responseData?.message ||
-                    "Failed to delete product."
-                );
-            }
-
-            return responseData;
-        };
-
-    // =====================================================
-    // SAVE PRODUCT
-    // =====================================================
-
-    const handleSave =
-        async (data) => {
-
-            try {
-
-                setLoading(true);
-
-                const productId =
-                    getValue(
-                        data,
-                        "productId",
-                        "ProductId"
-                    );
-
-                // =============================================
-                // UPDATE
-                // =============================================
-
-                if (
-                    productId !== "" &&
-                    productId !== null &&
-                    productId !== undefined
-                ) {
-
-                    await updateProduct(
-                        productId,
-                        data
-                    );
-
-                    setSuccessMessage(
-                        "Product updated successfully."
-                    );
-
-                }
-
-                // =============================================
-                // CREATE
-                // =============================================
-
-                else {
-
-                    await createProduct(
-                        data
-                    );
-
-                    setSuccessMessage(
-                        "Product created successfully."
-                    );
-
-                }
-
-                await loadProducts();
-
-                setSelectedProduct(
-                    null
-                );
-
-            }
-            catch (error) {
-
-                console.error(
-                    "SAVE PRODUCT ERROR:",
-                    error
-                );
-
-                setErrorMessage(
-                    error.message ||
-                    "Failed to save product."
-                );
-
-            }
-            finally {
-
-                setLoading(false);
-
-            }
-
-        };
-
-    // =====================================================
-    // DELETE CLICK
-    // =====================================================
-
-    const handleDelete =
-        async (id) => {
-
-            try {
-
-                setLoading(true);
-
-                await deleteProduct(
-                    id
-                );
-
-                setSuccessMessage(
-                    "Product deleted successfully."
-                );
-
-                await loadProducts();
-
-            }
-            catch (error) {
-
-                console.error(
-                    "DELETE PRODUCT ERROR:",
-                    error
-                );
-
-                setErrorMessage(
-                    error.message ||
-                    "Failed to delete product."
-                );
-
-            }
-            finally {
-
-                setLoading(false);
-
-                setDeleteOpen(
-                    false
-                );
-
-                setSelectedProduct(
-                    null
-                );
-
-            }
-
-        };
-
-    // =====================================================
-    // VIEW PRODUCT
-    //
-    // GET /api/products/{id}
-    // =====================================================
-
-    const handleView =
-        async (row) => {
-
-            try {
-
-                const productId =
-                    getValue(
-                        row,
-                        "productId",
-                        "ProductId"
-                    );
-
-                if (!productId) {
-
-                    setSelectedProduct(
-                        normalizeProduct(
-                            row
-                        )
-                    );
-
-                    return;
-                }
-
-                setLoading(true);
-
-                const product =
-                    await getProductById(
-                        productId
-                    );
-
-                setSelectedProduct(
-                    normalizeProduct(
-                        product
-                    )
-                );
-
-            }
-            catch (error) {
-
-                console.error(
-                    "VIEW PRODUCT ERROR:",
-                    error
-                );
-
-                setErrorMessage(
-                    error.message ||
-                    "Failed to load product."
-                );
-
-            }
-            finally {
-
-                setLoading(false);
-
-            }
-
-        };
-
-    // =====================================================
-    // VIEW BY SKU
-    // =====================================================
-
-    const handleViewBySKU =
-        async (row) => {
-
-            try {
-
-                const sku =
-                    getValue(
-                        row,
-                        "sku",
-                        "SKU"
-                    );
-
-                if (!sku) {
-
-                    setErrorMessage(
-                        "Product SKU is not available."
-                    );
-
-                    return;
-                }
-
-                setLoading(true);
-
-                const product =
-                    await getProductBySKU(
-                        sku
-                    );
-
-                setSelectedProduct(
-                    normalizeProduct(
-                        product
-                    )
-                );
-
-            }
-            catch (error) {
-
-                setErrorMessage(
-                    error.message ||
-                    "Failed to load product by SKU."
-                );
-
-            }
-            finally {
-
-                setLoading(false);
-
-            }
-
-        };
-
-    // =====================================================
-    // EDIT PRODUCT
-    // =====================================================
-
-    const handleEdit =
-        (row) => {
-
-            setSelectedProduct(
-                normalizeProduct(
-                    row
-                )
+    const deleteProduct = async (
+        id
+    ) => {
+        if (
+            id === null ||
+            id === undefined ||
+            id === ""
+        ) {
+            throw new Error(
+                "Product ID is required for deletion."
             );
+        }
 
-        };
+        const response = await fetch(
+            `${PRODUCT_API}/${encodeURIComponent(id)}`,
+            {
+                method: "DELETE",
+                headers: {
+                    Accept: "application/json",
+                },
+            }
+        );
 
-    // =====================================================
-    // DELETE DIALOG
-    // =====================================================
+        const responseData =
+            await getJsonResponse(response);
 
-    const handleDeleteClick =
-        (row) => {
-
-            setSelectedProduct(
-                normalizeProduct(
-                    row
-                )
+        if (!response.ok) {
+            throw new Error(
+                responseData?.message ||
+                "Failed to delete product."
             );
+        }
 
-            setDeleteOpen(
-                true
-            );
-
-        };
+        return responseData;
+    };
 
     // =====================================================
     // ADD PRODUCT
     // =====================================================
 
-    const handleAdd =
-        () => {
+    const handleAdd = () => {
+        navigate(
+            "/products/create"
+        );
+    };
 
-            setSelectedProduct(
-                {}
+    // =====================================================
+    // VIEW PRODUCT
+    //
+    // First fetch by ID.
+    // Then navigate to details page.
+    // =====================================================
+
+    const handleView = async (
+        row
+    ) => {
+        try {
+            const productId =
+                getValue(
+                    row,
+                    "productId",
+                    "ProductId"
+                );
+
+            if (
+                productId === "" ||
+                productId === null ||
+                productId === undefined
+            ) {
+                setErrorMessage(
+                    "Product ID is not available."
+                );
+
+                return;
+            }
+
+            setLoading(true);
+
+            console.log(
+                "VIEW PRODUCT ID:",
+                productId
             );
 
-        };
+            // Verify product exists using ID
+            await getProductById(
+                productId
+            );
+
+            // Navigate using ID
+            navigate(
+                `/products/details/${productId}`
+            );
+        } catch (error) {
+            console.error(
+                "VIEW PRODUCT ERROR:",
+                error
+            );
+
+            setErrorMessage(
+                error?.message ||
+                "Failed to load product."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // =====================================================
+    // VIEW BY SKU
+    // =====================================================
+
+    const handleViewBySKU = async (
+        row
+    ) => {
+        try {
+            const sku =
+                getValue(
+                    row,
+                    "sku",
+                    "SKU"
+                );
+
+            if (!sku) {
+                setErrorMessage(
+                    "Product SKU is not available."
+                );
+
+                return;
+            }
+
+            setLoading(true);
+
+            const product =
+                await getProductBySKU(
+                    sku
+                );
+
+            const productId =
+                getValue(
+                    product,
+                    "productId",
+                    "ProductId"
+                );
+
+            if (
+                productId !== "" &&
+                productId !== null &&
+                productId !== undefined
+            ) {
+                navigate(
+                    `/products/details/${productId}`
+                );
+
+                return;
+            }
+
+            setSelectedProduct(
+                normalizeProduct(
+                    product
+                )
+            );
+        } catch (error) {
+            console.error(
+                "VIEW PRODUCT BY SKU ERROR:",
+                error
+            );
+
+            setErrorMessage(
+                error?.message ||
+                "Failed to load product by SKU."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // =====================================================
+    // EDIT PRODUCT
+    //
+    // Navigate with ProductId.
+    // ProductEdit page should perform:
+    //
+    // GET /api/products/{id}
+    //
+    // and then:
+    //
+    // PUT /api/products/{id}
+    // =====================================================
+
+    const handleEdit = (
+        row
+    ) => {
+        const productId =
+            getValue(
+                row,
+                "productId",
+                "ProductId"
+            );
+
+        if (
+            productId === "" ||
+            productId === null ||
+            productId === undefined
+        ) {
+            setErrorMessage(
+                "Product ID is not available."
+            );
+
+            return;
+        }
+
+        console.log(
+            "EDIT PRODUCT ID:",
+            productId
+        );
+
+        navigate(
+            `/products/edit/${productId}`
+        );
+    };
+
+    // =====================================================
+    // DELETE CLICK
+    // =====================================================
+
+    const handleDeleteClick = (
+        row
+    ) => {
+        const product =
+            normalizeProduct(
+                row
+            );
+
+        setSelectedProduct(
+            product
+        );
+
+        setDeleteOpen(true);
+    };
+
+    // =====================================================
+    // DELETE PRODUCT
+    // =====================================================
+
+    const handleDelete = async (
+        id
+    ) => {
+        try {
+            setLoading(true);
+            setErrorMessage("");
+
+            await deleteProduct(
+                id
+            );
+
+            setSuccessMessage(
+                "Product deleted successfully."
+            );
+
+            await loadProducts();
+        } catch (error) {
+            console.error(
+                "DELETE PRODUCT ERROR:",
+                error
+            );
+
+            setErrorMessage(
+                error?.message ||
+                "Failed to delete product."
+            );
+        } finally {
+            setLoading(false);
+
+            setDeleteOpen(false);
+
+            setSelectedProduct(
+                null
+            );
+        }
+    };
 
     // =====================================================
     // CLEAR FILTERS
     // =====================================================
 
-    const clearFilters =
-        () => {
+    const clearFilters = () => {
+        setSearchText("");
 
-            setSearchText("");
+        setStatusFilter("All");
 
-            setStatusFilter(
-                "All"
+        setCategoryFilter("");
+
+        setBrandFilter("");
+
+        setProductTypeFilter("");
+
+        setPage(1);
+
+        loadProducts();
+    };
+
+    // =====================================================
+    // SEARCH HANDLER
+    // =====================================================
+
+    const handleSearch = async () => {
+        const search =
+            searchText.trim();
+
+        if (!search) {
+            await loadProducts();
+
+            setPage(1);
+
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setErrorMessage("");
+
+            const result =
+                await searchProducts(
+                    search
+                );
+
+            const normalized =
+                result.map(
+                    normalizeProduct
+                );
+
+            setProducts(
+                normalized
             );
 
-            setCategoryFilter(
-                ""
+            setFilteredProducts(
+                normalized
             );
 
-            setBrandFilter(
-                ""
+            setPage(1);
+        } catch (error) {
+            console.error(
+                "SEARCH PRODUCTS ERROR:",
+                error
             );
 
-            setProductTypeFilter(
-                ""
+            setErrorMessage(
+                error?.message ||
+                "Product search failed."
             );
-
-            setPage(
-                1
-            );
-
-        };
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // =====================================================
     // RENDER
     // =====================================================
 
     return (
-
         <Box
             sx={{
                 p: 3,
-                width: "100%"
+                width: "100%",
             }}
         >
 
@@ -1678,10 +1442,7 @@ const ProductList = () => {
             ================================================= */}
 
             <ProductToolbar
-
-                onAdd={
-                    handleAdd
-                }
+                onAdd={handleAdd}
 
                 onRefresh={
                     loadProducts
@@ -1692,7 +1453,6 @@ const ProductList = () => {
                         "Export Products"
                     )
                 }
-
             />
 
             {/* =================================================
@@ -1714,7 +1474,6 @@ const ProductList = () => {
             ================================================= */}
 
             <ProductSearch
-
                 searchText={
                     searchText
                 }
@@ -1764,60 +1523,8 @@ const ProductList = () => {
                 }
 
                 onSearch={
-                    async () => {
-
-                        if (
-                            searchText.trim()
-                        ) {
-
-                            try {
-
-                                setLoading(
-                                    true
-                                );
-
-                                const result =
-                                    await searchProducts(
-                                        searchText
-                                    );
-
-                                setFilteredProducts(
-                                    result.map(
-                                        normalizeProduct
-                                    )
-                                );
-
-                                setPage(
-                                    1
-                                );
-
-                            }
-                            catch (error) {
-
-                                setErrorMessage(
-                                    error.message ||
-                                    "Search failed."
-                                );
-
-                            }
-                            finally {
-
-                                setLoading(
-                                    false
-                                );
-
-                            }
-
-                        }
-                        else {
-
-                            loadProducts();
-
-                        }
-
-                    }
+                    handleSearch
                 }
-
             />
 
             {/* =================================================
@@ -1825,7 +1532,6 @@ const ProductList = () => {
             ================================================= */}
 
             <ProductTable
-
                 products={
                     pagedProducts
                 }
@@ -1851,7 +1557,7 @@ const ProductList = () => {
                 }
 
                 // =============================================
-                // ROUTE ACTIONS
+                // BACKEND FILTER ROUTES
                 // =============================================
 
                 onSellerProducts={
@@ -1881,7 +1587,6 @@ const ProductList = () => {
                 onStatusProducts={
                     getProductsByStatus
                 }
-
             />
 
             {/* =================================================
@@ -1889,7 +1594,6 @@ const ProductList = () => {
             ================================================= */}
 
             <ProductPagination
-
                 page={
                     page
                 }
@@ -1912,47 +1616,13 @@ const ProductList = () => {
 
                 onPageSizeChange={
                     (size) => {
-
                         setPageSize(
                             size
                         );
 
-                        setPage(
-                            1
-                        );
-
+                        setPage(1);
                     }
                 }
-
-            />
-
-            {/* =================================================
-                PRODUCT MODAL
-            ================================================= */}
-
-            <ProductModal
-
-                open={
-                    Boolean(
-                        selectedProduct
-                    ) &&
-                    !deleteOpen
-                }
-
-                product={
-                    selectedProduct
-                }
-
-                onClose={() =>
-                    setSelectedProduct(
-                        null
-                    )
-                }
-
-                onSave={
-                    handleSave
-                }
-
             />
 
             {/* =================================================
@@ -1960,7 +1630,6 @@ const ProductList = () => {
             ================================================= */}
 
             <DeleteProductDialog
-
                 open={
                     deleteOpen
                 }
@@ -1970,7 +1639,6 @@ const ProductList = () => {
                 }
 
                 onClose={() => {
-
                     setDeleteOpen(
                         false
                     );
@@ -1978,13 +1646,11 @@ const ProductList = () => {
                     setSelectedProduct(
                         null
                     );
-
                 }}
 
                 onDeleted={
                     handleDelete
                 }
-
             />
 
             {/* =================================================
@@ -1992,7 +1658,6 @@ const ProductList = () => {
             ================================================= */}
 
             <Snackbar
-
                 open={
                     Boolean(
                         errorMessage
@@ -2006,18 +1671,17 @@ const ProductList = () => {
                 onClose={() =>
                     setErrorMessage("")
                 }
-
             >
-
                 <Alert
                     severity="error"
                     onClose={() =>
                         setErrorMessage("")
                     }
                 >
-                    {errorMessage}
+                    {
+                        errorMessage
+                    }
                 </Alert>
-
             </Snackbar>
 
             {/* =================================================
@@ -2025,7 +1689,6 @@ const ProductList = () => {
             ================================================= */}
 
             <Snackbar
-
                 open={
                     Boolean(
                         successMessage
@@ -2039,18 +1702,17 @@ const ProductList = () => {
                 onClose={() =>
                     setSuccessMessage("")
                 }
-
             >
-
                 <Alert
                     severity="success"
                     onClose={() =>
                         setSuccessMessage("")
                     }
                 >
-                    {successMessage}
+                    {
+                        successMessage
+                    }
                 </Alert>
-
             </Snackbar>
 
         </Box>

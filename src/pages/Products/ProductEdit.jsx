@@ -6,6 +6,7 @@
 // =========================================================
 
 import React, { useEffect, useState } from "react";
+
 import {
     Box,
     CircularProgress,
@@ -13,9 +14,17 @@ import {
     Typography,
     Alert,
     Snackbar,
+    Button,
 } from "@mui/material";
 
-import { useNavigate, useParams } from "react-router-dom";
+import {
+    ArrowBack,
+} from "@mui/icons-material";
+
+import {
+    useNavigate,
+    useParams,
+} from "react-router-dom";
 
 import ProductForm from "./ProductForm";
 
@@ -33,14 +42,34 @@ const ProductEdit = () => {
 
     const navigate = useNavigate();
 
-    // IMPORTANT:
-    // This must match your React route:
+    // =====================================================
+    // ROUTE PARAMETER
+    // =====================================================
+    //
+    // React route:
     //
     // /products/edit/:id
     //
+    // Example:
+    //
+    // /products/edit/6
+    //
+    // Backend:
+    //
+    // PUT /api/products/6
+    //
+    // GET  /api/products/6
+    //
+    // =====================================================
+
     const { id } = useParams();
 
-    const [product, setProduct] = useState(null);
+    // =====================================================
+    // STATE
+    // =====================================================
+
+    const [product, setProduct] =
+        useState(null);
 
     const [pageLoading, setPageLoading] =
         useState(true);
@@ -56,6 +85,132 @@ const ProductEdit = () => {
         });
 
     // =====================================================
+    // SHOW MESSAGE
+    // =====================================================
+
+    const showMessage = (
+        severity,
+        message
+    ) => {
+
+        setSnackbar({
+            open: true,
+            severity,
+            message,
+        });
+    };
+
+    // =====================================================
+    // CLOSE SNACKBAR
+    // =====================================================
+
+    const handleCloseSnackbar = () => {
+
+        setSnackbar((previous) => ({
+            ...previous,
+            open: false,
+        }));
+    };
+
+    // =====================================================
+    // EXTRACT API ERROR
+    // =====================================================
+
+    const getErrorMessage = async (response) => {
+
+        try {
+
+            const text =
+                await response.text();
+
+            if (!text) {
+
+                return `HTTP ${response.status}`;
+            }
+
+            try {
+
+                const data =
+                    JSON.parse(text);
+
+                // ASP.NET:
+                //
+                // { message: "..." }
+                //
+
+                if (data?.message) {
+
+                    return data.message;
+                }
+
+                // ASP.NET ModelState:
+                //
+                // {
+                //   errors: {
+                //      ProductName: [...]
+                //   }
+                // }
+                //
+
+                if (data?.errors) {
+
+                    const errors = [];
+
+                    Object.entries(
+                        data.errors
+                    ).forEach(
+                        ([field, messages]) => {
+
+                            if (
+                                Array.isArray(
+                                    messages
+                                )
+                            ) {
+
+                                messages.forEach(
+                                    (message) => {
+
+                                        errors.push(
+                                            `${field}: ${message}`
+                                        );
+                                    }
+                                );
+
+                            }
+
+                        }
+                    );
+
+                    if (errors.length > 0) {
+
+                        return errors.join(" | ");
+                    }
+                }
+
+                // ASP.NET ProblemDetails
+                //
+
+                if (data?.title) {
+
+                    return data.title;
+                }
+
+                return text;
+
+            }
+            catch {
+
+                return text;
+            }
+
+        }
+        catch {
+
+            return `HTTP ${response.status}`;
+        }
+    };
+
+    // =====================================================
     // LOAD PRODUCT
     // =====================================================
 
@@ -67,11 +222,10 @@ const ProductEdit = () => {
                 "Product ID is missing."
             );
 
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message: "Product ID is missing.",
-            });
+            showMessage(
+                "error",
+                "Product ID is missing."
+            );
 
             setPageLoading(false);
 
@@ -85,6 +239,22 @@ const ProductEdit = () => {
     // =====================================================
     // GET PRODUCT BY ID
     // =====================================================
+    //
+    // React
+    //     ↓
+    // Node server.js
+    //     ↓
+    // ASP.NET Core
+    //
+    // GET:
+    //
+    // http://localhost:5000/api/products/:id
+    //
+    // forwarded to:
+    //
+    // https://localhost:7203/api/products/:id
+    //
+    // =====================================================
 
     const loadProduct = async () => {
 
@@ -93,21 +263,32 @@ const ProductEdit = () => {
             setPageLoading(true);
 
             console.log(
-                "Loading Product ID:",
+                "===================================="
+            );
+
+            console.log(
+                "Loading Product"
+            );
+
+            console.log(
+                "Product ID:",
                 id
             );
 
-            // IMPORTANT:
-            // Use /api/products/:id
-            //
-            // because your server.js contains:
-            //
-            // app.get("/api/products/:id")
+            console.log(
+                "GET:",
+                `${SERVER_URL}/api/products/${id}`
+            );
+
+            console.log(
+                "===================================="
+            );
 
             const response = await fetch(
                 `${SERVER_URL}/api/products/${encodeURIComponent(id)}`,
                 {
                     method: "GET",
+
                     headers: {
                         Accept:
                             "application/json",
@@ -120,20 +301,31 @@ const ProductEdit = () => {
                 response.status
             );
 
+            // =================================================
+            // API ERROR
+            // =================================================
+
             if (!response.ok) {
 
-                const errorText =
-                    await response.text();
+                const errorMessage =
+                    await getErrorMessage(
+                        response
+                    );
 
                 console.error(
                     "Product API error:",
-                    errorText
+                    errorMessage
                 );
 
                 throw new Error(
-                    `Unable to load product. HTTP ${response.status}`
+                    errorMessage ||
+                    `Unable to load Product. HTTP ${response.status}`
                 );
             }
+
+            // =================================================
+            // RESPONSE
+            // =================================================
 
             const data =
                 await response.json();
@@ -143,11 +335,20 @@ const ProductEdit = () => {
                 data
             );
 
+            // =================================================
+            // EMPTY RESPONSE
+            // =================================================
+
             if (!data) {
+
                 throw new Error(
                     "Product data is empty."
                 );
             }
+
+            // =================================================
+            // SET PRODUCT
+            // =================================================
 
             setProduct(data);
 
@@ -159,13 +360,11 @@ const ProductEdit = () => {
                 error
             );
 
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.message ||
-                    "Unable to load Product.",
-            });
+            showMessage(
+                "error",
+                error.message ||
+                "Unable to load Product."
+            );
 
         }
         finally {
@@ -177,6 +376,16 @@ const ProductEdit = () => {
     // =====================================================
     // UPDATE PRODUCT
     // =====================================================
+    //
+    // PUT:
+    //
+    // http://localhost:5000/api/products/:id
+    //
+    // forwarded to:
+    //
+    // https://localhost:7203/api/products/:id
+    //
+    // =====================================================
 
     const handleUpdate = async (values) => {
 
@@ -185,7 +394,15 @@ const ProductEdit = () => {
             setLoading(true);
 
             console.log(
-                "Updating Product:",
+                "===================================="
+            );
+
+            console.log(
+                "Updating Product"
+            );
+
+            console.log(
+                "Product ID:",
                 id
             );
 
@@ -193,6 +410,19 @@ const ProductEdit = () => {
                 "Update payload:",
                 values
             );
+
+            console.log(
+                "PUT:",
+                `${SERVER_URL}/api/products/${id}`
+            );
+
+            console.log(
+                "===================================="
+            );
+
+            // =================================================
+            // PUT REQUEST
+            // =================================================
 
             const response = await fetch(
                 `${SERVER_URL}/api/products/${encodeURIComponent(id)}`,
@@ -217,28 +447,65 @@ const ProductEdit = () => {
                 response.status
             );
 
+            // =================================================
+            // UPDATE ERROR
+            // =================================================
+
             if (!response.ok) {
 
-                const errorText =
-                    await response.text();
+                const errorMessage =
+                    await getErrorMessage(
+                        response
+                    );
 
                 console.error(
-                    "Update error:",
-                    errorText
+                    "Update API error:",
+                    errorMessage
                 );
 
                 throw new Error(
-                    errorText ||
+                    errorMessage ||
                     `Unable to update Product. HTTP ${response.status}`
                 );
             }
 
-            setSnackbar({
-                open: true,
-                severity: "success",
-                message:
-                    "Product updated successfully.",
-            });
+            // =================================================
+            // READ UPDATED PRODUCT
+            // =================================================
+
+            let updatedProduct = null;
+
+            try {
+
+                updatedProduct =
+                    await response.json();
+
+            }
+            catch {
+
+                // Some APIs return an empty
+                // response after PUT.
+                //
+                // This is acceptable.
+            }
+
+            console.log(
+                "Updated Product:",
+                updatedProduct
+            );
+
+            // =================================================
+            // SUCCESS
+            // =================================================
+
+            showMessage(
+                "success",
+                "Product updated successfully."
+            );
+
+            // =================================================
+            // REDIRECT
+            // =================================================
 
             setTimeout(() => {
 
@@ -254,19 +521,26 @@ const ProductEdit = () => {
                 error
             );
 
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.message ||
-                    "Unable to update Product.",
-            });
+            showMessage(
+                "error",
+                error.message ||
+                "Unable to update Product."
+            );
 
         }
         finally {
 
             setLoading(false);
         }
+    };
+
+    // =====================================================
+    // BACK TO PRODUCTS
+    // =====================================================
+
+    const handleBack = () => {
+
+        navigate("/products");
     };
 
     // =====================================================
@@ -279,10 +553,18 @@ const ProductEdit = () => {
             <Box
                 sx={{
                     minHeight: 400,
+
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "column",
+
+                    alignItems:
+                        "center",
+
+                    justifyContent:
+                        "center",
+
+                    flexDirection:
+                        "column",
+
                     gap: 2,
                 }}
             >
@@ -297,7 +579,8 @@ const ProductEdit = () => {
                     variant="body2"
                     color="text.secondary"
                 >
-                    Product ID: {id || "Missing"}
+                    Product ID:{" "}
+                    {id || "Missing"}
                 </Typography>
 
             </Box>
@@ -325,41 +608,46 @@ const ProductEdit = () => {
 
                     <Alert
                         severity="error"
-                        sx={{ mb: 2 }}
+                        sx={{ mb: 3 }}
                     >
                         Product ID:{" "}
                         {id || "Missing"}
                     </Alert>
 
-                    <button
-                        type="button"
-                        onClick={() =>
-                            navigate("/products")
-                        }
+                    <Button
+                        variant="contained"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
                     >
-                        ← Back to Products
-                    </button>
+                        Back to Products
+                    </Button>
 
                 </Paper>
+
+                {/* =================================================
+                    ERROR SNACKBAR
+                ================================================== */}
 
                 <Snackbar
                     open={snackbar.open}
                     autoHideDuration={4000}
-                    onClose={() =>
-                        setSnackbar({
-                            ...snackbar,
-                            open: false,
-                        })
+                    onClose={
+                        handleCloseSnackbar
                     }
                 >
+
                     <Alert
                         severity={
                             snackbar.severity
                         }
                         variant="filled"
+                        onClose={
+                            handleCloseSnackbar
+                        }
                     >
                         {snackbar.message}
                     </Alert>
+
                 </Snackbar>
 
             </Box>
@@ -375,41 +663,91 @@ const ProductEdit = () => {
 
             <Paper sx={{ p: 3 }}>
 
-                <Typography
-                    variant="h5"
-                    fontWeight="bold"
-                    mb={3}
+                {/* =================================================
+                    HEADER
+                ================================================== */}
+
+                <Box
+                    sx={{
+                        display: "flex",
+
+                        justifyContent:
+                            "space-between",
+
+                        alignItems:
+                            "center",
+
+                        mb: 3,
+                    }}
                 >
-                    Edit Product
-                </Typography>
+
+                    <Box>
+
+                        <Typography
+                            variant="h5"
+                            fontWeight="bold"
+                        >
+                            Edit Product
+                        </Typography>
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mt: 0.5 }}
+                        >
+                            Product ID: {id}
+                        </Typography>
+
+                    </Box>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                        disabled={loading}
+                    >
+                        Back
+                    </Button>
+
+                </Box>
+
+                {/* =================================================
+                    PRODUCT FORM
+                ================================================== */}
 
                 <ProductForm
                     initialValues={product}
                     loading={loading}
                     onSubmit={handleUpdate}
-                    onCancel={() =>
-                        navigate("/products")
-                    }
+                    onCancel={handleBack}
                 />
 
             </Paper>
 
+            {/* =====================================================
+                SUCCESS / ERROR SNACKBAR
+            ===================================================== */}
+
             <Snackbar
                 open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={() =>
-                    setSnackbar({
-                        ...snackbar,
-                        open: false,
-                    })
+                autoHideDuration={4000}
+                onClose={
+                    handleCloseSnackbar
                 }
             >
+
                 <Alert
-                    severity={snackbar.severity}
+                    severity={
+                        snackbar.severity
+                    }
                     variant="filled"
+                    onClose={
+                        handleCloseSnackbar
+                    }
                 >
                     {snackbar.message}
                 </Alert>
+
             </Snackbar>
 
         </Box>

@@ -1,3 +1,9 @@
+// =========================================================
+// ProductPriceSearch.jsx
+// Marketplace Seller Portal
+// Product Price Management
+// =========================================================
+
 import React from "react";
 
 import {
@@ -6,13 +12,18 @@ import {
     TextField,
     InputAdornment,
     MenuItem,
-    IconButton
+    IconButton,
 } from "@mui/material";
 
 import {
     Search,
-    Clear
+    Clear,
 } from "@mui/icons-material";
+
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const ProductPriceSearch = ({
 
@@ -23,9 +34,14 @@ const ProductPriceSearch = ({
     setStatusFilter,
 
     priceTypeFilter,
-    setPriceTypeFilter
+    setPriceTypeFilter,
 
 }) => {
+
+
+    // =====================================================
+    // CLEAR FILTERS
+    // =====================================================
 
     const clearFilters = () => {
 
@@ -37,13 +53,34 @@ const ProductPriceSearch = ({
 
     };
 
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
 
-        <Paper sx={{ p: 2, mb: 3 }}>
+        <Paper
+            sx={{
+                p: 2,
+                mb: 3,
+            }}
+        >
 
-            <Grid container spacing={2}>
+            <Grid
+                container
+                spacing={2}
+            >
 
-                <Grid item xs={12} md={6}>
+                {/* =================================================
+                    SEARCH
+                ================================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                >
 
                     <TextField
 
@@ -55,25 +92,30 @@ const ProductPriceSearch = ({
 
                         placeholder="Product Name, SKU, Currency..."
 
-                        value={searchText}
+                        value={
+                            searchText || ""
+                        }
 
-                        onChange={(e) =>
-
-                            setSearchText(e.target.value)
-
+                        onChange={
+                            (event) =>
+                                setSearchText(
+                                    event.target.value
+                                )
                         }
 
                         InputProps={{
 
                             startAdornment: (
 
-                                <InputAdornment position="start">
+                                <InputAdornment
+                                    position="start"
+                                >
 
                                     <Search />
 
                                 </InputAdornment>
 
-                            )
+                            ),
 
                         }}
 
@@ -81,7 +123,16 @@ const ProductPriceSearch = ({
 
                 </Grid>
 
-                <Grid item xs={12} md={3}>
+
+                {/* =================================================
+                    STATUS
+                ================================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={3}
+                >
 
                     <TextField
 
@@ -93,39 +144,45 @@ const ProductPriceSearch = ({
 
                         label="Status"
 
-                        value={statusFilter}
+                        value={
+                            statusFilter || "All"
+                        }
 
-                        onChange={(e) =>
-
-                            setStatusFilter(e.target.value)
-
+                        onChange={
+                            (event) =>
+                                setStatusFilter(
+                                    event.target.value
+                                )
                         }
 
                     >
 
                         <MenuItem value="All">
-
                             All
-
                         </MenuItem>
 
                         <MenuItem value="Active">
-
                             Active
-
                         </MenuItem>
 
                         <MenuItem value="Inactive">
-
                             Inactive
-
                         </MenuItem>
 
                     </TextField>
 
                 </Grid>
 
-                <Grid item xs={12} md={3}>
+
+                {/* =================================================
+                    PRICE TYPE
+                ================================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={3}
+                >
 
                     <TextField
 
@@ -137,65 +194,67 @@ const ProductPriceSearch = ({
 
                         label="Price Type"
 
-                        value={priceTypeFilter}
+                        value={
+                            priceTypeFilter || ""
+                        }
 
-                        onChange={(e) =>
-
-                            setPriceTypeFilter(e.target.value)
-
+                        onChange={
+                            (event) =>
+                                setPriceTypeFilter(
+                                    event.target.value
+                                )
                         }
 
                     >
 
                         <MenuItem value="">
-
                             All
-
                         </MenuItem>
 
                         <MenuItem value="Purchase">
-
                             Purchase
-
                         </MenuItem>
 
                         <MenuItem value="Selling">
-
                             Selling
-
                         </MenuItem>
 
                         <MenuItem value="Wholesale">
-
                             Wholesale
-
                         </MenuItem>
 
                         <MenuItem value="Retail">
-
                             Retail
-
                         </MenuItem>
 
                     </TextField>
 
                 </Grid>
 
-                <Grid item xs={12}>
+
+                {/* =================================================
+                    CLEAR FILTERS
+                ================================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                >
 
                     <Grid
-
                         container
-
                         justifyContent="flex-end"
-
                     >
 
                         <IconButton
 
                             color="error"
 
-                            onClick={clearFilters}
+                            title="Clear Filters"
+
+                            onClick={
+                                clearFilters
+                            }
 
                         >
 
@@ -210,9 +269,12 @@ const ProductPriceSearch = ({
             </Grid>
 
         </Paper>
-
     );
-
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductPriceSearch;
