@@ -476,17 +476,6 @@ const MainLayout = () => {
                             label: "Create Category",
                             path: "/categories/create",
                         },
-
-                        {
-                            label: "Category Details",
-                            path: "/categories/details/:id",
-                        },
-
-                        {
-                            label: "Edit Category",
-                            path: "/categories/edit/:id",
-                        },
-
                         {
                             label: "Category Filters",
                             path: "/categories/filters",

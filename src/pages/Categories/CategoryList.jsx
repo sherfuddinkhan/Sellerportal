@@ -1,9 +1,3 @@
-// =========================================================
-// CategoryList.jsx
-// Central Category Management Page
-// Uses server.js directly through axios
-// =========================================================
-
 import React, {
     useCallback,
     useEffect,
@@ -82,7 +76,7 @@ const CategoryList = () => {
     ] = useState("");
 
     // =====================================================
-    // FILTER
+    // STATUS FILTER
     // =====================================================
 
     const [
@@ -172,7 +166,14 @@ const CategoryList = () => {
     };
 
     // =====================================================
-    // LOAD ALL CATEGORIES
+    // LOAD CATEGORIES
+    //
+    // STATUS FILTER IS HANDLED BY NODE SERVER
+    //
+    // GET:
+    // /api/categories/filter?status=All
+    // /api/categories/filter?status=Active
+    // /api/categories/filter?status=Inactive
     // =====================================================
 
     const loadCategories =
@@ -190,12 +191,17 @@ const CategoryList = () => {
                     );
 
                     console.log(
-                        "GET ALL CATEGORIES"
+                        "GET CATEGORIES"
+                    );
+
+                    console.log(
+                        "STATUS:",
+                        statusFilter
                     );
 
                     console.log(
                         "URL:",
-                        `${SERVER_URL}/api/categories`
+                        `${SERVER_URL}/api/categories/filter`
                     );
 
                     console.log(
@@ -204,8 +210,13 @@ const CategoryList = () => {
 
                     const response =
                         await axios.get(
-                            `${SERVER_URL}/api/categories`,
+                            `${SERVER_URL}/api/categories/filter`,
                             {
+                                params: {
+                                    status:
+                                        statusFilter
+                                },
+
                                 headers: {
                                     Accept:
                                         "application/json",
@@ -216,74 +227,39 @@ const CategoryList = () => {
                         );
 
                     console.log(
-                        "CATEGORY RESPONSE:",
+                        "CATEGORY FILTER RESPONSE:",
                         response.data
                     );
 
-                    let data =
+                    const data =
                         response.data;
 
                     // =================================================
-                    // { items: [] }
+                    // NODE RESPONSE
+                    //
+                    // {
+                    //     items: [],
+                    //     page: 1,
+                    //     limit: 10,
+                    //     totalItems: 2,
+                    //     totalPages: 1
+                    // }
                     // =================================================
+
+                    let items =
+                        data?.items || [];
 
                     if (
-                        data &&
-                        Array.isArray(
-                            data.items
-                        )
+                        !Array.isArray(items)
                     ) {
 
-                        data =
-                            data.items;
+                        items = [];
 
                     }
 
-                    // =================================================
-                    // { data: [] }
-                    // =================================================
-
-                    else if (
-                        data &&
-                        Array.isArray(
-                            data.data
-                        )
-                    ) {
-
-                        data =
-                            data.data;
-
-                    }
-
-                    // =================================================
-                    // { categories: [] }
-                    // =================================================
-
-                    else if (
-                        data &&
-                        Array.isArray(
-                            data.categories
-                        )
-                    ) {
-
-                        data =
-                            data.categories;
-
-                    }
-
-                    // =================================================
-                    // DIRECT ARRAY
-                    // =================================================
-
-                    if (
-                        !Array.isArray(data)
-                    ) {
-
-                        data = [];
-
-                    }
-
-                    setCategories(data);
+                    setCategories(
+                        items
+                    );
 
                 }
                 catch (err) {
@@ -299,7 +275,11 @@ const CategoryList = () => {
                         err.message ||
                         "Failed to load categories.";
 
-                    showError(message);
+                    showError(
+                        typeof message === "string"
+                            ? message
+                            : "Failed to load categories."
+                    );
 
                     setCategories([]);
 
@@ -311,11 +291,14 @@ const CategoryList = () => {
                 }
 
             },
-            [showError]
+            [
+                statusFilter,
+                showError
+            ]
         );
 
     // =====================================================
-    // INITIAL LOAD
+    // LOAD WHEN STATUS CHANGES
     // =====================================================
 
     useEffect(() => {
@@ -327,7 +310,9 @@ const CategoryList = () => {
     ]);
 
     // =====================================================
-    // SEARCH + FILTER
+    // SEARCH ONLY
+    //
+    // STATUS FILTER IS ALREADY HANDLED BY NODE
     // =====================================================
 
     useEffect(() => {
@@ -391,28 +376,6 @@ const CategoryList = () => {
 
         }
 
-        // =================================================
-        // STATUS FILTER
-        // =================================================
-
-        if (
-            statusFilter &&
-            statusFilter !== "All"
-        ) {
-
-            const active =
-                statusFilter === "Active";
-
-            result =
-                result.filter(
-                    (category) =>
-                        Boolean(
-                            category.isActive
-                        ) === active
-                );
-
-        }
-
         setFilteredCategories(
             result
         );
@@ -421,8 +384,7 @@ const CategoryList = () => {
 
     }, [
         categories,
-        searchText,
-        statusFilter
+        searchText
     ]);
 
     // =====================================================
@@ -573,38 +535,91 @@ const CategoryList = () => {
     // DUPLICATE CATEGORY
     // =====================================================
 
-    const handleDuplicate = async (
-        category
-    ) => {
+    const handleDuplicate =
+        async (
+            category
+        ) => {
 
-        try {
+            try {
 
-            const categoryId =
-                getCategoryId(
-                    category
+                const categoryId =
+                    getCategoryId(
+                        category
+                    );
+
+                if (!categoryId) {
+
+                    showError(
+                        "Category ID not found."
+                    );
+
+                    return;
+
+                }
+
+                setLoading(true);
+
+                // =================================================
+                // GET ORIGINAL CATEGORY
+                // =================================================
+
+                const response =
+                    await axios.get(
+                        `${SERVER_URL}/api/categories/${categoryId}`,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json",
+                            },
+
+                            timeout: 30000,
+                        }
+                    );
+
+                const original =
+                    response.data;
+
+                // =================================================
+                // CREATE COPY
+                // =================================================
+
+                const duplicateData = {
+
+                    categoryName:
+                        `${
+                            original.categoryName ||
+                            category.categoryName ||
+                            "Category"
+                        } Copy`,
+
+                    parentCategoryId:
+                        original.parentCategoryId ??
+                        category.parentCategoryId ??
+                        null,
+
+                    description:
+                        original.description ||
+                        "",
+
+                    isActive:
+                        original.isActive ??
+                        true,
+
+                };
+
+                console.log(
+                    "DUPLICATE CATEGORY:",
+                    duplicateData
                 );
 
-            if (!categoryId) {
-
-                showError(
-                    "Category ID not found."
-                );
-
-                return;
-
-            }
-
-            setLoading(true);
-
-            // =================================================
-            // GET ORIGINAL
-            // =================================================
-
-            const response =
-                await axios.get(
-                    `${SERVER_URL}/api/categories/${categoryId}`,
+                await axios.post(
+                    `${SERVER_URL}/api/categories`,
+                    duplicateData,
                     {
                         headers: {
+                            "Content-Type":
+                                "application/json",
+
                             Accept:
                                 "application/json",
                         },
@@ -613,84 +628,36 @@ const CategoryList = () => {
                     }
                 );
 
-            const original =
-                response.data;
+                await loadCategories();
 
-            // =================================================
-            // CREATE COPY
-            // =================================================
+            }
+            catch (err) {
 
-            const duplicateData = {
+                console.error(
+                    "DUPLICATE CATEGORY ERROR:",
+                    err
+                );
 
-                categoryName:
-                    `${
-                        original.categoryName ||
-                        category.categoryName ||
-                        "Category"
-                    } Copy`,
+                const message =
+                    err.response?.data?.message ||
+                    err.response?.data ||
+                    err.message ||
+                    "Failed to duplicate category.";
 
-                parentCategoryId:
-                    original.parentCategoryId ??
-                    category.parentCategoryId ??
-                    null,
+                showError(
+                    typeof message === "string"
+                        ? message
+                        : "Failed to duplicate category."
+                );
 
-                description:
-                    original.description ||
-                    "",
+            }
+            finally {
 
-                isActive:
-                    original.isActive ??
-                    true,
+                setLoading(false);
 
-            };
+            }
 
-            console.log(
-                "DUPLICATE CATEGORY:",
-                duplicateData
-            );
-
-            await axios.post(
-                `${SERVER_URL}/api/categories`,
-                duplicateData,
-                {
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-
-                        Accept:
-                            "application/json",
-                    },
-
-                    timeout: 30000,
-                }
-            );
-
-            await loadCategories();
-
-        }
-        catch (err) {
-
-            console.error(
-                "DUPLICATE CATEGORY ERROR:",
-                err
-            );
-
-            const message =
-                err.response?.data?.message ||
-                err.response?.data ||
-                err.message ||
-                "Failed to duplicate category.";
-
-            showError(message);
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
+        };
 
     // =====================================================
     // TOGGLE STATUS
@@ -778,7 +745,11 @@ const CategoryList = () => {
                     err.message ||
                     "Failed to update category status.";
 
-                showError(message);
+                showError(
+                    typeof message === "string"
+                        ? message
+                        : "Failed to update category status."
+                );
 
             }
 
@@ -816,15 +787,16 @@ const CategoryList = () => {
     // DELETE SUCCESS
     // =====================================================
 
-    const handleDeleted = async () => {
+    const handleDeleted =
+        async () => {
 
-        setDeleteOpen(false);
+            setDeleteOpen(false);
 
-        setSelectedCategory(null);
+            setSelectedCategory(null);
 
-        await loadCategories();
+            await loadCategories();
 
-    };
+        };
 
     // =====================================================
     // PAGE CHANGE
@@ -835,7 +807,9 @@ const CategoryList = () => {
         newPage
     ) => {
 
-        setPage(newPage);
+        setPage(
+            newPage
+        );
 
     };
 
@@ -853,7 +827,9 @@ const CategoryList = () => {
                 10
             );
 
-        setRowsPerPage(value);
+        setRowsPerPage(
+            value
+        );
 
         setPage(0);
 
@@ -1033,7 +1009,6 @@ const CategoryList = () => {
 
                 </Grid>
 
-
                 {/* =================================================
                     SEARCH
                 ================================================== */}
@@ -1058,10 +1033,9 @@ const CategoryList = () => {
 
                 </Grid>
 
-
                 {/* =================================================
-                    FILTERS
-                ================================================== */}
+                    STATUS FILTER
+                ================================================= */}
 
                 <Grid
                     item
@@ -1083,10 +1057,9 @@ const CategoryList = () => {
 
                 </Grid>
 
-
                 {/* =================================================
                     TABLE
-                ================================================== */}
+                ================================================= */}
 
                 <Grid
                     item
@@ -1203,7 +1176,6 @@ const CategoryList = () => {
 
             </Grid>
 
-
             {/* =================================================
                 DELETE DIALOG
             ================================================== */}
@@ -1228,10 +1200,9 @@ const CategoryList = () => {
 
             />
 
-
             {/* =================================================
-                ERROR
-            ================================================== */}
+                ERROR SNACKBAR
+            ================================================= */}
 
             <Snackbar
 

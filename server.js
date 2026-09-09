@@ -1884,6 +1884,113 @@ app.post(
         }
     }
 );
+// =====================================================
+// CATEGORY STATUS FILTER
+// =====================================================
+//
+// GET /api/categories/filter?status=Active
+// GET /api/categories/filter?status=Inactive
+// GET /api/categories/filter?status=All
+//
+// =====================================================
+
+app.get(
+    "/api/categories/filter",
+    async (req, res) => {
+
+        try {
+
+            const status =
+                req.query.status || "All";
+
+            console.log(
+                "CATEGORY FILTER:",
+                status
+            );
+
+            // Get categories from .NET API
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/categories`,
+                    {
+                        headers: {
+                            Accept: "*/*"
+                        },
+                        httpsAgent,
+                        timeout: 30000
+                    }
+                );
+
+            const categories =
+                response.data?.items || [];
+
+            let filteredCategories =
+                categories;
+
+            // Active
+            if (status === "Active") {
+
+                filteredCategories =
+                    categories.filter(
+                        category =>
+                            category.isActive === true
+                    );
+            }
+
+            // Inactive
+            else if (status === "Inactive") {
+
+                filteredCategories =
+                    categories.filter(
+                        category =>
+                            category.isActive === false
+                    );
+            }
+
+            // All
+            else if (status === "All") {
+
+                filteredCategories =
+                    categories;
+            }
+
+            res.status(200).json({
+                items: filteredCategories,
+
+                page: 1,
+
+                limit:
+                    filteredCategories.length,
+
+                totalItems:
+                    filteredCategories.length,
+
+                totalPages:
+                    filteredCategories.length > 0
+                        ? 1
+                        : 0
+            });
+
+        }
+        catch (error) {
+
+            console.error(
+                "CATEGORY FILTER ERROR:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to filter categories"
+                }
+            );
+        }
+    }
+);
+
 // =========================================================
 // CATEGORY SEARCH
 // =========================================================

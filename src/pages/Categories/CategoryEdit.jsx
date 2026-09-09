@@ -76,116 +76,69 @@ const CategoryEdit = () => {
     // =====================================================
 
     const loadCategory = async () => {
+    try {
+        setLoading(true);
+        setError("");
 
-        try {
+        console.log("GET CATEGORY:", categoryId);
 
-            setLoading(true);
-
-            setError("");
-
-            console.log(
-                "GET CATEGORY:",
-                categoryId
-            );
-
-            const response =
-                await axios.get(
-
-                    `${SERVER_URL}/api/Category/${categoryId}`,
-
-                    {
-                        headers: {
-                            Accept:
-                                "application/json"
-                        },
-
-                        timeout: 30000
-                    }
-                );
-
-            console.log(
-                "CATEGORY DETAILS:",
-                response.data
-            );
-
-            let data =
-                response.data;
-
-            // Handle wrapped response
-
-            if (
-                data &&
-                data.data
-            ) {
-
-                data =
-                    data.data;
-
+        const response = await axios.get(
+            `${SERVER_URL}/api/categories/${categoryId}`,
+            {
+                headers: {
+                    Accept: "*/*"
+                },
+                timeout: 30000
             }
+        );
 
-            if (
-                data &&
-                data.item
-            ) {
+        console.log("CATEGORY DETAILS:", response.data);
 
-                data =
-                    data.item;
+        const data = response.data;
 
-            }
+        setCategory({
+            categoryId: data.categoryId,
 
-            setCategory({
+            categoryName:
+                data.categoryName || "",
 
-                categoryId:
-                    data.categoryId,
+            parentCategoryId:
+                data.parentCategoryId ?? "",
 
-                categoryName:
-                    data.categoryName ||
-                    "",
+            description:
+                data.description || "",
 
-                parentCategoryId:
-                    data.parentCategoryId ??
-                    "",
+            isActive:
+                data.isActive ?? true
+        });
 
-                description:
-                    data.description ||
-                    "",
+    } catch (err) {
 
-                isActive:
-                    data.isActive ??
-                    true
+        console.error(
+            "Category loading error:",
+            err
+        );
 
-            });
+        const message =
+            err.response?.data?.message ||
+            err.response?.data ||
+            err.message ||
+            "Failed to load category";
 
-        }
-        catch (err) {
+        setError(
+            typeof message === "string"
+                ? message
+                : "Failed to load category"
+        );
 
-            console.error(
-                "Category loading error:",
-                err
-            );
+        setSnackbarOpen(true);
 
-            const message =
-                err.response?.data?.message ||
-                err.response?.data ||
-                err.message ||
-                "Failed to load category";
+    } finally {
 
-            setError(
-                typeof message === "string"
-                    ? message
-                    : "Failed to load category"
-            );
+        setLoading(false);
 
-            setSnackbarOpen(true);
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
+    }
+};
 
     // =====================================================
     // INITIAL LOAD

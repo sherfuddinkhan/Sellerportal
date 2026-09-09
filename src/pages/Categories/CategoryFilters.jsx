@@ -1,7 +1,16 @@
 import React from "react";
-import {FormControl,InputLabel,Select,MenuItem} from "@mui/material";
-const CategoryFilters = ({statusFilter,setStatusFilter
+import {
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
+} from "@mui/material";
+
+const CategoryFilters = ({
+    statusFilter,
+    setStatusFilter
 }) => {
+
     return (
         <FormControl
             fullWidth
@@ -10,19 +19,22 @@ const CategoryFilters = ({statusFilter,setStatusFilter
             <InputLabel>
                 Status
             </InputLabel>
+
             <Select
                 value={statusFilter}
                 label="Status"
-                onChange={(e) =>
-                    setStatusFilter(e.target.value)
-                }
+                onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                }}
             >
                 <MenuItem value="All">
                     All
                 </MenuItem>
+
                 <MenuItem value="Active">
                     Active
                 </MenuItem>
+
                 <MenuItem value="Inactive">
                     Inactive
                 </MenuItem>
@@ -30,4 +42,5 @@ const CategoryFilters = ({statusFilter,setStatusFilter
         </FormControl>
     );
 };
+
 export default CategoryFilters;
