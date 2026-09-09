@@ -1,191 +1,313 @@
 // =========================================================
 // ProductInventoryStatistics.jsx
 // Product Inventory Statistics
-// Frontend Only
 // =========================================================
 
 import React, {
-    useMemo
+    useEffect,
+    useState,
 } from "react";
 
 import {
     Grid,
     Paper,
-    Typography
+    Typography,
+    CircularProgress,
+    Box,
+    Alert,
 } from "@mui/material";
+
+
+// =========================================================
+// SERVER URL
+// =========================================================
+
+const SERVER_URL =
+    "http://localhost:5000";
 
 
 // =========================================================
 // COMPONENT
 // =========================================================
 
-const ProductInventoryStatistics = ({
-    inventories = []
-}) => {
+const ProductInventoryStatistics = () => {
+
+    // =====================================================
+    // STATISTICS STATE
+    // =====================================================
+
+    const [statistics, setStatistics] = useState({
+
+        totalInventoryRecords: 0,
+
+        totalQuantity: 0,
+
+        totalReservedQuantity: 0,
+
+        totalDamagedQuantity: 0,
+
+        availableQuantity: 0,
+
+        lowStockItems: 0,
+
+        outOfStockItems: 0,
+
+        inStockItems: 0,
+
+        damagedItems: 0,
+
+        reservedItems: 0,
+
+    });
 
 
     // =====================================================
-    // STATISTICS
+    // LOADING STATE
     // =====================================================
 
-    const statistics = useMemo(() => {
-
-        // -------------------------------------------------
-        // TOTAL INVENTORY RECORDS
-        // -------------------------------------------------
-
-        const totalInventory =
-            inventories.length;
+    const [loading, setLoading] =
+        useState(true);
 
 
-        // -------------------------------------------------
-        // ACTIVE INVENTORY
-        // -------------------------------------------------
+    // =====================================================
+    // ERROR STATE
+    // =====================================================
 
-        const activeInventory =
-            inventories.filter((item) => {
-
-                const isActive =
-                    item.isActive ??
-                    item.IsActive ??
-                    false;
-
-                return isActive === true;
-
-            }).length;
+    const [error, setError] =
+        useState("");
 
 
-        // -------------------------------------------------
-        // INACTIVE INVENTORY
-        // -------------------------------------------------
+    // =====================================================
+    // LOAD INVENTORY STATISTICS
+    // =====================================================
 
-        const inactiveInventory =
-            totalInventory -
-            activeInventory;
+    useEffect(() => {
 
+        const fetchStatistics =
+            async () => {
 
-        // -------------------------------------------------
-        // TOTAL QUANTITY
-        // -------------------------------------------------
+                try {
 
-        const totalQuantity =
-            inventories.reduce(
-                (sum, item) => {
+                    // =====================================
+                    // START LOADING
+                    // =====================================
 
-                    const quantity =
-                        item.quantity ??
-                        item.Quantity ??
-                        0;
+                    setLoading(true);
 
-                    return (
-                        sum +
-                        Number(quantity)
-                    );
-
-                },
-                0
-            );
+                    setError("");
 
 
-        // -------------------------------------------------
-        // AVAILABLE QUANTITY
-        // -------------------------------------------------
+                    // =====================================
+                    // API REQUEST
+                    // =====================================
 
-        const availableQuantity =
-            inventories.reduce(
-                (sum, item) => {
-
-                    const quantity =
-                        item.availableQuantity ??
-                        item.AvailableQuantity ??
-                        0;
-
-                    return (
-                        sum +
-                        Number(quantity)
-                    );
-
-                },
-                0
-            );
+                    const response =
+                        await fetch(
+                            `${SERVER_URL}/api/product-inventories/stats`
+                        );
 
 
-        // -------------------------------------------------
-        // RESERVED QUANTITY
-        // -------------------------------------------------
+                    // =====================================
+                    // CHECK RESPONSE
+                    // =====================================
 
-        const reservedQuantity =
-            inventories.reduce(
-                (sum, item) => {
+                    if (!response.ok) {
 
-                    const quantity =
-                        item.reservedQuantity ??
-                        item.ReservedQuantity ??
-                        0;
+                        throw new Error(
+                            `Failed to load product inventory statistics. Status: ${response.status}`
+                        );
 
-                    return (
-                        sum +
-                        Number(quantity)
-                    );
-
-                },
-                0
-            );
+                    }
 
 
-        // -------------------------------------------------
-        // LOW STOCK
-        // -------------------------------------------------
-        //
-        // Available Quantity <= Reorder Level
-        //
-        // -------------------------------------------------
+                    // =====================================
+                    // PARSE RESPONSE
+                    // =====================================
 
-        const lowStockCount =
-            inventories.filter((item) => {
+                    const data =
+                        await response.json();
 
-                const available =
-                    Number(
-                        item.availableQuantity ??
-                        item.AvailableQuantity ??
-                        0
-                    );
 
-                const reorderLevel =
-                    Number(
-                        item.reorderLevel ??
-                        item.ReorderLevel ??
-                        0
+                    console.log(
+                        "Product Inventory Statistics:",
+                        data
                     );
 
 
-                return (
-                    available <=
-                    reorderLevel
-                );
+                    // =====================================
+                    // SET STATISTICS
+                    //
+                    // Supports both:
+                    // camelCase
+                    // PascalCase
+                    // =====================================
 
-            }).length;
+                    setStatistics({
+
+                        // ---------------------------------
+                        // TOTAL INVENTORY RECORDS
+                        // ---------------------------------
+
+                        totalInventoryRecords:
+                            Number(
+                                data?.totalInventoryRecords ??
+                                data?.TotalInventoryRecords ??
+                                0
+                            ),
 
 
-        return {
+                        // ---------------------------------
+                        // TOTAL QUANTITY
+                        // ---------------------------------
 
-            totalInventory,
+                        totalQuantity:
+                            Number(
+                                data?.totalQuantity ??
+                                data?.TotalQuantity ??
+                                0
+                            ),
 
-            activeInventory,
 
-            inactiveInventory,
+                        // ---------------------------------
+                        // TOTAL RESERVED QUANTITY
+                        // ---------------------------------
 
-            totalQuantity,
+                        totalReservedQuantity:
+                            Number(
+                                data?.totalReservedQuantity ??
+                                data?.TotalReservedQuantity ??
+                                0
+                            ),
 
-            availableQuantity,
 
-            reservedQuantity,
+                        // ---------------------------------
+                        // TOTAL DAMAGED QUANTITY
+                        // ---------------------------------
 
-            lowStockCount
+                        totalDamagedQuantity:
+                            Number(
+                                data?.totalDamagedQuantity ??
+                                data?.TotalDamagedQuantity ??
+                                0
+                            ),
 
-        };
 
-    }, [inventories]);
+                        // ---------------------------------
+                        // AVAILABLE QUANTITY
+                        // ---------------------------------
+
+                        availableQuantity:
+                            Number(
+                                data?.availableQuantity ??
+                                data?.AvailableQuantity ??
+                                0
+                            ),
+
+
+                        // ---------------------------------
+                        // LOW STOCK ITEMS
+                        // ---------------------------------
+
+                        lowStockItems:
+                            Number(
+                                data?.lowStockItems ??
+                                data?.LowStockItems ??
+                                0
+                            ),
+
+
+                        // ---------------------------------
+                        // OUT OF STOCK ITEMS
+                        // ---------------------------------
+
+                        outOfStockItems:
+                            Number(
+                                data?.outOfStockItems ??
+                                data?.OutOfStockItems ??
+                                0
+                            ),
+
+
+                        // ---------------------------------
+                        // IN STOCK ITEMS
+                        // ---------------------------------
+
+                        inStockItems:
+                            Number(
+                                data?.inStockItems ??
+                                data?.InStockItems ??
+                                0
+                            ),
+
+
+                        // ---------------------------------
+                        // DAMAGED ITEMS
+                        // ---------------------------------
+
+                        damagedItems:
+                            Number(
+                                data?.damagedItems ??
+                                data?.DamagedItems ??
+                                0
+                            ),
+
+
+                        // ---------------------------------
+                        // RESERVED ITEMS
+                        // ---------------------------------
+
+                        reservedItems:
+                            Number(
+                                data?.reservedItems ??
+                                data?.ReservedItems ??
+                                0
+                            ),
+
+                    });
+
+                }
+                catch (err) {
+
+                    // =====================================
+                    // ERROR LOG
+                    // =====================================
+
+                    console.error(
+                        "Product Inventory Statistics Error:",
+                        err
+                    );
+
+
+                    // =====================================
+                    // ERROR MESSAGE
+                    // =====================================
+
+                    setError(
+                        err.message ||
+                        "Failed to load product inventory statistics."
+                    );
+
+                }
+                finally {
+
+                    // =====================================
+                    // STOP LOADING
+                    // =====================================
+
+                    setLoading(false);
+
+                }
+
+            };
+
+
+        // =================================================
+        // CALL API
+        // =================================================
+
+        fetchStatistics();
+
+    }, []);
 
 
     // =====================================================
@@ -195,48 +317,145 @@ const ProductInventoryStatistics = ({
     const cards = [
 
         {
-            title: "Total Inventory",
+            title:
+                "Total Inventory Records",
+
             value:
-                statistics.totalInventory
+                statistics.totalInventoryRecords,
         },
 
-        {
-            title: "Active",
-            value:
-                statistics.activeInventory
-        },
 
         {
-            title: "Inactive",
+            title:
+                "Total Quantity",
+
             value:
-                statistics.inactiveInventory
+                statistics.totalQuantity,
         },
 
-        {
-            title: "Total Quantity",
-            value:
-                statistics.totalQuantity
-        },
 
         {
-            title: "Available",
+            title:
+                "Reserved Quantity",
+
             value:
-                statistics.availableQuantity
+                statistics.totalReservedQuantity,
         },
 
-        {
-            title: "Reserved",
-            value:
-                statistics.reservedQuantity
-        },
 
         {
-            title: "Low Stock",
+            title:
+                "Damaged Quantity",
+
             value:
-                statistics.lowStockCount
-        }
+                statistics.totalDamagedQuantity,
+        },
+
+
+        {
+            title:
+                "Available Quantity",
+
+            value:
+                statistics.availableQuantity,
+        },
+
+
+        {
+            title:
+                "Low Stock Items",
+
+            value:
+                statistics.lowStockItems,
+        },
+
+
+        {
+            title:
+                "Out of Stock",
+
+            value:
+                statistics.outOfStockItems,
+        },
+
+
+        {
+            title:
+                "In Stock",
+
+            value:
+                statistics.inStockItems,
+        },
+
+
+        {
+            title:
+                "Damaged Items",
+
+            value:
+                statistics.damagedItems,
+        },
+
+
+        {
+            title:
+                "Reserved Items",
+
+            value:
+                statistics.reservedItems,
+        },
 
     ];
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                sx={{
+                    py: 4,
+                }}
+            >
+
+                <CircularProgress />
+
+            </Box>
+
+        );
+
+    }
+
+
+    // =====================================================
+    // ERROR
+    // =====================================================
+
+    if (error) {
+
+        return (
+
+            <Alert
+                severity="error"
+                sx={{
+                    mb: 3,
+                }}
+            >
+
+                {error}
+
+            </Alert>
+
+        );
+
+    }
 
 
     // =====================================================
@@ -249,19 +468,23 @@ const ProductInventoryStatistics = ({
             container
             spacing={2}
             sx={{
-                mb: 3
+                mb: 3,
             }}
         >
 
             {cards.map(
-                (card) => (
+                (
+                    card,
+                    index
+                ) => (
 
                     <Grid
                         item
                         xs={12}
                         sm={6}
-                        md={2}
-                        key={card.title}
+                        md={4}
+                        lg={2.4}
+                        key={index}
                     >
 
                         <Paper
@@ -270,7 +493,7 @@ const ProductInventoryStatistics = ({
                                 p: 2,
                                 textAlign: "center",
                                 borderRadius: 2,
-                                height: "100%"
+                                height: "100%",
                             }}
                         >
 
@@ -282,7 +505,9 @@ const ProductInventoryStatistics = ({
                                 variant="body2"
                                 color="text.secondary"
                             >
+
                                 {card.title}
+
                             </Typography>
 
 
@@ -294,10 +519,12 @@ const ProductInventoryStatistics = ({
                                 variant="h5"
                                 fontWeight="bold"
                                 sx={{
-                                    mt: 1
+                                    mt: 1,
                                 }}
                             >
+
                                 {card.value}
+
                             </Typography>
 
                         </Paper>

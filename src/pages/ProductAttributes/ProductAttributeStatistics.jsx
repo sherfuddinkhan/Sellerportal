@@ -1,102 +1,316 @@
 // =========================================================
 // ProductAttributeStatistics.jsx
-// Product Attribute Statistics
+// Product Attribute Statistics Cards
 // =========================================================
 
-import React from "react";
+import React, {
+    useEffect,
+    useState,
+} from "react";
 
 import {
+    Card,
+    CardContent,
     Grid,
-    Paper,
-    Typography
+    Typography,
+    CircularProgress,
+    Box,
+    Alert,
 } from "@mui/material";
 
 
 // =========================================================
-// COMPONENT
+// SERVER URL
 // =========================================================
 
-const ProductAttributeStatistics = ({
-    attributes = []
-}) => {
+const SERVER_URL =
+    "http://localhost:5000";
+
+
+// =========================================================
+// PRODUCT ATTRIBUTE STATISTICS
+// =========================================================
+
+const ProductAttributeStatistics = () => {
+
+    // =====================================================
+    // STATE
+    // =====================================================
+
+    const [statistics, setStatistics] = useState({
+
+        totalAttributes: 0,
+
+        activeAttributes: 0,
+
+        inactiveAttributes: 0,
+
+        distinctProducts: 0,
+
+        distinctAttributeNames: 0,
+
+    });
+
+
+    const [loading, setLoading] =
+        useState(true);
+
+
+    const [error, setError] =
+        useState("");
 
 
     // =====================================================
-    // TOTAL
+    // LOAD STATISTICS
     // =====================================================
 
-    const totalAttributes =
-        attributes.length;
+    useEffect(() => {
+
+        const fetchStatistics =
+            async () => {
+
+                try {
+
+                    // =====================================
+                    // START LOADING
+                    // =====================================
+
+                    setLoading(true);
+
+                    setError("");
+
+
+                    // =====================================
+                    // API REQUEST
+                    // =====================================
+
+                    const response =
+                        await fetch(
+                            `${SERVER_URL}/api/product-attributes/stats`
+                        );
+
+
+                    // =====================================
+                    // CHECK RESPONSE
+                    // =====================================
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            `Failed to load product attribute statistics. Status: ${response.status}`
+                        );
+
+                    }
+
+
+                    // =====================================
+                    // PARSE JSON
+                    // =====================================
+
+                    const data =
+                        await response.json();
+
+
+                    console.log(
+                        "Product Attribute Statistics:",
+                        data
+                    );
+
+
+                    // =====================================
+                    // SET STATISTICS
+                    // Supports camelCase and PascalCase
+                    // =====================================
+
+                    setStatistics({
+
+                        totalAttributes:
+                            Number(
+                                data?.totalAttributes ??
+                                data?.TotalAttributes ??
+                                0
+                            ),
+
+
+                        activeAttributes:
+                            Number(
+                                data?.activeAttributes ??
+                                data?.ActiveAttributes ??
+                                0
+                            ),
+
+
+                        inactiveAttributes:
+                            Number(
+                                data?.inactiveAttributes ??
+                                data?.InactiveAttributes ??
+                                0
+                            ),
+
+
+                        distinctProducts:
+                            Number(
+                                data?.distinctProducts ??
+                                data?.DistinctProducts ??
+                                0
+                            ),
+
+
+                        distinctAttributeNames:
+                            Number(
+                                data?.distinctAttributeNames ??
+                                data?.DistinctAttributeNames ??
+                                0
+                            ),
+
+                    });
+
+                }
+                catch (err) {
+
+                    // =====================================
+                    // ERROR LOG
+                    // =====================================
+
+                    console.error(
+                        "Product Attribute Statistics Error:",
+                        err
+                    );
+
+
+                    // =====================================
+                    // ERROR MESSAGE
+                    // =====================================
+
+                    setError(
+                        err.message ||
+                        "Failed to load product attribute statistics."
+                    );
+
+                }
+                finally {
+
+                    // =====================================
+                    // STOP LOADING
+                    // =====================================
+
+                    setLoading(false);
+
+                }
+
+            };
+
+
+        // =================================================
+        // CALL API
+        // =================================================
+
+        fetchStatistics();
+
+    }, []);
 
 
     // =====================================================
-    // ACTIVE
-    // =====================================================
-
-    const activeAttributes =
-        attributes.filter((item) => {
-
-            return (
-                item.isActive ??
-                item.IsActive ??
-                false
-            );
-
-        }).length;
-
-
-    // =====================================================
-    // INACTIVE
-    // =====================================================
-
-    const inactiveAttributes =
-        totalAttributes -
-        activeAttributes;
-
-
-    // =====================================================
-    // REQUIRED
-    // =====================================================
-
-    const requiredAttributes =
-        attributes.filter((item) => {
-
-            return (
-                item.isRequired ??
-                item.IsRequired ??
-                false
-            );
-
-        }).length;
-
-
-    // =====================================================
-    // STATISTIC CARDS
+    // STATISTICS CARDS
     // =====================================================
 
     const cards = [
 
         {
-            title: "Total Attributes",
-            value: totalAttributes
+            title:
+                "Total Attributes",
+
+            value:
+                statistics.totalAttributes,
         },
 
-        {
-            title: "Active",
-            value: activeAttributes
-        },
 
         {
-            title: "Inactive",
-            value: inactiveAttributes
+            title:
+                "Active",
+
+            value:
+                statistics.activeAttributes,
         },
 
+
         {
-            title: "Required",
-            value: requiredAttributes
-        }
+            title:
+                "Inactive",
+
+            value:
+                statistics.inactiveAttributes,
+        },
+
+
+        {
+            title:
+                "Distinct Products",
+
+            value:
+                statistics.distinctProducts,
+        },
+
+
+        {
+            title:
+                "Distinct Attribute Names",
+
+            value:
+                statistics.distinctAttributeNames,
+        },
 
     ];
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                sx={{
+                    py: 4,
+                }}
+            >
+
+                <CircularProgress />
+
+            </Box>
+
+        );
+
+    }
+
+
+    // =====================================================
+    // ERROR
+    // =====================================================
+
+    if (error) {
+
+        return (
+
+            <Alert
+                severity="error"
+                sx={{
+                    mb: 2,
+                }}
+            >
+
+                {error}
+
+            </Alert>
+
+        );
+
+    }
 
 
     // =====================================================
@@ -108,64 +322,65 @@ const ProductAttributeStatistics = ({
         <Grid
             container
             spacing={2}
-            sx={{
-                mb: 3
-            }}
         >
 
             {cards.map(
-                (card) => (
+                (
+                    card,
+                    index
+                ) => (
 
                     <Grid
                         item
                         xs={12}
                         sm={6}
-                        md={3}
-                        key={card.title}
+                        md={4}
+                        lg={2.4}
+                        key={index}
                     >
 
-                        <Paper
-                            elevation={3}
+                        <Card
+                            elevation={2}
                             sx={{
-                                p: 2,
-
-                                textAlign:
-                                    "center",
-
-                                borderRadius: 2,
-
-                                height:
-                                    "100%"
+                                height: "100%",
                             }}
                         >
 
-                            {/* =================================
-                                TITLE
-                            ================================= */}
+                            <CardContent>
 
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                            >
-                                {card.title}
-                            </Typography>
+                                {/* =================================
+                                    CARD TITLE
+                                ================================= */}
+
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{
+                                        mb: 1,
+                                    }}
+                                >
+
+                                    {card.title}
+
+                                </Typography>
 
 
-                            {/* =================================
-                                VALUE
-                            ================================= */}
+                                {/* =================================
+                                    CARD VALUE
+                                ================================= */}
 
-                            <Typography
-                                variant="h5"
-                                fontWeight="bold"
-                                sx={{
-                                    mt: 1
-                                }}
-                            >
-                                {card.value}
-                            </Typography>
+                                <Typography
+                                    variant="h4"
+                                    fontWeight="bold"
+                                >
 
-                        </Paper>
+                                    {card.value}
+
+                                </Typography>
+
+                            </CardContent>
+
+                        </Card>
 
                     </Grid>
 
@@ -173,8 +388,14 @@ const ProductAttributeStatistics = ({
             )}
 
         </Grid>
+
     );
+
 };
 
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ProductAttributeStatistics;

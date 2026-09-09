@@ -545,22 +545,10 @@ const MainLayout = () => {
                             label: "Create Product Attribute",
                             path: "/product-attributes/create",
                         },
-
-                        {
-                            label: "Product Attribute Details",
-                            path: "/product-attributes/details/:id",
-                        },
-
-                        {
-                            label: "Edit Product Attribute",
-                            path: "/product-attributes/edit/:id",
-                        },
-
                         {
                             label: "Product Attribute Filters",
                             path: "/product-attributes/filters",
                         },
-
                         {
                             label: "Search Product Attributes",
                             path: "/product-attributes/search",
@@ -570,37 +558,10 @@ const MainLayout = () => {
                             label: "Product Attribute Statistics",
                             path: "/product-attributes/statistics",
                         },
-
-                        {
-                            label: "Product Attribute Table",
-                            path: "/product-attributes/table",
-                        },
-
-                        {
-                            label: "Product Attribute Card",
-                            path: "/product-attributes/card",
-                        },
-
                         {
                             label: "Product Attribute Form",
                             path: "/product-attributes/form",
                         },
-
-                        {
-                            label: "Product Attribute Modal",
-                            path: "/product-attributes/modal",
-                        },
-
-                        {
-                            label: "Product Attribute Pagination",
-                            path: "/product-attributes/pagination",
-                        },
-
-                        {
-                            label: "Product Attribute Toolbar",
-                            path: "/product-attributes/toolbar",
-                        },
-
                     ],
                 },
 
@@ -1312,57 +1273,22 @@ const MainLayout = () => {
                             label: "Inventory Details",
                             path: "/product-inventory/details/:id",
                         },
-
-                        {
-                            label: "Edit Inventory",
-                            path: "/product-inventory/edit/:id",
-                        },
-
                         {
                             label: "Inventory Filters",
                             path: "/product-inventory/filters",
                         },
-
-                        {
-                            label: "Inventory Form",
-                            path: "/product-inventory/form",
-                        },
-
-                        {
-                            label: "Inventory Modal",
-                            path: "/product-inventory/modal",
-                        },
-
-                        {
-                            label: "Inventory Pagination",
-                            path: "/product-inventory/pagination",
-                        },
-
                         {
                             label: "Search Inventory",
                             path: "/product-inventory/search",
                         },
-
                         {
                             label: "Inventory Statistics",
                             path: "/product-inventory/statistics",
                         },
-
                         {
                             label: "Inventory Table",
                             path: "/product-inventory/table",
                         },
-
-                        {
-                            label: "Inventory Toolbar",
-                            path: "/product-inventory/toolbar",
-                        },
-
-                        {
-                            label: "Inventory View",
-                            path: "/product-inventory/view/:id",
-                        },
-
                     ],
                 },
 
