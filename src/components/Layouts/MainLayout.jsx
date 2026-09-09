@@ -508,17 +508,6 @@ const MainLayout = () => {
                             label: "Create Product Type",
                             path: "/product-types/create",
                         },
-
-                        {
-                            label: "Product Type Details",
-                            path: "/product-types/details/:id",
-                        },
-
-                        {
-                            label: "Edit Product Type",
-                            path: "/product-types/edit/:id",
-                        },
-
                         {
                             label: "Product Type Filters",
                             path: "/product-types/filters",
@@ -533,37 +522,6 @@ const MainLayout = () => {
                             label: "Product Type Statistics",
                             path: "/product-types/statistics",
                         },
-
-                        {
-                            label: "Product Type Table",
-                            path: "/product-types/table",
-                        },
-
-                        {
-                            label: "Product Type Card",
-                            path: "/product-types/card",
-                        },
-
-                        {
-                            label: "Product Type Form",
-                            path: "/product-types/form",
-                        },
-
-                        {
-                            label: "Product Type Modal",
-                            path: "/product-types/modal",
-                        },
-
-                        {
-                            label: "Product Type Pagination",
-                            path: "/product-types/pagination",
-                        },
-
-                        {
-                            label: "Product Type Toolbar",
-                            path: "/product-types/toolbar",
-                        },
-
                     ],
                 },
 
