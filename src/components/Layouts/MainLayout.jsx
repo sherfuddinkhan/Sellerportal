@@ -691,10 +691,6 @@ const MainLayout = () => {
                             label: "Product Image Statistics",
                             path: "/product-images/statistics",
                         },
-                        {
-                            label: "Product Image Form",
-                            path: "/product-images/form",
-                        },
                     ],
                 },
 
