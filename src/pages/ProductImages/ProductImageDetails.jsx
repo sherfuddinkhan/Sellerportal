@@ -1,9 +1,14 @@
 // =========================================================
 // ProductImageDetails.jsx
 // Product Image Details
+// Frontend uses server.js
+// NO apiService
 // =========================================================
 
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
 
 import {
     Alert,
@@ -28,11 +33,13 @@ import {
     useParams
 } from "react-router-dom";
 
+
 // =========================================================
 // SERVER URL
 // =========================================================
 
 const SERVER_URL = "http://localhost:5000";
+
 
 // =========================================================
 // PRODUCT IMAGE DETAILS
@@ -44,19 +51,24 @@ const ProductImageDetails = () => {
 
     const { id } = useParams();
 
-    // -----------------------------------------------------
+
+    // =====================================================
     // STATE
-    // -----------------------------------------------------
+    // =====================================================
 
-    const [image, setImage] = useState(null);
+    const [image, setImage] =
+        useState(null);
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [error, setError] = useState("");
+    const [error, setError] =
+        useState("");
 
-    // -----------------------------------------------------
+
+    // =====================================================
     // LOAD PRODUCT IMAGE
-    // -----------------------------------------------------
+    // =====================================================
 
     useEffect(() => {
 
@@ -75,82 +87,33 @@ const ProductImageDetails = () => {
 
     }, [id]);
 
+
     // =====================================================
     // FETCH PRODUCT IMAGE
+    //
+    // GET:
+    // /api/product-images/{id}
     // =====================================================
 
-    const loadProductImage = async () => {
-
-        try {
-
-            setLoading(true);
-            setError("");
-
-            const response = await fetch(
-                `${SERVER_URL}/api/product-images/${id}`
-            );
-
-            if (!response.ok) {
-
-                let message =
-                    "Failed to load product image.";
-
-                try {
-
-                    const errorData =
-                        await response.json();
-
-                    message =
-                        errorData?.message ||
-                        errorData?.title ||
-                        message;
-
-                } catch {
-                    // Ignore invalid response
-                }
-
-                throw new Error(message);
-            }
-
-            const data =
-                await response.json();
-
-            // Supports:
-            // direct object
-            // { data: object }
-            // { item: object }
-
-            const productImage =
-                data?.data ??
-                data?.item ??
-                data;
-
-            if (!productImage) {
-
-                throw new Error(
-                    "Product image not found."
-                );
-            }
-
-            setImage(productImage);
-
-        } catch (err) {
-
-            console.error(
-                "Product Image Details Error:",
-                err
-            );
-
-            setError(
-                err.message ||
-                "Failed to load product image details."
-            );
-
-        } finally {
-
-            setLoading(false);
-        }
+   const loadProductImage = async () => { 
+    try { 
+    setLoading(true); 
+    setError(""); console.log( "========================================" ); 
+    console.log( "Loading Product Image" ); 
+    console.log( "ID:", id );
+    const url = `${SERVER_URL}/api/product-images/${id}`; 
+    console.log( "Request URL:", url ); 
+    console.log( "========================================" ); 
+    const response = await fetch(url, { method: "GET", headers: { Accept: "application/json" } });
+     // ===================================================== // READ RESPONSE // ===================================================== const contentType = response.headers.get( "content-type" ); let responseData; if ( contentType && contentType.includes( "application/json" ) ) { responseData = await response.json(); } else { responseData = await response.text(); } console.log( "HTTP Status:", response.status ); console.log( "API Response:", responseData ); // ===================================================== // HANDLE ERROR // ===================================================== if (!response.ok) { let message = `Failed to fetch product image. HTTP ${response.status}`; // ASP.NET validation response if ( responseData && typeof responseData === "object" ) { if ( responseData.errors ) { const validationErrors = Object.entries( responseData.errors ) .map( ([field, errors]) => { const errorMessages = Array.isArray(errors) ? errors.join(", ") : String(errors); return `${field}: ${errorMessages}`; } ) .join(" | "); message = validationErrors || responseData.title || message; } else { message = responseData.message || responseData.title || responseData.error || message; } } else if ( typeof responseData === "string" && responseData.trim() ) { message = responseData; } throw new Error( message ); } // ===================================================== // EXTRACT PRODUCT IMAGE // ===================================================== const productImage = responseData?.data ?? responseData?.item ?? responseData; if ( !productImage || typeof productImage !== "object" ) { throw new Error( "Product image was not found." ); } console.log( "Product Image:", productImage ); setImage( productImage ); } catch (err) { console.error( "Product Image Details Error:", err ); 
+    setError( err?.message || "Failed to fetch product image." ); 
+     } 
+     finally 
+     { 
+        setLoading(false); 
+     } 
     };
+
 
     // =====================================================
     // GET VALUE
@@ -164,15 +127,55 @@ const ProductImageDetails = () => {
     ) => {
 
         if (!image) {
+
             return fallback;
+
         }
 
         return (
-            image[pascalCase] ??
-            image[camelCase] ??
+            image?.[pascalCase] ??
+            image?.[camelCase] ??
             fallback
         );
+
     };
+
+
+    // =====================================================
+    // BOOLEAN VALUE
+    // =====================================================
+
+    const getBooleanValue = (
+        pascalCase,
+        camelCase,
+        fallback = false
+    ) => {
+
+        const value =
+            getValue(
+                pascalCase,
+                camelCase,
+                fallback
+            );
+
+
+        if (
+            value === true ||
+            value === 1 ||
+            value === "1" ||
+            value === "true" ||
+            value === "True"
+        ) {
+
+            return true;
+
+        }
+
+
+        return false;
+
+    };
+
 
     // =====================================================
     // FORMAT DATE
@@ -181,17 +184,30 @@ const ProductImageDetails = () => {
     const formatDate = (value) => {
 
         if (!value) {
+
             return "—";
+
         }
 
-        const date = new Date(value);
+        const date =
+            new Date(value);
 
-        if (Number.isNaN(date.getTime())) {
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
             return "—";
+
         }
+
 
         return date.toLocaleString();
+
     };
+
 
     // =====================================================
     // BACK
@@ -202,7 +218,9 @@ const ProductImageDetails = () => {
         navigate(
             "/product-images"
         );
+
     };
+
 
     // =====================================================
     // EDIT
@@ -217,10 +235,13 @@ const ProductImageDetails = () => {
                 id
             );
 
+
         navigate(
             `/product-images/edit/${productImageId}`
         );
+
     };
+
 
     // =====================================================
     // LOADING
@@ -229,9 +250,10 @@ const ProductImageDetails = () => {
     if (loading) {
 
         return (
+
             <Box
                 sx={{
-                    minHeight: "400px",
+                    minHeight: 400,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center"
@@ -241,8 +263,11 @@ const ProductImageDetails = () => {
                 <CircularProgress />
 
             </Box>
+
         );
+
     }
+
 
     // =====================================================
     // ERROR
@@ -251,6 +276,7 @@ const ProductImageDetails = () => {
     if (error || !image) {
 
         return (
+
             <Box sx={{ p: 3 }}>
 
                 <Alert
@@ -261,19 +287,25 @@ const ProductImageDetails = () => {
                         "Product image not found."}
                 </Alert>
 
+
                 <Button
                     variant="outlined"
                     startIcon={
                         <ArrowBack />
                     }
-                    onClick={handleBack}
+                    onClick={
+                        handleBack
+                    }
                 >
                     Back to Product Images
                 </Button>
 
             </Box>
+
         );
+
     }
+
 
     // =====================================================
     // IMAGE VALUES
@@ -285,11 +317,13 @@ const ProductImageDetails = () => {
             "productImageId"
         );
 
+
     const productId =
         getValue(
             "ProductId",
             "productId"
         );
+
 
     const imageUrl =
         getValue(
@@ -297,11 +331,13 @@ const ProductImageDetails = () => {
             "imageUrl"
         );
 
+
     const imageName =
         getValue(
             "ImageName",
             "imageName"
         );
+
 
     const imageType =
         getValue(
@@ -309,23 +345,20 @@ const ProductImageDetails = () => {
             "imageType"
         );
 
+
     const isPrimary =
-        Boolean(
-            getValue(
-                "IsPrimary",
-                "isPrimary",
-                false
-            )
+        getBooleanValue(
+            "IsPrimary",
+            "isPrimary"
         );
 
+
     const isActive =
-        Boolean(
-            getValue(
-                "IsActive",
-                "isActive",
-                false
-            )
+        getBooleanValue(
+            "IsActive",
+            "isActive"
         );
+
 
     const createdDate =
         getValue(
@@ -333,18 +366,22 @@ const ProductImageDetails = () => {
             "createdDate"
         );
 
+
     const updatedDate =
         getValue(
             "UpdatedDate",
             "updatedDate"
         );
 
+
     // =====================================================
     // UI
     // =====================================================
 
     return (
+
         <Box sx={{ p: 3 }}>
+
 
             {/* =================================================
                 HEADER
@@ -353,7 +390,8 @@ const ProductImageDetails = () => {
             <Box
                 sx={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent:
+                        "space-between",
                     alignItems: "center",
                     gap: 2,
                     mb: 3,
@@ -379,6 +417,7 @@ const ProductImageDetails = () => {
 
                 </Box>
 
+
                 <Box
                     sx={{
                         display: "flex",
@@ -391,17 +430,22 @@ const ProductImageDetails = () => {
                         startIcon={
                             <ArrowBack />
                         }
-                        onClick={handleBack}
+                        onClick={
+                            handleBack
+                        }
                     >
                         Back
                     </Button>
+
 
                     <Button
                         variant="contained"
                         startIcon={
                             <Edit />
                         }
-                        onClick={handleEdit}
+                        onClick={
+                            handleEdit
+                        }
                     >
                         Edit
                     </Button>
@@ -409,6 +453,7 @@ const ProductImageDetails = () => {
                 </Box>
 
             </Box>
+
 
             {/* =================================================
                 IMAGE PREVIEW
@@ -430,11 +475,11 @@ const ProductImageDetails = () => {
                     Image Preview
                 </Typography>
 
+
                 <Divider
-                    sx={{
-                        mb: 3
-                    }}
+                    sx={{ mb: 3 }}
                 />
+
 
                 <Box
                     sx={{
@@ -477,7 +522,8 @@ const ProductImageDetails = () => {
                         <Box
                             sx={{
                                 textAlign: "center",
-                                color: "text.secondary"
+                                color:
+                                    "text.secondary"
                             }}
                         >
 
@@ -499,6 +545,7 @@ const ProductImageDetails = () => {
 
             </Paper>
 
+
             {/* =================================================
                 BASIC INFORMATION
             ================================================= */}
@@ -519,11 +566,11 @@ const ProductImageDetails = () => {
                     Basic Information
                 </Typography>
 
+
                 <Divider
-                    sx={{
-                        mb: 3
-                    }}
+                    sx={{ mb: 3 }}
                 />
+
 
                 <Grid
                     container
@@ -549,10 +596,12 @@ const ProductImageDetails = () => {
                             variant="body1"
                             fontWeight="600"
                         >
-                            {productImageId || "—"}
+                            {productImageId ||
+                                "—"}
                         </Typography>
 
                     </Grid>
+
 
                     {/* PRODUCT ID */}
 
@@ -573,10 +622,12 @@ const ProductImageDetails = () => {
                             variant="body1"
                             fontWeight="600"
                         >
-                            {productId || "—"}
+                            {productId ||
+                                "—"}
                         </Typography>
 
                     </Grid>
+
 
                     {/* IMAGE NAME */}
 
@@ -597,10 +648,12 @@ const ProductImageDetails = () => {
                             variant="body1"
                             fontWeight="600"
                         >
-                            {imageName || "—"}
+                            {imageName ||
+                                "—"}
                         </Typography>
 
                     </Grid>
+
 
                     {/* IMAGE TYPE */}
 
@@ -631,6 +684,7 @@ const ProductImageDetails = () => {
 
                     </Grid>
 
+
                     {/* IMAGE URL */}
 
                     <Grid
@@ -648,10 +702,12 @@ const ProductImageDetails = () => {
                         <Typography
                             variant="body1"
                             sx={{
-                                wordBreak: "break-all"
+                                wordBreak:
+                                    "break-all"
                             }}
                         >
-                            {imageUrl || "—"}
+                            {imageUrl ||
+                                "—"}
                         </Typography>
 
                     </Grid>
@@ -659,6 +715,7 @@ const ProductImageDetails = () => {
                 </Grid>
 
             </Paper>
+
 
             {/* =================================================
                 STATUS
@@ -680,11 +737,11 @@ const ProductImageDetails = () => {
                     Status
                 </Typography>
 
+
                 <Divider
-                    sx={{
-                        mb: 3
-                    }}
+                    sx={{ mb: 3 }}
                 />
+
 
                 <Grid
                     container
@@ -706,6 +763,7 @@ const ProductImageDetails = () => {
                             Primary Image
                         </Typography>
 
+
                         <Box sx={{ mt: 0.5 }}>
 
                             <Chip
@@ -725,6 +783,7 @@ const ProductImageDetails = () => {
 
                     </Grid>
 
+
                     {/* ACTIVE */}
 
                     <Grid
@@ -739,6 +798,7 @@ const ProductImageDetails = () => {
                         >
                             Status
                         </Typography>
+
 
                         <Box sx={{ mt: 0.5 }}>
 
@@ -763,6 +823,7 @@ const ProductImageDetails = () => {
 
             </Paper>
 
+
             {/* =================================================
                 RECORD INFORMATION
             ================================================= */}
@@ -782,18 +843,18 @@ const ProductImageDetails = () => {
                     Record Information
                 </Typography>
 
+
                 <Divider
-                    sx={{
-                        mb: 3
-                    }}
+                    sx={{ mb: 3 }}
                 />
+
 
                 <Grid
                     container
                     spacing={3}
                 >
 
-                    {/* CREATED DATE */}
+                    {/* CREATED */}
 
                     <Grid
                         item
@@ -808,7 +869,9 @@ const ProductImageDetails = () => {
                             Created Date
                         </Typography>
 
-                        <Typography variant="body1">
+                        <Typography
+                            variant="body1"
+                        >
                             {formatDate(
                                 createdDate
                             )}
@@ -816,7 +879,8 @@ const ProductImageDetails = () => {
 
                     </Grid>
 
-                    {/* UPDATED DATE */}
+
+                    {/* UPDATED */}
 
                     <Grid
                         item
@@ -831,7 +895,9 @@ const ProductImageDetails = () => {
                             Updated Date
                         </Typography>
 
-                        <Typography variant="body1">
+                        <Typography
+                            variant="body1"
+                        >
                             {formatDate(
                                 updatedDate
                             )}
@@ -844,8 +910,10 @@ const ProductImageDetails = () => {
             </Paper>
 
         </Box>
+
     );
+
 };
 
-export default ProductImageDetails;
 
+export default ProductImageDetails;

@@ -4,6 +4,7 @@
 // =========================================================
 
 import React, { useEffect, useState } from "react";
+
 import {
     Alert,
     Box,
@@ -11,7 +12,6 @@ import {
     CircularProgress,
     FormControlLabel,
     Grid,
-    MenuItem,
     Paper,
     Switch,
     TextField,
@@ -23,7 +23,10 @@ import {
     ArrowBack
 } from "@mui/icons-material";
 
-import { useNavigate, useParams } from "react-router-dom";
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
 
 // =========================================================
 // SERVER URL
@@ -37,10 +40,12 @@ const SERVER_URL = "http://localhost:5000";
 
 const EMPTY_FORM = {
     ProductImageId: "",
+    SellerId: "",
+    CustomerId: "",
     ProductId: "",
+    ImageSize: "",
     ImageUrl: "",
-    ImageName: "",
-    ImageType: "Main",
+    DisplayOrder: 0,
     IsPrimary: false,
     IsActive: true
 };
@@ -52,95 +57,290 @@ const EMPTY_FORM = {
 const ProductImageEdit = () => {
 
     const navigate = useNavigate();
+
     const { id } = useParams();
 
     // -----------------------------------------------------
     // STATE
     // -----------------------------------------------------
 
-    const [formData, setFormData] = useState(EMPTY_FORM);
+    const [formData, setFormData] = useState(
+        EMPTY_FORM
+    );
 
     const [loading, setLoading] = useState(true);
+
     const [saving, setSaving] = useState(false);
 
     const [error, setError] = useState("");
+
     const [success, setSuccess] = useState("");
 
-    // -----------------------------------------------------
+    // =====================================================
     // LOAD PRODUCT IMAGE
-    // -----------------------------------------------------
+    // =====================================================
 
     useEffect(() => {
-        loadProductImage();
+
+        if (id) {
+            loadProductImage();
+        } else {
+
+            setError(
+                "Product Image ID is missing."
+            );
+
+            setLoading(false);
+        }
+
     }, [id]);
 
-    const loadProductImage = async () => {
+    // =====================================================
+    // LOAD PRODUCT IMAGE BY ID
+    // =====================================================
 
-        if (!id) {
-            setError("Product Image ID is missing.");
-            setLoading(false);
-            return;
-        }
+    const loadProductImage = async () => {
 
         try {
 
             setLoading(true);
+
             setError("");
 
-            const response = await fetch(
-                `${SERVER_URL}/api/product-images/${id}`
-            );
+            setSuccess("");
 
-            if (!response.ok) {
+            // -------------------------------------------------
+            // Validate ID
+            // -------------------------------------------------
+
+            if (
+                !id ||
+                id === ":id"
+            ) {
                 throw new Error(
-                    `Failed to load product image. Status: ${response.status}`
+                    "Invalid Product Image ID."
                 );
             }
 
-            const data = await response.json();
+            const productImageId = Number(id);
 
-            const image = data?.data || data?.item || data;
-
-            if (!image) {
-                throw new Error("Product image not found.");
+            if (
+                !Number.isInteger(productImageId) ||
+                productImageId <= 0
+            ) {
+                throw new Error(
+                    `Invalid Product Image ID: ${id}`
+                );
             }
 
+            // -------------------------------------------------
+            // GET API
+            // -------------------------------------------------
+
+            const url =
+                `${SERVER_URL}/api/product-images/${productImageId}`;
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "GET PRODUCT IMAGE"
+            );
+
+            console.log(
+                "Product Image ID:",
+                productImageId
+            );
+
+            console.log(
+                "Request URL:",
+                url
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            const response = await fetch(
+                url,
+                {
+                    method: "GET",
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            // -------------------------------------------------
+            // Read response
+            // -------------------------------------------------
+
+            const responseText =
+                await response.text();
+
+            let data = null;
+
+            try {
+
+                data = responseText
+                    ? JSON.parse(responseText)
+                    : null;
+
+            } catch {
+
+                data = responseText;
+
+            }
+
+            // -------------------------------------------------
+            // Handle HTTP errors
+            // -------------------------------------------------
+
+            if (!response.ok) {
+
+                let errorMessage =
+                    `Failed to load product image. Status: ${response.status}`;
+
+                if (data?.message) {
+
+                    errorMessage =
+                        data.message;
+
+                } else if (data?.title) {
+
+                    errorMessage =
+                        data.title;
+
+                }
+
+                // ASP.NET validation errors
+                if (data?.errors) {
+
+                    const validationErrors =
+                        Object.values(data.errors)
+                            .flat()
+                            .join(", ");
+
+                    if (validationErrors) {
+
+                        errorMessage +=
+                            ` ${validationErrors}`;
+
+                    }
+                }
+
+                throw new Error(
+                    errorMessage
+                );
+            }
+
+            // -------------------------------------------------
+            // Support different response structures
+            // -------------------------------------------------
+
+            const image =
+                data?.data ||
+                data?.item ||
+                data;
+
+            if (!image) {
+
+                throw new Error(
+                    "Product image not found."
+                );
+            }
+
+            // -------------------------------------------------
+            // Read backend properties
+            // -------------------------------------------------
+
+            const productImageIdValue =
+                image.ProductImageId ??
+                image.productImageId ??
+                productImageId;
+
+            const sellerId =
+                image.SellerId ??
+                image.sellerId ??
+                "";
+
+            const customerId =
+                image.CustomerId ??
+                image.customerId ??
+                "";
+
+            const productId =
+                image.ProductId ??
+                image.productId ??
+                "";
+
+            const imageSize =
+                image.ImageSize ??
+                image.imageSize ??
+                0;
+
+            const imageUrl =
+                image.ImageUrl ??
+                image.imageUrl ??
+                "";
+
+            const displayOrder =
+                image.DisplayOrder ??
+                image.displayOrder ??
+                0;
+
+            const isPrimary =
+                parseBoolean(
+                    image.IsPrimary ??
+                    image.isPrimary
+                );
+
+            const isActive =
+                parseBoolean(
+                    image.IsActive ??
+                    image.isActive
+                );
+
+            // -------------------------------------------------
+            // Set form
+            // -------------------------------------------------
+
             setFormData({
+
                 ProductImageId:
-                    image.ProductImageId ??
-                    image.productImageId ??
-                    id,
+                    productImageIdValue,
+
+                SellerId:
+                    sellerId,
+
+                CustomerId:
+                    customerId,
 
                 ProductId:
-                    image.ProductId ??
-                    image.productId ??
-                    "",
+                    productId,
+
+                ImageSize:
+                    imageSize,
 
                 ImageUrl:
-                    image.ImageUrl ??
-                    image.imageUrl ??
-                    "",
+                    imageUrl,
 
-                ImageName:
-                    image.ImageName ??
-                    image.imageName ??
-                    "",
-
-                ImageType:
-                    image.ImageType ??
-                    image.imageType ??
-                    "Main",
+                DisplayOrder:
+                    displayOrder,
 
                 IsPrimary:
-                    image.IsPrimary ??
-                    image.isPrimary ??
-                    false,
+                    isPrimary,
 
                 IsActive:
-                    image.IsActive ??
-                    image.isActive ??
-                    true
+                    isActive
             });
+
+            console.log(
+                "Loaded Product Image:",
+                image
+            );
 
         } catch (err) {
 
@@ -160,9 +360,27 @@ const ProductImageEdit = () => {
         }
     };
 
-    // -----------------------------------------------------
-    // HANDLE INPUT
-    // -----------------------------------------------------
+    // =====================================================
+    // BOOLEAN PARSER
+    // =====================================================
+
+    const parseBoolean = (value) => {
+
+        if (
+            value === true ||
+            value === "true" ||
+            value === 1 ||
+            value === "1"
+        ) {
+            return true;
+        }
+
+        return false;
+    };
+
+    // =====================================================
+    // HANDLE TEXT / NUMBER INPUT
+    // =====================================================
 
     const handleChange = (event) => {
 
@@ -171,15 +389,17 @@ const ProductImageEdit = () => {
             value
         } = event.target;
 
-        setFormData((previous) => ({
-            ...previous,
-            [name]: value
-        }));
+        setFormData(
+            (previous) => ({
+                ...previous,
+                [name]: value
+            })
+        );
     };
 
-    // -----------------------------------------------------
+    // =====================================================
     // HANDLE SWITCH
-    // -----------------------------------------------------
+    // =====================================================
 
     const handleSwitchChange = (event) => {
 
@@ -188,54 +408,150 @@ const ProductImageEdit = () => {
             checked
         } = event.target;
 
-        setFormData((previous) => ({
-            ...previous,
-            [name]: checked
-        }));
+        setFormData(
+            (previous) => ({
+                ...previous,
+                [name]: checked
+            })
+        );
     };
 
-    // -----------------------------------------------------
-    // VALIDATE
-    // -----------------------------------------------------
+    // =====================================================
+    // VALIDATE FORM
+    // =====================================================
 
     const validateForm = () => {
+
+        // -------------------------------------------------
+        // Product Image ID
+        // -------------------------------------------------
+
+        if (
+            !formData.ProductImageId ||
+            Number(formData.ProductImageId) <= 0
+        ) {
+
+            setError(
+                "Product Image ID is required."
+            );
+
+            return false;
+        }
+
+        // -------------------------------------------------
+        // Seller ID
+        // -------------------------------------------------
+
+        if (
+            !formData.SellerId ||
+            Number(formData.SellerId) <= 0
+        ) {
+
+            setError(
+                "Seller ID is required."
+            );
+
+            return false;
+        }
+
+        // -------------------------------------------------
+        // Customer ID
+        // -------------------------------------------------
+
+        if (
+            !formData.CustomerId ||
+            Number(formData.CustomerId) <= 0
+        ) {
+
+            setError(
+                "Customer ID is required."
+            );
+
+            return false;
+        }
+
+        // -------------------------------------------------
+        // Product ID
+        // -------------------------------------------------
 
         if (
             !formData.ProductId ||
             Number(formData.ProductId) <= 0
         ) {
-            setError("Product ID is required.");
+
+            setError(
+                "Product ID is required."
+            );
+
             return false;
         }
 
-        if (!formData.ImageName.trim()) {
-            setError("Image Name is required.");
+        // -------------------------------------------------
+        // Image URL
+        // -------------------------------------------------
+
+        if (
+            !formData.ImageUrl ||
+            !formData.ImageUrl.trim()
+        ) {
+
+            setError(
+                "Image URL is required."
+            );
+
             return false;
         }
 
-        if (!formData.ImageUrl.trim()) {
-            setError("Image URL is required.");
+        // -------------------------------------------------
+        // Image Size
+        // -------------------------------------------------
+
+        if (
+            formData.ImageSize === "" ||
+            Number(formData.ImageSize) < 0
+        ) {
+
+            setError(
+                "Image size is required."
+            );
+
             return false;
         }
 
-        if (!formData.ImageType.trim()) {
-            setError("Image Type is required.");
+        // -------------------------------------------------
+        // Display Order
+        // -------------------------------------------------
+
+        if (
+            formData.DisplayOrder === "" ||
+            Number(formData.DisplayOrder) < 0
+        ) {
+
+            setError(
+                "Display order cannot be negative."
+            );
+
             return false;
         }
 
         return true;
     };
 
-    // -----------------------------------------------------
+    // =====================================================
     // SAVE
-    // -----------------------------------------------------
+    // =====================================================
 
     const handleSubmit = async (event) => {
 
         event.preventDefault();
 
         setError("");
+
         setSuccess("");
+
+        // -------------------------------------------------
+        // Validate
+        // -------------------------------------------------
 
         if (!validateForm()) {
             return;
@@ -245,54 +561,211 @@ const ProductImageEdit = () => {
 
             setSaving(true);
 
+            // -------------------------------------------------
+            // Product Image ID from URL
+            // -------------------------------------------------
+
+            const productImageId =
+                Number(id);
+
+            // -------------------------------------------------
+            // Payload
+            // -------------------------------------------------
+            //
+            // IMPORTANT:
+            // We send the actual IDs loaded from the database.
+            //
+            // This prevents:
+            //
+            // productId = 0
+            //
+            // which previously caused:
+            //
+            // FK_ProductImage_Product
+            //
+            // -------------------------------------------------
+
             const payload = {
-                ProductId: Number(formData.ProductId),
-                ImageUrl: formData.ImageUrl.trim(),
-                ImageName: formData.ImageName.trim(),
-                ImageType: formData.ImageType,
-                IsPrimary: Boolean(formData.IsPrimary),
-                IsActive: Boolean(formData.IsActive)
+
+                productImageId:
+                    productImageId,
+
+                sellerId:
+                    Number(formData.SellerId),
+
+                customerId:
+                    Number(formData.CustomerId),
+
+                productId:
+                    Number(formData.ProductId),
+
+                imageSize:
+                    Number(formData.ImageSize),
+
+                imageUrl:
+                    formData.ImageUrl.trim(),
+
+                displayOrder:
+                    Number(formData.DisplayOrder),
+
+                isPrimary:
+                    Boolean(formData.IsPrimary),
+
+                isActive:
+                    Boolean(formData.IsActive)
             };
 
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "UPDATE PRODUCT IMAGE"
+            );
+
+            console.log(
+                "Product Image ID:",
+                productImageId
+            );
+
+            console.log(
+                "PUT URL:",
+                `${SERVER_URL}/api/product-images/${productImageId}`
+            );
+
+            console.log(
+                "Payload:",
+                payload
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            // -------------------------------------------------
+            // PUT API
+            // -------------------------------------------------
+
             const response = await fetch(
-                `${SERVER_URL}/api/product-images/${id}`,
+                `${SERVER_URL}/api/product-images/${productImageId}`,
                 {
                     method: "PUT",
+
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type":
+                            "application/json",
+
+                        Accept:
+                            "application/json"
                     },
-                    body: JSON.stringify(payload)
+
+                    body:
+                        JSON.stringify(payload)
                 }
             );
+
+            // -------------------------------------------------
+            // Read response
+            // -------------------------------------------------
+
+            const responseText =
+                await response.text();
+
+            let responseData = null;
+
+            try {
+
+                responseData =
+                    responseText
+                        ? JSON.parse(responseText)
+                        : null;
+
+            } catch {
+
+                responseData =
+                    responseText;
+
+            }
+
+            console.log(
+                "PUT Response Status:",
+                response.status
+            );
+
+            console.log(
+                "PUT Response:",
+                responseData
+            );
+
+            // -------------------------------------------------
+            // Handle error
+            // -------------------------------------------------
 
             if (!response.ok) {
 
                 let errorMessage =
                     "Failed to update product image.";
 
-                try {
-
-                    const errorData =
-                        await response.json();
+                if (
+                    responseData?.message
+                ) {
 
                     errorMessage =
-                        errorData?.message ||
-                        errorData?.title ||
-                        errorMessage;
+                        responseData.message;
 
-                } catch {
-                    // Ignore invalid error JSON
+                } else if (
+                    responseData?.title
+                ) {
+
+                    errorMessage =
+                        responseData.title;
+
                 }
 
-                throw new Error(errorMessage);
+                // ASP.NET validation errors
+                if (
+                    responseData?.errors
+                ) {
+
+                    const validationErrors =
+                        Object.values(
+                            responseData.errors
+                        )
+                            .flat()
+                            .join(", ");
+
+                    if (validationErrors) {
+
+                        errorMessage +=
+                            ` ${validationErrors}`;
+
+                    }
+                }
+
+                throw new Error(
+                    errorMessage
+                );
             }
 
+            // -------------------------------------------------
+            // Success
+            // -------------------------------------------------
+
             setSuccess(
+                responseData?.message ||
                 "Product image updated successfully."
             );
 
+            // -------------------------------------------------
+            // Redirect
+            // -------------------------------------------------
+
             setTimeout(() => {
-                navigate("/product-images");
+
+                navigate(
+                    "/product-images"
+                );
+
             }, 1000);
 
         } catch (err) {
@@ -313,9 +786,9 @@ const ProductImageEdit = () => {
         }
     };
 
-    // -----------------------------------------------------
+    // =====================================================
     // LOADING
-    // -----------------------------------------------------
+    // =====================================================
 
     if (loading) {
 
@@ -333,14 +806,17 @@ const ProductImageEdit = () => {
         );
     }
 
-    // -----------------------------------------------------
+    // =====================================================
     // UI
-    // -----------------------------------------------------
+    // =====================================================
 
     return (
         <Box sx={{ p: 3 }}>
 
-            {/* HEADER */}
+            {/* =================================================
+                HEADER
+            ================================================== */}
+
             <Box
                 sx={{
                     display: "flex",
@@ -353,6 +829,7 @@ const ProductImageEdit = () => {
             >
 
                 <Box>
+
                     <Typography
                         variant="h5"
                         fontWeight="bold"
@@ -366,25 +843,34 @@ const ProductImageEdit = () => {
                     >
                         Update product image information
                     </Typography>
+
                 </Box>
 
                 <Button
                     variant="outlined"
                     startIcon={<ArrowBack />}
-                    onClick={() => navigate("/product-images")}
+                    onClick={() =>
+                        navigate(
+                            "/product-images"
+                        )
+                    }
                 >
                     Back
                 </Button>
 
             </Box>
 
-            {/* ALERTS */}
+            {/* =================================================
+                ALERTS
+            ================================================== */}
 
             {error && (
                 <Alert
                     severity="error"
                     sx={{ mb: 2 }}
-                    onClose={() => setError("")}
+                    onClose={() =>
+                        setError("")
+                    }
                 >
                     {error}
                 </Alert>
@@ -399,7 +885,9 @@ const ProductImageEdit = () => {
                 </Alert>
             )}
 
-            {/* FORM */}
+            {/* =================================================
+                FORM
+            ================================================== */}
 
             <Paper
                 elevation={2}
@@ -418,87 +906,157 @@ const ProductImageEdit = () => {
                         spacing={3}
                     >
 
-                        {/* IMAGE ID */}
+                        {/* =================================================
+                            PRODUCT IMAGE ID
+                        ================================================== */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 label="Product Image ID"
-                                value={formData.ProductImageId}
+                                value={
+                                    formData.ProductImageId
+                                }
                                 disabled
                             />
 
                         </Grid>
 
-                        {/* PRODUCT ID */}
+                        {/* =================================================
+                            SELLER ID
+                        ================================================== */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Seller ID"
+                                value={
+                                    formData.SellerId
+                                }
+                                disabled
+                            />
+
+                        </Grid>
+
+                        {/* =================================================
+                            CUSTOMER ID
+                        ================================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Customer ID"
+                                value={
+                                    formData.CustomerId
+                                }
+                                disabled
+                            />
+
+                        </Grid>
+
+                        {/* =================================================
+                            PRODUCT ID
+                        ================================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Product ID"
+                                type="number"
+                                value={
+                                    formData.ProductId
+                                }
+                                disabled
+                            />
+
+                        </Grid>
+
+                        {/* =================================================
+                            IMAGE SIZE
+                        ================================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 required
                                 type="number"
-                                name="ProductId"
-                                label="Product ID"
-                                value={formData.ProductId}
-                                onChange={handleChange}
+                                name="ImageSize"
+                                label="Image Size (bytes)"
+                                value={
+                                    formData.ImageSize
+                                }
+                                onChange={
+                                    handleChange
+                                }
                                 inputProps={{
-                                    min: 1
+                                    min: 0
                                 }}
                             />
 
                         </Grid>
 
-                        {/* IMAGE NAME */}
+                        {/* =================================================
+                            DISPLAY ORDER
+                        ================================================== */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <TextField
                                 fullWidth
                                 required
-                                name="ImageName"
-                                label="Image Name"
-                                placeholder="product-image.jpg"
-                                value={formData.ImageName}
-                                onChange={handleChange}
+                                type="number"
+                                name="DisplayOrder"
+                                label="Display Order"
+                                value={
+                                    formData.DisplayOrder
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 0
+                                }}
                             />
 
                         </Grid>
 
-                        {/* IMAGE TYPE */}
+                        {/* =================================================
+                            IMAGE URL
+                        ================================================== */}
 
-                        <Grid item xs={12} md={6}>
-
-                            <TextField
-                                fullWidth
-                                select
-                                required
-                                name="ImageType"
-                                label="Image Type"
-                                value={formData.ImageType}
-                                onChange={handleChange}
-                            >
-
-                                <MenuItem value="Main">
-                                    Main
-                                </MenuItem>
-
-                                <MenuItem value="Gallery">
-                                    Gallery
-                                </MenuItem>
-
-                                <MenuItem value="Thumbnail">
-                                    Thumbnail
-                                </MenuItem>
-
-                            </TextField>
-
-                        </Grid>
-
-                        {/* IMAGE URL */}
-
-                        <Grid item xs={12}>
+                        <Grid
+                            item
+                            xs={12}
+                        >
 
                             <TextField
                                 fullWidth
@@ -506,48 +1064,74 @@ const ProductImageEdit = () => {
                                 name="ImageUrl"
                                 label="Image URL"
                                 placeholder="https://example.com/image.jpg"
-                                value={formData.ImageUrl}
-                                onChange={handleChange}
+                                value={
+                                    formData.ImageUrl
+                                }
+                                onChange={
+                                    handleChange
+                                }
                             />
 
                         </Grid>
 
-                        {/* IMAGE PREVIEW */}
+                        {/* =================================================
+                            IMAGE PREVIEW
+                        ================================================== */}
 
                         {formData.ImageUrl && (
-                            <Grid item xs={12}>
+
+                            <Grid
+                                item
+                                xs={12}
+                            >
 
                                 <Box
                                     sx={{
                                         mt: 1,
                                         p: 2,
                                         border: "1px solid",
-                                        borderColor: "divider",
+                                        borderColor:
+                                            "divider",
                                         borderRadius: 2,
-                                        textAlign: "center"
+                                        textAlign:
+                                            "center"
                                     }}
                                 >
 
                                     <Typography
                                         variant="subtitle2"
-                                        sx={{ mb: 1 }}
+                                        sx={{
+                                            mb: 1
+                                        }}
                                     >
                                         Image Preview
                                     </Typography>
 
                                     <Box
                                         component="img"
-                                        src={formData.ImageUrl}
-                                        alt={formData.ImageName}
+                                        src={
+                                            formData.ImageUrl
+                                        }
+                                        alt="Product"
                                         sx={{
-                                            maxWidth: "100%",
-                                            maxHeight: 250,
-                                            objectFit: "contain",
+                                            maxWidth:
+                                                "100%",
+                                            maxHeight:
+                                                250,
+                                            objectFit:
+                                                "contain",
                                             borderRadius: 1
                                         }}
-                                        onError={(event) => {
-                                            event.currentTarget.style.display =
+                                        onError={(
+                                            event
+                                        ) => {
+
+                                            event
+                                                .currentTarget
+                                                .style
+                                                .display =
                                                 "none";
+
                                         }}
                                     />
 
@@ -556,9 +1140,15 @@ const ProductImageEdit = () => {
                             </Grid>
                         )}
 
-                        {/* PRIMARY */}
+                        {/* =================================================
+                            PRIMARY IMAGE
+                        ================================================== */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <FormControlLabel
                                 control={
@@ -579,9 +1169,15 @@ const ProductImageEdit = () => {
 
                         </Grid>
 
-                        {/* ACTIVE */}
+                        {/* =================================================
+                            ACTIVE
+                        ================================================== */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
 
                             <FormControlLabel
                                 control={
@@ -602,18 +1198,26 @@ const ProductImageEdit = () => {
 
                         </Grid>
 
-                        {/* BUTTONS */}
+                        {/* =================================================
+                            BUTTONS
+                        ================================================== */}
 
-                        <Grid item xs={12}>
+                        <Grid
+                            item
+                            xs={12}
+                        >
 
                             <Box
                                 sx={{
                                     display: "flex",
-                                    justifyContent: "flex-end",
+                                    justifyContent:
+                                        "flex-end",
                                     gap: 2,
                                     mt: 2
                                 }}
                             >
+
+                                {/* CANCEL */}
 
                                 <Button
                                     variant="outlined"
@@ -622,23 +1226,33 @@ const ProductImageEdit = () => {
                                             "/product-images"
                                         )
                                     }
-                                    disabled={saving}
+                                    disabled={
+                                        saving
+                                    }
                                 >
                                     Cancel
                                 </Button>
+
+                                {/* SAVE */}
 
                                 <Button
                                     type="submit"
                                     variant="contained"
                                     startIcon={
                                         saving
-                                            ? <CircularProgress
-                                                size={20}
-                                                color="inherit"
-                                            />
-                                            : <Save />
+                                            ? (
+                                                <CircularProgress
+                                                    size={20}
+                                                    color="inherit"
+                                                />
+                                            )
+                                            : (
+                                                <Save />
+                                            )
                                     }
-                                    disabled={saving}
+                                    disabled={
+                                        saving
+                                    }
                                 >
                                     {saving
                                         ? "Saving..."
@@ -659,5 +1273,8 @@ const ProductImageEdit = () => {
     );
 };
 
-export default ProductImageEdit;
+// =========================================================
+// EXPORT
+// =========================================================
 
+export default ProductImageEdit;

@@ -15,7 +15,8 @@ import {
     Typography,
     Divider,
     Chip,
-    Box
+    Box,
+    Link
 } from "@mui/material";
 
 // =========================================================
@@ -40,8 +41,35 @@ const ProductImageView = ({
     // Support PascalCase / camelCase
     // =====================================================
 
-    const getValue = (pascalCase, camelCase) => {
-        return image?.[pascalCase] ?? image?.[camelCase];
+    const getValue = (
+        pascalCase,
+        camelCase
+    ) => {
+
+        return (
+            image?.[pascalCase] ??
+            image?.[camelCase]
+        );
+    };
+
+    // =====================================================
+    // Boolean Helper
+    // =====================================================
+
+    const getBooleanValue = (value) => {
+
+        if (
+            value === true ||
+            value === 1 ||
+            value === "1" ||
+            value === "true" ||
+            value === "True" ||
+            value === "TRUE"
+        ) {
+            return true;
+        }
+
+        return false;
     };
 
     // =====================================================
@@ -51,6 +79,16 @@ const ProductImageView = ({
     const productImageId = getValue(
         "ProductImageId",
         "productImageId"
+    );
+
+    const sellerId = getValue(
+        "SellerId",
+        "sellerId"
+    );
+
+    const customerId = getValue(
+        "CustomerId",
+        "customerId"
     );
 
     const productId = getValue(
@@ -68,19 +106,33 @@ const ProductImageView = ({
         "imageType"
     );
 
+    const imageSize = getValue(
+        "ImageSize",
+        "imageSize"
+    );
+
     const imageUrl = getValue(
         "ImageUrl",
         "imageUrl"
     );
 
-    const isPrimary = getValue(
-        "IsPrimary",
-        "isPrimary"
+    const displayOrder = getValue(
+        "DisplayOrder",
+        "displayOrder"
     );
 
-    const isActive = getValue(
-        "IsActive",
-        "isActive"
+    const isPrimary = getBooleanValue(
+        getValue(
+            "IsPrimary",
+            "isPrimary"
+        )
+    );
+
+    const isActive = getBooleanValue(
+        getValue(
+            "IsActive",
+            "isActive"
+        )
     );
 
     const createdDate = getValue(
@@ -94,36 +146,47 @@ const ProductImageView = ({
     );
 
     // =====================================================
-    // Field Component
+    // Format Image Size
     // =====================================================
 
-    const Field = ({
-        label,
-        value
-    }) => (
-        <Grid
-            item
-            xs={12}
-            md={6}
-        >
-            <Typography
-                variant="caption"
-                color="text.secondary"
-            >
-                {label}
-            </Typography>
+    const formatImageSize = (size) => {
 
-            <Typography
-                variant="body1"
-                fontWeight={500}
-                sx={{
-                    wordBreak: "break-word"
-                }}
-            >
-                {value ?? "-"}
-            </Typography>
-        </Grid>
-    );
+        if (
+            size === null ||
+            size === undefined ||
+            size === ""
+        ) {
+            return "-";
+        }
+
+        const numericSize = Number(size);
+
+        if (Number.isNaN(numericSize)) {
+            return size;
+        }
+
+        if (numericSize < 1024) {
+            return `${numericSize} B`;
+        }
+
+        if (numericSize < 1024 * 1024) {
+            return `${(
+                numericSize / 1024
+            ).toFixed(2)} KB`;
+        }
+
+        if (numericSize < 1024 * 1024 * 1024) {
+            return `${(
+                numericSize /
+                (1024 * 1024)
+            ).toFixed(2)} MB`;
+        }
+
+        return `${(
+            numericSize /
+            (1024 * 1024 * 1024)
+        ).toFixed(2)} GB`;
+    };
 
     // =====================================================
     // Date Formatter
@@ -137,7 +200,11 @@ const ProductImageView = ({
 
         const parsedDate = new Date(date);
 
-        if (Number.isNaN(parsedDate.getTime())) {
+        if (
+            Number.isNaN(
+                parsedDate.getTime()
+            )
+        ) {
             return "-";
         }
 
@@ -145,22 +212,73 @@ const ProductImageView = ({
     };
 
     // =====================================================
+    // Field Component
+    // =====================================================
+
+    const Field = ({
+        label,
+        value
+    }) => (
+
+        <Grid
+            item
+            xs={12}
+            md={6}
+        >
+
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                    display: "block",
+                    mb: 0.5
+                }}
+            >
+                {label}
+            </Typography>
+
+            <Typography
+                variant="body1"
+                fontWeight={500}
+                sx={{
+                    wordBreak: "break-word"
+                }}
+            >
+                {
+                    value !== null &&
+                    value !== undefined &&
+                    value !== ""
+                        ? value
+                        : "-"
+                }
+            </Typography>
+
+        </Grid>
+    );
+
+    // =====================================================
     // Render
     // =====================================================
 
     return (
+
         <Dialog
             open={open}
             onClose={onClose}
             fullWidth
             maxWidth="md"
+            scroll="paper"
         >
 
             {/* =================================================
                 TITLE
             ================================================= */}
 
-            <DialogTitle>
+            <DialogTitle
+                sx={{
+                    fontWeight: 600
+                }}
+            >
                 Product Image Details
             </DialogTitle>
 
@@ -171,8 +289,9 @@ const ProductImageView = ({
             ================================================= */}
 
             <DialogContent
+                dividers
                 sx={{
-                    mt: 2
+                    mt: 0
                 }}
             >
 
@@ -189,31 +308,42 @@ const ProductImageView = ({
                         item
                         xs={12}
                     >
+
                         <Typography
                             variant="caption"
                             color="text.secondary"
+                            sx={{
+                                display: "block",
+                                mb: 1
+                            }}
                         >
                             Image Preview
                         </Typography>
 
                         {imageUrl ? (
+
                             <Box
                                 sx={{
-                                    mt: 2,
                                     display: "flex",
                                     justifyContent: "center",
                                     alignItems: "center",
-                                    minHeight: 150,
+                                    minHeight: 250,
                                     p: 2,
                                     border: "1px solid",
                                     borderColor: "divider",
-                                    borderRadius: 2
+                                    borderRadius: 2,
+                                    backgroundColor:
+                                        "background.default"
                                 }}
                             >
+
                                 <Box
                                     component="img"
                                     src={imageUrl}
-                                    alt={imageName || "Product Image"}
+                                    alt={
+                                        imageName ||
+                                        "Product Image"
+                                    }
                                     sx={{
                                         maxWidth: "100%",
                                         maxHeight: 300,
@@ -221,21 +351,39 @@ const ProductImageView = ({
                                         borderRadius: 2
                                     }}
                                     onError={(event) => {
+
                                         event.currentTarget.style.display =
                                             "none";
+
                                     }}
                                 />
+
                             </Box>
+
                         ) : (
-                            <Typography
-                                color="text.secondary"
+
+                            <Box
                                 sx={{
-                                    mt: 2
+                                    minHeight: 150,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    border: "1px dashed",
+                                    borderColor: "divider",
+                                    borderRadius: 2
                                 }}
                             >
-                                No image preview available.
-                            </Typography>
+
+                                <Typography
+                                    color="text.secondary"
+                                >
+                                    No image preview available.
+                                </Typography>
+
+                            </Box>
+
                         )}
+
                     </Grid>
 
                     {/* =========================================
@@ -245,6 +393,24 @@ const ProductImageView = ({
                     <Field
                         label="Product Image ID"
                         value={productImageId}
+                    />
+
+                    {/* =========================================
+                        SELLER ID
+                    ========================================= */}
+
+                    <Field
+                        label="Seller ID"
+                        value={sellerId}
+                    />
+
+                    {/* =========================================
+                        CUSTOMER ID
+                    ========================================= */}
+
+                    <Field
+                        label="Customer ID"
+                        value={customerId}
                     />
 
                     {/* =========================================
@@ -275,13 +441,66 @@ const ProductImageView = ({
                     />
 
                     {/* =========================================
-                        IMAGE URL
+                        IMAGE SIZE
                     ========================================= */}
 
                     <Field
-                        label="Image URL"
-                        value={imageUrl}
+                        label="Image Size"
+                        value={formatImageSize(imageSize)}
                     />
+
+                    {/* =========================================
+                        DISPLAY ORDER
+                    ========================================= */}
+
+                    <Field
+                        label="Display Order"
+                        value={displayOrder}
+                    />
+
+                    {/* =========================================
+                        IMAGE URL
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                    >
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                                display: "block",
+                                mb: 0.5
+                            }}
+                        >
+                            Image URL
+                        </Typography>
+
+                        {imageUrl ? (
+
+                            <Link
+                                href={imageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                                sx={{
+                                    wordBreak: "break-all"
+                                }}
+                            >
+                                {imageUrl}
+                            </Link>
+
+                        ) : (
+
+                            <Typography>
+                                -
+                            </Typography>
+
+                        )}
+
+                    </Grid>
 
                     {/* =========================================
                         PRIMARY IMAGE
@@ -292,6 +511,7 @@ const ProductImageView = ({
                         xs={12}
                         md={6}
                     >
+
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -300,6 +520,7 @@ const ProductImageView = ({
                         </Typography>
 
                         <Box sx={{ mt: 1 }}>
+
                             <Chip
                                 label={
                                     isPrimary
@@ -311,8 +532,11 @@ const ProductImageView = ({
                                         ? "success"
                                         : "default"
                                 }
+                                size="small"
                             />
+
                         </Box>
+
                     </Grid>
 
                     {/* =========================================
@@ -324,6 +548,7 @@ const ProductImageView = ({
                         xs={12}
                         md={6}
                     >
+
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -332,6 +557,7 @@ const ProductImageView = ({
                         </Typography>
 
                         <Box sx={{ mt: 1 }}>
+
                             <Chip
                                 label={
                                     isActive
@@ -343,8 +569,11 @@ const ProductImageView = ({
                                         ? "success"
                                         : "error"
                                 }
+                                size="small"
                             />
+
                         </Box>
+
                     </Grid>
 
                     {/* =========================================
@@ -376,15 +605,17 @@ const ProductImageView = ({
             <DialogActions
                 sx={{
                     px: 3,
-                    pb: 2
+                    py: 2
                 }}
             >
+
                 <Button
                     variant="contained"
                     onClick={onClose}
                 >
                     Close
                 </Button>
+
             </DialogActions>
 
         </Dialog>

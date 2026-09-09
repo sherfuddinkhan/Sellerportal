@@ -81,11 +81,90 @@ const ProductImageTable = ({
     }
 
     // =====================================================
-    // Helpers
+    // Helper
+    // Supports both:
+    //
+    // ProductImageId
+    // productImageId
     // =====================================================
 
-    const getValue = (row, pascalCase, camelCase) => {
-        return row?.[pascalCase] ?? row?.[camelCase];
+    const getValue = (
+        row,
+        pascalCase,
+        camelCase
+    ) => {
+
+        return (
+            row?.[pascalCase] ??
+            row?.[camelCase]
+        );
+    };
+
+    // =====================================================
+    // Boolean Helper
+    //
+    // Handles:
+    // true
+    // false
+    // "true"
+    // "false"
+    // 1
+    // 0
+    // =====================================================
+
+    const getBooleanValue = (
+        value
+    ) => {
+
+        if (
+            value === true ||
+            value === 1 ||
+            value === "true" ||
+            value === "True" ||
+            value === "TRUE"
+        ) {
+            return true;
+        }
+
+        return false;
+    };
+
+    // =====================================================
+    // Format Image Size
+    // =====================================================
+
+    const formatImageSize = (
+        size
+    ) => {
+
+        if (
+            size === null ||
+            size === undefined ||
+            size === ""
+        ) {
+            return "-";
+        }
+
+        const numericSize = Number(size);
+
+        if (Number.isNaN(numericSize)) {
+            return size;
+        }
+
+        if (numericSize < 1024) {
+            return `${numericSize} B`;
+        }
+
+        if (numericSize < 1024 * 1024) {
+            return `${(
+                numericSize / 1024
+            ).toFixed(1)} KB`;
+        }
+
+        return `${(
+            numericSize /
+            (1024 * 1024)
+        ).toFixed(2)} MB`;
     };
 
     // =====================================================
@@ -96,18 +175,36 @@ const ProductImageTable = ({
         <TableContainer
             component={Paper}
             elevation={2}
+            sx={{
+                overflowX: "auto"
+            }}
         >
-            <Table>
-                
+
+            <Table
+                stickyHeader
+                sx={{
+                    minWidth: 1300
+                }}
+            >
+
                 {/* =================================================
                     TABLE HEADER
                 ================================================= */}
 
                 <TableHead>
+
                     <TableRow>
 
                         <TableCell>
                             Image ID
+                        </TableCell>
+
+                        <TableCell>
+                            Seller ID
+                        </TableCell>
+
+                        <TableCell>
+                            Customer ID
                         </TableCell>
 
                         <TableCell>
@@ -123,7 +220,15 @@ const ProductImageTable = ({
                         </TableCell>
 
                         <TableCell>
+                            Image Size
+                        </TableCell>
+
+                        <TableCell>
                             URL
+                        </TableCell>
+
+                        <TableCell>
+                            Display Order
                         </TableCell>
 
                         <TableCell>
@@ -139,6 +244,7 @@ const ProductImageTable = ({
                         </TableCell>
 
                     </TableRow>
+
                 </TableHead>
 
                 {/* =================================================
@@ -147,207 +253,364 @@ const ProductImageTable = ({
 
                 <TableBody>
 
-                    {images.map((row, index) => {
+                    {images.map(
+                        (row, index) => {
 
-                        const productImageId =
-                            getValue(
-                                row,
-                                "ProductImageId",
-                                "productImageId"
-                            );
+                            // =====================================
+                            // BASIC VALUES
+                            // =====================================
 
-                        const productId =
-                            getValue(
-                                row,
-                                "ProductId",
-                                "productId"
-                            );
+                            const productImageId =
+                                getValue(
+                                    row,
+                                    "ProductImageId",
+                                    "productImageId"
+                                );
 
-                        const imageName =
-                            getValue(
-                                row,
-                                "ImageName",
-                                "imageName"
-                            );
+                            const sellerId =
+                                getValue(
+                                    row,
+                                    "SellerId",
+                                    "sellerId"
+                                );
 
-                        const imageType =
-                            getValue(
-                                row,
-                                "ImageType",
-                                "imageType"
-                            );
+                            const customerId =
+                                getValue(
+                                    row,
+                                    "CustomerId",
+                                    "customerId"
+                                );
 
-                        const imageUrl =
-                            getValue(
-                                row,
-                                "ImageUrl",
-                                "imageUrl"
-                            );
+                            const productId =
+                                getValue(
+                                    row,
+                                    "ProductId",
+                                    "productId"
+                                );
 
-                        const isPrimary =
-                            getValue(
-                                row,
-                                "IsPrimary",
-                                "isPrimary"
-                            );
+                            // =====================================
+                            // IMAGE INFORMATION
+                            // =====================================
 
-                        const isActive =
-                            getValue(
-                                row,
-                                "IsActive",
-                                "isActive"
-                            );
+                            const imageName =
+                                getValue(
+                                    row,
+                                    "ImageName",
+                                    "imageName"
+                                );
 
-                        return (
-                            <TableRow
-                                key={
-                                    productImageId ??
-                                    `product-image-${index}`
-                                }
-                                hover
-                            >
+                            const imageType =
+                                getValue(
+                                    row,
+                                    "ImageType",
+                                    "imageType"
+                                );
 
-                                {/* =====================================
-                                    IMAGE ID
-                                ===================================== */}
+                            const imageSize =
+                                getValue(
+                                    row,
+                                    "ImageSize",
+                                    "imageSize"
+                                );
 
-                                <TableCell>
-                                    {productImageId ?? "-"}
-                                </TableCell>
+                            const imageUrl =
+                                getValue(
+                                    row,
+                                    "ImageUrl",
+                                    "imageUrl"
+                                );
 
-                                {/* =====================================
-                                    PRODUCT ID
-                                ===================================== */}
+                            const displayOrder =
+                                getValue(
+                                    row,
+                                    "DisplayOrder",
+                                    "displayOrder"
+                                );
 
-                                <TableCell>
-                                    {productId ?? "-"}
-                                </TableCell>
+                            // =====================================
+                            // STATUS
+                            // =====================================
 
-                                {/* =====================================
-                                    IMAGE NAME
-                                ===================================== */}
+                            const isPrimary =
+                                getBooleanValue(
+                                    getValue(
+                                        row,
+                                        "IsPrimary",
+                                        "isPrimary"
+                                    )
+                                );
 
-                                <TableCell>
-                                    {imageName || "-"}
-                                </TableCell>
+                            const isActive =
+                                getBooleanValue(
+                                    getValue(
+                                        row,
+                                        "IsActive",
+                                        "isActive"
+                                    )
+                                );
 
-                                {/* =====================================
-                                    IMAGE TYPE
-                                ===================================== */}
+                            // =====================================
+                            // ROW
+                            // =====================================
 
-                                <TableCell>
-                                    {imageType || "-"}
-                                </TableCell>
+                            return (
 
-                                {/* =====================================
-                                    IMAGE URL
-                                ===================================== */}
-
-                                <TableCell
-                                    sx={{
-                                        maxWidth: 250,
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        whiteSpace: "nowrap"
-                                    }}
+                                <TableRow
+                                    key={
+                                        productImageId ??
+                                        `product-image-${index}`
+                                    }
+                                    hover
                                 >
-                                    {imageUrl || "-"}
-                                </TableCell>
 
-                                {/* =====================================
-                                    PRIMARY
-                                ===================================== */}
+                                    {/* =================================
+                                        IMAGE ID
+                                    ================================= */}
 
-                                <TableCell>
-                                    <Chip
-                                        label={
-                                            isPrimary
-                                                ? "Yes"
-                                                : "No"
-                                        }
-                                        color={
-                                            isPrimary
-                                                ? "success"
-                                                : "default"
-                                        }
-                                        size="small"
-                                    />
-                                </TableCell>
+                                    <TableCell>
+                                        {productImageId ?? "-"}
+                                    </TableCell>
 
-                                {/* =====================================
-                                    ACTIVE
-                                ===================================== */}
+                                    {/* =================================
+                                        SELLER ID
+                                    ================================= */}
 
-                                <TableCell>
-                                    <Chip
-                                        label={
-                                            isActive
-                                                ? "Active"
-                                                : "Inactive"
-                                        }
-                                        color={
-                                            isActive
-                                                ? "success"
-                                                : "error"
-                                        }
-                                        size="small"
-                                    />
-                                </TableCell>
+                                    <TableCell>
+                                        {sellerId ?? "-"}
+                                    </TableCell>
 
-                                {/* =====================================
-                                    ACTIONS
-                                ===================================== */}
+                                    {/* =================================
+                                        CUSTOMER ID
+                                    ================================= */}
 
-                                <TableCell align="center">
+                                    <TableCell>
+                                        {customerId ?? "-"}
+                                    </TableCell>
 
-                                    {/* VIEW */}
+                                    {/* =================================
+                                        PRODUCT ID
+                                    ================================= */}
 
-                                    <Tooltip title="View">
-                                        <IconButton
-                                            color="primary"
-                                            onClick={() =>
-                                                onView?.(row)
+                                    <TableCell>
+                                        {productId ?? "-"}
+                                    </TableCell>
+
+                                    {/* =================================
+                                        IMAGE NAME
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {imageName ? (
+                                            <Typography
+                                                variant="body2"
+                                                fontWeight={500}
+                                            >
+                                                {imageName}
+                                            </Typography>
+                                        ) : (
+                                            "-"
+                                        )}
+
+                                    </TableCell>
+
+                                    {/* =================================
+                                        IMAGE TYPE
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {imageType ? (
+                                            <Chip
+                                                label={imageType}
+                                                size="small"
+                                                variant="outlined"
+                                            />
+                                        ) : (
+                                            "-"
+                                        )}
+
+                                    </TableCell>
+
+                                    {/* =================================
+                                        IMAGE SIZE
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {formatImageSize(
+                                            imageSize
+                                        )}
+
+                                    </TableCell>
+
+                                    {/* =================================
+                                        IMAGE URL
+                                    ================================= */}
+
+                                    <TableCell
+                                        sx={{
+                                            maxWidth: 250
+                                        }}
+                                    >
+
+                                        {imageUrl ? (
+
+                                            <Tooltip
+                                                title={imageUrl}
+                                            >
+
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        maxWidth: 250,
+                                                        overflow:
+                                                            "hidden",
+                                                        textOverflow:
+                                                            "ellipsis",
+                                                        whiteSpace:
+                                                            "nowrap"
+                                                    }}
+                                                >
+                                                    {imageUrl}
+                                                </Typography>
+
+                                            </Tooltip>
+
+                                        ) : (
+                                            "-"
+                                        )}
+
+                                    </TableCell>
+
+                                    {/* =================================
+                                        DISPLAY ORDER
+                                    ================================= */}
+
+                                    <TableCell>
+                                        {displayOrder ?? "-"}
+                                    </TableCell>
+
+                                    {/* =================================
+                                        PRIMARY
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        <Chip
+                                            label={
+                                                isPrimary
+                                                    ? "Yes"
+                                                    : "No"
                                             }
-                                        >
-                                            <Visibility />
-                                        </IconButton>
-                                    </Tooltip>
-
-                                    {/* EDIT */}
-
-                                    <Tooltip title="Edit">
-                                        <IconButton
-                                            color="warning"
-                                            onClick={() =>
-                                                onEdit?.(row)
+                                            color={
+                                                isPrimary
+                                                    ? "success"
+                                                    : "default"
                                             }
-                                        >
-                                            <Edit />
-                                        </IconButton>
-                                    </Tooltip>
+                                            size="small"
+                                        />
 
-                                    {/* DELETE */}
+                                    </TableCell>
 
-                                    <Tooltip title="Delete">
-                                        <IconButton
-                                            color="error"
-                                            onClick={() =>
-                                                onDelete?.(row)
+                                    {/* =================================
+                                        ACTIVE
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        <Chip
+                                            label={
+                                                isActive
+                                                    ? "Active"
+                                                    : "Inactive"
                                             }
-                                        >
-                                            <Delete />
-                                        </IconButton>
-                                    </Tooltip>
+                                            color={
+                                                isActive
+                                                    ? "success"
+                                                    : "error"
+                                            }
+                                            size="small"
+                                        />
 
-                                </TableCell>
+                                    </TableCell>
 
-                            </TableRow>
-                        );
-                    })}
+                                    {/* =================================
+                                        ACTIONS
+                                    ================================= */}
+
+                                    <TableCell
+                                        align="center"
+                                    >
+
+                                        {/* =============================
+                                            VIEW
+                                        ============================== */}
+
+                                        <Tooltip title="View">
+
+                                            <IconButton
+                                                color="primary"
+                                                onClick={() =>
+                                                    onView?.(row)
+                                                }
+                                            >
+
+                                                <Visibility />
+
+                                            </IconButton>
+
+                                        </Tooltip>
+
+                                        {/* =============================
+                                            EDIT
+                                        ============================== */}
+
+                                        <Tooltip title="Edit">
+
+                                            <IconButton
+                                                color="warning"
+                                                onClick={() =>
+                                                    onEdit?.(row)
+                                                }
+                                            >
+
+                                                <Edit />
+
+                                            </IconButton>
+
+                                        </Tooltip>
+
+                                        {/* =============================
+                                            DELETE
+                                        ============================== */}
+
+                                        <Tooltip title="Delete">
+
+                                            <IconButton
+                                                color="error"
+                                                onClick={() =>
+                                                    onDelete?.(row)
+                                                }
+                                            >
+
+                                                <Delete />
+
+                                            </IconButton>
+
+                                        </Tooltip>
+
+                                    </TableCell>
+
+                                </TableRow>
+                            );
+                        }
+                    )}
 
                 </TableBody>
 
             </Table>
+
         </TableContainer>
     );
 };

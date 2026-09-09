@@ -12,7 +12,6 @@ import {
     CircularProgress,
     FormControlLabel,
     Grid,
-    MenuItem,
     Paper,
     Switch,
     TextField,
@@ -37,11 +36,21 @@ const SERVER_URL = "http://localhost:5000";
 // =========================================================
 
 const INITIAL_FORM = {
+
+    SellerId: "6",
+
+    CustomerId: "3",
+
     ProductId: "",
+
+    ImageSize: "125000",
+
     ImageUrl: "",
-    ImageName: "",
-    ImageType: "Main",
+
+    DisplayOrder: "1",
+
     IsPrimary: false,
+
     IsActive: true
 };
 
@@ -53,9 +62,9 @@ const ProductImageCreate = () => {
 
     const navigate = useNavigate();
 
-    // -----------------------------------------------------
+    // =====================================================
     // STATE
-    // -----------------------------------------------------
+    // =====================================================
 
     const [formData, setFormData] = useState(
         INITIAL_FORM
@@ -67,9 +76,9 @@ const ProductImageCreate = () => {
 
     const [success, setSuccess] = useState("");
 
-    // -----------------------------------------------------
+    // =====================================================
     // HANDLE INPUT CHANGE
-    // -----------------------------------------------------
+    // =====================================================
 
     const handleChange = (event) => {
 
@@ -87,9 +96,9 @@ const ProductImageCreate = () => {
         setSuccess("");
     };
 
-    // -----------------------------------------------------
+    // =====================================================
     // HANDLE SWITCH CHANGE
-    // -----------------------------------------------------
+    // =====================================================
 
     const handleSwitchChange = (event) => {
 
@@ -107,11 +116,47 @@ const ProductImageCreate = () => {
         setSuccess("");
     };
 
-    // -----------------------------------------------------
+    // =====================================================
     // VALIDATE FORM
-    // -----------------------------------------------------
+    // =====================================================
 
     const validateForm = () => {
+
+        // -------------------------------------------------
+        // SELLER ID
+        // -------------------------------------------------
+
+        if (
+            !formData.SellerId ||
+            Number(formData.SellerId) <= 0
+        ) {
+
+            setError(
+                "Please enter a valid Seller ID."
+            );
+
+            return false;
+        }
+
+        // -------------------------------------------------
+        // CUSTOMER ID
+        // -------------------------------------------------
+
+        if (
+            !formData.CustomerId ||
+            Number(formData.CustomerId) <= 0
+        ) {
+
+            setError(
+                "Please enter a valid Customer ID."
+            );
+
+            return false;
+        }
+
+        // -------------------------------------------------
+        // PRODUCT ID
+        // -------------------------------------------------
 
         if (
             !formData.ProductId ||
@@ -125,14 +170,25 @@ const ProductImageCreate = () => {
             return false;
         }
 
-        if (!formData.ImageName.trim()) {
+        // -------------------------------------------------
+        // IMAGE SIZE
+        // -------------------------------------------------
+
+        if (
+            !formData.ImageSize ||
+            Number(formData.ImageSize) < 0
+        ) {
 
             setError(
-                "Image Name is required."
+                "Please enter a valid image size."
             );
 
             return false;
         }
+
+        // -------------------------------------------------
+        // IMAGE URL
+        // -------------------------------------------------
 
         if (!formData.ImageUrl.trim()) {
 
@@ -143,10 +199,17 @@ const ProductImageCreate = () => {
             return false;
         }
 
-        if (!formData.ImageType.trim()) {
+        // -------------------------------------------------
+        // DISPLAY ORDER
+        // -------------------------------------------------
+
+        if (
+            formData.DisplayOrder === "" ||
+            Number(formData.DisplayOrder) < 0
+        ) {
 
             setError(
-                "Image Type is required."
+                "Please enter a valid display order."
             );
 
             return false;
@@ -155,9 +218,9 @@ const ProductImageCreate = () => {
         return true;
     };
 
-    // -----------------------------------------------------
+    // =====================================================
     // CREATE PRODUCT IMAGE
-    // -----------------------------------------------------
+    // =====================================================
 
     const handleSubmit = async (event) => {
 
@@ -165,6 +228,10 @@ const ProductImageCreate = () => {
 
         setError("");
         setSuccess("");
+
+        // -------------------------------------------------
+        // VALIDATION
+        // -------------------------------------------------
 
         if (!validateForm()) {
             return;
@@ -174,31 +241,66 @@ const ProductImageCreate = () => {
 
             setSaving(true);
 
-            const payload = {
-                ProductId: Number(
-                    formData.ProductId
-                ),
+            // =================================================
+            // API PAYLOAD
+            // =================================================
 
-                ImageUrl:
+            const payload = {
+
+                sellerId:
+                    Number(formData.SellerId),
+
+                customerId:
+                    Number(formData.CustomerId),
+
+                productId:
+                    Number(formData.ProductId),
+
+                imageSize:
+                    Number(formData.ImageSize),
+
+                imageUrl:
                     formData.ImageUrl.trim(),
 
-                ImageName:
-                    formData.ImageName.trim(),
+                displayOrder:
+                    Number(formData.DisplayOrder),
 
-                ImageType:
-                    formData.ImageType,
-
-                IsPrimary:
+                isPrimary:
                     Boolean(formData.IsPrimary),
 
-                IsActive:
+                isActive:
                     Boolean(formData.IsActive)
             };
 
+            // -------------------------------------------------
+            // DEBUG
+            // -------------------------------------------------
+
             console.log(
-                "Creating Product Image:",
+                "========================================"
+            );
+
+            console.log(
+                "CREATE PRODUCT IMAGE"
+            );
+
+            console.log(
+                "POST URL:",
+                `${SERVER_URL}/api/product-images`
+            );
+
+            console.log(
+                "Payload:",
                 payload
             );
+
+            console.log(
+                "========================================"
+            );
+
+            // =================================================
+            // POST REQUEST
+            // =================================================
 
             const response = await fetch(
                 `${SERVER_URL}/api/product-images`,
@@ -207,6 +309,9 @@ const ProductImageCreate = () => {
 
                     headers: {
                         "Content-Type":
+                            "application/json",
+
+                        "Accept":
                             "application/json"
                     },
 
@@ -214,43 +319,109 @@ const ProductImageCreate = () => {
                 }
             );
 
+            // =================================================
+            // READ RESPONSE
+            // =================================================
+
+            const responseText =
+                await response.text();
+
+            let responseData = null;
+
+            try {
+
+                responseData =
+                    responseText
+                        ? JSON.parse(responseText)
+                        : null;
+
+            } catch {
+
+                responseData = null;
+            }
+
+            // -------------------------------------------------
+            // DEBUG RESPONSE
+            // -------------------------------------------------
+
+            console.log(
+                "CREATE RESPONSE STATUS:",
+                response.status
+            );
+
+            console.log(
+                "CREATE RESPONSE:",
+                responseData || responseText
+            );
+
+            // =================================================
+            // ERROR RESPONSE
+            // =================================================
+
             if (!response.ok) {
 
                 let message =
                     "Failed to create product image.";
 
-                try {
-
-                    const errorData =
-                        await response.json();
+                if (
+                    responseData?.message
+                ) {
 
                     message =
-                        errorData?.message ||
-                        errorData?.title ||
-                        message;
+                        responseData.message;
 
-                } catch {
-                    // Ignore invalid response
+                } else if (
+                    responseData?.title
+                ) {
+
+                    message =
+                        responseData.title;
+
+                } else if (
+                    responseData?.errors
+                ) {
+
+                    const validationErrors =
+                        Object.values(
+                            responseData.errors
+                        )
+                            .flat()
+                            .join(" ");
+
+                    if (validationErrors) {
+
+                        message =
+                            validationErrors;
+                    }
+
+                } else if (
+                    typeof responseText === "string" &&
+                    responseText.trim()
+                ) {
+
+                    message =
+                        responseText;
                 }
 
                 throw new Error(message);
             }
 
-            const data =
-                await response.json();
+            // =================================================
+            // SUCCESS
+            // =================================================
 
             console.log(
-                "Product Image Created:",
-                data
+                "Product Image Created Successfully:",
+                responseData
             );
 
             setSuccess(
                 "Product image created successfully."
             );
 
-            // -------------------------------------------------
-            // REDIRECT AFTER SUCCESS
-            // -------------------------------------------------
+            // =================================================
+            // REDIRECT
+            // =================================================
 
             setTimeout(() => {
 
@@ -263,8 +434,19 @@ const ProductImageCreate = () => {
         } catch (err) {
 
             console.error(
-                "Create Product Image Error:",
+                "========================================"
+            );
+
+            console.error(
+                "CREATE PRODUCT IMAGE ERROR"
+            );
+
+            console.error(
                 err
+            );
+
+            console.error(
+                "========================================"
             );
 
             setError(
@@ -278,9 +460,9 @@ const ProductImageCreate = () => {
         }
     };
 
-    // -----------------------------------------------------
+    // =====================================================
     // BACK
-    // -----------------------------------------------------
+    // =====================================================
 
     const handleBack = () => {
 
@@ -294,6 +476,7 @@ const ProductImageCreate = () => {
     // =====================================================
 
     return (
+
         <Box sx={{ p: 3 }}>
 
             {/* =================================================
@@ -393,6 +576,66 @@ const ProductImageCreate = () => {
                     >
 
                         {/* =================================================
+                            SELLER ID
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                name="SellerId"
+                                label="Seller ID"
+                                value={
+                                    formData.SellerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 1
+                                }}
+                                helperText="Seller associated with this image"
+                            />
+
+                        </Grid>
+
+                        {/* =================================================
+                            CUSTOMER ID
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                name="CustomerId"
+                                label="Customer ID"
+                                value={
+                                    formData.CustomerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 1
+                                }}
+                                helperText="Customer associated with this image"
+                            />
+
+                        </Grid>
+
+                        {/* =================================================
                             PRODUCT ID
                         ================================================= */}
 
@@ -417,13 +660,13 @@ const ProductImageCreate = () => {
                                 inputProps={{
                                     min: 1
                                 }}
-                                helperText="Enter the Product ID associated with this image"
+                                helperText="Enter an existing Product ID"
                             />
 
                         </Grid>
 
                         {/* =================================================
-                            IMAGE NAME
+                            IMAGE SIZE
                         ================================================= */}
 
                         <Grid
@@ -435,21 +678,25 @@ const ProductImageCreate = () => {
                             <TextField
                                 fullWidth
                                 required
-                                name="ImageName"
-                                label="Image Name"
+                                type="number"
+                                name="ImageSize"
+                                label="Image Size"
                                 value={
-                                    formData.ImageName
+                                    formData.ImageSize
                                 }
                                 onChange={
                                     handleChange
                                 }
-                                placeholder="product-image.jpg"
+                                inputProps={{
+                                    min: 0
+                                }}
+                                helperText="Image size in bytes"
                             />
 
                         </Grid>
 
                         {/* =================================================
-                            IMAGE TYPE
+                            DISPLAY ORDER
                         ================================================= */}
 
                         <Grid
@@ -460,31 +707,20 @@ const ProductImageCreate = () => {
 
                             <TextField
                                 fullWidth
-                                required
-                                select
-                                name="ImageType"
-                                label="Image Type"
+                                type="number"
+                                name="DisplayOrder"
+                                label="Display Order"
                                 value={
-                                    formData.ImageType
+                                    formData.DisplayOrder
                                 }
                                 onChange={
                                     handleChange
                                 }
-                            >
-
-                                <MenuItem value="Main">
-                                    Main
-                                </MenuItem>
-
-                                <MenuItem value="Gallery">
-                                    Gallery
-                                </MenuItem>
-
-                                <MenuItem value="Thumbnail">
-                                    Thumbnail
-                                </MenuItem>
-
-                            </TextField>
+                                inputProps={{
+                                    min: 0
+                                }}
+                                helperText="Order in which the image is displayed"
+                            />
 
                         </Grid>
 
@@ -508,7 +744,7 @@ const ProductImageCreate = () => {
                                 onChange={
                                     handleChange
                                 }
-                                placeholder="https://example.com/image.jpg"
+                                placeholder="https://picsum.photos/seed/product6/800/800"
                                 helperText="Enter the complete URL of the product image"
                             />
 
@@ -518,7 +754,7 @@ const ProductImageCreate = () => {
                             IMAGE PREVIEW
                         ================================================= */}
 
-                        {formData.ImageUrl && (
+                        {formData.ImageUrl.trim() && (
 
                             <Grid
                                 item
@@ -548,22 +784,19 @@ const ProductImageCreate = () => {
                                         src={
                                             formData.ImageUrl
                                         }
-                                        alt={
-                                            formData.ImageName ||
-                                            "Product Image"
-                                        }
+                                        alt="Product Preview"
                                         sx={{
                                             maxWidth: "100%",
-                                            maxHeight: 300,
+                                            width: 300,
+                                            height: 300,
                                             objectFit: "contain",
                                             borderRadius: 1
                                         }}
-                                        onError={(
-                                            event
-                                        ) => {
+                                        onError={(event) => {
 
                                             event.currentTarget.style.display =
                                                 "none";
+
                                         }}
                                     />
 
@@ -585,6 +818,7 @@ const ProductImageCreate = () => {
 
                             <FormControlLabel
                                 control={
+
                                     <Switch
                                         name="IsPrimary"
                                         checked={
@@ -596,6 +830,7 @@ const ProductImageCreate = () => {
                                             handleSwitchChange
                                         }
                                     />
+
                                 }
                                 label="Primary Image"
                             />
@@ -623,6 +858,7 @@ const ProductImageCreate = () => {
 
                             <FormControlLabel
                                 control={
+
                                     <Switch
                                         name="IsActive"
                                         checked={
@@ -634,6 +870,7 @@ const ProductImageCreate = () => {
                                             handleSwitchChange
                                         }
                                     />
+
                                 }
                                 label="Active"
                             />
@@ -669,9 +906,7 @@ const ProductImageCreate = () => {
 
                                 <Button
                                     variant="outlined"
-                                    onClick={
-                                        handleBack
-                                    }
+                                    onClick={handleBack}
                                     disabled={saving}
                                 >
                                     Cancel
@@ -681,20 +916,28 @@ const ProductImageCreate = () => {
                                     type="submit"
                                     variant="contained"
                                     startIcon={
+
                                         saving ? (
+
                                             <CircularProgress
                                                 size={20}
                                                 color="inherit"
                                             />
+
                                         ) : (
+
                                             <Save />
+
                                         )
+
                                     }
                                     disabled={saving}
                                 >
+
                                     {saving
                                         ? "Saving..."
                                         : "Create Image"}
+
                                 </Button>
 
                             </Box>
@@ -712,4 +955,3 @@ const ProductImageCreate = () => {
 };
 
 export default ProductImageCreate;
-

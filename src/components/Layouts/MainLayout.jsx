@@ -691,37 +691,10 @@ const MainLayout = () => {
                             label: "Product Image Statistics",
                             path: "/product-images/statistics",
                         },
-
-                        {
-                            label: "Product Image Table",
-                            path: "/product-images/table",
-                        },
-
-                        {
-                            label: "Product Image Card",
-                            path: "/product-images/card",
-                        },
-
                         {
                             label: "Product Image Form",
                             path: "/product-images/form",
                         },
-
-                        {
-                            label: "Product Image Modal",
-                            path: "/product-images/modal",
-                        },
-
-                        {
-                            label: "Product Image Pagination",
-                            path: "/product-images/pagination",
-                        },
-
-                        {
-                            label: "Product Image Toolbar",
-                            path: "/product-images/toolbar",
-                        },
-
                     ],
                 },
 
