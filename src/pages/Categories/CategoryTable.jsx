@@ -337,32 +337,6 @@ const CategoryTable = ({
                             </IconButton>
 
                         </Tooltip>
-
-                        {/* =================================
-                            DELETE CATEGORY
-                        ================================== */}
-
-                        <Tooltip
-                            title="Delete Category"
-                        >
-
-                            <IconButton
-                                color="error"
-                                size="small"
-
-                                onClick={() =>
-                                    onDelete?.(
-                                        category
-                                    )
-                                }
-                            >
-
-                                <Delete />
-
-                            </IconButton>
-
-                        </Tooltip>
-
                     </Box>
 
                 );
