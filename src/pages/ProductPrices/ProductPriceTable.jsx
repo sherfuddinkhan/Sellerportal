@@ -1,406 +1,643 @@
-// =========================================================
-// ProductPriceTable.jsx
-// =========================================================
-
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
     Box,
     Chip,
     IconButton,
-    Tooltip,
+    Tooltip
 } from "@mui/material";
 
 import {
     Visibility,
     Edit,
-    Delete,
+    Delete
 } from "@mui/icons-material";
 
-import {
-    DataGrid,
-} from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 
-// =========================================================
-// Product Price Table
-// =========================================================
 
 const ProductPriceTable = ({
     productPrices = [],
     loading = false,
-
     onView,
     onEdit,
-    onDelete,
+    onDelete
 }) => {
 
-    // =====================================================
-    // HELPER
-    // Supports PascalCase + camelCase API responses
-    // =====================================================
+    const navigate = useNavigate();
 
-    const getValue = (
-        row,
-        pascalCase,
-        camelCase,
-        fallback = "-"
-    ) => {
 
-        const value =
-            row?.[pascalCase] ??
-            row?.[camelCase];
+    // =========================================================
+    // GET VALUE
+    // =========================================================
 
-        return value == null || value === ""
-            ? fallback
-            : value;
+    const getValue = (row, ...keys) => {
+
+        for (const key of keys) {
+
+            if (
+                row?.[key] !== undefined &&
+                row?.[key] !== null
+            ) {
+                return row[key];
+            }
+        }
+
+        return "";
     };
 
 
-    // =====================================================
+    // =========================================================
+    // GET PRODUCT PRICE ID
+    // =========================================================
+
+    const getProductPriceId = (row) => {
+
+        return (
+            row?.productPriceId ??
+            row?.ProductPriceId ??
+            row?.id ??
+            row?.Id
+        );
+    };
+
+
+    // =========================================================
+    // VIEW PRODUCT PRICE
+    // =========================================================
+
+    const handleView = (event, row) => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const productPriceId =
+            getProductPriceId(row);
+
+        console.log(
+            "VIEW PRODUCT PRICE:",
+            productPriceId
+        );
+
+        console.log(
+            "PRODUCT PRICE ROW:",
+            row
+        );
+
+        if (!productPriceId) {
+
+            console.error(
+                "Product Price ID not found",
+                row
+            );
+
+            return;
+        }
+
+
+        // Navigate directly to ProductPriceView
+        navigate(
+            `/product-prices/view/${productPriceId}`
+        );
+    };
+
+
+    // =========================================================
+    // EDIT PRODUCT PRICE
+    // =========================================================
+
+    const handleEdit = (event, row) => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const productPriceId =
+            getProductPriceId(row);
+
+        console.log(
+            "EDIT PRODUCT PRICE:",
+            productPriceId
+        );
+
+        console.log(
+            "PRODUCT PRICE ROW:",
+            row
+        );
+
+        if (!productPriceId) {
+
+            console.error(
+                "Product Price ID not found",
+                row
+            );
+
+            return;
+        }
+
+
+        // Navigate directly to ProductPriceEdit
+        navigate(
+            `/product-prices/edit/${productPriceId}`
+        );
+    };
+
+
+    // =========================================================
+    // DELETE PRODUCT PRICE
+    // =========================================================
+
+    const handleDelete = (event, row) => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const productPriceId =
+            getProductPriceId(row);
+
+        console.log(
+            "DELETE PRODUCT PRICE:",
+            productPriceId
+        );
+
+        console.log(
+            "PRODUCT PRICE ROW:",
+            row
+        );
+
+        if (onDelete) {
+            onDelete(row);
+        }
+    };
+
+
+    // =========================================================
     // COLUMNS
-    // =====================================================
+    // =========================================================
 
     const columns = [
 
-        // =================================================
+        // =====================================================
         // PRODUCT
-        // =================================================
+        // =====================================================
 
         {
-            field: "ProductName",
-            headerName: "Product",
-            flex: 1.5,
-            minWidth: 220,
+            field: "productName",
 
-            valueGetter: (value, row) =>
+            headerName: "Product",
+
+            flex: 1.3,
+
+            minWidth: 180,
+
+            valueGetter: (params) =>
                 getValue(
-                    row,
+                    params.row,
                     "ProductName",
                     "productName"
-                ),
+                )
         },
 
 
-        // =================================================
+        // =====================================================
         // SKU
-        // =================================================
+        // =====================================================
 
         {
-            field: "SKU",
-            headerName: "SKU",
-            width: 140,
+            field: "sku",
 
-            valueGetter: (value, row) =>
+            headerName: "SKU",
+
+            flex: 1,
+
+            minWidth: 130,
+
+            valueGetter: (params) =>
                 getValue(
-                    row,
+                    params.row,
                     "SKU",
                     "sku"
-                ),
+                )
         },
 
 
-        // =================================================
+        // =====================================================
         // PRICE TYPE
-        // =================================================
+        // =====================================================
 
         {
-            field: "PriceType",
-            headerName: "Price Type",
-            width: 150,
+            field: "priceType",
 
-            valueGetter: (value, row) =>
+            headerName: "Price Type",
+
+            flex: 1,
+
+            minWidth: 130,
+
+            valueGetter: (params) =>
                 getValue(
-                    row,
+                    params.row,
                     "PriceType",
                     "priceType"
-                ),
+                )
         },
 
 
-        // =================================================
+        // =====================================================
         // PRICE
-        // =================================================
+        // =====================================================
 
         {
-            field: "Price",
+            field: "price",
+
             headerName: "Price",
-            width: 140,
 
-            valueGetter: (value, row) =>
-                row?.Price ??
-                row?.price ??
-                null,
+            flex: 0.8,
 
-            valueFormatter: (value) => {
+            minWidth: 110,
 
-                if (
-                    value === null ||
-                    value === undefined ||
-                    value === ""
-                ) {
-                    return "-";
-                }
-
-                const number = Number(value);
-
-                return Number.isNaN(number)
-                    ? "-"
-                    : `₹ ${number.toFixed(2)}`;
-            },
-        },
-
-
-        // =================================================
-        // CURRENCY
-        // =================================================
-
-        {
-            field: "Currency",
-            headerName: "Currency",
-            width: 120,
-
-            valueGetter: (value, row) =>
+            valueGetter: (params) =>
                 getValue(
-                    row,
-                    "Currency",
-                    "currency"
+                    params.row,
+                    "Price",
+                    "price"
                 ),
-        },
-
-
-        // =================================================
-        // EFFECTIVE FROM
-        // =================================================
-
-        {
-            field: "EffectiveFrom",
-            headerName: "Effective From",
-            width: 170,
-
-            valueGetter: (value, row) =>
-                row?.EffectiveFrom ??
-                row?.effectiveFrom ??
-                null,
-
-            valueFormatter: (value) => {
-
-                if (!value) {
-                    return "-";
-                }
-
-                const date = new Date(value);
-
-                return Number.isNaN(date.getTime())
-                    ? "-"
-                    : date.toLocaleDateString();
-            },
-        },
-
-
-        // =================================================
-        // EFFECTIVE TO
-        // =================================================
-
-        {
-            field: "EffectiveTo",
-            headerName: "Effective To",
-            width: 170,
-
-            valueGetter: (value, row) =>
-                row?.EffectiveTo ??
-                row?.effectiveTo ??
-                null,
-
-            valueFormatter: (value) => {
-
-                if (!value) {
-                    return "-";
-                }
-
-                const date = new Date(value);
-
-                return Number.isNaN(date.getTime())
-                    ? "-"
-                    : date.toLocaleDateString();
-            },
-        },
-
-
-        // =================================================
-        // STATUS
-        // =================================================
-
-        {
-            field: "IsActive",
-            headerName: "Status",
-            width: 120,
-
-            valueGetter: (value, row) =>
-                row?.IsActive ??
-                row?.isActive ??
-                false,
 
             renderCell: (params) => {
 
-                const active = Boolean(params.value);
+                const price = getValue(
+                    params.row,
+                    "Price",
+                    "price"
+                );
+
+                return (
+                    <strong>
+                        {price !== ""
+                            ? Number(price).toFixed(2)
+                            : "-"}
+                    </strong>
+                );
+            }
+        },
+
+
+        // =====================================================
+        // CURRENCY
+        // =====================================================
+
+        {
+            field: "currency",
+
+            headerName: "Currency",
+
+            flex: 0.7,
+
+            minWidth: 100,
+
+            valueGetter: (params) =>
+                getValue(
+                    params.row,
+                    "Currency",
+                    "currency"
+                )
+        },
+
+
+        // =====================================================
+        // EFFECTIVE FROM
+        // =====================================================
+
+        {
+            field: "effectiveFrom",
+
+            headerName: "Effective From",
+
+            flex: 1,
+
+            minWidth: 140,
+
+            valueGetter: (params) =>
+                getValue(
+                    params.row,
+                    "EffectiveFrom",
+                    "effectiveFrom"
+                ),
+
+            renderCell: (params) => {
+
+                const value = getValue(
+                    params.row,
+                    "EffectiveFrom",
+                    "effectiveFrom"
+                );
+
+                if (!value) {
+                    return "-";
+                }
+
+                return new Date(
+                    value
+                ).toLocaleDateString();
+            }
+        },
+
+
+        // =====================================================
+        // EFFECTIVE TO
+        // =====================================================
+
+        {
+            field: "effectiveTo",
+
+            headerName: "Effective To",
+
+            flex: 1,
+
+            minWidth: 140,
+
+            valueGetter: (params) =>
+                getValue(
+                    params.row,
+                    "EffectiveTo",
+                    "effectiveTo"
+                ),
+
+            renderCell: (params) => {
+
+                const value = getValue(
+                    params.row,
+                    "EffectiveTo",
+                    "effectiveTo"
+                );
+
+                if (!value) {
+                    return "-";
+                }
+
+                return new Date(
+                    value
+                ).toLocaleDateString();
+            }
+        },
+
+
+        // =====================================================
+        // STATUS
+        // =====================================================
+
+        {
+            field: "status",
+
+            headerName: "Status",
+
+            flex: 0.8,
+
+            minWidth: 110,
+
+            valueGetter: (params) =>
+                getValue(
+                    params.row,
+                    "Status",
+                    "status"
+                ),
+
+            renderCell: (params) => {
+
+                const status = getValue(
+                    params.row,
+                    "Status",
+                    "status"
+                );
+
+                const isActive =
+                    status === "Active" ||
+                    status === true;
 
                 return (
                     <Chip
-                        size="small"
                         label={
-                            active
+                            isActive
                                 ? "Active"
                                 : "Inactive"
                         }
+                        size="small"
                         color={
-                            active
+                            isActive
                                 ? "success"
-                                : "error"
+                                : "default"
                         }
-                        variant="filled"
                     />
                 );
-            },
+            }
         },
 
 
-        // =================================================
+        // =====================================================
         // ACTIONS
-        // =================================================
+        // =====================================================
 
         {
             field: "actions",
+
             headerName: "Actions",
+
             width: 160,
 
             sortable: false,
+
             filterable: false,
 
-            renderCell: (params) => (
+            disableColumnMenu: true,
 
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
+            renderCell: (params) => {
 
-                    {/* =====================================
-                        VIEW
-                    ===================================== */}
+                const row = params.row;
 
-                    <Tooltip title="View">
-
-                        <IconButton
-                            color="primary"
-                            size="small"
-                            onClick={() =>
-                                onView?.(params.row)
-                            }
-                        >
-                            <Visibility />
-                        </IconButton>
-
-                    </Tooltip>
+                const productPriceId =
+                    getProductPriceId(row);
 
 
-                    {/* =====================================
-                        EDIT
-                    ===================================== */}
+                return (
 
-                    <Tooltip title="Edit">
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 0.5,
+                            width: "100%",
+                            height: "100%"
+                        }}
+                    >
 
-                        <IconButton
-                            color="warning"
-                            size="small"
-                            onClick={() =>
-                                onEdit?.(params.row)
-                            }
-                        >
-                            <Edit />
-                        </IconButton>
+                        {/* =====================================
+                            VIEW
+                        ====================================== */}
 
-                    </Tooltip>
+                        <Tooltip title="View">
+
+                            <IconButton
+                                color="primary"
+                                size="small"
+                                type="button"
+                                onClick={(event) =>
+                                    handleView(
+                                        event,
+                                        row
+                                    )
+                                }
+                            >
+
+                                <Visibility
+                                    fontSize="small"
+                                />
+
+                            </IconButton>
+
+                        </Tooltip>
 
 
-                    {/* =====================================
-                        DELETE
-                    ===================================== */}
+                        {/* =====================================
+                            EDIT
+                        ====================================== */}
 
-                    <Tooltip title="Delete">
+                        <Tooltip title="Edit">
 
-                        <IconButton
-                            color="error"
-                            size="small"
-                            onClick={() =>
-                                onDelete?.(params.row)
-                            }
-                        >
-                            <Delete />
-                        </IconButton>
+                            <IconButton
+                                color="warning"
+                                size="small"
+                                type="button"
+                                onClick={(event) =>
+                                    handleEdit(
+                                        event,
+                                        row
+                                    )
+                                }
+                            >
 
-                    </Tooltip>
+                                <Edit
+                                    fontSize="small"
+                                />
 
-                </Box>
-            ),
-        },
+                            </IconButton>
+
+                        </Tooltip>
+
+
+                        {/* =====================================
+                            DELETE
+                        ====================================== */}
+
+                        <Tooltip title="Delete">
+
+                            <IconButton
+                                color="error"
+                                size="small"
+                                type="button"
+                                onClick={(event) =>
+                                    handleDelete(
+                                        event,
+                                        row
+                                    )
+                                }
+                            >
+
+                                <Delete
+                                    fontSize="small"
+                                />
+
+                            </IconButton>
+
+                        </Tooltip>
+
+                    </Box>
+                );
+            }
+        }
     ];
 
 
-    // =====================================================
+    // =========================================================
     // RENDER
-    // =====================================================
+    // =========================================================
 
     return (
 
         <Box
             sx={{
                 width: "100%",
-                height: 650,
+                height: 600
             }}
         >
 
             <DataGrid
+
                 rows={productPrices}
+
                 columns={columns}
+
                 loading={loading}
 
-                // =========================================
-                // IMPORTANT:
-                // ProductPriceId is the unique database ID
-                // =========================================
+
+                // =================================================
+                // IMPORTANT
+                // =================================================
 
                 getRowId={(row) =>
-                    row?.ProductPriceId ??
-                    row?.productPriceId
+                    getProductPriceId(row)
                 }
+
 
                 disableRowSelectionOnClick
 
-                // =========================================
-                // Since pagination is handled by
-                // ProductPricePagination.jsx,
-                // disable DataGrid pagination.
-                // =========================================
 
-                hideFooterPagination
+                pageSizeOptions={[
+                    10,
+                    25,
+                    50,
+                    100
+                ]}
+
+
+                initialState={{
+                    pagination: {
+                        paginationModel: {
+                            page: 0,
+                            pageSize: 10
+                        }
+                    }
+                }}
+
 
                 sx={{
+                    width: "100%",
+
                     borderRadius: 2,
 
                     "& .MuiDataGrid-columnHeaders": {
-                        fontWeight: "bold",
+                        fontWeight: "bold"
                     },
 
                     "& .MuiDataGrid-cell": {
                         display: "flex",
-                        alignItems: "center",
+                        alignItems: "center"
                     },
+
+                    "& .MuiDataGrid-cell:focus": {
+                        outline: "none"
+                    },
+
+                    "& .MuiDataGrid-cell:focus-within": {
+                        outline: "none"
+                    }
                 }}
+
             />
 
         </Box>
     );
 };
+
 
 export default ProductPriceTable;

@@ -1,8 +1,12 @@
 // =========================================================
 // ProductPriceForm.jsx
+// ID-BASED PRODUCT PRICE FORM
 // =========================================================
 
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState,
+} from "react";
 
 import {
     Paper,
@@ -14,14 +18,7 @@ import {
     FormControlLabel,
     CircularProgress,
     Box,
-    Alert,
 } from "@mui/material";
-
-// =========================================================
-// SERVER URL
-// =========================================================
-
-const SERVER_URL = "http://localhost:5000";
 
 // =========================================================
 // Product Price Form
@@ -38,15 +35,8 @@ const ProductPriceForm = ({
     // STATE
     // =====================================================
 
-    const [products, setProducts] = useState([]);
-
-    const [errors, setErrors] = useState({});
-
-    const [productsLoading, setProductsLoading] =
-        useState(false);
-
-    const [productError, setProductError] =
-        useState("");
+    const [errors, setErrors] =
+        useState({});
 
 
     // =====================================================
@@ -63,76 +53,16 @@ const ProductPriceForm = ({
         EffectiveFrom: "",
         EffectiveTo: "",
         IsActive: true,
-
-        ...initialValues,
     });
 
 
     // =====================================================
-    // LOAD PRODUCTS
-    // =====================================================
-
-    useEffect(() => {
-        loadProducts();
-    }, []);
-
-
-    // =====================================================
-    // UPDATE FORM WHEN EDITING
+    // LOAD INITIAL VALUES
     // =====================================================
 
     useEffect(() => {
 
-        if (initialValues) {
-
-            setFormData({
-                ProductPriceId:
-                    initialValues.ProductPriceId ??
-                    initialValues.productPriceId ??
-                    0,
-
-                ProductId:
-                    initialValues.ProductId ??
-                    initialValues.productId ??
-                    "",
-
-                SellerId:
-                    initialValues.SellerId ??
-                    initialValues.sellerId ??
-                    "",
-
-                PriceType:
-                    initialValues.PriceType ??
-                    initialValues.priceType ??
-                    "Selling",
-
-                Price:
-                    initialValues.Price ??
-                    initialValues.price ??
-                    "",
-
-                Currency:
-                    initialValues.Currency ??
-                    initialValues.currency ??
-                    "INR",
-
-                EffectiveFrom:
-                    initialValues.EffectiveFrom ??
-                    initialValues.effectiveFrom ??
-                    "",
-
-                EffectiveTo:
-                    initialValues.EffectiveTo ??
-                    initialValues.effectiveTo ??
-                    "",
-
-                IsActive:
-                    initialValues.IsActive ??
-                    initialValues.isActive ??
-                    true,
-            });
-
-        } else {
+        if (!initialValues) {
 
             setFormData({
                 ProductPriceId: 0,
@@ -145,66 +75,66 @@ const ProductPriceForm = ({
                 EffectiveTo: "",
                 IsActive: true,
             });
+
+            return;
         }
+
+
+        // =================================================
+        // SUPPORT CAMELCASE + PASCALCASE
+        // =================================================
+
+        setFormData({
+
+            ProductPriceId:
+                initialValues.ProductPriceId ??
+                initialValues.productPriceId ??
+                0,
+
+            ProductId:
+                initialValues.ProductId ??
+                initialValues.productId ??
+                "",
+
+            SellerId:
+                initialValues.SellerId ??
+                initialValues.sellerId ??
+                "",
+
+            PriceType:
+                initialValues.PriceType ??
+                initialValues.priceType ??
+                "Selling",
+
+            Price:
+                initialValues.Price ??
+                initialValues.price ??
+                "",
+
+            Currency:
+                initialValues.Currency ??
+                initialValues.currency ??
+                "INR",
+
+            EffectiveFrom:
+                initialValues.EffectiveFrom ??
+                initialValues.effectiveFrom ??
+                "",
+
+            EffectiveTo:
+                initialValues.EffectiveTo ??
+                initialValues.effectiveTo ??
+                "",
+
+            IsActive:
+                initialValues.IsActive ??
+                initialValues.isActive ??
+                true,
+        });
 
         setErrors({});
 
     }, [initialValues]);
-
-
-    // =====================================================
-    // FETCH PRODUCTS THROUGH SERVER.JS
-    // =====================================================
-
-    const loadProducts = async () => {
-
-        try {
-
-            setProductsLoading(true);
-            setProductError("");
-
-            const response = await fetch(
-                `${SERVER_URL}/api/product/all`
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data?.message ||
-                    "Unable to load products."
-                );
-            }
-
-            const productList =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.items)
-                        ? data.items
-                        : [];
-
-            setProducts(productList);
-
-        } catch (error) {
-
-            console.error(
-                "Product loading error:",
-                error
-            );
-
-            setProductError(
-                error.message ||
-                "Unable to load products."
-            );
-
-            setProducts([]);
-
-        } finally {
-
-            setProductsLoading(false);
-        }
-    };
 
 
     // =====================================================
@@ -221,16 +151,18 @@ const ProductPriceForm = ({
         } = e.target;
 
         setFormData((prev) => ({
+
             ...prev,
 
             [name]:
                 type === "checkbox"
                     ? checked
                     : value,
+
         }));
 
 
-        // Clear field error after editing
+        // Clear error
 
         if (errors[name]) {
 
@@ -238,7 +170,9 @@ const ProductPriceForm = ({
                 ...prev,
                 [name]: "",
             }));
+
         }
+
     };
 
 
@@ -251,50 +185,66 @@ const ProductPriceForm = ({
         const temp = {};
 
 
-        // Product
+        // =================================================
+        // PRODUCT ID
+        // =================================================
 
         if (
             formData.ProductId === "" ||
             formData.ProductId === null ||
             formData.ProductId === undefined
         ) {
+
             temp.ProductId =
-                "Product is required.";
+                "Product ID is required.";
+
         }
 
 
-        // Price Type
+        // =================================================
+        // PRICE TYPE
+        // =================================================
 
         if (!formData.PriceType) {
 
             temp.PriceType =
                 "Price Type is required.";
+
         }
 
 
-        // Price
+        // =================================================
+        // PRICE
+        // =================================================
 
         if (
             formData.Price === "" ||
             formData.Price === null ||
+            formData.Price === undefined ||
             Number(formData.Price) <= 0
         ) {
 
             temp.Price =
                 "Price must be greater than zero.";
+
         }
 
 
-        // Currency
+        // =================================================
+        // CURRENCY
+        // =================================================
 
         if (!formData.Currency) {
 
             temp.Currency =
                 "Currency is required.";
+
         }
 
 
-        // Effective dates
+        // =================================================
+        // EFFECTIVE DATES
+        // =================================================
 
         if (
             formData.EffectiveFrom &&
@@ -302,22 +252,31 @@ const ProductPriceForm = ({
         ) {
 
             const from =
-                new Date(formData.EffectiveFrom);
+                new Date(
+                    formData.EffectiveFrom
+                );
 
             const to =
-                new Date(formData.EffectiveTo);
+                new Date(
+                    formData.EffectiveTo
+                );
 
             if (to < from) {
 
                 temp.EffectiveTo =
                     "Effective To cannot be before Effective From.";
+
             }
+
         }
 
 
         setErrors(temp);
 
-        return Object.keys(temp).length === 0;
+        return (
+            Object.keys(temp).length === 0
+        );
+
     };
 
 
@@ -329,71 +288,71 @@ const ProductPriceForm = ({
 
         e.preventDefault();
 
+
         if (!validate()) {
             return;
         }
 
 
-        // Prepare API payload
+        // =================================================
+        // PREPARE PAYLOAD
+        // =================================================
 
         const payload = {
-            ...formData,
 
             ProductPriceId:
-                Number(formData.ProductPriceId) || 0,
+                Number(
+                    formData.ProductPriceId
+                ) || 0,
 
             ProductId:
-                Number(formData.ProductId),
+                Number(
+                    formData.ProductId
+                ),
 
             SellerId:
-                formData.SellerId === ""
+                formData.SellerId === "" ||
+                formData.SellerId === null
                     ? null
-                    : Number(formData.SellerId),
+                    : Number(
+                        formData.SellerId
+                    ),
+
+            PriceType:
+                formData.PriceType,
 
             Price:
-                Number(formData.Price),
+                Number(
+                    formData.Price
+                ),
+
+            Currency:
+                formData.Currency,
 
             EffectiveFrom:
-                formData.EffectiveFrom || null,
+                formData.EffectiveFrom ||
+                null,
 
             EffectiveTo:
-                formData.EffectiveTo || null,
+                formData.EffectiveTo ||
+                null,
 
             IsActive:
-                Boolean(formData.IsActive),
+                Boolean(
+                    formData.IsActive
+                ),
+
         };
 
 
+        console.log(
+            "Product Price PUT Payload:",
+            payload
+        );
+
+
         onSubmit(payload);
-    };
 
-
-    // =====================================================
-    // PRODUCT ID
-    // =====================================================
-
-    const getProductId = (product) => {
-
-        return (
-            product?.ProductId ??
-            product?.productId
-        );
-    };
-
-
-    // =====================================================
-    // PRODUCT DISPLAY NAME
-    // =====================================================
-
-    const getProductName = (product) => {
-
-        return (
-            product?.ProductName ??
-            product?.productName ??
-            product?.SKU ??
-            product?.sku ??
-            `Product ${getProductId(product)}`
-        );
     };
 
 
@@ -410,7 +369,9 @@ const ProductPriceForm = ({
             }}
         >
 
-            <form onSubmit={handleSubmit}>
+            <form
+                onSubmit={handleSubmit}
+            >
 
                 <Grid
                     container
@@ -418,7 +379,7 @@ const ProductPriceForm = ({
                 >
 
                     {/* =========================================
-                        PRODUCT
+                        PRODUCT PRICE ID
                     ========================================= */}
 
                     <Grid
@@ -428,47 +389,72 @@ const ProductPriceForm = ({
                     >
 
                         <TextField
-                            select
                             fullWidth
-                            label="Product"
+                            label="Product Price ID"
+                            value={
+                                formData.ProductPriceId
+                            }
+                            disabled
+                        />
+
+                    </Grid>
+
+
+                    {/* =========================================
+                        PRODUCT ID
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <TextField
+                            fullWidth
+                            label="Product ID"
                             name="ProductId"
-                            value={formData.ProductId}
-                            onChange={handleChange}
-                            error={!!errors.ProductId}
+                            value={
+                                formData.ProductId
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            error={
+                                !!errors.ProductId
+                            }
                             helperText={
                                 errors.ProductId ||
-                                (
-                                    productsLoading
-                                        ? "Loading products..."
-                                        : ""
-                                )
+                                "Product ID loaded from Product Price"
                             }
-                            disabled={
-                                productsLoading ||
-                                loading
+                            disabled
+                        />
+
+                    </Grid>
+
+
+                    {/* =========================================
+                        SELLER ID
+                    ========================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
+                        <TextField
+                            fullWidth
+                            label="Seller ID"
+                            name="SellerId"
+                            value={
+                                formData.SellerId
                             }
-                        >
-
-                            <MenuItem value="">
-                                Select Product
-                            </MenuItem>
-
-                            {products.map((product) => {
-
-                                const productId =
-                                    getProductId(product);
-
-                                return (
-                                    <MenuItem
-                                        key={productId}
-                                        value={productId}
-                                    >
-                                        {getProductName(product)}
-                                    </MenuItem>
-                                );
-                            })}
-
-                        </TextField>
+                            onChange={
+                                handleChange
+                            }
+                            disabled
+                        />
 
                     </Grid>
 
@@ -488,10 +474,18 @@ const ProductPriceForm = ({
                             fullWidth
                             label="Price Type"
                             name="PriceType"
-                            value={formData.PriceType}
-                            onChange={handleChange}
-                            error={!!errors.PriceType}
-                            helperText={errors.PriceType}
+                            value={
+                                formData.PriceType
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            error={
+                                !!errors.PriceType
+                            }
+                            helperText={
+                                errors.PriceType
+                            }
                             disabled={loading}
                         >
 
@@ -531,10 +525,18 @@ const ProductPriceForm = ({
                             type="number"
                             label="Price"
                             name="Price"
-                            value={formData.Price}
-                            onChange={handleChange}
-                            error={!!errors.Price}
-                            helperText={errors.Price}
+                            value={
+                                formData.Price
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            error={
+                                !!errors.Price
+                            }
+                            helperText={
+                                errors.Price
+                            }
                             disabled={loading}
                             inputProps={{
                                 min: 0,
@@ -560,10 +562,18 @@ const ProductPriceForm = ({
                             fullWidth
                             label="Currency"
                             name="Currency"
-                            value={formData.Currency}
-                            onChange={handleChange}
-                            error={!!errors.Currency}
-                            helperText={errors.Currency}
+                            value={
+                                formData.Currency
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            error={
+                                !!errors.Currency
+                            }
+                            helperText={
+                                errors.Currency
+                            }
                             disabled={loading}
                         >
 
@@ -610,12 +620,16 @@ const ProductPriceForm = ({
                                     ).substring(0, 10)
                                     : ""
                             }
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
                             InputLabelProps={{
                                 shrink: true,
                             }}
                             disabled={loading}
-                            error={!!errors.EffectiveFrom}
+                            error={
+                                !!errors.EffectiveFrom
+                            }
                             helperText={
                                 errors.EffectiveFrom
                             }
@@ -646,12 +660,16 @@ const ProductPriceForm = ({
                                     ).substring(0, 10)
                                     : ""
                             }
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
                             InputLabelProps={{
                                 shrink: true,
                             }}
                             disabled={loading}
-                            error={!!errors.EffectiveTo}
+                            error={
+                                !!errors.EffectiveTo
+                            }
                             helperText={
                                 errors.EffectiveTo
                             }
@@ -671,51 +689,25 @@ const ProductPriceForm = ({
 
                         <FormControlLabel
                             control={
+
                                 <Switch
                                     checked={
                                         Boolean(
                                             formData.IsActive
                                         )
                                     }
-                                    onChange={handleChange}
+                                    onChange={
+                                        handleChange
+                                    }
                                     name="IsActive"
                                     disabled={loading}
                                 />
+
                             }
                             label="Active"
                         />
 
                     </Grid>
-
-
-                    {/* =========================================
-                        PRODUCT LOAD ERROR
-                    ========================================= */}
-
-                    {productError && (
-
-                        <Grid
-                            item
-                            xs={12}
-                        >
-
-                            <Alert
-                                severity="error"
-                                action={
-                                    <Button
-                                        color="inherit"
-                                        size="small"
-                                        onClick={loadProducts}
-                                    >
-                                        Retry
-                                    </Button>
-                                }
-                            >
-                                {productError}
-                            </Alert>
-
-                        </Grid>
-                    )}
 
 
                     {/* =========================================
@@ -730,7 +722,8 @@ const ProductPriceForm = ({
                         <Box
                             sx={{
                                 display: "flex",
-                                justifyContent: "flex-end",
+                                justifyContent:
+                                    "flex-end",
                                 gap: 2,
                             }}
                         >
@@ -746,10 +739,7 @@ const ProductPriceForm = ({
                             <Button
                                 variant="contained"
                                 type="submit"
-                                disabled={
-                                    loading ||
-                                    productsLoading
-                                }
+                                disabled={loading}
                             >
 
                                 {loading ? (

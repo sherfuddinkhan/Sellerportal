@@ -17115,7 +17115,48 @@ app.get("/api/product-prices", async (req, res) => {
         });
     }
 });
+// =========================================================
+// PRODUCT PRICE - GET BY ID
+// =========================================================
 
+app.get("/api/product-prices/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices/${id}`,
+            {
+                httpsAgent,
+                headers: {
+                    Accept: "*/*",
+                },
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Product Price GET Error:",
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Unable to get Product Price."
+            }
+        );
+    }
+});
 
 // =========================================================
 // GET PAGED PRODUCT PRICES

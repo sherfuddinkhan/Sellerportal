@@ -46,14 +46,18 @@ import {
 
 import { DataGrid } from "@mui/x-data-grid";
 
+import { useNavigate } from "react-router-dom";
+
+
 // ==========================================================
 // SERVER URL
 // ==========================================================
 
 const SERVER_URL = "http://localhost:5000";
 
+
 // ==========================================================
-// Constants
+// PAGE SIZE OPTIONS
 // ==========================================================
 
 const PAGE_SIZE_OPTIONS = [
@@ -64,6 +68,11 @@ const PAGE_SIZE_OPTIONS = [
     100,
 ];
 
+
+// ==========================================================
+// STATUS COLORS
+// ==========================================================
+
 const STATUS_COLORS = {
     Active: "success",
     Inactive: "default",
@@ -73,8 +82,9 @@ const STATUS_COLORS = {
     Pending: "info",
 };
 
+
 // ==========================================================
-// Currency Formatter
+// CURRENCY FORMATTER
 // ==========================================================
 
 const currencyFormatter =
@@ -87,8 +97,9 @@ const currencyFormatter =
         }
     );
 
+
 // ==========================================================
-// Initial Snackbar
+// INITIAL SNACKBAR
 // ==========================================================
 
 const INITIAL_SNACKBAR = {
@@ -97,8 +108,9 @@ const INITIAL_SNACKBAR = {
     message: "",
 };
 
+
 // ==========================================================
-// Initial Menu
+// INITIAL MENU
 // ==========================================================
 
 const INITIAL_MENU = {
@@ -106,11 +118,13 @@ const INITIAL_MENU = {
     row: null,
 };
 
+
 // ==========================================================
-// Status Chip
+// STATUS CHIP
 // ==========================================================
 
 const getStatusChip = (status) => {
+
     const normalizedStatus =
         status || "Inactive";
 
@@ -125,21 +139,35 @@ const getStatusChip = (status) => {
             }
             icon={
                 normalizedStatus === "Active" ||
-                normalizedStatus === "Enabled" ? (
-                    <CheckCircle />
-                ) : normalizedStatus ===
-                      "Inactive" ||
-                  normalizedStatus ===
-                      "Disabled" ? (
-                    <Cancel />
-                ) : undefined
+                normalizedStatus === "Enabled"
+                    ? <CheckCircle />
+                    : normalizedStatus === "Inactive" ||
+                      normalizedStatus === "Disabled"
+                    ? <Cancel />
+                    : undefined
             }
         />
     );
 };
 
+
 // ==========================================================
-// ProductPriceList
+// GET PRODUCT PRICE ID
+// ==========================================================
+
+const getProductPriceId = (row) => {
+
+    return (
+        row?.productPriceId ??
+        row?.ProductPriceId ??
+        row?.id ??
+        row?.Id
+    );
+};
+
+
+// ==========================================================
+// PRODUCT PRICE LIST
 // ==========================================================
 
 const ProductPriceList = ({
@@ -152,6 +180,14 @@ const ProductPriceList = ({
     onEdit,
     onDelete,
 }) => {
+
+    // ======================================================
+    // NAVIGATION
+    // ======================================================
+
+    const navigate = useNavigate();
+
+
     // ======================================================
     // STATE
     // ======================================================
@@ -174,14 +210,12 @@ const ProductPriceList = ({
     const [pageSize, setPageSize] =
         useState(10);
 
-    const [selectedPrice, setSelectedPrice] =
-        useState(null);
-
     const [menuState, setMenuState] =
         useState(INITIAL_MENU);
 
     const [snackbar, setSnackbar] =
         useState(INITIAL_SNACKBAR);
+
 
     // ======================================================
     // LOAD PRODUCT PRICES
@@ -189,76 +223,107 @@ const ProductPriceList = ({
 
     const loadProductPrices =
         useCallback(async () => {
+
             try {
+
                 setLoading(true);
                 setError("");
 
+
                 let url;
+
 
                 // ------------------------------------------------
                 // BY PRODUCT
                 // ------------------------------------------------
 
                 if (productId) {
+
                     url =
                         `${SERVER_URL}/api/product-prices/product/${productId}`;
                 }
+
 
                 // ------------------------------------------------
                 // BY SELLER
                 // ------------------------------------------------
 
                 else if (sellerId) {
+
                     url =
                         `${SERVER_URL}/api/product-prices/seller/${sellerId}`;
                 }
+
 
                 // ------------------------------------------------
                 // ALL
                 // ------------------------------------------------
 
                 else {
+
                     url =
                         `${SERVER_URL}/api/product-prices/all`;
                 }
+
 
                 console.log(
                     "Loading Product Prices:",
                     url
                 );
 
+
                 const response =
                     await fetch(url);
+
 
                 const data =
                     await response.json();
 
+
                 if (!response.ok) {
+
                     throw new Error(
                         data?.message ||
                         "Unable to load product prices."
                     );
                 }
 
+
                 const result =
                     Array.isArray(data)
                         ? data
+                        : Array.isArray(data?.items)
+                        ? data.items
                         : [];
 
+
+                console.log(
+                    "Product Prices Loaded:",
+                    result
+                );
+
+
                 setPrices(result);
+
+
             } catch (err) {
+
                 console.error(
                     "Product price loading error:",
                     err
                 );
 
+
                 setPrices([]);
+
 
                 const message =
                     err?.message ||
                     "Unable to load product prices.";
 
+
                 setError(message);
+
 
                 setSnackbar({
                     open: true,
@@ -266,24 +331,32 @@ const ProductPriceList = ({
                     message:
                         "Failed to load product prices.",
                 });
+
+
             } finally {
+
                 setLoading(false);
             }
+
         }, [
             productId,
             sellerId,
         ]);
+
 
     // ======================================================
     // INITIAL LOAD
     // ======================================================
 
     useEffect(() => {
+
         loadProductPrices();
+
     }, [
         loadProductPrices,
         refreshTrigger,
     ]);
+
 
     // ======================================================
     // SEARCH
@@ -291,87 +364,121 @@ const ProductPriceList = ({
 
     const filteredPrices =
         useMemo(() => {
+
             const keyword =
                 searchText
                     .trim()
                     .toLowerCase();
 
+
             if (!keyword) {
                 return prices;
             }
 
+
             return prices.filter(
                 (item) => {
+
                     return (
+
                         String(
                             item.productPriceId ??
-                                ""
+                            item.ProductPriceId ??
+                            ""
                         )
                             .toLowerCase()
-                            .includes(keyword) ||
+                            .includes(keyword)
+
+
+                        ||
+
 
                         String(
                             item.productId ??
-                                ""
+                            item.ProductId ??
+                            ""
                         )
                             .toLowerCase()
-                            .includes(keyword) ||
+                            .includes(keyword)
+
+
+                        ||
+
 
                         String(
                             item.productName ??
-                                ""
+                            item.ProductName ??
+                            ""
                         )
                             .toLowerCase()
-                            .includes(keyword) ||
+                            .includes(keyword)
+
+
+                        ||
+
 
                         String(
                             item.sku ??
-                                ""
-                        )
-                            .toLowerCase()
-                            .includes(keyword) ||
-
-                        String(
+                            item.SKU ??
                             item.productSku ??
-                                ""
+                            item.ProductSku ??
+                            ""
                         )
                             .toLowerCase()
-                            .includes(keyword) ||
+                            .includes(keyword)
+
+
+                        ||
+
 
                         String(
                             item.priceType ??
-                                ""
+                            item.PriceType ??
+                            ""
                         )
                             .toLowerCase()
-                            .includes(keyword) ||
+                            .includes(keyword)
+
+
+                        ||
+
 
                         String(
                             item.currency ??
-                                ""
+                            item.Currency ??
+                            ""
                         )
                             .toLowerCase()
-                            .includes(keyword) ||
+                            .includes(keyword)
+
+
+                        ||
+
 
                         String(
                             item.status ??
-                                ""
+                            item.Status ??
+                            ""
                         )
                             .toLowerCase()
                             .includes(keyword)
                     );
                 }
             );
+
         }, [
             prices,
             searchText,
         ]);
 
+
     // ======================================================
-    // SEARCH HANDLER
+    // SEARCH CHANGE
     // ======================================================
 
     const handleSearchChange =
         (event) => {
+
             setSearchText(
                 event.target.value
             );
@@ -379,84 +486,262 @@ const ProductPriceList = ({
             setPage(0);
         };
 
+
     // ======================================================
     // REFRESH
     // ======================================================
 
     const handleRefresh = () => {
+
         loadProductPrices();
     };
 
-    // ======================================================
-    // VIEW
-    // ======================================================
-
-    const handleView = (row) => {
-        setSelectedPrice(row);
-
-        if (
-            typeof onView ===
-            "function"
-        ) {
-            onView(row);
-        }
-    };
-
-    // ======================================================
-    // EDIT
-    // ======================================================
-
-    const handleEdit = (row) => {
-        if (readOnly) {
-            return;
-        }
-
-        if (
-            typeof onEdit ===
-            "function"
-        ) {
-            onEdit(row);
-        }
-    };
-
-    // ======================================================
-    // DELETE
-    // ======================================================
-
-    const handleDelete = (row) => {
-        if (readOnly) {
-            return;
-        }
-
-        if (
-            typeof onDelete ===
-            "function"
-        ) {
-            onDelete(row);
-        }
-    };
 
     // ======================================================
     // ADD
     // ======================================================
 
     const handleAdd = () => {
-        if (
-            typeof onAdd ===
-            "function"
-        ) {
+
+        console.log(
+            "ADD PRODUCT PRICE"
+        );
+
+
+        if (typeof onAdd === "function") {
+
             onAdd();
+
+            return;
         }
+
+
+        navigate(
+            "/product-prices/create"
+        );
     };
 
+
     // ======================================================
-    // MENU
+    // VIEW
+    // ======================================================
+
+    const handleView = (
+        event,
+        row
+    ) => {
+
+        if (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+
+        const productPriceId =
+            getProductPriceId(row);
+
+
+        console.log(
+            "VIEW PRODUCT PRICE"
+        );
+
+        console.log(
+            "Product Price ID:",
+            productPriceId
+        );
+
+        console.log(
+            "Row:",
+            row
+        );
+
+
+        if (!productPriceId) {
+
+            console.error(
+                "Product Price ID not found:",
+                row
+            );
+
+
+            setSnackbar({
+                open: true,
+                severity: "error",
+                message:
+                    "Product Price ID not found.",
+            });
+
+
+            return;
+        }
+
+
+        // ------------------------------------------------------
+        // OPTIONAL CALLBACK
+        // ------------------------------------------------------
+
+        if (typeof onView === "function") {
+
+            onView(row);
+        }
+
+
+        // ------------------------------------------------------
+        // NAVIGATE
+        // ------------------------------------------------------
+
+        navigate(
+            `/product-prices/view/${productPriceId}`
+        );
+    };
+
+
+    // ======================================================
+    // EDIT
+    // ======================================================
+
+    const handleEdit = (
+        event,
+        row
+    ) => {
+
+        if (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+
+        if (readOnly) {
+            return;
+        }
+
+
+        const productPriceId =
+            getProductPriceId(row);
+
+
+        console.log(
+            "EDIT PRODUCT PRICE"
+        );
+
+        console.log(
+            "Product Price ID:",
+            productPriceId
+        );
+
+        console.log(
+            "Row:",
+            row
+        );
+
+
+        if (!productPriceId) {
+
+            console.error(
+                "Product Price ID not found:",
+                row
+            );
+
+
+            setSnackbar({
+                open: true,
+                severity: "error",
+                message:
+                    "Product Price ID not found.",
+            });
+
+
+            return;
+        }
+
+
+        // ------------------------------------------------------
+        // OPTIONAL CALLBACK
+        // ------------------------------------------------------
+
+        if (typeof onEdit === "function") {
+
+            onEdit(row);
+        }
+
+
+        // ------------------------------------------------------
+        // NAVIGATE
+        // ------------------------------------------------------
+
+        navigate(
+            `/product-prices/edit/${productPriceId}`
+        );
+    };
+
+
+    // ======================================================
+    // DELETE
+    // ======================================================
+
+    const handleDelete = (
+        event,
+        row
+    ) => {
+
+        if (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+
+        if (readOnly) {
+            return;
+        }
+
+
+        const productPriceId =
+            getProductPriceId(row);
+
+
+        console.log(
+            "DELETE PRODUCT PRICE"
+        );
+
+        console.log(
+            "Product Price ID:",
+            productPriceId
+        );
+
+
+        if (typeof onDelete === "function") {
+
+            onDelete(row);
+
+            return;
+        }
+
+
+        setSnackbar({
+            open: true,
+            severity: "warning",
+            message:
+                "Delete handler is not configured.",
+        });
+    };
+
+
+    // ======================================================
+    // MORE MENU OPEN
     // ======================================================
 
     const handleMenuOpen = (
         event,
         row
     ) => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+
         setMenuState({
             anchorEl:
                 event.currentTarget,
@@ -464,23 +749,103 @@ const ProductPriceList = ({
         });
     };
 
+
+    // ======================================================
+    // MORE MENU CLOSE
+    // ======================================================
+
     const handleMenuClose = () => {
+
         setMenuState(
             INITIAL_MENU
         );
     };
 
+
     // ======================================================
-    // SNACKBAR
+    // MENU VIEW
+    // ======================================================
+
+    const handleMenuView = () => {
+
+        const row =
+            menuState.row;
+
+
+        handleMenuClose();
+
+
+        if (row) {
+
+            handleView(
+                null,
+                row
+            );
+        }
+    };
+
+
+    // ======================================================
+    // MENU EDIT
+    // ======================================================
+
+    const handleMenuEdit = () => {
+
+        const row =
+            menuState.row;
+
+
+        handleMenuClose();
+
+
+        if (row) {
+
+            handleEdit(
+                null,
+                row
+            );
+        }
+    };
+
+
+    // ======================================================
+    // MENU DELETE
+    // ======================================================
+
+    const handleMenuDelete = () => {
+
+        const row =
+            menuState.row;
+
+
+        handleMenuClose();
+
+
+        if (row) {
+
+            handleDelete(
+                null,
+                row
+            );
+        }
+    };
+
+
+    // ======================================================
+    // SNACKBAR CLOSE
     // ======================================================
 
     const handleSnackbarClose =
         () => {
-            setSnackbar((prev) => ({
-                ...prev,
-                open: false,
-            }));
+
+            setSnackbar(
+                (previous) => ({
+                    ...previous,
+                    open: false,
+                })
+            );
         };
+
 
     // ======================================================
     // STATISTICS
@@ -489,17 +854,27 @@ const ProductPriceList = ({
     const totalPrices =
         prices.length;
 
+
     const activePrices =
         prices.filter(
-            (item) =>
-                item.isActive === true ||
-                item.status === "Active" ||
-                item.status === "Enabled"
+            (item) => {
+
+                return (
+                    item.isActive === true ||
+                    item.IsActive === true ||
+                    item.status === "Active" ||
+                    item.Status === "Active" ||
+                    item.status === "Enabled" ||
+                    item.Status === "Enabled"
+                );
+            }
         ).length;
+
 
     const inactivePrices =
         totalPrices -
         activePrices;
+
 
     // ======================================================
     // DATA GRID COLUMNS
@@ -507,175 +882,315 @@ const ProductPriceList = ({
 
     const columns = useMemo(
         () => [
+
+            // =================================================
+            // PRICE ID
+            // =================================================
+
             {
                 field:
                     "productPriceId",
+
                 headerName:
                     "Price ID",
+
                 width: 100,
             },
+
+
+            // =================================================
+            // PRODUCT ID
+            // =================================================
 
             {
                 field:
                     "productId",
+
                 headerName:
                     "Product ID",
+
                 width: 110,
             },
+
+
+            // =================================================
+            // PRODUCT
+            // =================================================
 
             {
                 field:
                     "productName",
+
                 headerName:
                     "Product",
+
                 minWidth: 180,
+
                 flex: 1,
 
                 renderCell: ({
-                    value,
-                }) => (
-                    <Typography
-                        variant="body2"
-                        fontWeight={500}
-                    >
-                        {value || "-"}
-                    </Typography>
-                ),
+                    row,
+                }) => {
+
+                    const productName =
+                        row?.productName ??
+                        row?.ProductName ??
+                        "-";
+
+
+                    return (
+                        <Typography
+                            variant="body2"
+                            fontWeight={500}
+                        >
+                            {productName}
+                        </Typography>
+                    );
+                },
             },
+
+
+            // =================================================
+            // SKU
+            // =================================================
 
             {
                 field:
                     "productSku",
+
                 headerName:
                     "SKU",
+
                 minWidth: 140,
+
                 flex: 0.8,
+
+                renderCell: ({
+                    row,
+                }) => {
+
+                    return (
+                        row?.productSku ??
+                        row?.ProductSku ??
+                        row?.sku ??
+                        row?.SKU ??
+                        "-"
+                    );
+                },
             },
+
+
+            // =================================================
+            // PRICE TYPE
+            // =================================================
 
             {
                 field:
                     "priceType",
+
                 headerName:
                     "Price Type",
-                width: 130,
 
-                renderCell: ({
-                    value,
-                }) => (
-                    <Chip
-                        size="small"
-                        label={
-                            value ||
-                            "Standard"
-                        }
-                        variant="outlined"
-                    />
-                ),
-            },
-
-            {
-                field:
-                    "price",
-                headerName:
-                    "Price",
-                width: 140,
-                align: "right",
-                headerAlign:
-                    "right",
-
-                renderCell: ({
-                    value,
-                }) =>
-                    currencyFormatter.format(
-                        Number(
-                            value
-                        ) || 0
-                    ),
-            },
-
-            {
-                field:
-                    "mrp",
-                headerName:
-                    "MRP",
-                width: 140,
-                align: "right",
-                headerAlign:
-                    "right",
-
-                renderCell: ({
-                    value,
-                }) =>
-                    currencyFormatter.format(
-                        Number(
-                            value
-                        ) || 0
-                    ),
-            },
-
-            {
-                field:
-                    "discount",
-                headerName:
-                    "Discount",
-                width: 130,
-                align: "right",
-                headerAlign:
-                    "right",
-
-                renderCell: ({
-                    value,
-                }) => {
-                    if (
-                        value ===
-                            null ||
-                        value ===
-                            undefined
-                    ) {
-                        return "-";
-                    }
-
-                    return `${Number(
-                        value
-                    ).toFixed(2)}%`;
-                },
-            },
-
-            {
-                field:
-                    "currency",
-                headerName:
-                    "Currency",
-                width: 110,
-
-                renderCell: ({
-                    value,
-                }) => (
-                    <Typography
-                        variant="body2"
-                    >
-                        {value ||
-                            "INR"}
-                    </Typography>
-                ),
-            },
-
-            {
-                field:
-                    "status",
-                headerName:
-                    "Status",
                 width: 130,
 
                 renderCell: ({
                     row,
-                    value,
                 }) => {
+
+                    const value =
+                        row?.priceType ??
+                        row?.PriceType ??
+                        "Standard";
+
+
+                    return (
+                        <Chip
+                            size="small"
+                            label={value}
+                            variant="outlined"
+                        />
+                    );
+                },
+            },
+
+
+            // =================================================
+            // PRICE
+            // =================================================
+
+            {
+                field:
+                    "price",
+
+                headerName:
+                    "Price",
+
+                width: 140,
+
+                align: "right",
+
+                headerAlign:
+                    "right",
+
+                renderCell: ({
+                    row,
+                }) => {
+
+                    const value =
+                        row?.price ??
+                        row?.Price ??
+                        0;
+
+
+                    return (
+                        <Typography>
+                            {
+                                currencyFormatter.format(
+                                    Number(value) || 0
+                                )
+                            }
+                        </Typography>
+                    );
+                },
+            },
+
+
+            // =================================================
+            // MRP
+            // =================================================
+
+            {
+                field:
+                    "mrp",
+
+                headerName:
+                    "MRP",
+
+                width: 140,
+
+                align: "right",
+
+                headerAlign:
+                    "right",
+
+                renderCell: ({
+                    row,
+                }) => {
+
+                    const value =
+                        row?.mrp ??
+                        row?.MRP ??
+                        0;
+
+
+                    return (
+                        <Typography>
+                            {
+                                currencyFormatter.format(
+                                    Number(value) || 0
+                                )
+                            }
+                        </Typography>
+                    );
+                },
+            },
+
+
+            // =================================================
+            // DISCOUNT
+            // =================================================
+
+            {
+                field:
+                    "discount",
+
+                headerName:
+                    "Discount",
+
+                width: 130,
+
+                align: "right",
+
+                headerAlign:
+                    "right",
+
+                renderCell: ({
+                    row,
+                }) => {
+
+                    const value =
+                        row?.discount ??
+                        row?.Discount;
+
+
+                    if (
+                        value === null ||
+                        value === undefined
+                    ) {
+                        return "-";
+                    }
+
+
+                    return (
+                        `${Number(value).toFixed(2)}%`
+                    );
+                },
+            },
+
+
+            // =================================================
+            // CURRENCY
+            // =================================================
+
+            {
+                field:
+                    "currency",
+
+                headerName:
+                    "Currency",
+
+                width: 110,
+
+                renderCell: ({
+                    row,
+                }) => {
+
+                    return (
+                        row?.currency ??
+                        row?.Currency ??
+                        "INR"
+                    );
+                },
+            },
+
+
+            // =================================================
+            // STATUS
+            // =================================================
+
+            {
+                field:
+                    "status",
+
+                headerName:
+                    "Status",
+
+                width: 130,
+
+                renderCell: ({
+                    row,
+                }) => {
+
                     const status =
-                        value ||
-                        (row.isActive
-                            ? "Active"
-                            : "Inactive");
+                        row?.status ??
+                        row?.Status ??
+                        (
+                            row?.isActive === true ||
+                            row?.IsActive === true
+                                ? "Active"
+                                : "Inactive"
+                        );
+
 
                     return getStatusChip(
                         status
@@ -683,108 +1198,203 @@ const ProductPriceList = ({
                 },
             },
 
+
+            // =================================================
+            // ACTIONS
+            // =================================================
+
             {
                 field:
                     "actions",
+
                 headerName:
                     "Actions",
-                width: readOnly
-                    ? 150
-                    : 200,
+
+                width:
+                    readOnly
+                        ? 120
+                        : 170,
 
                 sortable: false,
+
                 filterable: false,
+
+                disableColumnMenu: true,
 
                 renderCell: ({
                     row,
-                }) => (
-                    <Stack
-                        direction="row"
-                        spacing={0.5}
-                    >
-                        <Tooltip title="View">
-                            <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={() =>
-                                    handleView(
-                                        row
-                                    )
-                                }
-                            >
-                                <Visibility />
-                            </IconButton>
-                        </Tooltip>
+                }) => {
 
-                        {!readOnly && (
-                            <Tooltip title="Edit">
+                    return (
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                height: "100%",
+                                gap: 0.25,
+                            }}
+                        >
+
+                            {/* =================================
+                                VIEW
+                            ================================== */}
+
+                            <Tooltip
+                                title="View"
+                            >
+
                                 <IconButton
+                                    type="button"
                                     size="small"
-                                    color="warning"
-                                    onClick={() =>
-                                        handleEdit(
+                                    color="primary"
+                                    onClick={(event) =>
+                                        handleView(
+                                            event,
                                             row
                                         )
                                     }
                                 >
-                                    <Edit />
-                                </IconButton>
-                            </Tooltip>
-                        )}
 
-                        {!readOnly && (
-                            <Tooltip title="Delete">
+                                    <Visibility
+                                        fontSize="small"
+                                    />
+
+                                </IconButton>
+
+                            </Tooltip>
+
+
+                            {/* =================================
+                                EDIT
+                            ================================== */}
+
+                            {!readOnly && (
+
+                                <Tooltip
+                                    title="Edit"
+                                >
+
+                                    <IconButton
+                                        type="button"
+                                        size="small"
+                                        color="warning"
+                                        onClick={(event) =>
+                                            handleEdit(
+                                                event,
+                                                row
+                                            )
+                                        }
+                                    >
+
+                                        <Edit
+                                            fontSize="small"
+                                        />
+
+                                    </IconButton>
+
+                                </Tooltip>
+                            )}
+
+
+                            {/* =================================
+                                DELETE
+                            ================================== */}
+
+                            {!readOnly && (
+
+                                <Tooltip
+                                    title="Delete"
+                                >
+
+                                    <IconButton
+                                        type="button"
+                                        size="small"
+                                        color="error"
+                                        onClick={(event) =>
+                                            handleDelete(
+                                                event,
+                                                row
+                                            )
+                                        }
+                                    >
+
+                                        <Delete
+                                            fontSize="small"
+                                        />
+
+                                    </IconButton>
+
+                                </Tooltip>
+                            )}
+
+
+                            {/* =================================
+                                MORE
+                            ================================== */}
+
+                            <Tooltip
+                                title="More"
+                            >
+
                                 <IconButton
+                                    type="button"
                                     size="small"
-                                    color="error"
-                                    onClick={() =>
-                                        handleDelete(
+                                    onClick={(event) =>
+                                        handleMenuOpen(
+                                            event,
                                             row
                                         )
                                     }
                                 >
-                                    <Delete />
-                                </IconButton>
-                            </Tooltip>
-                        )}
 
-                        <Tooltip title="More">
-                            <IconButton
-                                size="small"
-                                onClick={(
-                                    event
-                                ) =>
-                                    handleMenuOpen(
-                                        event,
-                                        row
-                                    )
-                                }
-                            >
-                                <MoreVert />
-                            </IconButton>
-                        </Tooltip>
-                    </Stack>
-                ),
+                                    <MoreVert
+                                        fontSize="small"
+                                    />
+
+                                </IconButton>
+
+                            </Tooltip>
+
+                        </Box>
+                    );
+                },
             },
         ],
-        [readOnly]
+
+        [
+            readOnly,
+        ]
     );
+
 
     // ======================================================
     // RENDER
     // ======================================================
 
     return (
+
         <Box
             sx={{
                 width: "100%",
             }}
         >
+
+            {/* ==================================================
+                LOADING
+            ================================================== */}
+
             {loading && (
                 <LinearProgress />
             )}
 
+
+            {/* ==================================================
+                ERROR
+            ================================================== */}
+
             {error && (
+
                 <Alert
                     severity="error"
                     sx={{
@@ -795,7 +1405,10 @@ const ProductPriceList = ({
                 </Alert>
             )}
 
-            {/* HEADER */}
+
+            {/* ==================================================
+                HEADER
+            ================================================== */}
 
             <Box
                 display="flex"
@@ -805,7 +1418,9 @@ const ProductPriceList = ({
                 gap={2}
                 mb={2}
             >
+
                 <Box>
+
                     <Typography
                         variant="h5"
                         fontWeight={700}
@@ -817,17 +1432,21 @@ const ProductPriceList = ({
                         variant="body2"
                         color="text.secondary"
                     >
-                        Manage product
-                        pricing, MRP,
-                        discounts and
+                        Manage product pricing,
+                        MRP, discounts and
                         price status.
                     </Typography>
+
                 </Box>
+
 
                 <Stack
                     direction="row"
                     spacing={1}
                 >
+
+                    {/* REFRESH */}
+
                     <Button
                         variant="outlined"
                         startIcon={
@@ -843,7 +1462,11 @@ const ProductPriceList = ({
                         Refresh
                     </Button>
 
+
+                    {/* ADD */}
+
                     {!readOnly && (
+
                         <Button
                             variant="contained"
                             startIcon={
@@ -856,10 +1479,15 @@ const ProductPriceList = ({
                             Add Price
                         </Button>
                     )}
+
                 </Stack>
+
             </Box>
 
-            {/* STATISTICS */}
+
+            {/* ==================================================
+                STATISTICS
+            ================================================== */}
 
             <Stack
                 direction={{
@@ -869,12 +1497,17 @@ const ProductPriceList = ({
                 spacing={2}
                 mb={2}
             >
+
+                {/* TOTAL */}
+
                 <Card
                     sx={{
                         flex: 1,
                     }}
                 >
+
                     <CardContent>
+
                         <Typography
                             variant="body2"
                             color="text.secondary"
@@ -888,15 +1521,22 @@ const ProductPriceList = ({
                         >
                             {totalPrices}
                         </Typography>
+
                     </CardContent>
+
                 </Card>
+
+
+                {/* ACTIVE */}
 
                 <Card
                     sx={{
                         flex: 1,
                     }}
                 >
+
                     <CardContent>
+
                         <Typography
                             variant="body2"
                             color="text.secondary"
@@ -911,15 +1551,22 @@ const ProductPriceList = ({
                         >
                             {activePrices}
                         </Typography>
+
                     </CardContent>
+
                 </Card>
+
+
+                {/* INACTIVE */}
 
                 <Card
                     sx={{
                         flex: 1,
                     }}
                 >
+
                     <CardContent>
+
                         <Typography
                             variant="body2"
                             color="text.secondary"
@@ -934,27 +1581,41 @@ const ProductPriceList = ({
                         >
                             {inactivePrices}
                         </Typography>
+
                     </CardContent>
+
                 </Card>
+
             </Stack>
 
-            {/* MAIN CARD */}
+
+            {/* ==================================================
+                MAIN CARD
+            ================================================== */}
 
             <Card>
+
                 <CardHeader
                     title="Product Price List"
-                    subheader={`${filteredPrices.length} price record(s) found`}
+                    subheader={
+                        `${filteredPrices.length} price record(s) found`
+                    }
                 />
+
 
                 <Divider />
 
-                {/* SEARCH */}
+
+                {/* =================================================
+                    SEARCH
+                ================================================= */}
 
                 <Box
                     sx={{
                         p: 2,
                     }}
                 >
+
                     <TextField
                         fullWidth
                         size="small"
@@ -967,37 +1628,44 @@ const ProductPriceList = ({
                             handleSearchChange
                         }
                         InputProps={{
-                            startAdornment:
-                                (
-                                    <InputAdornment position="start">
-                                        <Search />
-                                    </InputAdornment>
-                                ),
+                            startAdornment: (
+                                <InputAdornment
+                                    position="start"
+                                >
+                                    <Search />
+                                </InputAdornment>
+                            ),
                         }}
                     />
+
                 </Box>
+
 
                 <Divider />
 
-                {/* DATAGRID */}
+
+                {/* =================================================
+                    DATA GRID
+                ================================================= */}
 
                 <CardContent
                     sx={{
                         p: 0,
                     }}
                 >
-                    {filteredPrices.length ===
-                    0 ? (
+
+                    {filteredPrices.length === 0 ? (
+
                         <Box
                             py={8}
                             textAlign="center"
                         >
+
                             <Typography
                                 variant="h6"
                                 gutterBottom
                             >
-                                No Product
-                                Prices
+                                No Product Prices
                                 Found
                             </Typography>
 
@@ -1006,11 +1674,14 @@ const ProductPriceList = ({
                             >
                                 {searchText
                                     ? "No price records match your search."
-                                    : "There are no product price records available."}
+                                    : "There are no product price records available."
+                                }
                             </Typography>
+
 
                             {!readOnly &&
                                 !searchText && (
+
                                     <Button
                                         sx={{
                                             mt: 2,
@@ -1023,43 +1694,60 @@ const ProductPriceList = ({
                                             handleAdd
                                         }
                                     >
-                                        Add Product
-                                        Price
+                                        Add Product Price
                                     </Button>
                                 )}
+
                         </Box>
+
                     ) : (
+
                         <Box
                             sx={{
                                 width: "100%",
                                 height: 600,
                             }}
                         >
+
                             <DataGrid
                                 rows={
                                     filteredPrices
                                 }
+
                                 columns={
                                     columns
                                 }
-                                getRowId={(
-                                    row
-                                ) =>
-                                    row.productPriceId ??
-                                    row.id ??
-                                    `${row.productId}-${row.price}`
+
+
+                                // --------------------------------
+                                // ROW ID
+                                // --------------------------------
+
+                                getRowId={(row) =>
+                                    getProductPriceId(
+                                        row
+                                    )
                                 }
+
+
                                 pagination
+
+
                                 pageSizeOptions={
                                     PAGE_SIZE_OPTIONS
                                 }
+
+
                                 paginationModel={{
                                     page,
                                     pageSize,
                                 }}
+
+
                                 onPaginationModelChange={(
                                     model
                                 ) => {
+
                                     setPage(
                                         model.page
                                     );
@@ -1068,10 +1756,16 @@ const ProductPriceList = ({
                                         model.pageSize
                                     );
                                 }}
+
+
                                 loading={
                                     loading
                                 }
+
+
                                 disableRowSelectionOnClick
+
+
                                 sx={{
                                     border: 0,
 
@@ -1081,39 +1775,64 @@ const ProductPriceList = ({
                                                 "action.hover",
                                             fontWeight: 600,
                                         },
+
+                                    "& .MuiDataGrid-cell":
+                                        {
+                                            display: "flex",
+                                            alignItems:
+                                                "center",
+                                        },
+
+                                    "& .MuiDataGrid-cell:focus":
+                                        {
+                                            outline:
+                                                "none",
+                                        },
+
+                                    "& .MuiDataGrid-cell:focus-within":
+                                        {
+                                            outline:
+                                                "none",
+                                        },
                                 }}
                             />
+
                         </Box>
                     )}
+
                 </CardContent>
+
             </Card>
 
-            {/* MORE MENU */}
+
+            {/* ==================================================
+                MORE MENU
+            ================================================== */}
 
             <Menu
                 anchorEl={
                     menuState.anchorEl
                 }
-                open={Boolean(
-                    menuState.anchorEl
-                )}
+
+                open={
+                    Boolean(
+                        menuState.anchorEl
+                    )
+                }
+
                 onClose={
                     handleMenuClose
                 }
             >
-                <MenuItem
-                    onClick={() => {
-                        if (
-                            menuState.row
-                        ) {
-                            handleView(
-                                menuState.row
-                            );
-                        }
 
-                        handleMenuClose();
-                    }}
+                {/* VIEW */}
+
+                <MenuItem
+                    onClick={
+                        handleMenuView
+                    }
                 >
+
                     <Visibility
                         fontSize="small"
                         sx={{
@@ -1122,60 +1841,61 @@ const ProductPriceList = ({
                     />
 
                     View
+
                 </MenuItem>
 
+
+                {/* EDIT */}
+
                 {!readOnly && (
-                    <>
-                        <MenuItem
-                            onClick={() => {
-                                if (
-                                    menuState.row
-                                ) {
-                                    handleEdit(
-                                        menuState.row
-                                    );
-                                }
 
-                                handleMenuClose();
+                    <MenuItem
+                        onClick={
+                            handleMenuEdit
+                        }
+                    >
+
+                        <Edit
+                            fontSize="small"
+                            sx={{
+                                mr: 1,
                             }}
-                        >
-                            <Edit
-                                fontSize="small"
-                                sx={{
-                                    mr: 1,
-                                }}
-                            />
+                        />
 
-                            Edit
-                        </MenuItem>
+                        Edit
 
-                        <MenuItem
-                            onClick={() => {
-                                if (
-                                    menuState.row
-                                ) {
-                                    handleDelete(
-                                        menuState.row
-                                    );
-                                }
-
-                                handleMenuClose();
-                            }}
-                        >
-                            <Delete
-                                fontSize="small"
-                                sx={{
-                                    mr: 1,
-                                }}
-                            />
-
-                            Delete
-                        </MenuItem>
-                    </>
+                    </MenuItem>
                 )}
+
+
+                {/* DELETE */}
+
+                {!readOnly && (
+
+                    <MenuItem
+                        onClick={
+                            handleMenuDelete
+                        }
+                    >
+
+                        <Delete
+                            fontSize="small"
+                            sx={{
+                                mr: 1,
+                            }}
+                        />
+
+                        Delete
+
+                    </MenuItem>
+                )}
+
             </Menu>
 
-            {/* SNACKBAR */}
+
+            {/* ==================================================
+                SNACKBAR
+            ================================================== */}
 
             <Snackbar
                 open={
@@ -1188,6 +1908,7 @@ const ProductPriceList = ({
                     handleSnackbarClose
                 }
             >
+
                 <Alert
                     severity={
                         snackbar.severity
@@ -1200,16 +1921,20 @@ const ProductPriceList = ({
                         snackbar.message
                     }
                 </Alert>
+
             </Snackbar>
+
         </Box>
     );
 };
 
+
 // ==========================================================
-// PROPTYPES
+// PROP TYPES
 // ==========================================================
 
 ProductPriceList.propTypes = {
+
     productId:
         PropTypes.oneOfType([
             PropTypes.number,
@@ -1241,20 +1966,30 @@ ProductPriceList.propTypes = {
         PropTypes.func,
 };
 
+
 // ==========================================================
 // DEFAULT PROPS
 // ==========================================================
 
 ProductPriceList.defaultProps = {
+
     productId: null,
+
     sellerId: null,
+
     readOnly: false,
+
     refreshTrigger: 0,
+
     onAdd: null,
+
     onView: null,
+
     onEdit: null,
+
     onDelete: null,
 };
+
 
 // ==========================================================
 // EXPORT
