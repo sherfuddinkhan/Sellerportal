@@ -1258,20 +1258,9 @@ const MainLayout = () => {
                             label: "Inventory List",
                             path: "/product-inventory",
                         },
-
                         {
                             label: "Create Inventory",
                             path: "/product-inventory/create",
-                        },
-
-                        {
-                            label: "Inventory Card",
-                            path: "/product-inventory/card",
-                        },
-
-                        {
-                            label: "Inventory Details",
-                            path: "/product-inventory/details/:id",
                         },
                         {
                             label: "Inventory Filters",
