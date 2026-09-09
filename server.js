@@ -17158,6 +17158,43 @@ app.get("/api/product-prices/:id", async (req, res) => {
     }
 });
 
+app.get("/api/product-prices/stats", async (req, res) => {
+
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/product-prices/stats`,
+            {
+                httpsAgent,
+                headers: {
+                    Accept: "*/*",
+                },
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Product Price Stats Error:",
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Unable to load Product Price statistics."
+            }
+        );
+    }
+});
+
 // =========================================================
 // GET PAGED PRODUCT PRICES
 // =========================================================

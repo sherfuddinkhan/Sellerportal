@@ -86,21 +86,10 @@ const ProductPriceSearch = ({
 
     const handleClear = () => {
 
-        if (setSearchText) {
-            setSearchText("");
-        }
-
-        if (setStatusFilter) {
-            setStatusFilter("All");
-        }
-
-        if (setPriceTypeFilter) {
-            setPriceTypeFilter("");
-        }
-
-        if (setCurrencyFilter) {
-            setCurrencyFilter("");
-        }
+        setSearchText?.("");
+        setStatusFilter?.("All");
+        setPriceTypeFilter?.("");
+        setCurrencyFilter?.("");
     };
 
     // =====================================================

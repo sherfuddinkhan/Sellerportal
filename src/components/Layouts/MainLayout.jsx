@@ -745,62 +745,10 @@ const MainLayout = () => {
                             label: "Create Product Price",
                             path: "/product-prices/create",
                         },
-
-                        {
-                            label: "Product Price Details",
-                            path: "/product-prices/details/:id",
-                        },
-
-                        {
-                            label: "Edit Product Price",
-                            path: "/product-prices/edit/:id",
-                        },
-
-                        {
-                            label: "Product Price Filters",
-                            path: "/product-prices/filters",
-                        },
-
-                        {
-                            label: "Search Product Prices",
-                            path: "/product-prices/search",
-                        },
-
                         {
                             label: "Product Price Statistics",
                             path: "/product-prices/statistics",
                         },
-
-                        {
-                            label: "Product Price Table",
-                            path: "/product-prices/table",
-                        },
-
-                        {
-                            label: "Product Price Card",
-                            path: "/product-prices/card",
-                        },
-
-                        {
-                            label: "Product Price Form",
-                            path: "/product-prices/form",
-                        },
-
-                        {
-                            label: "Product Price Modal",
-                            path: "/product-prices/modal",
-                        },
-
-                        {
-                            label: "Product Price Pagination",
-                            path: "/product-prices/pagination",
-                        },
-
-                        {
-                            label: "Product Price Toolbar",
-                            path: "/product-prices/toolbar",
-                        },
-
                     ],
                 },
 
