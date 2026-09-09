@@ -69,36 +69,34 @@ const CategorySearch = ({
     }, [searchText, setCategories]);
 
 
-    return (
+   return (
 
-        <TextField
-            fullWidth
-            size="small"
+  <TextField
+    size="small"
+    sx={{
+        width: "400px"
+    }}
+    placeholder="Search by Category Name"
+    value={searchText}
+    onChange={(e) =>
+        setSearchText(e.target.value)
+    }
+    InputProps={{
+        startAdornment: (
+            <InputAdornment position="start">
+                <SearchIcon />
+            </InputAdornment>
+        ),
 
-            placeholder="Search Category..."
+        endAdornment: loading ? (
+            <InputAdornment position="end">
+                <CircularProgress size={20} />
+            </InputAdornment>
+        ) : null
+    }}
+/>
 
-            value={searchText}
-
-            onChange={(e) =>
-                setSearchText(e.target.value)
-            }
-
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <SearchIcon />
-                    </InputAdornment>
-                ),
-
-                endAdornment: loading ? (
-                    <InputAdornment position="end">
-                        <CircularProgress size={20} />
-                    </InputAdornment>
-                ) : null
-            }}
-        />
-
-    );
+);
 };
 
 export default CategorySearch;

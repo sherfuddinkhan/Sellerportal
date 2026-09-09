@@ -476,51 +476,15 @@ const MainLayout = () => {
                             label: "Create Category",
                             path: "/categories/create",
                         },
-                        {
-                            label: "Category Filters",
-                            path: "/categories/filters",
-                        },
-
-                        {
-                            label: "Search Categories",
-                            path: "/categories/search",
-                        },
-
+                    
                         {
                             label: "Category Statistics",
                             path: "/categories/statistics",
                         },
-
-                        {
-                            label: "Category Table",
-                            path: "/categories/table",
-                        },
-
                         {
                             label: "Category Card",
                             path: "/categories/card",
                         },
-
-                        {
-                            label: "Category Form",
-                            path: "/categories/form",
-                        },
-
-                        {
-                            label: "Category Modal",
-                            path: "/categories/modal",
-                        },
-
-                        {
-                            label: "Category Pagination",
-                            path: "/categories/pagination",
-                        },
-
-                        {
-                            label: "Category Toolbar",
-                            path: "/categories/toolbar",
-                        },
-
                     ],
                 },
 

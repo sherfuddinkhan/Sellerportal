@@ -1885,13 +1885,7 @@ app.post(
     }
 );
 // =====================================================
-// CATEGORY STATUS FILTER
-// =====================================================
-//
-// GET /api/categories/filter?status=Active
-// GET /api/categories/filter?status=Inactive
-// GET /api/categories/filter?status=All
-//
+// CATEGORY FILTER
 // =====================================================
 
 app.get(
@@ -1908,7 +1902,6 @@ app.get(
                 status
             );
 
-            // Get categories from .NET API
             const response =
                 await axios.get(
                     `${DOTNET_API}/categories`,
@@ -1927,7 +1920,6 @@ app.get(
             let filteredCategories =
                 categories;
 
-            // Active
             if (status === "Active") {
 
                 filteredCategories =
@@ -1935,9 +1927,8 @@ app.get(
                         category =>
                             category.isActive === true
                     );
-            }
 
-            // Inactive
+            }
             else if (status === "Inactive") {
 
                 filteredCategories =
@@ -1945,17 +1936,18 @@ app.get(
                         category =>
                             category.isActive === false
                     );
+
             }
 
-            // All
-            else if (status === "All") {
-
-                filteredCategories =
-                    categories;
-            }
+            console.log(
+                "FILTERED CATEGORIES:",
+                filteredCategories
+            );
 
             res.status(200).json({
-                items: filteredCategories,
+
+                items:
+                    filteredCategories,
 
                 page: 1,
 
@@ -1969,6 +1961,7 @@ app.get(
                     filteredCategories.length > 0
                         ? 1
                         : 0
+
             });
 
         }
@@ -1976,7 +1969,7 @@ app.get(
 
             console.error(
                 "CATEGORY FILTER ERROR:",
-                error.message
+                error
             );
 
             res.status(
@@ -1987,10 +1980,73 @@ app.get(
                         "Failed to filter categories"
                 }
             );
+
         }
+
     }
 );
 
+
+// =====================================================
+// GET CATEGORY BY ID
+// IMPORTANT: KEEP THIS AFTER /filter
+// =====================================================
+
+app.get(
+    "/api/categories/:id",
+    async (req, res) => {
+
+        try {
+
+            const { id } =
+                req.params;
+
+            console.log(
+                "GET CATEGORY:",
+                id
+            );
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/categories/${id}`,
+                    {
+                        headers: {
+                            Accept: "*/*"
+                        },
+
+                        httpsAgent,
+
+                        timeout: 30000
+                    }
+                );
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATEGORY ERROR:",
+                error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to fetch category"
+                }
+            );
+
+        }
+
+    }
+);
 // =========================================================
 // CATEGORY SEARCH
 // =========================================================

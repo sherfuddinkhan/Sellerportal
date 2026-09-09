@@ -34,20 +34,9 @@ const CategoryCard = ({
     category: categoryProp
 }) => {
 
-    const [
-        categories,
-        setCategories
-    ] = useState([]);
-
-    const [
-        loading,
-        setLoading
-    ] = useState(false);
-
-    const [
-        error,
-        setError
-    ] = useState("");
+    const [categories,setCategories] = useState([]);
+    const [loading,setLoading] = useState(false);
+    const [error,setError] = useState("");
 
 
     // =====================================================
@@ -57,15 +46,9 @@ const CategoryCard = ({
     const loadCategories = async () => {
 
         try {
-
             setLoading(true);
-
             setError("");
-
-            console.log(
-                "GET CATEGORY CARDS"
-            );
-
+            console.log("GET CATEGORY CARDS");
             const response =
                 await axios.get(
                     `${SERVER_URL}/api/categories`,
@@ -89,31 +72,17 @@ const CategoryCard = ({
             // NORMALIZE RESPONSE
             // =================================================
 
-            let data =
-                response.data;
-
-
+            let data = response.data;
             if (
-                data &&
-                Array.isArray(
-                    data.items
-                )
+                 data && Array.isArray(data.items)
             ) {
-
-                data =
-                    data.items;
-
+                data = data.items;
             }
             else if (
                 data &&
-                Array.isArray(
-                    data.data
-                )
+                Array.isArray(data.data)
             ) {
-
-                data =
-                    data.data;
-
+                data = data.data;
             }
             else if (
                 data &&
@@ -126,8 +95,6 @@ const CategoryCard = ({
                     data.categories;
 
             }
-
-
             if (
                 !Array.isArray(data)
             ) {
@@ -135,18 +102,10 @@ const CategoryCard = ({
                 data = [];
 
             }
-
-
             setCategories(data);
-
         }
         catch (err) {
-
-            console.error(
-                "CATEGORY CARD ERROR:",
-                err
-            );
-
+            console.error("CATEGORY CARD ERROR:",err);
             const message =
                 err.response?.data?.message ||
                 err.response?.data ||

@@ -158,46 +158,55 @@ const CategoryEdit = () => {
     // SAVE CATEGORY
     // =====================================================
 
-    const handleSubmit = async (
-        formData
-    ) => {
+   const handleSubmit = async (
+    formData
+) => {
 
-        try {
+    try {
 
-            setSaving(true);
+        setSaving(true);
 
-            setError("");
+        setError("");
 
-            console.log(
-                "UPDATE CATEGORY:",
-                formData
-            );
+        console.log(
+            "UPDATE CATEGORY:",
+            formData
+        );
 
-            const payload = {
+        const payload = {
 
-                categoryName:
-                    formData.categoryName,
+            categoryId:
+                Number(categoryId),
 
-                parentCategoryId:
-                    formData.parentCategoryId
-                        ? Number(
-                            formData.parentCategoryId
-                        )
-                        : null,
+            categoryName:
+                formData.categoryName,
 
-                description:
-                    formData.description,
-
-                isActive:
-                    Boolean(
-                        formData.isActive
+            parentCategoryId:
+                formData.parentCategoryId
+                    ? Number(
+                        formData.parentCategoryId
                     )
+                    : null,
 
-            };
+            description:
+                formData.description,
 
+            isActive:
+                Boolean(
+                    formData.isActive
+                )
+
+        };
+
+        console.log(
+            "UPDATE CATEGORY PAYLOAD:",
+            payload
+        );
+
+        const response =
             await axios.put(
 
-                `${SERVER_URL}/api/Category/${categoryId}`,
+                `${SERVER_URL}/api/categories/${categoryId}`,
 
                 payload,
 
@@ -218,44 +227,45 @@ const CategoryEdit = () => {
 
             );
 
-            console.log(
-                "CATEGORY UPDATED"
-            );
+        console.log(
+            "CATEGORY UPDATED:",
+            response.status
+        );
 
-            navigate(
-                "/categories"
-            );
+        navigate(
+            "/categories"
+        );
 
-        }
-        catch (err) {
+    }
+    catch (err) {
 
-            console.error(
-                "Category update error:",
-                err
-            );
+        console.error(
+            "Category update error:",
+            err
+        );
 
-            const message =
-                err.response?.data?.message ||
-                err.response?.data ||
-                err.message ||
-                "Failed to update category";
+        const message =
+            err.response?.data?.message ||
+            err.response?.data ||
+            err.message ||
+            "Failed to update category";
 
-            setError(
-                typeof message === "string"
-                    ? message
-                    : "Failed to update category"
-            );
+        setError(
+            typeof message === "string"
+                ? message
+                : "Failed to update category"
+        );
 
-            setSnackbarOpen(true);
+        setSnackbarOpen(true);
 
-        }
-        finally {
+    }
+    finally {
 
-            setSaving(false);
+        setSaving(false);
 
-        }
+    }
 
-    };
+};
 
     // =====================================================
     // CANCEL
