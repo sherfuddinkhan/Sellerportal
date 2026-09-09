@@ -60,14 +60,9 @@ const CategoryForm = ({
     // PARENT CATEGORIES
     // =====================================================
 
-    const [parentCategories, setParentCategories] =
-        useState([]);
-
-    const [loadingParents, setLoadingParents] =
-        useState(false);
-
-    const [error, setError] =
-        useState("");
+    const [parentCategories, setParentCategories] = useState([]);
+    const [loadingParents, setLoadingParents] = useState(false);
+    const [error, setError] = useState("");
 
     // =====================================================
     // UPDATE FORM WHEN INITIAL VALUES CHANGE
@@ -76,14 +71,12 @@ const CategoryForm = ({
     useEffect(() => {
 
         setFormData({
-
             categoryName: "",
             parentCategoryId: "",
             description: "",
             isActive: true,
 
             ...initialValues
-
         });
 
     }, [initialValues]);
@@ -93,7 +86,6 @@ const CategoryForm = ({
     // =====================================================
 
     useEffect(() => {
-
         loadParentCategories();
 
     }, []);
@@ -103,7 +95,6 @@ const CategoryForm = ({
     // =====================================================
 
     const loadParentCategories = async () => {
-
         try {
 
             setLoadingParents(true);
@@ -140,36 +131,22 @@ const CategoryForm = ({
             // =================================================
             // NORMALIZE RESPONSE
             // =================================================
-
-            let data =
-                response.data;
-
+            let data = response.data;
             // -----------------------------------------------
             // { items: [] }
             // -----------------------------------------------
-
             if (
                 data &&
                 Array.isArray(data.items)
             ) {
-
-                data =
-                    data.items;
-
+                data = data.items;
             }
 
             // -----------------------------------------------
             // { data: [] }
             // -----------------------------------------------
-
-            else if (
-                data &&
-                Array.isArray(data.data)
-            ) {
-
-                data =
-                    data.data;
-
+            else if ( data &&Array.isArray(data.data)) {
+                data = data.data;
             }
 
             // -----------------------------------------------
@@ -180,20 +157,13 @@ const CategoryForm = ({
                 data &&
                 Array.isArray(data.categories)
             ) {
-
-                data =
-                    data.categories;
-
+                data = data.categories;
             }
-
             // -----------------------------------------------
             // Direct array
             // -----------------------------------------------
-
             if (!Array.isArray(data)) {
-
                 data = [];
-
             }
 
             // =================================================
@@ -364,128 +334,91 @@ const CategoryForm = ({
                     xs={12}
                     md={6}
                 >
-
                     <TextField
-
                         fullWidth
-
                         required
-
                         label="Category Name"
-
                         name="categoryName"
-
-                        value={
-                            formData.categoryName ||
-                            ""
-                        }
-
-                        onChange={
-                            handleChange
-                        }
-
-                        disabled={
-                            loading
-                        }
-
+                        value={formData.categoryName || ""}
+                        onChange={handleChange}
+                        disabled={loading}
                     />
-
                 </Grid>
 
                 {/* =================================================
                     PARENT CATEGORY
                 ================================================== */}
 
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                >
 
-                    <FormControl
-                        fullWidth
-                    >
+                   <Grid
+                            item
+                          xs={12}
+                           md={4}
+                     >
 
-                        <InputLabel>
-                            Parent Category
-                        </InputLabel>
+                 <FormControl
+                     fullWidth
+                       sx={{
+                           minWidth: 250
+                           }}
+                          >
 
-                        <Select
+        <InputLabel>
+            Parent Category
+        </InputLabel>
 
-                            name="parentCategoryId"
+        <Select
+            name="parentCategoryId"
+            label="Parent Category"
+            value={formData.parentCategoryId ?? ""}
+            onChange={handleChange}
+            disabled={loading || loadingParents}
+        >
+            <MenuItem value="">
+                None
+            </MenuItem>
+            {loadingParents ? (
+                <MenuItem disabled>
 
-                            label="Parent Category"
+                    <CircularProgress
+                        size={20}
+                        sx={{
+                            mr: 1
+                        }}
+                    />
 
+                    Loading categories...
+
+                </MenuItem>
+
+            ) : (
+
+                parentCategories.map(
+                    (item) => (
+
+                        <MenuItem
+                            key={
+                                item.categoryId
+                            }
                             value={
-                                formData.parentCategoryId ??
-                                ""
+                                item.categoryId
                             }
-
-                            onChange={
-                                handleChange
-                            }
-
-                            disabled={
-                                loading ||
-                                loadingParents
-                            }
-
                         >
+                            {
+                                item.categoryName
+                            }
+                        </MenuItem>
 
-                            <MenuItem value="">
-                                None
-                            </MenuItem>
+                    )
+                )
 
-                            {loadingParents ? (
+            )}
 
-                                <MenuItem
-                                    disabled
-                                >
+        </Select>
 
-                                    <CircularProgress
-                                        size={20}
-                                        sx={{
-                                            mr: 1
-                                        }}
-                                    />
+    </FormControl>
 
-                                    Loading categories...
-
-                                </MenuItem>
-
-                            ) : (
-
-                                parentCategories.map(
-                                    (item) => (
-
-                                        <MenuItem
-
-                                            key={
-                                                item.categoryId
-                                            }
-
-                                            value={
-                                                item.categoryId
-                                            }
-
-                                        >
-
-                                            {
-                                                item.categoryName
-                                            }
-
-                                        </MenuItem>
-
-                                    )
-                                )
-
-                            )}
-
-                        </Select>
-
-                    </FormControl>
-
-                </Grid>
+</Grid>
 
                 {/* =================================================
                     DESCRIPTION

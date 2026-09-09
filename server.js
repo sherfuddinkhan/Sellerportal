@@ -1884,6 +1884,69 @@ app.post(
         }
     }
 );
+// =========================================================
+// CATEGORY SEARCH
+// =========================================================
+// React:
+// GET http://localhost:5000/api/categories/search?search=Consumer%20Electronics
+//
+// Node forwards to:
+// GET https://localhost:7203/api/categories/search?search=Consumer%20Electronics
+// =========================================================
+
+app.get("/api/categories/search", async (req, res) => {
+
+    try {
+
+        const { search } = req.query;
+
+        if (!search || !search.trim()) {
+
+            return res.status(400).json({
+                message: "Search term is required."
+            });
+
+        }
+
+        const response = await axios.get(
+            `${DOTNET_API}/api/categories/search`,
+            {
+                params: {
+                    search: search
+                },
+
+                httpsAgent,
+
+                headers: {
+                    Accept: "*/*"
+                }
+            }
+        );
+
+        return res.status(response.status).json(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(
+            "CATEGORY SEARCH PROXY ERROR:"
+        );
+
+        console.error(
+            error.response?.data ||
+            error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Unable to search categories."
+            }
+        );
+    }
+});
 
 // =========================================================
 // UPDATE CATEGORY
