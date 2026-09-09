@@ -4,7 +4,8 @@
 // =========================================================
 
 import React, {
-    useMemo,
+    useEffect,
+    useState,
 } from "react";
 
 import {
@@ -12,110 +13,154 @@ import {
     CardContent,
     Grid,
     Typography,
+    CircularProgress,
+    Box,
+    Alert,
 } from "@mui/material";
+
+
+// =========================================================
+// SERVER URL
+// =========================================================
+
+const SERVER_URL =
+    "http://localhost:5000";
 
 
 // =========================================================
 // PRODUCT TYPE STATISTICS
 // =========================================================
 
-const ProductTypeStatistics = ({
-    productTypes = [],
-}) => {
+const ProductTypeStatistics = () => {
 
     // =====================================================
-    // ENSURE ARRAY
+    // STATE
     // =====================================================
 
-    const items = Array.isArray(productTypes)
-        ? productTypes
-        : [];
+    const [statistics, setStatistics] = useState({
+        totalProductTypes: 0,
+        activeProductTypes: 0,
+        inactiveProductTypes: 0,
+    });
+
+
+    const [loading, setLoading] =
+        useState(true);
+
+
+    const [error, setError] =
+        useState("");
 
 
     // =====================================================
-    // CALCULATE STATISTICS
+    // LOAD STATISTICS
     // =====================================================
 
-    const statistics = useMemo(() => {
+    useEffect(() => {
 
-        const total =
-            items.length;
+        const fetchStatistics =
+            async () => {
 
+                try {
 
-        // -------------------------------------------------
-        // ACTIVE
-        // -------------------------------------------------
+                    setLoading(true);
 
-        const active =
-            items.filter(
-                (item) =>
-                    Boolean(item?.isActive)
-            ).length;
+                    setError("");
 
 
-        // -------------------------------------------------
-        // INACTIVE
-        // -------------------------------------------------
+                    // =====================================
+                    // API REQUEST
+                    // =====================================
 
-        const inactive =
-            total - active;
-
-
-        // -------------------------------------------------
-        // ADDED THIS MONTH
-        // -------------------------------------------------
-
-        const today =
-            new Date();
-
-        const currentMonth =
-            today.getMonth();
-
-        const currentYear =
-            today.getFullYear();
+                    const response =
+                        await fetch(
+                            `${SERVER_URL}/api/product-types/stats`
+                        );
 
 
-        const thisMonth =
-            items.filter((item) => {
+                    // =====================================
+                    // CHECK RESPONSE
+                    // =====================================
 
-                if (!item?.createdDate) {
-                    return false;
-                }
+                    if (!response.ok) {
+
+                        throw new Error(
+                            `Failed to load product type statistics. Status: ${response.status}`
+                        );
+
+                    }
 
 
-                const createdDate =
-                    new Date(
-                        item.createdDate
+                    // =====================================
+                    // PARSE RESPONSE
+                    // =====================================
+
+                    const data =
+                        await response.json();
+
+
+                    console.log(
+                        "Product Type Statistics:",
+                        data
                     );
 
 
-                if (
-                    Number.isNaN(
-                        createdDate.getTime()
-                    )
-                ) {
-                    return false;
+                    // =====================================
+                    // HANDLE API RESPONSE
+                    // =====================================
+
+                    setStatistics({
+
+                        totalProductTypes:
+                            Number(
+                                data?.totalProductTypes ??
+                                data?.TotalProductTypes ??
+                                0
+                            ),
+
+                        activeProductTypes:
+                            Number(
+                                data?.activeProductTypes ??
+                                data?.ActiveProductTypes ??
+                                0
+                            ),
+
+                        inactiveProductTypes:
+                            Number(
+                                data?.inactiveProductTypes ??
+                                data?.InactiveProductTypes ??
+                                0
+                            ),
+
+                    });
+
+                }
+                catch (err) {
+
+                    console.error(
+                        "Product Type Statistics Error:",
+                        err
+                    );
+
+
+                    setError(
+                        err.message ||
+                        "Failed to load product type statistics."
+                    );
+
+                }
+                finally {
+
+                    setLoading(false);
+
                 }
 
-
-                return (
-                    createdDate.getMonth() ===
-                        currentMonth &&
-                    createdDate.getFullYear() ===
-                        currentYear
-                );
-
-            }).length;
+            };
 
 
-        return {
-            total,
-            active,
-            inactive,
-            thisMonth,
-        };
+        fetchStatistics();
 
-    }, [items]);
+    }, []);
 
 
     // =====================================================
@@ -129,7 +174,7 @@ const ProductTypeStatistics = ({
                 "Total Product Types",
 
             value:
-                statistics.total,
+                statistics.totalProductTypes,
         },
 
         {
@@ -137,7 +182,7 @@ const ProductTypeStatistics = ({
                 "Active",
 
             value:
-                statistics.active,
+                statistics.activeProductTypes,
         },
 
         {
@@ -145,18 +190,60 @@ const ProductTypeStatistics = ({
                 "Inactive",
 
             value:
-                statistics.inactive,
-        },
-
-        {
-            title:
-                "Added This Month",
-
-            value:
-                statistics.thisMonth,
+                statistics.inactiveProductTypes,
         },
 
     ];
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                sx={{
+                    py: 4,
+                }}
+            >
+
+                <CircularProgress />
+
+            </Box>
+
+        );
+
+    }
+
+
+    // =====================================================
+    // ERROR
+    // =====================================================
+
+    if (error) {
+
+        return (
+
+            <Alert
+                severity="error"
+                sx={{
+                    mb: 2,
+                }}
+            >
+
+                {error}
+
+            </Alert>
+
+        );
+
+    }
 
 
     // =====================================================
@@ -171,13 +258,16 @@ const ProductTypeStatistics = ({
         >
 
             {cards.map(
-                (card, index) => (
+                (
+                    card,
+                    index
+                ) => (
 
                     <Grid
                         item
                         xs={12}
                         sm={6}
-                        md={3}
+                        md={4}
                         key={index}
                     >
 
