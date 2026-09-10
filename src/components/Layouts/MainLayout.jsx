@@ -24,25 +24,15 @@ const MainLayout = () => {
     // =========================================================
 
     const [openSections, setOpenSections] = useState({
-
         Main: true,
-
         "Seller Management": true,
-
         "Catalog & Products": true,
-
         Orders: true,
-
         "Delivery & Logistics": true,
-
         "Procurement & Receiving": true,
-
         Customers: true,
-
         Marketplace: true,
-
         "Sales & Finance": true,
-
     });
 
     // =========================================================
@@ -91,15 +81,62 @@ const MainLayout = () => {
     };
 
     // =========================================================
+    // HANDLE PARENT ITEM CLICK
+    //
+    // Parent:
+    // 1. Navigate to item.path
+    // 2. Open children
+    //
+    // Arrow:
+    // Only toggles children.
+    // =========================================================
+
+    const handleItemClick = (item) => {
+
+        if (!item) {
+            return;
+        }
+
+        if (item.path && item.path !== "#") {
+            navigate(item.path);
+        }
+
+        if (
+            Array.isArray(item.children) &&
+            item.children.length > 0
+        ) {
+            openItem(item.label);
+        }
+
+    };
+
+    // =========================================================
+    // HANDLE CHILD CLICK
+    // =========================================================
+
+    const handleChildClick = (item, child) => {
+
+        if (!child || !child.path) {
+            return;
+        }
+
+        // Keep parent expanded
+        if (item?.label) {
+            openItem(item.label);
+        }
+
+        navigate(child.path);
+
+    };
+
+    // =========================================================
     // LOGOUT
     // =========================================================
 
     const handleLogout = () => {
 
         localStorage.removeItem("token");
-
         localStorage.removeItem("accessToken");
-
         localStorage.removeItem("user");
 
         navigate("/login", {
@@ -110,16 +147,6 @@ const MainLayout = () => {
 
     // =========================================================
     // MENU SECTIONS
-    //
-    // IMPORTANT:
-    // Every top-level object MUST contain:
-    //
-    // {
-    //     section: "...",
-    //     items: [...]
-    // }
-    //
-    // Do not put a menu item directly inside menuSections.
     // =========================================================
 
     const menuSections = [
@@ -145,17 +172,14 @@ const MainLayout = () => {
                     icon: "👤",
 
                     children: [
-
                         {
                             label: "User Profile",
                             path: "/profile",
                         },
-
                         {
                             label: "Profile Card",
                             path: "/profile/card",
                         },
-
                     ],
                 },
 
@@ -165,27 +189,18 @@ const MainLayout = () => {
                     icon: "🔔",
 
                     children: [
-
                         {
                             label: "Notification List",
                             path: "/notifications",
                         },
-
-                        {
-                            label: "Notification Card",
-                            path: "/notifications/card",
-                        },
-
                         {
                             label: "Notification Settings",
                             path: "/notifications/settings",
                         },
-
                         {
                             label: "Notification View",
                             path: "/notifications/view/:id",
                         },
-
                     ],
                 },
 
@@ -195,12 +210,10 @@ const MainLayout = () => {
                     icon: "⭐",
 
                     children: [
-
                         {
                             label: "Review List",
                             path: "/reviews",
                         },
-
                         {
                             label: "Create Review",
                             path: "/reviews/create",
@@ -209,7 +222,6 @@ const MainLayout = () => {
                             label: "Review Filters",
                             path: "/reviews/filters",
                         },
-
                         {
                             label: "Search Reviews",
                             path: "/reviews/search",
@@ -235,12 +247,10 @@ const MainLayout = () => {
                     icon: "🏪",
 
                     children: [
-
                         {
                             label: "Seller List",
                             path: "/sellers",
                         },
-
                         {
                             label: "Create Seller",
                             path: "/sellers/create",
@@ -248,6 +258,39 @@ const MainLayout = () => {
                         {
                             label: "Seller Filters",
                             path: "/sellers/filters",
+                        },
+                        {
+                            label: "Search Sellers",
+                            path: "/sellers/search",
+                        },
+                    ],
+                },
+
+                {
+                    label: "Seller Customers",
+                    path: "/seller-customers",
+                    icon: "👥",
+
+                    children: [
+                        {
+                            label: "Customer List",
+                            path: "/seller-customers",
+                        },
+                        {
+                            label: "Create Customer",
+                            path: "/seller-customers/create",
+                        },
+                        {
+                            label: "Customer Filters",
+                            path: "/seller-customers/filters",
+                        },
+                        {
+                            label: "Search Customers",
+                            path: "/seller-customers/search",
+                        },
+                        {
+                            label: "Customer Statistics",
+                            path: "/seller-customers/statistics",
                         },
                     ],
                 },
@@ -264,58 +307,42 @@ const MainLayout = () => {
 
             items: [
 
-                // -------------------------------------------------
-                // CATALOG
-                // -------------------------------------------------
-
                 {
                     label: "Catalog",
                     path: "/catalog",
                     icon: "📚",
 
                     children: [
-
                         {
                             label: "Catalog List",
                             path: "/catalog",
                         },
-
                         {
                             label: "Create Catalog",
                             path: "/catalog/create",
                         },
-
                         {
                             label: "Search",
                             path: "/catalog/search",
                         },
-
                         {
                             label: "Latest Products",
                             path: "/catalog/latest",
                         },
-
                         {
                             label: "Featured Products",
                             path: "/catalog/featured",
                         },
-
                         {
                             label: "Top Rated",
                             path: "/catalog/toprated",
                         },
-
                         {
                             label: "Best Sellers",
                             path: "/catalog/bestsellers",
                         },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // BRANDS
-                // -------------------------------------------------
 
                 {
                     label: "Brands",
@@ -323,22 +350,18 @@ const MainLayout = () => {
                     icon: "🏷️",
 
                     children: [
-
                         {
                             label: "Brand List",
                             path: "/brands",
                         },
-
                         {
                             label: "Create Brand",
                             path: "/brands/create",
                         },
-
                         {
                             label: "Brand Filters",
                             path: "/brands/filters",
                         },
-
                         {
                             label: "Search Brands",
                             path: "/brands/search",
@@ -346,36 +369,30 @@ const MainLayout = () => {
                     ],
                 },
 
-                // -------------------------------------------------
-                // CATEGORIES
-                // -------------------------------------------------
-
                 {
                     label: "Categories",
                     path: "/categories",
                     icon: "🗂️",
 
                     children: [
-
                         {
                             label: "Category List",
                             path: "/categories",
                         },
-
                         {
                             label: "Create Category",
                             path: "/categories/create",
                         },
                         {
-                            label: "Category Card",
-                            path: "/categories/card",
+                            label: "Category Filters",
+                            path: "/categories/filters",
+                        },
+                        {
+                            label: "Search Categories",
+                            path: "/categories/search",
                         },
                     ],
                 },
-
-                // -------------------------------------------------
-                // PRODUCT TYPES
-                // -------------------------------------------------
 
                 {
                     label: "Product Types",
@@ -383,12 +400,10 @@ const MainLayout = () => {
                     icon: "🧩",
 
                     children: [
-
                         {
                             label: "Product Type List",
                             path: "/product-types",
                         },
-
                         {
                             label: "Create Product Type",
                             path: "/product-types/create",
@@ -397,7 +412,6 @@ const MainLayout = () => {
                             label: "Product Type Filters",
                             path: "/product-types/filters",
                         },
-
                         {
                             label: "Search Product Types",
                             path: "/product-types/search",
@@ -405,22 +419,16 @@ const MainLayout = () => {
                     ],
                 },
 
-                // -------------------------------------------------
-                // PRODUCT ATTRIBUTES
-                // -------------------------------------------------
-
                 {
                     label: "Product Attributes",
                     path: "/product-attributes",
                     icon: "🏷️",
 
                     children: [
-
                         {
                             label: "Product Attribute List",
                             path: "/product-attributes",
                         },
-
                         {
                             label: "Create Product Attribute",
                             path: "/product-attributes/create",
@@ -436,22 +444,16 @@ const MainLayout = () => {
                     ],
                 },
 
-                // -------------------------------------------------
-                // PRODUCT IMAGES
-                // -------------------------------------------------
-
                 {
                     label: "Product Images",
                     path: "/product-images",
                     icon: "🖼️",
 
                     children: [
-
                         {
                             label: "Product Image List",
                             path: "/product-images",
                         },
-
                         {
                             label: "Create Product Image",
                             path: "/product-images/create",
@@ -460,12 +462,12 @@ const MainLayout = () => {
                             label: "Search Product Images",
                             path: "/product-images/search",
                         },
+                        {
+                            label: "Product Image Statistics",
+                            path: "/product-images/statistics",
+                        },
                     ],
                 },
-
-                // -------------------------------------------------
-                // PRODUCT PRICES
-                // -------------------------------------------------
 
                 {
                     label: "Product Prices",
@@ -473,22 +475,28 @@ const MainLayout = () => {
                     icon: "💰",
 
                     children: [
-
                         {
                             label: "Product Price List",
                             path: "/product-prices",
                         },
-
                         {
                             label: "Create Product Price",
                             path: "/product-prices/create",
                         },
+                        {
+                            label: "Search Product Prices",
+                            path: "/product-prices/search",
+                        },
+                        {
+                            label: "Product Price Filters",
+                            path: "/product-prices/filters",
+                        },
+                        {
+                            label: "Product Price Statistics",
+                            path: "/product-prices/statistics",
+                        },
                     ],
                 },
-
-                // -------------------------------------------------
-                // PRODUCTS
-                // -------------------------------------------------
 
                 {
                     label: "Products",
@@ -500,27 +508,24 @@ const MainLayout = () => {
                             label: "Product List",
                             path: "/products/list",
                         },
-
                         {
                             label: "Create Product",
                             path: "/products/create",
                         },
-
                         {
                             label: "Product Filters",
                             path: "/products/filters",
                         },
-
                         {
-                            label: "Search",
+                            label: "Search Products",
                             path: "/products/search",
                         },
-
+                        {
+                            label: "Product Statistics",
+                            path: "/products/statistics",
+                        },
                     ],
                 },
-                  // -------------------------------------------------
-                // PRODUCT INVENTORY
-                // -------------------------------------------------
 
                 {
                     label: "Product Inventory",
@@ -528,7 +533,6 @@ const MainLayout = () => {
                     icon: "📦",
 
                     children: [
-
                         {
                             label: "Inventory List",
                             path: "/product-inventory",
@@ -545,16 +549,15 @@ const MainLayout = () => {
                             label: "Search Inventory",
                             path: "/product-inventory/search",
                         },
+                        {
+                            label: "Inventory Statistics",
+                            path: "/product-inventory/statistics",
+                        },
                     ],
                 },
 
-
             ],
         },
-// -------------------------------------------------
-// STOCK MOVEMENTS
-// -------------------------------------------------
-
 
         // =====================================================
         // ORDERS
@@ -565,22 +568,16 @@ const MainLayout = () => {
 
             items: [
 
-                // -------------------------------------------------
-                // SALES ORDERS
-                // -------------------------------------------------
-
                 {
                     label: "Sales Orders",
                     path: "/sales-orders",
                     icon: "🛒",
 
                     children: [
-
                         {
                             label: "Sales Order List",
                             path: "/sales-orders",
                         },
-
                         {
                             label: "Create Sales Order",
                             path: "/sales-orders/create",
@@ -589,12 +586,12 @@ const MainLayout = () => {
                             label: "Search",
                             path: "/sales-orders/search",
                         },
+                        {
+                            label: "Statistics",
+                            path: "/sales-orders/statistics",
+                        },
                     ],
                 },
-
-                // -------------------------------------------------
-                // SALES ORDER ITEMS
-                // -------------------------------------------------
 
                 {
                     label: "Sales Order Items",
@@ -602,12 +599,10 @@ const MainLayout = () => {
                     icon: "📝",
 
                     children: [
-
                         {
                             label: "Item List",
                             path: "/sales-order-items",
                         },
-
                         {
                             label: "Create Item",
                             path: "/sales-order-items/create",
@@ -616,12 +611,12 @@ const MainLayout = () => {
                             label: "Search",
                             path: "/sales-order-items/search",
                         },
+                        {
+                            label: "Statistics",
+                            path: "/sales-order-items/statistics",
+                        },
                     ],
                 },
-
-                // -------------------------------------------------
-                // ORDER ITEMS
-                // -------------------------------------------------
 
                 {
                     label: "Order Items",
@@ -629,68 +624,24 @@ const MainLayout = () => {
                     icon: "📦",
 
                     children: [
-
                         {
                             label: "Order Item List",
                             path: "/order-items",
                         },
-
                         {
                             label: "Create Item",
                             path: "/order-items/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/order-items/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/order-items/details/:id",
-                        },
-
-                        {
-                            label: "Edit",
-                            path: "/order-items/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/order-items/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/order-items/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/order-items/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/order-items/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/order-items/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/order-items/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // ORDER STATUS HISTORY
-                // -------------------------------------------------
 
                 {
                     label: "Order Status History",
@@ -698,12 +649,10 @@ const MainLayout = () => {
                     icon: "📜",
 
                     children: [
-
                         {
                             label: "Status History List",
                             path: "/order-status-history",
                         },
-
                         {
                             label: "Create History",
                             path: "/order-status-history/create",
@@ -727,78 +676,30 @@ const MainLayout = () => {
 
             items: [
 
-                // -------------------------------------------------
-                // DELIVERY CHALLANS
-                // -------------------------------------------------
-
                 {
                     label: "Delivery Challans",
                     path: "/delivery-challans",
                     icon: "📋",
 
                     children: [
-
                         {
                             label: "Challan List",
                             path: "/delivery-challans",
                         },
-
                         {
                             label: "Create Challan",
                             path: "/delivery-challans/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/delivery-challans/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/delivery-challans/details/:id",
-                        },
-
-                        {
-                            label: "Edit Challan",
-                            path: "/delivery-challans/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/delivery-challans/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/delivery-challans/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/delivery-challans/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/delivery-challans/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/delivery-challans/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/delivery-challans/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // DELIVERY CHALLAN ITEMS
-                // -------------------------------------------------
 
                 {
                     label: "Delivery Challan Items",
@@ -806,68 +707,24 @@ const MainLayout = () => {
                     icon: "📄",
 
                     children: [
-
                         {
                             label: "Item List",
                             path: "/delivery-challan-items",
                         },
-
                         {
                             label: "Create Item",
                             path: "/delivery-challan-items/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/delivery-challan-items/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/delivery-challan-items/details/:id",
-                        },
-
-                        {
-                            label: "Edit Item",
-                            path: "/delivery-challan-items/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/delivery-challan-items/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/delivery-challan-items/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/delivery-challan-items/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/delivery-challan-items/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/delivery-challan-items/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/delivery-challan-items/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // SHIPMENTS
-                // -------------------------------------------------
 
                 {
                     label: "Shipments",
@@ -875,68 +732,20 @@ const MainLayout = () => {
                     icon: "🚚",
 
                     children: [
-
                         {
                             label: "Shipment List",
                             path: "/shipments",
                         },
-
-                        {
-                            label: "Create Shipment",
-                            path: "/shipments/create",
-                        },
-
-                        {
-                            label: "Card",
-                            path: "/shipments/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/shipments/details/:id",
-                        },
-
-                        {
-                            label: "Edit Shipment",
-                            path: "/shipments/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/shipments/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/shipments/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/shipments/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/shipments/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/shipments/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/shipments/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // WAREHOUSES
-                // -------------------------------------------------
 
                 {
                     label: "Warehouses",
@@ -944,79 +753,36 @@ const MainLayout = () => {
                     icon: "🏭",
 
                     children: [
-
                         {
                             label: "Warehouse List",
                             path: "/warehouses",
                         },
-
                         {
                             label: "Create Warehouse",
                             path: "/warehouses/create",
                         },
-
-                        {
-                            label: "Warehouse Card",
-                            path: "/warehouses/card",
-                        },
-
                         {
                             label: "Warehouse Details",
                             path: "/warehouses/details/:id",
                         },
-
                         {
                             label: "Edit Warehouse",
                             path: "/warehouses/edit/:id",
                         },
-
-                        {
-                            label: "Warehouse Filters",
-                            path: "/warehouses/filters",
-                        },
-
-                        {
-                            label: "Warehouse Form",
-                            path: "/warehouses/form",
-                        },
-
-                        {
-                            label: "Warehouse Modal",
-                            path: "/warehouses/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/warehouses/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/warehouses/search",
                         },
-
+                        {
+                            label: "Filters",
+                            path: "/warehouses/filters",
+                        },
                         {
                             label: "Statistics",
                             path: "/warehouses/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/warehouses/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/warehouses/toolbar",
-                        },
-
                     ],
                 },
-
-              
-                // -------------------------------------------------
-                // WAREHOUSE LOCATIONS
-                // -------------------------------------------------
 
                 {
                     label: "Warehouse Locations",
@@ -1024,78 +790,32 @@ const MainLayout = () => {
                     icon: "📍",
 
                     children: [
-
                         {
                             label: "Location List",
                             path: "/warehouse-locations",
                         },
-
                         {
                             label: "Create Location",
                             path: "/warehouse-locations/create",
                         },
-
-                        {
-                            label: "Location Card",
-                            path: "/warehouse-locations/card",
-                        },
-
-                        {
-                            label: "Location Details",
-                            path: "/warehouse-locations/details/:id",
-                        },
-
-                        {
-                            label: "Edit Location",
-                            path: "/warehouse-locations/edit/:id",
-                        },
-
-                        {
-                            label: "Location Filters",
-                            path: "/warehouse-locations/filters",
-                        },
-
-                        {
-                            label: "Location Form",
-                            path: "/warehouse-locations/form",
-                        },
-
-                        {
-                            label: "Location Modal",
-                            path: "/warehouse-locations/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/warehouse-locations/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/warehouse-locations/search",
                         },
-
+                        {
+                            label: "Filters",
+                            path: "/warehouse-locations/filters",
+                        },
                         {
                             label: "Statistics",
                             path: "/warehouse-locations/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/warehouse-locations/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/warehouse-locations/toolbar",
-                        },
-
                     ],
                 },
 
-                // -------------------------------------------------
+                // =================================================
                 // STOCK LEDGER
-                // -------------------------------------------------
+                // =================================================
 
                 {
                     label: "Stock Ledger",
@@ -1103,31 +823,28 @@ const MainLayout = () => {
                     icon: "📒",
 
                     children: [
-
                         {
-                            label: "Ledger List",
+                            label: "Stock Ledger List",
                             path: "/stock-ledger",
                         },
-
                         {
-                            label: "Create Ledger Entry",
+                            label: "Create Stock Ledger",
                             path: "/stock-ledger/create",
                         },
                         {
-                            label: "Ledger Filters",
-                            path: "/stock-ledger/filters",
-                        },
-                        {
-                            label: "Search",
+                            label: "Search Stock Ledger",
                             path: "/stock-ledger/search",
                         },
-
+                        {
+                            label: "Stock Ledger Filters",
+                            path: "/stock-ledger/filters",
+                        },
                     ],
                 },
 
-                // -------------------------------------------------
+                // =================================================
                 // STOCK MOVEMENTS
-                // -------------------------------------------------
+                // =================================================
 
                 {
                     label: "Stock Movements",
@@ -1135,25 +852,26 @@ const MainLayout = () => {
                     icon: "🔀",
 
                     children: [
-
                         {
                             label: "Movement List",
                             path: "/stock-movements",
                         },
-
                         {
                             label: "Create Movement",
                             path: "/stock-movements/create",
                         },
                         {
-                            label: "Movement Filters",
-                            path: "/stock-movements/filters",
+                            label: "Movement Details",
+                            path: "/stock-movements/details/:id",
                         },
                         {
                             label: "Search",
                             path: "/stock-movements/search",
                         },
-
+                        {
+                            label: "Filters",
+                            path: "/stock-movements/filters",
+                        },
                         {
                             label: "Statistics",
                             path: "/stock-movements/statistics",
@@ -1161,9 +879,9 @@ const MainLayout = () => {
                     ],
                 },
 
-                // -------------------------------------------------
+                // =================================================
                 // STOCK TRANSFERS
-                // -------------------------------------------------
+                // =================================================
 
                 {
                     label: "Stock Transfers",
@@ -1171,37 +889,32 @@ const MainLayout = () => {
                     icon: "↔️",
 
                     children: [
-
                         {
                             label: "Transfer List",
                             path: "/stock-transfers",
                         },
-
                         {
                             label: "Create Transfer",
                             path: "/stock-transfers/create",
                         },
                         {
-                            label: "Transfer Filters",
-                            path: "/stock-transfers/filters",
-                        },
-                        {
                             label: "Search",
                             path: "/stock-transfers/search",
                         },
-
+                        {
+                            label: "Filters",
+                            path: "/stock-transfers/filters",
+                        },
                         {
                             label: "Statistics",
                             path: "/stock-transfers/statistics",
                         },
-
-
                     ],
                 },
 
-                // -------------------------------------------------
+                // =================================================
                 // STOCK ADJUSTMENTS
-                // -------------------------------------------------
+                // =================================================
 
                 {
                     label: "Stock Adjustments",
@@ -1209,12 +922,10 @@ const MainLayout = () => {
                     icon: "⚖️",
 
                     children: [
-
                         {
                             label: "Adjustment List",
                             path: "/stock-adjustments",
                         },
-
                         {
                             label: "Create Adjustment",
                             path: "/stock-adjustments/create",
@@ -1223,7 +934,6 @@ const MainLayout = () => {
                             label: "Search",
                             path: "/stock-adjustments/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/stock-adjustments/statistics",
@@ -1243,78 +953,30 @@ const MainLayout = () => {
 
             items: [
 
-                // -------------------------------------------------
-                // PURCHASE ORDERS
-                // -------------------------------------------------
-
                 {
                     label: "Purchase Orders",
                     path: "/purchase-orders",
                     icon: "📑",
 
                     children: [
-
                         {
                             label: "Purchase Order List",
                             path: "/purchase-orders",
                         },
-
                         {
                             label: "Create Purchase Order",
                             path: "/purchase-orders/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/purchase-orders/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/purchase-orders/details/:id",
-                        },
-
-                        {
-                            label: "Edit Purchase Order",
-                            path: "/purchase-orders/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/purchase-orders/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/purchase-orders/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/purchase-orders/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/purchase-orders/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/purchase-orders/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/purchase-orders/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // PURCHASE ORDER ITEMS
-                // -------------------------------------------------
 
                 {
                     label: "Purchase Order Items",
@@ -1322,68 +984,24 @@ const MainLayout = () => {
                     icon: "📝",
 
                     children: [
-
                         {
                             label: "Item List",
                             path: "/purchase-order-items",
                         },
-
                         {
                             label: "Create Item",
                             path: "/purchase-order-items/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/purchase-order-items/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/purchase-order-items/details/:id",
-                        },
-
-                        {
-                            label: "Edit Item",
-                            path: "/purchase-order-items/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/purchase-order-items/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/purchase-order-items/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/purchase-order-items/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/purchase-order-items/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/purchase-order-items/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/purchase-order-items/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // PURCHASE RETURNS
-                // -------------------------------------------------
 
                 {
                     label: "Purchase Returns",
@@ -1391,68 +1009,24 @@ const MainLayout = () => {
                     icon: "↩️",
 
                     children: [
-
                         {
                             label: "Return List",
                             path: "/purchase-returns",
                         },
-
                         {
                             label: "Create Return",
                             path: "/purchase-returns/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/purchase-returns/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/purchase-returns/details/:id",
-                        },
-
-                        {
-                            label: "Edit Return",
-                            path: "/purchase-returns/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/purchase-returns/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/purchase-returns/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/purchase-returns/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/purchase-returns/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/purchase-returns/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/purchase-returns/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // GOODS RECEIPT NOTES
-                // -------------------------------------------------
 
                 {
                     label: "Goods Receipt Notes",
@@ -1460,68 +1034,24 @@ const MainLayout = () => {
                     icon: "📥",
 
                     children: [
-
                         {
                             label: "GRN List",
                             path: "/goods-receipt-notes",
                         },
-
                         {
                             label: "Create GRN",
                             path: "/goods-receipt-notes/create",
                         },
-
-                        {
-                            label: "GRN Card",
-                            path: "/goods-receipt-notes/card",
-                        },
-
-                        {
-                            label: "GRN Details",
-                            path: "/goods-receipt-notes/details/:id",
-                        },
-
-                        {
-                            label: "Edit GRN",
-                            path: "/goods-receipt-notes/edit/:id",
-                        },
-
-                        {
-                            label: "GRN Modal",
-                            path: "/goods-receipt-notes/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/goods-receipt-notes/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/goods-receipt-notes/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/goods-receipt-notes/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/goods-receipt-notes/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/goods-receipt-notes/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // GOODS RECEIPT ITEMS
-                // -------------------------------------------------
 
                 {
                     label: "Goods Receipt Items",
@@ -1529,68 +1059,28 @@ const MainLayout = () => {
                     icon: "📦",
 
                     children: [
-
                         {
                             label: "Item List",
                             path: "/goods-receipt-note-items",
                         },
-
                         {
                             label: "Create Item",
                             path: "/goods-receipt-note-items/create",
                         },
-
-                        {
-                            label: "Item Card",
-                            path: "/goods-receipt-note-items/card",
-                        },
-
-                        {
-                            label: "Item Details",
-                            path: "/goods-receipt-note-items/details/:id",
-                        },
-
-                        {
-                            label: "Edit Item",
-                            path: "/goods-receipt-note-items/edit/:id",
-                        },
-
-                        {
-                            label: "Item Modal",
-                            path: "/goods-receipt-note-items/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/goods-receipt-note-items/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/goods-receipt-note-items/search",
                         },
-
+                        {
+                            label: "Filters",
+                            path: "/goods-receipt-note-items/filters",
+                        },
                         {
                             label: "Statistics",
                             path: "/goods-receipt-note-items/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/goods-receipt-note-items/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/goods-receipt-note-items/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // SUPPLIERS
-                // -------------------------------------------------
 
                 {
                     label: "Suppliers",
@@ -1598,72 +1088,26 @@ const MainLayout = () => {
                     icon: "🏢",
 
                     children: [
-
                         {
                             label: "Supplier List",
                             path: "/suppliers",
                         },
-
                         {
                             label: "Create Supplier",
                             path: "/suppliers/create",
                         },
-
-                        {
-                            label: "Supplier Card",
-                            path: "/suppliers/card",
-                        },
-
-                        {
-                            label: "Supplier Details",
-                            path: "/suppliers/details/:id",
-                        },
-
-                        {
-                            label: "Edit Supplier",
-                            path: "/suppliers/edit/:id",
-                        },
-
-                        {
-                            label: "Supplier Filters",
-                            path: "/suppliers/filters",
-                        },
-
-                        {
-                            label: "Supplier Form",
-                            path: "/suppliers/form",
-                        },
-
-                        {
-                            label: "Supplier Modal",
-                            path: "/suppliers/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/suppliers/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/suppliers/search",
                         },
-
+                        {
+                            label: "Filters",
+                            path: "/suppliers/filters",
+                        },
                         {
                             label: "Statistics",
                             path: "/suppliers/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/suppliers/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/suppliers/toolbar",
-                        },
-
                     ],
                 },
 
@@ -1679,157 +1123,30 @@ const MainLayout = () => {
 
             items: [
 
-                // -------------------------------------------------
-                // SELLER CUSTOMERS
-                // -------------------------------------------------
-
-                {
-                    label: "Seller Customers",
-                    path: "/seller-customers",
-                    icon: "👥",
-
-                    children: [
-
-                        {
-                            label: "Customer List",
-                            path: "/seller-customers",
-                        },
-
-                        {
-                            label: "Create Customer",
-                            path: "/seller-customers/create",
-                        },
-
-                        {
-                            label: "Customer Filters",
-                            path: "/seller-customers/filters",
-                        },
-
-                        {
-                            label: "Search Customers",
-                            path: "/seller-customers/search",
-                        },
-
-                        {
-                            label: "Customer Statistics",
-                            path: "/seller-customers/statistics",
-                        },
-
-                        {
-                            label: "Customer Table",
-                            path: "/seller-customers/table",
-                        },
-
-                        {
-                            label: "Customer Card",
-                            path: "/seller-customers/card",
-                        },
-
-                        {
-                            label: "Customer Form",
-                            path: "/seller-customers/form",
-                        },
-
-                        {
-                            label: "Customer Modal",
-                            path: "/seller-customers/modal",
-                        },
-
-                        {
-                            label: "Customer Pagination",
-                            path: "/seller-customers/pagination",
-                        },
-
-                        {
-                            label: "Customer Toolbar",
-                            path: "/seller-customers/toolbar",
-                        },
-
-                    ],
-                },
-
-                // -------------------------------------------------
-                // CUSTOMER ADDRESSES
-                // -------------------------------------------------
-
                 {
                     label: "Customer Addresses",
                     path: "/customer-addresses",
                     icon: "📍",
 
                     children: [
-
                         {
                             label: "Address List",
                             path: "/customer-addresses",
                         },
-
                         {
                             label: "Create Address",
                             path: "/customer-addresses/create",
                         },
-
-                        {
-                            label: "Address Card",
-                            path: "/customer-addresses/card",
-                        },
-
-                        {
-                            label: "Address Details",
-                            path: "/customer-addresses/details/:id",
-                        },
-
-                        {
-                            label: "Edit Address",
-                            path: "/customer-addresses/edit/:id",
-                        },
-
-                        {
-                            label: "Address Filters",
-                            path: "/customer-addresses/filters",
-                        },
-
-                        {
-                            label: "Address Form",
-                            path: "/customer-addresses/form",
-                        },
-
-                        {
-                            label: "Address Modal",
-                            path: "/customer-addresses/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/customer-addresses/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/customer-addresses/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/customer-addresses/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/customer-addresses/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/customer-addresses/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // CUSTOMER PAYMENTS
-                // -------------------------------------------------
 
                 {
                     label: "Customer Payments",
@@ -1837,78 +1154,24 @@ const MainLayout = () => {
                     icon: "💳",
 
                     children: [
-
                         {
                             label: "Payment List",
                             path: "/customer-payments",
                         },
-
                         {
                             label: "Create Payment",
                             path: "/customer-payments/create",
                         },
-
-                        {
-                            label: "Payment Card",
-                            path: "/customer-payments/card",
-                        },
-
-                        {
-                            label: "Payment Details",
-                            path: "/customer-payments/details/:id",
-                        },
-
-                        {
-                            label: "Edit Payment",
-                            path: "/customer-payments/edit/:id",
-                        },
-
-                        {
-                            label: "Payment Filters",
-                            path: "/customer-payments/filters",
-                        },
-
-                        {
-                            label: "Payment Form",
-                            path: "/customer-payments/form",
-                        },
-
-                        {
-                            label: "Payment Modal",
-                            path: "/customer-payments/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/customer-payments/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/customer-payments/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/customer-payments/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/customer-payments/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/customer-payments/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // CUSTOMER RETURNS
-                // -------------------------------------------------
 
                 {
                     label: "Customer Returns",
@@ -1916,78 +1179,24 @@ const MainLayout = () => {
                     icon: "🔄",
 
                     children: [
-
                         {
                             label: "Return List",
                             path: "/customer-returns",
                         },
-
                         {
                             label: "Create Return",
                             path: "/customer-returns/create",
                         },
-
-                        {
-                            label: "Return Card",
-                            path: "/customer-returns/card",
-                        },
-
-                        {
-                            label: "Return Details",
-                            path: "/customer-returns/details/:id",
-                        },
-
-                        {
-                            label: "Edit Return",
-                            path: "/customer-returns/edit/:id",
-                        },
-
-                        {
-                            label: "Return Filters",
-                            path: "/customer-returns/filters",
-                        },
-
-                        {
-                            label: "Return Form",
-                            path: "/customer-returns/form",
-                        },
-
-                        {
-                            label: "Return Modal",
-                            path: "/customer-returns/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/customer-returns/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/customer-returns/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/customer-returns/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/customer-returns/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/customer-returns/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // WISHLISTS
-                // -------------------------------------------------
 
                 {
                     label: "Wishlists",
@@ -1995,152 +1204,49 @@ const MainLayout = () => {
                     icon: "❤️",
 
                     children: [
-
                         {
                             label: "Wishlist List",
                             path: "/wishlists",
                         },
-
                         {
                             label: "Create Wishlist",
                             path: "/wishlists/create",
                         },
-
-                        {
-                            label: "Wishlist Card",
-                            path: "/wishlists/card",
-                        },
-
-                        {
-                            label: "Wishlist Details",
-                            path: "/wishlists/details/:id",
-                        },
-
-                        {
-                            label: "Edit Wishlist",
-                            path: "/wishlists/edit/:id",
-                        },
-
-                        {
-                            label: "Wishlist Filters",
-                            path: "/wishlists/filters",
-                        },
-
-                        {
-                            label: "Wishlist Form",
-                            path: "/wishlists/form",
-                        },
-
-                        {
-                            label: "Wishlist Modal",
-                            path: "/wishlists/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/wishlists/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/wishlists/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/wishlists/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/wishlists/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/wishlists/toolbar",
-                        },
-
                     ],
                 },
-                // -------------------------------------------------
-// WISHLIST ITEMS
-// -------------------------------------------------
 
-{
-    label: "Wishlist Items",
-    path: "/wishlist-items",
-    icon: "🛍️",
+                {
+                    label: "Wishlist Items",
+                    path: "/wishlist-items",
+                    icon: "🛍️",
 
-    children: [
-
-        {
-            label: "Wishlist Item List",
-            path: "/wishlist-items",
-        },
-
-        {
-            label: "Create Wishlist Item",
-            path: "/wishlist-items/create",
-        },
-
-        {
-            label: "Wishlist Item Card",
-            path: "/wishlist-items/card",
-        },
-
-        {
-            label: "Wishlist Item Details",
-            path: "/wishlist-items/details/:id",
-        },
-
-        {
-            label: "Edit Wishlist Item",
-            path: "/wishlist-items/edit/:id",
-        },
-
-        {
-            label: "Wishlist Item Filters",
-            path: "/wishlist-items/filters",
-        },
-
-        {
-            label: "Wishlist Item Form",
-            path: "/wishlist-items/form",
-        },
-
-        {
-            label: "Wishlist Item Modal",
-            path: "/wishlist-items/modal",
-        },
-
-        {
-            label: "Pagination",
-            path: "/wishlist-items/pagination",
-        },
-
-        {
-            label: "Search",
-            path: "/wishlist-items/search",
-        },
-
-        {
-            label: "Statistics",
-            path: "/wishlist-items/statistics",
-        },
-
-        {
-            label: "Table",
-            path: "/wishlist-items/table",
-        },
-
-        {
-            label: "Toolbar",
-            path: "/wishlist-items/toolbar",
-        },
-
-    ],
-},
+                    children: [
+                        {
+                            label: "Wishlist Item List",
+                            path: "/wishlist-items",
+                        },
+                        {
+                            label: "Create Wishlist Item",
+                            path: "/wishlist-items/create",
+                        },
+                        {
+                            label: "Search",
+                            path: "/wishlist-items/search",
+                        },
+                        {
+                            label: "Statistics",
+                            path: "/wishlist-items/statistics",
+                        },
+                    ],
+                },
 
             ],
         },
@@ -2160,78 +1266,30 @@ const MainLayout = () => {
                     icon: "🌐",
                 },
 
-                // -------------------------------------------------
-                // MARKETPLACE ORDER ITEMS
-                // -------------------------------------------------
-
                 {
                     label: "Marketplace Order Items",
                     path: "/marketplace-order-items",
                     icon: "🛍️",
 
                     children: [
-
                         {
                             label: "Order Item List",
                             path: "/marketplace-order-items",
                         },
-
                         {
                             label: "Create Item",
                             path: "/marketplace-order-items/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/marketplace-order-items/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/marketplace-order-items/details/:id",
-                        },
-
-                        {
-                            label: "Edit Item",
-                            path: "/marketplace-order-items/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/marketplace-order-items/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/marketplace-order-items/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/marketplace-order-items/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/marketplace-order-items/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/marketplace-order-items/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/marketplace-order-items/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // MARKETPLACE RETURNS
-                // -------------------------------------------------
 
                 {
                     label: "Marketplace Returns",
@@ -2239,62 +1297,22 @@ const MainLayout = () => {
                     icon: "↩️",
 
                     children: [
-
                         {
                             label: "Return List",
                             path: "/marketplace-returns",
                         },
-
                         {
                             label: "Create Return",
                             path: "/marketplace-returns/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/marketplace-returns/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/marketplace-returns/details/:id",
-                        },
-
-                        {
-                            label: "Edit Return",
-                            path: "/marketplace-returns/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/marketplace-returns/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/marketplace-returns/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/marketplace-returns/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/marketplace-returns/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/marketplace-returns/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/marketplace-returns/toolbar",
-                        },
-
                     ],
                 },
 
@@ -2310,88 +1328,30 @@ const MainLayout = () => {
 
             items: [
 
-                // -------------------------------------------------
-                // SALES INVOICES
-                // -------------------------------------------------
-
                 {
                     label: "Sales Invoices",
                     path: "/sales-invoices",
                     icon: "🧾",
 
                     children: [
-
                         {
                             label: "Invoice List",
                             path: "/sales-invoices",
                         },
-
                         {
                             label: "Create Invoice",
                             path: "/sales-invoices/create",
                         },
-
-                        {
-                            label: "Invoice Card",
-                            path: "/sales-invoices/card",
-                        },
-
-                        {
-                            label: "Invoice Details",
-                            path: "/sales-invoices/details/:id",
-                        },
-
-                        {
-                            label: "Edit Invoice",
-                            path: "/sales-invoices/edit/:id",
-                        },
-
-                        {
-                            label: "Invoice Filters",
-                            path: "/sales-invoices/filters",
-                        },
-
-                        {
-                            label: "Invoice Form",
-                            path: "/sales-invoices/form",
-                        },
-
-                        {
-                            label: "Invoice Modal",
-                            path: "/sales-invoices/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/sales-invoices/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/sales-invoices/search",
                         },
-
                         {
                             label: "Statistics",
                             path: "/sales-invoices/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/sales-invoices/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/sales-invoices/toolbar",
-                        },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // PAYMENT SETTINGS
-                // -------------------------------------------------
 
                 {
                     label: "Payment Settings",
@@ -2399,33 +1359,24 @@ const MainLayout = () => {
                     icon: "⚙️",
 
                     children: [
-
                         {
                             label: "Payment Settings",
                             path: "/payments/settings",
                         },
-
                         {
                             label: "Bank Details",
                             path: "/payments/bank-details",
                         },
-
                         {
                             label: "Payment Gateway",
                             path: "/payments/gateway",
                         },
-
                         {
                             label: "UPI Settings",
                             path: "/payments/upi",
                         },
-
                     ],
                 },
-
-                // -------------------------------------------------
-                // REPORTS
-                // -------------------------------------------------
 
                 {
                     label: "Reports",
@@ -2433,52 +1384,38 @@ const MainLayout = () => {
                     icon: "📈",
 
                     children: [
-
                         {
                             label: "Reports Dashboard",
                             path: "/reports",
                         },
-
                         {
                             label: "Sales Report",
                             path: "/reports/sales",
                         },
-
                         {
                             label: "Order Report",
                             path: "/reports/orders",
                         },
-
                         {
                             label: "Inventory Report",
                             path: "/reports/inventory",
                         },
-
                         {
                             label: "Product Report",
                             path: "/reports/products",
                         },
-
                         {
                             label: "Customer Report",
                             path: "/reports/customers",
                         },
-
                         {
                             label: "Purchase Report",
                             path: "/reports/purchases",
                         },
-
                         {
                             label: "Stock Report",
                             path: "/reports/stock",
                         },
-
-                        {
-                            label: "Export",
-                            path: "/reports/export",
-                        },
-
                     ],
                 },
 
@@ -2555,336 +1492,352 @@ const MainLayout = () => {
                     }}
                 >
 
-                    {menuSections.map((group, groupIndex) => {
+                    {menuSections.map(
+                        (group, groupIndex) => {
 
-                        // =================================================
-                        // SAFETY CHECK
-                        //
-                        // Prevents:
-                        // "can't access property map, group.items is undefined"
-                        // =================================================
+                            if (
+                                !group ||
+                                !Array.isArray(group.items)
+                            ) {
 
-                        if (
-                            !group ||
-                            !Array.isArray(group.items)
-                        ) {
+                                console.error(
+                                    "Invalid menu section:",
+                                    group
+                                );
 
-                            console.error(
-                                "Invalid menu section at index:",
-                                groupIndex,
-                                group
-                            );
+                                return null;
+                            }
 
-                            return null;
-                        }
+                            const isGroupOpen =
+                                openSections[group.section] !== false;
 
-                        const isGroupOpen =
-                            openSections[group.section] !== false;
+                            return (
 
-                        return (
-
-                            <div
-                                key={`${group.section}-${groupIndex}`}
-                                style={{
-                                    marginBottom: "10px",
-                                }}
-                            >
-
-                                {/* =====================================
-                                    SECTION HEADER
-                                ====================================== */}
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        toggleSection(group.section)
-                                    }
+                                <div
+                                    key={`${group.section}-${groupIndex}`}
                                     style={{
-                                        width: "100%",
-                                        border: "none",
-                                        background: "transparent",
-                                        color: "#94a3b8",
-                                        padding: "8px 20px",
-                                        fontSize: "0.72rem",
-                                        textTransform: "uppercase",
-                                        letterSpacing: "0.08em",
-                                        fontWeight: "600",
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        cursor: "pointer",
-                                        textAlign: "left",
+                                        marginBottom: "10px",
                                     }}
                                 >
 
-                                    <span>
-                                        {group.section}
-                                    </span>
+                                    {/* =====================================
+                                        SECTION HEADER
+                                    ====================================== */}
 
-                                    <span>
-                                        {isGroupOpen
-                                            ? "▲"
-                                            : "▼"}
-                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            toggleSection(
+                                                group.section
+                                            )
+                                        }
+                                        style={{
+                                            width: "100%",
+                                            border: "none",
+                                            background: "transparent",
+                                            color: "#94a3b8",
+                                            padding: "8px 20px",
+                                            fontSize: "0.72rem",
+                                            textTransform: "uppercase",
+                                            letterSpacing: "0.08em",
+                                            fontWeight: "600",
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            cursor: "pointer",
+                                            textAlign: "left",
+                                        }}
+                                    >
 
-                                </button>
+                                        <span>
+                                            {group.section}
+                                        </span>
 
-                                {/* =====================================
-                                    SECTION ITEMS
-                                ====================================== */}
+                                        <span>
+                                            {isGroupOpen
+                                                ? "▲"
+                                                : "▼"}
+                                        </span>
 
-                                {isGroupOpen && (
+                                    </button>
 
-                                    <div>
+                                    {/* =====================================
+                                        SECTION ITEMS
+                                    ====================================== */}
 
-                                        {group.items.map(
-                                            (item, itemIndex) => {
+                                    {isGroupOpen && (
 
-                                                if (!item) {
-                                                    return null;
-                                                }
+                                        <div>
 
-                                                const hasChildren =
-                                                    Array.isArray(
-                                                        item.children
-                                                    ) &&
-                                                    item.children.length > 0;
+                                            {group.items.map(
+                                                (
+                                                    item,
+                                                    itemIndex
+                                                ) => {
 
-                                                const isItemOpen =
-                                                    openItems[item.label] === true;
+                                                    if (!item) {
+                                                        return null;
+                                                    }
 
-                                                return (
+                                                    const hasChildren =
+                                                        Array.isArray(
+                                                            item.children
+                                                        ) &&
+                                                        item.children.length > 0;
 
-                                                    <div
-                                                        key={`${group.section}-${item.label}-${itemIndex}`}
-                                                        style={{
-                                                            width: "100%",
-                                                        }}
-                                                    >
+                                                    const isItemOpen =
+                                                        openItems[item.label] === true;
 
-                                                        {/* =================================
-                                                            PARENT ROW
-                                                        ================================== */}
+                                                    return (
 
                                                         <div
+                                                            key={`${group.section}-${item.label}-${itemIndex}`}
                                                             style={{
-                                                                display: "flex",
-                                                                alignItems: "center",
                                                                 width: "100%",
                                                             }}
                                                         >
 
-                                                            {/* =============================
-                                                                PARENT LINK
-                                                            ============================== */}
+                                                            {/* =================================
+                                                                PARENT ROW
+                                                            ================================== */}
 
-                                                            <NavLink
-                                                                to={item.path || "#"}
-                                                                end
-                                                                style={({ isActive }) => ({
-
-                                                                    flex: 1,
-
+                                                            <div
+                                                                style={{
                                                                     display: "flex",
-
                                                                     alignItems: "center",
-
-                                                                    gap: "10px",
-
-                                                                    padding: "9px 20px",
-
-                                                                    color: isActive
-                                                                        ? "#ffffff"
-                                                                        : "#cbd5e1",
-
-                                                                    backgroundColor: isActive
-                                                                        ? "#0284c7"
-                                                                        : isItemOpen
-                                                                            ? "#26364d"
-                                                                            : "transparent",
-
-                                                                    textDecoration: "none",
-
-                                                                    fontSize: "0.88rem",
-
-                                                                    cursor: "pointer",
-
-                                                                    minWidth: 0,
-
-                                                                })}
-                                                                onClick={() => {
-
-                                                                    if (hasChildren) {
-
-                                                                        openItem(
-                                                                            item.label
-                                                                        );
-
-                                                                    }
-
+                                                                    width: "100%",
                                                                 }}
                                                             >
 
-                                                                <span
-                                                                    style={{
-                                                                        width: "22px",
-                                                                        minWidth: "22px",
-                                                                        textAlign: "center",
-                                                                    }}
-                                                                >
-                                                                    {item.icon || "•"}
-                                                                </span>
+                                                                {/* =============================
+                                                                    PARENT LINK
+                                                                ============================== */}
 
-                                                                <span
-                                                                    style={{
-                                                                        overflow: "hidden",
-                                                                        textOverflow: "ellipsis",
-                                                                        whiteSpace: "nowrap",
-                                                                    }}
-                                                                >
-                                                                    {item.label}
-                                                                </span>
-
-                                                            </NavLink>
-
-                                                            {/* =============================
-                                                                EXPAND / COLLAPSE BUTTON
-                                                            ============================== */}
-
-                                                            {hasChildren && (
-
-                                                                <button
-                                                                    type="button"
-                                                                    aria-label={
-                                                                        isItemOpen
-                                                                            ? `Collapse ${item.label}`
-                                                                            : `Expand ${item.label}`
+                                                                <NavLink
+                                                                    to={
+                                                                        item.path ||
+                                                                        "#"
                                                                     }
+                                                                    end
                                                                     onClick={(event) => {
 
-                                                                        event.preventDefault();
+                                                                        if (
+                                                                            !item.path ||
+                                                                            item.path === "#"
+                                                                        ) {
+                                                                            event.preventDefault();
+                                                                            return;
+                                                                        }
 
-                                                                        event.stopPropagation();
-
-                                                                        toggleItem(
-                                                                            item.label
+                                                                        handleItemClick(
+                                                                            item
                                                                         );
 
                                                                     }}
-                                                                    style={{
-                                                                        width: "42px",
-                                                                        minWidth: "42px",
-                                                                        height: "38px",
-                                                                        border: "none",
-                                                                        backgroundColor:
-                                                                            isItemOpen
+                                                                    style={({ isActive }) => ({
+
+                                                                        flex: 1,
+
+                                                                        display: "flex",
+
+                                                                        alignItems: "center",
+
+                                                                        gap: "10px",
+
+                                                                        padding: "9px 20px",
+
+                                                                        color: isActive
+                                                                            ? "#ffffff"
+                                                                            : "#cbd5e1",
+
+                                                                        backgroundColor: isActive
+                                                                            ? "#0284c7"
+                                                                            : isItemOpen
                                                                                 ? "#26364d"
                                                                                 : "transparent",
-                                                                        color: "#cbd5e1",
+
+                                                                        textDecoration: "none",
+
+                                                                        fontSize: "0.88rem",
+
                                                                         cursor: "pointer",
-                                                                        fontSize: "10px",
-                                                                    }}
+
+                                                                        minWidth: 0,
+
+                                                                    })}
                                                                 >
 
-                                                                    {isItemOpen
-                                                                        ? "▲"
-                                                                        : "▼"}
+                                                                    <span
+                                                                        style={{
+                                                                            width: "22px",
+                                                                            minWidth: "22px",
+                                                                            textAlign: "center",
+                                                                        }}
+                                                                    >
+                                                                        {item.icon || "•"}
+                                                                    </span>
 
-                                                                </button>
+                                                                    <span
+                                                                        style={{
+                                                                            overflow: "hidden",
+                                                                            textOverflow: "ellipsis",
+                                                                            whiteSpace: "nowrap",
+                                                                        }}
+                                                                    >
+                                                                        {item.label}
+                                                                    </span>
 
-                                                            )}
+                                                                </NavLink>
+
+                                                                {/* =============================
+                                                                    EXPAND / COLLAPSE BUTTON
+                                                                ============================== */}
+
+                                                                {hasChildren && (
+
+                                                                    <button
+                                                                        type="button"
+                                                                        aria-label={
+                                                                            isItemOpen
+                                                                                ? `Collapse ${item.label}`
+                                                                                : `Expand ${item.label}`
+                                                                        }
+                                                                        onClick={(event) => {
+
+                                                                            event.preventDefault();
+
+                                                                            event.stopPropagation();
+
+                                                                            toggleItem(
+                                                                                item.label
+                                                                            );
+
+                                                                        }}
+                                                                        style={{
+                                                                            width: "42px",
+                                                                            minWidth: "42px",
+                                                                            height: "38px",
+                                                                            border: "none",
+                                                                            backgroundColor:
+                                                                                isItemOpen
+                                                                                    ? "#26364d"
+                                                                                    : "transparent",
+                                                                            color: "#cbd5e1",
+                                                                            cursor: "pointer",
+                                                                            fontSize: "10px",
+                                                                        }}
+                                                                    >
+
+                                                                        {isItemOpen
+                                                                            ? "▲"
+                                                                            : "▼"}
+
+                                                                    </button>
+
+                                                                )}
+
+                                                            </div>
+
+                                                            {/* =================================
+                                                                CHILDREN
+                                                            ================================== */}
+
+                                                            {hasChildren &&
+                                                                isItemOpen && (
+
+                                                                    <div
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                "#172033",
+                                                                            paddingBottom:
+                                                                                "4px",
+                                                                        }}
+                                                                    >
+
+                                                                        {item.children.map(
+                                                                            (
+                                                                                child,
+                                                                                childIndex
+                                                                            ) => {
+
+                                                                                if (
+                                                                                    !child ||
+                                                                                    !child.path
+                                                                                ) {
+                                                                                    return null;
+                                                                                }
+
+                                                                                return (
+
+                                                                                    <NavLink
+                                                                                        key={`${item.label}-${child.path}-${childIndex}`}
+                                                                                        to={child.path}
+                                                                                        onClick={(event) => {
+
+                                                                                            event.stopPropagation();
+
+                                                                                            handleChildClick(
+                                                                                                item,
+                                                                                                child
+                                                                                            );
+
+                                                                                        }}
+                                                                                        style={({ isActive }) => ({
+
+                                                                                            display: "block",
+
+                                                                                            width: "100%",
+
+                                                                                            boxSizing: "border-box",
+
+                                                                                            padding:
+                                                                                                "7px 20px 7px 52px",
+
+                                                                                            color: isActive
+                                                                                                ? "#38bdf8"
+                                                                                                : "#94a3b8",
+
+                                                                                            backgroundColor: isActive
+                                                                                                ? "#1e3a5f"
+                                                                                                : "transparent",
+
+                                                                                            textDecoration: "none",
+
+                                                                                            fontSize: "0.82rem",
+
+                                                                                        })}
+                                                                                    >
+
+                                                                                        {child.label}
+
+                                                                                    </NavLink>
+
+                                                                                );
+
+                                                                            }
+                                                                        )}
+
+                                                                    </div>
+
+                                                                )}
 
                                                         </div>
 
-                                                        {/* =================================
-                                                            CHILDREN
-                                                        ================================== */}
+                                                    );
 
-                                                        {hasChildren &&
-                                                            isItemOpen && (
+                                                }
+                                            )}
 
-                                                                <div
-                                                                    style={{
-                                                                        backgroundColor:
-                                                                            "#172033",
-                                                                        paddingBottom:
-                                                                            "4px",
-                                                                    }}
-                                                                >
+                                        </div>
 
-                                                                    {item.children.map(
-                                                                        (
-                                                                            child,
-                                                                            childIndex
-                                                                        ) => {
+                                    )}
 
-                                                                            if (
-                                                                                !child ||
-                                                                                !child.path
-                                                                            ) {
-                                                                                return null;
-                                                                            }
+                                </div>
 
-                                                                            return (
+                            );
 
-                                                                                <NavLink
-                                                                                    key={`${item.label}-${child.path}-${childIndex}`}
-                                                                                    to={child.path}
-                                                                                    style={({ isActive }) => ({
-
-                                                                                        display: "block",
-
-                                                                                        width: "100%",
-
-                                                                                        boxSizing: "border-box",
-
-                                                                                        padding:
-                                                                                            "7px 20px 7px 52px",
-
-                                                                                        color: isActive
-                                                                                            ? "#38bdf8"
-                                                                                            : "#94a3b8",
-
-                                                                                        backgroundColor: isActive
-                                                                                            ? "#1e3a5f"
-                                                                                            : "transparent",
-
-                                                                                        textDecoration: "none",
-
-                                                                                        fontSize: "0.82rem",
-
-                                                                                    })}
-                                                                                >
-
-                                                                                    {child.label}
-
-                                                                                </NavLink>
-
-                                                                            );
-
-                                                                        }
-                                                                    )}
-
-                                                                </div>
-
-                                                            )}
-
-                                                    </div>
-
-                                                );
-
-                                            }
-                                        )}
-
-                                    </div>
-
-                                )}
-
-                            </div>
-
-                        );
-
-                    })}
+                        }
+                    )}
 
                 </nav>
 
@@ -2954,10 +1907,6 @@ const MainLayout = () => {
                     }}
                 >
 
-                    {/* =============================================
-                        HEADER TITLE
-                    ============================================== */}
-
                     <div
                         style={{
                             fontWeight: "600",
@@ -2966,10 +1915,6 @@ const MainLayout = () => {
                     >
                         Seller Portal Control Panel
                     </div>
-
-                    {/* =============================================
-                        HEADER ACTIONS
-                    ============================================== */}
 
                     <div
                         style={{
@@ -3009,7 +1954,7 @@ const MainLayout = () => {
                 </header>
 
                 {/* =================================================
-                    MAIN CONTENT
+                    CONTENT
                 ================================================= */}
 
                 <main

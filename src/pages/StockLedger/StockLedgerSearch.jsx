@@ -13,8 +13,6 @@ import {
     Alert
 } from "@mui/material";
 
-import StockLedgerSearch
-    from "./StockLedgerSearch";
 
 
 const SERVER_URL =
