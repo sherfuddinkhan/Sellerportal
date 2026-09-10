@@ -12694,6 +12694,235 @@ app.delete(
 
     }
 );
+// =========================================================
+// ORDER STATUS HISTORY
+// CREATE
+// =========================================================
+//
+// React:
+// POST http://localhost:5000/api/order-status-histories
+//
+// ASP.NET:
+// POST https://localhost:7203/api/order-status-histories
+// =========================================================
+
+app.post(
+    "/api/order-status-histories",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "POST CREATE ORDER STATUS HISTORY"
+            );
+
+            console.log(
+                "REQUEST BODY:"
+            );
+
+            console.log(
+                req.body
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            // -------------------------------------------------
+            // Validate body
+            // -------------------------------------------------
+
+            if (
+                !req.body ||
+                typeof req.body !== "object"
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "Order status history request body is required."
+                });
+
+            }
+
+
+            // -------------------------------------------------
+            // Build payload
+            // -------------------------------------------------
+
+            const payload = {
+
+                orderStatusHistoryId:
+                    Number(
+                        req.body.orderStatusHistoryId || 0
+                    ),
+
+                sellerId:
+                    Number(
+                        req.body.sellerId || 0
+                    ),
+
+                customerId:
+                    Number(
+                        req.body.customerId || 0
+                    ),
+
+                orderId:
+                    Number(
+                        req.body.orderId || 0
+                    ),
+
+                status:
+                    req.body.status || "",
+
+                remarks:
+                    req.body.remarks || "",
+
+                changedOn:
+                    req.body.changedOn ||
+                    new Date().toISOString()
+
+            };
+
+
+            console.log(
+                "FORWARDING PAYLOAD TO ASP.NET:"
+            );
+
+            console.log(
+                JSON.stringify(
+                    payload,
+                    null,
+                    2
+                )
+            );
+
+
+            // -------------------------------------------------
+            // Authorization
+            // -------------------------------------------------
+
+            const authorization =
+                req.headers.authorization || "";
+
+
+            // -------------------------------------------------
+            // Call ASP.NET API
+            // -------------------------------------------------
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/order-status-histories`,
+                    payload,
+                    {
+                        httpsAgent,
+
+                        headers: {
+
+                            Accept:
+                                "application/json",
+
+                            "Content-Type":
+                                "application/json",
+
+                            ...(authorization
+                                ? {
+                                    Authorization:
+                                        authorization
+                                }
+                                : {})
+
+                        }
+                    }
+                );
+
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "CREATE ORDER STATUS HISTORY RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:"
+            );
+
+            console.log(
+                response.data
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            // -------------------------------------------------
+            // Return ASP.NET response to React
+            // -------------------------------------------------
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "================================================"
+            );
+
+            console.error(
+                "CREATE ORDER STATUS HISTORY ERROR"
+            );
+
+            console.error(
+                error.message
+            );
+
+
+            console.error(
+                "ASP.NET STATUS:",
+                error.response?.status
+            );
+
+
+            console.error(
+                "ASP.NET RESPONSE:",
+                error.response?.data
+            );
+
+            console.error(
+                "================================================"
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Unable to create order status history."
+                    }
+                );
+
+        }
+
+    }
+);
+
 ///////////////////////////////////WISHLIST ////////////////////////
 /* =========================================================
    WISHLIST - GET ALL

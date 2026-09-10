@@ -1704,7 +1704,10 @@ function App() {
     path="order-status-history/:id"
     element={<OrderStatusHistoryView />}
 />
-
+<Route
+    path="order-status-history/create"
+    element={<CreateOrderStatusHistory/>}
+/>
 
 
                 {/* =================================================

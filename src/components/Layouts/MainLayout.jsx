@@ -704,52 +704,10 @@ const MainLayout = () => {
                             label: "Create History",
                             path: "/order-status-history/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/order-status-history/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/order-status-history/details/:id",
-                        },
-
-                        {
-                            label: "Edit",
-                            path: "/order-status-history/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/order-status-history/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/order-status-history/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/order-status-history/search",
                         },
-
-                        {
-                            label: "Statistics",
-                            path: "/order-status-history/statistics",
-                        },
-
-                        {
-                            label: "Table",
-                            path: "/order-status-history/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/order-status-history/toolbar",
-                        },
-
                     ],
                 },
 
