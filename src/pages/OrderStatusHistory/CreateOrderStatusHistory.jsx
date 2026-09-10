@@ -1,4 +1,3 @@
-
 import React, {
     useEffect,
     useState
@@ -43,7 +42,7 @@ const STATUS_OPTIONS = [
 
 
 /* =========================================================
-   FORMAT DATETIME LOCAL
+   CURRENT LOCAL DATETIME
 ========================================================= */
 
 const getCurrentDateTimeLocal = () => {
@@ -62,7 +61,7 @@ const getCurrentDateTimeLocal = () => {
 
 
 /* =========================================================
-   CREATE ORDER STATUS HISTORY
+   COMPONENT
 ========================================================= */
 
 const CreateOrderStatusHistory = ({
@@ -77,14 +76,12 @@ const CreateOrderStatusHistory = ({
     ===================================================== */
 
     const [formData, setFormData] = useState({
-        orderStatusHistoryId: 0,
         sellerId: DEFAULT_SELLER_ID,
         customerId: DEFAULT_CUSTOMER_ID,
         orderId: "",
         status: "",
         remarks: "",
-        changedOn: getCurrentDateTimeLocal(),
-        timestamp: ""
+        changedOn: getCurrentDateTimeLocal()
     });
 
 
@@ -94,21 +91,18 @@ const CreateOrderStatusHistory = ({
 
     useEffect(() => {
 
-        if (open) {
-
-            setFormData({
-                orderStatusHistoryId: 0,
-                sellerId: DEFAULT_SELLER_ID,
-                customerId: DEFAULT_CUSTOMER_ID,
-                orderId: "",
-                status: "",
-                remarks: "",
-                changedOn:
-                    getCurrentDateTimeLocal(),
-                timestamp: ""
-            });
-
+        if (!open) {
+            return;
         }
+
+        setFormData({
+            sellerId: DEFAULT_SELLER_ID,
+            customerId: DEFAULT_CUSTOMER_ID,
+            orderId: "",
+            status: "",
+            remarks: "",
+            changedOn: getCurrentDateTimeLocal()
+        });
 
     }, [open]);
 
@@ -124,7 +118,7 @@ const CreateOrderStatusHistory = ({
             value
         } = event.target;
 
-        setFormData((previous) => ({
+        setFormData(previous => ({
             ...previous,
             [name]: value
         }));
@@ -148,9 +142,9 @@ const CreateOrderStatusHistory = ({
             Number(formData.orderId);
 
 
-        /* ================================================
+        /* =================================================
            VALIDATION
-        ================================================ */
+        ================================================= */
 
         if (!sellerId) {
             return;
@@ -169,45 +163,45 @@ const CreateOrderStatusHistory = ({
         }
 
 
-        /* ================================================
+        /* =================================================
            PAYLOAD
-        ================================================ */
+        ================================================= */
 
         const payload = {
 
             orderStatusHistoryId: 0,
 
-            sellerId,
+            sellerId: sellerId,
 
-            customerId,
+            customerId: customerId,
 
-            orderId,
+            orderId: orderId,
 
-            status:
-                formData.status,
+            status: formData.status,
 
             remarks:
-                formData.remarks || "",
+                formData.remarks?.trim() || "",
 
             changedOn:
                 formData.changedOn
                     ? new Date(
                         formData.changedOn
                     ).toISOString()
-                    : new Date().toISOString(),
-
-            timestamp:
-                new Date().toISOString()
+                    : new Date().toISOString()
         };
 
 
-        /* ================================================
-           SAVE
-        ================================================ */
+        console.log(
+            "CREATE ORDER STATUS HISTORY PAYLOAD:",
+            payload
+        );
 
-        if (
-            typeof onSave === "function"
-        ) {
+
+        /* =================================================
+           SAVE
+        ================================================= */
+
+        if (typeof onSave === "function") {
 
             onSave(payload);
 
@@ -224,7 +218,11 @@ const CreateOrderStatusHistory = ({
 
         <Dialog
             open={open}
-            onClose={loading ? undefined : onClose}
+            onClose={
+                loading
+                    ? undefined
+                    : onClose
+            }
             fullWidth
             maxWidth="md"
         >
@@ -239,6 +237,7 @@ const CreateOrderStatusHistory = ({
 
             <Divider />
 
+
             <DialogContent
                 sx={{
                     mt: 2
@@ -250,9 +249,9 @@ const CreateOrderStatusHistory = ({
                     spacing={2}
                 >
 
-                    {/* =========================================
-                        SELLER ID
-                    ========================================= */}
+                    {/* =================================================
+                        SELLER
+                    ================================================= */}
 
                     <Grid
                         item
@@ -272,9 +271,9 @@ const CreateOrderStatusHistory = ({
                     </Grid>
 
 
-                    {/* =========================================
-                        CUSTOMER ID
-                    ========================================= */}
+                    {/* =================================================
+                        CUSTOMER
+                    ================================================= */}
 
                     <Grid
                         item
@@ -294,9 +293,9 @@ const CreateOrderStatusHistory = ({
                     </Grid>
 
 
-                    {/* =========================================
-                        ORDER ID
-                    ========================================= */}
+                    {/* =================================================
+                        ORDER
+                    ================================================= */}
 
                     <Grid
                         item
@@ -312,14 +311,17 @@ const CreateOrderStatusHistory = ({
                             type="number"
                             value={formData.orderId}
                             onChange={handleChange}
+                            inputProps={{
+                                min: 1
+                            }}
                         />
 
                     </Grid>
 
 
-                    {/* =========================================
+                    {/* =================================================
                         STATUS
-                    ========================================= */}
+                    ================================================= */}
 
                     <Grid
                         item
@@ -338,7 +340,7 @@ const CreateOrderStatusHistory = ({
                         >
 
                             {STATUS_OPTIONS.map(
-                                (status) => (
+                                status => (
 
                                     <MenuItem
                                         key={status}
@@ -355,9 +357,9 @@ const CreateOrderStatusHistory = ({
                     </Grid>
 
 
-                    {/* =========================================
+                    {/* =================================================
                         REMARKS
-                    ========================================= */}
+                    ================================================= */}
 
                     <Grid
                         item
@@ -378,9 +380,9 @@ const CreateOrderStatusHistory = ({
                     </Grid>
 
 
-                    {/* =========================================
+                    {/* =================================================
                         CHANGED ON
-                    ========================================= */}
+                    ================================================= */}
 
                     <Grid
                         item
@@ -426,6 +428,7 @@ const CreateOrderStatusHistory = ({
                     Cancel
                 </Button>
 
+
                 <Button
                     variant="contained"
                     onClick={handleSubmit}
@@ -436,8 +439,11 @@ const CreateOrderStatusHistory = ({
                         <>
                             <CircularProgress
                                 size={20}
-                                sx={{ mr: 1 }}
+                                sx={{
+                                    mr: 1
+                                }}
                             />
+
                             Saving...
                         </>
                     ) : (
@@ -454,11 +460,5 @@ const CreateOrderStatusHistory = ({
 
 
 export default CreateOrderStatusHistory;
-
-
-
-
-
-
 
 

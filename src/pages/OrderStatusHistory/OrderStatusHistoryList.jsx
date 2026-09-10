@@ -44,6 +44,75 @@ const SERVER_URL = "http://localhost:5000";
 
 
 /* =========================================================
+   AUTH HEADERS
+========================================================= */
+
+const getHeaders = () => {
+
+    const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        "";
+
+    return {
+        Accept: "application/json",
+        ...(token
+            ? {
+                Authorization: `Bearer ${token}`
+            }
+            : {})
+    };
+
+};
+
+
+/* =========================================================
+   NORMALIZE API RESPONSE
+========================================================= */
+
+const normalizeResponse = (responseData) => {
+
+    if (Array.isArray(responseData)) {
+
+        return responseData;
+
+    }
+
+
+    if (Array.isArray(responseData?.data)) {
+
+        return responseData.data;
+
+    }
+
+
+    if (Array.isArray(responseData?.items)) {
+
+        return responseData.items;
+
+    }
+
+
+    if (Array.isArray(responseData?.result)) {
+
+        return responseData.result;
+
+    }
+
+
+    if (Array.isArray(responseData?.results)) {
+
+        return responseData.results;
+
+    }
+
+
+    return [];
+
+};
+
+
+/* =========================================================
    COMPONENT
 ========================================================= */
 
@@ -58,50 +127,60 @@ const OrderStatusHistoryList = () => {
         setHistoryList
     ] = useState([]);
 
+
     const [
         filteredHistory,
         setFilteredHistory
     ] = useState([]);
+
 
     const [
         loading,
         setLoading
     ] = useState(false);
 
+
     const [
         searchText,
         setSearchText
     ] = useState("");
+
 
     const [
         selectedHistory,
         setSelectedHistory
     ] = useState(null);
 
+
     const [
         modalOpen,
         setModalOpen
     ] = useState(false);
+
 
     const [
         viewOpen,
         setViewOpen
     ] = useState(false);
 
+
     const [
         deleteOpen,
         setDeleteOpen
     ] = useState(false);
+
 
     const [
         page,
         setPage
     ] = useState(1);
 
+
     const [
         pageSize,
         setPageSize
     ] = useState(10);
+
 
     const [
         snackbar,
@@ -150,8 +229,11 @@ const OrderStatusHistoryList = () => {
     /* =====================================================
        GET ALL ORDER STATUS HISTORY
        
-       GET:
-       http://localhost:5000/api/order-status-histories/all
+       NODE:
+       GET /api/order-status-histories/all
+
+       ASP.NET:
+       GET /api/order-status-histories/all
     ===================================================== */
 
     const loadHistory = async () => {
@@ -160,13 +242,55 @@ const OrderStatusHistoryList = () => {
 
             setLoading(true);
 
-            const response = await axios.get(
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "GET ALL ORDER STATUS HISTORY"
+            );
+
+            console.log(
                 `${SERVER_URL}/api/order-status-histories/all`
             );
 
-            const data = Array.isArray(response.data)
-                ? response.data
-                : [];
+
+            const response =
+                await axios.get(
+                    `${SERVER_URL}/api/order-status-histories/all`,
+                    {
+                        headers: getHeaders()
+                    }
+                );
+
+
+            console.log(
+                "ORDER STATUS HISTORY RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+
+            const data =
+                normalizeResponse(
+                    response.data
+                );
+
+
+            console.log(
+                "NORMALIZED HISTORY:",
+                data
+            );
+
 
             setHistoryList(data);
 
@@ -180,12 +304,27 @@ const OrderStatusHistoryList = () => {
                 error
             );
 
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+
             setHistoryList([]);
 
             setFilteredHistory([]);
 
+
             showMessage(
                 error.response?.data?.message ||
+                error.response?.data?.title ||
                 "Unable to load order status history.",
                 "error"
             );
@@ -232,41 +371,45 @@ const OrderStatusHistoryList = () => {
                     .trim();
 
 
-            result = result.filter(
-                item => {
+            result =
+                result.filter(
+                    item => {
 
-                    const orderId =
-                        String(
-                            item.orderId ??
-                            item.OrderId ??
-                            ""
-                        ).toLowerCase();
-
-
-                    const status =
-                        String(
-                            item.status ??
-                            item.Status ??
-                            ""
-                        ).toLowerCase();
+                        const orderId =
+                            String(
+                                item.orderId ??
+                                item.OrderId ??
+                                ""
+                            )
+                                .toLowerCase();
 
 
-                    const remarks =
-                        String(
-                            item.remarks ??
-                            item.Remarks ??
-                            ""
-                        ).toLowerCase();
+                        const status =
+                            String(
+                                item.status ??
+                                item.Status ??
+                                ""
+                            )
+                                .toLowerCase();
 
 
-                    return (
-                        orderId.includes(search) ||
-                        status.includes(search) ||
-                        remarks.includes(search)
-                    );
+                        const remarks =
+                            String(
+                                item.remarks ??
+                                item.Remarks ??
+                                ""
+                            )
+                                .toLowerCase();
 
-                }
-            );
+
+                        return (
+                            orderId.includes(search) ||
+                            status.includes(search) ||
+                            remarks.includes(search)
+                        );
+
+                    }
+                );
 
         }
 
@@ -300,13 +443,7 @@ const OrderStatusHistoryList = () => {
 
 
     /* =====================================================
-       SAVE HISTORY
-       
-       POST:
-       /api/order-status-histories
-
-       PUT:
-       /api/order-status-histories/:id
+       CREATE / UPDATE
     ===================================================== */
 
     const handleSave = async (data) => {
@@ -317,23 +454,48 @@ const OrderStatusHistoryList = () => {
 
 
             const historyId =
-                data.orderStatusHistoryId ??
-                data.OrderStatusHistoryId ??
-                data.historyId ??
-                data.HistoryId ??
-                0;
+                Number(
+                    data.orderStatusHistoryId ??
+                    data.OrderStatusHistoryId ??
+                    data.historyId ??
+                    data.HistoryId ??
+                    0
+                );
+
+
+            console.log(
+                "SAVE ORDER STATUS HISTORY"
+            );
+
+            console.log(
+                "HISTORY ID:",
+                historyId
+            );
+
+            console.log(
+                "PAYLOAD:",
+                data
+            );
 
 
             /* =============================================
                UPDATE
             ============================================= */
 
-            if (historyId) {
+            if (historyId > 0) {
 
                 await axios.put(
                     `${SERVER_URL}/api/order-status-histories/${historyId}`,
-                    data
+                    data,
+                    {
+                        headers: {
+                            ...getHeaders(),
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
                 );
+
 
                 showMessage(
                     "Order status history updated successfully.",
@@ -354,11 +516,13 @@ const OrderStatusHistoryList = () => {
                     data,
                     {
                         headers: {
+                            ...getHeaders(),
                             "Content-Type":
                                 "application/json"
                         }
                     }
                 );
+
 
                 showMessage(
                     "Order status history created successfully.",
@@ -387,8 +551,22 @@ const OrderStatusHistoryList = () => {
                 error
             );
 
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+
             showMessage(
                 error.response?.data?.message ||
+                error.response?.data?.title ||
                 "Unable to save order status history.",
                 "error"
             );
@@ -404,10 +582,7 @@ const OrderStatusHistoryList = () => {
 
 
     /* =====================================================
-       DELETE HISTORY
-       
-       DELETE:
-       /api/order-status-histories/:id
+       DELETE
     ===================================================== */
 
     const handleDelete = async (id) => {
@@ -417,8 +592,30 @@ const OrderStatusHistoryList = () => {
             setLoading(true);
 
 
+            const historyId =
+                Number(id);
+
+
+            if (!historyId) {
+
+                throw new Error(
+                    "Invalid order status history ID."
+                );
+
+            }
+
+
+            console.log(
+                "DELETE ORDER STATUS HISTORY:",
+                historyId
+            );
+
+
             await axios.delete(
-                `${SERVER_URL}/api/order-status-histories/${id}`
+                `${SERVER_URL}/api/order-status-histories/${historyId}`,
+                {
+                    headers: getHeaders()
+                }
             );
 
 
@@ -443,8 +640,23 @@ const OrderStatusHistoryList = () => {
                 error
             );
 
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+
             showMessage(
                 error.response?.data?.message ||
+                error.response?.data?.title ||
+                error.message ||
                 "Unable to delete order status history.",
                 "error"
             );
@@ -455,6 +667,97 @@ const OrderStatusHistoryList = () => {
             setLoading(false);
 
         }
+
+    };
+
+
+    /* =====================================================
+       ADD
+    ===================================================== */
+
+    const handleAdd = () => {
+
+        setSelectedHistory(null);
+
+        setModalOpen(true);
+
+    };
+
+
+    /* =====================================================
+       VIEW
+    ===================================================== */
+
+    const handleView = (row) => {
+
+        setSelectedHistory(row);
+
+        setViewOpen(true);
+
+    };
+
+
+    /* =====================================================
+       EDIT
+    ===================================================== */
+
+    const handleEdit = (row) => {
+
+        setSelectedHistory(row);
+
+        setModalOpen(true);
+
+    };
+
+
+    /* =====================================================
+       DELETE DIALOG
+    ===================================================== */
+
+    const handleDeleteDialog = (row) => {
+
+        setSelectedHistory(row);
+
+        setDeleteOpen(true);
+
+    };
+
+
+    /* =====================================================
+       CLOSE MODAL
+    ===================================================== */
+
+    const handleModalClose = () => {
+
+        setModalOpen(false);
+
+        setSelectedHistory(null);
+
+    };
+
+
+    /* =====================================================
+       CLOSE VIEW
+    ===================================================== */
+
+    const handleViewClose = () => {
+
+        setViewOpen(false);
+
+        setSelectedHistory(null);
+
+    };
+
+
+    /* =====================================================
+       CLOSE DELETE
+    ===================================================== */
+
+    const handleDeleteClose = () => {
+
+        setDeleteOpen(false);
+
+        setSelectedHistory(null);
 
     };
 
@@ -471,19 +774,13 @@ const OrderStatusHistoryList = () => {
             }}
         >
 
-            {/* =============================================
+            {/* =================================================
                 TOOLBAR
-            ============================================= */}
+            ================================================= */}
 
             <OrderStatusHistoryToolbar
 
-                onAdd={() => {
-
-                    setSelectedHistory(null);
-
-                    setModalOpen(true);
-
-                }}
+                onAdd={handleAdd}
 
                 onRefresh={loadHistory}
 
@@ -498,22 +795,24 @@ const OrderStatusHistoryList = () => {
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 STATISTICS
-            ============================================= */}
+            ================================================= */}
 
             <OrderStatusHistoryStatistics
                 history={historyList}
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 SEARCH
-            ============================================= */}
+            ================================================= */}
 
             <OrderStatusHistorySearch
 
-                searchText={searchText}
+                searchText={
+                    searchText
+                }
 
                 setSearchText={
                     setSearchText
@@ -522,57 +821,52 @@ const OrderStatusHistoryList = () => {
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 TABLE
-            ============================================= */}
+            ================================================= */}
 
             <OrderStatusHistoryTable
 
-                items={pagedHistory}
+                items={
+                    pagedHistory
+                }
 
-                loading={loading}
+                loading={
+                    loading
+                }
 
+                onView={
+                    handleView
+                }
 
-                onView={(row) => {
+                onEdit={
+                    handleEdit
+                }
 
-                    setSelectedHistory(row);
-
-                    setViewOpen(true);
-
-                }}
-
-
-                onEdit={(row) => {
-
-                    setSelectedHistory(row);
-
-                    setModalOpen(true);
-
-                }}
-
-
-                onDelete={(row) => {
-
-                    setSelectedHistory(row);
-
-                    setDeleteOpen(true);
-
-                }}
+                onDelete={
+                    handleDeleteDialog
+                }
 
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 PAGINATION
-            ============================================= */}
+            ================================================= */}
 
             <OrderStatusHistoryPagination
 
-                page={page}
+                page={
+                    page
+                }
 
-                totalPages={totalPages}
+                totalPages={
+                    totalPages
+                }
 
-                pageSize={pageSize}
+                pageSize={
+                    pageSize
+                }
 
                 totalRecords={
                     filteredHistory.length
@@ -582,98 +876,103 @@ const OrderStatusHistoryList = () => {
                     setPage
                 }
 
-                onPageSizeChange={(size) => {
+                onPageSizeChange={
+                    size => {
 
-                    setPageSize(size);
+                        setPageSize(size);
 
-                    setPage(1);
+                        setPage(1);
 
-                }}
+                    }
+                }
 
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 CREATE / EDIT MODAL
-            ============================================= */}
+            ================================================= */}
 
             <OrderStatusHistoryModal
 
-                open={modalOpen}
+                open={
+                    modalOpen
+                }
 
-                item={selectedHistory}
+                item={
+                    selectedHistory
+                }
 
+                onClose={
+                    handleModalClose
+                }
 
-                onClose={() => {
-
-                    setModalOpen(false);
-
-                    setSelectedHistory(null);
-
-                }}
-
-
-                onSave={handleSave}
+                onSave={
+                    handleSave
+                }
 
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 VIEW
-            ============================================= */}
+            ================================================= */}
 
             <OrderStatusHistoryView
 
-                open={viewOpen}
+                open={
+                    viewOpen
+                }
 
-                item={selectedHistory}
+                item={
+                    selectedHistory
+                }
 
-
-                onClose={() => {
-
-                    setViewOpen(false);
-
-                    setSelectedHistory(null);
-
-                }}
+                onClose={
+                    handleViewClose
+                }
 
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 DELETE
-            ============================================= */}
+            ================================================= */}
 
             <DeleteOrderStatusHistoryDialog
 
-                open={deleteOpen}
+                open={
+                    deleteOpen
+                }
 
-                item={selectedHistory}
+                item={
+                    selectedHistory
+                }
 
+                onClose={
+                    handleDeleteClose
+                }
 
-                onClose={() => {
-
-                    setDeleteOpen(false);
-
-                    setSelectedHistory(null);
-
-                }}
-
-
-                onDeleted={handleDelete}
+                onDeleted={
+                    handleDelete
+                }
 
             />
 
 
-            {/* =============================================
+            {/* =================================================
                 SNACKBAR
-            ============================================= */}
+            ================================================= */}
 
             <Snackbar
 
-                open={snackbar.open}
+                open={
+                    snackbar.open
+                }
 
-                autoHideDuration={4000}
+                autoHideDuration={
+                    4000
+                }
 
                 onClose={
                     handleSnackbarClose
@@ -704,7 +1003,9 @@ const OrderStatusHistoryList = () => {
 
                 >
 
-                    {snackbar.message}
+                    {
+                        snackbar.message
+                    }
 
                 </Alert>
 

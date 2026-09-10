@@ -53,24 +53,42 @@ const OrderStatusHistoryCard = ({
         item.HistoryId ??
         "-";
 
+
+    const sellerId =
+        item.sellerId ??
+        item.SellerId ??
+        "-";
+
+
+    const customerId =
+        item.customerId ??
+        item.CustomerId ??
+        "-";
+
+
     const orderId =
         item.orderId ??
         item.OrderId ??
         "-";
+
 
     const status =
         item.status ??
         item.Status ??
         "";
 
+
     const remarks =
         item.remarks ??
         item.Remarks ??
         "";
 
+
     const changedOn =
         item.changedOn ??
         item.ChangedOn ??
+        item.timestamp ??
+        item.Timestamp ??
         null;
 
 
@@ -116,10 +134,10 @@ const OrderStatusHistoryCard = ({
 
 
     /* =====================================================
-       FORMAT DATE
+       FORMAT DATE + TIME
     ===================================================== */
 
-    const formatDate = (value) => {
+    const formatDateTime = (value) => {
 
         if (!value) {
             return "-";
@@ -135,12 +153,14 @@ const OrderStatusHistoryCard = ({
             return "-";
         }
 
-        return date.toLocaleDateString(
+        return date.toLocaleString(
             "en-IN",
             {
                 day: "2-digit",
                 month: "short",
-                year: "numeric"
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
             }
         );
     };
@@ -152,7 +172,9 @@ const OrderStatusHistoryCard = ({
 
     const handleView = () => {
 
-        if (typeof onView === "function") {
+        if (
+            typeof onView === "function"
+        ) {
             onView(item);
         }
 
@@ -161,7 +183,9 @@ const OrderStatusHistoryCard = ({
 
     const handleEdit = () => {
 
-        if (typeof onEdit === "function") {
+        if (
+            typeof onEdit === "function"
+        ) {
             onEdit(item);
         }
 
@@ -170,7 +194,9 @@ const OrderStatusHistoryCard = ({
 
     const handleDelete = () => {
 
-        if (typeof onDelete === "function") {
+        if (
+            typeof onDelete === "function"
+        ) {
             onDelete(item);
         }
 
@@ -234,9 +260,7 @@ const OrderStatusHistoryCard = ({
                             status || "N/A"
                         }
                         color={
-                            getStatusColor(
-                                status
-                            )
+                            getStatusColor(status)
                         }
                         size="small"
                     />
@@ -268,6 +292,7 @@ const OrderStatusHistoryCard = ({
                         mb: 1
                     }}
                 >
+
                     <Box
                         component="strong"
                         sx={{
@@ -276,8 +301,62 @@ const OrderStatusHistoryCard = ({
                     >
                         Order ID:
                     </Box>{" "}
+
                     {orderId}
+
                 </Typography>
+
+
+                {/* =================================================
+                    SELLER / CUSTOMER
+                ================================================= */}
+
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                        mb: 1
+                    }}
+                >
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+
+                        <Box
+                            component="strong"
+                            sx={{
+                                color: "text.primary"
+                            }}
+                        >
+                            Seller:
+                        </Box>{" "}
+
+                        {sellerId}
+
+                    </Typography>
+
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+
+                        <Box
+                            component="strong"
+                            sx={{
+                                color: "text.primary"
+                            }}
+                        >
+                            Customer:
+                        </Box>{" "}
+
+                        {customerId}
+
+                    </Typography>
+
+                </Stack>
 
 
                 {/* =================================================
@@ -290,8 +369,11 @@ const OrderStatusHistoryCard = ({
                     sx={{
                         mb: 1,
 
-                        display: "-webkit-box",
+                        display:
+                            "-webkit-box",
+
                         WebkitLineClamp: 2,
+
                         WebkitBoxOrient:
                             "vertical",
 
@@ -301,6 +383,7 @@ const OrderStatusHistoryCard = ({
                             "break-word"
                     }}
                 >
+
                     <Box
                         component="strong"
                         sx={{
@@ -309,7 +392,9 @@ const OrderStatusHistoryCard = ({
                     >
                         Remarks:
                     </Box>{" "}
+
                     {remarks || "-"}
+
                 </Typography>
 
 
@@ -321,6 +406,7 @@ const OrderStatusHistoryCard = ({
                     variant="body2"
                     color="text.secondary"
                 >
+
                     <Box
                         component="strong"
                         sx={{
@@ -329,7 +415,9 @@ const OrderStatusHistoryCard = ({
                     >
                         Changed On:
                     </Box>{" "}
-                    {formatDate(changedOn)}
+
+                    {formatDateTime(changedOn)}
+
                 </Typography>
 
             </CardContent>
@@ -344,7 +432,9 @@ const OrderStatusHistoryCard = ({
 
             <CardActions
                 sx={{
-                    justifyContent: "flex-end",
+                    justifyContent:
+                        "flex-end",
+
                     px: 2,
                     py: 1
                 }}
@@ -359,7 +449,9 @@ const OrderStatusHistoryCard = ({
                     <IconButton
                         color="primary"
                         onClick={handleView}
-                        aria-label="View order status history"
+                        aria-label={
+                            "View order status history"
+                        }
                     >
                         <Visibility />
                     </IconButton>
@@ -376,7 +468,9 @@ const OrderStatusHistoryCard = ({
                     <IconButton
                         color="warning"
                         onClick={handleEdit}
-                        aria-label="Edit order status history"
+                        aria-label={
+                            "Edit order status history"
+                        }
                     >
                         <Edit />
                     </IconButton>
@@ -393,7 +487,9 @@ const OrderStatusHistoryCard = ({
                     <IconButton
                         color="error"
                         onClick={handleDelete}
-                        aria-label="Delete order status history"
+                        aria-label={
+                            "Delete order status history"
+                        }
                     >
                         <Delete />
                     </IconButton>
@@ -408,4 +504,3 @@ const OrderStatusHistoryCard = ({
 
 
 export default OrderStatusHistoryCard;
-

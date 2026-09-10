@@ -308,6 +308,8 @@ import OrderStatusHistoryView from "./pages/OrderStatusHistory/OrderStatusHistor
 import CreateOrderStatusHistory from "./pages/OrderStatusHistory/CreateOrderStatusHistory";
 import EditOrderStatusHistory from "./pages/OrderStatusHistory/EditOrderStatusHistory";
 import DetailedOrderStatusHistory from "./pages/OrderStatusHistory/DetailedOrderStatusHistory";
+import OrderStatusHistoryForm from "./pages/OrderStatusHistory/OrderStatusHistoryForm";
+
 
 // =========================================================
 // PAYMENT SETTINGS
@@ -1631,26 +1633,27 @@ function App() {
 
 
                 {/* =================================================
-                    NOTIFICATIONS
-                ================================================= */}
+    NOTIFICATIONS
+================================================= */}
 
-                <Route
-                    path="notifications"
-                    element={<NotificationList />}
-                />
-
-                <Route
-                    path="notifications/settings"
-                    element={<NotificationSettings />}
-                />
-
-                <Route
-    path="notifications/view/:id"
-    element={<NotificationView />}
+<Route
+    path="notifications"
+    element={<NotificationList />}
 />
+
 <Route
     path="notifications/card"
     element={<NotificationCard />}
+/>
+
+<Route
+    path="notifications/settings"
+    element={<NotificationSettings />}
+/>
+
+<Route
+    path="notifications/view/:id"
+    element={<NotificationView />}
 />
 
 
@@ -1678,65 +1681,30 @@ function App() {
                     element={<OrderItemView />}
                 />
 
+{/* =================================================
+    ORDER STATUS HISTORY
+================================================= */}
 
-                {/* =================================================
-                    ORDER STATUS HISTORY
-                ================================================= */}
+<Route
+    path="order-status-history"
+    element={<OrderStatusHistoryList />}
+/>
 
-                <Route
-                    path="order-status-history"
-                    element={<OrderStatusHistoryList />}
-                />
+<Route
+    path="order-status-history/all"
+    element={<OrderStatusHistoryList />}
+/>
 
-                <Route
-                    path="order-status-history/search"
-                    element={<OrderStatusHistorySearch />}
-                />
+<Route
+    path="order-status-history/view/:id"
+    element={<OrderStatusHistoryView />}
+/>
 
-                <Route
-                    path="order-status-history/statistics"
-                    element={<OrderStatusHistoryStatistics />}
-                />
+<Route
+    path="order-status-history/:id"
+    element={<OrderStatusHistoryView />}
+/>
 
-                <Route
-                    path="order-status-history/all"
-                    element={<OrderStatusHistoryList />}
-                />
-
-                <Route
-                    path="order-status-history/cards"
-                    element={<OrderStatusHistoryList />}
-                />
-
-                <Route
-                    path="order-status-history/table"
-                    element={<OrderStatusHistoryList />}
-                />
-
-                <Route
-                    path="order-status-history/pagination"
-                    element={<OrderStatusHistoryList />}
-                />
-
-                <Route
-                    path="order-status-history/modal"
-                    element={<OrderStatusHistoryList />}
-                />
-
-                <Route
-                    path="order-status-history/delete/:id"
-                    element={<OrderStatusHistoryList />}
-                />
-
-                <Route
-                    path="order-status-history/view/:id"
-                    element={<OrderStatusHistoryView />}
-                />
-
-                <Route
-                    path="order-status-history/:id"
-                    element={<OrderStatusHistoryView />}
-                />
 
 
                 {/* =================================================
