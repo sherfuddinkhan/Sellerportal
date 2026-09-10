@@ -1267,42 +1267,10 @@ const MainLayout = () => {
                             label: "Create Transfer",
                             path: "/stock-transfers/create",
                         },
-
-                        {
-                            label: "Transfer Card",
-                            path: "/stock-transfers/card",
-                        },
-
-                        {
-                            label: "Transfer Details",
-                            path: "/stock-transfers/details/:id",
-                        },
-
-                        {
-                            label: "Edit Transfer",
-                            path: "/stock-transfers/edit/:id",
-                        },
-
                         {
                             label: "Transfer Filters",
                             path: "/stock-transfers/filters",
                         },
-
-                        {
-                            label: "Transfer Form",
-                            path: "/stock-transfers/form",
-                        },
-
-                        {
-                            label: "Transfer Modal",
-                            path: "/stock-transfers/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/stock-transfers/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/stock-transfers/search",
@@ -1313,15 +1281,6 @@ const MainLayout = () => {
                             path: "/stock-transfers/statistics",
                         },
 
-                        {
-                            label: "Table",
-                            path: "/stock-transfers/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/stock-transfers/toolbar",
-                        },
 
                     ],
                 },
