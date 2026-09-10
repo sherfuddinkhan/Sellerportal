@@ -1113,60 +1113,13 @@ const MainLayout = () => {
                             label: "Create Ledger Entry",
                             path: "/stock-ledger/create",
                         },
-
-                        {
-                            label: "Ledger Card",
-                            path: "/stock-ledger/card",
-                        },
-
-                        {
-                            label: "Ledger Details",
-                            path: "/stock-ledger/details/:id",
-                        },
-
-                        {
-                            label: "Edit Ledger",
-                            path: "/stock-ledger/edit/:id",
-                        },
-
                         {
                             label: "Ledger Filters",
                             path: "/stock-ledger/filters",
                         },
-
-                        {
-                            label: "Ledger Form",
-                            path: "/stock-ledger/form",
-                        },
-
-                        {
-                            label: "Ledger Modal",
-                            path: "/stock-ledger/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/stock-ledger/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/stock-ledger/search",
-                        },
-
-                        {
-                            label: "Statistics",
-                            path: "/stock-ledger/statistics",
-                        },
-
-                        {
-                            label: "Table",
-                            path: "/stock-ledger/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/stock-ledger/toolbar",
                         },
 
                     ],

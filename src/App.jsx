@@ -1401,29 +1401,49 @@ function App() {
 
 
 
-                {/* =================================================
-                    STOCK LEDGER
-                ================================================= */}
+               {/* =================================================
+    STOCK LEDGER
+================================================= */}
 
-                <Route
-                    path="stock-ledger"
-                    element={<StockLedgerList />}
-                />
+<Route
+    path="stock-ledger"
+    element={<StockLedgerList />}
+/>
 
-                <Route
-                    path="stock-ledger/create"
-                    element={<StockLedgerCreate />}
-                />
+<Route
+    path="stock-ledger/create"
+    element={<StockLedgerCreate />}
+/>
 
-                <Route
-                    path="stock-ledger/edit/:id"
-                    element={<StockLedgerEdit />}
-                />
+<Route
+    path="stock-ledger/edit/:id"
+    element={<StockLedgerEdit />}
+/>
 
-                <Route
-                    path="stock-ledger/view/:id"
-                    element={<StockLedgerDetails />}
-                />
+<Route
+    path="stock-ledger/view/:id"
+    element={<StockLedgerDetails />}
+/>
+
+{/* =================================================
+    STOCK LEDGER SEARCH
+    Opens the same list page
+================================================= */}
+
+<Route
+    path="stock-ledger/search"
+    element={<StockLedgerList />}
+/>
+
+{/* =================================================
+    STOCK LEDGER FILTERS
+    Opens the same list page
+================================================= */}
+
+<Route
+    path="stock-ledger/filters"
+    element={<StockLedgerList />}
+/>
 
 
                 {/* =================================================
