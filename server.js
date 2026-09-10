@@ -12695,8 +12695,7 @@ app.delete(
     }
 );
 // =========================================================
-// ORDER STATUS HISTORY
-// CREATE
+// CREATE ORDER STATUS HISTORY
 // =========================================================
 //
 // React:
@@ -12713,29 +12712,22 @@ app.post(
         try {
 
             console.log(
-                "================================================"
+                "=============================================="
             );
 
             console.log(
-                "POST CREATE ORDER STATUS HISTORY"
+                "CREATE ORDER STATUS HISTORY"
             );
 
             console.log(
-                "REQUEST BODY:"
-            );
-
-            console.log(
+                "REQUEST BODY:",
                 req.body
             );
 
-            console.log(
-                "================================================"
-            );
 
-
-            // -------------------------------------------------
-            // Validate body
-            // -------------------------------------------------
+            /* =================================================
+               VALIDATE REQUEST BODY
+            ================================================= */
 
             if (
                 !req.body ||
@@ -12744,15 +12736,15 @@ app.post(
 
                 return res.status(400).json({
                     message:
-                        "Order status history request body is required."
+                        "Request body is required."
                 });
 
             }
 
 
-            // -------------------------------------------------
-            // Build payload
-            // -------------------------------------------------
+            /* =================================================
+               BUILD PAYLOAD
+            ================================================= */
 
             const payload = {
 
@@ -12777,10 +12769,14 @@ app.post(
                     ),
 
                 status:
-                    req.body.status || "",
+                    String(
+                        req.body.status || ""
+                    ),
 
                 remarks:
-                    req.body.remarks || "",
+                    String(
+                        req.body.remarks || ""
+                    ),
 
                 changedOn:
                     req.body.changedOn ||
@@ -12790,7 +12786,7 @@ app.post(
 
 
             console.log(
-                "FORWARDING PAYLOAD TO ASP.NET:"
+                "PAYLOAD SENT TO ASP.NET:"
             );
 
             console.log(
@@ -12802,23 +12798,27 @@ app.post(
             );
 
 
-            // -------------------------------------------------
-            // Authorization
-            // -------------------------------------------------
+            /* =================================================
+               AUTHORIZATION
+            ================================================= */
 
             const authorization =
                 req.headers.authorization || "";
 
 
-            // -------------------------------------------------
-            // Call ASP.NET API
-            // -------------------------------------------------
+            /* =================================================
+               CALL ASP.NET API
+            ================================================= */
 
             const response =
                 await axios.post(
+
                     `${DOTNET_API}/order-status-histories`,
+
                     payload,
+
                     {
+
                         httpsAgent,
 
                         headers: {
@@ -12837,39 +12837,30 @@ app.post(
                                 : {})
 
                         }
+
                     }
+
                 );
 
 
-            console.log(
-                "================================================"
-            );
+            /* =================================================
+               ASP.NET RESPONSE
+            ================================================= */
 
             console.log(
-                "CREATE ORDER STATUS HISTORY RESPONSE"
-            );
-
-            console.log(
-                "STATUS:",
+                "ASP.NET STATUS:",
                 response.status
             );
 
             console.log(
-                "DATA:"
-            );
-
-            console.log(
+                "ASP.NET RESPONSE:",
                 response.data
             );
 
-            console.log(
-                "================================================"
-            );
 
-
-            // -------------------------------------------------
-            // Return ASP.NET response to React
-            // -------------------------------------------------
+            /* =================================================
+               RETURN RESPONSE TO REACT
+            ================================================= */
 
             return res
                 .status(response.status)
@@ -12879,14 +12870,7 @@ app.post(
         catch (error) {
 
             console.error(
-                "================================================"
-            );
-
-            console.error(
-                "CREATE ORDER STATUS HISTORY ERROR"
-            );
-
-            console.error(
+                "CREATE ORDER STATUS HISTORY ERROR:",
                 error.message
             );
 
@@ -12898,12 +12882,8 @@ app.post(
 
 
             console.error(
-                "ASP.NET RESPONSE:",
+                "ASP.NET ERROR:",
                 error.response?.data
-            );
-
-            console.error(
-                "================================================"
             );
 
 
@@ -12922,6 +12902,8 @@ app.post(
 
     }
 );
+
+
 
 ///////////////////////////////////WISHLIST ////////////////////////
 /* =========================================================
