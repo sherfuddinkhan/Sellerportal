@@ -555,35 +555,7 @@ const MainLayout = () => {
 // STOCK MOVEMENTS
 // -------------------------------------------------
 
-{
-    label: "Stock Movements",
-    path: "/stock-movements",
-    icon: "🔄",
 
-    children: [
-
-        {
-            label: "Stock Movement List",
-            path: "/stock-movements",
-        },
-
-        {
-            label: "Create Stock Movement",
-            path: "/stock-movements/create",
-        },
-
-        {
-            label: "Stock Movement Filters",
-            path: "/stock-movements/filters",
-        },
-
-        {
-            label: "Search Stock Movements",
-            path: "/stock-movements/search",
-        },
-
-    ],
-},
         // =====================================================
         // ORDERS
         // =====================================================
@@ -1220,42 +1192,10 @@ const MainLayout = () => {
                             label: "Create Movement",
                             path: "/stock-movements/create",
                         },
-
-                        {
-                            label: "Movement Card",
-                            path: "/stock-movements/card",
-                        },
-
-                        {
-                            label: "Movement Details",
-                            path: "/stock-movements/details/:id",
-                        },
-
-                        {
-                            label: "Edit Movement",
-                            path: "/stock-movements/edit/:id",
-                        },
-
                         {
                             label: "Movement Filters",
                             path: "/stock-movements/filters",
                         },
-
-                        {
-                            label: "Movement Form",
-                            path: "/stock-movements/form",
-                        },
-
-                        {
-                            label: "Movement Modal",
-                            path: "/stock-movements/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/stock-movements/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/stock-movements/search",
@@ -1265,17 +1205,6 @@ const MainLayout = () => {
                             label: "Statistics",
                             path: "/stock-movements/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/stock-movements/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/stock-movements/toolbar",
-                        },
-
                     ],
                 },
 
