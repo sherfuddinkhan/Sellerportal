@@ -56,6 +56,20 @@ import StockAdjustmentEdit from "./pages/StockAdjustment/StockAdjustmentEdit";
 import StockAdjustmentView from "./pages/StockAdjustment/StockAdjustmentView";
 import StockAdjustmentSearch from "./pages/StockAdjustment/StockAdjustmentSearch";
 import StockAdjustmentStatistics from "./pages/StockAdjustment/StockAdjustmentStatistics";
+
+/////////////////////////StockMovements/////////////////////////
+import StockMovementList from "./pages/StockMovements/StockMovementList";
+import StockMovementCreate from "./pages/StockMovements/StockMovementCreate";
+import StockMovementEdit from "./pages/StockMovements/StockMovementEdit";
+import StockMovementDetails from "./pages/StockMovements/StockMovementDetails";
+import StockMovementDeleteDialog from "./pages/StockMovements/StockMovementDeleteDialog";
+import StockMovementToolbar from "./pages/StockMovements/StockMovementToolbar";
+import StockMovementStatistics from "./pages/StockMovements/StockMovementStatistics";
+import StockMovementSearch from "./pages/StockMovements/StockMovementSearch";
+import StockMovementFilters from "./pages/StockMovements/StockMovementFilters";
+import StockMovementTable from "./pages/StockMovements/StockMovementTable";
+import StockMovementPagination from "./pages/StockMovements/StockMovementPagination";
+
 // =========================================================
 // CATALOG
 // =========================================================
@@ -2313,7 +2327,25 @@ function App() {
                     element={<ProductTypeToolbar />}
                 />
 
+<Route
+    path="/stock-movements"
+    element={<StockMovementList />}
+/>
 
+<Route
+    path="/stock-movements/create"
+    element={<StockMovementCreate />}
+/>
+
+<Route
+    path="/stock-movements/details/:id"
+    element={<StockMovementDetails />}
+/>
+
+<Route
+    path="/stock-movements/edit/:id"
+    element={<StockMovementEdit />}
+/>
                 {/* =================================================
                     PURCHASE ORDER ITEMS
                 ================================================= */}

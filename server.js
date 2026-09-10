@@ -26514,6 +26514,1252 @@ app.delete(
         }
     }
 );
+// ============================================================
+// STOCK MOVEMENTS
+// ============================================================
+
+
+// ============================================================
+// GET ALL STOCK MOVEMENTS
+// GET /api/stock-movements
+//
+// Backend:
+// GET https://localhost:7203/api/StockMovement
+// ============================================================
+
+app.get(
+    "/api/stock-movements",
+    async (req, res) => {
+
+        console.log(
+            "\n================================================"
+        );
+
+        console.log(
+            "GET ALL STOCK MOVEMENTS"
+        );
+
+        console.log(
+            "Backend:",
+            `${DOTNET_API}/StockMovement`
+        );
+
+        console.log(
+            "================================================"
+        );
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "COUNT:",
+                Array.isArray(response.data)
+                    ? response.data.length
+                    : "N/A"
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT GET ALL ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+            console.error(
+                "Backend Status:",
+                error.response?.status
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY SELLER + CUSTOMER
+//
+// GET /api/stock-movements/seller/6/customer/3
+//
+// Backend:
+// GET /api/StockMovement/seller/6/customer/3
+// ============================================================
+
+app.get(
+    "/api/stock-movements/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const sellerId =
+                Number(req.params.sellerId);
+
+            const customerId =
+                Number(req.params.customerId);
+
+
+            console.log(
+                "\n================================================"
+            );
+
+            console.log(
+                "GET STOCK MOVEMENTS BY SELLER + CUSTOMER"
+            );
+
+            console.log(
+                "SellerId:",
+                sellerId
+            );
+
+            console.log(
+                "CustomerId:",
+                customerId
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/seller/${sellerId}/customer/${customerId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT SELLER CUSTOMER ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// SEARCH STOCK MOVEMENTS
+//
+// GET /api/stock-movements/search?search=Purchase
+//
+// Backend:
+// GET /api/StockMovement/search?search=Purchase
+// ============================================================
+
+app.get(
+    "/api/stock-movements/search",
+    async (req, res) => {
+
+        try {
+
+            const search =
+                String(req.query.search || "").trim();
+
+
+            console.log(
+                "\n================================================"
+            );
+
+            console.log(
+                "SEARCH STOCK MOVEMENTS"
+            );
+
+            console.log(
+                "Search:",
+                search
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            if (!search) {
+
+                return res.status(400).json({
+                    message:
+                        "Search value is required"
+                });
+
+            }
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/search`,
+                {
+                    httpsAgent,
+
+                    params: {
+                        search
+                    },
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT SEARCH ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to search stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// SORT STOCK MOVEMENTS
+//
+// GET /api/stock-movements/sort?sort=date_desc
+//
+// Backend:
+// GET /api/StockMovement/sort?sort=date_desc
+// ============================================================
+
+app.get(
+    "/api/stock-movements/sort",
+    async (req, res) => {
+
+        try {
+
+            const sort =
+                req.query.sort || null;
+
+
+            console.log(
+                "\n================================================"
+            );
+
+            console.log(
+                "SORT STOCK MOVEMENTS"
+            );
+
+            console.log(
+                "Sort:",
+                sort
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/sort`,
+                {
+                    httpsAgent,
+
+                    params: {
+                        sort
+                    },
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT SORT ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to sort stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PAGINATION
+//
+// GET /api/stock-movements/page?page=1&limit=15
+//
+// Backend:
+// GET /api/StockMovement/page?page=1&limit=15
+// ============================================================
+
+app.get(
+    "/api/stock-movements/page",
+    async (req, res) => {
+
+        try {
+
+            let page =
+                Number(req.query.page) || 1;
+
+            let limit =
+                Number(req.query.limit) || 15;
+
+
+            if (page < 1) {
+                page = 1;
+            }
+
+            if (limit < 1) {
+                limit = 15;
+            }
+
+
+            console.log(
+                "\n================================================"
+            );
+
+            console.log(
+                "GET PAGED STOCK MOVEMENTS"
+            );
+
+            console.log(
+                "Page:",
+                page
+            );
+
+            console.log(
+                "Limit:",
+                limit
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/page`,
+                {
+                    httpsAgent,
+
+                    params: {
+                        page,
+                        limit
+                    },
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT PAGINATION ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load paged stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// STATISTICS
+//
+// GET /api/stock-movements/statistics
+//
+// Backend:
+// GET /api/StockMovement/statistics
+// ============================================================
+
+app.get(
+    "/api/stock-movements/statistics",
+    async (req, res) => {
+
+        console.log(
+            "\n================================================"
+        );
+
+        console.log(
+            "GET STOCK MOVEMENT STATISTICS"
+        );
+
+        console.log(
+            "Backend:",
+            `${DOTNET_API}/StockMovement/statistics`
+        );
+
+        console.log(
+            "================================================"
+        );
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/statistics`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT STATISTICS ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load stock movement statistics"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY SELLER
+//
+// GET /api/stock-movements/seller/6
+//
+// Backend:
+// GET /api/StockMovement/seller/6
+// ============================================================
+
+app.get(
+    "/api/stock-movements/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const sellerId =
+                Number(req.params.sellerId);
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/seller/${sellerId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT BY SELLER ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load seller stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY PRODUCT
+//
+// GET /api/stock-movements/product/6
+//
+// Backend:
+// GET /api/StockMovement/product/6
+// ============================================================
+
+app.get(
+    "/api/stock-movements/product/:productId",
+    async (req, res) => {
+
+        try {
+
+            const productId =
+                Number(req.params.productId);
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/product/${productId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT BY PRODUCT ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load product stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY WAREHOUSE
+//
+// GET /api/stock-movements/warehouse/3
+//
+// Backend:
+// GET /api/StockMovement/warehouse/3
+// ============================================================
+
+app.get(
+    "/api/stock-movements/warehouse/:warehouseId",
+    async (req, res) => {
+
+        try {
+
+            const warehouseId =
+                Number(req.params.warehouseId);
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/warehouse/${warehouseId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT BY WAREHOUSE ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load warehouse stock movements"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY MOVEMENT TYPE
+//
+// GET /api/stock-movements/movement/Purchase
+//
+// Backend:
+// GET /api/StockMovement/movement/Purchase
+// ============================================================
+
+app.get(
+    "/api/stock-movements/movement/:movementType",
+    async (req, res) => {
+
+        try {
+
+            const movementType =
+                req.params.movementType;
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/movement/${encodeURIComponent(movementType)}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT BY TYPE ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load stock movements by type"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY SELLER + PRODUCT + WAREHOUSE + MOVEMENT ID
+//
+// GET /api/stock-movements/6/6/3/1
+//
+// Backend:
+// GET /api/StockMovement/6/6/3/1
+// ============================================================
+
+app.get(
+    "/api/stock-movements/:sellerId/:productId/:warehouseId/:stockMovementId",
+    async (req, res) => {
+
+        try {
+
+            const sellerId =
+                Number(req.params.sellerId);
+
+            const productId =
+                Number(req.params.productId);
+
+            const warehouseId =
+                Number(req.params.warehouseId);
+
+            const stockMovementId =
+                Number(req.params.stockMovementId);
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/${sellerId}/${productId}/${warehouseId}/${stockMovementId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT COMPOSITE GET ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load stock movement"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET STOCK MOVEMENT BY ID
+//
+// GET /api/stock-movements/1
+//
+// Backend:
+// GET /api/StockMovement/1
+//
+// KEEP THIS AFTER ALL NAMED GET ROUTES.
+// ============================================================
+
+app.get(
+    "/api/stock-movements/:stockMovementId",
+    async (req, res) => {
+
+        try {
+
+            const stockMovementId =
+                Number(req.params.stockMovementId);
+
+
+            console.log(
+                "\n================================================"
+            );
+
+            console.log(
+                "GET STOCK MOVEMENT BY ID"
+            );
+
+            console.log(
+                "StockMovementId:",
+                stockMovementId
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            if (
+                !Number.isInteger(stockMovementId) ||
+                stockMovementId <= 0
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "Valid stockMovementId is required"
+                });
+
+            }
+
+
+            const response = await axios.get(
+                `${DOTNET_API}/StockMovement/${stockMovementId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT GET BY ID ERROR:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load stock movement"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// CREATE STOCK MOVEMENT
+//
+// POST /api/stock-movements
+//
+// Backend:
+// POST /api/StockMovement
+// ============================================================
+
+app.post(
+    "/api/stock-movements",
+    async (req, res) => {
+
+        console.log(
+            "\n================================================"
+        );
+
+        console.log(
+            "CREATE STOCK MOVEMENT"
+        );
+
+        console.log(
+            "REQUEST BODY:"
+        );
+
+        console.log(
+            JSON.stringify(
+                req.body,
+                null,
+                2
+            )
+        );
+
+        console.log(
+            "================================================"
+        );
+
+
+        try {
+
+            const response = await axios.post(
+                `${DOTNET_API}/StockMovement`,
+                req.body,
+                {
+                    httpsAgent,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        Accept:
+                            "application/json"
+                    }
+                }
+            );
+
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT CREATE ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to create stock movement"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE STOCK MOVEMENT
+//
+// PUT /api/stock-movements/1
+//
+// Backend:
+// PUT /api/StockMovement/1
+// ============================================================
+
+app.put(
+    "/api/stock-movements/:stockMovementId",
+    async (req, res) => {
+
+        try {
+
+            const stockMovementId =
+                Number(req.params.stockMovementId);
+
+
+            if (
+                !Number.isInteger(stockMovementId) ||
+                stockMovementId <= 0
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "Valid stockMovementId is required"
+                });
+
+            }
+
+
+            console.log(
+                "\n================================================"
+            );
+
+            console.log(
+                "UPDATE STOCK MOVEMENT"
+            );
+
+            console.log(
+                "StockMovementId:",
+                stockMovementId
+            );
+
+            console.log(
+                "REQUEST BODY:"
+            );
+
+            console.log(
+                JSON.stringify(
+                    req.body,
+                    null,
+                    2
+                )
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response = await axios.put(
+                `${DOTNET_API}/StockMovement/${stockMovementId}`,
+                req.body,
+                {
+                    httpsAgent,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        Accept:
+                            "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT UPDATE ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update stock movement"
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE STOCK MOVEMENT
+//
+// DELETE /api/stock-movements/1
+//
+// Backend:
+// DELETE /api/StockMovement/1
+// ============================================================
+
+app.delete(
+    "/api/stock-movements/:stockMovementId",
+    async (req, res) => {
+
+        try {
+
+            const stockMovementId =
+                Number(req.params.stockMovementId);
+
+
+            if (
+                !Number.isInteger(stockMovementId) ||
+                stockMovementId <= 0
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "Valid stockMovementId is required"
+                });
+
+            }
+
+
+            console.log(
+                "\n================================================"
+            );
+
+            console.log(
+                "DELETE STOCK MOVEMENT"
+            );
+
+            console.log(
+                "StockMovementId:",
+                stockMovementId
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response = await axios.delete(
+                `${DOTNET_API}/StockMovement/${stockMovementId}`,
+                {
+                    httpsAgent,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+
+            return res
+                .status(response.status)
+                .json(
+                    response.data || {
+                        message:
+                            "Stock movement deleted successfully"
+                    }
+                );
+
+        } catch (error) {
+
+            console.error(
+                "STOCK MOVEMENT DELETE ERROR"
+            );
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+            console.error(
+                "Backend Response:",
+                error.response?.data
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to delete stock movement"
+                    }
+                );
+        }
+    }
+);
+
+
 app.use(
     (req, res) => {
 

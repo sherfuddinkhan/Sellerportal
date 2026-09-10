@@ -551,7 +551,39 @@ const MainLayout = () => {
 
             ],
         },
+// -------------------------------------------------
+// STOCK MOVEMENTS
+// -------------------------------------------------
 
+{
+    label: "Stock Movements",
+    path: "/stock-movements",
+    icon: "🔄",
+
+    children: [
+
+        {
+            label: "Stock Movement List",
+            path: "/stock-movements",
+        },
+
+        {
+            label: "Create Stock Movement",
+            path: "/stock-movements/create",
+        },
+
+        {
+            label: "Stock Movement Filters",
+            path: "/stock-movements/filters",
+        },
+
+        {
+            label: "Search Stock Movements",
+            path: "/stock-movements/search",
+        },
+
+    ],
+},
         // =====================================================
         // ORDERS
         // =====================================================
