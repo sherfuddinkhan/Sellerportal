@@ -7,72 +7,30 @@ import {
     Typography
 } from "@mui/material";
 
-// =========================================================
-// CURRENCY FORMATTER
-// =========================================================
-
 const formatCurrency = (value) => {
-
-    return `₹ ${Number(value || 0).toLocaleString(
-        "en-IN",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    )}`;
-
+    return `₹ ${Number(value || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
 };
 
-// =========================================================
-// SALES ORDER ITEM STATISTICS
-// =========================================================
+const SalesOrderItemStatistics = ({ statistics = {} }) => {
 
-const SalesOrderItemStatistics = ({
-    statistics
-}) => {
-
-    const {
-        totalItems = 0,
-        totalQuantity = 0,
-        totalTax = 0,
-        totalDiscount = 0,
-        totalAmount = 0
-    } = statistics || {};
+    const totalItems = Number(statistics.totalItems || 0);
+    const totalQuantity = Number(statistics.totalQuantity || 0);
+    const totalTax = Number(statistics.totalTax || 0);
+    const totalAmount = Number(statistics.totalAmount || 0);
 
     return (
+        <Grid container spacing={3} sx={{ mb: 3 }}>
 
-        <Grid
-            container
-            spacing={3}
-            sx={{
-                mb: 3
-            }}
-        >
-
-            {/* =============================================
-                TOTAL ITEMS
-            ============================================= */}
-
-            <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-            >
-
-                <Card
-                    className="sales-order-item-stat-card"
-                    sx={{
-                        height: "100%"
-                    }}
-                >
-
+            {/* TOTAL ITEMS */}
+            <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ height: "100%" }}>
                     <CardContent>
-
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
-                            gutterBottom
                         >
                             Total Items
                         </Typography>
@@ -81,41 +39,19 @@ const SalesOrderItemStatistics = ({
                             variant="h4"
                             fontWeight="bold"
                         >
-                            {Number(totalItems).toLocaleString(
-                                "en-IN"
-                            )}
+                            {totalItems.toLocaleString("en-IN")}
                         </Typography>
-
                     </CardContent>
-
                 </Card>
-
             </Grid>
 
-            {/* =============================================
-                TOTAL QUANTITY
-            ============================================= */}
-
-            <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-            >
-
-                <Card
-                    className="sales-order-item-stat-card"
-                    sx={{
-                        height: "100%"
-                    }}
-                >
-
+            {/* TOTAL QUANTITY */}
+            <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ height: "100%" }}>
                     <CardContent>
-
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
-                            gutterBottom
                         >
                             Total Quantity
                         </Typography>
@@ -125,43 +61,19 @@ const SalesOrderItemStatistics = ({
                             color="primary"
                             fontWeight="bold"
                         >
-                            {Number(
-                                totalQuantity
-                            ).toLocaleString(
-                                "en-IN"
-                            )}
+                            {totalQuantity.toLocaleString("en-IN")}
                         </Typography>
-
                     </CardContent>
-
                 </Card>
-
             </Grid>
 
-            {/* =============================================
-                TOTAL TAX
-            ============================================= */}
-
-            <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-            >
-
-                <Card
-                    className="sales-order-item-stat-card"
-                    sx={{
-                        height: "100%"
-                    }}
-                >
-
+            {/* TOTAL TAX */}
+            <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ height: "100%" }}>
                     <CardContent>
-
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
-                            gutterBottom
                         >
                             Total Tax
                         </Typography>
@@ -173,37 +85,17 @@ const SalesOrderItemStatistics = ({
                         >
                             {formatCurrency(totalTax)}
                         </Typography>
-
                     </CardContent>
-
                 </Card>
-
             </Grid>
 
-            {/* =============================================
-                TOTAL AMOUNT
-            ============================================= */}
-
-            <Grid
-                item
-                xs={12}
-                sm={6}
-                md={3}
-            >
-
-                <Card
-                    className="sales-order-item-stat-card"
-                    sx={{
-                        height: "100%"
-                    }}
-                >
-
+            {/* TOTAL AMOUNT */}
+            <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ height: "100%" }}>
                     <CardContent>
-
                         <Typography
                             variant="subtitle2"
                             color="text.secondary"
-                            gutterBottom
                         >
                             Total Amount
                         </Typography>
@@ -215,17 +107,12 @@ const SalesOrderItemStatistics = ({
                         >
                             {formatCurrency(totalAmount)}
                         </Typography>
-
                     </CardContent>
-
                 </Card>
-
             </Grid>
 
         </Grid>
-
     );
-
 };
 
 export default SalesOrderItemStatistics;

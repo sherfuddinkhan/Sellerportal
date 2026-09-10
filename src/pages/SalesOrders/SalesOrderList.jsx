@@ -33,7 +33,10 @@ import "./SalesOrders.css";
 
 const SERVER_URL = "http://localhost:5000";
 
-const API_URL = `${SERVER_URL}/api/sales-orders`;
+const API_URL =
+    `${SERVER_URL}/api/SalesOrder`;
+
+const SELLER_ID = 6;
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -44,13 +47,21 @@ const DEFAULT_PAGE_SIZE = 10;
 
 const SalesOrderList = () => {
 
-    const [salesOrders, setSalesOrders] = useState([]);
+    // =====================================================
+    // STATE
+    // =====================================================
 
-    const [loading, setLoading] = useState(true);
+    const [salesOrders, setSalesOrders] =
+        useState([]);
 
-    const [searchText, setSearchText] = useState("");
+    const [loading, setLoading] =
+        useState(true);
 
-    const [page, setPage] = useState(1);
+    const [searchText, setSearchText] =
+        useState("");
+
+    const [page, setPage] =
+        useState(1);
 
     const [pageSize, setPageSize] =
         useState(DEFAULT_PAGE_SIZE);
@@ -67,15 +78,16 @@ const SalesOrderList = () => {
     const [selectedOrder, setSelectedOrder] =
         useState(null);
 
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        severity: "success",
-        message: ""
-    });
+    const [snackbar, setSnackbar] =
+        useState({
+            open: false,
+            severity: "success",
+            message: ""
+        });
 
 
     // =====================================================
-    // NORMALIZE API RESPONSE
+    // NORMALIZE SALES ORDER
     // =====================================================
 
     const normalizeSalesOrder = (item) => {
@@ -144,96 +156,135 @@ const SalesOrderList = () => {
 
 
     // =====================================================
-    // LOAD SALES ORDERS
+    // EXTRACT API DATA
     // =====================================================
 
-    const loadSalesOrders = async () => {
+    const extractSalesOrders =
+        (responseData) => {
 
-        try {
-
-            setLoading(true);
-
-            const response = await axios.get(
-                `${API_URL}/all`
-            );
-
-            console.log(
-                "Sales Orders Response:",
-                response.data
-            );
-
-
-            // =================================================
-            // SUPPORT MULTIPLE RESPONSE FORMATS
-            // =================================================
-
-            let data = [];
-
-            if (Array.isArray(response.data)) {
-
-                data = response.data;
-
-            }
-            else if (
-                Array.isArray(response.data?.data)
+            if (
+                Array.isArray(
+                    responseData
+                )
             ) {
 
-                data = response.data.data;
+                return responseData;
 
             }
-            else if (
-                Array.isArray(response.data?.items)
+
+
+            if (
+                Array.isArray(
+                    responseData?.data
+                )
             ) {
 
-                data = response.data.items;
+                return responseData.data;
 
             }
 
 
-            // =================================================
-            // NORMALIZE ALL ORDERS
-            // =================================================
+            if (
+                Array.isArray(
+                    responseData?.items
+                )
+            ) {
 
-            const normalizedOrders =
-                data
-                    .map(normalizeSalesOrder)
-                    .filter(Boolean);
+                return responseData.items;
 
-
-            console.log(
-                "Normalized Sales Orders:",
-                normalizedOrders
-            );
+            }
 
 
-            setSalesOrders(normalizedOrders);
+            return [];
 
-        }
-        catch (error) {
+        };
 
-            console.error(
-                "Load Sales Orders Error:",
-                error
-            );
 
-            setSalesOrders([]);
+    // =====================================================
+    // LOAD ALL SALES ORDERS
+    // =====================================================
 
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.response?.data?.message ||
-                    "Failed to load Sales Orders."
-            });
+    const loadSalesOrders =
+        async () => {
 
-        }
-        finally {
+            try {
 
-            setLoading(false);
+                setLoading(true);
 
-        }
 
-    };
+                const response =
+                    await axios.get(
+                        `${API_URL}/seller/${SELLER_ID}`,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                console.log(
+                    "ALL Sales Orders Response:",
+                    response.data
+                );
+
+
+                const data =
+                    extractSalesOrders(
+                        response.data
+                    );
+
+
+                const normalizedOrders =
+                    data
+                        .map(
+                            normalizeSalesOrder
+                        )
+                        .filter(Boolean);
+
+
+                console.log(
+                    "Normalized Sales Orders:",
+                    normalizedOrders
+                );
+
+
+                setSalesOrders(
+                    normalizedOrders
+                );
+
+                setPage(1);
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Load Sales Orders Error:",
+                    error
+                );
+
+
+                setSalesOrders([]);
+
+
+                setSnackbar({
+                    open: true,
+                    severity: "error",
+                    message:
+                        error.response?.data
+                            ?.message ||
+                        "Failed to load Sales Orders."
+                });
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        };
 
 
     // =====================================================
@@ -248,81 +299,129 @@ const SalesOrderList = () => {
 
 
     // =====================================================
-    // SEARCH
+    // SEARCH / FILTER
     // =====================================================
 
-    const filteredOrders = useMemo(() => {
+    const filteredOrders =
+        useMemo(() => {
 
-        if (!searchText.trim()) {
-
-            return salesOrders;
-
-        }
-
-        const value =
-            searchText
-                .toLowerCase()
-                .trim();
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
 
 
-        return salesOrders.filter((order) => {
+            // ---------------------------------------------
+            // NO SEARCH
+            // ---------------------------------------------
 
-            return (
+            if (!search) {
 
-                String(
-                    order.SalesOrderNumber || ""
-                )
-                    .toLowerCase()
-                    .includes(value)
+                return salesOrders;
 
-                ||
+            }
 
-                String(
-                    order.Status || ""
-                )
-                    .toLowerCase()
-                    .includes(value)
 
-                ||
+            // ---------------------------------------------
+            // FILTER
+            // ---------------------------------------------
 
-                String(
-                    order.Remarks || ""
-                )
-                    .toLowerCase()
-                    .includes(value)
+            return salesOrders.filter(
+                (order) => {
 
-                ||
+                    const salesOrderId =
+                        String(
+                            order.SalesOrderId ??
+                            ""
+                        )
+                            .toLowerCase();
 
-                String(
-                    order.SalesOrderId || ""
-                )
-                    .toLowerCase()
-                    .includes(value)
 
-                ||
+                    const salesOrderNumber =
+                        String(
+                            order.SalesOrderNumber ??
+                            ""
+                        )
+                            .toLowerCase();
 
-                String(
-                    order.SellerId || ""
-                )
-                    .toLowerCase()
-                    .includes(value)
 
-                ||
+                    const sellerId =
+                        String(
+                            order.SellerId ??
+                            ""
+                        )
+                            .toLowerCase();
 
-                String(
-                    order.CustomerId || ""
-                )
-                    .toLowerCase()
-                    .includes(value)
 
+                    const customerId =
+                        String(
+                            order.CustomerId ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const status =
+                        String(
+                            order.Status ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const remarks =
+                        String(
+                            order.Remarks ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    return (
+
+                        salesOrderId.includes(
+                            search
+                        )
+
+                        ||
+
+                        salesOrderNumber.includes(
+                            search
+                        )
+
+                        ||
+
+                        sellerId.includes(
+                            search
+                        )
+
+                        ||
+
+                        customerId.includes(
+                            search
+                        )
+
+                        ||
+
+                        status.includes(
+                            search
+                        )
+
+                        ||
+
+                        remarks.includes(
+                            search
+                        )
+
+                    );
+
+                }
             );
 
-        });
-
-    }, [
-        salesOrders,
-        searchText
-    ]);
+        }, [
+            salesOrders,
+            searchText
+        ]);
 
 
     // =====================================================
@@ -337,23 +436,51 @@ const SalesOrderList = () => {
         Math.max(
             1,
             Math.ceil(
-                totalRecords / pageSize
+                totalRecords /
+                pageSize
             )
         );
 
 
     const pagedOrders =
-        filteredOrders.slice(
-            (page - 1) * pageSize,
-            page * pageSize
-        );
+        useMemo(() => {
 
+            const startIndex =
+                (page - 1) *
+                pageSize;
+
+
+            const endIndex =
+                startIndex +
+                pageSize;
+
+
+            return filteredOrders.slice(
+                startIndex,
+                endIndex
+            );
+
+        }, [
+            filteredOrders,
+            page,
+            pageSize
+        ]);
+
+
+    // =====================================================
+    // PAGE VALIDATION
+    // =====================================================
 
     useEffect(() => {
 
-        if (page > totalPages) {
+        if (
+            page >
+            totalPages
+        ) {
 
-            setPage(1);
+            setPage(
+                totalPages
+            );
 
         }
 
@@ -369,9 +496,13 @@ const SalesOrderList = () => {
 
     const handleAdd = () => {
 
-        setSelectedOrder(null);
+        setSelectedOrder(
+            null
+        );
 
-        setModalOpen(true);
+        setModalOpen(
+            true
+        );
 
     };
 
@@ -380,269 +511,354 @@ const SalesOrderList = () => {
     // EDIT
     // =====================================================
 
-    const handleEdit = (order) => {
+    const handleEdit =
+        (order) => {
 
-        setSelectedOrder(order);
+            setSelectedOrder(
+                order
+            );
 
-        setModalOpen(true);
+            setModalOpen(
+                true
+            );
 
-    };
+        };
 
 
     // =====================================================
     // VIEW
     // =====================================================
 
-    const handleView = (order) => {
+    const handleView =
+        (order) => {
 
-        setSelectedOrder(order);
+            setSelectedOrder(
+                order
+            );
 
-        setViewOpen(true);
+            setViewOpen(
+                true
+            );
 
-    };
+        };
 
 
     // =====================================================
     // DELETE
     // =====================================================
 
-    const handleDelete = (order) => {
+    const handleDelete =
+        (order) => {
 
-        setSelectedOrder(order);
+            setSelectedOrder(
+                order
+            );
 
-        setDeleteOpen(true);
+            setDeleteOpen(
+                true
+            );
 
-    };
+        };
 
 
     // =====================================================
     // CREATE / UPDATE
     // =====================================================
 
-    const handleSave = async (order) => {
+    const handleSave =
+        async (order) => {
 
-        try {
+            try {
 
-            if (
-                order.SalesOrderId &&
-                Number(order.SalesOrderId) > 0
-            ) {
+                const salesOrderId =
+                    Number(
+                        order.SalesOrderId
+                    );
 
-                // =============================================
+
+                // =========================================
                 // UPDATE
-                // =============================================
+                // =========================================
 
-                await axios.put(
-                    `${API_URL}/${order.SalesOrderId}`,
-                    order
-                );
+                if (
+                    Number.isInteger(
+                        salesOrderId
+                    ) &&
+                    salesOrderId > 0
+                ) {
+
+                    await axios.put(
+                        `${API_URL}/${salesOrderId}`,
+                        order,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json",
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
 
 
-                setSnackbar({
-                    open: true,
-                    severity: "success",
-                    message:
-                        "Sales Order updated successfully."
-                });
+                    setSnackbar({
+                        open: true,
+                        severity: "success",
+                        message:
+                            "Sales Order updated successfully."
+                    });
 
-            }
-            else {
+                }
 
-                // =============================================
+                // =========================================
                 // CREATE
-                // =============================================
+                // =========================================
 
-                await axios.post(
-                    API_URL,
-                    order
+                else {
+
+                    await axios.post(
+                        API_URL,
+                        order,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json",
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                    setSnackbar({
+                        open: true,
+                        severity: "success",
+                        message:
+                            "Sales Order created successfully."
+                    });
+
+                }
+
+
+                setModalOpen(
+                    false
+                );
+
+                setSelectedOrder(
+                    null
+                );
+
+
+                // -----------------------------------------
+                // RELOAD ALL
+                // -----------------------------------------
+
+                await loadSalesOrders();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Save Sales Order Error:",
+                    error
                 );
 
 
                 setSnackbar({
                     open: true,
-                    severity: "success",
+                    severity: "error",
                     message:
-                        "Sales Order created successfully."
+                        error.response?.data
+                            ?.message ||
+                        "Unable to save Sales Order."
                 });
 
             }
 
-
-            setModalOpen(false);
-
-            setSelectedOrder(null);
-
-
-            await loadSalesOrders();
-
-        }
-        catch (error) {
-
-            console.error(
-                "Save Sales Order Error:",
-                error
-            );
-
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.response?.data?.message ||
-                    "Unable to save Sales Order."
-            });
-
-        }
-
-    };
+        };
 
 
     // =====================================================
     // DELETE CONFIRM
     // =====================================================
 
-    const handleDeleteConfirm = async (id) => {
+    const handleDeleteConfirm =
+        async (id) => {
 
-        try {
+            try {
 
-            const salesOrderId =
-                Number(id);
+                const salesOrderId =
+                    Number(id);
 
 
-            if (
-                !Number.isInteger(salesOrderId) ||
-                salesOrderId <= 0
-            ) {
+                if (
+                    !Number.isInteger(
+                        salesOrderId
+                    ) ||
+                    salesOrderId <= 0
+                ) {
+
+                    setSnackbar({
+                        open: true,
+                        severity: "error",
+                        message:
+                            "Invalid Sales Order ID."
+                    });
+
+                    return;
+
+                }
+
+
+                await axios.delete(
+                    `${API_URL}/${salesOrderId}`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json"
+                        }
+                    }
+                );
+
+
+                setDeleteOpen(
+                    false
+                );
+
+                setSelectedOrder(
+                    null
+                );
+
+
+                setSnackbar({
+                    open: true,
+                    severity: "success",
+                    message:
+                        "Sales Order deleted successfully."
+                });
+
+
+                // -----------------------------------------
+                // RELOAD ALL
+                // -----------------------------------------
+
+                await loadSalesOrders();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Delete Sales Order Error:",
+                    error
+                );
+
 
                 setSnackbar({
                     open: true,
                     severity: "error",
                     message:
-                        "Invalid Sales Order ID."
+                        error.response?.data
+                            ?.message ||
+                        "Unable to delete Sales Order."
                 });
-
-                return;
 
             }
 
-
-            await axios.delete(
-                `${API_URL}/${salesOrderId}`
-            );
-
-
-            setDeleteOpen(false);
-
-            setSelectedOrder(null);
-
-
-            setSnackbar({
-                open: true,
-                severity: "success",
-                message:
-                    "Sales Order deleted successfully."
-            });
-
-
-            await loadSalesOrders();
-
-        }
-        catch (error) {
-
-            console.error(
-                "Delete Sales Order Error:",
-                error
-            );
-
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.response?.data?.message ||
-                    "Unable to delete Sales Order."
-            });
-
-        }
-
-    };
+        };
 
 
     // =====================================================
     // STATISTICS
     // =====================================================
 
-    const statistics = useMemo(() => {
+    const statistics =
+        useMemo(() => {
 
-        const totalOrders =
-            salesOrders.length;
-
-
-        const totalAmount =
-            salesOrders.reduce(
-                (sum, item) => {
-
-                    return (
-                        sum +
-                        Number(
-                            item.TotalAmount || 0
-                        )
-                    );
-
-                },
-                0
-            );
+            const totalOrders =
+                salesOrders.length;
 
 
-        const completedOrders =
-            salesOrders.filter(
-                (item) => {
+            const totalAmount =
+                salesOrders.reduce(
+                    (
+                        sum,
+                        item
+                    ) => {
 
-                    const status =
-                        String(
-                            item.Status || ""
-                        )
-                            .trim()
-                            .toLowerCase();
+                        return (
+                            sum +
+                            Number(
+                                item.TotalAmount ||
+                                0
+                            )
+                        );
 
-
-                    return (
-                        status === "completed" ||
-                        status === "confirmed"
-                    );
-
-                }
-            ).length;
-
-
-        const pendingOrders =
-            salesOrders.filter(
-                (item) => {
-
-                    return (
-                        String(
-                            item.Status || ""
-                        )
-                            .trim()
-                            .toLowerCase() ===
-                        "pending"
-                    );
-
-                }
-            ).length;
+                    },
+                    0
+                );
 
 
-        return {
+            const completedOrders =
+                salesOrders.filter(
+                    (item) => {
 
-            totalOrders,
+                        const status =
+                            String(
+                                item.Status ||
+                                ""
+                            )
+                                .trim()
+                                .toLowerCase();
 
-            totalAmount,
 
-            completedOrders,
+                        return (
+                            status ===
+                                "completed" ||
+                            status ===
+                                "confirmed"
+                        );
 
-            pendingOrders
+                    }
+                ).length;
 
-        };
 
-    }, [salesOrders]);
+            const pendingOrders =
+                salesOrders.filter(
+                    (item) => {
+
+                        const status =
+                            String(
+                                item.Status ||
+                                ""
+                            )
+                                .trim()
+                                .toLowerCase();
+
+
+                        return (
+                            status ===
+                            "pending"
+                        );
+
+                    }
+                ).length;
+
+
+            return {
+
+                totalOrders,
+
+                totalAmount,
+
+                completedOrders,
+
+                pendingOrders
+
+            };
+
+        }, [
+            salesOrders
+        ]);
 
 
     // =====================================================
@@ -697,8 +913,13 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <SalesOrderToolbar
-                onAdd={handleAdd}
-                onRefresh={loadSalesOrders}
+                onAdd={
+                    handleAdd
+                }
+
+                onRefresh={
+                    loadSalesOrders
+                }
             />
 
 
@@ -707,7 +928,9 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <SalesOrderStatistics
-                statistics={statistics}
+                statistics={
+                    statistics
+                }
             />
 
 
@@ -716,8 +939,21 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <SalesOrderSearch
-                searchText={searchText}
-                setSearchText={setSearchText}
+                searchText={
+                    searchText
+                }
+
+                setSearchText={
+                    (value) => {
+
+                        setSearchText(
+                            value
+                        );
+
+                        setPage(1);
+
+                    }
+                }
             />
 
 
@@ -736,11 +972,25 @@ const SalesOrderList = () => {
                 >
 
                     <SalesOrderTable
-                        items={pagedOrders}
-                        loading={loading}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
+                        items={
+                            pagedOrders
+                        }
+
+                        loading={
+                            loading
+                        }
+
+                        onView={
+                            handleView
+                        }
+
+                        onEdit={
+                            handleEdit
+                        }
+
+                        onDelete={
+                            handleDelete
+                        }
                     />
 
                 </Grid>
@@ -753,20 +1003,39 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <SalesOrderPagination
-                page={page}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                totalRecords={totalRecords}
 
-                onPageChange={setPage}
+                page={
+                    page
+                }
 
-                onPageSizeChange={(size) => {
+                totalPages={
+                    totalPages
+                }
 
-                    setPageSize(size);
+                pageSize={
+                    pageSize
+                }
 
-                    setPage(1);
+                totalRecords={
+                    totalRecords
+                }
 
-                }}
+                onPageChange={
+                    setPage
+                }
+
+                onPageSizeChange={
+                    (size) => {
+
+                        setPageSize(
+                            size
+                        );
+
+                        setPage(1);
+
+                    }
+                }
+
             />
 
 
@@ -775,18 +1044,31 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <SalesOrderModal
-                open={modalOpen}
-                item={selectedOrder}
+
+                open={
+                    modalOpen
+                }
+
+                item={
+                    selectedOrder
+                }
 
                 onClose={() => {
 
-                    setModalOpen(false);
+                    setModalOpen(
+                        false
+                    );
 
-                    setSelectedOrder(null);
+                    setSelectedOrder(
+                        null
+                    );
 
                 }}
 
-                onSave={handleSave}
+                onSave={
+                    handleSave
+                }
+
             />
 
 
@@ -795,16 +1077,27 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <SalesOrderView
-                open={viewOpen}
-                item={selectedOrder}
+
+                open={
+                    viewOpen
+                }
+
+                item={
+                    selectedOrder
+                }
 
                 onClose={() => {
 
-                    setViewOpen(false);
+                    setViewOpen(
+                        false
+                    );
 
-                    setSelectedOrder(null);
+                    setSelectedOrder(
+                        null
+                    );
 
                 }}
+
             />
 
 
@@ -813,18 +1106,31 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <DeleteSalesOrderDialog
-                open={deleteOpen}
-                item={selectedOrder}
+
+                open={
+                    deleteOpen
+                }
+
+                item={
+                    selectedOrder
+                }
 
                 onClose={() => {
 
-                    setDeleteOpen(false);
+                    setDeleteOpen(
+                        false
+                    );
 
-                    setSelectedOrder(null);
+                    setSelectedOrder(
+                        null
+                    );
 
                 }}
 
-                onDeleted={handleDeleteConfirm}
+                onDeleted={
+                    handleDeleteConfirm
+                }
+
             />
 
 
@@ -833,8 +1139,14 @@ const SalesOrderList = () => {
             ================================================= */}
 
             <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
+
+                open={
+                    snackbar.open
+                }
+
+                autoHideDuration={
+                    3000
+                }
 
                 onClose={() =>
                     setSnackbar({
@@ -842,19 +1154,28 @@ const SalesOrderList = () => {
                         open: false
                     })
                 }
+
             >
 
                 <Alert
-                    severity={snackbar.severity}
+
+                    severity={
+                        snackbar.severity
+                    }
+
                     variant="filled"
+
                     onClose={() =>
                         setSnackbar({
                             ...snackbar,
                             open: false
                         })
                     }
+
                 >
-                    {snackbar.message}
+                    {
+                        snackbar.message
+                    }
                 </Alert>
 
             </Snackbar>

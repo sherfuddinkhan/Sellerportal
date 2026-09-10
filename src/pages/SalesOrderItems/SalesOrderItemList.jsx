@@ -41,7 +41,7 @@ const DEFAULT_PAGE_SIZE = 10;
 
 // =========================================================
 // NORMALIZE API RESPONSE
-// Handles camelCase and PascalCase
+// Supports camelCase and PascalCase
 // =========================================================
 
 const normalizeSalesOrderItem = (item) => {
@@ -143,7 +143,6 @@ const SalesOrderItemList = () => {
     const [pageSize, setPageSize] =
         useState(DEFAULT_PAGE_SIZE);
 
-
     const [modalOpen, setModalOpen] =
         useState(false);
 
@@ -153,20 +152,14 @@ const SalesOrderItemList = () => {
     const [deleteOpen, setDeleteOpen] =
         useState(false);
 
-
     const [selectedItem, setSelectedItem] =
         useState(null);
 
-
     const [snackbar, setSnackbar] =
         useState({
-
             open: false,
-
             severity: "success",
-
             message: ""
-
         });
 
 
@@ -180,16 +173,28 @@ const SalesOrderItemList = () => {
 
             setLoading(true);
 
+            console.log(
+                "========================================"
+            );
 
             console.log(
-                "GET SALES ORDER ITEMS:",
+                "GET SALES ORDER ITEMS"
+            );
+
+            console.log(
+                "API:",
                 API_URL
             );
 
-
             const response =
-                await axios.get(API_URL);
+                await axios.get(
+                    API_URL
+                );
 
+            console.log(
+                "ASP.NET / NODE STATUS:",
+                response.status
+            );
 
             console.log(
                 "SALES ORDER ITEMS RESPONSE:",
@@ -200,12 +205,14 @@ const SalesOrderItemList = () => {
             let data = [];
 
 
-            // ------------------------------------------------
-            // API returns array
-            // ------------------------------------------------
+            // =================================================
+            // RESPONSE IS ARRAY
+            // =================================================
 
             if (
-                Array.isArray(response.data)
+                Array.isArray(
+                    response.data
+                )
             ) {
 
                 data =
@@ -214,9 +221,9 @@ const SalesOrderItemList = () => {
             }
 
 
-            // ------------------------------------------------
-            // API returns { data: [] }
-            // ------------------------------------------------
+            // =================================================
+            // RESPONSE IS { data: [] }
+            // =================================================
 
             else if (
                 Array.isArray(
@@ -230,9 +237,9 @@ const SalesOrderItemList = () => {
             }
 
 
-            // ------------------------------------------------
-            // API returns { items: [] }
-            // ------------------------------------------------
+            // =================================================
+            // RESPONSE IS { items: [] }
+            // =================================================
 
             else if (
                 Array.isArray(
@@ -246,6 +253,16 @@ const SalesOrderItemList = () => {
             }
 
 
+            console.log(
+                "RAW SALES ORDER ITEMS:",
+                data
+            );
+
+
+            // =================================================
+            // NORMALIZE
+            // =================================================
+
             const normalizedItems =
                 data
                     .map(
@@ -254,22 +271,35 @@ const SalesOrderItemList = () => {
                     .filter(Boolean);
 
 
-            setItems(
-                normalizedItems
-            );
-
-
             console.log(
                 "NORMALIZED SALES ORDER ITEMS:",
                 normalizedItems
             );
 
+
+            setItems(
+                normalizedItems
+            );
+
+
         }
         catch (error) {
 
             console.error(
-                "LOAD SALES ORDER ITEMS ERROR:",
+                "========================================"
+            );
+
+            console.error(
+                "LOAD SALES ORDER ITEMS ERROR"
+            );
+
+            console.error(
                 error
+            );
+
+            console.error(
+                "SERVER RESPONSE:",
+                error.response?.data
             );
 
 
@@ -317,19 +347,17 @@ const SalesOrderItemList = () => {
     const filteredItems =
         useMemo(() => {
 
-            if (
-                !searchText.trim()
-            ) {
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
+
+
+            if (!search) {
 
                 return items;
 
             }
-
-
-            const value =
-                searchText
-                    .toLowerCase()
-                    .trim();
 
 
             return items.filter(
@@ -341,7 +369,7 @@ const SalesOrderItemList = () => {
                             item.SalesOrderItemId
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                         ||
 
@@ -349,7 +377,7 @@ const SalesOrderItemList = () => {
                             item.SalesOrderId
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                         ||
 
@@ -357,7 +385,7 @@ const SalesOrderItemList = () => {
                             item.ProductId
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                         ||
 
@@ -365,7 +393,7 @@ const SalesOrderItemList = () => {
                             item.LineNumber
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                         ||
 
@@ -373,7 +401,7 @@ const SalesOrderItemList = () => {
                             item.Quantity
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                         ||
 
@@ -381,7 +409,7 @@ const SalesOrderItemList = () => {
                             item.UnitPrice
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                         ||
 
@@ -389,7 +417,7 @@ const SalesOrderItemList = () => {
                             item.TotalAmount
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                         ||
 
@@ -397,7 +425,15 @@ const SalesOrderItemList = () => {
                             item.TaxAmount
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
+
+                        ||
+
+                        String(
+                            item.DiscountAmount
+                        )
+                            .toLowerCase()
+                            .includes(search)
 
                         ||
 
@@ -405,7 +441,7 @@ const SalesOrderItemList = () => {
                             item.Remarks
                         )
                             .toLowerCase()
-                            .includes(value)
+                            .includes(search)
 
                     );
 
@@ -437,35 +473,27 @@ const SalesOrderItemList = () => {
 
 
     const pagedItems =
-        filteredItems.slice(
+        useMemo(() => {
 
-            (page - 1) *
-            pageSize,
+            const startIndex =
+                (page - 1) *
+                pageSize;
 
-            page *
+            const endIndex =
+                startIndex +
+                pageSize;
+
+
+            return filteredItems.slice(
+                startIndex,
+                endIndex
+            );
+
+        }, [
+            filteredItems,
+            page,
             pageSize
-
-        );
-
-
-    // =====================================================
-    // RESET PAGE WHEN REQUIRED
-    // =====================================================
-
-    useEffect(() => {
-
-        if (
-            page > totalPages
-        ) {
-
-            setPage(1);
-
-        }
-
-    }, [
-        page,
-        totalPages
-    ]);
+        ]);
 
 
     // =====================================================
@@ -476,7 +504,169 @@ const SalesOrderItemList = () => {
 
         setPage(1);
 
-    }, [searchText]);
+    }, [
+        searchText
+    ]);
+
+
+    // =====================================================
+    // RESET PAGE IF CURRENT PAGE IS INVALID
+    // =====================================================
+
+    useEffect(() => {
+
+        if (
+            page > totalPages
+        ) {
+
+            setPage(
+                totalPages
+            );
+
+        }
+
+    }, [
+        page,
+        totalPages
+    ]);
+
+
+    // =====================================================
+    // STATISTICS
+    // =====================================================
+
+    const statistics =
+        useMemo(() => {
+
+            // -------------------------------------------------
+            // TOTAL ITEMS
+            // -------------------------------------------------
+
+            const totalItems =
+                items.length;
+
+
+            // -------------------------------------------------
+            // TOTAL QUANTITY
+            // -------------------------------------------------
+
+            const totalQuantity =
+                items.reduce(
+                    (
+                        sum,
+                        item
+                    ) => {
+
+                        return (
+                            sum +
+                            Number(
+                                item.Quantity || 0
+                            )
+                        );
+
+                    },
+                    0
+                );
+
+
+            // -------------------------------------------------
+            // TOTAL TAX
+            // -------------------------------------------------
+
+            const totalTax =
+                items.reduce(
+                    (
+                        sum,
+                        item
+                    ) => {
+
+                        return (
+                            sum +
+                            Number(
+                                item.TaxAmount || 0
+                            )
+                        );
+
+                    },
+                    0
+                );
+
+
+            // -------------------------------------------------
+            // TOTAL DISCOUNT
+            // -------------------------------------------------
+
+            const totalDiscount =
+                items.reduce(
+                    (
+                        sum,
+                        item
+                    ) => {
+
+                        return (
+                            sum +
+                            Number(
+                                item.DiscountAmount || 0
+                            )
+                        );
+
+                    },
+                    0
+                );
+
+
+            // -------------------------------------------------
+            // TOTAL AMOUNT
+            // -------------------------------------------------
+
+            const totalAmount =
+                items.reduce(
+                    (
+                        sum,
+                        item
+                    ) => {
+
+                        return (
+                            sum +
+                            Number(
+                                item.TotalAmount || 0
+                            )
+                        );
+
+                    },
+                    0
+                );
+
+
+            console.log(
+                "SALES ORDER ITEM STATISTICS:",
+                {
+                    totalItems,
+                    totalQuantity,
+                    totalTax,
+                    totalDiscount,
+                    totalAmount
+                }
+            );
+
+
+            return {
+
+                totalItems,
+
+                totalQuantity,
+
+                totalTax,
+
+                totalDiscount,
+
+                totalAmount
+
+            };
+
+        }, [
+            items
+        ]);
 
 
     // =====================================================
@@ -485,9 +675,13 @@ const SalesOrderItemList = () => {
 
     const handleAdd = () => {
 
-        setSelectedItem(null);
+        setSelectedItem(
+            null
+        );
 
-        setModalOpen(true);
+        setModalOpen(
+            true
+        );
 
     };
 
@@ -498,9 +692,13 @@ const SalesOrderItemList = () => {
 
     const handleEdit = (item) => {
 
-        setSelectedItem(item);
+        setSelectedItem(
+            item
+        );
 
-        setModalOpen(true);
+        setModalOpen(
+            true
+        );
 
     };
 
@@ -511,9 +709,13 @@ const SalesOrderItemList = () => {
 
     const handleView = (item) => {
 
-        setSelectedItem(item);
+        setSelectedItem(
+            item
+        );
 
-        setViewOpen(true);
+        setViewOpen(
+            true
+        );
 
     };
 
@@ -524,9 +726,13 @@ const SalesOrderItemList = () => {
 
     const handleDelete = (item) => {
 
-        setSelectedItem(item);
+        setSelectedItem(
+            item
+        );
 
-        setDeleteOpen(true);
+        setDeleteOpen(
+            true
+        );
 
     };
 
@@ -535,7 +741,9 @@ const SalesOrderItemList = () => {
     // CREATE / UPDATE
     // =====================================================
 
-    const handleSave = async (item) => {
+    const handleSave = async (
+        item
+    ) => {
 
         try {
 
@@ -549,12 +757,12 @@ const SalesOrderItemList = () => {
 
                 SalesOrderId:
                     Number(
-                        item.SalesOrderId
+                        item.SalesOrderId || 0
                     ),
 
                 ProductId:
                     Number(
-                        item.ProductId
+                        item.ProductId || 0
                     ),
 
                 LineNumber:
@@ -593,9 +801,9 @@ const SalesOrderItemList = () => {
             };
 
 
-            // ------------------------------------------------
+            // =================================================
             // UPDATE
-            // ------------------------------------------------
+            // =================================================
 
             if (
                 item.SalesOrderItemId
@@ -631,9 +839,9 @@ const SalesOrderItemList = () => {
             }
 
 
-            // ------------------------------------------------
+            // =================================================
             // CREATE
-            // ------------------------------------------------
+            // =================================================
 
             else {
 
@@ -667,9 +875,13 @@ const SalesOrderItemList = () => {
             }
 
 
-            setModalOpen(false);
+            setModalOpen(
+                false
+            );
 
-            setSelectedItem(null);
+            setSelectedItem(
+                null
+            );
 
 
             await loadItems();
@@ -706,7 +918,9 @@ const SalesOrderItemList = () => {
     // =====================================================
 
     const handleDeleteConfirm =
-        async (id) => {
+        async (
+            id
+        ) => {
 
             try {
 
@@ -721,9 +935,13 @@ const SalesOrderItemList = () => {
                 );
 
 
-                setDeleteOpen(false);
+                setDeleteOpen(
+                    false
+                );
 
-                setSelectedItem(null);
+                setSelectedItem(
+                    null
+                );
 
 
                 setSnackbar({
@@ -765,77 +983,6 @@ const SalesOrderItemList = () => {
             }
 
         };
-
-
-    // =====================================================
-    // STATISTICS
-    // =====================================================
-
-    const statistics =
-        useMemo(() => {
-
-            const totalItems =
-                items.length;
-
-
-            const totalQuantity =
-                items.reduce(
-
-                    (sum, item) =>
-
-                        sum +
-                        Number(
-                            item.Quantity || 0
-                        ),
-
-                    0
-
-                );
-
-
-            const totalAmount =
-                items.reduce(
-
-                    (sum, item) =>
-
-                        sum +
-                        Number(
-                            item.TotalAmount || 0
-                        ),
-
-                    0
-
-                );
-
-
-            const totalTax =
-                items.reduce(
-
-                    (sum, item) =>
-
-                        sum +
-                        Number(
-                            item.TaxAmount || 0
-                        ),
-
-                    0
-
-                );
-
-
-            return {
-
-                totalItems,
-
-                totalQuantity,
-
-                totalAmount,
-
-                totalTax
-
-            };
-
-        }, [items]);
 
 
     // =====================================================
@@ -912,7 +1059,19 @@ const SalesOrderItemList = () => {
 
             <SalesOrderItemSearch
                 searchText={searchText}
-                setSearchText={setSearchText}
+                setSearchText={(
+                    value
+                ) => {
+
+                    setSearchText(
+                        value
+                    );
+
+                    setPage(
+                        1
+                    );
+
+                }}
             />
 
 
@@ -953,11 +1112,17 @@ const SalesOrderItemList = () => {
                 pageSize={pageSize}
                 totalRecords={totalRecords}
                 onPageChange={setPage}
-                onPageSizeChange={(size) => {
+                onPageSizeChange={(
+                    size
+                ) => {
 
-                    setPageSize(size);
+                    setPageSize(
+                        size
+                    );
 
-                    setPage(1);
+                    setPage(
+                        1
+                    );
 
                 }}
             />
@@ -972,9 +1137,13 @@ const SalesOrderItemList = () => {
                 item={selectedItem}
                 onClose={() => {
 
-                    setModalOpen(false);
+                    setModalOpen(
+                        false
+                    );
 
-                    setSelectedItem(null);
+                    setSelectedItem(
+                        null
+                    );
 
                 }}
                 onSave={handleSave}
@@ -990,9 +1159,13 @@ const SalesOrderItemList = () => {
                 item={selectedItem}
                 onClose={() => {
 
-                    setViewOpen(false);
+                    setViewOpen(
+                        false
+                    );
 
-                    setSelectedItem(null);
+                    setSelectedItem(
+                        null
+                    );
 
                 }}
             />
@@ -1007,12 +1180,18 @@ const SalesOrderItemList = () => {
                 item={selectedItem}
                 onClose={() => {
 
-                    setDeleteOpen(false);
+                    setDeleteOpen(
+                        false
+                    );
 
-                    setSelectedItem(null);
+                    setSelectedItem(
+                        null
+                    );
 
                 }}
-                onDeleted={handleDeleteConfirm}
+                onDeleted={
+                    handleDeleteConfirm
+                }
             />
 
 
@@ -1021,8 +1200,12 @@ const SalesOrderItemList = () => {
             ================================================= */}
 
             <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
+                open={
+                    snackbar.open
+                }
+                autoHideDuration={
+                    3000
+                }
                 onClose={() =>
                     setSnackbar(
                         previous => ({
@@ -1034,7 +1217,9 @@ const SalesOrderItemList = () => {
             >
 
                 <Alert
-                    severity={snackbar.severity}
+                    severity={
+                        snackbar.severity
+                    }
                     variant="filled"
                     onClose={() =>
                         setSnackbar(
@@ -1045,7 +1230,9 @@ const SalesOrderItemList = () => {
                         )
                     }
                 >
-                    {snackbar.message}
+                    {
+                        snackbar.message
+                    }
                 </Alert>
 
             </Snackbar>

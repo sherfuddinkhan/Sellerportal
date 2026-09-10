@@ -724,32 +724,6 @@ const MainLayout = () => {
                             label: "Create Sales Order",
                             path: "/sales-orders/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/sales-orders/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/sales-orders/details/:id",
-                        },
-
-                        {
-                            label: "Edit",
-                            path: "/sales-orders/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/sales-orders/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/sales-orders/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/sales-orders/search",
@@ -759,17 +733,6 @@ const MainLayout = () => {
                             label: "Statistics",
                             path: "/sales-orders/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/sales-orders/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/sales-orders/toolbar",
-                        },
-
                     ],
                 },
 
@@ -793,32 +756,6 @@ const MainLayout = () => {
                             label: "Create Item",
                             path: "/sales-order-items/create",
                         },
-
-                        {
-                            label: "Card",
-                            path: "/sales-order-items/card",
-                        },
-
-                        {
-                            label: "Details",
-                            path: "/sales-order-items/details/:id",
-                        },
-
-                        {
-                            label: "Edit",
-                            path: "/sales-order-items/edit/:id",
-                        },
-
-                        {
-                            label: "Modal",
-                            path: "/sales-order-items/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/sales-order-items/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/sales-order-items/search",
@@ -828,17 +765,6 @@ const MainLayout = () => {
                             label: "Statistics",
                             path: "/sales-order-items/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/sales-order-items/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/sales-order-items/toolbar",
-                        },
-
                     ],
                 },
 

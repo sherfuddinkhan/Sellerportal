@@ -31,6 +31,10 @@ const SalesOrderSearch = ({
     };
 
 
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
 
         <Box
@@ -41,15 +45,14 @@ const SalesOrderSearch = ({
         >
 
             <TextField
+
                 fullWidth
+
                 size="small"
 
                 label="Search Sales Orders"
 
-                placeholder={
-                    "Search by Order Number, Seller ID, " +
-                    "Customer ID, Status or Remarks..."
-                }
+                placeholder="Search by Order Number, Seller ID, Customer ID, Status or Remarks..."
 
                 value={searchText}
 
@@ -62,6 +65,7 @@ const SalesOrderSearch = ({
                 }}
 
                 InputProps={{
+
                     startAdornment: (
 
                         <InputAdornment position="start">
@@ -72,14 +76,18 @@ const SalesOrderSearch = ({
 
                     ),
 
-                    endAdornment: searchText && (
+                    endAdornment: searchText ? (
 
                         <InputAdornment position="end">
 
                             <IconButton
+
                                 size="small"
+
                                 onClick={handleClear}
+
                                 aria-label="Clear search"
+
                             >
 
                                 <ClearIcon />
@@ -88,7 +96,8 @@ const SalesOrderSearch = ({
 
                         </InputAdornment>
 
-                    )
+                    ) : null
+
                 }}
 
             />

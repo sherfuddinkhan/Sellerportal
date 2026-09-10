@@ -3485,7 +3485,255 @@ app.get("/api/sales-orders/all", async (req, res) => {
         );
     }
 });
+// =========================================================
+// SALES ORDER STATISTICS
+// GET /api/SalesOrder/stats
+// =========================================================
 
+app.get(
+    "/api/SalesOrder/stats",
+    async (req, res) => {
+
+        console.log(
+            "\n========================================"
+        );
+
+        console.log(
+            "GET SALES ORDER STATISTICS"
+        );
+
+        console.log(
+            "========================================"
+        );
+
+
+        try {
+
+            // =============================================
+            // CALL ASP.NET CORE API
+            // =============================================
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SalesOrder/stats`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+
+            // =============================================
+            // LOG RESPONSE
+            // =============================================
+
+            console.log(
+                "ASP.NET Status:",
+                response.status
+            );
+
+
+            console.log(
+                "ASP.NET Response:",
+                response.data
+            );
+
+
+            // =============================================
+            // RETURN RESPONSE TO REACT
+            // =============================================
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "\n========================================"
+            );
+
+            console.error(
+                "SALES ORDER STATISTICS ERROR"
+            );
+
+            console.error(
+                "========================================"
+            );
+
+
+            console.error(
+                "Status:",
+                error.response?.status
+            );
+
+
+            console.error(
+                "Response:",
+                error.response?.data
+            );
+
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load sales order statistics.",
+                    }
+                );
+
+        }
+
+    }
+);
+
+// =========================================================
+// GET SALES ORDERS BY SELLER
+// =========================================================
+
+// =========================================================
+// SALES ORDER - GET ALL BY SELLER
+// =========================================================
+
+app.get("/api/SalesOrder/seller/:sellerId", async (req, res) => {
+    try {
+
+        const { sellerId } = req.params;
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesOrder/seller/${sellerId}`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Sales Order Seller API Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to load Sales Orders."
+            }
+        );
+
+    }
+});
+
+
+// =========================================================
+// SALES ORDER - SEARCH
+// =========================================================
+
+app.get("/api/SalesOrder/search", async (req, res) => {
+    try {
+
+        const {
+            sellerId,
+            search
+        } = req.query;
+
+
+        if (!sellerId) {
+
+            return res.status(400).json({
+                message:
+                    "sellerId is required."
+            });
+
+        }
+
+
+        if (!search || !search.trim()) {
+
+            return res.status(400).json({
+                message:
+                    "search is required."
+            });
+
+        }
+
+
+        console.log(
+            "Sales Order Search:",
+            {
+                sellerId,
+                search
+            }
+        );
+
+
+        const response = await axios.get(
+            `${DOTNET_API}/SalesOrder/search`,
+            {
+                params: {
+                    sellerId,
+                    search
+                },
+
+                httpsAgent,
+
+                headers: {
+                    Accept:
+                        "application/json"
+                }
+            }
+        );
+
+
+        res.status(
+            response.status
+        ).json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Sales Order Search API Error:",
+            error.response?.data ||
+            error.message
+        );
+
+
+        res.status(
+            error.response?.status ||
+            500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to search Sales Orders."
+            }
+        );
+
+    }
+});
 // =========================================================
 // CREATE SALES ORDER
 // POST /api/sales-orders
@@ -3768,7 +4016,39 @@ app.get("/api/sales-order-items", async (req, res) => {
         );
     }
 });
+// =========================================================
+// SALES ORDER ITEMS - STATISTICS
+// =========================================================
 
+app.get("/api/sales-order-items/stats", async (req, res) => {
+    try {
+
+        const response = await axios.get(
+            `${DOTNET_API}/sales-order-items/stats`,
+            {
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "Sales Order Item Statistics Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(
+            error.response?.status || 500
+        ).json({
+            message:
+                error.response?.data?.message ||
+                "Failed to load sales order item statistics"
+        });
+
+    }
+});
 // ---------------------------------------------------------
 // GET ALL / SEARCH / PAGINATION / SORT
 // GET /api/sales-order-items
@@ -18295,11 +18575,62 @@ app.delete("/api/product-prices/:productPriceId", async (req, res) => {
 
 
 // =========================================================
-// GET ALL / SEARCH / FILTER / SORT / PAGINATION
+// GET ALL PRODUCT INVENTORIES
 // =========================================================
 //
-// GET
-// /api/product-inventories
+// React:
+// GET http://localhost:5000/api/product-inventories/all
+//
+// ASP.NET:
+// GET https://localhost:7203/api/product-inventories/all
+// =========================================================
+
+app.get(
+    "/api/product-inventories/all",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/all`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/product-inventories/all Error:",
+                error.response?.data || error.message
+            );
+
+            return res
+                .status(error.response?.status || 500)
+                .json(
+                    error.response?.data || {
+                        success: false,
+                        message:
+                            "Failed to fetch all product inventories.",
+                        error: error.message
+                    }
+                );
+        }
+    }
+);
+
+
+// =========================================================
+// GET PRODUCT INVENTORIES
+// =========================================================
+//
+// React:
+// GET http://localhost:5000/api/product-inventories
 //
 // Optional query parameters:
 //
@@ -18308,109 +18639,58 @@ app.delete("/api/product-prices/:productPriceId", async (req, res) => {
 // ?sort=quantity
 // ?page=1&limit=10
 //
-// The ASP.NET controller handles these parameters.
+// Node forwards the query parameters to ASP.NET.
 // =========================================================
 
-// ========================================================= // PRODUCT INVENTORY // ========================================================= // ---------------------------------------------------------
- //GET ALL PRODUCT INVENTORIES // GET http://localhost:5000/api/product-inventories/all // --------------------------------------------------------- 
- app.get(
-"/api/product-inventories/all", 
-async (req, res) => 
-{ try 
-    
-    { 
-    const response = await axios.get( `${DOTNET_API}/product-inventories/all`,
-    { httpsAgent } ); 
-    res.status(response.status).json(response.data); } catch (error) 
-    { 
-    console.error( "GET /api/product-inventories/all Error:", error.message );
-     if (error.response) 
-    { 
-    return res .status(error.response.status).json(error.response.data); 
-    }
-     res.status(500).json(
-    { message: "Failed to fetch all product inventories.", error: error.message }
-    ); 
-    }
- }
-);
-
-// Frontend: // GET http://localhost:5000/api/product  ---------------------------------------------------------
- app.get("/api/product", async (req, res) => { 
-try 
-{ 
-const response = await axios.get( `${DOTNET_API}/Product`,
- { 
-httpsAgent } ); res.status(response.status).json( response.data ); } catch (error) 
-{ 
-console.error( "GET /api/product Error:", error.message ); 
-if (error.response) 
-{ 
-return res .status(error.response.status).json(error.response.data); 
-}
-return res.status(500).json(
-{ message: "Failed to fetch products.", error: error.message }
-); 
-}
-}
-);
 app.get(
     "/api/product-inventories",
     async (req, res) => {
 
         try {
 
-            const response =
-                await dotnetClient.get(
-                    "/product-inventories",
-                    {
-                        params: req.query
-                    }
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Product Inventories Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to load product inventories."
+                            "Failed to load product inventories.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
 
 // =========================================================
-// GET STATISTICS
+// GET PRODUCT INVENTORY STATISTICS
 // =========================================================
 //
-// GET
-// /api/product-inventories/stats
+// React:
+// GET http://localhost:5000/api/product-inventories/stats
 //
 // ASP.NET:
-// /api/product-inventories/stats
+// GET https://localhost:7203/api/product-inventories/stats
 // =========================================================
 
 app.get(
@@ -18419,54 +18699,48 @@ app.get(
 
         try {
 
-            const response =
-                await dotnetClient.get(
-                    "/product-inventories/stats"
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/stats`,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Product Inventory Statistics Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to load inventory statistics."
+                            "Failed to load inventory statistics.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
 
 // =========================================================
-// GET BY ID
+// GET PRODUCT INVENTORY BY ID
 // =========================================================
 //
-// GET
-// /api/product-inventories/1
+// React:
+// GET http://localhost:5000/api/product-inventories/1
 //
 // ASP.NET:
-// /api/product-inventories/1
+// GET https://localhost:7203/api/product-inventories/1
 // =========================================================
 
 app.get(
@@ -18479,52 +18753,48 @@ app.get(
                 productInventoryId
             } = req.params;
 
-
-            const response =
-                await dotnetClient.get(
-                    `/product-inventories/${productInventoryId}`
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/${productInventoryId}`,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Product Inventory By ID Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Product inventory not found."
+                            "Product inventory not found.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
 
 // =========================================================
-// GET BY PRODUCT
+// GET INVENTORY BY PRODUCT
 // =========================================================
 //
-// GET
-// /api/product-inventories/product/1
+// React:
+// GET http://localhost:5000/api/product-inventories/product/1
+//
+// ASP.NET:
+// GET https://localhost:7203/api/product-inventories/product/1
 // =========================================================
 
 app.get(
@@ -18537,52 +18807,45 @@ app.get(
                 productId
             } = req.params;
 
-
-            const response =
-                await dotnetClient.get(
-                    `/product-inventories/product/${productId}`
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/product/${productId}`,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Inventory By Product Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to load product inventory."
+                            "Failed to load product inventory.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
 
 // =========================================================
-// GET BY PRODUCT IDS
+// GET INVENTORIES BY PRODUCT IDS
 // =========================================================
 //
-// POST
-// /api/product-inventories/products
+// React:
+// POST http://localhost:5000/api/product-inventories/products
 //
 // Body:
 //
@@ -18591,6 +18854,9 @@ app.get(
 //     2,
 //     3
 // ]
+//
+// ASP.NET:
+// POST https://localhost:7203/api/product-inventories/products
 // =========================================================
 
 app.post(
@@ -18599,52 +18865,49 @@ app.post(
 
         try {
 
-            const response =
-                await dotnetClient.post(
-                    "/product-inventories/products",
-                    req.body
-                );
-
+            const response = await axios.post(
+                `${DOTNET_API}/product-inventories/products`,
+                req.body,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "POST Product IDs Inventory Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to load product inventories."
+                            "Failed to load product inventories.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
 
 // =========================================================
-// GET BY SELLER
+// GET INVENTORY BY SELLER
 // =========================================================
 //
-// GET
-// /api/product-inventories/seller/6
+// React:
+// GET http://localhost:5000/api/product-inventories/seller/6
+//
+// ASP.NET:
+// GET https://localhost:7203/api/product-inventories/seller/6
 // =========================================================
 
 app.get(
@@ -18657,42 +18920,35 @@ app.get(
                 sellerId
             } = req.params;
 
-
-            const response =
-                await dotnetClient.get(
-                    `/product-inventories/seller/${sellerId}`
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/seller/${sellerId}`,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Inventory By Seller Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to load seller inventory."
+                            "Failed to load seller inventory.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
@@ -18702,7 +18958,11 @@ app.get(
 // =========================================================
 //
 // GET
-// /api/product-inventories/warehouse/3
+// http://localhost:5000/api/product-inventories/warehouse/3
+//
+// Node forwards to:
+//
+// https://localhost:7203/api/product-inventories/warehouse/3
 // =========================================================
 
 app.get(
@@ -18711,46 +18971,37 @@ app.get(
 
         try {
 
-            const {
-                warehouseId
-            } = req.params;
+            const { warehouseId } = req.params;
 
-
-            const response =
-                await dotnetClient.get(
-                    `/product-inventories/warehouse/${warehouseId}`
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/warehouse/${warehouseId}`,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Inventory By Warehouse Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to load warehouse inventory."
+                            "Failed to load warehouse inventory.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
@@ -18760,7 +19011,11 @@ app.get(
 // =========================================================
 //
 // GET
-// /api/product-inventories/seller/6/customer/3
+// http://localhost:5000/api/product-inventories/seller/6/customer/3
+//
+// Node forwards to:
+//
+// https://localhost:7203/api/product-inventories/seller/6/customer/3
 // =========================================================
 
 app.get(
@@ -18774,42 +19029,35 @@ app.get(
                 customerId
             } = req.params;
 
-
-            const response =
-                await dotnetClient.get(
-                    `/product-inventories/seller/${sellerId}/customer/${customerId}`
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/seller/${sellerId}/customer/${customerId}`,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Inventory By Seller + Customer Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to load seller customer inventory."
+                            "Failed to load seller customer inventory.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
@@ -18819,8 +19067,7 @@ app.get(
 // =========================================================
 //
 // GET
-//
-// /api/product-inventories/inventory
+// http://localhost:5000/api/product-inventories/inventory
 //
 // Query:
 //
@@ -18828,6 +19075,9 @@ app.get(
 // &warehouseId=3
 // &locationId=2
 //
+// Example:
+//
+// http://localhost:5000/api/product-inventories/inventory?productId=1&warehouseId=3&locationId=2
 // =========================================================
 
 app.get(
@@ -18836,53 +19086,40 @@ app.get(
 
         try {
 
-            const response =
-                await dotnetClient.get(
-                    "/product-inventories/inventory",
-                    {
-                        params: {
-                            productId:
-                                req.query.productId,
-
-                            warehouseId:
-                                req.query.warehouseId,
-
-                            locationId:
-                                req.query.locationId
-                        }
-                    }
-                );
-
+            const response = await axios.get(
+                `${DOTNET_API}/product-inventories/inventory`,
+                {
+                    params: {
+                        productId: req.query.productId,
+                        warehouseId: req.query.warehouseId,
+                        locationId: req.query.locationId
+                    },
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "GET Specific Inventory Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Product inventory not found."
+                            "Product inventory not found.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
@@ -18892,15 +19129,18 @@ app.get(
 // =========================================================
 //
 // POST
-// /api/product-inventories
+// http://localhost:5000/api/product-inventories
+//
+// Node forwards to:
+//
+// https://localhost:7203/api/product-inventories
 //
 // Body:
 //
 // {
 //     "productId": 1,
 //     "sellerId": 6,
-//     "warehouseId": 3,
-//     ...
+//     "warehouseId": 3
 // }
 // =========================================================
 
@@ -18914,47 +19154,38 @@ app.post(
                 "CREATE Product Inventory:"
             );
 
-            console.log(
-                req.body
+            console.log(req.body);
+
+            const response = await axios.post(
+                `${DOTNET_API}/product-inventories`,
+                req.body,
+                {
+                    httpsAgent
+                }
             );
-
-
-            const response =
-                await dotnetClient.post(
-                    "/product-inventories",
-                    req.body
-                );
-
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "POST Product Inventory Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to create product inventory."
+                            "Failed to create product inventory.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
@@ -18964,13 +19195,11 @@ app.post(
 // =========================================================
 //
 // PUT
-// /api/product-inventories/1
+// http://localhost:5000/api/product-inventories/1
 //
-// Body:
+// Node forwards to:
 //
-// {
-//     ...
-// }
+// https://localhost:7203/api/product-inventories/1
 // =========================================================
 
 app.put(
@@ -18983,54 +19212,43 @@ app.put(
                 productInventoryId
             } = req.params;
 
-
             console.log(
                 "UPDATE Product Inventory:",
                 productInventoryId
             );
 
+            console.log(req.body);
 
-            console.log(
-                req.body
+            const response = await axios.put(
+                `${DOTNET_API}/product-inventories/${productInventoryId}`,
+                req.body,
+                {
+                    httpsAgent
+                }
             );
-
-
-            const response =
-                await dotnetClient.put(
-                    `/product-inventories/${productInventoryId}`,
-                    req.body
-                );
-
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "PUT Product Inventory Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to update product inventory."
+                            "Failed to update product inventory.",
+                        error: error.message
                     }
                 );
-
         }
-
     }
 );
 
@@ -19040,7 +19258,11 @@ app.put(
 // =========================================================
 //
 // DELETE
-// /api/product-inventories/1
+// http://localhost:5000/api/product-inventories/1
+//
+// Node forwards to:
+//
+// https://localhost:7203/api/product-inventories/1
 // =========================================================
 
 app.delete(
@@ -19053,102 +19275,40 @@ app.delete(
                 productInventoryId
             } = req.params;
 
-
             console.log(
                 "DELETE Product Inventory:",
                 productInventoryId
             );
 
-
-            const response =
-                await dotnetClient.delete(
-                    `/product-inventories/${productInventoryId}`
-                );
-
+            const response = await axios.delete(
+                `${DOTNET_API}/product-inventories/${productInventoryId}`,
+                {
+                    httpsAgent
+                }
+            );
 
             return res
                 .status(response.status)
                 .json(response.data);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "DELETE Product Inventory Error:",
-                error.response?.data ||
-                error.message
+                error.response?.data || error.message
             );
 
-
             return res
-                .status(
-                    error.response?.status || 500
-                )
+                .status(error.response?.status || 500)
                 .json(
                     error.response?.data || {
                         success: false,
                         message:
-                            "Failed to delete product inventory."
+                            "Failed to delete product inventory.",
+                        error: error.message
                     }
                 );
-
         }
-
-    }
-);
-
-
-// =========================================================
-// 404 HANDLER
-// =========================================================
-
-app.use(
-    (req, res) => {
-
-        console.log(
-            `ROUTE NOT FOUND: ${req.method} ${req.originalUrl}`
-        );
-
-
-        res.status(404).json({
-
-            success: false,
-
-            message:
-                `ROUTE NOT FOUND: ${req.method} ${req.originalUrl}`
-
-        });
-
-    }
-);
-
-
-// =========================================================
-// GLOBAL ERROR HANDLER
-// =========================================================
-
-app.use(
-    (err, req, res, next) => {
-
-        console.error(
-            "SERVER ERROR:",
-            err
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Internal server error.",
-
-            error:
-                err.message
-
-        });
-
     }
 );
 
