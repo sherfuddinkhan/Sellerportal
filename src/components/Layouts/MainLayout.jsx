@@ -1346,42 +1346,6 @@ const MainLayout = () => {
                             label: "Create Adjustment",
                             path: "/stock-adjustments/create",
                         },
-
-                        {
-                            label: "Adjustment Card",
-                            path: "/stock-adjustments/card",
-                        },
-
-                        {
-                            label: "Adjustment Details",
-                            path: "/stock-adjustments/details/:id",
-                        },
-
-                        {
-                            label: "Edit Adjustment",
-                            path: "/stock-adjustments/edit/:id",
-                        },
-
-                        {
-                            label: "Adjustment Filters",
-                            path: "/stock-adjustments/filters",
-                        },
-
-                        {
-                            label: "Adjustment Form",
-                            path: "/stock-adjustments/form",
-                        },
-
-                        {
-                            label: "Adjustment Modal",
-                            path: "/stock-adjustments/modal",
-                        },
-
-                        {
-                            label: "Pagination",
-                            path: "/stock-adjustments/pagination",
-                        },
-
                         {
                             label: "Search",
                             path: "/stock-adjustments/search",
@@ -1391,17 +1355,6 @@ const MainLayout = () => {
                             label: "Statistics",
                             path: "/stock-adjustments/statistics",
                         },
-
-                        {
-                            label: "Table",
-                            path: "/stock-adjustments/table",
-                        },
-
-                        {
-                            label: "Toolbar",
-                            path: "/stock-adjustments/toolbar",
-                        },
-
                     ],
                 },
 

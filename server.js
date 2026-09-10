@@ -12690,7 +12690,7 @@ app.delete(
 
                 });
 
-        }
+        } 
 
     }
 );
@@ -16995,7 +16995,29 @@ app.get("/api/stock-adjustments", async (req, res) => {
         );
     }
 });
-
+// ========================================================= // GET ALL // GET /api/StockAdjustment // ========================================================= 
+ app.get( "/api/StockAdjustment", async (req, res) => 
+{ 
+try 
+{ 
+    const response = await axios.get( `${DOTNET_API}/StockAdjustment`, 
+ { 
+    httpsAgent, 
+    headers: { Accept: "application/json", ...(req.headers.authorization ? 
+    { 
+    Authorization: req.headers.authorization } : {}) 
+    } 
+    } 
+    ); 
+    return res .status(response.status) .json(response.data); } 
+    catch (error) 
+    { 
+    console.error( "GET StockAdjustment Error:", error.response?.data || error.message ); 
+    return res .status( error.response?.status || 500 ) .json( error.response?.data || 
+ { 
+    message: "Failed to load stock adjustments." } ); 
+  } } 
+);
 
 // =========================================================
 // SEARCH STOCK ADJUSTMENTS

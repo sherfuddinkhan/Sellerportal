@@ -1,9 +1,14 @@
-// =========================================================
-// StockAdjustmentView.jsx
-// View Stock Adjustment
-// =========================================================
+import React, {
+    useEffect,
+    useState
+} from "react";
 
-import React, { useEffect, useState } from "react";
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+import axios from "axios";
 
 import {
     Alert,
@@ -14,231 +19,247 @@ import {
     CircularProgress,
     Divider,
     Grid,
-    Paper,
+    Stack,
     Typography
 } from "@mui/material";
 
 import {
     ArrowBack,
     Edit,
-    Inventory,
-    Warehouse,
-    Person,
-    Business,
-    CalendarMonth,
-    Numbers,
-    Notes
+    Assessment
 } from "@mui/icons-material";
 
-import { useNavigate, useParams } from "react-router-dom";
 
 // =========================================================
-// CONFIGURATION
+// SERVER
 // =========================================================
 
 const SERVER_URL = "http://localhost:5000";
 
+
 // =========================================================
-// COMPONENT
+// STOCK ADJUSTMENT VIEW
 // =========================================================
 
 const StockAdjustmentView = () => {
 
-    const { id } = useParams();
+    const {
+        id
+    } = useParams();
 
     const navigate = useNavigate();
 
-    const [adjustment, setAdjustment] = useState(null);
 
-    const [loading, setLoading] = useState(true);
+    // =====================================================
+    // STATE
+    // =====================================================
 
-    const [error, setError] = useState("");
+    const [
+        stockAdjustment,
+        setStockAdjustment
+    ] = useState(null);
 
-    // =========================================================
+    const [
+        loading,
+        setLoading
+    ] = useState(true);
+
+    const [
+        error,
+        setError
+    ] = useState("");
+
+
+    // =====================================================
+    // HEADERS
+    // =====================================================
+
+    const getHeaders = () => {
+
+        const token =
+            localStorage.getItem("token") ||
+            localStorage.getItem("accessToken") ||
+            "";
+
+        return {
+            Accept: "application/json",
+
+            ...(token
+                ? {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+                : {})
+        };
+    };
+
+
+    // =====================================================
     // LOAD STOCK ADJUSTMENT
-    // =========================================================
+    // =====================================================
 
-    const loadAdjustment = async () => {
+    useEffect(() => {
 
-        if (!id) {
+        const loadStockAdjustment = async () => {
+
+            try {
+
+                setLoading(true);
+                setError("");
+
+                const numericId = Number(id);
+
+                console.log(
+                    "================================================"
+                );
+
+                console.log(
+                    "STOCK ADJUSTMENT VIEW"
+                );
+
+                console.log(
+                    "URL PARAM ID:",
+                    id
+                );
+
+                console.log(
+                    "NUMERIC ID:",
+                    numericId
+                );
+
+
+                // ==========================================
+                // Validate ID
+                // ==========================================
+
+                if (
+                    !Number.isInteger(numericId) ||
+                    numericId <= 0
+                ) {
+
+                    setError(
+                        "Invalid stock adjustment ID."
+                    );
+
+                    return;
+                }
+
+
+                // ==========================================
+                // IMPORTANT
+                // React -> Node
+                //
+                // Node route:
+                // /api/stock-adjustments/:id
+                // ==========================================
+
+                const requestUrl =
+                    `${SERVER_URL}/api/stock-adjustments/${numericId}`;
+
+
+                console.log(
+                    "REQUEST URL:",
+                    requestUrl
+                );
+
+
+                const response =
+                    await axios.get(
+                        requestUrl,
+                        {
+                            headers:
+                                getHeaders()
+                        }
+                    );
+
+
+                console.log(
+                    "RESPONSE STATUS:",
+                    response.status
+                );
+
+                console.log(
+                    "RESPONSE DATA:",
+                    response.data
+                );
+
+
+                if (!response.data) {
+
+                    setError(
+                        "Stock adjustment not found."
+                    );
+
+                    return;
+                }
+
+
+                setStockAdjustment(
+                    response.data
+                );
+
+            } catch (err) {
+
+                console.error(
+                    "LOAD STOCK ADJUSTMENT ERROR:",
+                    err
+                );
+
+
+                console.error(
+                    "STATUS:",
+                    err.response?.status
+                );
+
+
+                console.error(
+                    "DATA:",
+                    err.response?.data
+                );
+
+
+                if (
+                    err.response?.status === 404
+                ) {
+
+                    setError(
+                        "Stock adjustment not found."
+                    );
+
+                } else {
+
+                    setError(
+                        err.response?.data?.message ||
+                        "Failed to load stock adjustment."
+                    );
+                }
+
+            } finally {
+
+                setLoading(false);
+            }
+        };
+
+
+        if (id) {
+
+            loadStockAdjustment();
+
+        } else {
 
             setError(
                 "Stock adjustment ID is missing."
             );
 
             setLoading(false);
-
-            return;
         }
-
-        try {
-
-            setLoading(true);
-            setError("");
-
-            const response = await fetch(
-                `${SERVER_URL}/api/stock-adjustments/${id}`
-            );
-
-            if (!response.ok) {
-
-                let message =
-                    "Failed to load stock adjustment.";
-
-                try {
-
-                    const errorData =
-                        await response.json();
-
-                    if (errorData.message) {
-
-                        message =
-                            errorData.message;
-
-                    } else if (errorData.title) {
-
-                        message =
-                            errorData.title;
-
-                    } else if (errorData.errors) {
-
-                        message =
-                            JSON.stringify(
-                                errorData.errors
-                            );
-                    }
-
-                } catch {
-                    // Ignore JSON parsing errors
-                }
-
-                if (response.status === 404) {
-                    message =
-                        "Stock adjustment not found.";
-                }
-
-                throw new Error(message);
-            }
-
-            const data = await response.json();
-
-            console.log(
-                "Stock Adjustment:",
-                data
-            );
-
-            setAdjustment(data);
-
-        } catch (err) {
-
-            console.error(
-                "Stock Adjustment View Error:",
-                err
-            );
-
-            setError(
-                err.message ||
-                "Unable to load stock adjustment."
-            );
-
-        } finally {
-
-            setLoading(false);
-        }
-    };
-
-    // =========================================================
-    // LOAD ON MOUNT
-    // =========================================================
-
-    useEffect(() => {
-
-        loadAdjustment();
 
     }, [id]);
 
-    // =========================================================
-    // GET VALUE
-    // =========================================================
 
-    const getValue = (
-        camelCase,
-        pascalCase,
-        defaultValue = "-"
-    ) => {
-
-        if (!adjustment) {
-            return defaultValue;
-        }
-
-        return (
-            adjustment[camelCase] ??
-            adjustment[pascalCase] ??
-            defaultValue
-        );
-    };
-
-    // =========================================================
-    // FORMAT DATE
-    // =========================================================
-
-    const formatDate = (value) => {
-
-        if (!value) {
-            return "-";
-        }
-
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return value;
-        }
-
-        return date.toLocaleDateString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "long",
-                year: "numeric"
-            }
-        );
-    };
-
-    // =========================================================
-    // ADJUSTMENT TYPE
-    // =========================================================
-
-    const getAdjustmentType = () => {
-
-        return getValue(
-            "adjustmentType",
-            "AdjustmentType"
-        );
-    };
-
-    // =========================================================
-    // EDIT
-    // =========================================================
-
-    const handleEdit = () => {
-
-        navigate(
-            `/stock-adjustments/edit/${id}`
-        );
-    };
-
-    // =========================================================
-    // BACK
-    // =========================================================
-
-    const handleBack = () => {
-
-        navigate("/stock-adjustments");
-    };
-
-    // =========================================================
+    // =====================================================
     // LOADING
-    // =========================================================
+    // =====================================================
 
     if (loading) {
 
@@ -248,7 +269,7 @@ const StockAdjustmentView = () => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    minHeight: 400
+                    minHeight: 300
                 }}
             >
 
@@ -258,49 +279,51 @@ const StockAdjustmentView = () => {
         );
     }
 
-    // =========================================================
+
+    // =====================================================
     // ERROR
-    // =========================================================
+    // =====================================================
 
     if (error) {
 
         return (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 3 }}>
+
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                >
+                    {error}
+                </Alert>
+
 
                 <Button
+                    variant="outlined"
                     startIcon={<ArrowBack />}
-                    onClick={handleBack}
-                    sx={{ mb: 2 }}
+                    onClick={() =>
+                        navigate(
+                            "/stock-adjustments"
+                        )
+                    }
                 >
                     Back to Stock Adjustments
                 </Button>
-
-                <Alert severity="error">
-                    {error}
-                </Alert>
 
             </Box>
         );
     }
 
-    // =========================================================
-    // NO DATA
-    // =========================================================
 
-    if (!adjustment) {
+    // =====================================================
+    // NO DATA
+    // =====================================================
+
+    if (!stockAdjustment) {
 
         return (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 3 }}>
 
-                <Button
-                    startIcon={<ArrowBack />}
-                    onClick={handleBack}
-                    sx={{ mb: 2 }}
-                >
-                    Back to Stock Adjustments
-                </Button>
-
-                <Alert severity="info">
+                <Alert severity="warning">
                     Stock adjustment not found.
                 </Alert>
 
@@ -308,377 +331,242 @@ const StockAdjustmentView = () => {
         );
     }
 
-    // =========================================================
-    // VALUES
-    // =========================================================
 
-    const stockAdjustmentId = getValue(
-        "stockAdjustmentId",
-        "StockAdjustmentId"
-    );
+    // =====================================================
+    // DATA
+    // =====================================================
 
-    const sellerId = getValue(
-        "sellerId",
-        "SellerId"
-    );
+    const {
+        stockAdjustmentId,
+        sellerId,
+        customerId,
+        productId,
+        warehouseId,
+        adjustmentType,
+        quantity,
+        adjustmentDate,
+        remarks
+    } = stockAdjustment;
 
-    const customerId = getValue(
-        "customerId",
-        "CustomerId"
-    );
 
-    const productId = getValue(
-        "productId",
-        "ProductId"
-    );
+    // =====================================================
+    // FIELD HELPER
+    // =====================================================
 
-    const warehouseId = getValue(
-        "warehouseId",
-        "WarehouseId"
-    );
-
-    const adjustmentType =
-        getAdjustmentType();
-
-    const quantity = getValue(
-        "quantity",
-        "Quantity",
-        0
-    );
-
-    const adjustmentDate =
-        getValue(
-            "adjustmentDate",
-            "AdjustmentDate"
-        );
-
-    const remarks = getValue(
-        "remarks",
-        "Remarks"
-    );
-
-    // =========================================================
-    // INFO ITEM
-    // =========================================================
-
-    const InfoItem = ({
-        icon,
+    const Field = ({
         label,
         value
     }) => {
 
         return (
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 1.5,
-                    p: 1.5,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 1,
-                    height: "100%"
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 4
                 }}
             >
 
-                <Box
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                >
+                    {label}
+                </Typography>
+
+                <Typography
+                    variant="body1"
+                    fontWeight={500}
                     sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mt: 0.25
+                        mt: 0.5
                     }}
                 >
-                    {icon}
-                </Box>
+                    {value !== null &&
+                    value !== undefined &&
+                    value !== ""
+                        ? String(value)
+                        : "-"}
+                </Typography>
 
-                <Box>
-
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                    >
-                        {label}
-                    </Typography>
-
-                    <Typography
-                        variant="body1"
-                        fontWeight={600}
-                    >
-                        {value}
-                    </Typography>
-
-                </Box>
-
-            </Box>
+            </Grid>
         );
     };
 
-    // =========================================================
-    // RENDER
-    // =========================================================
+
+    // =====================================================
+    // FORMAT DATE
+    // =====================================================
+
+    const formattedDate =
+        adjustmentDate
+            ? new Date(
+                adjustmentDate
+            ).toLocaleString()
+            : "-";
+
+
+    // =====================================================
+    // VIEW
+    // =====================================================
 
     return (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 3 }}>
+
 
             {/* =================================================
                 HEADER
             ================================================= */}
 
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 2,
-                    mb: 3,
-                    flexWrap: "wrap"
+            <Stack
+                direction={{
+                    xs: "column",
+                    sm: "row"
                 }}
+                justifyContent="space-between"
+                alignItems={{
+                    xs: "flex-start",
+                    sm: "center"
+                }}
+                spacing={2}
+                sx={{ mb: 3 }}
             >
 
                 <Box>
 
-                    <Button
-                        startIcon={<ArrowBack />}
-                        onClick={handleBack}
-                        sx={{
-                            mb: 1
-                        }}
-                    >
-                        Back
-                    </Button>
-
                     <Typography
                         variant="h5"
-                        fontWeight={700}
+                        fontWeight={600}
                     >
-                        Stock Adjustment Details
+                        Stock Adjustment
                     </Typography>
 
                     <Typography
                         variant="body2"
                         color="text.secondary"
                     >
-                        View stock adjustment information
+                        Adjustment ID:{" "}
+                        {stockAdjustmentId}
                     </Typography>
 
                 </Box>
 
 
-                {/* =================================================
-                    EDIT BUTTON
-                ================================================= */}
-
-                <Button
-                    variant="contained"
-                    startIcon={<Edit />}
-                    onClick={handleEdit}
+                <Stack
+                    direction="row"
+                    spacing={1}
                 >
-                    Edit Adjustment
-                </Button>
 
-            </Box>
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={() =>
+                            navigate(
+                                "/stock-adjustments"
+                            )
+                        }
+                    >
+                        Back
+                    </Button>
+
+
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={() =>
+                            navigate(
+                                `/stock-adjustments/edit/${stockAdjustmentId}`
+                            )
+                        }
+                    >
+                        Edit
+                    </Button>
+
+                </Stack>
+
+            </Stack>
 
 
             {/* =================================================
-                BASIC INFORMATION
+                DETAILS
             ================================================= */}
 
-            <Card
-                elevation={2}
-                sx={{ mb: 3 }}
-            >
+            <Card>
 
                 <CardContent>
 
-                    <Typography
-                        variant="h6"
-                        fontWeight={600}
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
                         sx={{ mb: 2 }}
                     >
-                        Adjustment Information
-                    </Typography>
 
-                    <Divider sx={{ mb: 2 }} />
-
-                    <Grid
-                        container
-                        spacing={2}
-                    >
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<Numbers color="primary" />}
-                                label="Adjustment ID"
-                                value={
-                                    stockAdjustmentId
-                                }
-                            />
-                        </Grid>
-
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<Business color="primary" />}
-                                label="Seller ID"
-                                value={sellerId}
-                            />
-                        </Grid>
-
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<Person color="primary" />}
-                                label="Customer ID"
-                                value={customerId}
-                            />
-                        </Grid>
-
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<Inventory color="primary" />}
-                                label="Product ID"
-                                value={productId}
-                            />
-                        </Grid>
-
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<Warehouse color="primary" />}
-                                label="Warehouse ID"
-                                value={warehouseId}
-                            />
-                        </Grid>
-
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<AssessmentIcon />}
-                                label="Adjustment Type"
-                                value={
-                                    adjustmentType
-                                }
-                            />
-                        </Grid>
-
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<Numbers color="primary" />}
-                                label="Quantity"
-                                value={quantity}
-                            />
-                        </Grid>
-
-
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                                md: 4
-                            }}
-                        >
-                            <InfoItem
-                                icon={<CalendarMonth color="primary" />}
-                                label="Adjustment Date"
-                                value={
-                                    formatDate(
-                                        adjustmentDate
-                                    )
-                                }
-                            />
-                        </Grid>
-
-                    </Grid>
-
-                </CardContent>
-
-            </Card>
-
-
-            {/* =================================================
-                REMARKS
-            ================================================= */}
-
-            <Card elevation={2}>
-
-                <CardContent>
-
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                            mb: 2
-                        }}
-                    >
-
-                        <Notes color="primary" />
+                        <Assessment />
 
                         <Typography
                             variant="h6"
                             fontWeight={600}
                         >
-                            Remarks
+                            Adjustment Details
                         </Typography>
 
-                    </Box>
+                    </Stack>
 
-                    <Divider sx={{ mb: 2 }} />
 
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word"
-                        }}
+                    <Divider sx={{ mb: 3 }} />
+
+
+                    <Grid
+                        container
+                        spacing={3}
                     >
-                        {remarks || "No remarks available."}
-                    </Typography>
+
+                        <Field
+                            label="Stock Adjustment ID"
+                            value={stockAdjustmentId}
+                        />
+
+                        <Field
+                            label="Seller ID"
+                            value={sellerId}
+                        />
+
+                        <Field
+                            label="Customer ID"
+                            value={customerId}
+                        />
+
+                        <Field
+                            label="Product ID"
+                            value={productId}
+                        />
+
+                        <Field
+                            label="Warehouse ID"
+                            value={warehouseId}
+                        />
+
+                        <Field
+                            label="Adjustment Type"
+                            value={adjustmentType}
+                        />
+
+                        <Field
+                            label="Quantity"
+                            value={quantity}
+                        />
+
+                        <Field
+                            label="Adjustment Date"
+                            value={formattedDate}
+                        />
+
+                        <Field
+                            label="Remarks"
+                            value={remarks}
+                        />
+
+                    </Grid>
 
                 </CardContent>
 
@@ -688,12 +576,5 @@ const StockAdjustmentView = () => {
     );
 };
 
-// =========================================================
-// ASSESSMENT ICON
-// =========================================================
-
-const AssessmentIcon = () => (
-    <Assessment />
-);
 
 export default StockAdjustmentView;

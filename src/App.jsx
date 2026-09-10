@@ -1351,41 +1351,40 @@ function App() {
                     path="customer-returns/:id/edit"
                     element={<CustomerReturnEdit />}
                 />
+{/* =================================================
+    STOCK ADJUSTMENTS
+================================================= */}
 
+<Route
+    path="stock-adjustments"
+    element={<StockAdjustmentList />}
+/>
 
-                {/* =================================================
-                    STOCK ADJUSTMENTS
-                ================================================= */}
+<Route
+    path="stock-adjustments/create"
+    element={<StockAdjustmentCreate />}
+/>
 
-                <Route
-                    path="stock-adjustments"
-                    element={<StockAdjustmentList />}
-                />
+<Route
+    path="stock-adjustments/search"
+    element={<StockAdjustmentSearch />}
+/>
 
-                <Route
-                    path="stock-adjustments/create"
-                    element={<StockAdjustmentCreate />}
-                />
+<Route
+    path="stock-adjustments/statistics"
+    element={<StockAdjustmentStatistics />}
+/>
 
-                <Route
-                    path="stock-adjustments/search"
-                    element={<StockAdjustmentSearch />}
-                />
+<Route
+    path="stock-adjustments/view/:id"
+    element={<StockAdjustmentView />}
+/>
 
-                <Route
-                    path="stock-adjustments/statistics"
-                    element={<StockAdjustmentStatistics />}
-                />
+<Route
+    path="stock-adjustments/edit/:id"
+    element={<StockAdjustmentEdit />}
+/>
 
-                <Route
-                    path="stock-adjustments/view/:id"
-                    element={<StockAdjustmentView />}
-                />
-
-                <Route
-                    path="stock-adjustments/edit/:id"
-                    element={<StockAdjustmentEdit />}
-                />
 
 
                 {/* =================================================
