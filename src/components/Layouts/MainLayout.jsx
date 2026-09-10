@@ -476,11 +476,6 @@ const MainLayout = () => {
                             label: "Create Category",
                             path: "/categories/create",
                         },
-                    
-                        {
-                            label: "Category Statistics",
-                            path: "/categories/statistics",
-                        },
                         {
                             label: "Category Card",
                             path: "/categories/card",
@@ -516,11 +511,6 @@ const MainLayout = () => {
                         {
                             label: "Search Product Types",
                             path: "/product-types/search",
-                        },
-
-                        {
-                            label: "Product Type Statistics",
-                            path: "/product-types/statistics",
                         },
                     ],
                 },
@@ -589,11 +579,6 @@ const MainLayout = () => {
                             label: "Search Product Images",
                             path: "/product-images/search",
                         },
-
-                        {
-                            label: "Product Image Statistics",
-                            path: "/product-images/statistics",
-                        },
                     ],
                 },
 
@@ -616,10 +601,6 @@ const MainLayout = () => {
                         {
                             label: "Create Product Price",
                             path: "/product-prices/create",
-                        },
-                        {
-                            label: "Product Price Statistics",
-                            path: "/product-prices/statistics",
                         },
                     ],
                 },
@@ -683,11 +664,6 @@ const MainLayout = () => {
                             label: "Search Inventory",
                             path: "/product-inventory/search",
                         },
-                        {
-                            label: "Inventory Statistics",
-                            path: "/product-inventory/statistics",
-                        },
-                     
                     ],
                 },
 
@@ -728,11 +704,6 @@ const MainLayout = () => {
                             label: "Search",
                             path: "/sales-orders/search",
                         },
-
-                        {
-                            label: "Statistics",
-                            path: "/sales-orders/statistics",
-                        },
                     ],
                 },
 
@@ -759,11 +730,6 @@ const MainLayout = () => {
                         {
                             label: "Search",
                             path: "/sales-order-items/search",
-                        },
-
-                        {
-                            label: "Statistics",
-                            path: "/sales-order-items/statistics",
                         },
                     ],
                 },
