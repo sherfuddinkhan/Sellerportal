@@ -255,7 +255,6 @@ import StockLedgerToolbar from "./pages/StockLedger/StockLedgerToolbar";
 import DeleteStockLedgerDialog from "./pages/StockLedger/DeleteStockLedgerDialog";
 
 
-
 // =========================================================
 // MARKETPLACE RETURNS
 // =========================================================
@@ -1405,6 +1404,10 @@ function App() {
     STOCK LEDGER
 ================================================= */}
 
+{/* =================================================
+    STOCK LEDGER
+================================================= */}
+
 <Route
     path="stock-ledger"
     element={<StockLedgerList />}
@@ -1416,6 +1419,16 @@ function App() {
 />
 
 <Route
+    path="stock-ledger/search"
+    element={<StockLedgerSearchPage />}
+/>
+
+<Route
+    path="stock-ledger/filters"
+    element={<StockLedgerFiltersPage />}
+/>
+
+<Route
     path="stock-ledger/edit/:id"
     element={<StockLedgerEdit />}
 />
@@ -1424,28 +1437,6 @@ function App() {
     path="stock-ledger/view/:id"
     element={<StockLedgerDetails />}
 />
-
-{/* =================================================
-    STOCK LEDGER SEARCH
-    Opens the same list page
-================================================= */}
-
-<Route
-    path="stock-ledger/search"
-    element={<StockLedgerList />}
-/>
-
-{/* =================================================
-    STOCK LEDGER FILTERS
-    Opens the same list page
-================================================= */}
-
-<Route
-    path="stock-ledger/filters"
-    element={<StockLedgerList />}
-/>
-
-
                 {/* =================================================
                     SUPPLIERS
                 ================================================= */}
