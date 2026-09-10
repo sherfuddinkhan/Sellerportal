@@ -1,142 +1,209 @@
-// =========================================================
+
+// ================================================================
 // CatalogSearch.jsx
-// =========================================================
+// ================================================================
 
 import React, { useState } from "react";
 
 import {
-    Box,
-    Button,
     Paper,
+    Grid,
     TextField,
-    Typography,
+    Button,
+    Stack
 } from "@mui/material";
 
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
+import {
+    Search,
+    Clear
+} from "@mui/icons-material";
 
-// =========================================================
+// ================================================================
 // COMPONENT
-// =========================================================
+// ================================================================
 
-const CatalogSearch = () => {
-    const [search, setSearch] = useState("");
+const CatalogSearch = ({
+    sellerId,
+    customerId,
+    onSearch,
+    onClear,
+    loading = false
+}) => {
+
+    // ============================================================
+    // SEARCH STATE
+    // ============================================================
+
+    const [searchText, setSearchText] = useState("");
+
+    // ============================================================
+    // HANDLE SEARCH TEXT
+    // ============================================================
+
+    const handleChange = (event) => {
+
+        setSearchText(event.target.value);
+
+    };
+
+    // ============================================================
+    // SEARCH BUTTON
+    // ============================================================
 
     const handleSearch = () => {
-        console.log("Catalog search:", search);
+
+        const value = searchText.trim();
+
+        // --------------------------------------------------------
+        // Do not search with an empty value
+        // --------------------------------------------------------
+
+        if (!value) {
+
+            return;
+
+        }
+
+        // --------------------------------------------------------
+        // Send search value to CatalogList
+        // --------------------------------------------------------
+
+        onSearch?.(value);
+
     };
+
+    // ============================================================
+    // CLEAR BUTTON
+    // ============================================================
 
     const handleClear = () => {
-        setSearch("");
+
+        setSearchText("");
+
+        onClear?.();
+
     };
 
+    // ============================================================
+    // ENTER KEY
+    // ============================================================
+
+    const handleKeyDown = (event) => {
+
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            handleSearch();
+
+        }
+
+    };
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+
     return (
-        <Box
+
+        <Paper
+            elevation={1}
             sx={{
-                width: "100%",
-                p: 3,
+                p: 2,
+                mb: 2
             }}
         >
-            {/* =====================================================
-                HEADER
-               ===================================================== */}
 
-            <Box sx={{ mb: 3 }}>
-                <Typography
-                    variant="h4"
-                    fontWeight="bold"
-                >
-                    Search Catalogs
-                </Typography>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    Search catalog records
-                </Typography>
-            </Box>
-
-            {/* =====================================================
-                SEARCH
-               ===================================================== */}
-
-            <Paper
-                elevation={0}
-                sx={{
-                    p: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 2,
-                }}
+            <Grid
+                container
+                spacing={2}
+                alignItems="center"
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        gap: 2,
-                        alignItems: "center",
-                        flexWrap: "wrap",
-                    }}
-                >
-                    <TextField
-                        fullWidth
-                        label="Search Catalog"
-                        placeholder="Enter catalog name..."
-                        value={search}
-                        onChange={(e) =>
-                            setSearch(
-                                e.target.value
-                            )
-                        }
-                        onKeyDown={(e) => {
-                            if (
-                                e.key === "Enter"
-                            ) {
-                                handleSearch();
-                            }
-                        }}
-                        sx={{
-                            flex: 1,
-                            minWidth: 250,
-                        }}
-                    />
-
-                    <Button
-                        variant="contained"
-                        startIcon={<SearchIcon />}
-                        onClick={handleSearch}
-                    >
-                        Search
-                    </Button>
-
-                    <Button
-                        variant="outlined"
-                        startIcon={<ClearIcon />}
-                        onClick={handleClear}
-                    >
-                        Clear
-                    </Button>
-                </Box>
 
                 {/* =================================================
-                    SEARCH VALUE
-                   ================================================= */}
+                    SEARCH FIELD
+                ================================================== */}
 
-                {search && (
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 2 }}
+                <Grid
+                    item
+                    xs={12}
+                    md={8}
+                >
+
+                    <TextField
+                        fullWidth
+                        size="small"
+                        label="Search Product"
+                        placeholder="Search by product name, SKU, barcode..."
+                        value={searchText}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                    />
+
+                </Grid>
+
+                {/* =================================================
+                    SEARCH / CLEAR BUTTONS
+                ================================================== */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={4}
+                >
+
+                    <Stack
+                        direction="row"
+                        spacing={1}
                     >
-                        Searching for:{" "}
-                        <strong>
-                            {search}
-                        </strong>
-                    </Typography>
-                )}
-            </Paper>
-        </Box>
+
+                        {/* =========================================
+                            SEARCH
+                        ========================================== */}
+
+                        <Button
+                            variant="contained"
+                            startIcon={<Search />}
+                            onClick={handleSearch}
+                            disabled={
+                                loading ||
+                                !sellerId ||
+                                !customerId ||
+                                !searchText.trim()
+                            }
+                        >
+                            Search
+                        </Button>
+
+                        {/* =========================================
+                            CLEAR
+                        ========================================== */}
+
+                        <Button
+                            variant="outlined"
+                            startIcon={<Clear />}
+                            onClick={handleClear}
+                            disabled={loading}
+                        >
+                            Clear
+                        </Button>
+
+                    </Stack>
+
+                </Grid>
+
+            </Grid>
+
+        </Paper>
+
     );
+
 };
 
 export default CatalogSearch;
+
+
+
+
+
+

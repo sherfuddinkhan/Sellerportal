@@ -1,10 +1,35 @@
 // =========================================================
 // CatalogForm.jsx
-// Create + Edit Catalog / Product
-// SellerId and CustomerId come from CatalogList navigation
+// =========================================================
+// Create + Edit Catalog Product
+//
+// Flow:
+//
+// React
+//   ↓
+// Axios
+//   ↓
+// Node server.js - http://localhost:5000
+//   ↓
+// ASP.NET Core - https://localhost:7203/api
+//
+// IMPORTANT:
+// Seller ID and Customer ID are entered directly in this form.
+// They are NOT taken from URL query parameters.
+//
+// POST
+// /api/catalog/products
+//
+// PUT
+// /api/catalog/{id}
+// ?sellerId=6&customerId=3
+//
 // =========================================================
 
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState,
+} from "react";
 
 import {
     Alert,
@@ -27,36 +52,80 @@ import {
 import {
     useNavigate,
     useParams,
-    useSearchParams,
 } from "react-router-dom";
+
+import axios from "axios";
 
 
 // =========================================================
-// CONFIG
+// SERVER
 // =========================================================
 
 const SERVER_URL = "http://localhost:5000";
 
 
 // =========================================================
-// DEFAULT FORM
+// INITIAL FORM
+// =========================================================
+//
+// These fields exactly match the Swagger POST request:
+//
+// sellerId
+// customerId
+// sku
+// productTypeId
+// productName
+// description
+// brandId
+// categoryId
+// barcode
+// hsnCode
+// unitOfMeasure
+// weight
+// length
+// width
+// height
+// status
+// isActive
+//
 // =========================================================
 
 const initialForm = {
-    productName: "",
-    description: "",
+
+    sellerId: "",
+    customerId: "",
+
     sku: "",
-    brandId: "",
-    categoryId: "",
+
     productTypeId: "",
-    price: "",
-    quantity: "",
+
+    productName: "",
+
+    description: "",
+
+    brandId: "",
+
+    categoryId: "",
+
+    barcode: "",
+
+    hsnCode: "",
+
+    unitOfMeasure: "",
+
+    weight: "",
+    length: "",
+    width: "",
+    height: "",
+
+    status: "Active",
+
     isActive: true,
 };
 
 
 // =========================================================
-// RESPONSE ARRAY HELPER
+// GET ARRAY FROM API RESPONSE
 // =========================================================
 
 const getArrayData = (data) => {
@@ -98,6 +167,33 @@ const getArrayData = (data) => {
 
 
 // =========================================================
+// GET ERROR MESSAGE
+// =========================================================
+
+const getErrorMessage = (error, defaultMessage) => {
+
+    const responseData =
+        error?.response?.data;
+
+    if (
+        typeof responseData === "string" &&
+        responseData.trim()
+    ) {
+        return responseData;
+    }
+
+    return (
+        responseData?.message ||
+        responseData?.title ||
+        responseData?.error ||
+        responseData?.detail ||
+        error?.message ||
+        defaultMessage
+    );
+};
+
+
+// =========================================================
 // COMPONENT
 // =========================================================
 
@@ -107,58 +203,34 @@ const CatalogForm = () => {
 
     const { id } = useParams();
 
-    const [searchParams] = useSearchParams();
-
-
-    // =====================================================
-    // PRODUCT MODE
-    // =====================================================
-
     const isEditMode = Boolean(id);
 
 
     // =====================================================
-    // SELLER / CUSTOMER FROM URL
+    // FORM
     // =====================================================
 
-    const sellerId =
-        searchParams.get("sellerId");
-
-    const customerId =
-        searchParams.get("customerId");
+    const [form, setForm] = useState({
+        ...initialForm,
+    });
 
 
     // =====================================================
-    // VALIDATE SELLER / CUSTOMER
+    // MASTER DATA
     // =====================================================
 
-    const hasSellerCustomer =
-        sellerId &&
-        customerId &&
-        !Number.isNaN(Number(sellerId)) &&
-        !Number.isNaN(Number(customerId));
+    const [brands, setBrands] = useState([]);
+
+    const [categories, setCategories] = useState([]);
+
+    const [productTypes, setProductTypes] = useState([]);
 
 
     // =====================================================
-    // STATE
+    // LOADING
     // =====================================================
 
-    const [form, setForm] =
-        useState(initialForm);
-
-    const [brands, setBrands] =
-        useState([]);
-
-    const [categories, setCategories] =
-        useState([]);
-
-    const [productTypes, setProductTypes] =
-        useState([]);
-
-    const [loading, setLoading] =
-        useState(false);
-
-    const [saving, setSaving] =
+    const [loadingProduct, setLoadingProduct] =
         useState(false);
 
     const [loadingBrands, setLoadingBrands] =
@@ -170,6 +242,14 @@ const CatalogForm = () => {
     const [loadingProductTypes, setLoadingProductTypes] =
         useState(false);
 
+    const [saving, setSaving] =
+        useState(false);
+
+
+    // =====================================================
+    // MESSAGES
+    // =====================================================
+
     const [error, setError] =
         useState("");
 
@@ -178,155 +258,171 @@ const CatalogForm = () => {
 
 
     // =====================================================
-    // COMMON QUERY
+    // SELLER / CUSTOMER VALIDATION
     // =====================================================
 
-    const query =
-        `sellerId=${encodeURIComponent(sellerId)}&customerId=${encodeURIComponent(customerId)}`;
+    const sellerId = Number(form.sellerId);
+
+    const customerId = Number(form.customerId);
+
+    const hasSellerCustomer =
+        Number.isInteger(sellerId) &&
+        sellerId > 0 &&
+        Number.isInteger(customerId) &&
+        customerId > 0;
 
 
     // =====================================================
     // LOAD BRANDS
     // =====================================================
+    //
+    // GET
+    // http://localhost:5000/api/catalog/brands
+    //
+    // Node forwards to:
+    //
+    // /api/catalog/brands?sellerId=&customerId=
+    //
+    // =====================================================
 
-    const loadBrands = async () => {
+    const loadBrands = async (
+        currentSellerId,
+        currentCustomerId
+    ) => {
+
+        if (
+            !currentSellerId ||
+            !currentCustomerId
+        ) {
+            setBrands([]);
+            return;
+        }
+
 
         try {
 
             setLoadingBrands(true);
 
-            console.log(
-                "========================================"
-            );
-
-            console.log(
-                "Loading Brands..."
-            );
-
-            const url =
-                `${SERVER_URL}/api/catalog/brands?${query}`;
-
-            console.log(
-                "GET",
-                url
-            );
-
             const response =
-                await fetch(url);
+                await axios.get(
+                    `${SERVER_URL}/api/catalog/brands`,
+                    {
+                        params: {
+                            sellerId:
+                                currentSellerId,
 
-            if (!response.ok) {
+                            customerId:
+                                currentCustomerId,
+                        },
 
-                throw new Error(
-                    `Unable to load brands. HTTP ${response.status}`
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
                 );
 
-            }
 
-            const data =
-                await response.json();
-
-            console.log(
-                "Brands API response:",
-                data
+            setBrands(
+                getArrayData(
+                    response.data
+                )
             );
 
-            const result =
-                getArrayData(data);
-
-            setBrands(result);
-
-        }
-        catch (err) {
+        } catch (err) {
 
             console.error(
                 "Brand loading error:",
-                err
+                err?.response?.data ||
+                err.message
             );
 
             setBrands([]);
 
-        }
-        finally {
+        } finally {
 
             setLoadingBrands(false);
-
         }
-
     };
 
 
     // =====================================================
     // LOAD CATEGORIES
     // =====================================================
+    //
+    // GET
+    // http://localhost:5000/api/catalog/categories
+    //
+    // =====================================================
 
-    const loadCategories = async () => {
+    const loadCategories = async (
+        currentSellerId,
+        currentCustomerId
+    ) => {
+
+        if (
+            !currentSellerId ||
+            !currentCustomerId
+        ) {
+            setCategories([]);
+            return;
+        }
+
 
         try {
 
             setLoadingCategories(true);
 
-            console.log(
-                "========================================"
-            );
-
-            console.log(
-                "Loading Categories..."
-            );
-
-            const url =
-                `${SERVER_URL}/api/catalog/categories?${query}`;
-
-            console.log(
-                "GET",
-                url
-            );
-
             const response =
-                await fetch(url);
+                await axios.get(
+                    `${SERVER_URL}/api/catalog/categories`,
+                    {
+                        params: {
+                            sellerId:
+                                currentSellerId,
 
-            if (!response.ok) {
+                            customerId:
+                                currentCustomerId,
+                        },
 
-                throw new Error(
-                    `Unable to load categories. HTTP ${response.status}`
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
                 );
 
-            }
 
-            const data =
-                await response.json();
-
-            console.log(
-                "Categories API response:",
-                data
+            setCategories(
+                getArrayData(
+                    response.data
+                )
             );
 
-            const result =
-                getArrayData(data);
-
-            setCategories(result);
-
-        }
-        catch (err) {
+        } catch (err) {
 
             console.error(
                 "Category loading error:",
-                err
+                err?.response?.data ||
+                err.message
             );
 
             setCategories([]);
 
-        }
-        finally {
+        } finally {
 
             setLoadingCategories(false);
-
         }
-
     };
 
 
     // =====================================================
     // LOAD PRODUCT TYPES
+    // =====================================================
+    //
+    // GET
+    // http://localhost:5000/api/product-types
+    //
     // =====================================================
 
     const loadProductTypes = async () => {
@@ -335,157 +431,119 @@ const CatalogForm = () => {
 
             setLoadingProductTypes(true);
 
-            console.log(
-                "========================================"
-            );
-
-            console.log(
-                "Loading Product Types..."
-            );
-
-            const url =
-                `${SERVER_URL}/api/catalog/producttype?${query}`;
-
-            console.log(
-                "GET",
-                url
-            );
-
             const response =
-                await fetch(url);
-
-            if (!response.ok) {
-
-                throw new Error(
-                    `Unable to load product types. HTTP ${response.status}`
+                await axios.get(
+                    `${SERVER_URL}/api/product-types`,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
                 );
 
-            }
 
-            const data =
-                await response.json();
-
-            console.log(
-                "Product Types API response:",
-                data
+            setProductTypes(
+                getArrayData(
+                    response.data
+                )
             );
 
-            const result =
-                getArrayData(data);
-
-            setProductTypes(result);
-
-        }
-        catch (err) {
+        } catch (err) {
 
             console.error(
                 "Product type loading error:",
-                err
+                err?.response?.data ||
+                err.message
             );
 
             setProductTypes([]);
 
-        }
-        finally {
+            setError(
+                getErrorMessage(
+                    err,
+                    "Failed to load product types."
+                )
+            );
+
+        } finally {
 
             setLoadingProductTypes(false);
-
         }
-
     };
 
 
     // =====================================================
-    // LOAD PRODUCT
+    // LOAD PRODUCT FOR EDIT
+    // =====================================================
+    //
+    // GET
+    //
+    // /api/catalog/products/{id}
+    //
+    // ?sellerId=6&customerId=3
+    //
     // =====================================================
 
-    const loadProduct = async () => {
+    const loadProduct = async (
+        currentSellerId,
+        currentCustomerId
+    ) => {
 
         if (!isEditMode) {
             return;
         }
 
-        if (!hasSellerCustomer) {
+
+        if (
+            !currentSellerId ||
+            !currentCustomerId
+        ) {
 
             setError(
-                "Seller ID and Customer ID are missing. Please return to Catalog List and select the product again."
+                "Enter Seller ID and Customer ID before loading the product."
             );
 
             return;
         }
 
+
         try {
 
-            setLoading(true);
+            setLoadingProduct(true);
 
             setError("");
 
-            const url =
-                `${SERVER_URL}/api/catalog/products/${id}?${query}`;
+            setSuccess("");
 
-            console.log(
-                "========================================"
-            );
-
-            console.log(
-                "Loading Product..."
-            );
-
-            console.log(
-                "GET",
-                url
-            );
 
             const response =
-                await fetch(url, {
-                    method: "GET",
-                    headers: {
-                        Accept:
-                            "application/json",
-                    },
-                });
+                await axios.get(
+                    `${SERVER_URL}/api/catalog/products/${id}`,
+                    {
+                        params: {
+                            sellerId:
+                                Number(
+                                    currentSellerId
+                                ),
 
-            console.log(
-                "Product response status:",
-                response.status
-            );
+                            customerId:
+                                Number(
+                                    currentCustomerId
+                                ),
+                        },
 
-            if (!response.ok) {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
 
-                let message =
-                    `Unable to load product. HTTP ${response.status}`;
-
-                try {
-
-                    const errorData =
-                        await response.json();
-
-                    message =
-                        errorData?.message ||
-                        errorData?.title ||
-                        message;
-
-                }
-                catch {
-                    // Ignore non-JSON response
-                }
-
-                throw new Error(message);
-
-            }
 
             const data =
-                await response.json();
+                response.data;
 
-            console.log(
-                "Product API response:",
-                data
-            );
-
-
-            // =================================================
-            // EXTRACT PRODUCT
-            // =================================================
 
             const product =
                 data?.data ??
@@ -494,136 +552,178 @@ const CatalogForm = () => {
                 data;
 
 
-            console.log(
-                "Product extracted:",
-                product
-            );
-
-
             if (!product) {
 
                 throw new Error(
                     "Product not found."
                 );
-
             }
 
 
             // =================================================
-            // POPULATE FORM
+            // MAP API PRODUCT TO FORM
             // =================================================
 
-            setForm({
+            setForm((previous) => ({
 
-                productName:
-                    product?.productName ??
-                    product?.ProductName ??
-                    "",
+                ...previous,
 
-                description:
-                    product?.description ??
-                    product?.Description ??
-                    "",
+
+                sellerId:
+                    product?.sellerId ??
+                    product?.SellerId ??
+                    currentSellerId,
+
+
+                customerId:
+                    product?.customerId ??
+                    product?.CustomerId ??
+                    currentCustomerId,
+
 
                 sku:
                     product?.sku ??
                     product?.SKU ??
                     "",
 
-                brandId:
-                    product?.brandId ??
-                    product?.BrandId ??
-                    "",
-
-                categoryId:
-                    product?.categoryId ??
-                    product?.CategoryId ??
-                    "",
 
                 productTypeId:
                     product?.productTypeId ??
                     product?.ProductTypeId ??
                     "",
 
-                price:
-                    product?.price ??
-                    product?.Price ??
+
+                productName:
+                    product?.productName ??
+                    product?.ProductName ??
                     "",
 
-                quantity:
-                    product?.quantity ??
-                    product?.Quantity ??
+
+                description:
+                    product?.description ??
+                    product?.Description ??
                     "",
+
+
+                brandId:
+                    product?.brandId ??
+                    product?.BrandId ??
+                    "",
+
+
+                categoryId:
+                    product?.categoryId ??
+                    product?.CategoryId ??
+                    "",
+
+
+                barcode:
+                    product?.barcode ??
+                    product?.Barcode ??
+                    "",
+
+
+                hsnCode:
+                    product?.hsnCode ??
+                    product?.HSNCode ??
+                    "",
+
+
+                unitOfMeasure:
+                    product?.unitOfMeasure ??
+                    product?.UnitOfMeasure ??
+                    "",
+
+
+                weight:
+                    product?.weight ??
+                    product?.Weight ??
+                    "",
+
+
+                length:
+                    product?.length ??
+                    product?.Length ??
+                    "",
+
+
+                width:
+                    product?.width ??
+                    product?.Width ??
+                    "",
+
+
+                height:
+                    product?.height ??
+                    product?.Height ??
+                    "",
+
+
+                status:
+                    product?.status ??
+                    product?.Status ??
+                    "Active",
+
 
                 isActive:
                     product?.isActive ??
                     product?.IsActive ??
                     true,
 
-            });
+            }));
 
-        }
-        catch (err) {
+
+            // =================================================
+            // LOAD MASTER DATA
+            // =================================================
+
+            await loadBrands(
+                Number(currentSellerId),
+                Number(currentCustomerId)
+            );
+
+            await loadCategories(
+                Number(currentSellerId),
+                Number(currentCustomerId)
+            );
+
+
+        } catch (err) {
 
             console.error(
                 "Product loading error:",
-                err
+                err?.response?.data ||
+                err.message
             );
+
 
             setError(
-                err.message ||
-                "Unable to load product."
+                getErrorMessage(
+                    err,
+                    "Unable to load product."
+                )
             );
 
+        } finally {
+
+            setLoadingProduct(false);
         }
-        finally {
-
-            setLoading(false);
-
-        }
-
     };
 
 
     // =====================================================
-    // INITIAL LOAD
+    // LOAD PRODUCT TYPES ON PAGE LOAD
     // =====================================================
 
     useEffect(() => {
 
-        if (!hasSellerCustomer) {
+        loadProductTypes();
 
-            setError(
-                "Seller ID and Customer ID are missing. Please return to Catalog List and select the product again."
-            );
-
-            return;
-
-        }
-
-        const loadFormData = async () => {
-
-            await Promise.all([
-                loadBrands(),
-                loadCategories(),
-                loadProductTypes(),
-            ]);
-
-            await loadProduct();
-
-        };
-
-        loadFormData();
-
-    }, [
-        id,
-        sellerId,
-        customerId,
-    ]);
+    }, []);
 
 
     // =====================================================
-    // INPUT CHANGE
+    // HANDLE FORM CHANGE
     // =====================================================
 
     const handleChange = (event) => {
@@ -633,114 +733,417 @@ const CatalogForm = () => {
             value,
         } = event.target;
 
-        setForm(
-            (previous) => ({
-                ...previous,
-                [name]: value,
-            })
+
+        setForm((previous) => ({
+
+            ...previous,
+
+            [name]: value,
+
+        }));
+
+
+        setError("");
+
+        setSuccess("");
+    };
+
+
+    // =====================================================
+    // LOAD SELLER/CUSTOMER MASTER DATA
+    // =====================================================
+    //
+    // When Seller ID + Customer ID are entered,
+    // load Brands and Categories.
+    //
+    // =====================================================
+
+    useEffect(() => {
+
+        const currentSellerId =
+            Number(form.sellerId);
+
+        const currentCustomerId =
+            Number(form.customerId);
+
+
+        if (
+            !Number.isInteger(
+                currentSellerId
+            ) ||
+            currentSellerId <= 0 ||
+            !Number.isInteger(
+                currentCustomerId
+            ) ||
+            currentCustomerId <= 0
+        ) {
+
+            setBrands([]);
+
+            setCategories([]);
+
+            return;
+        }
+
+
+        loadBrands(
+            currentSellerId,
+            currentCustomerId
         );
 
+        loadCategories(
+            currentSellerId,
+            currentCustomerId
+        );
+
+    }, [
+        form.sellerId,
+        form.customerId,
+    ]);
+
+
+    // =====================================================
+    // LOAD PRODUCT BUTTON
+    // =====================================================
+
+    const handleLoadProduct = async () => {
+
+        setError("");
+
+        setSuccess("");
+
+
+        const currentSellerId =
+            Number(form.sellerId);
+
+        const currentCustomerId =
+            Number(form.customerId);
+
+
+        if (
+            !Number.isInteger(
+                currentSellerId
+            ) ||
+            currentSellerId <= 0
+        ) {
+
+            setError(
+                "Please enter a valid Seller ID."
+            );
+
+            return;
+        }
+
+
+        if (
+            !Number.isInteger(
+                currentCustomerId
+            ) ||
+            currentCustomerId <= 0
+        ) {
+
+            setError(
+                "Please enter a valid Customer ID."
+            );
+
+            return;
+        }
+
+
+        await loadProduct(
+            currentSellerId,
+            currentCustomerId
+        );
+    };
+
+
+    // =====================================================
+    // BUILD POST / PUT REQUEST BODY
+    // =====================================================
+    //
+    // EXACTLY MATCHES THE SWAGGER MODEL
+    //
+    // =====================================================
+
+    const buildRequestBody = () => {
+
+        return {
+
+            sellerId:
+                Number(form.sellerId),
+
+            customerId:
+                Number(form.customerId),
+
+
+            sku:
+                form.sku.trim(),
+
+
+            productTypeId:
+                form.productTypeId !== ""
+                    ? Number(
+                        form.productTypeId
+                    )
+                    : 0,
+
+
+            productName:
+                form.productName.trim(),
+
+
+            description:
+                form.description.trim(),
+
+
+            brandId:
+                form.brandId !== ""
+                    ? Number(
+                        form.brandId
+                    )
+                    : 0,
+
+
+            categoryId:
+                form.categoryId !== ""
+                    ? Number(
+                        form.categoryId
+                    )
+                    : 0,
+
+
+            barcode:
+                form.barcode.trim(),
+
+
+            hsnCode:
+                form.hsnCode.trim(),
+
+
+            unitOfMeasure:
+                form.unitOfMeasure.trim(),
+
+
+            weight:
+                form.weight !== ""
+                    ? Number(
+                        form.weight
+                    )
+                    : 0,
+
+
+            length:
+                form.length !== ""
+                    ? Number(
+                        form.length
+                    )
+                    : 0,
+
+
+            width:
+                form.width !== ""
+                    ? Number(
+                        form.width
+                    )
+                    : 0,
+
+
+            height:
+                form.height !== ""
+                    ? Number(
+                        form.height
+                    )
+                    : 0,
+
+
+            status:
+                form.status.trim(),
+
+
+            isActive:
+                Boolean(
+                    form.isActive
+                ),
+
+        };
+    };
+
+
+    // =====================================================
+    // VALIDATE FORM
+    // =====================================================
+
+    const validateForm = () => {
+
+        const numericSellerId =
+            Number(form.sellerId);
+
+        const numericCustomerId =
+            Number(form.customerId);
+
+
+        // =================================================
+        // SELLER
+        // =================================================
+
+        if (
+            !Number.isInteger(
+                numericSellerId
+            ) ||
+            numericSellerId <= 0
+        ) {
+
+            return "Please enter a valid Seller ID.";
+        }
+
+
+        // =================================================
+        // CUSTOMER
+        // =================================================
+
+        if (
+            !Number.isInteger(
+                numericCustomerId
+            ) ||
+            numericCustomerId <= 0
+        ) {
+
+            return "Please enter a valid Customer ID.";
+        }
+
+
+        // =================================================
+        // PRODUCT NAME
+        // =================================================
+
+        if (
+            !form.productName.trim()
+        ) {
+
+            return "Product Name is required.";
+        }
+
+
+        // =================================================
+        // SKU
+        // =================================================
+
+        if (
+            !form.sku.trim()
+        ) {
+
+            return "SKU is required.";
+        }
+
+
+        // =================================================
+        // PRODUCT TYPE
+        // =================================================
+
+        if (
+            !form.productTypeId
+        ) {
+
+            return "Product Type is required.";
+        }
+
+
+        // =================================================
+        // BRAND
+        // =================================================
+
+        if (
+            !form.brandId
+        ) {
+
+            return "Brand is required.";
+        }
+
+
+        // =================================================
+        // CATEGORY
+        // =================================================
+
+        if (
+            !form.categoryId
+        ) {
+
+            return "Category is required.";
+        }
+
+
+        // =================================================
+        // STATUS
+        // =================================================
+
+        if (
+            !form.status.trim()
+        ) {
+
+            return "Status is required.";
+        }
+
+
+        return "";
     };
 
 
     // =====================================================
     // SUBMIT
     // =====================================================
+    //
+    // CREATE:
+    //
+    // POST
+    // http://localhost:5000/api/catalog/products
+    //
+    //
+    // EDIT:
+    //
+    // PUT
+    // http://localhost:5000/api/catalog/{id}
+    //
+    // Query:
+    // sellerId
+    // customerId
+    //
+    // =====================================================
 
     const handleSubmit = async (event) => {
 
         event.preventDefault();
 
+        setError("");
+
+        setSuccess("");
+
+
+        // =================================================
+        // VALIDATE
+        // =================================================
+
+        const validationError =
+            validateForm();
+
+
+        if (validationError) {
+
+            setError(
+                validationError
+            );
+
+            return;
+        }
+
+
         try {
 
             setSaving(true);
 
-            setError("");
 
-            setSuccess("");
+            const requestBody =
+                buildRequestBody();
 
-
-            // =================================================
-            // SELLER / CUSTOMER VALIDATION
-            // =================================================
-
-            if (!hasSellerCustomer) {
-
-                throw new Error(
-                    "Seller ID and Customer ID are missing. Please return to Catalog List and select the product again."
-                );
-
-            }
-
-
-            // =================================================
-            // PRODUCT VALIDATION
-            // =================================================
-
-            if (!form.productName.trim()) {
-
-                throw new Error(
-                    "Product name is required."
-                );
-
-            }
-
-
-            // =================================================
-            // REQUEST BODY
-            // =================================================
-
-            const requestBody = {
-
-                sellerId:
-                    Number(sellerId),
-
-                customerId:
-                    Number(customerId),
-
-                productName:
-                    form.productName.trim(),
-
-                description:
-                    form.description.trim(),
-
-                sku:
-                    form.sku.trim(),
-
-                brandId:
-                    form.brandId !== ""
-                        ? Number(form.brandId)
-                        : null,
-
-                categoryId:
-                    form.categoryId !== ""
-                        ? Number(form.categoryId)
-                        : null,
-
-                productTypeId:
-                    form.productTypeId !== ""
-                        ? Number(form.productTypeId)
-                        : null,
-
-                price:
-                    form.price !== ""
-                        ? Number(form.price)
-                        : 0,
-
-                quantity:
-                    form.quantity !== ""
-                        ? Number(form.quantity)
-                        : 0,
-
-                isActive:
-                    Boolean(form.isActive),
-
-            };
-
-
-            console.log(
-                "========================================"
-            );
 
             console.log(
                 "Catalog Request Body:",
@@ -749,208 +1152,147 @@ const CatalogForm = () => {
 
 
             // =================================================
-            // URL
+            // CREATE
             // =================================================
 
-            const url =
-                isEditMode
-                    ? `${SERVER_URL}/api/catalog/${id}?${query}`
-                    : `${SERVER_URL}/api/catalog/products`;
+            if (!isEditMode) {
+
+                const response =
+                    await axios.post(
+                        `${SERVER_URL}/api/catalog/products`,
+                        requestBody,
+                        {
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                Accept:
+                                    "application/json",
+                            },
+                        }
+                    );
 
 
-            // =================================================
-            // METHOD
-            // =================================================
-
-            const method =
-                isEditMode
-                    ? "PUT"
-                    : "POST";
-
-
-            console.log(
-                `${method} ${url}`
-            );
-
-
-            // =================================================
-            // API REQUEST
-            // =================================================
-
-            const response =
-                await fetch(
-                    url,
-                    {
-                        method,
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            Accept:
-                                "application/json",
-                        },
-
-                        body:
-                            JSON.stringify(
-                                requestBody
-                            ),
-                    }
+                console.log(
+                    "Create Catalog Response:",
+                    response.data
                 );
 
 
+                setSuccess(
+                    "Product created successfully."
+                );
+
+
+            }
+
             // =================================================
-            // ERROR RESPONSE
+            // UPDATE
             // =================================================
 
-            if (!response.ok) {
+            else {
 
-                let message =
-                    `Request failed. HTTP ${response.status}`;
+                const response =
+                    await axios.put(
+                        `${SERVER_URL}/api/catalog/${id}`,
+                        requestBody,
+                        {
+                            params: {
 
-                try {
+                                sellerId:
+                                    Number(
+                                        form.sellerId
+                                    ),
 
-                    const errorData =
-                        await response.json();
+                                customerId:
+                                    Number(
+                                        form.customerId
+                                    ),
 
-                    console.error(
-                        "API Error:",
-                        errorData
+                            },
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                Accept:
+                                    "application/json",
+
+                            },
+                        }
                     );
 
-                    message =
-                        errorData?.message ||
-                        errorData?.title ||
-                        errorData?.error ||
-                        message;
 
-                }
-                catch {
-                    // Non JSON response
-                }
+                console.log(
+                    "Update Catalog Response:",
+                    response.data
+                );
 
-                throw new Error(message);
 
+                setSuccess(
+                    "Product updated successfully."
+                );
             }
 
 
             // =================================================
-            // RESPONSE
-            // =================================================
-
-            let result = null;
-
-            try {
-
-                result =
-                    await response.json();
-
-            }
-            catch {
-                // 204 No Content
-            }
-
-
-            console.log(
-                "Catalog save response:",
-                result
-            );
-
-
-            // =================================================
-            // SUCCESS
-            // =================================================
-
-            setSuccess(
-                isEditMode
-                    ? "Product updated successfully."
-                    : "Product created successfully."
-            );
-
-
-            // =================================================
-            // REDIRECT
+            // GO BACK TO CATALOG
             // =================================================
 
             setTimeout(() => {
 
                 navigate(
-                    `/catalog?sellerId=${sellerId}&customerId=${customerId}`
+                    "/catalog"
                 );
 
             }, 800);
 
-        }
-        catch (err) {
+
+        } catch (err) {
 
             console.error(
                 "Catalog save error:",
+                err?.response?.data ||
                 err
             );
 
+
             setError(
-                err.message ||
-                "Unable to save product."
+                getErrorMessage(
+                    err,
+                    isEditMode
+                        ? "Unable to update product."
+                        : "Unable to create product."
+                )
             );
 
-        }
-        finally {
+        } finally {
 
             setSaving(false);
-
         }
-
     };
 
 
     // =====================================================
-    // MISSING SELLER / CUSTOMER
+    // BACK
     // =====================================================
 
-    if (!hasSellerCustomer) {
+    const handleBack = () => {
 
-        return (
-
-            <Box
-                sx={{
-                    p: 3,
-                }}
-            >
-
-                <Alert
-                    severity="error"
-                    sx={{ mb: 3 }}
-                >
-                    Seller ID and Customer ID are missing.
-                    Please return to Catalog List and
-                    select the product again.
-                </Alert>
-
-
-                <Button
-                    variant="contained"
-                    startIcon={<ArrowBack />}
-                    onClick={() =>
-                        navigate("/catalog")
-                    }
-                >
-                    Return to Catalog List
-                </Button>
-
-            </Box>
-
+        navigate(
+            "/catalog"
         );
-
-    }
+    };
 
 
     // =====================================================
-    // LOADING
+    // EDIT LOADING
     // =====================================================
 
     if (
         isEditMode &&
-        loading
+        loadingProduct
     ) {
 
         return (
@@ -958,23 +1300,38 @@ const CatalogForm = () => {
             <Box
                 sx={{
                     minHeight: 400,
+
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+
+                    alignItems:
+                        "center",
+
+                    justifyContent:
+                        "center",
+
+                    flexDirection:
+                        "column",
+
+                    gap: 2,
                 }}
             >
 
                 <CircularProgress />
 
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                >
+                    Loading product...
+                </Typography>
+
             </Box>
-
         );
-
     }
 
 
     // =====================================================
-    // UI
+    // RENDER
     // =====================================================
 
     return (
@@ -982,8 +1339,11 @@ const CatalogForm = () => {
         <Box
             sx={{
                 p: 3,
+
                 width: "100%",
-                boxSizing: "border-box",
+
+                boxSizing:
+                    "border-box",
             }}
         >
 
@@ -993,20 +1353,28 @@ const CatalogForm = () => {
 
             <Box
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
+                    display:
+                        "flex",
+
+                    alignItems:
+                        "center",
+
                     gap: 2,
+
                     mb: 3,
+
+                    flexWrap:
+                        "wrap",
                 }}
             >
 
                 <Button
                     variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={() =>
-                        navigate(
-                            `/catalog?sellerId=${sellerId}&customerId=${customerId}`
-                        )
+                    startIcon={
+                        <ArrowBack />
+                    }
+                    onClick={
+                        handleBack
                     }
                 >
                     Back
@@ -1030,19 +1398,8 @@ const CatalogForm = () => {
                         color="text.secondary"
                     >
                         {isEditMode
-                            ? "Update product information"
+                            ? "Update catalog product information"
                             : "Create a new catalog product"}
-                    </Typography>
-
-
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="block"
-                        sx={{ mt: 0.5 }}
-                    >
-                        Seller ID: {sellerId} |
-                        Customer ID: {customerId}
                     </Typography>
 
                 </Box>
@@ -1051,14 +1408,16 @@ const CatalogForm = () => {
 
 
             {/* =================================================
-                ALERTS
+                ERROR
             ================================================= */}
 
             {error && (
 
                 <Alert
                     severity="error"
-                    sx={{ mb: 2 }}
+                    sx={{
+                        mb: 2,
+                    }}
                     onClose={() =>
                         setError("")
                     }
@@ -1069,11 +1428,17 @@ const CatalogForm = () => {
             )}
 
 
+            {/* =================================================
+                SUCCESS
+            ================================================= */}
+
             {success && (
 
                 <Alert
                     severity="success"
-                    sx={{ mb: 2 }}
+                    sx={{
+                        mb: 2,
+                    }}
                 >
                     {success}
                 </Alert>
@@ -1082,31 +1447,176 @@ const CatalogForm = () => {
 
 
             {/* =================================================
-                FORM
+                MAIN FORM
             ================================================= */}
 
             <Paper
                 elevation={2}
                 sx={{
                     p: 3,
+
                     width: "100%",
-                    boxSizing: "border-box",
+
+                    boxSizing:
+                        "border-box",
                 }}
             >
 
                 <Box
                     component="form"
-                    onSubmit={handleSubmit}
+                    onSubmit={
+                        handleSubmit
+                    }
                 >
 
+
                     {/* =================================================
-                        BASIC INFORMATION
+                        SELLER / CUSTOMER
                     ================================================= */}
 
                     <Typography
                         variant="h6"
                         fontWeight="bold"
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2,
+                        }}
+                    >
+                        Seller / Customer
+                    </Typography>
+
+
+                    <Grid
+                        container
+                        spacing={2}
+                    >
+
+                        {/* =================================================
+                            SELLER ID
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                label="Seller ID"
+                                name="sellerId"
+                                value={
+                                    form.sellerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 1,
+                                    step: 1,
+                                }}
+                                helperText={
+                                    "Enter Seller ID"
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            CUSTOMER ID
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                label="Customer ID"
+                                name="customerId"
+                                value={
+                                    form.customerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 1,
+                                    step: 1,
+                                }}
+                                helperText={
+                                    "Enter Customer ID"
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            LOAD PRODUCT - EDIT ONLY
+                        ================================================= */}
+
+                        {isEditMode && (
+
+                            <Grid
+                                item
+                                xs={12}
+                                md={4}
+                                sx={{
+                                    display:
+                                        "flex",
+
+                                    alignItems:
+                                        "center",
+                                }}
+                            >
+
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    onClick={
+                                        handleLoadProduct
+                                    }
+                                    disabled={
+                                        loadingProduct ||
+                                        !hasSellerCustomer
+                                    }
+                                >
+                                    {loadingProduct
+                                        ? "Loading..."
+                                        : "Load Product"}
+                                </Button>
+
+                            </Grid>
+
+                        )}
+
+                    </Grid>
+
+
+                    <Divider
+                        sx={{
+                            my: 3,
+                        }}
+                    />
+
+
+                    {/* =================================================
+                        PRODUCT INFORMATION
+                    ================================================= */}
+
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        sx={{
+                            mb: 2,
+                        }}
                     >
                         Product Information
                     </Typography>
@@ -1117,10 +1627,40 @@ const CatalogForm = () => {
                         spacing={2}
                     >
 
+                        {/* =================================================
+                            SKU
+                        ================================================= */}
+
                         <Grid
                             item
                             xs={12}
-                            md={6}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                required
+                                label="SKU"
+                                name="sku"
+                                value={
+                                    form.sku
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            PRODUCT NAME
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={8}
                         >
 
                             <TextField
@@ -1139,26 +1679,9 @@ const CatalogForm = () => {
                         </Grid>
 
 
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-
-                            <TextField
-                                fullWidth
-                                label="SKU"
-                                name="sku"
-                                value={
-                                    form.sku
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-
-                        </Grid>
-
+                        {/* =================================================
+                            DESCRIPTION
+                        ================================================= */}
 
                         <Grid
                             item
@@ -1181,10 +1704,90 @@ const CatalogForm = () => {
 
                         </Grid>
 
+
+                        {/* =================================================
+                            BARCODE
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Barcode"
+                                name="barcode"
+                                value={
+                                    form.barcode
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            HSN CODE
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="HSN Code"
+                                name="hsnCode"
+                                value={
+                                    form.hsnCode
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            UNIT OF MEASURE
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Unit of Measure"
+                                name="unitOfMeasure"
+                                value={
+                                    form.unitOfMeasure
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                placeholder="PCS"
+                            />
+
+                        </Grid>
+
                     </Grid>
 
 
-                    <Divider sx={{ my: 3 }} />
+                    <Divider
+                        sx={{
+                            my: 3,
+                        }}
+                    />
 
 
                     {/* =================================================
@@ -1194,7 +1797,9 @@ const CatalogForm = () => {
                     <Typography
                         variant="h6"
                         fontWeight="bold"
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2,
+                        }}
                     >
                         Classification
                     </Typography>
@@ -1205,7 +1810,9 @@ const CatalogForm = () => {
                         spacing={2}
                     >
 
-                        {/* BRAND */}
+                        {/* =================================================
+                            PRODUCT TYPE
+                        ================================================= */}
 
                         <Grid
                             item
@@ -1216,156 +1823,7 @@ const CatalogForm = () => {
                             <TextField
                                 select
                                 fullWidth
-                                label="Brand"
-                                name="brandId"
-                                value={
-                                    form.brandId
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                helperText={
-                                    loadingBrands
-                                        ? "Loading brands..."
-                                        : brands.length === 0
-                                            ? "No brands available"
-                                            : `${brands.length} brand(s) available`
-                                }
-                            >
-
-                                <MenuItem value="">
-                                    Select Brand
-                                </MenuItem>
-
-
-                                {brands.map(
-                                    (brand) => {
-
-                                        const brandId =
-                                            brand?.brandId ??
-                                            brand?.BrandId ??
-                                            brand?.id ??
-                                            brand?.Id;
-
-                                        const brandName =
-                                            brand?.brandName ??
-                                            brand?.BrandName ??
-                                            brand?.name ??
-                                            brand?.Name;
-
-                                        if (
-                                            brandId ===
-                                            undefined
-                                        ) {
-                                            return null;
-                                        }
-
-                                        return (
-
-                                            <MenuItem
-                                                key={brandId}
-                                                value={brandId}
-                                            >
-                                                {brandName ||
-                                                    `Brand ${brandId}`}
-                                            </MenuItem>
-
-                                        );
-
-                                    }
-                                )}
-
-                            </TextField>
-
-                        </Grid>
-
-
-                        {/* CATEGORY */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={4}
-                        >
-
-                            <TextField
-                                select
-                                fullWidth
-                                label="Category"
-                                name="categoryId"
-                                value={
-                                    form.categoryId
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                helperText={
-                                    loadingCategories
-                                        ? "Loading categories..."
-                                        : categories.length === 0
-                                            ? "No categories available"
-                                            : `${categories.length} categor${categories.length === 1 ? "y" : "ies"} available`
-                                }
-                            >
-
-                                <MenuItem value="">
-                                    Select Category
-                                </MenuItem>
-
-
-                                {categories.map(
-                                    (category) => {
-
-                                        const categoryId =
-                                            category?.categoryId ??
-                                            category?.CategoryId ??
-                                            category?.id ??
-                                            category?.Id;
-
-                                        const categoryName =
-                                            category?.categoryName ??
-                                            category?.CategoryName ??
-                                            category?.name ??
-                                            category?.Name;
-
-                                        if (
-                                            categoryId ===
-                                            undefined
-                                        ) {
-                                            return null;
-                                        }
-
-                                        return (
-
-                                            <MenuItem
-                                                key={categoryId}
-                                                value={categoryId}
-                                            >
-                                                {categoryName ||
-                                                    `Category ${categoryId}`}
-                                            </MenuItem>
-
-                                        );
-
-                                    }
-                                )}
-
-                            </TextField>
-
-                        </Grid>
-
-
-                        {/* PRODUCT TYPE */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={4}
-                        >
-
-                            <TextField
-                                select
-                                fullWidth
+                                required
                                 label="Product Type"
                                 name="productTypeId"
                                 value={
@@ -1383,7 +1841,9 @@ const CatalogForm = () => {
                                 }
                             >
 
-                                <MenuItem value="">
+                                <MenuItem
+                                    value=""
+                                >
                                     Select Product Type
                                 </MenuItem>
 
@@ -1397,11 +1857,13 @@ const CatalogForm = () => {
                                             type?.id ??
                                             type?.Id;
 
+
                                         const typeName =
                                             type?.productTypeName ??
                                             type?.ProductTypeName ??
                                             type?.name ??
                                             type?.Name;
+
 
                                         if (
                                             typeId ===
@@ -1410,11 +1872,16 @@ const CatalogForm = () => {
                                             return null;
                                         }
 
+
                                         return (
 
                                             <MenuItem
-                                                key={typeId}
-                                                value={typeId}
+                                                key={
+                                                    typeId
+                                                }
+                                                value={
+                                                    typeId
+                                                }
                                             >
                                                 {typeName ||
                                                     `Product Type ${typeId}`}
@@ -1429,29 +1896,10 @@ const CatalogForm = () => {
 
                         </Grid>
 
-                    </Grid>
 
-
-                    <Divider sx={{ my: 3 }} />
-
-
-                    {/* =================================================
-                        PRICE & INVENTORY
-                    ================================================= */}
-
-                    <Typography
-                        variant="h6"
-                        fontWeight="bold"
-                        sx={{ mb: 2 }}
-                    >
-                        Price & Inventory
-                    </Typography>
-
-
-                    <Grid
-                        container
-                        spacing={2}
-                    >
+                        {/* =================================================
+                            BRAND
+                        ================================================= */}
 
                         <Grid
                             item
@@ -1460,12 +1908,221 @@ const CatalogForm = () => {
                         >
 
                             <TextField
+                                select
+                                fullWidth
+                                required
+                                label="Brand"
+                                name="brandId"
+                                value={
+                                    form.brandId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                disabled={
+                                    !hasSellerCustomer
+                                }
+                                helperText={
+                                    loadingBrands
+                                        ? "Loading brands..."
+                                        : brands.length === 0
+                                            ? "Enter valid Seller ID and Customer ID"
+                                            : `${brands.length} brand(s) available`
+                                }
+                            >
+
+                                <MenuItem
+                                    value=""
+                                >
+                                    Select Brand
+                                </MenuItem>
+
+
+                                {brands.map(
+                                    (brand) => {
+
+                                        const brandId =
+                                            brand?.brandId ??
+                                            brand?.BrandId ??
+                                            brand?.id ??
+                                            brand?.Id;
+
+
+                                        const brandName =
+                                            brand?.brandName ??
+                                            brand?.BrandName ??
+                                            brand?.name ??
+                                            brand?.Name;
+
+
+                                        if (
+                                            brandId ===
+                                            undefined
+                                        ) {
+                                            return null;
+                                        }
+
+
+                                        return (
+
+                                            <MenuItem
+                                                key={
+                                                    brandId
+                                                }
+                                                value={
+                                                    brandId
+                                                }
+                                            >
+                                                {brandName ||
+                                                    `Brand ${brandId}`}
+                                            </MenuItem>
+
+                                        );
+
+                                    }
+                                )}
+
+                            </TextField>
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            CATEGORY
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                select
+                                fullWidth
+                                required
+                                label="Category"
+                                name="categoryId"
+                                value={
+                                    form.categoryId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                disabled={
+                                    !hasSellerCustomer
+                                }
+                                helperText={
+                                    loadingCategories
+                                        ? "Loading categories..."
+                                        : categories.length === 0
+                                            ? "Enter valid Seller ID and Customer ID"
+                                            : `${categories.length} categor${categories.length === 1 ? "y" : "ies"} available`
+                                }
+                            >
+
+                                <MenuItem
+                                    value=""
+                                >
+                                    Select Category
+                                </MenuItem>
+
+
+                                {categories.map(
+                                    (category) => {
+
+                                        const categoryId =
+                                            category?.categoryId ??
+                                            category?.CategoryId ??
+                                            category?.id ??
+                                            category?.Id;
+
+
+                                        const categoryName =
+                                            category?.categoryName ??
+                                            category?.CategoryName ??
+                                            category?.name ??
+                                            category?.Name;
+
+
+                                        if (
+                                            categoryId ===
+                                            undefined
+                                        ) {
+                                            return null;
+                                        }
+
+
+                                        return (
+
+                                            <MenuItem
+                                                key={
+                                                    categoryId
+                                                }
+                                                value={
+                                                    categoryId
+                                                }
+                                            >
+                                                {categoryName ||
+                                                    `Category ${categoryId}`}
+                                            </MenuItem>
+
+                                        );
+
+                                    }
+                                )}
+
+                            </TextField>
+
+                        </Grid>
+
+                    </Grid>
+
+
+                    <Divider
+                        sx={{
+                            my: 3,
+                        }}
+                    />
+
+
+                    {/* =================================================
+                        DIMENSIONS
+                    ================================================= */}
+
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        sx={{
+                            mb: 2,
+                        }}
+                    >
+                        Product Dimensions
+                    </Typography>
+
+
+                    <Grid
+                        container
+                        spacing={2}
+                    >
+
+                        {/* =================================================
+                            WEIGHT
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={3}
+                        >
+
+                            <TextField
                                 fullWidth
                                 type="number"
-                                label="Price"
-                                name="price"
+                                label="Weight"
+                                name="weight"
                                 value={
-                                    form.price
+                                    form.weight
                                 }
                                 onChange={
                                     handleChange
@@ -1479,30 +2136,128 @@ const CatalogForm = () => {
                         </Grid>
 
 
+                        {/* =================================================
+                            LENGTH
+                        ================================================= */}
+
                         <Grid
                             item
                             xs={12}
-                            md={4}
+                            md={3}
                         >
 
                             <TextField
                                 fullWidth
                                 type="number"
-                                label="Quantity"
-                                name="quantity"
+                                label="Length"
+                                name="length"
                                 value={
-                                    form.quantity
+                                    form.length
                                 }
                                 onChange={
                                     handleChange
                                 }
                                 inputProps={{
                                     min: 0,
+                                    step: "0.01",
                                 }}
                             />
 
                         </Grid>
 
+
+                        {/* =================================================
+                            WIDTH
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={3}
+                        >
+
+                            <TextField
+                                fullWidth
+                                type="number"
+                                label="Width"
+                                name="width"
+                                value={
+                                    form.width
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01",
+                                }}
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            HEIGHT
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={3}
+                        >
+
+                            <TextField
+                                fullWidth
+                                type="number"
+                                label="Height"
+                                name="height"
+                                value={
+                                    form.height
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01",
+                                }}
+                            />
+
+                        </Grid>
+
+                    </Grid>
+
+
+                    <Divider
+                        sx={{
+                            my: 3,
+                        }}
+                    />
+
+
+                    {/* =================================================
+                        STATUS
+                    ================================================= */}
+
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        sx={{
+                            mb: 2,
+                        }}
+                    >
+                        Status
+                    </Typography>
+
+
+                    <Grid
+                        container
+                        spacing={2}
+                    >
+
+                        {/* =================================================
+                            STATUS
+                        ================================================= */}
 
                         <Grid
                             item
@@ -1513,33 +2268,93 @@ const CatalogForm = () => {
                             <TextField
                                 select
                                 fullWidth
+                                required
                                 label="Status"
+                                name="status"
+                                value={
+                                    form.status
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            >
+
+                                <MenuItem
+                                    value="Active"
+                                >
+                                    Active
+                                </MenuItem>
+
+                                <MenuItem
+                                    value="Inactive"
+                                >
+                                    Inactive
+                                </MenuItem>
+
+                                <MenuItem
+                                    value="Draft"
+                                >
+                                    Draft
+                                </MenuItem>
+
+                            </TextField>
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            ACTIVE
+                        ================================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                select
+                                fullWidth
+                                label="Is Active"
                                 name="isActive"
                                 value={
                                     form.isActive
                                         ? "true"
                                         : "false"
                                 }
-                                onChange={(event) => {
+                                onChange={(
+                                    event
+                                ) => {
 
                                     setForm(
-                                        (previous) => ({
+                                        (
+                                            previous
+                                        ) => ({
+
                                             ...previous,
+
                                             isActive:
-                                                event.target.value ===
+                                                event
+                                                    .target
+                                                    .value ===
                                                 "true",
+
                                         })
                                     );
 
                                 }}
                             >
 
-                                <MenuItem value="true">
-                                    Active
+                                <MenuItem
+                                    value="true"
+                                >
+                                    Yes
                                 </MenuItem>
 
-                                <MenuItem value="false">
-                                    Inactive
+                                <MenuItem
+                                    value="false"
+                                >
+                                    No
                                 </MenuItem>
 
                             </TextField>
@@ -1550,26 +2365,34 @@ const CatalogForm = () => {
 
 
                     {/* =================================================
-                        ACTIONS
+                        FORM BUTTONS
                     ================================================= */}
 
                     <Box
                         sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
+                            display:
+                                "flex",
+
+                            justifyContent:
+                                "flex-end",
+
                             gap: 2,
+
                             mt: 4,
+
+                            flexWrap:
+                                "wrap",
                         }}
                     >
 
                         <Button
                             variant="outlined"
-                            onClick={() =>
-                                navigate(
-                                    `/catalog?sellerId=${sellerId}&customerId=${customerId}`
-                                )
+                            onClick={
+                                handleBack
                             }
-                            disabled={saving}
+                            disabled={
+                                saving
+                            }
                         >
                             Cancel
                         </Button>
@@ -1590,15 +2413,15 @@ const CatalogForm = () => {
                                         <Save />
                                     )
                             }
-                            disabled={saving}
+                            disabled={
+                                saving
+                            }
                         >
-
                             {saving
                                 ? "Saving..."
                                 : isEditMode
                                     ? "Update Product"
                                     : "Create Product"}
-
                         </Button>
 
                     </Box>
@@ -1608,10 +2431,12 @@ const CatalogForm = () => {
             </Paper>
 
         </Box>
-
     );
-
 };
 
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default CatalogForm;

@@ -79,6 +79,8 @@ import CatalogFilters from "./pages/Catalog/CatalogFilters";
 import DeleteCatalogDialog from "./pages/Catalog/DeleteCatalogDialog";
 import CatalogReviews from "./pages/Catalog/CatalogReviews";
 import Catalog from "./pages/Catalog/Catalog";
+import CatalogCreate from "./pages/Catalog/CatalogCreate";
+import CatalogEdit from "./pages/Catalog/CatalogEdit";
 
 // =========================================================
 // CATEGORIES
@@ -1007,12 +1009,9 @@ function App() {
                     path="catalog"
                     element={<CatalogList />}
                 />
-
-                <Route
-                    path="catalog/create"
-                    element={<CatalogForm />}
-                />
-
+                <Route path="/catalog/create" element={<CatalogForm />} /> 
+              
+ <Route path="/catalog/Edit" element={<CatalogEdit />} /> 
                 <Route
                     path="catalog/search"
                     element={<CatalogSearch />}
@@ -2031,10 +2030,6 @@ function App() {
 {/* =================================================
     PRODUCTS
 ================================================= */}
-
-{/* -------------------------------------------------
-    PRODUCT HOME
-------------------------------------------------- */}
 {/* -------------------------------------------------
     PRODUCT LIST
 ------------------------------------------------- */}

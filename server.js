@@ -18952,6 +18952,2183 @@ app.get(
     }
 );
 
+// ============================================================
+// CATALOG API
+// React -> Node server.js -> ASP.NET Core
+// ============================================================
+//
+// ASP.NET Base:
+// https://localhost:7203/api
+//
+// Node Base:
+// http://localhost:5000/api
+//
+// Uses Axios directly
+// ============================================================
+
+
+// ============================================================
+// GET ALL CATALOG PRODUCTS
+// ============================================================
+//
+// GET
+// http://localhost:5000/api/catalog/products/all
+//
+// ASP.NET:
+// https://localhost:7203/api/catalog/products/all
+// ============================================================
+
+app.get(
+    "/api/catalog/products/all",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/products/all`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ALL CATALOG PRODUCTS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load all catalog products."
+                    }
+                );
+        }
+    }
+);
+
+//
+// ASP.NET
+// =========================================================
+
+app.get(
+    "/api/catalog/categories",
+    async (req, res) => {
+
+        try {
+
+            // =================================================
+            // GET QUERY PARAMETERS
+            // =================================================
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+
+            // =================================================
+            // VALIDATION
+            // =================================================
+
+            if (!sellerId) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "sellerId is required"
+                });
+
+            }
+
+            if (!customerId) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "customerId is required"
+                });
+
+            }
+
+
+            // =================================================
+            // CALL ASP.NET API
+            // =================================================
+
+            const response =
+                await dotnetClient.get(
+                    "/catalog/categories",
+                    {
+                        params: {
+                            sellerId: Number(sellerId),
+                            customerId: Number(customerId)
+                        }
+                    }
+                );
+
+
+            // =================================================
+            // RETURN ASP.NET RESPONSE TO REACT
+            // =================================================
+
+            return res.status(200).json(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "GET /api/catalog/categories ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            return res.status(
+                error.response?.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load catalog categories.",
+
+                error:
+                    error.response?.data ||
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+// ============================================================
+// GET ALL CATALOG
+// ============================================================
+//
+// GET
+// http://localhost:5000/api/catalog/all
+//
+// ASP.NET:
+// https://localhost:7203/api/catalog/all
+// ============================================================
+
+app.get(
+    "/api/catalog/all",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/all`,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ALL CATALOG ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load catalog."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET PRODUCTS BY SELLER + CUSTOMER
+// ============================================================
+//
+// GET
+// /api/catalog/products?sellerId=6&customerId=3
+//
+// ASP.NET:
+// /api/catalog/products?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/products",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/products`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATALOG PRODUCTS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load catalog products."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET PRODUCT BY ID
+// ============================================================
+//
+// GET
+// /api/catalog/6?sellerId=6&customerId=3
+//
+// ASP.NET:
+// /api/catalog/6?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/:productId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/${productId}`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATALOG PRODUCT BY ID ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load product."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET PRODUCT DETAILS
+// ============================================================
+//
+// GET
+// /api/catalog/products/6?sellerId=6&customerId=3
+//
+// ASP.NET:
+// /api/catalog/products/6?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/products/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/products/${Number(id)}`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATALOG PRODUCT DETAILS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load product details."
+                    }
+                );
+        }
+    }
+);
+
+// ================================================================
+// CATALOG SEARCH
+// ================================================================
+
+//
+// ================================================================
+
+app.post(
+    "/api/catalog/search",
+    async (req, res) => {
+
+        try {
+
+            // ====================================================
+            // READ QUERY PARAMETERS
+            // ====================================================
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            // ====================================================
+            // READ SEARCH BODY
+            // ====================================================
+
+            const {
+                search,
+                sku,
+                productName,
+                brandId,
+                categoryId,
+                productTypeId,
+                isActive
+            } = req.body || {};
+
+            // ====================================================
+            // VALIDATE SELLER
+            // ====================================================
+
+            if (
+                sellerId === undefined ||
+                sellerId === null ||
+                sellerId === ""
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "sellerId is required."
+                });
+
+            }
+
+            // ====================================================
+            // VALIDATE CUSTOMER
+            // ====================================================
+
+            if (
+                customerId === undefined ||
+                customerId === null ||
+                customerId === ""
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "customerId is required."
+                });
+
+            }
+
+            // ====================================================
+            // BUILD ASP.NET REQUEST BODY
+            // ====================================================
+            //
+            // ProductSearchRequest
+            //
+            // Keep the fields that are supplied by React.
+            //
+            // ====================================================
+
+            const requestBody = {};
+
+            if (
+                search !== undefined &&
+                search !== null
+            ) {
+
+                requestBody.search =
+                    String(search).trim();
+
+            }
+
+            if (
+                sku !== undefined &&
+                sku !== null
+            ) {
+
+                requestBody.sku =
+                    String(sku).trim();
+
+            }
+
+            if (
+                productName !== undefined &&
+                productName !== null
+            ) {
+
+                requestBody.productName =
+                    String(productName).trim();
+
+            }
+
+            if (
+                brandId !== undefined &&
+                brandId !== null &&
+                brandId !== ""
+            ) {
+
+                requestBody.brandId =
+                    Number(brandId);
+
+            }
+
+            if (
+                categoryId !== undefined &&
+                categoryId !== null &&
+                categoryId !== ""
+            ) {
+
+                requestBody.categoryId =
+                    Number(categoryId);
+
+            }
+
+            if (
+                productTypeId !== undefined &&
+                productTypeId !== null &&
+                productTypeId !== ""
+            ) {
+
+                requestBody.productTypeId =
+                    Number(productTypeId);
+
+            }
+
+            if (
+                isActive !== undefined &&
+                isActive !== null &&
+                isActive !== ""
+            ) {
+
+                requestBody.isActive =
+                    Boolean(isActive);
+
+            }
+
+            // ====================================================
+            // VALIDATE SEARCH BODY
+            // ====================================================
+
+            if (
+                Object.keys(requestBody).length === 0
+            ) {
+
+                return res.status(400).json({
+                    message:
+                        "At least one search parameter is required."
+                });
+
+            }
+
+            // ====================================================
+            // LOG REQUEST
+            // ====================================================
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "CATALOG SEARCH REQUEST"
+            );
+
+            console.log(
+                "Seller ID:",
+                sellerId
+            );
+
+            console.log(
+                "Customer ID:",
+                customerId
+            );
+
+            console.log(
+                "Search Body:",
+                requestBody
+            );
+
+            console.log(
+                "================================================"
+            );
+
+            // ====================================================
+            // CALL ASP.NET
+            // ====================================================
+
+            const response =
+                await dotnetClient.post(
+                    "/catalog/search",
+                    requestBody,
+                    {
+                        params: {
+                            sellerId:
+                                Number(sellerId),
+
+                            customerId:
+                                Number(customerId)
+                        },
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json"
+                        }
+                    }
+                );
+
+            // ====================================================
+            // LOG RESPONSE
+            // ====================================================
+
+            console.log(
+                "CATALOG SEARCH STATUS:",
+                response.status
+            );
+
+            console.log(
+                "CATALOG SEARCH RESPONSE:",
+                response.data
+            );
+
+            // ====================================================
+            // RETURN ASP.NET RESPONSE TO REACT
+            // ====================================================
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            // ====================================================
+            // LOG ERROR
+            // ====================================================
+
+            console.error(
+                "CATALOG SEARCH ERROR:",
+                error?.response?.data ||
+                error.message
+            );
+
+            // ====================================================
+            // ASP.NET ERROR
+            // ====================================================
+
+            if (error.response) {
+
+                return res.status(
+                    error.response.status
+                ).json(
+                    error.response.data
+                );
+
+            }
+
+            // ====================================================
+            // NODE ERROR
+            // ====================================================
+
+            return res.status(500).json({
+
+                message:
+                    "Failed to search catalog products.",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+// =========================================================
+// GET CATALOG PRODUCT DETAILS BY ID
+// =========================================================
+//
+// React:
+// GET
+// http://localhost:5000/api/catalog/products/6
+//     ?sellerId=6
+//     &customerId=3
+//
+// ASP.NET:
+// GET
+// https://localhost:7203/api/catalog/products/6
+//     ?sellerId=6
+//     &customerId=3
+// =========================================================
+
+app.get(
+    "/api/catalog/products/:id",
+    async (req, res) => {
+
+        try {
+
+            // =================================================
+            // ROUTE PARAMETER
+            // =================================================
+
+            const { id } = req.params;
+
+
+            // =================================================
+            // QUERY PARAMETERS
+            // =================================================
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+
+            // =================================================
+            // VALIDATE PRODUCT ID
+            // =================================================
+
+            const productId = Number(id);
+
+            if (
+                !id ||
+                !Number.isInteger(productId) ||
+                productId <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Valid product ID is required."
+                });
+
+            }
+
+
+            // =================================================
+            // VALIDATE SELLER ID
+            // =================================================
+
+            const seller = Number(sellerId);
+
+            if (
+                !sellerId ||
+                !Number.isInteger(seller) ||
+                seller <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Valid sellerId is required."
+                });
+
+            }
+
+
+            // =================================================
+            // VALIDATE CUSTOMER ID
+            // =================================================
+
+            const customer = Number(customerId);
+
+            if (
+                !customerId ||
+                !Number.isInteger(customer) ||
+                customer <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Valid customerId is required."
+                });
+
+            }
+
+
+            // =================================================
+            // DEBUG LOG
+            // =================================================
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "GET CATALOG PRODUCT DETAILS"
+            );
+
+            console.log(
+                "Product ID:",
+                productId
+            );
+
+            console.log(
+                "Seller ID:",
+                seller
+            );
+
+            console.log(
+                "Customer ID:",
+                customer
+            );
+
+            console.log(
+                "ASP.NET URL:",
+                `/catalog/products/${productId}`
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            // =================================================
+            // CALL ASP.NET API
+            // =================================================
+
+            const response =
+                await dotnetClient.get(
+                    `/catalog/products/${productId}`,
+                    {
+                        params: {
+                            sellerId: seller,
+                            customerId: customer
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+
+            // =================================================
+            // LOG RESPONSE
+            // =================================================
+
+            console.log(
+                "CATALOG PRODUCT DETAILS RESPONSE:",
+                response.data
+            );
+
+
+            // =================================================
+            // RETURN TO REACT
+            // =================================================
+
+            return res.status(200).json(
+                response.data
+            );
+
+
+        } catch (error) {
+
+            // =================================================
+            // ERROR LOGGING
+            // =================================================
+
+            console.error(
+                "================================================"
+            );
+
+            console.error(
+                "GET CATALOG PRODUCT BY ID ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "ASP.NET RESPONSE:",
+                error.response?.data
+            );
+
+            console.error(
+                "REQUEST:",
+                error.config?.url
+            );
+
+            console.error(
+                "METHOD:",
+                error.config?.method
+            );
+
+            console.error(
+                "================================================"
+            );
+
+
+            // =================================================
+            // RETURN ERROR
+            // =================================================
+
+            return res.status(
+                error.response?.status || 500
+            ).json({
+
+                success: false,
+
+                message:
+                    error.response?.data?.message ||
+                    "Failed to load product.",
+
+                error:
+                    error.response?.data ||
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+
+
+
+
+
+// ============================================================
+// SEARCH PRODUCTS
+// ============================================================
+//
+// POST
+// /api/catalog/search?sellerId=6&customerId=3
+//
+// Body:
+// {
+//     "search": "headphones"
+// }
+// ============================================================
+
+app.post(
+    "/api/catalog/search",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/catalog/search`,
+                    req.body,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "SEARCH CATALOG ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to search catalog products."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// CREATE PRODUCT
+// ============================================================
+//
+// POST
+// /api/catalog/products
+// ============================================================
+
+app.post(
+    "/api/catalog/products",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/catalog/products`,
+                    req.body,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE CATALOG PRODUCT ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to create product."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BRANDS
+// ============================================================
+//
+// GET
+// /api/catalog/brands?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/brands",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/brands`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATALOG BRANDS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load catalog brands."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET CATEGORIES
+// ============================================================
+//
+// GET
+// /api/catalog/categories?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/categories",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/categories`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET CATALOG CATEGORIES ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load catalog categories."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PRODUCTS BY BRAND
+// ============================================================
+//
+// GET
+// /api/catalog/brand/3?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/brand/:brandId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                brandId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/brand/${brandId}`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCTS BY BRAND ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load products by brand."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PRODUCTS BY CATEGORY
+// ============================================================
+//
+// GET
+// /api/catalog/category/5?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/category/:categoryId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                categoryId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/category/${categoryId}`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCTS BY CATEGORY ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load products by category."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PRODUCTS BY PRODUCT TYPE
+// ============================================================
+//
+// GET
+// /api/catalog/producttype/9?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/producttype/:productTypeId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productTypeId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/producttype/${productTypeId}`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCTS BY PRODUCT TYPE ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load products by product type."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// LATEST PRODUCTS
+// ============================================================
+//
+// GET
+// /api/catalog/latest?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/latest",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/latest`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET LATEST CATALOG PRODUCTS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load latest products."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// FEATURED PRODUCTS
+// ============================================================
+//
+// GET
+// /api/catalog/featured?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/featured",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/featured`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET FEATURED CATALOG PRODUCTS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load featured products."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// TOP RATED PRODUCTS
+// ============================================================
+//
+// GET
+// /api/catalog/toprated?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/toprated",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/toprated`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET TOP RATED CATALOG PRODUCTS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load top rated products."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// BESTSELLERS
+// ============================================================
+//
+// GET
+// /api/catalog/bestsellers?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/bestsellers",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/bestsellers`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET BESTSELLERS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load best selling products."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PRODUCT IMAGES
+// ============================================================
+//
+// GET
+// /api/catalog/6/images?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/:productId/images",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/${productId}/images`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCT IMAGES ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load product images."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PRODUCT ATTRIBUTES
+// ============================================================
+//
+// GET
+// /api/catalog/6/attributes?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/:productId/attributes",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/${productId}/attributes`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCT ATTRIBUTES ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load product attributes."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PRODUCT REVIEWS
+// ============================================================
+//
+// GET
+// /api/catalog/6/reviews?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/:productId/reviews",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/${productId}/reviews`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PRODUCT REVIEWS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load product reviews."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// RELATED PRODUCTS
+// ============================================================
+//
+// GET
+// /api/catalog/6/related?sellerId=6&customerId=3
+// ============================================================
+
+app.get(
+    "/api/catalog/:productId/related",
+    async (req, res) => {
+
+        try {
+
+            const {
+                productId
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/catalog/${productId}/related`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET RELATED PRODUCTS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load related products."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE PRODUCT - PUT
+// ============================================================
+//
+// PUT
+// /api/catalog/6?sellerId=6&customerId=3
+// ============================================================
+
+app.put(
+    "/api/catalog/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.put(
+                    `${DOTNET_API}/catalog/${id}`,
+                    req.body,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE CATALOG PRODUCT ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update product."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE PRODUCT - PATCH
+// ============================================================
+//
+// PATCH
+// /api/catalog/6?sellerId=6&customerId=3
+// ============================================================
+
+app.patch(
+    "/api/catalog/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.patch(
+                    `${DOTNET_API}/catalog/${id}`,
+                    req.body,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "PATCH CATALOG PRODUCT ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to patch product."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE PRODUCT
+// ============================================================
+//
+// DELETE
+// /api/catalog/6?sellerId=6&customerId=3
+// ============================================================
+
+app.delete(
+    "/api/catalog/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                sellerId,
+                customerId
+            } = req.query;
+
+            const response =
+                await axios.delete(
+                    `${DOTNET_API}/catalog/${id}`,
+                    {
+                        httpsAgent,
+
+                        params: {
+                            sellerId,
+                            customerId
+                        },
+
+                        headers: {
+                            Accept: "application/json"
+                        }
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE CATALOG PRODUCT ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to delete product."
+                    }
+                );
+        }
+    }
+);
+
+
 
 // =========================================================
 // GET BY WAREHOUSE
