@@ -1,3 +1,7 @@
+// ======================================================
+// ReviewCreate.jsx
+// ======================================================
+
 import React, {
     useState,
 } from "react";
@@ -38,8 +42,7 @@ import {
 // API
 // ======================================================
 
-const SERVER_URL =
-    "http://localhost:5000";
+const SERVER_URL = "http://localhost:5000";
 
 const REVIEW_API =
     `${SERVER_URL}/api/reviews`;
@@ -51,17 +54,44 @@ const REVIEW_API =
 
 const INITIAL_FORM_DATA = {
 
+    reviewId: 0,
+
+    // ==============================================
+    // IDs
+    // ==============================================
+
+    customerId: 3,
+
+    sellerId: 6,
+
+    productId: 6,
+
+
+    // ==============================================
+    // Customer
+    // ==============================================
+
     customerName: "",
 
     customerImage: "",
 
     verifiedBuyer: false,
 
+
+    // ==============================================
+    // Product
+    // ==============================================
+
     productName: "",
 
     productSku: "",
 
     productImage: "",
+
+
+    // ==============================================
+    // Review
+    // ==============================================
 
     marketplace: "",
 
@@ -71,17 +101,23 @@ const INITIAL_FORM_DATA = {
 
     reviewText: "",
 
+
+    // ==============================================
+    // Other
+    // ==============================================
+
     helpfulCount: 0,
 
     status: "Pending",
 
     reviewImages: "",
 
+    createdDate: null,
 };
 
 
 // ======================================================
-// Review Create Component
+// Review Create
 // ======================================================
 
 const ReviewCreate = () => {
@@ -121,7 +157,7 @@ const ReviewCreate = () => {
 
 
     // ==================================================
-    // Handle Input Change
+    // Handle Change
     // ==================================================
 
     const handleChange = (
@@ -153,23 +189,16 @@ const ReviewCreate = () => {
         setError("");
 
         setSuccess("");
-
     };
 
 
     // ==================================================
-    // Handle Rating
+    // Rating Change
     // ==================================================
 
     const handleRatingChange = (
         event
     ) => {
-
-        const value =
-            Number(
-                event.target.value
-            );
-
 
         setFormData(
             (previous) => ({
@@ -177,19 +206,52 @@ const ReviewCreate = () => {
                 ...previous,
 
                 rating:
-                    value,
+                    Number(
+                        event.target.value
+                    ),
 
             })
         );
 
+
+        setError("");
+
+        setSuccess("");
     };
 
 
     // ==================================================
-    // Validate Form
+    // Validate
     // ==================================================
 
     const validateForm = () => {
+
+        if (
+            !Number(formData.customerId)
+        ) {
+
+            return "Customer ID is required.";
+
+        }
+
+
+        if (
+            !Number(formData.sellerId)
+        ) {
+
+            return "Seller ID is required.";
+
+        }
+
+
+        if (
+            !Number(formData.productId)
+        ) {
+
+            return "Product ID is required.";
+
+        }
+
 
         if (
             !formData.customerName.trim()
@@ -225,7 +287,7 @@ const ReviewCreate = () => {
 
 
         if (
-            !Number.isFinite(rating) ||
+            !Number.isInteger(rating) ||
             rating < 1 ||
             rating > 5
         ) {
@@ -254,22 +316,27 @@ const ReviewCreate = () => {
 
 
         return "";
-
     };
 
 
     // ==================================================
-    // Convert Image URLs
+    // Review Images
+    //
+    // Database column:
+    // ReviewImages NVARCHAR(MAX)
+    //
+    // C#:
+    // public string? ReviewImages { get; set; }
     // ==================================================
 
     const getReviewImages = () => {
 
         if (
+            !formData.reviewImages ||
             !formData.reviewImages.trim()
         ) {
 
-            return [];
-
+            return "";
         }
 
 
@@ -281,8 +348,8 @@ const ReviewCreate = () => {
             )
             .filter(
                 Boolean
-            );
-
+            )
+            .join("\n");
     };
 
 
@@ -319,15 +386,41 @@ const ReviewCreate = () => {
             );
 
             return;
-
         }
 
 
         // ==============================================
-        // Request Payload
+        // Payload
         // ==============================================
 
         const payload = {
+
+            reviewId: 0,
+
+
+            // ==========================================
+            // IDs
+            // ==========================================
+
+            customerId:
+                Number(
+                    formData.customerId
+                ),
+
+            sellerId:
+                Number(
+                    formData.sellerId
+                ),
+
+            productId:
+                Number(
+                    formData.productId
+                ),
+
+
+            // ==========================================
+            // Customer
+            // ==========================================
 
             customerName:
                 formData.customerName.trim(),
@@ -341,6 +434,11 @@ const ReviewCreate = () => {
                     formData.verifiedBuyer
                 ),
 
+
+            // ==========================================
+            // Product
+            // ==========================================
+
             productName:
                 formData.productName.trim(),
 
@@ -351,6 +449,11 @@ const ReviewCreate = () => {
             productImage:
                 formData.productImage.trim() ||
                 null,
+
+
+            // ==========================================
+            // Review
+            // ==========================================
 
             marketplace:
                 formData.marketplace,
@@ -366,19 +469,57 @@ const ReviewCreate = () => {
             reviewText:
                 formData.reviewText.trim(),
 
+
+            // ==========================================
+            // Other
+            // ==========================================
+
             helpfulCount:
                 Number(
                     formData.helpfulCount
                 ) || 0,
 
             status:
-                formData.status,
+                formData.status ||
+                "Pending",
 
             reviewImages:
                 getReviewImages(),
 
+            createdDate:
+                formData.createdDate ||
+                new Date().toISOString(),
         };
 
+
+        // ==============================================
+        // Console
+        // ==============================================
+
+        console.log(
+            "================================="
+        );
+
+        console.log(
+            "CREATE REVIEW PAYLOAD"
+        );
+
+        console.log(
+            JSON.stringify(
+                payload,
+                null,
+                2
+            )
+        );
+
+        console.log(
+            "================================="
+        );
+
+
+        // ==============================================
+        // API Request
+        // ==============================================
 
         try {
 
@@ -391,12 +532,21 @@ const ReviewCreate = () => {
                     payload,
                     {
                         headers: {
+
                             "Content-Type":
                                 "application/json",
+
+                            "Accept":
+                                "application/json",
+
                         },
                     }
                 );
 
+
+            // ==========================================
+            // Success
+            // ==========================================
 
             console.log(
                 "REVIEW CREATED:",
@@ -424,36 +574,118 @@ const ReviewCreate = () => {
                 800
             );
 
+        }
+        catch (err) {
 
-        } catch (err) {
+            // ==========================================
+            // Error Logging
+            // ==========================================
 
             console.error(
-                "CREATE REVIEW ERROR:",
-                err
+                "================================="
+            );
+
+            console.error(
+                "CREATE REVIEW ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                err?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                err?.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                err?.message
+            );
+
+            console.error(
+                "================================="
             );
 
 
-            const message =
-                err?.response?.data?.message ||
-                err?.response?.data?.title ||
+            // ==========================================
+            // Error Message
+            // ==========================================
+
+            const responseData =
+                err?.response?.data;
+
+
+            let message =
                 "Unable to create review.";
 
 
-            setError(
-                message
-            );
+            if (
+                responseData?.message
+            ) {
 
-        } finally {
+                message =
+                    responseData.message;
+
+            }
+            else if (
+                responseData?.title
+            ) {
+
+                message =
+                    responseData.title;
+
+            }
+            else if (
+                responseData?.errors
+            ) {
+
+                message =
+                    Object.entries(
+                        responseData.errors
+                    )
+                    .map(
+                        ([field, errors]) => {
+
+                            return `${field}: ${errors.join(", ")}`;
+
+                        }
+                    )
+                    .join(" | ");
+
+            }
+            else if (
+                typeof responseData ===
+                "string"
+            ) {
+
+                message =
+                    responseData;
+
+            }
+            else if (
+                err?.message
+            ) {
+
+                message =
+                    err.message;
+            }
+
+
+            setError(message);
+
+        }
+        finally {
 
             setLoading(false);
 
         }
-
     };
 
 
     // ==================================================
-    // Reset Form
+    // Reset
     // ==================================================
 
     const handleReset = () => {
@@ -465,7 +697,6 @@ const ReviewCreate = () => {
         setError("");
 
         setSuccess("");
-
     };
 
 
@@ -478,7 +709,6 @@ const ReviewCreate = () => {
         navigate(
             "/reviews"
         );
-
     };
 
 
@@ -496,7 +726,7 @@ const ReviewCreate = () => {
         >
 
             {/* ==========================================
-                Page Header
+                Header
             ========================================== */}
 
             <Stack
@@ -553,7 +783,7 @@ const ReviewCreate = () => {
 
 
             {/* ==========================================
-                Alerts
+                Error
             ========================================== */}
 
             {error && (
@@ -569,6 +799,10 @@ const ReviewCreate = () => {
 
             )}
 
+
+            {/* ==========================================
+                Success
+            ========================================== */}
 
             {success && (
 
@@ -617,13 +851,29 @@ const ReviewCreate = () => {
                     <Box
                         sx={{
                             display: "grid",
+
                             gridTemplateColumns: {
                                 xs: "1fr",
                                 md: "1fr 1fr",
                             },
+
                             gap: 2,
                         }}
                     >
+
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Customer ID"
+                            name="customerId"
+                            value={
+                                formData.customerId
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
+
 
                         <TextField
                             fullWidth
@@ -655,6 +905,7 @@ const ReviewCreate = () => {
 
                         <FormControlLabel
                             control={
+
                                 <Switch
                                     checked={
                                         formData.verifiedBuyer
@@ -664,6 +915,7 @@ const ReviewCreate = () => {
                                     }
                                     name="verifiedBuyer"
                                 />
+
                             }
                             label="Verified Buyer"
                         />
@@ -696,13 +948,43 @@ const ReviewCreate = () => {
                     <Box
                         sx={{
                             display: "grid",
+
                             gridTemplateColumns: {
                                 xs: "1fr",
                                 md: "1fr 1fr",
                             },
+
                             gap: 2,
                         }}
                     >
+
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Seller ID"
+                            name="sellerId"
+                            value={
+                                formData.sellerId
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
+
+
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Product ID"
+                            name="productId"
+                            value={
+                                formData.productId
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
+
 
                         <TextField
                             fullWidth
@@ -772,13 +1054,17 @@ const ReviewCreate = () => {
                     <Box
                         sx={{
                             display: "grid",
+
                             gridTemplateColumns: {
                                 xs: "1fr",
                                 md: "1fr 1fr",
                             },
+
                             gap: 2,
                         }}
                     >
+
+                        {/* Marketplace */}
 
                         <FormControl
                             fullWidth
@@ -825,6 +1111,8 @@ const ReviewCreate = () => {
                         </FormControl>
 
 
+                        {/* Rating */}
+
                         <FormControl
                             fullWidth
                             required
@@ -870,6 +1158,8 @@ const ReviewCreate = () => {
                         </FormControl>
 
 
+                        {/* Review Title */}
+
                         <TextField
                             fullWidth
                             required
@@ -883,6 +1173,8 @@ const ReviewCreate = () => {
                             }
                         />
 
+
+                        {/* Status */}
 
                         <FormControl
                             fullWidth
@@ -920,6 +1212,8 @@ const ReviewCreate = () => {
                         </FormControl>
 
 
+                        {/* Helpful Count */}
+
                         <TextField
                             fullWidth
                             type="number"
@@ -938,6 +1232,8 @@ const ReviewCreate = () => {
 
                     </Box>
 
+
+                    {/* Review Text */}
 
                     <TextField
                         fullWidth
@@ -1008,6 +1304,7 @@ const ReviewCreate = () => {
                         }
                         InputProps={{
                             startAdornment: (
+
                                 <Image
                                     sx={{
                                         mr: 1,
@@ -1015,6 +1312,7 @@ const ReviewCreate = () => {
                                             "text.secondary",
                                     }}
                                 />
+
                             ),
                         }}
                     />
@@ -1028,7 +1326,7 @@ const ReviewCreate = () => {
 
 
                     {/* ==================================
-                        Form Actions
+                        Actions
                     ================================== */}
 
                     <Stack
@@ -1057,22 +1355,30 @@ const ReviewCreate = () => {
                             variant="contained"
                             type="submit"
                             startIcon={
+
                                 loading ? (
+
                                     <CircularProgress
                                         size={18}
                                         color="inherit"
                                     />
+
                                 ) : (
+
                                     <Save />
+
                                 )
+
                             }
                             disabled={
                                 loading
                             }
                         >
-                            {loading
-                                ? "Creating..."
-                                : "Create Review"}
+                            {
+                                loading
+                                    ? "Creating..."
+                                    : "Create Review"
+                            }
                         </Button>
 
                     </Stack>
@@ -1082,9 +1388,7 @@ const ReviewCreate = () => {
             </Card>
 
         </Box>
-
     );
-
 };
 
 
@@ -1093,4 +1397,3 @@ const ReviewCreate = () => {
 // ======================================================
 
 export default ReviewCreate;
-

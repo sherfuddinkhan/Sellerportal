@@ -4874,63 +4874,247 @@ app.delete("/api/sales-invoices/:id", async (req, res) => {
     }
 });
 
-/* =========================================================
-   GET ALL REVIEWS
-========================================================= */
+
+
+
+// =========================================================
+// REVIEWS
+// GET ALL
+// =========================================================
+// React:
+// GET http://localhost:5000/api/reviews
+//
+// ASP.NET:
+// GET https://localhost:7203/api/reviews
+// =========================================================
 
 app.get("/api/reviews", async (req, res) => {
 
     try {
 
-        console.log(
-            "GET ALL REVIEWS"
-        );
-
+        console.log("========================================");
+        console.log("GET ALL REVIEWS");
+        console.log("========================================");
 
         const response = await axios.get(
             `${DOTNET_API}/reviews`,
             {
-                httpsAgent
+                httpsAgent,
+                headers: {
+                    Accept: "application/json"
+                }
             }
         );
 
-
-        return res.status(
-            response.status
-        ).json(
+        console.log(
+            "REVIEWS RESPONSE:",
             response.data
         );
 
-    }
-    catch (error) {
+        return res
+            .status(response.status)
+            .json(response.data);
 
+    } catch (error) {
+
+        console.error("========================================");
+        console.error("GET REVIEWS ERROR");
         console.error(
-            "GET REVIEWS ERROR:",
+            "STATUS:",
+            error.response?.status
+        );
+        console.error(
+            "DATA:",
+            error.response?.data
+        );
+        console.error(
+            "MESSAGE:",
             error.message
         );
+        console.error("========================================");
 
+        return res
+            .status(error.response?.status || 500)
+            .json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+    }
+});
+// =========================================================
+// REVIEW - APPROVE
+// PUT /api/reviews/6/approve
+// =========================================================
 
-        return res.status(
-            error.response?.status || 500
-        ).json({
+app.put("/api/reviews/:id/approve", async (req, res) => {
 
-            success: false,
+    try {
 
-            message:
-                error.response?.data?.message ||
-                "Failed to load reviews.",
+        const { id } = req.params;
 
-            error:
-                error.response?.data ||
-                error.message
+        console.log("========================================");
+        console.log("APPROVE REVIEW:", id);
+        console.log("========================================");
 
-        });
+        const response = await axios.put(
+            `${DOTNET_API}/reviews/${Number(id)}/approve`,
+            {},
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }
+            }
+        );
 
+        console.log(
+            "APPROVE REVIEW RESPONSE:",
+            response.data
+        );
+
+        return res
+            .status(response.status)
+            .json(response.data);
+
+    } catch (error) {
+
+        console.error("========================================");
+        console.error("APPROVE REVIEW ERROR");
+        console.error("STATUS:", error.response?.status);
+        console.error("DATA:", error.response?.data);
+        console.error("MESSAGE:", error.message);
+        console.error("========================================");
+
+        return res
+            .status(error.response?.status || 500)
+            .json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+    }
+});
+// =========================================================
+// REVIEW - REJECT
+// =========================================================
+
+app.put("/api/reviews/:id/reject", async (req, res) => {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        console.log("========================================");
+        console.log("PUT /api/reviews/:id/reject");
+        console.log("Review ID:", id);
+        console.log("========================================");
+
+        if (!Number.isInteger(id) || id <= 0) {
+
+            return res.status(400).json({
+                message: "Invalid review ID."
+            });
+
+        }
+
+        const response = await axios.put(
+            `${DOTNET_API}/reviews/${id}/reject`,
+            {},
+            {
+                httpsAgent: httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        console.log(
+            "ASP.NET REJECT RESPONSE:",
+            response.data
+        );
+
+        return res
+            .status(response.status)
+            .json(response.data);
+
+    } catch (error) {
+
+        console.error("========================================");
+        console.error("REJECT REVIEW ERROR");
+        console.error("STATUS:", error.response?.status);
+        console.error("DATA:", error.response?.data);
+        console.error("MESSAGE:", error.message);
+        console.error("========================================");
+
+        return res
+            .status(error.response?.status || 500)
+            .json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
+    }
+});
+
+// =========================================================
+// GET FILTERED REVIEWS
+// GET /api/reviews/filter
+// =========================================================
+
+app.get("/api/reviews/filter", async (req, res) => {
+
+    try {
+
+        console.log("================================================");
+        console.log("GET /api/reviews/filter");
+        console.log("QUERY:", req.query);
+        console.log("================================================");
+
+        const response = await axios.get(
+            `${DOTNET_API}/reviews/filter`,
+            {
+                params: req.query,
+
+                httpsAgent,
+
+                headers: {
+                    Accept: "application/json"
+                }
+            }
+        );
+
+        console.log("================================================");
+        console.log("GET FILTERED REVIEWS RESPONSE");
+        console.log("STATUS:", response.status);
+        console.log("DATA:", response.data);
+        console.log("================================================");
+
+        return res
+            .status(response.status)
+            .json(response.data);
+
+    } catch (error) {
+
+        console.error("================================================");
+        console.error("GET FILTERED REVIEWS ERROR");
+        console.error("STATUS:", error.response?.status);
+        console.error("DATA:", error.response?.data);
+        console.error("MESSAGE:", error.message);
+        console.error("================================================");
+
+        return res
+            .status(error.response?.status || 500)
+            .json(
+                error.response?.data || {
+                    message: error.message
+                }
+            );
     }
 
 });
-
-
 /* =========================================================
    GET FILTERED / PAGINATED REVIEWS
 ========================================================= */
