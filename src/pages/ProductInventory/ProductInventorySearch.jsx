@@ -1,12 +1,9 @@
 // =========================================================
 // ProductInventorySearch.jsx
-// Product Inventory Search & Quick Filters
-// Frontend Only
+// Product Inventory Search & Filters
 // =========================================================
 
-import React, {
-    useMemo
-} from "react";
+import React from "react";
 
 import {
     Paper,
@@ -15,8 +12,14 @@ import {
     FormControl,
     InputLabel,
     Select,
-    MenuItem
+    MenuItem,
+    Button,
+    Stack
 } from "@mui/material";
+
+import {
+    Clear
+} from "@mui/icons-material";
 
 
 // =========================================================
@@ -25,19 +28,41 @@ import {
 
 const ProductInventorySearch = ({
 
-    searchText,
+    // =====================================================
+    // SEARCH
+    // =====================================================
 
+    searchText,
     setSearchText,
 
-    stockStatusFilter,
+    // =====================================================
+    // STATUS
+    // Maps to API: ?status=
+    // =====================================================
 
-    setStockStatusFilter,
+    statusFilter,
+    setStatusFilter,
+
+    // =====================================================
+    // WAREHOUSE
+    // Warehouse is handled by:
+    // /api/product-inventories/warehouse/{warehouseId}
+    // =====================================================
 
     warehouseFilter,
-
     setWarehouseFilter,
 
-    inventories = []
+    // =====================================================
+    // AVAILABLE DATA
+    // =====================================================
+
+    inventories = [],
+
+    // =====================================================
+    // CLEAR FILTERS
+    // =====================================================
+
+    onClear
 
 }) => {
 
@@ -46,7 +71,7 @@ const ProductInventorySearch = ({
     // WAREHOUSES
     // =====================================================
 
-    const warehouses = useMemo(() => {
+    const warehouses = React.useMemo(() => {
 
         const values = inventories
             .map((item) => {
@@ -65,7 +90,6 @@ const ProductInventorySearch = ({
                     value !== ""
             );
 
-
         return [
             ...new Set(values)
         ];
@@ -74,15 +98,17 @@ const ProductInventorySearch = ({
 
 
     // =====================================================
-    // STOCK STATUSES
+    // STATUS OPTIONS
     // =====================================================
 
-    const stockStatuses = useMemo(() => {
+    const statuses = React.useMemo(() => {
 
         const values = inventories
             .map((item) => {
 
                 return (
+                    item.status ??
+                    item.Status ??
                     item.stockStatus ??
                     item.StockStatus ??
                     null
@@ -96,12 +122,36 @@ const ProductInventorySearch = ({
                     value !== ""
             );
 
-
         return [
             ...new Set(values)
         ];
 
     }, [inventories]);
+
+
+    // =====================================================
+    // CLEAR
+    // =====================================================
+
+    const handleClear = () => {
+
+        if (setSearchText) {
+            setSearchText("");
+        }
+
+        if (setStatusFilter) {
+            setStatusFilter("");
+        }
+
+        if (setWarehouseFilter) {
+            setWarehouseFilter("");
+        }
+
+        if (onClear) {
+            onClear();
+        }
+
+    };
 
 
     // =====================================================
@@ -121,6 +171,7 @@ const ProductInventorySearch = ({
             <Grid
                 container
                 spacing={2}
+                alignItems="center"
             >
 
                 {/* =================================================
@@ -136,7 +187,7 @@ const ProductInventorySearch = ({
                     <TextField
                         fullWidth
                         label="Search Inventory"
-                        placeholder="Product ID, Seller ID, Warehouse..."
+                        placeholder="Search product, seller, warehouse..."
                         value={searchText || ""}
                         onChange={(e) =>
                             setSearchText(
@@ -149,7 +200,7 @@ const ProductInventorySearch = ({
 
 
                 {/* =================================================
-                    STOCK STATUS
+                    STATUS
                 ================================================= */}
 
                 <Grid
@@ -163,16 +214,16 @@ const ProductInventorySearch = ({
                     >
 
                         <InputLabel>
-                            Stock Status
+                            Status
                         </InputLabel>
 
                         <Select
                             value={
-                                stockStatusFilter || ""
+                                statusFilter || ""
                             }
-                            label="Stock Status"
+                            label="Status"
                             onChange={(e) =>
-                                setStockStatusFilter(
+                                setStatusFilter(
                                     e.target.value
                                 )
                             }
@@ -183,7 +234,7 @@ const ProductInventorySearch = ({
                             </MenuItem>
 
 
-                            {stockStatuses.map(
+                            {statuses.map(
                                 (status) => (
 
                                     <MenuItem
@@ -210,7 +261,7 @@ const ProductInventorySearch = ({
                 <Grid
                     item
                     xs={12}
-                    md={4}
+                    md={3}
                 >
 
                     <FormControl
@@ -245,7 +296,7 @@ const ProductInventorySearch = ({
                                         key={warehouse}
                                         value={warehouse}
                                     >
-                                        {warehouse}
+                                        Warehouse {warehouse}
                                     </MenuItem>
 
                                 )
@@ -254,6 +305,35 @@ const ProductInventorySearch = ({
                         </Select>
 
                     </FormControl>
+
+                </Grid>
+
+
+                {/* =================================================
+                    CLEAR
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={12}
+                    md={1}
+                >
+
+                    <Stack
+                        direction="row"
+                        justifyContent="center"
+                    >
+
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            startIcon={<Clear />}
+                            onClick={handleClear}
+                        >
+                            Clear
+                        </Button>
+
+                    </Stack>
 
                 </Grid>
 

@@ -447,12 +447,6 @@ const MainLayout = () => {
                             label: "Search Brands",
                             path: "/brands/search",
                         },
-
-                        {
-                            label: "Brand Statistics",
-                            path: "/brands/statistics",
-                        },
-
                     ],
                 },
 
@@ -543,15 +537,6 @@ const MainLayout = () => {
                             label: "Search Product Attributes",
                             path: "/product-attributes/search",
                         },
-
-                        {
-                            label: "Product Attribute Statistics",
-                            path: "/product-attributes/statistics",
-                        },
-                        {
-                            label: "Product Attribute Form",
-                            path: "/product-attributes/form",
-                        },
                     ],
                 },
 
@@ -611,7 +596,7 @@ const MainLayout = () => {
 
                 {
                     label: "Products",
-                    path: "/products",
+                    path: "/products/list",
                     icon: "📦",
 
                     children: [
