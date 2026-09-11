@@ -1801,84 +1801,84 @@ function App() {
                 />
 
 
-                {/* =================================================
-                    PURCHASE ORDERS
-                ================================================= */}
+{/* =================================================
+    PURCHASE ORDERS
+================================================= */}
 
-                <Route
-                    path="purchase-orders"
-                    element={<PurchaseOrderList />}
-                />
+<Route
+    path="purchase-orders"
+    element={<PurchaseOrderList />}
+/>
 
-                <Route
-                    path="purchase-orders/create"
-                    element={<PurchaseOrderCreate />}
-                />
+<Route
+    path="purchase-orders/create"
+    element={<PurchaseOrderCreate />}
+/>
 
-                <Route
-                    path="purchase-orders/search"
-                    element={<PurchaseOrderSearch />}
-                />
+<Route
+    path="purchase-orders/search"
+    element={<PurchaseOrderSearch />}
+/>
 
-                <Route
-                    path="purchase-orders/statistics"
-                    element={<PurchaseOrderStatistics />}
-                />
+<Route
+    path="purchase-orders/statistics"
+    element={<PurchaseOrderStatistics />}
+/>
 
-                <Route
-                    path="purchase-orders/details/:id"
-                    element={<PurchaseOrderDetails />}
-                />
+<Route
+    path="purchase-orders/details/:id"
+    element={<PurchaseOrderDetails />}
+/>
 
-                <Route
-                    path="purchase-orders/edit/:id"
-                    element={<PurchaseOrderEdit />}
-                />
+<Route
+    path="purchase-orders/edit/:id"
+    element={<PurchaseOrderEdit />}
+/>
 
-                <Route
-                    path="purchase-orders/:id"
-                    element={<PurchaseOrderView />}
-                />
+<Route
+    path="purchase-orders/:id"
+    element={<PurchaseOrderView />}
+/>
 
 
-                {/* =================================================
-                    PURCHASE ORDER ITEMS
-                ================================================= */}
+{/* =================================================
+    PURCHASE ORDER ITEMS
+================================================= */}
 
-                <Route
-                    path="purchase-order-items"
-                    element={<PurchaseOrderItemList />}
-                />
+<Route
+    path="purchase-order-items"
+    element={<PurchaseOrderItemList />}
+/>
 
-                <Route
-                    path="purchase-order-items/create"
-                    element={<PurchaseOrderItemCreate />}
-                />
+<Route
+    path="purchase-order-items/create"
+    element={<PurchaseOrderItemCreate />}
+/>
 
-                <Route
-                    path="purchase-order-items/search"
-                    element={<PurchaseOrderItemSearch />}
-                />
+<Route
+    path="purchase-order-items/search"
+    element={<PurchaseOrderItemSearch />}
+/>
 
-                <Route
-                    path="purchase-order-items/statistics"
-                    element={<PurchaseOrderItemStatistics />}
-                />
+<Route
+    path="purchase-order-items/statistics"
+    element={<PurchaseOrderItemStatistics />}
+/>
 
-                <Route
-                    path="purchase-order-items/details/:id"
-                    element={<PurchaseOrderItemDetails />}
-                />
+<Route
+    path="purchase-order-items/details/:id"
+    element={<PurchaseOrderItemDetails />}
+/>
 
-                <Route
-                    path="purchase-order-items/edit/:id"
-                    element={<PurchaseOrderItemEdit />}
-                />
+<Route
+    path="purchase-order-items/edit/:id"
+    element={<PurchaseOrderItemEdit />}
+/>
 
-                <Route
-                    path="purchase-order-items/:id"
-                    element={<PurchaseOrderItemView />}
-                />
+<Route
+    path="purchase-order-items/:id"
+    element={<PurchaseOrderItemView />}
+/>
 
 
                 {/* =================================================

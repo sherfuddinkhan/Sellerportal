@@ -924,14 +924,6 @@ const MainLayout = () => {
                             label: "Create Purchase Order",
                             path: "/purchase-orders/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/purchase-orders/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/purchase-orders/statistics",
-                        },
                     ],
                 },
 
@@ -949,14 +941,6 @@ const MainLayout = () => {
                             label: "Create Item",
                             path: "/purchase-order-items/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/purchase-order-items/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/purchase-order-items/statistics",
-                        },
                     ],
                 },
 
@@ -973,14 +957,6 @@ const MainLayout = () => {
                         {
                             label: "Create Return",
                             path: "/purchase-returns/create",
-                        },
-                        {
-                            label: "Search",
-                            path: "/purchase-returns/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/purchase-returns/statistics",
                         },
                     ],
                 },

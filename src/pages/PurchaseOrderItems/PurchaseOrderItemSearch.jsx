@@ -1,131 +1,117 @@
+// ============================================================
+// PurchaseOrderItemSearch.jsx
+// ============================================================
+
 import React from "react";
 
 import {
-Box,
-TextField,
-InputAdornment
+    Box,
+    TextField,
+    InputAdornment,
+    IconButton,
+    Tooltip
 } from "@mui/material";
 
 import {
-Search
+    Search,
+    Clear
 } from "@mui/icons-material";
 
-/* =========================================================
-PURCHASE ORDER ITEM SEARCH
-========================================================= */
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const PurchaseOrderItemSearch = ({
-searchText,
-setSearchText
+    searchText,
+    setSearchText
 }) => {
-/* =====================================================
-   HANDLE SEARCH
-===================================================== */
 
-const handleSearchChange = (
-    event
-) => {
+    // ========================================================
+    // SEARCH CHANGE
+    // ========================================================
 
-    setSearchText(
-        event.target.value
-    );
+    const handleSearchChange = (event) => {
 
-};
+        const value = event.target.value;
 
+        setSearchText(value);
 
-/* =====================================================
-   CLEAR SEARCH
-===================================================== */
+    };
 
-const handleClearSearch = () => {
+    // ========================================================
+    // CLEAR SEARCH
+    // ========================================================
 
-    setSearchText("");
+    const handleClearSearch = () => {
 
-};
+        setSearchText("");
 
+    };
 
-/* =====================================================
-   RENDER
-===================================================== */
+    // ========================================================
+    // NORMALIZED VALUE
+    // ========================================================
 
-return (
+    const value = searchText ?? "";
 
-    <Box
-        className="purchase-order-item-search"
-        sx={{
-            mb: 3
-        }}
-    >
+    const hasSearchText =
+        value.trim().length > 0;
 
-        <TextField
-            fullWidth
-            size="small"
-            label="Search Purchase Order Items"
-            placeholder={
-                "Search by Item ID, Purchase Order ID, " +
-                "Product ID, Quantity, Unit Price, " +
-                "Total Amount..."
-            }
-            value={searchText}
-            onChange={
-                handleSearchChange
-            }
-            InputProps={{
-                startAdornment: (
+    // ========================================================
+    // RENDER
+    // ========================================================
 
-                    <InputAdornment
-                        position="start"
-                    >
+    return (
+        <Box
+            className="purchase-order-item-search"
+            sx={{
+                mb: 3,
+                width: "100%"
+            }}
+        >
 
-                        <Search />
+            <TextField
+                fullWidth
+                size="small"
+                label="Search Purchase Order Items"
+                placeholder={
+                    "Search by Item ID, Purchase Order ID, " +
+                    "Product ID, Quantity, Unit Price, " +
+                    "Discount, Tax Amount, Total Amount..."
+                }
+                value={value}
+                onChange={handleSearchChange}
 
-                    </InputAdornment>
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Search />
+                        </InputAdornment>
+                    ),
 
-                ),
+                    endAdornment: hasSearchText ? (
+                        <InputAdornment position="end">
 
-                endAdornment:
-                    searchText ? (
+                            <Tooltip title="Clear search">
 
-                        <InputAdornment
-                            position="end"
-                        >
+                                <IconButton
+                                    size="small"
+                                    onClick={handleClearSearch}
+                                    edge="end"
+                                    aria-label="Clear search"
+                                >
+                                    <Clear fontSize="small" />
+                                </IconButton>
 
-                            <Box
-                                component="span"
-                                onClick={
-                                    handleClearSearch
-                                }
-                                sx={{
-                                    cursor:
-                                        "pointer",
-                                    fontSize:
-                                        "14px",
-                                    color:
-                                        "text.secondary",
-                                    px: 1,
-                                    userSelect:
-                                        "none",
-                                    "&:hover": {
-                                        color:
-                                            "text.primary"
-                                    }
-                                }}
-                            >
-                                Clear
-                            </Box>
+                            </Tooltip>
 
                         </InputAdornment>
-
                     ) : null
-            }}
-        />
+                }}
+            />
 
-    </Box>
-
-);
-
-
+        </Box>
+    );
 };
 
 export default PurchaseOrderItemSearch;
-

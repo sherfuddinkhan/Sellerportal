@@ -1,538 +1,798 @@
-import React, { useEffect, useState } from "react";
+// ============================================================
+// PurchaseOrderItemEdit.jsx
+// Full Page Purchase Order Item Edit
+// ============================================================
+
+import React, {
+    useEffect,
+    useState
+} from "react";
 
 import {
-Dialog,
-DialogTitle,
-DialogContent,
-DialogActions,
-Button,
-TextField,
-Grid,
-Typography,
-Alert
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+import axios from "axios";
+
+import {
+    Alert,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Divider,
+    Grid,
+    Snackbar,
+    Stack,
+    TextField,
+    Typography
 } from "@mui/material";
 
-/* =========================================================
-EMPTY FORM
-========================================================= */
+import {
+    ArrowBack,
+    Save
+} from "@mui/icons-material";
 
-const emptyForm = {
-PurchaseOrderItemId: null,
-PurchaseOrderId: "",
-ProductId: "",
-Quantity: "",
-UnitPrice: "",
-Discount: "",
-TaxAmount: "",
-TotalAmount: ""
+// ============================================================
+// SERVER URL
+// ============================================================
+
+const SERVER_URL = "http://localhost:5000";
+
+// ============================================================
+// INITIAL FORM
+// ============================================================
+
+const initialFormData = {
+    PurchaseOrderItemId: "",
+    PurchaseOrderId: "",
+    ProductId: "",
+    Quantity: "",
+    UnitPrice: "",
+    Discount: "0",
+    TaxAmount: "0",
+    TotalAmount: "0"
 };
 
-/* =========================================================
-PURCHASE ORDER ITEM EDIT
-========================================================= */
+// ============================================================
+// COMPONENT
+// ============================================================
 
-const PurchaseOrderItemEdit = ({
-open,
-item,
-onClose,
-onSave
-}) => {
-const [formData, setFormData] = useState(emptyForm);
-const [error, setError] = useState("");
+const PurchaseOrderItemEdit = () => {
 
+    const navigate = useNavigate();
 
-/* =====================================================
-   LOAD ITEM
-===================================================== */
+    const { id } = useParams();
 
-useEffect(() => {
+    // ========================================================
+    // STATE
+    // ========================================================
 
-    if (!open) {
-        return;
-    }
+    const [formData, setFormData] = useState(initialFormData);
 
-    if (!item) {
-        setFormData(emptyForm);
-        setError("");
-        return;
-    }
+    const [loading, setLoading] = useState(true);
 
+    const [saving, setSaving] = useState(false);
 
-    setFormData({
-        PurchaseOrderItemId:
-            item.PurchaseOrderItemId ?? null,
+    const [error, setError] = useState("");
 
-        PurchaseOrderId:
-            item.PurchaseOrderId ?? "",
-
-        ProductId:
-            item.ProductId ?? "",
-
-        Quantity:
-            item.Quantity ?? "",
-
-        UnitPrice:
-            item.UnitPrice ?? "",
-
-        Discount:
-            item.Discount ?? "",
-
-        TaxAmount:
-            item.TaxAmount ?? "",
-
-        TotalAmount:
-            item.TotalAmount ?? ""
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "success"
     });
 
-    setError("");
+    // ========================================================
+    // GET ITEM
+    // ========================================================
 
-}, [open, item]);
+    useEffect(() => {
 
+        const loadPurchaseOrderItem = async () => {
 
-/* =====================================================
-   CALCULATE TOTAL
-===================================================== */
+            const purchaseOrderItemId = Number(id);
 
-useEffect(() => {
+            if (
+                !Number.isInteger(purchaseOrderItemId) ||
+                purchaseOrderItemId <= 0
+            ) {
+                setError("Invalid Purchase Order Item ID.");
+                setLoading(false);
+                return;
+            }
 
-    if (!open) {
-        return;
-    }
+            try {
 
-    const quantity =
-        Number(formData.Quantity) || 0;
+                setLoading(true);
+                setError("");
 
-    const unitPrice =
-        Number(formData.UnitPrice) || 0;
+                console.log(
+                    "GET PURCHASE ORDER ITEM:",
+                    purchaseOrderItemId
+                );
 
-    const discount =
-        Number(formData.Discount) || 0;
+                console.log(
+                    "GET URL:",
+                    `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
+                );
 
-    const taxAmount =
-        Number(formData.TaxAmount) || 0;
+                const response = await axios.get(
+                    `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
+                );
 
+                console.log(
+                    "PURCHASE ORDER ITEM RESPONSE:",
+                    response.data
+                );
 
-    const total =
-        (quantity * unitPrice) -
-        discount +
-        taxAmount;
+                const item = response.data;
 
+                setFormData({
+                    PurchaseOrderItemId:
+                        item?.purchaseOrderItemId ??
+                        item?.PurchaseOrderItemId ??
+                        item?.id ??
+                        purchaseOrderItemId,
 
-    const calculatedTotal =
-        Math.max(0, total).toFixed(2);
+                    PurchaseOrderId:
+                        item?.purchaseOrderId ??
+                        item?.PurchaseOrderId ??
+                        "",
 
+                    ProductId:
+                        item?.productId ??
+                        item?.ProductId ??
+                        "",
 
-    setFormData((previous) => {
+                    Quantity:
+                        item?.quantity ??
+                        item?.Quantity ??
+                        "",
 
-        if (
-            previous.TotalAmount === calculatedTotal
-        ) {
-            return previous;
-        }
+                    UnitPrice:
+                        item?.unitPrice ??
+                        item?.UnitPrice ??
+                        "",
 
-        return {
-            ...previous,
-            TotalAmount: calculatedTotal
+                    Discount:
+                        item?.discount ??
+                        item?.Discount ??
+                        0,
+
+                    TaxAmount:
+                        item?.taxAmount ??
+                        item?.TaxAmount ??
+                        0,
+
+                    TotalAmount:
+                        item?.totalAmount ??
+                        item?.TotalAmount ??
+                        0
+                });
+
+            } catch (err) {
+
+                console.error(
+                    "FAILED TO LOAD PURCHASE ORDER ITEM:",
+                    err
+                );
+
+                const message =
+                    err?.response?.data?.message ||
+                    err?.response?.data?.error ||
+                    "Failed to load Purchase Order Item.";
+
+                setError(message);
+
+            } finally {
+
+                setLoading(false);
+
+            }
         };
-    });
 
-}, [
-    open,
-    formData.Quantity,
-    formData.UnitPrice,
-    formData.Discount,
-    formData.TaxAmount
-]);
+        loadPurchaseOrderItem();
 
+    }, [id]);
 
-/* =====================================================
-   HANDLE CHANGE
-===================================================== */
+    // ========================================================
+    // CALCULATE TOTAL
+    // ========================================================
 
-const handleChange = (event) => {
+    useEffect(() => {
 
-    const {
-        name,
-        value
-    } = event.target;
+        const quantity =
+            Number(formData.Quantity) || 0;
 
+        const unitPrice =
+            Number(formData.UnitPrice) || 0;
 
-    setFormData((previous) => ({
-        ...previous,
-        [name]: value
-    }));
+        const discount =
+            Number(formData.Discount) || 0;
 
-    setError("");
-};
+        const taxAmount =
+            Number(formData.TaxAmount) || 0;
 
+        const subtotal =
+            quantity * unitPrice;
 
-/* =====================================================
-   VALIDATION
-===================================================== */
+        const total =
+            Math.max(
+                0,
+                subtotal - discount + taxAmount
+            );
 
-const validateForm = () => {
+        setFormData((previous) => ({
+            ...previous,
+            TotalAmount: total.toFixed(2)
+        }));
 
-    if (!formData.PurchaseOrderItemId) {
-        return "Purchase Order Item ID is required.";
-    }
+    }, [
+        formData.Quantity,
+        formData.UnitPrice,
+        formData.Discount,
+        formData.TaxAmount
+    ]);
 
-    if (!formData.PurchaseOrderId) {
-        return "Purchase Order ID is required.";
-    }
+    // ========================================================
+    // HANDLE CHANGE
+    // ========================================================
 
-    if (!formData.ProductId) {
-        return "Product ID is required.";
-    }
+    const handleChange = (event) => {
 
-    if (
-        !formData.Quantity ||
-        Number(formData.Quantity) <= 0
-    ) {
-        return "Quantity must be greater than 0.";
-    }
+        const {
+            name,
+            value
+        } = event.target;
 
-    if (
-        formData.UnitPrice === "" ||
-        Number(formData.UnitPrice) < 0
-    ) {
-        return "Unit Price cannot be negative.";
-    }
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
 
-    if (
-        formData.Discount !== "" &&
-        Number(formData.Discount) < 0
-    ) {
-        return "Discount cannot be negative.";
-    }
-
-    if (
-        formData.TaxAmount !== "" &&
-        Number(formData.TaxAmount) < 0
-    ) {
-        return "Tax Amount cannot be negative.";
-    }
-
-    return "";
-};
-
-
-/* =====================================================
-   SUBMIT
-===================================================== */
-
-const handleSubmit = (event) => {
-
-    event.preventDefault();
-
-
-    const validationError =
-        validateForm();
-
-
-    if (validationError) {
-        setError(validationError);
-        return;
-    }
-
-
-    const payload = {
-        PurchaseOrderItemId:
-            Number(formData.PurchaseOrderItemId),
-
-        PurchaseOrderId:
-            Number(formData.PurchaseOrderId),
-
-        ProductId:
-            Number(formData.ProductId),
-
-        Quantity:
-            Number(formData.Quantity),
-
-        UnitPrice:
-            Number(formData.UnitPrice) || 0,
-
-        Discount:
-            Number(formData.Discount) || 0,
-
-        TaxAmount:
-            Number(formData.TaxAmount) || 0,
-
-        TotalAmount:
-            Number(formData.TotalAmount) || 0
     };
 
+    // ========================================================
+    // SAVE
+    // ========================================================
 
-    console.log(
-        "UPDATE PURCHASE ORDER ITEM:",
-        payload
-    );
+    const handleSave = async () => {
 
+        const purchaseOrderItemId =
+            Number(formData.PurchaseOrderItemId);
 
-    if (typeof onSave === "function") {
-        onSave(payload);
+        if (
+            !Number.isInteger(purchaseOrderItemId) ||
+            purchaseOrderItemId <= 0
+        ) {
+            setSnackbar({
+                open: true,
+                message: "Purchase Order Item ID is required.",
+                severity: "error"
+            });
+
+            return;
+        }
+
+        if (
+            !Number(formData.PurchaseOrderId) ||
+            Number(formData.PurchaseOrderId) <= 0
+        ) {
+            setSnackbar({
+                open: true,
+                message: "Purchase Order ID is required.",
+                severity: "error"
+            });
+
+            return;
+        }
+
+        if (
+            !Number(formData.ProductId) ||
+            Number(formData.ProductId) <= 0
+        ) {
+            setSnackbar({
+                open: true,
+                message: "Product ID is required.",
+                severity: "error"
+            });
+
+            return;
+        }
+
+        const payload = {
+            PurchaseOrderItemId:
+                purchaseOrderItemId,
+
+            PurchaseOrderId:
+                Number(formData.PurchaseOrderId),
+
+            ProductId:
+                Number(formData.ProductId),
+
+            Quantity:
+                Number(formData.Quantity) || 0,
+
+            UnitPrice:
+                Number(formData.UnitPrice) || 0,
+
+            Discount:
+                Number(formData.Discount) || 0,
+
+            TaxAmount:
+                Number(formData.TaxAmount) || 0,
+
+            TotalAmount:
+                Number(formData.TotalAmount) || 0
+        };
+
+        console.log(
+            "UPDATE PURCHASE ORDER ITEM"
+        );
+
+        console.log(
+            "ITEM ID:",
+            purchaseOrderItemId
+        );
+
+        console.log(
+            "PAYLOAD:",
+            payload
+        );
+
+        console.log(
+            "PUT URL:",
+            `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
+        );
+
+        try {
+
+            setSaving(true);
+
+            await axios.put(
+                `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`,
+                payload
+            );
+
+            setSnackbar({
+                open: true,
+                message:
+                    "Purchase Order Item updated successfully.",
+                severity: "success"
+            });
+
+            setTimeout(() => {
+
+                navigate(
+                    "/purchase-order-items"
+                );
+
+            }, 800);
+
+        } catch (err) {
+
+            console.error(
+                "FAILED TO UPDATE PURCHASE ORDER ITEM:",
+                err
+            );
+
+            const message =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                "Failed to update Purchase Order Item.";
+
+            setSnackbar({
+                open: true,
+                message,
+                severity: "error"
+            });
+
+        } finally {
+
+            setSaving(false);
+
+        }
+    };
+
+    // ========================================================
+    // BACK
+    // ========================================================
+
+    const handleBack = () => {
+
+        navigate(
+            "/purchase-order-items"
+        );
+
+    };
+
+    // ========================================================
+    // LOADING
+    // ========================================================
+
+    if (loading) {
+
+        return (
+            <Box
+                sx={{
+                    minHeight: "400px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
+
     }
 
-};
+    // ========================================================
+    // ERROR
+    // ========================================================
 
+    if (error) {
 
-/* =====================================================
-   NO ITEM
-===================================================== */
+        return (
+            <Box sx={{ p: 3 }}>
 
-if (!item && open) {
-    return null;
-}
-
-
-/* =====================================================
-   RENDER
-===================================================== */
-
-return (
-    <Dialog
-        open={open}
-        onClose={onClose}
-        fullWidth
-        maxWidth="md"
-    >
-
-        <DialogTitle>
-            Edit Purchase Order Item
-        </DialogTitle>
-
-
-        <DialogContent dividers>
-
-            {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                >
+                <Alert severity="error">
                     {error}
                 </Alert>
-            )}
 
+                <Button
+                    sx={{ mt: 2 }}
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
+                >
+                    Back to Purchase Order Items
+                </Button>
 
-            <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 2 }}
-            >
-                Update the purchase order item details below.
-            </Typography>
+            </Box>
+        );
 
+    }
 
-            <Grid
-                container
+    // ========================================================
+    // PAGE
+    // ========================================================
+
+    return (
+        <Box sx={{ p: 3 }}>
+
+            {/* ==================================================
+                HEADER
+            ================================================== */}
+
+            <Stack
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
+                justifyContent="space-between"
+                alignItems={{
+                    xs: "flex-start",
+                    sm: "center"
+                }}
                 spacing={2}
+                sx={{ mb: 3 }}
             >
 
-                {/* Item ID */}
+                <Box>
 
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
+                    <Typography
+                        variant="h4"
+                        fontWeight="bold"
+                    >
+                        Edit Purchase Order Item
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Update Purchase Order Item #
+                        {formData.PurchaseOrderItemId}
+                    </Typography>
+
+                </Box>
+
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
                 >
+                    Back
+                </Button>
 
-                    <TextField
-                        fullWidth
-                        label="Purchase Order Item ID"
-                        value={
-                            formData.PurchaseOrderItemId ?? ""
-                        }
-                        InputProps={{
-                            readOnly: true
+            </Stack>
+
+            {/* ==================================================
+                FORM CARD
+            ================================================== */}
+
+            <Card>
+
+                <CardContent>
+
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        sx={{ mb: 2 }}
+                    >
+                        Purchase Order Item Information
+                    </Typography>
+
+                    <Divider sx={{ mb: 3 }} />
+
+                    <Grid
+                        container
+                        spacing={3}
+                    >
+
+                        {/* ======================================
+                            ITEM ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Purchase Order Item ID"
+                                name="PurchaseOrderItemId"
+                                value={
+                                    formData.PurchaseOrderItemId
+                                }
+                                disabled
+                            />
+                        </Grid>
+
+                        {/* ======================================
+                            PURCHASE ORDER ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Purchase Order ID"
+                                name="PurchaseOrderId"
+                                type="number"
+                                value={
+                                    formData.PurchaseOrderId
+                                }
+                                onChange={handleChange}
+                            />
+                        </Grid>
+
+                        {/* ======================================
+                            PRODUCT ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Product ID"
+                                name="ProductId"
+                                type="number"
+                                value={
+                                    formData.ProductId
+                                }
+                                onChange={handleChange}
+                            />
+                        </Grid>
+
+                        {/* ======================================
+                            QUANTITY
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Quantity"
+                                name="Quantity"
+                                type="number"
+                                value={
+                                    formData.Quantity
+                                }
+                                onChange={handleChange}
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01"
+                                }}
+                            />
+                        </Grid>
+
+                        {/* ======================================
+                            UNIT PRICE
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Unit Price"
+                                name="UnitPrice"
+                                type="number"
+                                value={
+                                    formData.UnitPrice
+                                }
+                                onChange={handleChange}
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01"
+                                }}
+                            />
+                        </Grid>
+
+                        {/* ======================================
+                            DISCOUNT
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Discount"
+                                name="Discount"
+                                type="number"
+                                value={
+                                    formData.Discount
+                                }
+                                onChange={handleChange}
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01"
+                                }}
+                            />
+                        </Grid>
+
+                        {/* ======================================
+                            TAX
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Tax Amount"
+                                name="TaxAmount"
+                                type="number"
+                                value={
+                                    formData.TaxAmount
+                                }
+                                onChange={handleChange}
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01"
+                                }}
+                            />
+                        </Grid>
+
+                        {/* ======================================
+                            TOTAL
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Total Amount"
+                                name="TotalAmount"
+                                value={
+                                    formData.TotalAmount
+                                }
+                                disabled
+                            />
+                        </Grid>
+
+                    </Grid>
+
+                    {/* ==================================================
+                        ACTIONS
+                    ================================================== */}
+
+                    <Divider sx={{ my: 3 }} />
+
+                    <Stack
+                        direction={{
+                            xs: "column",
+                            sm: "row"
                         }}
-                    />
+                        spacing={2}
+                        justifyContent="flex-end"
+                    >
 
-                </Grid>
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={handleBack}
+                            disabled={saving}
+                        >
+                            Cancel
+                        </Button>
 
+                        <Button
+                            variant="contained"
+                            startIcon={<Save />}
+                            onClick={handleSave}
+                            disabled={saving}
+                        >
+                            {saving
+                                ? "Saving..."
+                                : "Save Changes"}
+                        </Button>
 
-                {/* Purchase Order ID */}
+                    </Stack>
 
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                >
+                </CardContent>
 
-                    <TextField
-                        fullWidth
-                        required
-                        type="number"
-                        label="Purchase Order ID"
-                        name="PurchaseOrderId"
-                        value={formData.PurchaseOrderId}
-                        onChange={handleChange}
-                    />
+            </Card>
 
-                </Grid>
+            {/* ==================================================
+                SNACKBAR
+            ================================================== */}
 
-
-                {/* Product ID */}
-
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                >
-
-                    <TextField
-                        fullWidth
-                        required
-                        type="number"
-                        label="Product ID"
-                        name="ProductId"
-                        value={formData.ProductId}
-                        onChange={handleChange}
-                    />
-
-                </Grid>
-
-
-                {/* Quantity */}
-
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                >
-
-                    <TextField
-                        fullWidth
-                        required
-                        type="number"
-                        label="Quantity"
-                        name="Quantity"
-                        value={formData.Quantity}
-                        onChange={handleChange}
-                        inputProps={{
-                            min: 0,
-                            step: "0.01"
-                        }}
-                    />
-
-                </Grid>
-
-
-                {/* Unit Price */}
-
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                >
-
-                    <TextField
-                        fullWidth
-                        required
-                        type="number"
-                        label="Unit Price"
-                        name="UnitPrice"
-                        value={formData.UnitPrice}
-                        onChange={handleChange}
-                        inputProps={{
-                            min: 0,
-                            step: "0.01"
-                        }}
-                    />
-
-                </Grid>
-
-
-                {/* Discount */}
-
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                >
-
-                    <TextField
-                        fullWidth
-                        type="number"
-                        label="Discount"
-                        name="Discount"
-                        value={formData.Discount}
-                        onChange={handleChange}
-                        inputProps={{
-                            min: 0,
-                            step: "0.01"
-                        }}
-                    />
-
-                </Grid>
-
-
-                {/* Tax Amount */}
-
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                >
-
-                    <TextField
-                        fullWidth
-                        type="number"
-                        label="Tax Amount"
-                        name="TaxAmount"
-                        value={formData.TaxAmount}
-                        onChange={handleChange}
-                        inputProps={{
-                            min: 0,
-                            step: "0.01"
-                        }}
-                    />
-
-                </Grid>
-
-
-                {/* Total Amount */}
-
-                <Grid
-                    item
-                    xs={12}
-                >
-
-                    <TextField
-                        fullWidth
-                        label="Total Amount"
-                        name="TotalAmount"
-                        value={formData.TotalAmount}
-                        InputProps={{
-                            readOnly: true
-                        }}
-                    />
-
-                </Grid>
-
-            </Grid>
-
-        </DialogContent>
-
-
-        <DialogActions>
-
-            <Button
-                onClick={onClose}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={() =>
+                    setSnackbar((previous) => ({
+                        ...previous,
+                        open: false
+                    }))
+                }
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right"
+                }}
             >
-                Cancel
-            </Button>
+                <Alert
+                    severity={snackbar.severity}
+                    onClose={() =>
+                        setSnackbar((previous) => ({
+                            ...previous,
+                            open: false
+                        }))
+                    }
+                    sx={{ width: "100%" }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
 
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-            >
-                Update Item
-            </Button>
-
-        </DialogActions>
-
-    </Dialog>
-);
+        </Box>
+    );
 };
 
 export default PurchaseOrderItemEdit;
