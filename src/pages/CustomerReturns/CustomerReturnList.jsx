@@ -1,10 +1,17 @@
 // =========================================================
 // CustomerReturnList.jsx
 // Customer Return Management Page
-// React -> server.js -> ASP.NET Core API
+//
+// Architecture:
+// React
+//   ↓
+// Node server.js
+//   ↓
+// ASP.NET Core API
 // =========================================================
 
 import React, {
+    useCallback,
     useEffect,
     useMemo,
     useState,
@@ -18,22 +25,169 @@ import {
     Snackbar,
 } from "@mui/material";
 
-import CustomerReturnToolbar from "./CustomerReturnToolbar";
-import CustomerReturnStatistics from "./CustomerReturnStatistics";
-import CustomerReturnSearch from "./CustomerReturnSearch";
-import CustomerReturnTable from "./CustomerReturnTable";
-import CustomerReturnPagination from "./CustomerReturnPagination";
-import CustomerReturnModal from "./CustomerReturnModal";
-import CustomerReturnView from "./CustomerReturnView";
-import DeleteCustomerReturnDialog from "./DeleteCustomerReturnDialog";
+import {
+    useNavigate,
+} from "react-router-dom";
+
+import CustomerReturnToolbar
+    from "./CustomerReturnToolbar";
+
+import CustomerReturnStatistics
+    from "./CustomerReturnStatistics";
+
+import CustomerReturnSearch
+    from "./CustomerReturnSearch";
+
+import CustomerReturnTable
+    from "./CustomerReturnTable";
+
+import CustomerReturnPagination
+    from "./CustomerReturnPagination";
+
+import CustomerReturnModal
+    from "./CustomerReturnModal";
+
+import DeleteCustomerReturnDialog
+    from "./DeleteCustomerReturnDialog";
+
 
 // =========================================================
 // CONFIGURATION
 // =========================================================
 
+// React calls Node only.
 // React does NOT call ASP.NET directly.
-// React -> server.js
-const SERVER_URL = "http://localhost:5000";
+
+const SERVER_URL =
+    "http://localhost:5000";
+
+const API_URL =
+    `${SERVER_URL}/api/customer-returns`;
+
+
+// =========================================================
+// CUSTOMER RETURN ID HELPER
+// =========================================================
+
+const getCustomerReturnId = (item) => {
+
+    if (!item) {
+        return null;
+    }
+
+    const rawId =
+        item.CustomerReturnId ??
+        item.customerReturnId ??
+        item.Id ??
+        item.id;
+
+    const numericId =
+        Number(rawId);
+
+    if (
+        !Number.isInteger(numericId) ||
+        numericId <= 0
+    ) {
+        return null;
+    }
+
+    return numericId;
+};
+
+
+// =========================================================
+// RESPONSE NORMALIZER
+// =========================================================
+
+const normalizeReturnsResponse = (
+    responseData
+) => {
+
+    if (
+        Array.isArray(responseData)
+    ) {
+        return responseData;
+    }
+
+    if (
+        Array.isArray(
+            responseData?.data
+        )
+    ) {
+        return responseData.data;
+    }
+
+    if (
+        Array.isArray(
+            responseData?.items
+        )
+    ) {
+        return responseData.items;
+    }
+
+    if (
+        Array.isArray(
+            responseData?.returns
+        )
+    ) {
+        return responseData.returns;
+    }
+
+    if (
+        Array.isArray(
+            responseData?.customerReturns
+        )
+    ) {
+        return responseData.customerReturns;
+    }
+
+    return [];
+};
+
+
+// =========================================================
+// API ERROR MESSAGE
+// =========================================================
+
+const getApiErrorMessage = (
+    error,
+    fallbackMessage
+) => {
+
+    const responseData =
+        error?.response?.data;
+
+    if (
+        typeof responseData === "string" &&
+        responseData.trim()
+    ) {
+        return responseData;
+    }
+
+    if (
+        responseData?.message
+    ) {
+        return responseData.message;
+    }
+
+    if (
+        responseData?.error
+    ) {
+        return responseData.error;
+    }
+
+    if (
+        responseData?.title
+    ) {
+        return responseData.title;
+    }
+
+    return (
+        error?.message ||
+        fallbackMessage
+    );
+};
+
 
 // =========================================================
 // COMPONENT
@@ -41,108 +195,155 @@ const SERVER_URL = "http://localhost:5000";
 
 const CustomerReturnList = () => {
 
+    const navigate =
+        useNavigate();
+
+
     // =====================================================
     // STATE
     // =====================================================
 
-    const [returns, setReturns] = useState([]);
+    const [returns, setReturns] =
+        useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [searchText, setSearchText] = useState("");
+    const [searchText, setSearchText] =
+        useState("");
 
-    const [selectedReturn, setSelectedReturn] = useState(null);
+    const [selectedReturn, setSelectedReturn] =
+        useState(null);
 
-    const [modalOpen, setModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] =
+        useState(false);
 
-    const [viewOpen, setViewOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [page, setPage] =
+        useState(1);
 
-    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] =
+        useState(10);
 
-    const [pageSize, setPageSize] = useState(10);
+    const [error, setError] =
+        useState("");
 
-    const [error, setError] = useState("");
+    const [success, setSuccess] =
+        useState("");
 
-    const [success, setSuccess] = useState("");
 
     // =====================================================
-    // LOAD RETURNS
+    // LOAD CUSTOMER RETURNS
     // =====================================================
 
-    const loadReturns = async () => {
+    const loadReturns = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setLoading(true);
+                setLoading(true);
 
-            setError("");
+                setError("");
 
-            console.log(
-                "Loading Customer Returns..."
-            );
+                console.log(
+                    "================================================"
+                );
 
-            // =================================================
-            // GET
-            //
-            // React
-            //    ↓
-            // server.js
-            //    ↓
-            // ASP.NET Core
-            //
-            // GET /api/customer-returns
-            // =================================================
+                console.log(
+                    "GET CUSTOMER RETURNS"
+                );
 
-            const response = await axios.get(
-                `${SERVER_URL}/api/customer-returns`
-            );
+                console.log(
+                    "URL:",
+                    API_URL
+                );
 
-            console.log(
-                "Customer Returns Response:",
-                response.data
-            );
+                console.log(
+                    "================================================"
+                );
 
-            // Handle different possible API response shapes
-            const data =
-                Array.isArray(response.data)
-                    ? response.data
-                    : response.data?.data ||
-                      response.data?.items ||
-                      response.data?.returns ||
-                      [];
 
-            setReturns(data);
+                const response =
+                    await axios.get(
+                        API_URL,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json",
+                            },
 
-        }
-        catch (error) {
+                            timeout: 30000,
+                        }
+                    );
 
-            console.error(
-                "Load Customer Returns Error:",
-                error
-            );
 
-            console.error(
-                "Response:",
-                error.response?.data
-            );
+                console.log(
+                    "GET CUSTOMER RETURNS RESPONSE:",
+                    response.data
+                );
 
-            setError(
-                error.response?.data?.message ||
-                `Unable to load customer returns. HTTP ${
-                    error.response?.status || "Network Error"
-                }`
-            );
 
-        }
-        finally {
+                const data =
+                    normalizeReturnsResponse(
+                        response.data
+                    );
 
-            setLoading(false);
 
-        }
+                setReturns(data);
 
-    };
+            }
+            catch (err) {
+
+                console.error(
+                    "================================================"
+                );
+
+                console.error(
+                    "GET CUSTOMER RETURNS ERROR"
+                );
+
+                console.error(
+                    "STATUS:",
+                    err?.response?.status
+                );
+
+                console.error(
+                    "RESPONSE:",
+                    err?.response?.data
+                );
+
+                console.error(
+                    "ERROR:",
+                    err
+                );
+
+                console.error(
+                    "================================================"
+                );
+
+
+                setReturns([]);
+
+                setError(
+                    getApiErrorMessage(
+                        err,
+                        "Unable to load customer returns."
+                    )
+                );
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+        []
+    );
+
 
     // =====================================================
     // INITIAL LOAD
@@ -152,117 +353,177 @@ const CustomerReturnList = () => {
 
         loadReturns();
 
-    }, []);
+    }, [
+        loadReturns,
+    ]);
+
 
     // =====================================================
     // SEARCH
     // =====================================================
 
-    const filteredReturns = useMemo(() => {
+    const filteredReturns =
+        useMemo(() => {
 
-        let result = [...returns];
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
 
-        const search =
-            searchText
-                .trim()
-                .toLowerCase();
 
-        if (search !== "") {
+            if (!search) {
+                return returns;
+            }
 
-            result = result.filter((item) => {
 
-                return (
+            return returns.filter(
+                (item) => {
 
-                    String(
-                        item.CustomerReturnId ??
-                        item.customerReturnId ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    const returnId =
+                        item?.CustomerReturnId ??
+                        item?.customerReturnId ??
+                        "";
 
-                    ||
+                    const invoiceId =
+                        item?.SalesInvoiceId ??
+                        item?.salesInvoiceId ??
+                        "";
 
-                    String(
-                        item.SalesInvoiceId ??
-                        item.salesInvoiceId ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    const productId =
+                        item?.ProductId ??
+                        item?.productId ??
+                        "";
 
-                    ||
+                    const sellerId =
+                        item?.SellerId ??
+                        item?.sellerId ??
+                        "";
 
-                    String(
-                        item.CustomerId ??
-                        item.customerId ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    const customerId =
+                        item?.CustomerId ??
+                        item?.customerId ??
+                        "";
 
-                    ||
+                    const returnNumber =
+                        item?.ReturnNumber ??
+                        item?.returnNumber ??
+                        "";
 
-                    String(
-                        item.ProductId ??
-                        item.productId ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    const returnDate =
+                        item?.ReturnDate ??
+                        item?.returnDate ??
+                        "";
 
-                    ||
+                    const quantity =
+                        item?.Quantity ??
+                        item?.quantity ??
+                        "";
 
-                    String(
-                        item.ReturnNumber ??
-                        item.returnNumber ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    const returnAmount =
+                        item?.ReturnAmount ??
+                        item?.returnAmount ??
+                        "";
 
-                    ||
+                    const reason =
+                        item?.Reason ??
+                        item?.reason ??
+                        "";
 
-                    String(
-                        item.Reason ??
-                        item.reason ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    const status =
+                        item?.Status ??
+                        item?.status ??
+                        "";
 
-                    ||
 
-                    String(
-                        item.Status ??
-                        item.status ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
+                    return (
 
-                );
+                        String(returnId)
+                            .toLowerCase()
+                            .includes(search)
 
-            });
+                        ||
 
-        }
+                        String(invoiceId)
+                            .toLowerCase()
+                            .includes(search)
 
-        return result;
+                        ||
 
-    }, [
-        returns,
-        searchText,
-    ]);
+                        String(productId)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(sellerId)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(customerId)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(returnNumber)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(returnDate)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(quantity)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(returnAmount)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(reason)
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        String(status)
+                            .toLowerCase()
+                            .includes(search)
+
+                    );
+
+                }
+            );
+
+        }, [
+            returns,
+            searchText,
+        ]);
+
 
     // =====================================================
-    // RESET PAGE WHEN SEARCH CHANGES
+    // RESET PAGE AFTER SEARCH
     // =====================================================
 
     useEffect(() => {
 
         setPage(1);
 
-    }, [searchText]);
+    }, [
+        searchText,
+    ]);
+
 
     // =====================================================
     // PAGINATION
@@ -277,17 +538,281 @@ const CustomerReturnList = () => {
             )
         );
 
+
+    // =====================================================
+    // KEEP PAGE VALID
+    // =====================================================
+
+    useEffect(() => {
+
+        if (
+            page > totalPages
+        ) {
+
+            setPage(
+                totalPages
+            );
+
+        }
+
+    }, [
+        page,
+        totalPages,
+    ]);
+
+
     const pagedReturns =
-        filteredReturns.slice(
-            (page - 1) * pageSize,
-            page * pageSize
+        useMemo(() => {
+
+            const startIndex =
+                (page - 1) *
+                pageSize;
+
+            const endIndex =
+                startIndex +
+                pageSize;
+
+            return filteredReturns.slice(
+                startIndex,
+                endIndex
+            );
+
+        }, [
+            filteredReturns,
+            page,
+            pageSize,
+        ]);
+
+
+    // =====================================================
+    // ADD
+    // =====================================================
+
+    const handleAdd = () => {
+
+        if (loading) {
+            return;
+        }
+
+        setSelectedReturn(null);
+
+        setModalOpen(true);
+
+    };
+
+
+    // =====================================================
+    // VIEW
+    // =====================================================
+
+    const handleView = (row) => {
+
+        const returnId =
+            getCustomerReturnId(row);
+
+
+        console.log(
+            "VIEW CUSTOMER RETURN ID:",
+            returnId
         );
 
+
+        if (!returnId) {
+
+            console.error(
+                "Customer Return ID is missing:",
+                row
+            );
+
+            setError(
+                "Invalid Customer Return ID."
+            );
+
+            return;
+        }
+
+
+        navigate(
+            `/customer-returns/details/${returnId}`
+        );
+
+    };
+
+
     // =====================================================
-    // CREATE / UPDATE
+    // EDIT
     // =====================================================
 
-    const handleSave = async (data) => {
+    const handleEdit = (row) => {
+
+        const returnId =
+            getCustomerReturnId(row);
+
+
+        console.log(
+            "EDIT CUSTOMER RETURN ID:",
+            returnId
+        );
+
+
+        if (!returnId) {
+
+            console.error(
+                "Customer Return ID is missing:",
+                row
+            );
+
+            setError(
+                "Invalid Customer Return ID."
+            );
+
+            return;
+        }
+
+
+        navigate(
+            `/customer-returns/edit/${returnId}`
+        );
+
+    };
+
+
+    // =====================================================
+    // OPEN DELETE DIALOG
+    //
+    // IMPORTANT:
+    // This function MUST be inside the component.
+    // =====================================================
+
+    const handleDeleteDialog = (row) => {
+
+        if (!row) {
+
+            setError(
+                "Customer Return data is missing."
+            );
+
+            return;
+        }
+
+
+        const returnId =
+            getCustomerReturnId(row);
+
+
+        console.log(
+            "================================================"
+        );
+
+        console.log(
+            "DELETE DIALOG"
+        );
+
+        console.log(
+            "ROW:",
+            row
+        );
+
+        console.log(
+            "CUSTOMER RETURN ID:",
+            returnId
+        );
+
+        console.log(
+            "================================================"
+        );
+
+
+        if (!returnId) {
+
+            console.error(
+                "Cannot open delete dialog. Invalid ID:",
+                row
+            );
+
+            setError(
+                "Invalid Customer Return ID."
+            );
+
+            return;
+        }
+
+
+        // Force normalized numeric ID
+        // into selected row.
+
+        setSelectedReturn({
+            ...row,
+            CustomerReturnId:
+                returnId,
+        });
+
+        setDeleteOpen(true);
+
+    };
+
+
+    // =====================================================
+    // DELETE CUSTOMER RETURN
+    //
+    // This function receives ONLY the ID
+    // from DeleteCustomerReturnDialog.
+    // =====================================================
+
+    const handleDelete = async (
+        id
+    ) => {
+
+        const returnId =
+            Number(id);
+
+
+        console.log(
+            "================================================"
+        );
+
+        console.log(
+            "DELETE CUSTOMER RETURN"
+        );
+
+        console.log(
+            "ID RECEIVED:",
+            id
+        );
+
+        console.log(
+            "NUMERIC ID:",
+            returnId
+        );
+
+        console.log(
+            "================================================"
+        );
+
+
+        // =================================================
+        // VALIDATE
+        // =================================================
+
+        if (
+            !Number.isInteger(
+                returnId
+            ) ||
+            returnId <= 0
+        ) {
+
+            console.error(
+                "INVALID DELETE ID:",
+                id
+            );
+
+            setError(
+                "Invalid Customer Return ID."
+            );
+
+            return;
+        }
+
 
         try {
 
@@ -295,41 +820,182 @@ const CustomerReturnList = () => {
 
             setError("");
 
+
+            const deleteUrl =
+                `${API_URL}/${returnId}`;
+
+
+            console.log(
+                "DELETE URL:",
+                deleteUrl
+            );
+
+
+            // =================================================
+            // DELETE
+            // =================================================
+
+            const response =
+                await axios.delete(
+                    deleteUrl,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
+
+            console.log(
+                "DELETE RESPONSE:",
+                response.status,
+                response.data
+            );
+
+
+            // =================================================
+            // CLOSE DIALOG
+            // =================================================
+
+            setDeleteOpen(false);
+
+            setSelectedReturn(null);
+
+
+            // =================================================
+            // REFRESH
+            // =================================================
+
+            await loadReturns();
+
+            setPage(1);
+
+
+            // =================================================
+            // SUCCESS
+            // =================================================
+
+            setSuccess(
+                "Customer return deleted successfully."
+            );
+
+        }
+        catch (err) {
+
+            console.error(
+                "================================================"
+            );
+
+            console.error(
+                "DELETE CUSTOMER RETURN ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                err?.response?.status
+            );
+
+            console.error(
+                "RESPONSE:",
+                err?.response?.data
+            );
+
+            console.error(
+                "ERROR:",
+                err
+            );
+
+            console.error(
+                "================================================"
+            );
+
+
+            setError(
+                getApiErrorMessage(
+                    err,
+                    `Unable to delete customer return. HTTP ${
+                        err?.response?.status ||
+                        "Network Error"
+                    }`
+                )
+            );
+
+        }
+        finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+
+    // =====================================================
+    // CREATE / UPDATE
+    // =====================================================
+
+    const handleSave = async (
+        data
+    ) => {
+
+        if (loading) {
+            return;
+        }
+
+
+        try {
+
+            setLoading(true);
+
+            setError("");
+
+
             const customerReturnId =
-                data.CustomerReturnId ??
-                data.customerReturnId;
+                getCustomerReturnId(
+                    data
+                );
+
 
             // =================================================
             // UPDATE
             // =================================================
 
-            if (customerReturnId) {
+            if (
+                customerReturnId
+            ) {
 
                 console.log(
-                    "Updating Customer Return:",
+                    "UPDATE CUSTOMER RETURN:",
                     customerReturnId
                 );
 
+
                 await axios.put(
-
-                    `${SERVER_URL}/api/customer-returns/${customerReturnId}`,
-
+                    `${API_URL}/${customerReturnId}`,
                     data,
-
                     {
                         headers: {
+                            Accept:
+                                "application/json",
+
                             "Content-Type":
                                 "application/json",
                         },
-                    }
 
+                        timeout: 30000,
+                    }
                 );
+
 
                 setSuccess(
                     "Customer return updated successfully."
                 );
 
             }
+
 
             // =================================================
             // CREATE
@@ -338,24 +1004,27 @@ const CustomerReturnList = () => {
             else {
 
                 console.log(
-                    "Creating Customer Return:",
+                    "CREATE CUSTOMER RETURN:",
                     data
                 );
 
+
                 await axios.post(
-
-                    `${SERVER_URL}/api/customer-returns`,
-
+                    API_URL,
                     data,
-
                     {
                         headers: {
+                            Accept:
+                                "application/json",
+
                             "Content-Type":
                                 "application/json",
                         },
-                    }
 
+                        timeout: 30000,
+                    }
                 );
+
 
                 setSuccess(
                     "Customer return created successfully."
@@ -363,34 +1032,55 @@ const CustomerReturnList = () => {
 
             }
 
+
             // =================================================
             // REFRESH
             // =================================================
 
             await loadReturns();
 
+            setPage(1);
+
             setModalOpen(false);
 
             setSelectedReturn(null);
 
         }
-        catch (error) {
+        catch (err) {
 
             console.error(
-                "Save Customer Return Error:",
-                error
+                "================================================"
             );
 
             console.error(
-                "Response:",
-                error.response?.data
+                "SAVE CUSTOMER RETURN ERROR"
             );
+
+            console.error(
+                "STATUS:",
+                err?.response?.status
+            );
+
+            console.error(
+                "RESPONSE:",
+                err?.response?.data
+            );
+
+            console.error(
+                "ERROR:",
+                err
+            );
+
+            console.error(
+                "================================================"
+            );
+
 
             setError(
-                error.response?.data?.message ||
-                `Unable to save customer return. HTTP ${
-                    error.response?.status || "Network Error"
-                }`
+                getApiErrorMessage(
+                    err,
+                    "Unable to save customer return."
+                )
             );
 
         }
@@ -402,130 +1092,103 @@ const CustomerReturnList = () => {
 
     };
 
-    // =====================================================
-    // DELETE
-    // =====================================================
-
-    const handleDelete = async (id) => {
-
-        try {
-
-            setLoading(true);
-
-            setError("");
-
-            console.log(
-                "Deleting Customer Return:",
-                id
-            );
-
-            await axios.delete(
-
-                `${SERVER_URL}/api/customer-returns/${id}`
-
-            );
-
-            setSuccess(
-                "Customer return deleted successfully."
-            );
-
-            await loadReturns();
-
-            setDeleteOpen(false);
-
-            setSelectedReturn(null);
-
-        }
-        catch (error) {
-
-            console.error(
-                "Delete Customer Return Error:",
-                error
-            );
-
-            console.error(
-                "Response:",
-                error.response?.data
-            );
-
-            setError(
-                error.response?.data?.message ||
-                `Unable to delete customer return. HTTP ${
-                    error.response?.status || "Network Error"
-                }`
-            );
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
 
     // =====================================================
-    // ADD
+    // CLOSE MODAL
     // =====================================================
 
-    const handleAdd = () => {
+    const handleCloseModal = () => {
+
+        setModalOpen(false);
 
         setSelectedReturn(null);
 
-        setModalOpen(true);
+    };
+
+
+    // =====================================================
+    // CLOSE DELETE
+    // =====================================================
+
+    const handleCloseDelete = () => {
+
+        if (loading) {
+            return;
+        }
+
+        setDeleteOpen(false);
+
+        setSelectedReturn(null);
 
     };
 
+
     // =====================================================
-    // VIEW
+    // PAGE CHANGE
     // =====================================================
 
-    const handleView = (row) => {
+    const handlePageChange = (
+        newPage
+    ) => {
 
-        console.log(
-            "View Customer Return:",
-            row
+        const numericPage =
+            Number(newPage);
+
+
+        if (
+            !Number.isInteger(
+                numericPage
+            )
+        ) {
+            return;
+        }
+
+
+        if (
+            numericPage < 1 ||
+            numericPage > totalPages
+        ) {
+            return;
+        }
+
+
+        setPage(
+            numericPage
         );
 
-        setSelectedReturn(row);
-
-        setViewOpen(true);
-
     };
 
+
     // =====================================================
-    // EDIT
+    // PAGE SIZE CHANGE
     // =====================================================
 
-    const handleEdit = (row) => {
+    const handlePageSizeChange = (
+        size
+    ) => {
 
-        console.log(
-            "Edit Customer Return:",
-            row
+        const numericSize =
+            Number(size);
+
+
+        if (
+            !Number.isInteger(
+                numericSize
+            ) ||
+            numericSize <= 0
+        ) {
+            return;
+        }
+
+
+        setPageSize(
+            numericSize
         );
 
-        setSelectedReturn(row);
-
-        setModalOpen(true);
+        setPage(1);
 
     };
 
-    // =====================================================
-    // DELETE DIALOG
-    // =====================================================
-
-    const handleDeleteDialog = (row) => {
-
-        console.log(
-            "Delete Customer Return:",
-            row
-        );
-
-        setSelectedReturn(row);
-
-        setDeleteOpen(true);
-
-    };
 
     // =====================================================
     // RENDER
@@ -536,6 +1199,8 @@ const CustomerReturnList = () => {
         <Box
             sx={{
                 p: 3,
+                width: "100%",
+                boxSizing: "border-box",
             }}
         >
 
@@ -544,11 +1209,8 @@ const CustomerReturnList = () => {
             ================================================= */}
 
             <CustomerReturnToolbar
-
                 onAdd={handleAdd}
-
                 onRefresh={loadReturns}
-
                 onExport={() => {
 
                     console.log(
@@ -556,8 +1218,8 @@ const CustomerReturnList = () => {
                     );
 
                 }}
-
             />
+
 
             {/* =================================================
                 STATISTICS
@@ -567,186 +1229,125 @@ const CustomerReturnList = () => {
                 returns={returns}
             />
 
+
             {/* =================================================
                 SEARCH
             ================================================= */}
 
             <CustomerReturnSearch
-
                 searchText={searchText}
-
                 setSearchText={setSearchText}
-
             />
+
 
             {/* =================================================
                 TABLE
             ================================================= */}
 
             <CustomerReturnTable
-
                 items={pagedReturns}
-
                 loading={loading}
-
                 onView={handleView}
-
                 onEdit={handleEdit}
-
                 onDelete={handleDeleteDialog}
-
             />
+
 
             {/* =================================================
                 PAGINATION
             ================================================= */}
 
             <CustomerReturnPagination
-
                 page={page}
-
                 totalPages={totalPages}
-
                 pageSize={pageSize}
-
                 totalRecords={
                     filteredReturns.length
                 }
-
-                onPageChange={setPage}
-
-                onPageSizeChange={(size) => {
-
-                    setPageSize(size);
-
-                    setPage(1);
-
-                }}
-
+                onPageChange={
+                    handlePageChange
+                }
+                onPageSizeChange={
+                    handlePageSizeChange
+                }
             />
+
 
             {/* =================================================
                 CREATE / EDIT MODAL
             ================================================= */}
 
             <CustomerReturnModal
-
                 open={modalOpen}
-
                 item={selectedReturn}
-
-                onClose={() => {
-
-                    setModalOpen(false);
-
-                    setSelectedReturn(null);
-
-                }}
-
+                onClose={handleCloseModal}
                 onSave={handleSave}
-
             />
 
-            {/* =================================================
-                VIEW
-            ================================================= */}
-
-            <CustomerReturnView
-
-                open={viewOpen}
-
-                item={selectedReturn}
-
-                onClose={() => {
-
-                    setViewOpen(false);
-
-                    setSelectedReturn(null);
-
-                }}
-
-            />
 
             {/* =================================================
-                DELETE
+                DELETE DIALOG
             ================================================= */}
 
             <DeleteCustomerReturnDialog
-
                 open={deleteOpen}
-
                 item={selectedReturn}
-
-                onClose={() => {
-
-                    setDeleteOpen(false);
-
-                    setSelectedReturn(null);
-
-                }}
-
+                onClose={handleCloseDelete}
                 onDeleted={handleDelete}
-
             />
+
 
             {/* =================================================
                 ERROR
             ================================================= */}
 
             <Snackbar
-
                 open={Boolean(error)}
-
                 autoHideDuration={5000}
-
-                onClose={() =>
-                    setError("")
-                }
-
+                onClose={() => {
+                    setError("");
+                }}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right",
                 }}
-
             >
 
                 <Alert
                     severity="error"
-                    onClose={() =>
-                        setError("")
-                    }
+                    variant="filled"
+                    onClose={() => {
+                        setError("");
+                    }}
                 >
                     {error}
                 </Alert>
 
             </Snackbar>
 
+
             {/* =================================================
                 SUCCESS
             ================================================= */}
 
             <Snackbar
-
                 open={Boolean(success)}
-
                 autoHideDuration={3000}
-
-                onClose={() =>
-                    setSuccess("")
-                }
-
+                onClose={() => {
+                    setSuccess("");
+                }}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right",
                 }}
-
             >
 
                 <Alert
                     severity="success"
-                    onClose={() =>
-                        setSuccess("")
-                    }
+                    variant="filled"
+                    onClose={() => {
+                        setSuccess("");
+                    }}
                 >
                     {success}
                 </Alert>
@@ -758,5 +1359,10 @@ const CustomerReturnList = () => {
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default CustomerReturnList;

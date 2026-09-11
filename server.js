@@ -20889,15 +20889,126 @@ app.delete(
 
 // =========================================================
 // CUSTOMER RETURN ROUTES
-// React -> Node server.js -> ASP.NET Core
+// =========================================================
+// CUSTOMER RETURN CONFIGURATION
+// =========================================================
+const ASPNET_URL = "https://localhost:7203";
+const CUSTOMER_RETURN_API =
+    `${ASPNET_URL}/api/CustomerReturn`;
+
+
+// =========================================================
+// CUSTOMER RETURN ERROR HANDLER
 // =========================================================
 
-// ASP.NET Core API
-const ASPNET_URL = "https://localhost:7203";
+const sendCustomerReturnError = (
+    res,
+    error,
+    fallbackMessage
+) => {
+
+    const status =
+        error?.response?.status || 500;
+
+    const responseData =
+        error?.response?.data;
+
+
+    console.error(
+        "Customer Return API Error:",
+        error?.message
+    );
+
+    console.error(
+        "HTTP Status:",
+        status
+    );
+
+    console.error(
+        "ASP.NET Response:",
+        responseData
+    );
+
+
+    let message =
+        fallbackMessage;
+
+
+    if (
+        typeof responseData ===
+        "string" &&
+        responseData.trim()
+    ) {
+
+        message =
+            responseData;
+
+    }
+    else if (
+        responseData?.message
+    ) {
+
+        message =
+            responseData.message;
+
+    }
+    else if (
+        responseData?.error
+    ) {
+
+        message =
+            responseData.error;
+
+    }
+    else if (
+        responseData?.title
+    ) {
+
+        message =
+            responseData.title;
+
+    }
+
+
+    return res
+        .status(status)
+        .json({
+            success: false,
+            message,
+            error:
+                error?.message || "Request failed",
+            details:
+                responseData || null,
+        });
+
+};
+
+
+// =========================================================
+// VALIDATE INTEGER ID
+// =========================================================
+
+// =========================================================
+// CUSTOMER RETURN ID VALIDATION
+// =========================================================
+
+const isValidCustomerReturnId = (id) => {
+
+    const numericId = Number(
+        String(id ?? "").trim()
+    );
+
+    return (
+        Number.isInteger(numericId) &&
+        numericId > 0
+    );
+};
+
 
 // =========================================================
 // GET ALL CUSTOMER RETURNS
 // =========================================================
+//
 // React:
 // GET http://localhost:5000/api/customer-returns
 //
@@ -20912,84 +21023,35 @@ app.get(
         try {
 
             console.log(
-                "GET /api/customer-returns"
+                "================================================"
             );
-
-            const response = await axios.get(
-                `${ASPNET_URL}/api/CustomerReturn`,
-                {
-                    httpsAgent,
-                    timeout: 30000,
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "Get Customer Returns Error:",
-                error.message
-            );
-
-            console.error(
-                "ASP.NET Response:",
-                error.response?.data
-            );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Unable to load customer returns.",
-                    error:
-                        error.message,
-                });
-
-        }
-
-    }
-);
-
-
-// =========================================================
-// GET CUSTOMER RETURN BY ID
-// =========================================================
-// React:
-// GET /api/customer-returns/1
-//
-// ASP.NET:
-// GET /api/CustomerReturn/1
-// =========================================================
-
-app.get(
-    "/api/customer-returns/:id",
-    async (req, res) => {
-
-        try {
-
-            const {
-                id
-            } = req.params;
 
             console.log(
-                "GET Customer Return:",
-                id
+                "GET ALL CUSTOMER RETURNS"
             );
 
-            const response = await axios.get(
-                `${ASPNET_URL}/api/CustomerReturn/${id}`,
-                {
-                    httpsAgent,
-                    timeout: 30000,
-                }
+            console.log(
+                `GET ${CUSTOMER_RETURN_API}`
             );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response =
+                await axios.get(
+                    CUSTOMER_RETURN_API,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
 
             return res
                 .status(response.status)
@@ -20998,22 +21060,11 @@ app.get(
         }
         catch (error) {
 
-            console.error(
-                "Get Customer Return By ID Error:",
-                error.message
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Unable to load customer returns."
             );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Customer return not found.",
-                    error:
-                        error.message,
-                });
 
         }
 
@@ -21024,6 +21075,7 @@ app.get(
 // =========================================================
 // GET RETURNS BY SALES INVOICE
 // =========================================================
+//
 // React:
 // GET /api/customer-returns/invoice/10
 //
@@ -21041,18 +21093,43 @@ app.get(
                 salesInvoiceId
             } = req.params;
 
+
+            if (
+                !isValidCustomerReturnId(
+                    salesInvoiceId
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid Sales Invoice ID.",
+                    });
+
+            }
+
+
             console.log(
                 "Get Returns By Sales Invoice:",
                 salesInvoiceId
             );
 
-            const response = await axios.get(
-                `${ASPNET_URL}/api/CustomerReturn/invoice/${salesInvoiceId}`,
-                {
-                    httpsAgent,
-                    timeout: 30000,
-                }
-            );
+
+            const response =
+                await axios.get(
+                    `${CUSTOMER_RETURN_API}/invoice/${salesInvoiceId}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
 
             return res
                 .status(response.status)
@@ -21061,22 +21138,11 @@ app.get(
         }
         catch (error) {
 
-            console.error(
-                "Get Returns By Invoice Error:",
-                error.message
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Unable to load returns for this invoice."
             );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Unable to load returns for this invoice.",
-                    error:
-                        error.message,
-                });
 
         }
 
@@ -21087,11 +21153,12 @@ app.get(
 // =========================================================
 // GET RETURNS BY PRODUCT
 // =========================================================
+//
 // React:
-// GET /api/customer-returns/product/5
+// GET /api/customer-returns/product/6
 //
 // ASP.NET:
-// GET /api/CustomerReturn/product/5
+// GET /api/CustomerReturn/product/6
 // =========================================================
 
 app.get(
@@ -21104,18 +21171,43 @@ app.get(
                 productId
             } = req.params;
 
+
+            if (
+                !isValidCustomerReturnId(
+                    productId
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid Product ID.",
+                    });
+
+            }
+
+
             console.log(
                 "Get Returns By Product:",
                 productId
             );
 
-            const response = await axios.get(
-                `${ASPNET_URL}/api/CustomerReturn/product/${productId}`,
-                {
-                    httpsAgent,
-                    timeout: 30000,
-                }
-            );
+
+            const response =
+                await axios.get(
+                    `${CUSTOMER_RETURN_API}/product/${productId}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
 
             return res
                 .status(response.status)
@@ -21124,22 +21216,11 @@ app.get(
         }
         catch (error) {
 
-            console.error(
-                "Get Returns By Product Error:",
-                error.message
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Unable to load returns for this product."
             );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Unable to load returns for this product.",
-                    error:
-                        error.message,
-                });
 
         }
 
@@ -21150,6 +21231,7 @@ app.get(
 // =========================================================
 // GET RETURNS BY STATUS
 // =========================================================
+//
 // React:
 // GET /api/customer-returns/status/Pending
 //
@@ -21167,18 +21249,48 @@ app.get(
                 status
             } = req.params;
 
+
+            if (
+                !status ||
+                !status.trim()
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Return status is required.",
+                    });
+
+            }
+
+
+            const encodedStatus =
+                encodeURIComponent(
+                    status.trim()
+                );
+
+
             console.log(
                 "Get Returns By Status:",
                 status
             );
 
-            const response = await axios.get(
-                `${ASPNET_URL}/api/CustomerReturn/status/${encodeURIComponent(status)}`,
-                {
-                    httpsAgent,
-                    timeout: 30000,
-                }
-            );
+
+            const response =
+                await axios.get(
+                    `${CUSTOMER_RETURN_API}/status/${encodedStatus}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
 
             return res
                 .status(response.status)
@@ -21187,22 +21299,11 @@ app.get(
         }
         catch (error) {
 
-            console.error(
-                "Get Returns By Status Error:",
-                error.message
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Unable to load returns by status."
             );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Unable to load returns by status.",
-                    error:
-                        error.message,
-                });
 
         }
 
@@ -21213,6 +21314,7 @@ app.get(
 // =========================================================
 // GET RETURN BY RETURN NUMBER
 // =========================================================
+//
 // React:
 // GET /api/customer-returns/number/RET-001
 //
@@ -21230,18 +21332,48 @@ app.get(
                 returnNumber
             } = req.params;
 
+
+            if (
+                !returnNumber ||
+                !returnNumber.trim()
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Return number is required.",
+                    });
+
+            }
+
+
+            const encodedReturnNumber =
+                encodeURIComponent(
+                    returnNumber.trim()
+                );
+
+
             console.log(
                 "Get Return By Number:",
                 returnNumber
             );
 
-            const response = await axios.get(
-                `${ASPNET_URL}/api/CustomerReturn/number/${encodeURIComponent(returnNumber)}`,
-                {
-                    httpsAgent,
-                    timeout: 30000,
-                }
-            );
+
+            const response =
+                await axios.get(
+                    `${CUSTOMER_RETURN_API}/number/${encodedReturnNumber}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
 
             return res
                 .status(response.status)
@@ -21250,22 +21382,105 @@ app.get(
         }
         catch (error) {
 
-            console.error(
-                "Get Return By Number Error:",
-                error.message
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Customer return not found."
             );
 
+        }
+
+    }
+);
+
+
+// =========================================================
+// GET CUSTOMER RETURN BY ID
+// =========================================================
+//
+// React:
+// GET /api/customer-returns/1
+//
+// ASP.NET:
+// GET /api/CustomerReturn/1
+//
+// IMPORTANT:
+// Keep this route after the named routes above.
+// =========================================================
+
+app.get(
+    "/api/customer-returns/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+
+            if (
+                !isValidCustomerReturnId(id)
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid Customer Return ID.",
+                    });
+
+            }
+
+
+            const numericId =
+                Number(id);
+
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "GET CUSTOMER RETURN BY ID"
+            );
+
+            console.log(
+                `GET ${CUSTOMER_RETURN_API}/${numericId}`
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response =
+                await axios.get(
+                    `${CUSTOMER_RETURN_API}/${numericId}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
+                    }
+                );
+
+
             return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Customer return not found.",
-                    error:
-                        error.message,
-                });
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Customer return not found."
+            );
 
         }
 
@@ -21276,6 +21491,7 @@ app.get(
 // =========================================================
 // CREATE CUSTOMER RETURN
 // =========================================================
+//
 // React:
 // POST /api/customer-returns
 //
@@ -21290,60 +21506,79 @@ app.post(
         try {
 
             console.log(
-                "Create Customer Return:"
+                "================================================"
             );
 
             console.log(
+                "CREATE CUSTOMER RETURN"
+            );
+
+            console.log(
+                "POST:",
+                CUSTOMER_RETURN_API
+            );
+
+            console.log(
+                "Payload:",
                 req.body
             );
 
-            const response = await axios.post(
-
-                `${ASPNET_URL}/api/CustomerReturn`,
-
-                req.body,
-
-                {
-                    httpsAgent,
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-
-                    timeout: 30000,
-                }
-
+            console.log(
+                "================================================"
             );
+
+
+            if (
+                !req.body ||
+                typeof req.body !==
+                    "object"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Customer return payload is required.",
+                    });
+
+            }
+
+
+            const response =
+                await axios.post(
+                    CUSTOMER_RETURN_API,
+                    req.body,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
+                    }
+                );
+
 
             return res
                 .status(response.status)
-                .json(response.data);
+                .json(
+                    response.data
+                );
 
         }
         catch (error) {
 
-            console.error(
-                "Create Customer Return Error:",
-                error.message
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Unable to create customer return."
             );
-
-            console.error(
-                "ASP.NET Response:",
-                error.response?.data
-            );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Unable to create customer return.",
-                    error:
-                        error.message,
-                });
 
         }
 
@@ -21354,6 +21589,7 @@ app.post(
 // =========================================================
 // UPDATE CUSTOMER RETURN
 // =========================================================
+//
 // React:
 // PUT /api/customer-returns/1
 //
@@ -21371,9 +21607,53 @@ app.put(
                 id
             } = req.params;
 
+
+            if (
+                !isValidCustomerReturnId(id)
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Invalid Customer Return ID.",
+                    });
+
+            }
+
+
+            if (
+                !req.body ||
+                typeof req.body !==
+                    "object"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
+                        message:
+                            "Customer return payload is required.",
+                    });
+
+            }
+
+
+            const numericId =
+                Number(id);
+
+
             console.log(
-                "Update Customer Return:",
-                id
+                "================================================"
+            );
+
+            console.log(
+                "UPDATE CUSTOMER RETURN"
+            );
+
+            console.log(
+                `PUT ${CUSTOMER_RETURN_API}/${numericId}`
             );
 
             console.log(
@@ -21381,60 +21661,71 @@ app.put(
                 req.body
             );
 
-            const response = await axios.put(
-
-                `${ASPNET_URL}/api/CustomerReturn/${id}`,
-
-                req.body,
-
-                {
-                    httpsAgent,
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-
-                    timeout: 30000,
-                }
-
+            console.log(
+                "================================================"
             );
 
-            // ASP.NET returns Ok()
-            return res
-                .status(response.status)
-                .json(
-                    response.data || {
-                        success: true,
-                        message:
-                            "Customer return updated successfully."
+
+            const response =
+                await axios.put(
+                    `${CUSTOMER_RETURN_API}/${numericId}`,
+                    req.body,
+                    {
+                        httpsAgent,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            Accept:
+                                "application/json",
+                        },
+
+                        timeout: 30000,
                     }
                 );
+
+
+            // ASP.NET CustomerReturnController
+            // returns Ok() with an empty response body.
+            if (
+                response.status ===
+                    204 ||
+                response.data ===
+                    "" ||
+                response.data ===
+                    null ||
+                response.data ===
+                    undefined
+            ) {
+
+                return res
+                    .status(
+                        response.status === 204
+                            ? 204
+                            : 200
+                    )
+                    .json({
+                        success: true,
+                        message:
+                            "Customer return updated successfully.",
+                    });
+
+            }
+
+
+            return res
+                .status(response.status)
+                .json(response.data);
 
         }
         catch (error) {
 
-            console.error(
-                "Update Customer Return Error:",
-                error.message
+            return sendCustomerReturnError(
+                res,
+                error,
+                "Unable to update customer return."
             );
-
-            console.error(
-                "ASP.NET Response:",
-                error.response?.data
-            );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        "Unable to update customer return.",
-                    error:
-                        error.message,
-                });
 
         }
 
@@ -21445,11 +21736,21 @@ app.put(
 // =========================================================
 // DELETE CUSTOMER RETURN
 // =========================================================
+//
 // React:
 // DELETE /api/customer-returns/1
 //
 // ASP.NET:
 // DELETE /api/CustomerReturn/1
+// =========================================================
+
+// =========================================================
+// DELETE CUSTOMER RETURN
+// React:
+// DELETE http://localhost:5000/api/customer-returns/2
+//
+// ASP.NET:
+// DELETE https://localhost:7203/api/CustomerReturn/2
 // =========================================================
 
 app.delete(
@@ -21458,59 +21759,178 @@ app.delete(
 
         try {
 
-            const {
-                id
-            } = req.params;
+            // =================================================
+            // RAW ID FROM EXPRESS
+            // =================================================
+
+            const rawId =
+                req.params.id;
 
             console.log(
-                "Delete Customer Return:",
-                id
+                "================================================"
             );
 
-            const response = await axios.delete(
-
-                `${ASPNET_URL}/api/CustomerReturn/${id}`,
-
-                {
-                    httpsAgent,
-                    timeout: 30000,
-                }
-
+            console.log(
+                "DELETE CUSTOMER RETURN"
             );
 
-            return res
-                .status(response.status)
-                .json(
-                    response.data || {
-                        success: true,
+            console.log(
+                "Raw ID:",
+                rawId
+            );
+
+            console.log(
+                "ID Type:",
+                typeof rawId
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            // =================================================
+            // CONVERT TO NUMBER
+            // =================================================
+
+            const numericId =
+                Number(
+                    String(rawId ?? "").trim()
+                );
+
+
+            // =================================================
+            // VALIDATE
+            // =================================================
+
+            if (
+                !Number.isInteger(
+                    numericId
+                ) ||
+                numericId <= 0
+            ) {
+
+                console.error(
+                    "INVALID CUSTOMER RETURN ID:",
+                    rawId
+                );
+
+                return res
+                    .status(400)
+                    .json({
+                        success: false,
                         message:
-                            "Customer return deleted successfully."
+                            `Invalid Customer Return ID: ${rawId}`,
+                    });
+
+            }
+
+
+            // =================================================
+            // BACKEND URL
+            // =================================================
+
+            const backendUrl =
+                `${CUSTOMER_RETURN_API}/${numericId}`;
+
+
+            console.log(
+                "Backend URL:",
+                backendUrl
+            );
+
+
+            // =================================================
+            // DELETE FROM ASP.NET
+            // =================================================
+
+            const response =
+                await axios.delete(
+                    backendUrl,
+                    {
+                        httpsAgent,
+
+                        timeout: 30000,
+
+                        headers: {
+                            Accept:
+                                "application/json",
+                        },
                     }
                 );
+
+
+            console.log(
+                "ASP.NET DELETE STATUS:",
+                response.status
+            );
+
+            console.log(
+                "ASP.NET DELETE RESPONSE:",
+                response.data
+            );
+
+
+            // =================================================
+            // SUCCESS
+            // =================================================
+
+            return res
+                .status(200)
+                .json({
+                    success: true,
+                    message:
+                        "Customer return deleted successfully.",
+                });
 
         }
         catch (error) {
 
             console.error(
-                "Delete Customer Return Error:",
+                "================================================"
+            );
+
+            console.error(
+                "DELETE CUSTOMER RETURN ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "RESPONSE:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
                 error.message
             );
 
             console.error(
-                "ASP.NET Response:",
-                error.response?.data
+                "================================================"
             );
+
 
             return res
                 .status(
                     error.response?.status || 500
                 )
                 .json({
+                    success: false,
+
                     message:
                         error.response?.data?.message ||
+                        error.response?.data?.title ||
+                        (
+                            typeof error.response?.data ===
+                            "string"
+                                ? error.response.data
+                                : null
+                        ) ||
                         "Unable to delete customer return.",
-                    error:
-                        error.message,
                 });
 
         }

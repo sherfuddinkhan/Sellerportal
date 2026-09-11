@@ -162,6 +162,8 @@ import CustomerReturnToolbar from "./pages/CustomerReturns/CustomerReturnToolbar
 import CustomerReturnView from "./pages/CustomerReturns/CustomerReturnView";
 import DeleteCustomerReturnDialog from "./pages/CustomerReturns/DeleteCustomerReturnDialog";
 import CustomerReturnEdit from "./pages/CustomerReturns/CustomerReturnEdit";
+import CustomerReturnDetails from "./pages/CustomerReturns/CustomerReturnDetails";
+
 // =========================================================
 // DELIVERY CHALLANS
 // =========================================================
@@ -2185,11 +2187,10 @@ function App() {
                     path="customer-returns/statistics"
                     element={<CustomerReturnStatistics />}
                 />
-
-                <Route
-                    path="customer-returns/details/:id"
-                    element={<CustomerReturnView />}
-                />
+<Route
+    path="customer-returns/details/:id"
+    element={<CustomerReturnDetails />}
+/>
 
                 <Route
                     path="customer-returns/edit/:id"

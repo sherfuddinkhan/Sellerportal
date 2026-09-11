@@ -1,10 +1,24 @@
 // =========================================================
 // CustomerReturnEdit.jsx
 // Customer Return Edit Page
-// React -> server.js -> ASP.NET Core
+//
+// React
+//   ↓
+// Node server.js
+//   ↓
+// ASP.NET Core CustomerReturnController
+//
+// React API:
+// GET  /api/customer-returns/:id
+// PUT  /api/customer-returns/:id
+//
+// ASP.NET API:
+// GET  /api/CustomerReturn/:id
+// PUT  /api/CustomerReturn/:id
 // =========================================================
 
 import React, {
+    useCallback,
     useEffect,
     useState,
 } from "react";
@@ -41,8 +55,10 @@ import {
 // CONFIGURATION
 // =========================================================
 
-// React -> Node server.js
 const SERVER_URL = "http://localhost:5000";
+
+const API_URL =
+    `${SERVER_URL}/api/customer-returns`;
 
 // =========================================================
 // COMPONENT
@@ -52,31 +68,32 @@ const CustomerReturnEdit = () => {
 
     const navigate = useNavigate();
 
+    const { id } = useParams();
+
     // =====================================================
-    // URL
-    //
-    // /customer-returns/:id/edit
-    //
-    // Example:
-    // /customer-returns/2/edit
+    // CUSTOMER RETURN ID
     // =====================================================
 
-    const { id } = useParams();
+    const returnId =
+        String(id ?? "").trim();
 
     // =====================================================
     // STATE
     // =====================================================
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [saving, setSaving] = useState(false);
+    const [saving, setSaving] =
+        useState(false);
 
-    const [error, setError] = useState("");
+    const [error, setError] =
+        useState("");
 
-    const [success, setSuccess] = useState(false);
+    const [success, setSuccess] =
+        useState(false);
 
     const [form, setForm] = useState({
-
         SalesInvoiceId: "",
         ProductId: "",
         ReturnNumber: "",
@@ -87,253 +104,494 @@ const CustomerReturnEdit = () => {
         Status: "Pending",
         SellerId: "",
         CustomerId: "",
-
     });
 
     // =====================================================
-    // LOAD CUSTOMER RETURN
+    // GET VALUE
+    // Supports PascalCase + camelCase
     // =====================================================
 
-    const loadReturn = async () => {
+    const getValue = (
+        data,
+        pascalName,
+        camelName,
+        defaultValue = ""
+    ) => {
 
-        // -------------------------------------------------
-        // Validate ID
-        // -------------------------------------------------
-
-        if (!id) {
-
-            setError(
-                "Customer Return ID is missing from URL."
-            );
-
-            setLoading(false);
-
-            return;
+        if (!data) {
+            return defaultValue;
         }
 
-        try {
-
-            setLoading(true);
-
-            setError("");
-
-            console.log(
-                "Loading Customer Return:",
-                id
-            );
-
-            // =================================================
-            // React
-            //    ↓
-            // server.js
-            //    ↓
-            // ASP.NET Core
-            //
-            // GET:
-            // /api/customer-returns/2
-            // =================================================
-
-            const response = await axios.get(
-
-                `${SERVER_URL}/api/customer-returns/${id}`
-
-            );
-
-            const data = response.data;
-
-            console.log(
-                "Customer Return Response:",
-                data
-            );
-
-            // =================================================
-            // SUPPORT BOTH
-            //
-            // PascalCase
-            // camelCase
-            // =================================================
-
-            const salesInvoiceId =
-                data.SalesInvoiceId ??
-                data.salesInvoiceId ??
-                "";
-
-            const productId =
-                data.ProductId ??
-                data.productId ??
-                "";
-
-            const returnNumber =
-                data.ReturnNumber ??
-                data.returnNumber ??
-                "";
-
-            const returnDate =
-                data.ReturnDate ??
-                data.returnDate ??
-                "";
-
-            const quantity =
-                data.Quantity ??
-                data.quantity ??
-                "";
-
-            const returnAmount =
-                data.ReturnAmount ??
-                data.returnAmount ??
-                "";
-
-            const reason =
-                data.Reason ??
-                data.reason ??
-                "";
-
-            const status =
-                data.Status ??
-                data.status ??
-                "Pending";
-
-            const sellerId =
-                data.SellerId ??
-                data.sellerId ??
-                "";
-
-            const customerId =
-                data.CustomerId ??
-                data.customerId ??
-                "";
-
-            // =================================================
-            // FORMAT DATE FOR DATETIME-LOCAL
-            // =================================================
-
-            let formattedDate = "";
-
-            if (returnDate) {
-
-                const date = new Date(
-                    returnDate
-                );
-
-                if (!Number.isNaN(
-                    date.getTime()
-                )) {
-
-                    const year =
-                        date.getFullYear();
-
-                    const month =
-                        String(
-                            date.getMonth() + 1
-                        ).padStart(2, "0");
-
-                    const day =
-                        String(
-                            date.getDate()
-                        ).padStart(2, "0");
-
-                    const hours =
-                        String(
-                            date.getHours()
-                        ).padStart(2, "0");
-
-                    const minutes =
-                        String(
-                            date.getMinutes()
-                        ).padStart(2, "0");
-
-                    formattedDate =
-                        `${year}-${month}-${day}T${hours}:${minutes}`;
-
-                }
-
-            }
-
-            // =================================================
-            // SET FORM
-            // =================================================
-
-            setForm({
-
-                SalesInvoiceId:
-                    salesInvoiceId,
-
-                ProductId:
-                    productId,
-
-                ReturnNumber:
-                    returnNumber,
-
-                ReturnDate:
-                    formattedDate,
-
-                Quantity:
-                    quantity,
-
-                ReturnAmount:
-                    returnAmount,
-
-                Reason:
-                    reason,
-
-                Status:
-                    status,
-
-                SellerId:
-                    sellerId,
-
-                CustomerId:
-                    customerId,
-
-            });
-
-        }
-        catch (err) {
-
-            console.error(
-                "Load Customer Return Error:",
-                err
-            );
-
-            console.error(
-                "Response:",
-                err.response?.data
-            );
-
-            setError(
-
-                err.response?.data?.message ||
-
-                `Unable to load customer return. HTTP ${
-                    err.response?.status || ""
-                }`
-
-            );
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
+        return (
+            data[pascalName] ??
+            data[camelName] ??
+            defaultValue
+        );
     };
 
     // =====================================================
-    // EFFECT
+    // EXTRACT CUSTOMER RETURN
+    // =====================================================
+
+    const extractReturnData = (
+        responseData
+    ) => {
+
+        if (!responseData) {
+            return null;
+        }
+
+        // Direct CustomerReturn object
+        if (
+            responseData.CustomerReturnId !== undefined ||
+            responseData.customerReturnId !== undefined
+        ) {
+            return responseData;
+        }
+
+        // { data: object }
+        if (
+            responseData.data &&
+            typeof responseData.data === "object" &&
+            !Array.isArray(responseData.data)
+        ) {
+            return responseData.data;
+        }
+
+        // { item: object }
+        if (
+            responseData.item &&
+            typeof responseData.item === "object" &&
+            !Array.isArray(responseData.item)
+        ) {
+            return responseData.item;
+        }
+
+        // { customerReturn: object }
+        if (
+            responseData.customerReturn &&
+            typeof responseData.customerReturn === "object" &&
+            !Array.isArray(responseData.customerReturn)
+        ) {
+            return responseData.customerReturn;
+        }
+
+        // { return: object }
+        if (
+            responseData.return &&
+            typeof responseData.return === "object" &&
+            !Array.isArray(responseData.return)
+        ) {
+            return responseData.return;
+        }
+
+        return responseData;
+    };
+
+    // =====================================================
+    // FORMAT DATE
+    // datetime-local requires:
+    //
+    // YYYY-MM-DDTHH:mm
+    // =====================================================
+
+    const formatDateTimeLocal = (
+        value
+    ) => {
+
+        if (!value) {
+            return "";
+        }
+
+        // Already suitable
+        if (
+            typeof value === "string" &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)
+        ) {
+            return value.substring(0, 16);
+        }
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "";
+        }
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, "0");
+
+        const hours =
+            String(
+                date.getHours()
+            ).padStart(2, "0");
+
+        const minutes =
+            String(
+                date.getMinutes()
+            ).padStart(2, "0");
+
+        return (
+            `${year}-${month}-${day}` +
+            `T${hours}:${minutes}`
+        );
+    };
+
+    // =====================================================
+    // LOAD CUSTOMER RETURN BY ID
+    // =====================================================
+
+    const loadReturn = useCallback(
+        async () => {
+
+            // -------------------------------------------------
+            // Validate ID
+            // -------------------------------------------------
+
+            if (!returnId) {
+
+                setError(
+                    "Customer Return ID is missing from the URL."
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+            if (
+                returnId === ":id" ||
+                !/^\d+$/.test(returnId)
+            ) {
+
+                setError(
+                    `Invalid Customer Return ID: ${returnId}`
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+            try {
+
+                setLoading(true);
+
+                setError("");
+
+                // -------------------------------------------------
+                // React → Node
+                // -------------------------------------------------
+
+                const requestUrl =
+                    `${API_URL}/${returnId}`;
+
+                console.log(
+                    "================================================="
+                );
+
+                console.log(
+                    "GET CUSTOMER RETURN BY ID"
+                );
+
+                console.log(
+                    "Customer Return ID:",
+                    returnId
+                );
+
+                console.log(
+                    "React → Node:",
+                    requestUrl
+                );
+
+                console.log(
+                    "================================================="
+                );
+
+                // -------------------------------------------------
+                // GET
+                // -------------------------------------------------
+
+                const response =
+                    await axios.get(
+                        requestUrl,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json",
+                            },
+                            timeout: 30000,
+                        }
+                    );
+
+                console.log(
+                    "Customer Return GET status:",
+                    response.status
+                );
+
+                console.log(
+                    "Customer Return GET response:",
+                    response.data
+                );
+
+                // -------------------------------------------------
+                // Extract object
+                // -------------------------------------------------
+
+                const data =
+                    extractReturnData(
+                        response.data
+                    );
+
+                if (!data) {
+
+                    throw new Error(
+                        "Customer Return response is empty."
+                    );
+                }
+
+                console.log(
+                    "Normalized Customer Return:",
+                    data
+                );
+
+                // -------------------------------------------------
+                // Extract fields
+                // -------------------------------------------------
+
+                const salesInvoiceId =
+                    getValue(
+                        data,
+                        "SalesInvoiceId",
+                        "salesInvoiceId"
+                    );
+
+                const productId =
+                    getValue(
+                        data,
+                        "ProductId",
+                        "productId"
+                    );
+
+                const returnNumber =
+                    getValue(
+                        data,
+                        "ReturnNumber",
+                        "returnNumber"
+                    );
+
+                const returnDate =
+                    getValue(
+                        data,
+                        "ReturnDate",
+                        "returnDate"
+                    );
+
+                const quantity =
+                    getValue(
+                        data,
+                        "Quantity",
+                        "quantity"
+                    );
+
+                const returnAmount =
+                    getValue(
+                        data,
+                        "ReturnAmount",
+                        "returnAmount"
+                    );
+
+                const reason =
+                    getValue(
+                        data,
+                        "Reason",
+                        "reason"
+                    );
+
+                const status =
+                    getValue(
+                        data,
+                        "Status",
+                        "status",
+                        "Pending"
+                    );
+
+                const sellerId =
+                    getValue(
+                        data,
+                        "SellerId",
+                        "sellerId"
+                    );
+
+                const customerId =
+                    getValue(
+                        data,
+                        "CustomerId",
+                        "customerId"
+                    );
+
+                // -------------------------------------------------
+                // Populate form
+                // -------------------------------------------------
+
+                setForm({
+                    SalesInvoiceId:
+                        salesInvoiceId ?? "",
+
+                    ProductId:
+                        productId ?? "",
+
+                    ReturnNumber:
+                        returnNumber ?? "",
+
+                    ReturnDate:
+                        formatDateTimeLocal(
+                            returnDate
+                        ),
+
+                    Quantity:
+                        quantity ?? "",
+
+                    ReturnAmount:
+                        returnAmount ?? "",
+
+                    Reason:
+                        reason ?? "",
+
+                    Status:
+                        status || "Pending",
+
+                    SellerId:
+                        sellerId ?? "",
+
+                    CustomerId:
+                        customerId ?? "",
+                });
+
+            }
+            catch (err) {
+
+                console.error(
+                    "================================================="
+                );
+
+                console.error(
+                    "LOAD CUSTOMER RETURN ERROR"
+                );
+
+                console.error(
+                    "Customer Return ID:",
+                    returnId
+                );
+
+                console.error(
+                    "React → Node URL:",
+                    `${API_URL}/${returnId}`
+                );
+
+                console.error(
+                    "HTTP Status:",
+                    err.response?.status
+                );
+
+                console.error(
+                    "Response:",
+                    err.response?.data
+                );
+
+                console.error(
+                    "Error:",
+                    err
+                );
+
+                console.error(
+                    "================================================="
+                );
+
+                const status =
+                    err.response?.status;
+
+                const responseData =
+                    err.response?.data;
+
+                const serverMessage =
+                    responseData?.message ||
+                    responseData?.title ||
+                    (
+                        typeof responseData === "string"
+                            ? responseData
+                            : ""
+                    );
+
+                if (status === 404) {
+
+                    setError(
+                        `Customer Return ID ${returnId} was not found.`
+                    );
+
+                }
+                else if (status === 400) {
+
+                    setError(
+                        serverMessage ||
+                        "Invalid Customer Return ID."
+                    );
+
+                }
+                else {
+
+                    setError(
+                        serverMessage ||
+                        `Unable to load Customer Return.${
+                            status
+                                ? ` HTTP ${status}`
+                                : ""
+                        }`
+                    );
+                }
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+        [returnId]
+    );
+
+    // =====================================================
+    // LOAD WHEN ID CHANGES
     // =====================================================
 
     useEffect(() => {
 
         loadReturn();
 
-    }, [id]);
+    }, [loadReturn]);
 
     // =====================================================
-    // HANDLE INPUT
+    // HANDLE INPUT CHANGE
     // =====================================================
 
-    const handleChange = (event) => {
+    const handleChange = (
+        event
+    ) => {
 
         const {
             name,
@@ -346,14 +604,96 @@ const CustomerReturnEdit = () => {
                 [name]: value,
             })
         );
-
     };
 
     // =====================================================
-    // SAVE
+    // VALIDATE FORM
     // =====================================================
 
-    const handleSubmit = async (event) => {
+    const validateForm = () => {
+
+        if (!form.SalesInvoiceId) {
+            return "Sales Invoice ID is required.";
+        }
+
+        if (
+            Number(form.SalesInvoiceId) <= 0
+        ) {
+            return "Sales Invoice ID must be greater than 0.";
+        }
+
+        if (!form.ProductId) {
+            return "Product ID is required.";
+        }
+
+        if (
+            Number(form.ProductId) <= 0
+        ) {
+            return "Product ID must be greater than 0.";
+        }
+
+        if (
+            !form.ReturnNumber.trim()
+        ) {
+            return "Return Number is required.";
+        }
+
+        if (!form.ReturnDate) {
+            return "Return Date is required.";
+        }
+
+        if (!form.Quantity) {
+            return "Quantity is required.";
+        }
+
+        if (
+            Number(form.Quantity) <= 0
+        ) {
+            return "Quantity must be greater than 0.";
+        }
+
+        if (
+            form.ReturnAmount === ""
+        ) {
+            return "Return Amount is required.";
+        }
+
+        if (
+            Number(form.ReturnAmount) < 0
+        ) {
+            return "Return Amount cannot be negative.";
+        }
+
+        if (!form.SellerId) {
+            return "Seller ID is required.";
+        }
+
+        if (
+            Number(form.SellerId) <= 0
+        ) {
+            return "Seller ID must be greater than 0.";
+        }
+
+        if (!form.CustomerId) {
+            return "Customer ID is required.";
+        }
+
+        if (
+            Number(form.CustomerId) <= 0
+        ) {
+            return "Customer ID must be greater than 0.";
+        }
+
+        return "";
+    };
+
+    // =====================================================
+    // SAVE / UPDATE
+    // =====================================================
+
+    const handleSubmit = async (
+        event
+    ) => {
 
         event.preventDefault();
 
@@ -361,10 +701,30 @@ const CustomerReturnEdit = () => {
         // Validate ID
         // -------------------------------------------------
 
-        if (!id) {
+        if (
+            !returnId ||
+            returnId === ":id" ||
+            !/^\d+$/.test(returnId)
+        ) {
 
             setError(
-                "Customer Return ID is missing."
+                `Invalid Customer Return ID: ${returnId}`
+            );
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // Validate form
+        // -------------------------------------------------
+
+        const validationError =
+            validateForm();
+
+        if (validationError) {
+
+            setError(
+                validationError
             );
 
             return;
@@ -376,9 +736,9 @@ const CustomerReturnEdit = () => {
 
             setError("");
 
-            // =================================================
-            // PAYLOAD
-            // =================================================
+            // -------------------------------------------------
+            // Build payload
+            // -------------------------------------------------
 
             const payload = {
 
@@ -393,89 +753,114 @@ const CustomerReturnEdit = () => {
                     ),
 
                 ReturnNumber:
-                    form.ReturnNumber,
+                    form.ReturnNumber.trim(),
 
                 ReturnDate:
                     form.ReturnDate,
 
                 Quantity:
                     Number(
-                        form.Quantity || 0
+                        form.Quantity
                     ),
 
                 ReturnAmount:
                     Number(
-                        form.ReturnAmount || 0
+                        form.ReturnAmount
                     ),
 
                 Reason:
-                    form.Reason,
+                    form.Reason?.trim() || "",
 
                 Status:
-                    form.Status,
+                    form.Status || "Pending",
 
                 SellerId:
                     Number(
-                        form.SellerId || 0
+                        form.SellerId
                     ),
 
                 CustomerId:
                     Number(
-                        form.CustomerId || 0
+                        form.CustomerId
                     ),
-
             };
 
+            const requestUrl =
+                `${API_URL}/${returnId}`;
+
             console.log(
-                "Updating Customer Return:",
-                {
-                    id,
-                    payload,
-                }
+                "================================================="
             );
 
-            // =================================================
+            console.log(
+                "UPDATE CUSTOMER RETURN"
+            );
+
+            console.log(
+                "Customer Return ID:",
+                returnId
+            );
+
+            console.log(
+                "React → Node:",
+                requestUrl
+            );
+
+            console.log(
+                "Payload:",
+                payload
+            );
+
+            console.log(
+                "================================================="
+            );
+
+            // -------------------------------------------------
             // PUT
-            //
-            // React
-            //    ↓
-            // server.js
-            //    ↓
-            // ASP.NET Core
-            //
-            // PUT:
-            // /api/customer-returns/2
-            // =================================================
+            // -------------------------------------------------
 
-            await axios.put(
+            const response =
+                await axios.put(
+                    requestUrl,
+                    payload,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json",
 
-                `${SERVER_URL}/api/customer-returns/${id}`,
+                            "Content-Type":
+                                "application/json",
+                        },
 
-                payload,
+                        timeout: 30000,
+                    }
+                );
 
-                {
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-                }
-
+            console.log(
+                "Customer Return UPDATE status:",
+                response.status
             );
 
-            // =================================================
-            // SUCCESS
-            // =================================================
+            console.log(
+                "Customer Return UPDATE response:",
+                response.data
+            );
+
+            // -------------------------------------------------
+            // Success
+            // -------------------------------------------------
 
             setSuccess(true);
 
-            // -------------------------------------------------
-            // Redirect to details
-            // -------------------------------------------------
-
             setTimeout(() => {
 
+                // IMPORTANT:
+                // Current App.jsx route is:
+                //
+                // customer-returns/details/:id
+                //
                 navigate(
-                    `/customer-returns/${id}`
+                    `/customer-returns/details/${returnId}`
                 );
 
             }, 700);
@@ -484,8 +869,21 @@ const CustomerReturnEdit = () => {
         catch (err) {
 
             console.error(
-                "Update Customer Return Error:",
-                err
+                "================================================="
+            );
+
+            console.error(
+                "UPDATE CUSTOMER RETURN ERROR"
+            );
+
+            console.error(
+                "Customer Return ID:",
+                returnId
+            );
+
+            console.error(
+                "HTTP Status:",
+                err.response?.status
             );
 
             console.error(
@@ -493,15 +891,56 @@ const CustomerReturnEdit = () => {
                 err.response?.data
             );
 
-            setError(
-
-                err.response?.data?.message ||
-
-                `Unable to update customer return. HTTP ${
-                    err.response?.status || ""
-                }`
-
+            console.error(
+                "Error:",
+                err
             );
+
+            console.error(
+                "================================================="
+            );
+
+            const status =
+                err.response?.status;
+
+            const responseData =
+                err.response?.data;
+
+            const serverMessage =
+                responseData?.message ||
+                responseData?.title ||
+                (
+                    typeof responseData === "string"
+                        ? responseData
+                        : ""
+                );
+
+            if (status === 404) {
+
+                setError(
+                    `Customer Return ID ${returnId} was not found or the update endpoint returned 404.`
+                );
+
+            }
+            else if (status === 400) {
+
+                setError(
+                    serverMessage ||
+                    "Invalid Customer Return data."
+                );
+
+            }
+            else {
+
+                setError(
+                    serverMessage ||
+                    `Unable to update Customer Return.${
+                        status
+                            ? ` HTTP ${status}`
+                            : ""
+                    }`
+                );
+            }
 
         }
         finally {
@@ -509,16 +948,18 @@ const CustomerReturnEdit = () => {
             setSaving(false);
 
         }
-
     };
 
     // =====================================================
     // GO TO DETAILS
+    //
+    // IMPORTANT:
+    // This must NOT navigate to /edit/:id.
     // =====================================================
 
     const goToDetails = () => {
 
-        if (!id) {
+        if (!returnId) {
 
             navigate(
                 "/customer-returns"
@@ -528,9 +969,8 @@ const CustomerReturnEdit = () => {
         }
 
         navigate(
-            `/customer-returns/${id}`
+            `/customer-returns/details/${returnId}`
         );
-
     };
 
     // =====================================================
@@ -555,7 +995,6 @@ const CustomerReturnEdit = () => {
             </Box>
 
         );
-
     }
 
     // =====================================================
@@ -575,9 +1014,16 @@ const CustomerReturnEdit = () => {
             ================================================= */}
 
             <Stack
-                direction="row"
+                direction={{
+                    xs: "column",
+                    sm: "row",
+                }}
                 justifyContent="space-between"
-                alignItems="center"
+                alignItems={{
+                    xs: "flex-start",
+                    sm: "center",
+                }}
+                spacing={2}
                 sx={{
                     mb: 3,
                 }}
@@ -603,7 +1049,7 @@ const CustomerReturnEdit = () => {
                         variant="caption"
                         color="text.secondary"
                     >
-                        Return ID: {id}
+                        Return ID: {returnId}
                     </Typography>
 
                 </Box>
@@ -619,7 +1065,6 @@ const CustomerReturnEdit = () => {
 
             </Stack>
 
-
             {/* =================================================
                 ERROR
             ================================================= */}
@@ -631,12 +1076,14 @@ const CustomerReturnEdit = () => {
                     sx={{
                         mb: 3,
                     }}
+                    onClose={() =>
+                        setError("")
+                    }
                 >
                     {error}
                 </Alert>
 
             )}
-
 
             {/* =================================================
                 FORM
@@ -649,6 +1096,7 @@ const CustomerReturnEdit = () => {
                     <Box
                         component="form"
                         onSubmit={handleSubmit}
+                        noValidate
                     >
 
                         <Typography
@@ -667,15 +1115,12 @@ const CustomerReturnEdit = () => {
                             }}
                         />
 
-
                         <Grid
                             container
                             spacing={2}
                         >
 
-                            {/* =====================================
-                                SALES INVOICE ID
-                            ===================================== */}
+                            {/* SALES INVOICE ID */}
 
                             <Grid
                                 item
@@ -702,10 +1147,7 @@ const CustomerReturnEdit = () => {
 
                             </Grid>
 
-
-                            {/* =====================================
-                                PRODUCT ID
-                            ===================================== */}
+                            {/* PRODUCT ID */}
 
                             <Grid
                                 item
@@ -732,10 +1174,7 @@ const CustomerReturnEdit = () => {
 
                             </Grid>
 
-
-                            {/* =====================================
-                                RETURN NUMBER
-                            ===================================== */}
+                            {/* RETURN NUMBER */}
 
                             <Grid
                                 item
@@ -754,14 +1193,14 @@ const CustomerReturnEdit = () => {
                                         handleChange
                                     }
                                     required
+                                    inputProps={{
+                                        maxLength: 100,
+                                    }}
                                 />
 
                             </Grid>
 
-
-                            {/* =====================================
-                                RETURN DATE
-                            ===================================== */}
+                            {/* RETURN DATE */}
 
                             <Grid
                                 item
@@ -788,10 +1227,7 @@ const CustomerReturnEdit = () => {
 
                             </Grid>
 
-
-                            {/* =====================================
-                                QUANTITY
-                            ===================================== */}
+                            {/* QUANTITY */}
 
                             <Grid
                                 item
@@ -813,15 +1249,13 @@ const CustomerReturnEdit = () => {
                                     required
                                     inputProps={{
                                         min: 1,
+                                        step: 1,
                                     }}
                                 />
 
                             </Grid>
 
-
-                            {/* =====================================
-                                RETURN AMOUNT
-                            ===================================== */}
+                            {/* RETURN AMOUNT */}
 
                             <Grid
                                 item
@@ -849,36 +1283,7 @@ const CustomerReturnEdit = () => {
 
                             </Grid>
 
-
-                            {/* =====================================
-                                REASON
-                            ===================================== */}
-
-                            <Grid
-                                item
-                                xs={12}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    minRows={3}
-                                    label="Reason"
-                                    name="Reason"
-                                    value={
-                                        form.Reason
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                />
-
-                            </Grid>
-
-
-                            {/* =====================================
-                                STATUS
-                            ===================================== */}
+                            {/* STATUS */}
 
                             <Grid
                                 item
@@ -892,7 +1297,8 @@ const CustomerReturnEdit = () => {
                                     label="Status"
                                     name="Status"
                                     value={
-                                        form.Status
+                                        form.Status ||
+                                        "Pending"
                                     }
                                     onChange={
                                         handleChange
@@ -927,10 +1333,7 @@ const CustomerReturnEdit = () => {
 
                             </Grid>
 
-
-                            {/* =====================================
-                                SELLER ID
-                            ===================================== */}
+                            {/* SELLER ID */}
 
                             <Grid
                                 item
@@ -957,10 +1360,7 @@ const CustomerReturnEdit = () => {
 
                             </Grid>
 
-
-                            {/* =====================================
-                                CUSTOMER ID
-                            ===================================== */}
+                            {/* CUSTOMER ID */}
 
                             <Grid
                                 item
@@ -987,15 +1387,41 @@ const CustomerReturnEdit = () => {
 
                             </Grid>
 
+                            {/* REASON */}
+
+                            <Grid
+                                item
+                                xs={12}
+                            >
+
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    minRows={3}
+                                    label="Reason"
+                                    name="Reason"
+                                    value={
+                                        form.Reason
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    placeholder="Enter reason for the customer return"
+                                />
+
+                            </Grid>
+
                         </Grid>
 
-
                         {/* =================================================
-                            ACTION BUTTONS
+                            ACTIONS
                         ================================================= */}
 
                         <Stack
-                            direction="row"
+                            direction={{
+                                xs: "column-reverse",
+                                sm: "row",
+                            }}
                             justifyContent="flex-end"
                             spacing={2}
                             sx={{
@@ -1011,32 +1437,25 @@ const CustomerReturnEdit = () => {
                                 Cancel
                             </Button>
 
-
                             <Button
                                 type="submit"
                                 variant="contained"
                                 startIcon={
-                                    saving
-
-                                        ?
-
+                                    saving ? (
                                         <CircularProgress
                                             size={18}
                                             color="inherit"
                                         />
-
-                                        :
-
+                                    ) : (
                                         <Save />
+                                    )
                                 }
                                 disabled={saving}
                             >
-
                                 {saving
                                     ? "Saving..."
                                     : "Save Changes"
                                 }
-
                             </Button>
 
                         </Stack>
@@ -1047,9 +1466,8 @@ const CustomerReturnEdit = () => {
 
             </Card>
 
-
             {/* =================================================
-                SUCCESS MESSAGE
+                SUCCESS
             ================================================= */}
 
             <Snackbar
@@ -1062,9 +1480,7 @@ const CustomerReturnEdit = () => {
             />
 
         </Box>
-
     );
-
 };
 
 // =========================================================
@@ -1072,4 +1488,3 @@ const CustomerReturnEdit = () => {
 // =========================================================
 
 export default CustomerReturnEdit;
-

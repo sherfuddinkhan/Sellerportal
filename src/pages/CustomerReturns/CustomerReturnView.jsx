@@ -1,6 +1,15 @@
 // =========================================================
 // CustomerReturnView.jsx
 // Customer Return Details Dialog
+//
+// Displays:
+// - Return information
+// - Transaction information
+// - Customer / Seller information
+// - System information
+//
+// Supports:
+// PascalCase + camelCase API responses
 // =========================================================
 
 import React from "react";
@@ -23,8 +32,8 @@ import {
 // =========================================================
 
 const CustomerReturnView = ({
-    open,
-    item,
+    open = false,
+    item = null,
     onClose,
 }) => {
 
@@ -37,12 +46,14 @@ const CustomerReturnView = ({
     }
 
     // =====================================================
-    // SUPPORT PAScalCase + camelCase
+    // SUPPORT PascalCase + camelCase
     // =====================================================
 
     const returnId =
         item.CustomerReturnId ??
-        item.customerReturnId;
+        item.customerReturnId ??
+        item.Id ??
+        item.id;
 
     const salesInvoiceId =
         item.SalesInvoiceId ??
@@ -91,6 +102,10 @@ const CustomerReturnView = ({
         item.CreatedDate ??
         item.createdDate;
 
+    const updatedDate =
+        item.UpdatedDate ??
+        item.updatedDate;
+
     // =====================================================
     // STATUS COLOR
     // =====================================================
@@ -98,7 +113,9 @@ const CustomerReturnView = ({
     const getStatusColor = (value) => {
 
         switch (
-            value?.toString().toLowerCase()
+            String(value || "")
+                .trim()
+                .toLowerCase()
         ) {
 
             case "pending":
@@ -122,6 +139,7 @@ const CustomerReturnView = ({
             default:
                 return "default";
         }
+
     };
 
     // =====================================================
@@ -136,13 +154,25 @@ const CustomerReturnView = ({
 
         const date = new Date(value);
 
-        if (Number.isNaN(date.getTime())) {
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
             return "-";
         }
 
         return date.toLocaleString(
-            "en-IN"
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            }
         );
+
     };
 
     // =====================================================
@@ -151,15 +181,43 @@ const CustomerReturnView = ({
 
     const formatCurrency = (value) => {
 
-        const amount = Number(value || 0);
+        const amount =
+            Number(value);
 
-        return `₹ ${amount.toLocaleString(
-            "en-IN",
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            }
-        )}`;
+        if (
+            Number.isNaN(amount)
+        ) {
+            return "₹ 0.00";
+        }
+
+        return (
+            `₹ ${amount.toLocaleString(
+                "en-IN",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                }
+            )}`
+        );
+
+    };
+
+    // =====================================================
+    // VALUE DISPLAY
+    // =====================================================
+
+    const displayValue = (value) => {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return "-";
+        }
+
+        return value;
+
     };
 
     // =====================================================
@@ -176,35 +234,49 @@ const CustomerReturnView = ({
             <Grid
                 item
                 xs={12}
+                sm={6}
                 md={6}
             >
 
-                <Typography
-                    variant="caption"
-                    color="text.secondary"
-                >
-                    {label}
-                </Typography>
+                <Box>
 
-                <Typography
-                    variant="body1"
-                    fontWeight={500}
-                    sx={{
-                        mt: 0.5,
-                        wordBreak: "break-word",
-                    }}
-                >
-                    {value !== null &&
-                    value !== undefined &&
-                    value !== ""
-                        ? value
-                        : "-"
-                    }
-                </Typography>
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                    >
+                        {label}
+                    </Typography>
+
+                    <Box
+                        sx={{
+                            mt: 0.5,
+                            minHeight: 24,
+                            wordBreak: "break-word",
+                        }}
+                    >
+
+                        {typeof value === "object"
+                            ? value
+                            : (
+                                <Typography
+                                    variant="body1"
+                                    fontWeight={500}
+                                >
+                                    {displayValue(
+                                        value
+                                    )}
+                                </Typography>
+                            )
+                        }
+
+                    </Box>
+
+                </Box>
 
             </Grid>
 
         );
+
     };
 
     // =====================================================
@@ -218,13 +290,18 @@ const CustomerReturnView = ({
             onClose={onClose}
             fullWidth
             maxWidth="md"
+            scroll="paper"
         >
 
             {/* =================================================
                 TITLE
             ================================================= */}
 
-            <DialogTitle>
+            <DialogTitle
+                sx={{
+                    pb: 1,
+                }}
+            >
 
                 <Typography
                     variant="h6"
@@ -233,20 +310,23 @@ const CustomerReturnView = ({
                     Customer Return Details
                 </Typography>
 
-                {returnNumber && (
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
-                        {returnNumber}
-                    </Typography>
-
-                )}
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                        mt: 0.5,
+                    }}
+                >
+                    {returnNumber
+                        ? returnNumber
+                        : `Return ID: ${displayValue(returnId)}`
+                    }
+                </Typography>
 
             </DialogTitle>
 
             <Divider />
+
 
             {/* =================================================
                 CONTENT
@@ -254,7 +334,7 @@ const CustomerReturnView = ({
 
             <DialogContent
                 sx={{
-                    mt: 2,
+                    pt: 3,
                 }}
             >
 
@@ -289,19 +369,46 @@ const CustomerReturnView = ({
 
                     <Field
                         label="Return Date"
-                        value={formatDate(returnDate)}
+                        value={formatDate(
+                            returnDate
+                        )}
                     />
 
-                    <Field
-                        label="Status"
-                        value={
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={6}
+                    >
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Status
+                        </Typography>
+
+                        <Box
+                            sx={{
+                                mt: 0.75,
+                            }}
+                        >
+
                             <Chip
-                                label={status}
-                                color={getStatusColor(status)}
+                                label={
+                                    status
+                                }
+                                color={
+                                    getStatusColor(
+                                        status
+                                    )
+                                }
                                 size="small"
                             />
-                        }
-                    />
+
+                        </Box>
+
+                    </Grid>
 
                 </Grid>
 
@@ -431,9 +538,17 @@ const CustomerReturnView = ({
                         )}
                     />
 
+                    <Field
+                        label="Updated Date"
+                        value={formatDate(
+                            updatedDate
+                        )}
+                    />
+
                 </Grid>
 
             </DialogContent>
+
 
             {/* =================================================
                 ACTIONS
@@ -442,7 +557,7 @@ const CustomerReturnView = ({
             <DialogActions
                 sx={{
                     px: 3,
-                    pb: 2,
+                    py: 2,
                 }}
             >
 
@@ -458,6 +573,7 @@ const CustomerReturnView = ({
         </Dialog>
 
     );
+
 };
 
 // =========================================================
