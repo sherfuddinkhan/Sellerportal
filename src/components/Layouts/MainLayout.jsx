@@ -574,14 +574,6 @@ const MainLayout = () => {
                             label: "Create Sales Order",
                             path: "/sales-orders/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/sales-orders/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/sales-orders/statistics",
-                        },
                     ],
                 },
 
@@ -599,14 +591,6 @@ const MainLayout = () => {
                             label: "Create Item",
                             path: "/sales-order-items/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/sales-order-items/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/sales-order-items/statistics",
-                        },
                     ],
                 },
 
@@ -623,14 +607,6 @@ const MainLayout = () => {
                         {
                             label: "Create Item",
                             path: "/order-items/create",
-                        },
-                        {
-                            label: "Search",
-                            path: "/order-items/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/order-items/statistics",
                         },
                     ],
                 },
@@ -682,14 +658,6 @@ const MainLayout = () => {
                             label: "Create Challan",
                             path: "/delivery-challans/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/delivery-challans/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/delivery-challans/statistics",
-                        },
                     ],
                 },
 
@@ -706,14 +674,6 @@ const MainLayout = () => {
                         {
                             label: "Create Item",
                             path: "/delivery-challan-items/create",
-                        },
-                        {
-                            label: "Search",
-                            path: "/delivery-challan-items/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/delivery-challan-items/statistics",
                         },
                     ],
                 },
@@ -1278,10 +1238,6 @@ const MainLayout = () => {
                         {
                             label: "Search",
                             path: "/sales-invoices/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/sales-invoices/statistics",
                         },
                     ],
                 },

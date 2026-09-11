@@ -3838,34 +3838,43 @@ app.get("/api/sales-orders/:id", async (req, res) => {
 // CREATE SALES ORDER
 // POST /api/sales-orders
 // =========================================================
-app.post("/api/sales-orders", async (req, res) => {
+// =========================================================
+// CREATE SALES ORDER ITEM
+// POST /api/sales-order-items
+// =========================================================
+
+app.post("/api/sales-order-items", async (req, res) => {
 
     try {
 
         console.log(
-            "CREATE SALES ORDER:",
+            "CREATE SALES ORDER ITEM:",
             req.body
         );
 
         const response = await axios.post(
-            `${DOTNET_API}/SalesOrder`,
+            `${DOTNET_API}/sales-order-items`,
             req.body,
             {
                 httpsAgent,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 }
             }
         );
 
-        return res.status(200).json(
+        return res.status(
+            response.status || 201
+        ).json(
             response.data
         );
 
     } catch (error) {
 
         console.error(
-            "CREATE SALES ORDER ERROR:",
+            "CREATE SALES ORDER ITEM ERROR:",
+            error.response?.status,
             error.response?.data ||
             error.message
         );
@@ -3874,33 +3883,56 @@ app.post("/api/sales-orders", async (req, res) => {
             error.response?.status || 500
         ).json(
             error.response?.data || {
-                message: "Failed to create sales order"
+                message: "Failed to create sales order item"
             }
         );
+
     }
+
 });
 
 
 // =========================================================
-// UPDATE SALES ORDER
-// PUT /api/sales-orders/:id
+// UPDATE SALES ORDER ITEM
+// PUT /api/sales-order-items/:id
 // =========================================================
-app.put("/api/sales-orders/:id", async (req, res) => {
+
+// =========================================================
+// UPDATE SALES ORDER ITEM
+// PUT /api/sales-order-items/:id
+// =========================================================
+
+// =========================================================
+// UPDATE SALES ORDER
+// PUT /api/SalesOrder/:id
+// =========================================================
+
+// =========================================================
+// UPDATE SALES ORDER
+// PUT /api/SalesOrder/:id
+// =========================================================
+
+// =========================================================
+// UPDATE SALES ORDER
+// PUT /api/SalesOrder/:id
+// =========================================================
+
+app.put("/api/SalesOrder/:id", async (req, res) => {
 
     try {
 
         const id = Number(req.params.id);
 
         if (!Number.isInteger(id) || id <= 0) {
-
             return res.status(400).json({
                 message: "Invalid Sales Order ID"
             });
         }
 
-        console.log(
-            `UPDATE SALES ORDER: ${id}`
-        );
+        console.log("================================================");
+        console.log(`PUT /api/SalesOrder/${id}`);
+        console.log("BODY:", req.body);
+        console.log("================================================");
 
         const response = await axios.put(
             `${DOTNET_API}/SalesOrder/${id}`,
@@ -3908,20 +3940,34 @@ app.put("/api/sales-orders/:id", async (req, res) => {
             {
                 httpsAgent,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 }
             }
         );
 
-        return res.status(200).json(
-            response.data
-        );
+        return res.status(
+            response.status || 200
+        ).json(response.data);
 
     } catch (error) {
 
         console.error(
-            "UPDATE SALES ORDER ERROR:",
-            error.response?.data ||
+            "UPDATE SALES ORDER ERROR:"
+        );
+
+        console.error(
+            "Status:",
+            error.response?.status
+        );
+
+        console.error(
+            "Response:",
+            error.response?.data
+        );
+
+        console.error(
+            "Message:",
             error.message
         );
 
@@ -3934,7 +3980,6 @@ app.put("/api/sales-orders/:id", async (req, res) => {
         );
     }
 });
-
 
 // =========================================================
 // DELETE SALES ORDER
