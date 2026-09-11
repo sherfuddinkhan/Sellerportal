@@ -3,27 +3,29 @@ import React from "react";
 import {
     Box,
     TextField,
-    InputAdornment
+    InputAdornment,
+    IconButton,
+    Tooltip
 } from "@mui/material";
 
 import {
-    Search
+    Search,
+    Clear
 } from "@mui/icons-material";
 
 
-/* =========================================================
-   GOODS RECEIPT NOTE ITEM SEARCH
-========================================================= */
+// ============================================================
+// GOODS RECEIPT NOTE ITEM SEARCH
+// ============================================================
 
 const GoodsReceiptNoteItemSearch = ({
     searchText = "",
     setSearchText
 }) => {
 
-
-    /* =========================================================
-       HANDLE SEARCH CHANGE
-    ========================================================= */
+    // ========================================================
+    // SEARCH CHANGE
+    // ========================================================
 
     const handleSearchChange = (event) => {
 
@@ -35,9 +37,9 @@ const GoodsReceiptNoteItemSearch = ({
     };
 
 
-    /* =========================================================
-       CLEAR SEARCH
-    ========================================================= */
+    // ========================================================
+    // CLEAR SEARCH
+    // ========================================================
 
     const handleClearSearch = () => {
 
@@ -47,11 +49,12 @@ const GoodsReceiptNoteItemSearch = ({
     };
 
 
-    /* =========================================================
-       RENDER
-    ========================================================= */
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
+
         <Box
             className="goods-receipt-note-item-search"
             sx={{
@@ -66,7 +69,10 @@ const GoodsReceiptNoteItemSearch = ({
 
                 label="Search Goods Receipt Note Items"
 
-                placeholder="Search by GRN Item ID, GRN ID, Product ID..."
+                placeholder={
+                    "Search by GNI ID, GRN ID, PO Item ID, " +
+                    "Seller ID, Customer ID, Supplier ID, Product ID, Status..."
+                }
 
                 value={searchText}
 
@@ -75,14 +81,43 @@ const GoodsReceiptNoteItemSearch = ({
                 autoComplete="off"
 
                 InputProps={{
+
                     startAdornment: (
+
                         <InputAdornment position="start">
+
                             <Search
                                 fontSize="small"
                                 color="action"
                             />
+
                         </InputAdornment>
-                    )
+                    ),
+
+                    endAdornment: searchText ? (
+
+                        <InputAdornment position="end">
+
+                            <Tooltip title="Clear search">
+
+                                <IconButton
+                                    size="small"
+                                    onClick={handleClearSearch}
+                                    edge="end"
+                                    aria-label="clear search"
+                                >
+
+                                    <Clear
+                                        fontSize="small"
+                                    />
+
+                                </IconButton>
+
+                            </Tooltip>
+
+                        </InputAdornment>
+
+                    ) : null
                 }}
 
                 sx={{

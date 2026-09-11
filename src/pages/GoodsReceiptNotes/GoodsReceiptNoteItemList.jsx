@@ -1,3 +1,6 @@
+// ============================================================
+// GoodsReceiptNoteItemList.jsx
+// ============================================================
 
 import React, {
     useEffect,
@@ -16,9 +19,9 @@ import {
 } from "@mui/material";
 
 
-/* =========================================================
-   GOODS RECEIPT NOTE ITEM COMPONENTS
-========================================================= */
+// ============================================================
+// GOODS RECEIPT NOTE ITEM COMPONENTS
+// ============================================================
 
 import GoodsReceiptNoteItemToolbar
     from "./GoodsReceiptNoteItemToolbar";
@@ -45,59 +48,76 @@ import DeleteGoodsReceiptNoteItemDialog
     from "./DeleteGoodsReceiptNoteItemDialog";
 
 
-/* =========================================================
-   NODE SERVER
-========================================================= */
+// ============================================================
+// NODE SERVER
+// ============================================================
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
 
 
-/* =========================================================
-   GOODS RECEIPT NOTE ITEM API
-========================================================= */
+// ============================================================
+// GOODS RECEIPT NOTE ITEM API
+// ============================================================
 
 const API_URL =
     `${SERVER_URL}/api/goods-receipt-note-items`;
 
 
-/* =========================================================
-   COMPONENT
-========================================================= */
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const GoodsReceiptNoteItemList = () => {
 
-    /* =====================================================
-       STATE
-    ===================================================== */
+    // ========================================================
+    // STATE
+    // ========================================================
 
-    const [items, setItems] = useState([]);
+    const [items, setItems] =
+        useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [searchText, setSearchText] = useState("");
+    const [searchText, setSearchText] =
+        useState("");
 
-    const [page, setPage] = useState(1);
+    const [page, setPage] =
+        useState(1);
 
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] =
+        useState(10);
 
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItem, setSelectedItem] =
+        useState(null);
 
-    const [modalOpen, setModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] =
+        useState(false);
 
-    const [viewOpen, setViewOpen] = useState(false);
+    const [viewOpen, setViewOpen] =
+        useState(false);
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
 
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: "",
-        severity: "success"
-    });
+    const [snackbar, setSnackbar] =
+        useState({
+            open: false,
+            message: "",
+            severity: "success"
+        });
 
 
-    /* =====================================================
-       LOAD ALL GNI ITEMS
-    ===================================================== */
+    // ========================================================
+    // LOAD ALL GNI ITEMS
+    //
+    // NODE:
+    // GET /api/goods-receipt-note-items
+    //
+    // .NET:
+    // GET /api/GoodsReceiptItems
+    // ========================================================
 
     const loadGoodsReceiptNoteItems = async () => {
 
@@ -110,97 +130,87 @@ const GoodsReceiptNoteItemList = () => {
             );
 
             console.log(
-                "GET ALL GNI ITEMS"
+                "GET ALL GOODS RECEIPT NOTE ITEMS"
             );
 
             console.log(
-                "URL:",
-                `${API_URL}/all`
+                "NODE URL:",
+                API_URL
             );
 
-
-            /* =============================================
-               GET ALL
-            ============================================= */
-
-            const response = await axios.get(
-                `${API_URL}/all`
-            );
-
+            const response =
+                await axios.get(
+                    API_URL
+                );
 
             console.log(
-                "GNI ITEMS RESPONSE:",
+                "GNI RESPONSE STATUS:",
+                response.status
+            );
+
+            console.log(
+                "GNI RESPONSE DATA:",
                 response.data
             );
 
+            let data = [];
 
-            /* =============================================
-               NORMAL ARRAY RESPONSE
-            ============================================= */
+            if (
+                Array.isArray(
+                    response.data
+                )
+            ) {
 
-            if (Array.isArray(response.data)) {
-
-                setItems(response.data);
+                data =
+                    response.data;
 
             }
-
-
-            /* =============================================
-               WRAPPED DATA RESPONSE
-            ============================================= */
-
             else if (
                 Array.isArray(
                     response.data?.data
                 )
             ) {
 
-                setItems(
-                    response.data.data
-                );
+                data =
+                    response.data.data;
 
             }
-
-
-            /* =============================================
-               WRAPPED ITEMS RESPONSE
-            ============================================= */
-
             else if (
                 Array.isArray(
                     response.data?.items
                 )
             ) {
 
-                setItems(
-                    response.data.items
-                );
+                data =
+                    response.data.items;
 
             }
 
+            console.log(
+                "NORMALIZED GNI ITEMS:",
+                data
+            );
 
-            /* =============================================
-               INVALID RESPONSE
-            ============================================= */
+            console.log(
+                "TOTAL GNI ITEMS:",
+                data.length
+            );
 
-            else {
+            setItems(data);
 
-                console.warn(
-                    "Unexpected GNI Item response:",
-                    response.data
-                );
-
-                setItems([]);
-
-            }
+            setPage(1);
 
         }
-
         catch (error) {
 
             console.error(
                 "GET ALL GNI ITEMS ERROR:",
                 error
+            );
+
+            console.error(
+                "ERROR STATUS:",
+                error?.response?.status
             );
 
             console.error(
@@ -214,12 +224,12 @@ const GoodsReceiptNoteItemList = () => {
                 open: true,
                 message:
                     error?.response?.data?.message ||
-                    "Failed to load GNI Items",
+                    error?.response?.data?.error ||
+                    "Failed to load GNI Items.",
                 severity: "error"
             });
 
         }
-
         finally {
 
             setLoading(false);
@@ -229,9 +239,9 @@ const GoodsReceiptNoteItemList = () => {
     };
 
 
-    /* =====================================================
-       INITIAL LOAD
-    ===================================================== */
+    // ========================================================
+    // INITIAL LOAD
+    // ========================================================
 
     useEffect(() => {
 
@@ -240,157 +250,147 @@ const GoodsReceiptNoteItemList = () => {
     }, []);
 
 
-    /* =====================================================
-       SEARCH
-    ===================================================== */
+    // ========================================================
+    // SEARCH
+    // ========================================================
 
-    const filteredItems = useMemo(() => {
+    const filteredItems =
+        useMemo(() => {
 
-        if (!searchText.trim()) {
+            const search =
+                String(
+                    searchText ?? ""
+                )
+                    .trim()
+                    .toLowerCase();
 
-            return items;
+            if (!search) {
 
-        }
-
-
-        const search =
-            searchText
-                .trim()
-                .toLowerCase();
-
-
-        return items.filter(
-            (item) => {
-
-                const gniId =
-                    item.goodsReceiptItemId ??
-                    item.GoodsReceiptItemId ??
-                    item.goodsReceiptNoteItemId ??
-                    item.GoodsReceiptNoteItemId ??
-                    "";
-
-                const grnId =
-                    item.goodsReceiptNoteId ??
-                    item.GoodsReceiptNoteId ??
-                    "";
-
-                const productId =
-                    item.productId ??
-                    item.ProductId ??
-                    "";
-
-                const purchaseOrderItemId =
-                    item.purchaseOrderItemId ??
-                    item.PurchaseOrderItemId ??
-                    "";
-
-                const sellerId =
-                    item.sellerId ??
-                    item.SellerId ??
-                    "";
-
-                const customerId =
-                    item.customerId ??
-                    item.CustomerId ??
-                    "";
-
-                const supplierId =
-                    item.supplierId ??
-                    item.SupplierId ??
-                    "";
-
-                const status =
-                    item.status ??
-                    item.Status ??
-                    "";
-
-                const remarks =
-                    item.remarks ??
-                    item.Remarks ??
-                    "";
-
-
-                return (
-
-                    String(gniId)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(grnId)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(productId)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(purchaseOrderItemId)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(sellerId)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(customerId)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(supplierId)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(status)
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(remarks)
-                        .toLowerCase()
-                        .includes(search)
-
-                );
+                return items;
 
             }
-        );
+
+            return items.filter(
+                (item) => {
+
+                    if (!item) {
+
+                        return false;
+
+                    }
+
+                    const searchableValues = [
+
+                        // GNI ID
+                        item?.goodsReceiptNoteItemId,
+                        item?.GoodsReceiptNoteItemId,
+
+                        item?.goodsReceiptItemId,
+                        item?.GoodsReceiptItemId,
+
+                        // GRN ID
+                        item?.goodsReceiptNoteId,
+                        item?.GoodsReceiptNoteId,
+
+                        // PO ITEM ID
+                        item?.purchaseOrderItemId,
+                        item?.PurchaseOrderItemId,
+
+                        // SELLER
+                        item?.sellerId,
+                        item?.SellerId,
+
+                        // CUSTOMER
+                        item?.customerId,
+                        item?.CustomerId,
+
+                        // SUPPLIER
+                        item?.supplierId,
+                        item?.SupplierId,
+
+                        // PRODUCT
+                        item?.productId,
+                        item?.ProductId,
+
+                        // LINE NUMBER
+                        item?.lineNumber,
+                        item?.LineNumber,
+
+                        // QUANTITIES
+                        item?.receivedQuantity,
+                        item?.ReceivedQuantity,
+
+                        item?.acceptedQuantity,
+                        item?.AcceptedQuantity,
+
+                        item?.rejectedQuantity,
+                        item?.RejectedQuantity,
+
+                        // PRICE
+                        item?.unitPrice,
+                        item?.UnitPrice,
+
+                        // TOTAL
+                        item?.totalAmount,
+                        item?.TotalAmount,
+
+                        // STATUS
+                        item?.status,
+                        item?.Status,
+
+                        // REMARKS
+                        item?.remarks,
+                        item?.Remarks
+
+                    ];
+
+                    return searchableValues.some(
+                        (value) =>
+                            String(
+                                value ?? ""
+                            )
+                                .trim()
+                                .toLowerCase()
+                                .includes(search)
+                    );
+
+                }
+            );
+
+        }, [
+            items,
+            searchText
+        ]);
+
+
+    // ========================================================
+    // RESET PAGE WHEN SEARCH CHANGES
+    // ========================================================
+
+    useEffect(() => {
+
+        setPage(1);
 
     }, [
-        items,
         searchText
     ]);
 
 
-    /* =====================================================
-       PAGINATION
-    ===================================================== */
+    // ========================================================
+    // PAGINATION
+    // ========================================================
 
     const totalRecords =
         filteredItems.length;
-
 
     const totalPages =
         Math.max(
             1,
             Math.ceil(
-                totalRecords / pageSize
+                totalRecords /
+                pageSize
             )
         );
-
 
     const paginatedItems =
         filteredItems.slice(
@@ -399,26 +399,20 @@ const GoodsReceiptNoteItemList = () => {
         );
 
 
-    /* =====================================================
-       RESET PAGE WHEN SEARCH CHANGES
-    ===================================================== */
+    // ========================================================
+    // KEEP PAGE VALID
+    // ========================================================
 
     useEffect(() => {
 
-        setPage(1);
+        if (
+            page >
+            totalPages
+        ) {
 
-    }, [searchText]);
-
-
-    /* =====================================================
-       KEEP PAGE VALID
-    ===================================================== */
-
-    useEffect(() => {
-
-        if (page > totalPages) {
-
-            setPage(totalPages);
+            setPage(
+                totalPages
+            );
 
         }
 
@@ -428,88 +422,96 @@ const GoodsReceiptNoteItemList = () => {
     ]);
 
 
-    /* =====================================================
-       STATISTICS
-    ===================================================== */
+    // ========================================================
+    // STATISTICS
+    // ========================================================
 
-    const statistics = useMemo(() => {
+    const statistics =
+        useMemo(() => {
 
-        return {
-
-            totalItems:
-                items.length,
-
-
-            totalReceived:
+            const totalReceived =
                 items.reduce(
                     (
                         sum,
                         item
-                    ) => {
-
-                        return (
-                            sum +
-                            Number(
-                                item.receivedQuantity ??
-                                item.ReceivedQuantity ??
-                                0
-                            )
-                        );
-
-                    },
+                    ) =>
+                        sum +
+                        Number(
+                            item?.receivedQuantity ??
+                            item?.ReceivedQuantity ??
+                            0
+                        ),
                     0
-                ),
+                );
 
-
-            totalRejected:
+            const totalAccepted =
                 items.reduce(
                     (
                         sum,
                         item
-                    ) => {
-
-                        return (
-                            sum +
-                            Number(
-                                item.rejectedQuantity ??
-                                item.RejectedQuantity ??
-                                0
-                            )
-                        );
-
-                    },
+                    ) =>
+                        sum +
+                        Number(
+                            item?.acceptedQuantity ??
+                            item?.AcceptedQuantity ??
+                            0
+                        ),
                     0
-                ),
+                );
 
-
-            totalAmount:
+            const totalRejected =
                 items.reduce(
                     (
                         sum,
                         item
-                    ) => {
-
-                        return (
-                            sum +
-                            Number(
-                                item.totalAmount ??
-                                item.TotalAmount ??
-                                0
-                            )
-                        );
-
-                    },
+                    ) =>
+                        sum +
+                        Number(
+                            item?.rejectedQuantity ??
+                            item?.RejectedQuantity ??
+                            0
+                        ),
                     0
-                )
+                );
 
-        };
+            const totalAmount =
+                items.reduce(
+                    (
+                        sum,
+                        item
+                    ) =>
+                        sum +
+                        Number(
+                            item?.totalAmount ??
+                            item?.TotalAmount ??
+                            0
+                        ),
+                    0
+                );
 
-    }, [items]);
+            return {
+
+                totalItems:
+                    items.length,
+
+                totalReceived,
+
+                totalAccepted,
+
+                totalRejected,
+
+                totalAmount
+
+            };
+
+        }, [
+            items
+        ]);
 
 
-    /* =====================================================
-       ADD
-    ===================================================== */
+    // ========================================================
+    // ADD
+    // ========================================================
 
     const handleAdd = () => {
 
@@ -520,76 +522,104 @@ const GoodsReceiptNoteItemList = () => {
     };
 
 
-    /* =====================================================
-       EDIT
-    ===================================================== */
+    // ========================================================
+    // EDIT
+    // ========================================================
 
     const handleEdit = (item) => {
 
-        setSelectedItem(item);
+        setSelectedItem(
+            item
+        );
 
         setModalOpen(true);
 
     };
 
 
-    /* =====================================================
-       SAVE
-    ===================================================== */
+    // ========================================================
+    // SAVE
+    // ========================================================
 
-    const handleSave = async (data) => {
+    const handleSave = async (
+        data
+    ) => {
 
         try {
 
             console.log(
-                "SAVE GNI ITEM:",
+                "================================================="
+            );
+
+            console.log(
+                "SAVE GOODS RECEIPT NOTE ITEM"
+            );
+
+            console.log(
+                "DATA:",
                 data
             );
 
 
-            /* =============================================
-               GET GNI ID
-            ============================================= */
+            // =================================================
+            // GET ID
+            // =================================================
 
-            const gniId =
-                data?.goodsReceiptItemId ??
-                data?.GoodsReceiptItemId ??
+            const rawId =
                 data?.goodsReceiptNoteItemId ??
                 data?.GoodsReceiptNoteItemId ??
+                data?.goodsReceiptItemId ??
+                data?.GoodsReceiptItemId ??
                 null;
 
+            const itemId =
+                Number(rawId);
 
-            /* =============================================
-               UPDATE
-            ============================================= */
 
-            if (gniId !== null) {
+            // =================================================
+            // UPDATE
+            // =================================================
+
+            if (
+                Number.isInteger(
+                    itemId
+                ) &&
+                itemId > 0
+            ) {
 
                 console.log(
                     "UPDATE GNI ITEM ID:",
-                    gniId
+                    itemId
                 );
 
+                console.log(
+                    "PUT URL:",
+                    `${API_URL}/${itemId}`
+                );
 
                 await axios.put(
-                    `${API_URL}/${gniId}`,
-                    data
+                    `${API_URL}/${itemId}`,
+                    data,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
                 );
-
 
                 setSnackbar({
                     open: true,
                     message:
-                        "GNI Item updated successfully",
+                        "GNI Item updated successfully.",
                     severity: "success"
                 });
 
             }
 
-
-            /* =============================================
-               CREATE
-            ============================================= */
+            // =================================================
+            // CREATE
+            // =================================================
 
             else {
 
@@ -597,40 +627,48 @@ const GoodsReceiptNoteItemList = () => {
                     "CREATE GNI ITEM"
                 );
 
+                console.log(
+                    "POST URL:",
+                    API_URL
+                );
 
                 await axios.post(
                     API_URL,
-                    data
+                    data,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
                 );
-
 
                 setSnackbar({
                     open: true,
                     message:
-                        "GNI Item created successfully",
+                        "GNI Item created successfully.",
                     severity: "success"
                 });
 
             }
 
 
-            /* =============================================
-               CLOSE MODAL
-            ============================================= */
+            // =================================================
+            // CLOSE MODAL
+            // =================================================
 
             setModalOpen(false);
 
             setSelectedItem(null);
 
 
-            /* =============================================
-               RELOAD
-            ============================================= */
+            // =================================================
+            // RELOAD
+            // =================================================
 
             await loadGoodsReceiptNoteItems();
 
         }
-
         catch (error) {
 
             console.error(
@@ -639,6 +677,11 @@ const GoodsReceiptNoteItemList = () => {
             );
 
             console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
                 "SERVER RESPONSE:",
                 error?.response?.data
             );
@@ -647,7 +690,8 @@ const GoodsReceiptNoteItemList = () => {
                 open: true,
                 message:
                     error?.response?.data?.message ||
-                    "Failed to save GNI Item",
+                    error?.response?.data?.error ||
+                    "Failed to save GNI Item.",
                 severity: "error"
             });
 
@@ -656,160 +700,222 @@ const GoodsReceiptNoteItemList = () => {
     };
 
 
-    /* =====================================================
-       VIEW
-    ===================================================== */
+    // ========================================================
+    // VIEW
+    // ========================================================
 
-    const handleView = (item) => {
+    const handleView = (
+        item
+    ) => {
 
-        setSelectedItem(item);
+        setSelectedItem(
+            item
+        );
 
         setViewOpen(true);
 
     };
 
 
-    /* =====================================================
-       DELETE
-    ===================================================== */
+    // ========================================================
+    // DELETE
+    // ========================================================
 
-    const handleDelete = (item) => {
+    const handleDelete = (
+        item
+    ) => {
 
-        setSelectedItem(item);
+        setSelectedItem(
+            item
+        );
 
         setDeleteOpen(true);
 
     };
 
 
-    /* =====================================================
-       CONFIRM DELETE
-    ===================================================== */
+    // ========================================================
+    // CONFIRM DELETE
+    // ========================================================
 
-    const confirmDelete = async (id) => {
+    const confirmDelete =
+        async (
+            id
+        ) => {
 
-        try {
+            try {
 
-            console.log(
-                "DELETE GNI ITEM:",
-                id
+                const itemId =
+                    Number(id);
+
+                if (
+                    !Number.isInteger(
+                        itemId
+                    ) ||
+                    itemId <= 0
+                ) {
+
+                    setSnackbar({
+                        open: true,
+                        message:
+                            "Valid GNI Item ID is required.",
+                        severity: "error"
+                    });
+
+                    return;
+
+                }
+
+                console.log(
+                    "================================================="
+                );
+
+                console.log(
+                    "DELETE GNI ITEM"
+                );
+
+                console.log(
+                    "ID:",
+                    itemId
+                );
+
+                console.log(
+                    "URL:",
+                    `${API_URL}/${itemId}`
+                );
+
+
+                await axios.delete(
+                    `${API_URL}/${itemId}`
+                );
+
+
+                setDeleteOpen(false);
+
+                setSelectedItem(null);
+
+
+                await loadGoodsReceiptNoteItems();
+
+
+                setSnackbar({
+                    open: true,
+                    message:
+                        "GNI Item deleted successfully.",
+                    severity: "success"
+                });
+
+            }
+            catch (error) {
+
+                console.error(
+                    "DELETE GNI ITEM ERROR:",
+                    error
+                );
+
+                console.error(
+                    "STATUS:",
+                    error?.response?.status
+                );
+
+                console.error(
+                    "SERVER RESPONSE:",
+                    error?.response?.data
+                );
+
+                setSnackbar({
+                    open: true,
+                    message:
+                        error?.response?.data?.message ||
+                        error?.response?.data?.error ||
+                        "Failed to delete GNI Item.",
+                    severity: "error"
+                });
+
+            }
+
+        };
+
+
+    // ========================================================
+    // PAGE CHANGE
+    // ========================================================
+
+    const handlePageChange =
+        (value) => {
+
+            const newPage =
+                Number(value) || 1;
+
+            setPage(
+                newPage
             );
 
+        };
 
-            await axios.delete(
-                `${API_URL}/${id}`
+
+    // ========================================================
+    // PAGE SIZE CHANGE
+    // ========================================================
+
+    const handlePageSizeChange =
+        (value) => {
+
+            const newPageSize =
+                Number(value) || 10;
+
+            setPageSize(
+                newPageSize
             );
 
+            setPage(1);
 
-            setSnackbar({
-                open: true,
-                message:
-                    "GNI Item deleted successfully",
-                severity: "success"
-            });
+        };
 
 
-            setDeleteOpen(false);
+    // ========================================================
+    // SEARCH CHANGE
+    // ========================================================
 
-            setSelectedItem(null);
+    const handleSearchChange =
+        (value) => {
 
-
-            await loadGoodsReceiptNoteItems();
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "DELETE GNI ITEM ERROR:",
-                error
+            setSearchText(
+                value ?? ""
             );
 
-            console.error(
-                "SERVER RESPONSE:",
-                error?.response?.data
+            setPage(1);
+
+        };
+
+
+    // ========================================================
+    // CLOSE SNACKBAR
+    // ========================================================
+
+    const handleSnackbarClose =
+        () => {
+
+            setSnackbar(
+                previous => ({
+                    ...previous,
+                    open: false
+                })
             );
 
-            setSnackbar({
-                open: true,
-                message:
-                    error?.response?.data?.message ||
-                    "Delete failed",
-                severity: "error"
-            });
-
-        }
-
-    };
+        };
 
 
-    /* =====================================================
-       PAGE CHANGE
-    ===================================================== */
-
-    const handlePageChange = (
-        value
-    ) => {
-
-        setPage(value);
-
-    };
-
-
-    /* =====================================================
-       PAGE SIZE CHANGE
-    ===================================================== */
-
-    const handlePageSizeChange = (
-        value
-    ) => {
-
-        setPageSize(value);
-
-        setPage(1);
-
-    };
-
-
-    /* =====================================================
-       SEARCH CHANGE
-    ===================================================== */
-
-    const handleSearchChange = (
-        value
-    ) => {
-
-        setSearchText(value);
-
-        setPage(1);
-
-    };
-
-
-    /* =====================================================
-       SNACKBAR CLOSE
-    ===================================================== */
-
-    const handleSnackbarClose = () => {
-
-        setSnackbar(
-            (previous) => ({
-                ...previous,
-                open: false
-            })
-        );
-
-    };
-
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
 
         <Box
-            className="goods-receipt-note-items-container"
+            className="
+                goods-receipt-note-items-container
+            "
         >
 
             {/* =================================================
@@ -821,7 +927,7 @@ const GoodsReceiptNoteItemList = () => {
                 fontWeight="bold"
                 mb={3}
             >
-                GNI Items
+                Goods Receipt Note Items
             </Typography>
 
 
@@ -830,7 +936,9 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <GoodsReceiptNoteItemToolbar
-                onAdd={handleAdd}
+                onAdd={
+                    handleAdd
+                }
                 onRefresh={
                     loadGoodsReceiptNoteItems
                 }
@@ -842,7 +950,9 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <GoodsReceiptNoteItemStatistics
-                statistics={statistics}
+                statistics={
+                    statistics
+                }
             />
 
 
@@ -851,7 +961,9 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <GoodsReceiptNoteItemSearch
-                searchText={searchText}
+                searchText={
+                    searchText
+                }
                 setSearchText={
                     handleSearchChange
                 }
@@ -869,7 +981,7 @@ const GoodsReceiptNoteItemList = () => {
                         display="flex"
                         justifyContent="center"
                         alignItems="center"
-                        mt={5}
+                        minHeight="300px"
                     >
 
                         <CircularProgress />
@@ -879,10 +991,18 @@ const GoodsReceiptNoteItemList = () => {
                 ) : (
 
                     <GoodsReceiptNoteItemTable
-                        items={paginatedItems}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
+                        items={
+                            paginatedItems
+                        }
+                        onView={
+                            handleView
+                        }
+                        onEdit={
+                            handleEdit
+                        }
+                        onDelete={
+                            handleDelete
+                        }
                     />
 
                 )
@@ -894,10 +1014,18 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <GoodsReceiptNoteItemPagination
-                page={page}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                totalRecords={totalRecords}
+                page={
+                    page
+                }
+                totalPages={
+                    totalPages
+                }
+                pageSize={
+                    pageSize
+                }
+                totalRecords={
+                    totalRecords
+                }
                 onPageChange={
                     handlePageChange
                 }
@@ -912,8 +1040,12 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <GoodsReceiptNoteItemModal
-                open={modalOpen}
-                item={selectedItem}
+                open={
+                    modalOpen
+                }
+                item={
+                    selectedItem
+                }
                 onClose={() => {
 
                     setModalOpen(false);
@@ -921,7 +1053,9 @@ const GoodsReceiptNoteItemList = () => {
                     setSelectedItem(null);
 
                 }}
-                onSave={handleSave}
+                onSave={
+                    handleSave
+                }
             />
 
 
@@ -930,8 +1064,12 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <GoodsReceiptNoteItemView
-                open={viewOpen}
-                item={selectedItem}
+                open={
+                    viewOpen
+                }
+                item={
+                    selectedItem
+                }
                 onClose={() => {
 
                     setViewOpen(false);
@@ -947,8 +1085,12 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <DeleteGoodsReceiptNoteItemDialog
-                open={deleteOpen}
-                item={selectedItem}
+                open={
+                    deleteOpen
+                }
+                item={
+                    selectedItem
+                }
                 onClose={() => {
 
                     setDeleteOpen(false);
@@ -956,7 +1098,9 @@ const GoodsReceiptNoteItemList = () => {
                     setSelectedItem(null);
 
                 }}
-                onDeleted={confirmDelete}
+                onDeleted={
+                    confirmDelete
+                }
             />
 
 
@@ -965,8 +1109,12 @@ const GoodsReceiptNoteItemList = () => {
             ================================================= */}
 
             <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
+                open={
+                    snackbar.open
+                }
+                autoHideDuration={
+                    3000
+                }
                 onClose={
                     handleSnackbarClose
                 }
@@ -977,15 +1125,17 @@ const GoodsReceiptNoteItemList = () => {
             >
 
                 <Alert
-                    onClose={
-                        handleSnackbarClose
-                    }
                     severity={
                         snackbar.severity
                     }
+                    onClose={
+                        handleSnackbarClose
+                    }
                     variant="filled"
                 >
-                    {snackbar.message}
+                    {
+                        snackbar.message
+                    }
                 </Alert>
 
             </Snackbar>
@@ -998,4 +1148,3 @@ const GoodsReceiptNoteItemList = () => {
 
 
 export default GoodsReceiptNoteItemList;
-

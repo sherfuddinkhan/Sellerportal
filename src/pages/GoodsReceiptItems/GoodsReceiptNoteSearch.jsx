@@ -1,25 +1,31 @@
-
 import React from "react";
 
 import {
     Box,
     TextField,
-    InputAdornment
+    InputAdornment,
+    IconButton,
+    Tooltip
 } from "@mui/material";
 
 import {
-    Search
+    Search,
+    Clear
 } from "@mui/icons-material";
 
 
-/* =========================================================
-   GOODS RECEIPT NOTE SEARCH
-========================================================= */
+// ============================================================
+// GOODS RECEIPT NOTE SEARCH
+// ============================================================
 
 const GoodsReceiptNoteSearch = ({
-    searchText,
+    searchText = "",
     setSearchText
 }) => {
+
+    // ========================================================
+    // HANDLE SEARCH CHANGE
+    // ========================================================
 
     const handleSearchChange = (event) => {
 
@@ -31,7 +37,24 @@ const GoodsReceiptNoteSearch = ({
     };
 
 
+    // ========================================================
+    // CLEAR SEARCH
+    // ========================================================
+
+    const handleClearSearch = () => {
+
+        if (typeof setSearchText === "function") {
+            setSearchText("");
+        }
+    };
+
+
+    // ========================================================
+    // RENDER
+    // ========================================================
+
     return (
+
         <Box
             className="goods-receipt-note-search"
             sx={{
@@ -43,18 +66,67 @@ const GoodsReceiptNoteSearch = ({
             <TextField
                 fullWidth
                 size="small"
+
                 label="Search Goods Receipt Notes"
-                placeholder="Search by GRN Number, Purchase Order ID, Supplier ID, Status..."
-                value={searchText ?? ""}
+
+                placeholder={
+                    "Search by GRN Number, GRN ID, " +
+                    "Purchase Order ID, Supplier ID, " +
+                    "Seller ID, Customer ID, Status..."
+                }
+
+                value={searchText}
+
                 onChange={handleSearchChange}
+
                 autoComplete="off"
+
                 InputProps={{
+
                     startAdornment: (
+
                         <InputAdornment position="start">
-                            <Search />
+
+                            <Search
+                                fontSize="small"
+                                color="action"
+                            />
+
                         </InputAdornment>
-                    )
+                    ),
+
+                    endAdornment: searchText ? (
+
+                        <InputAdornment position="end">
+
+                            <Tooltip title="Clear search">
+
+                                <IconButton
+                                    size="small"
+                                    edge="end"
+                                    onClick={handleClearSearch}
+                                    aria-label="clear search"
+                                >
+
+                                    <Clear
+                                        fontSize="small"
+                                    />
+
+                                </IconButton>
+
+                            </Tooltip>
+
+                        </InputAdornment>
+
+                    ) : null
                 }}
+
+                sx={{
+                    "& .MuiOutlinedInput-root": {
+                        borderRadius: 2
+                    }
+                }}
+
             />
 
         </Box>
@@ -63,4 +135,3 @@ const GoodsReceiptNoteSearch = ({
 
 
 export default GoodsReceiptNoteSearch;
-

@@ -22,9 +22,37 @@ import {
 } from "@mui/icons-material";
 
 
-/* =========================================================
-   FORMAT CURRENCY
-========================================================= */
+// ============================================================
+// GET FIELD
+// Supports camelCase + PascalCase
+// ============================================================
+
+const getField = (item, ...fieldNames) => {
+
+    if (!item) {
+        return null;
+    }
+
+    for (const fieldName of fieldNames) {
+
+        const value = item[fieldName];
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ) {
+            return value;
+        }
+    }
+
+    return null;
+};
+
+
+// ============================================================
+// FORMAT CURRENCY
+// ============================================================
 
 const formatCurrency = (value) => {
 
@@ -41,9 +69,9 @@ const formatCurrency = (value) => {
 };
 
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+// ============================================================
+// FORMAT DATE
+// ============================================================
 
 const formatDate = (value) => {
 
@@ -54,7 +82,7 @@ const formatDate = (value) => {
     const date = new Date(value);
 
     if (Number.isNaN(date.getTime())) {
-        return "-";
+        return String(value);
     }
 
     return date.toLocaleDateString("en-IN", {
@@ -65,43 +93,42 @@ const formatDate = (value) => {
 };
 
 
-/* =========================================================
-   STATUS CHIP
-========================================================= */
+// ============================================================
+// STATUS CHIP
+// ============================================================
 
 const getStatusColor = (status) => {
 
-    const value = String(status || "").toLowerCase();
+    const value = String(status || "")
+        .trim()
+        .toLowerCase();
 
-    if (
-        value === "completed" ||
-        value === "received" ||
-        value === "approved"
-    ) {
-        return "success";
+    switch (value) {
+
+        case "completed":
+        case "received":
+        case "approved":
+            return "success";
+
+        case "pending":
+        case "processing":
+        case "partial":
+            return "warning";
+
+        case "cancelled":
+        case "canceled":
+        case "rejected":
+            return "error";
+
+        default:
+            return "default";
     }
-
-    if (
-        value === "pending" ||
-        value === "processing"
-    ) {
-        return "warning";
-    }
-
-    if (
-        value === "cancelled" ||
-        value === "rejected"
-    ) {
-        return "error";
-    }
-
-    return "default";
 };
 
 
-/* =========================================================
-   GOODS RECEIPT NOTE TABLE
-========================================================= */
+// ============================================================
+// GOODS RECEIPT NOTE TABLE
+// ============================================================
 
 const GoodsReceiptNoteTable = ({
     notes = [],
@@ -110,40 +137,44 @@ const GoodsReceiptNoteTable = ({
     onDelete
 }) => {
 
+    // ========================================================
+    // SAFE DATA
+    // ========================================================
+
     const safeNotes = Array.isArray(notes)
         ? notes
         : [];
 
 
-    /* =====================================================
-       ACTION HANDLERS
-    ===================================================== */
+    // ========================================================
+    // DEBUG API DATA
+    // ========================================================
 
-    const handleView = (note) => {
+    console.log(
+        "================================================"
+    );
 
-        if (typeof onView === "function") {
-            onView(note);
-        }
-    };
+    console.log(
+        "GOODS RECEIPT NOTE TABLE DATA:",
+        safeNotes
+    );
+
+    console.log(
+        "GRN COUNT:",
+        safeNotes.length
+    );
+
+    console.log(
+        "================================================"
+    );
 
 
-    const handleEdit = (note) => {
-
-        if (typeof onEdit === "function") {
-            onEdit(note);
-        }
-    };
-
-
-    const handleDelete = (note) => {
-
-        if (typeof onDelete === "function") {
-            onDelete(note);
-        }
-    };
-
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
+
         <TableContainer
             component={Paper}
             className="goods-receipt-note-table"
@@ -157,6 +188,9 @@ const GoodsReceiptNoteTable = ({
             <Table
                 stickyHeader
                 size="small"
+                sx={{
+                    minWidth: 1000
+                }}
             >
 
                 {/* =================================================
@@ -235,185 +269,345 @@ const GoodsReceiptNoteTable = ({
 
                     ) : (
 
-                        safeNotes.map((note) => (
+                        safeNotes.map((note, index) => {
 
-                            <TableRow
-                                hover
-                                key={
-                                    note.GoodsReceiptNoteId ??
-                                    note.GRNNumber
+                            // ==================================================
+                            // IDENTIFIERS
+                            // ==================================================
+
+                            const goodsReceiptNoteId =
+                                getField(
+                                    note,
+                                    "goodsReceiptNoteId",
+                                    "GoodsReceiptNoteId"
+                                );
+
+
+                            const grnNumber =
+                                getField(
+                                    note,
+                                    "grnNumber",
+                                    "GRNNumber",
+                                    "goodsReceiptNumber",
+                                    "GoodsReceiptNumber"
+                                );
+
+
+                            const purchaseOrderId =
+                                getField(
+                                    note,
+                                    "purchaseOrderId",
+                                    "PurchaseOrderId"
+                                );
+
+
+                            const supplierId =
+                                getField(
+                                    note,
+                                    "supplierId",
+                                    "SupplierId"
+                                );
+
+
+                            // ==================================================
+                            // DATE
+                            // ==================================================
+
+                            const receiptDate =
+                                getField(
+                                    note,
+                                    "receiptDate",
+                                    "ReceiptDate",
+                                    "receivedDate",
+                                    "ReceivedDate"
+                                );
+
+
+                            // ==================================================
+                            // STATUS
+                            // ==================================================
+
+                            const status =
+                                getField(
+                                    note,
+                                    "status",
+                                    "Status"
+                                );
+
+
+                            // ==================================================
+                            // TOTAL
+                            // ==================================================
+
+                            const totalAmount =
+                                getField(
+                                    note,
+                                    "totalAmount",
+                                    "TotalAmount"
+                                );
+
+
+                            // ==================================================
+                            // DEBUG ROW
+                            // ==================================================
+
+                            console.log(
+                                "GRN TABLE ROW:",
+                                {
+                                    note,
+                                    goodsReceiptNoteId,
+                                    grnNumber,
+                                    purchaseOrderId,
+                                    supplierId,
+                                    receiptDate,
+                                    status,
+                                    totalAmount
                                 }
-                            >
-
-                                {/* =====================================
-                                    GRN ID
-                                ===================================== */}
-
-                                <TableCell>
-                                    {note.GoodsReceiptNoteId ?? "-"}
-                                </TableCell>
+                            );
 
 
-                                {/* =====================================
-                                    GRN NUMBER
-                                ===================================== */}
+                            // ==================================================
+                            // ROW KEY
+                            // ==================================================
 
-                                <TableCell>
-
-                                    <Typography
-                                        fontWeight={600}
-                                    >
-                                        {note.GRNNumber || "-"}
-                                    </Typography>
-
-                                </TableCell>
+                            const rowKey =
+                                goodsReceiptNoteId !== null
+                                    ? `grn-${goodsReceiptNoteId}`
+                                    : `grn-${grnNumber || index}`;
 
 
-                                {/* =====================================
-                                    PURCHASE ORDER ID
-                                ===================================== */}
+                            // ==================================================
+                            // ROW
+                            // ==================================================
 
-                                <TableCell>
-                                    {note.PurchaseOrderId ?? "-"}
-                                </TableCell>
+                            return (
 
-
-                                {/* =====================================
-                                    SUPPLIER ID
-                                ===================================== */}
-
-                                <TableCell>
-                                    {note.SupplierId ?? "-"}
-                                </TableCell>
-
-
-                                {/* =====================================
-                                    RECEIPT DATE
-                                ===================================== */}
-
-                                <TableCell>
-                                    {formatDate(note.ReceiptDate)}
-                                </TableCell>
-
-
-                                {/* =====================================
-                                    STATUS
-                                ===================================== */}
-
-                                <TableCell>
-
-                                    <Chip
-                                        label={
-                                            note.Status || "Unknown"
-                                        }
-                                        color={
-                                            getStatusColor(note.Status)
-                                        }
-                                        size="small"
-                                        variant="outlined"
-                                    />
-
-                                </TableCell>
-
-
-                                {/* =====================================
-                                    TOTAL AMOUNT
-                                ===================================== */}
-
-                                <TableCell
-                                    align="right"
+                                <TableRow
+                                    hover
+                                    key={rowKey}
                                 >
 
-                                    <Typography
-                                        fontWeight={600}
-                                    >
-                                        {formatCurrency(
-                                            note.TotalAmount
+                                    {/* =====================================
+                                        GRN ID
+                                    ===================================== */}
+
+                                    <TableCell>
+
+                                        {goodsReceiptNoteId !== null
+                                            ? goodsReceiptNoteId
+                                            : "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                        GRN NUMBER
+                                    ===================================== */}
+
+                                    <TableCell>
+
+                                        <Typography
+                                            fontWeight={600}
+                                        >
+                                            {grnNumber || "-"}
+                                        </Typography>
+
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                        PURCHASE ORDER ID
+                                    ===================================== */}
+
+                                    <TableCell>
+
+                                        {purchaseOrderId !== null
+                                            ? purchaseOrderId
+                                            : "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                        SUPPLIER ID
+                                    ===================================== */}
+
+                                    <TableCell>
+
+                                        {supplierId !== null
+                                            ? supplierId
+                                            : "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                        RECEIPT DATE
+                                    ===================================== */}
+
+                                    <TableCell>
+
+                                        {formatDate(
+                                            receiptDate
                                         )}
-                                    </Typography>
 
-                                </TableCell>
+                                    </TableCell>
 
 
-                                {/* =====================================
-                                    ACTIONS
-                                ===================================== */}
+                                    {/* =====================================
+                                        STATUS
+                                    ===================================== */}
 
-                                <TableCell align="center">
+                                    <TableCell>
 
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            gap: 0.5
-                                        }}
+                                        <Chip
+                                            label={
+                                                status || "Unknown"
+                                            }
+                                            color={
+                                                getStatusColor(
+                                                    status
+                                                )
+                                            }
+                                            size="small"
+                                            variant="outlined"
+                                        />
+
+                                    </TableCell>
+
+
+                                    {/* =====================================
+                                        TOTAL AMOUNT
+                                    ===================================== */}
+
+                                    <TableCell
+                                        align="right"
                                     >
 
-                                        {/* =================================
-                                            VIEW
-                                        ================================= */}
+                                        <Typography
+                                            fontWeight={600}
+                                        >
+                                            {formatCurrency(
+                                                totalAmount
+                                            )}
+                                        </Typography>
 
-                                        <Tooltip title="View">
-
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                onClick={() =>
-                                                    handleView(note)
-                                                }
-                                            >
-                                                <Visibility fontSize="small" />
-                                            </IconButton>
-
-                                        </Tooltip>
+                                    </TableCell>
 
 
-                                        {/* =================================
-                                            EDIT
-                                        ================================= */}
+                                    {/* =====================================
+                                        ACTIONS
+                                    ===================================== */}
 
-                                        <Tooltip title="Edit">
+                                    <TableCell
+                                        align="center"
+                                    >
 
-                                            <IconButton
-                                                size="small"
-                                                color="warning"
-                                                onClick={() =>
-                                                    handleEdit(note)
-                                                }
-                                            >
-                                                <Edit fontSize="small" />
-                                            </IconButton>
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                gap: 0.5
+                                            }}
+                                        >
 
-                                        </Tooltip>
+                                            {/* =================================
+                                                VIEW
+                                            ================================= */}
+
+                                            <Tooltip title="View GRN">
+
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={() => {
+
+                                                        if (
+                                                            typeof onView ===
+                                                            "function"
+                                                        ) {
+                                                            onView(note);
+                                                        }
+
+                                                    }}
+                                                >
+
+                                                    <Visibility
+                                                        fontSize="small"
+                                                    />
+
+                                                </IconButton>
+
+                                            </Tooltip>
 
 
-                                        {/* =================================
-                                            DELETE
-                                        ================================= */}
+                                            {/* =================================
+                                                EDIT
+                                            ================================= */}
 
-                                        <Tooltip title="Delete">
+                                            <Tooltip title="Edit GRN">
 
-                                            <IconButton
-                                                size="small"
-                                                color="error"
-                                                onClick={() =>
-                                                    handleDelete(note)
-                                                }
-                                            >
-                                                <Delete fontSize="small" />
-                                            </IconButton>
+                                                <IconButton
+                                                    size="small"
+                                                    color="warning"
+                                                    onClick={() => {
 
-                                        </Tooltip>
+                                                        if (
+                                                            typeof onEdit ===
+                                                            "function"
+                                                        ) {
+                                                            onEdit(note);
+                                                        }
 
-                                    </Box>
+                                                    }}
+                                                >
 
-                                </TableCell>
+                                                    <Edit
+                                                        fontSize="small"
+                                                    />
 
-                            </TableRow>
+                                                </IconButton>
 
-                        ))
+                                            </Tooltip>
 
+
+                                            {/* =================================
+                                                DELETE
+                                            ================================= */}
+
+                                            <Tooltip title="Delete GRN">
+
+                                                <IconButton
+                                                    size="small"
+                                                    color="error"
+                                                    onClick={() => {
+
+                                                        if (
+                                                            typeof onDelete ===
+                                                            "function"
+                                                        ) {
+                                                            onDelete(note);
+                                                        }
+
+                                                    }}
+                                                >
+
+                                                    <Delete
+                                                        fontSize="small"
+                                                    />
+
+                                                </IconButton>
+
+                                            </Tooltip>
+
+                                        </Box>
+
+                                    </TableCell>
+
+                                </TableRow>
+                            );
+                        })
                     )}
 
                 </TableBody>

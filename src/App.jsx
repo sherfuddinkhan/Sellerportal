@@ -220,6 +220,23 @@ import GoodsReceiptNoteItemToolbar from "./pages/GoodsReceiptNotes/GoodsReceiptN
 import GoodsReceiptNoteItemView from "./pages/GoodsReceiptNotes/GoodsReceiptNoteItemView";
 import DeleteGoodsReceiptNoteItemDialog from "./pages/GoodsReceiptNotes/DeleteGoodsReceiptNoteItemDialog";
 
+
+// =========================================================
+// GOODS RECEIPT NOTES
+// =========================================================
+
+// =========================================================
+// GOODS RECEIPT NOTES
+// =========================================================
+
+import GoodsReceiptNoteList from "./pages/GoodsReceiptItems/GoodsReceiptNoteList";
+import GoodsReceiptNoteCreate from "./pages/GoodsReceiptItems/GoodsReceiptNoteCreate";
+import GoodsReceiptNoteSearch from "./pages/GoodsReceiptItems/GoodsReceiptNoteSearch";
+import GoodsReceiptNoteStatistics from "./pages/GoodsReceiptItems/GoodsReceiptNoteStatistics";
+import GoodsReceiptNoteDetails from "./pages/GoodsReceiptItems/GoodsReceiptNoteDetails";
+import GoodsReceiptNoteEdit from "./pages/GoodsReceiptItems/GoodsReceiptNoteEdit";
+import GoodsReceiptNoteView from "./pages/GoodsReceiptItems/GoodsReceiptNoteView";
+import GoodsReceiptNoteFilters from "./pages/GoodsReceiptItems/GoodsReceiptNoteFilters";
 // =========================================================
 // MARKETPLACE ORDER ITEMS
 // =========================================================
@@ -244,48 +261,20 @@ import MarketplaceReturnView from "./pages/MarketplaceReturns/MarketplaceReturnV
 // =========================================================
 // STOCK LEDGER IMPORTS
 // =========================================================
-// =========================================================
-// STOCK LEDGER IMPORTS
-// =========================================================
 
-import StockLedgerList
-    from "./pages/StockLedger/StockLedgerList";
-
-import StockLedgerCreate
-    from "./pages/StockLedger/StockLedgerCreate";
-
-import StockLedgerEdit
-    from "./pages/StockLedger/StockLedgerEdit";
-
-import StockLedgerView
-    from "./pages/StockLedger/StockLedgerView";
-
-import StockLedgerDetails
-    from "./pages/StockLedger/StockLedgerDetails";
-
-import StockLedgerTable
-    from "./pages/StockLedger/StockLedgerTable";
-
-import StockLedgerCard
-    from "./pages/StockLedger/StockLedgerCard";
-
-import StockLedgerSearch
-    from "./pages/StockLedger/StockLedgerSearch";
-
-import StockLedgerFilters
-    from "./pages/StockLedger/StockLedgerFilters";
-
-import StockLedgerPagination
-    from "./pages/StockLedger/StockLedgerPagination";
-
-import StockLedgerStatistics
-    from "./pages/StockLedger/StockLedgerStatistics";
-
-import StockLedgerToolbar
-    from "./pages/StockLedger/StockLedgerToolbar";
-
-import DeleteStockLedgerDialog
-    from "./pages/StockLedger/DeleteStockLedgerDialog";
+import StockLedgerList from "./pages/StockLedger/StockLedgerList";
+import StockLedgerCreate from "./pages/StockLedger/StockLedgerCreate";
+import StockLedgerEdit from "./pages/StockLedger/StockLedgerEdit";
+import StockLedgerView from "./pages/StockLedger/StockLedgerView";
+import StockLedgerDetails from "./pages/StockLedger/StockLedgerDetails";
+import StockLedgerTable from "./pages/StockLedger/StockLedgerTable";
+import StockLedgerCard from "./pages/StockLedger/StockLedgerCard";
+import StockLedgerSearch from "./pages/StockLedger/StockLedgerSearch";
+import StockLedgerFilters from "./pages/StockLedger/StockLedgerFilters";
+import StockLedgerPagination from "./pages/StockLedger/StockLedgerPagination";
+import StockLedgerStatistics from "./pages/StockLedger/StockLedgerStatistics";
+import StockLedgerToolbar from "./pages/StockLedger/StockLedgerToolbar";
+import DeleteStockLedgerDialog from "./pages/StockLedger/DeleteStockLedgerDialog";
 
 
 // =========================================================
@@ -1920,46 +1909,88 @@ function App() {
                     element={<PurchaseReturnView />}
                 />
 
+<Route
+    path="goods-receipt-notes"
+    element={<GoodsReceiptNoteList />}
+/>
 
-                {/* =================================================
-                    GOODS RECEIPT NOTE ITEMS
-                ================================================= */}
+<Route
+    path="goods-receipt-notes/create"
+    element={<GoodsReceiptNoteCreate />}
+/>
 
-                <Route
-                    path="goods-receipt-note-items"
-                    element={<GoodsReceiptNoteItemList />}
-                />
+<Route
+    path="goods-receipt-notes/search"
+    element={<GoodsReceiptNoteSearch />}
+/>
 
-                <Route
-                    path="goods-receipt-note-items/create"
-                    element={<GoodsReceiptNoteItemCreate />}
-                />
+<Route
+    path="goods-receipt-notes/filters"
+    element={<GoodsReceiptNoteFilters />}
+/>
 
-                <Route
-                    path="goods-receipt-note-items/search"
-                    element={<GoodsReceiptNoteItemSearch />}
-                />
+<Route
+    path="goods-receipt-notes/statistics"
+    element={<GoodsReceiptNoteStatistics />}
+/>
 
-                <Route
-                    path="goods-receipt-note-items/filters"
-                    element={<GoodsReceiptNoteItemFilters />}
-                />
+<Route
+    path="goods-receipt-notes/details/:id"
+    element={<GoodsReceiptNoteDetails />}
+/>
 
-                <Route
-                    path="goods-receipt-note-items/statistics"
-                    element={<GoodsReceiptNoteItemStatistics />}
-                />
+<Route
+    path="goods-receipt-notes/edit/:id"
+    element={<GoodsReceiptNoteEdit />}
+/>
 
-                <Route
-                    path="goods-receipt-note-items/details/:id"
-                    element={<GoodsReceiptNoteItemDetails />}
-                />
+<Route
+    path="goods-receipt-notes/:id"
+    element={<GoodsReceiptNoteView />}
+/>
+{/* =========================================================
+    GOODS RECEIPT NOTE ITEMS
+========================================================= */}
 
-                <Route
-                    path="goods-receipt-note-items/edit/:id"
-                    element={<GoodsReceiptNoteItemEdit />}
-                />
+<Route
+    path="goods-receipt-note-items"
+    element={<GoodsReceiptNoteItemList />}
+/>
 
+<Route
+    path="goods-receipt-note-items/create"
+    element={<GoodsReceiptNoteItemCreate />}
+/>
+
+<Route
+    path="goods-receipt-note-items/search"
+    element={<GoodsReceiptNoteItemSearch />}
+/>
+
+<Route
+    path="goods-receipt-note-items/filters"
+    element={<GoodsReceiptNoteItemFilters />}
+/>
+
+<Route
+    path="goods-receipt-note-items/statistics"
+    element={<GoodsReceiptNoteItemStatistics />}
+/>
+
+<Route
+    path="goods-receipt-note-items/details/:id"
+    element={<GoodsReceiptNoteItemDetails />}
+/>
+
+<Route
+    path="goods-receipt-note-items/edit/:id"
+    element={<GoodsReceiptNoteItemEdit />}
+/>
+
+<Route
+    path="goods-receipt-note-items/:id"
+    element={<GoodsReceiptNoteItemView />}
+/>
 
                 {/* =================================================
                     ORDERS

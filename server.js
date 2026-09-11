@@ -29799,10 +29799,1647 @@ app.get(
     }
 );
 
+// ============================================================
+// GOODS RECEIPT NOTES - GRN
+// Backend:
+// https://localhost:7203/api/GoodsReceiptNotes
+// Node:
+// http://localhost:5000/api/goods-receipt-notes
+// ============================================================
 
 
+// ============================================================
+// GET ALL GOODS RECEIPT NOTES
+// GET /api/goods-receipt-notes
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes",
+    async (req, res) => {
+
+        try {
+
+            console.log("=================================================");
+            console.log("GET /api/goods-receipt-notes");
+            console.log("Backend: /api/GoodsReceiptNotes");
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes`,
+                {
+                    httpsAgent
+                }
+            );
+
+            console.log(
+                "GET GOODS RECEIPT NOTES STATUS:",
+                response.status
+            );
+
+            console.log(
+                "GET GOODS RECEIPT NOTES DATA:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GOODS RECEIPT NOTES ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Notes."
+                    }
+                );
+        }
+    }
+);
 
 
+// ============================================================
+// GET GRN BY PURCHASE ORDER
+// GET /api/goods-receipt-notes/purchaseorder/:purchaseOrderId
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/purchaseorder/:purchaseOrderId",
+    async (req, res) => {
+
+        try {
+
+            const purchaseOrderId =
+                Number(req.params.purchaseOrderId);
+
+            if (
+                !Number.isInteger(purchaseOrderId) ||
+                purchaseOrderId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Purchase Order ID is required."
+                });
+            }
+
+            console.log("=================================================");
+            console.log(
+                "GET /api/goods-receipt-notes/purchaseorder/" +
+                purchaseOrderId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/purchaseorder/${purchaseOrderId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY PURCHASE ORDER ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Notes by Purchase Order."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRN BY PURCHASE ORDER + GRN ID
+// GET /api/goods-receipt-notes/purchaseorder/:purchaseOrderId/grn/:goodsReceiptNoteId
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/purchaseorder/:purchaseOrderId/grn/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const purchaseOrderId =
+                Number(req.params.purchaseOrderId);
+
+            const goodsReceiptNoteId =
+                Number(req.params.goodsReceiptNoteId);
+
+            if (
+                !Number.isInteger(purchaseOrderId) ||
+                purchaseOrderId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Purchase Order ID is required."
+                });
+            }
+
+            if (
+                !Number.isInteger(goodsReceiptNoteId) ||
+                goodsReceiptNoteId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note ID is required."
+                });
+            }
+
+            console.log("=================================================");
+            console.log(
+                "GET GRN BY PURCHASE ORDER + GRN"
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/purchaseorder/${purchaseOrderId}/grn/${goodsReceiptNoteId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY PURCHASE ORDER + GRN ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Note."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRN BY SELLER
+// GET /api/goods-receipt-notes/seller/:sellerId
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const sellerId =
+                Number(req.params.sellerId);
+
+            if (
+                !Number.isInteger(sellerId) ||
+                sellerId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Seller ID is required."
+                });
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/seller/${sellerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY SELLER ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Notes by Seller."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRN BY CUSTOMER
+// GET /api/goods-receipt-notes/customer/:customerId
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const customerId =
+                Number(req.params.customerId);
+
+            if (
+                !Number.isInteger(customerId) ||
+                customerId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Customer ID is required."
+                });
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/customer/${customerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY CUSTOMER ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Notes by Customer."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRN BY SUPPLIER
+// GET /api/goods-receipt-notes/supplier/:supplierId
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/supplier/:supplierId",
+    async (req, res) => {
+
+        try {
+
+            const supplierId =
+                Number(req.params.supplierId);
+
+            if (
+                !Number.isInteger(supplierId) ||
+                supplierId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Supplier ID is required."
+                });
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/supplier/${supplierId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY SUPPLIER ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Notes by Supplier."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRN BY SELLER + CUSTOMER
+// GET /api/goods-receipt-notes/seller/:sellerId/customer/:customerId
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const sellerId =
+                Number(req.params.sellerId);
+
+            const customerId =
+                Number(req.params.customerId);
+
+            if (
+                !Number.isInteger(sellerId) ||
+                sellerId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Seller ID is required."
+                });
+            }
+
+            if (
+                !Number.isInteger(customerId) ||
+                customerId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Customer ID is required."
+                });
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/seller/${sellerId}/customer/${customerId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY SELLER CUSTOMER ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Notes."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRN BY STATUS
+// GET /api/goods-receipt-notes/status/:status
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const status =
+                String(req.params.status || "").trim();
+
+            if (!status) {
+                return res.status(400).json({
+                    message:
+                        "Status is required."
+                });
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/status/${encodeURIComponent(status)}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY STATUS ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Notes by status."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// SEARCH GRN
+// GET /api/goods-receipt-notes/search?search=...&status=...
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/search",
+    async (req, res) => {
+
+        try {
+
+            const search =
+                req.query.search ?? "";
+
+            const status =
+                req.query.status ?? "";
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/search`,
+                {
+                    params: {
+                        search,
+                        status
+                    },
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "SEARCH GRN ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to search Goods Receipt Notes."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GRN STATISTICS
+// GET /api/goods-receipt-notes/stats
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/stats",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/stats`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN STATISTICS ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Note statistics."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// PAGED GRN
+// GET /api/goods-receipt-notes/page?page=1&limit=15
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/page",
+    async (req, res) => {
+
+        try {
+
+            let page =
+                Number(req.query.page || 1);
+
+            let limit =
+                Number(req.query.limit || 15);
+
+            if (!Number.isInteger(page) || page < 1) {
+                page = 1;
+            }
+
+            if (!Number.isInteger(limit) || limit < 1) {
+                limit = 15;
+            }
+
+            if (limit > 100) {
+                limit = 100;
+            }
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/page`,
+                {
+                    params: {
+                        page,
+                        limit
+                    },
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET PAGED GRN ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load paged Goods Receipt Notes."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// SORT GRN
+// GET /api/goods-receipt-notes/sort?sort=...
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/sort",
+    async (req, res) => {
+
+        try {
+
+            const sort =
+                req.query.sort ?? "";
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/sort`,
+                {
+                    params: {
+                        sort
+                    },
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "SORT GRN ERROR:",
+                error.message
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to sort Goods Receipt Notes."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRN BY ID
+// IMPORTANT:
+// This generic :id route MUST remain after all specific routes.
+// GET /api/goods-receipt-notes/:id
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-notes/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note ID is required."
+                });
+            }
+
+            console.log(
+                "GET GOODS RECEIPT NOTE ID:",
+                id
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptNotes/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRN BY ID ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Note."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// CREATE GRN
+// POST /api/goods-receipt-notes
+// ============================================================
+
+app.post(
+    "/api/goods-receipt-notes",
+    async (req, res) => {
+
+        try {
+
+            console.log("=================================================");
+            console.log("POST /api/goods-receipt-notes");
+            console.log("REQUEST BODY:");
+            console.log(req.body);
+
+            const response = await axios.post(
+                `${DOTNET_API}/GoodsReceiptNotes`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "CREATE GRN STATUS:",
+                response.status
+            );
+
+            console.log(
+                "CREATE GRN RESPONSE:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE GRN ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to create Goods Receipt Note."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE GRN
+// PUT /api/goods-receipt-notes/:id
+// ============================================================
+
+app.put(
+    "/api/goods-receipt-notes/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note ID is required."
+                });
+            }
+
+            console.log(
+                "PUT GOODS RECEIPT NOTE:",
+                id
+            );
+
+            const response = await axios.put(
+                `${DOTNET_API}/GoodsReceiptNotes/${id}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE GRN ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to update Goods Receipt Note."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE GRN
+// DELETE /api/goods-receipt-notes/:id
+// ============================================================
+
+app.delete(
+    "/api/goods-receipt-notes/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note ID is required."
+                });
+            }
+
+            console.log(
+                "DELETE GOODS RECEIPT NOTE:",
+                id
+            );
+
+            const response = await axios.delete(
+                `${DOTNET_API}/GoodsReceiptNotes/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE GRN ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to delete Goods Receipt Note."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// END GOODS RECEIPT NOTES - GRN
+// ============================================================
+
+// ============================================================
+// GOODS RECEIPT NOTE ITEMS - GRI
+// Backend:
+// https://localhost:7203/api/GoodsReceiptItems
+// Node:
+// http://localhost:5000/api/goods-receipt-note-items
+// ============================================================
+
+
+// ============================================================
+// GET ALL GOODS RECEIPT NOTE ITEMS
+// GET /api/goods-receipt-note-items
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-note-items",
+    async (req, res) => {
+
+        try {
+
+            console.log("=================================================");
+            console.log(
+                "GET /api/goods-receipt-note-items"
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptItems`,
+                {
+                    httpsAgent
+                }
+            );
+
+            console.log(
+                "GET GRI STATUS:",
+                response.status
+            );
+
+            console.log(
+                "GET GRI DATA:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRI ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Note Items."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRI BY GRN + ITEM ID
+//
+// GET
+// /api/goods-receipt-note-items/
+// goodsreceiptnote/:goodsReceiptNoteId/
+// item/:goodsReceiptNoteItemId
+//
+// MUST BE BEFORE /:id
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-note-items/goodsreceiptnote/:goodsReceiptNoteId/item/:goodsReceiptNoteItemId",
+    async (req, res) => {
+
+        try {
+
+            const goodsReceiptNoteId =
+                Number(req.params.goodsReceiptNoteId);
+
+            const goodsReceiptNoteItemId =
+                Number(req.params.goodsReceiptNoteItemId);
+
+            if (
+                !Number.isInteger(goodsReceiptNoteId) ||
+                goodsReceiptNoteId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note ID is required."
+                });
+            }
+
+            if (
+                !Number.isInteger(goodsReceiptNoteItemId) ||
+                goodsReceiptNoteItemId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note Item ID is required."
+                });
+            }
+
+            console.log("=================================================");
+            console.log(
+                "GET GRI BY GRN + ITEM"
+            );
+
+            console.log(
+                "GRN ID:",
+                goodsReceiptNoteId
+            );
+
+            console.log(
+                "GRI ID:",
+                goodsReceiptNoteItemId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptItems/goodsreceiptnote/${goodsReceiptNoteId}/item/${goodsReceiptNoteItemId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRI BY GRN + ITEM ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Note Item."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET ALL GRI ITEMS FOR A GRN
+//
+// GET
+// /api/goods-receipt-note-items/
+// goodsreceiptnote/:goodsReceiptNoteId
+//
+// MUST BE BEFORE /:id
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-note-items/goodsreceiptnote/:goodsReceiptNoteId",
+    async (req, res) => {
+
+        try {
+
+            const goodsReceiptNoteId =
+                Number(req.params.goodsReceiptNoteId);
+
+            if (
+                !Number.isInteger(goodsReceiptNoteId) ||
+                goodsReceiptNoteId <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note ID is required."
+                });
+            }
+
+            console.log("=================================================");
+            console.log(
+                "GET GRI BY GRN:",
+                goodsReceiptNoteId
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptItems/goodsreceiptnote/${goodsReceiptNoteId}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            console.log(
+                "GET GRI BY GRN STATUS:",
+                response.status
+            );
+
+            console.log(
+                "GET GRI BY GRN DATA:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRI BY GRN ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Note Items."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET GRI BY ID
+//
+// IMPORTANT:
+// This generic :id route MUST COME AFTER
+// the two specific goodsreceiptnote routes above.
+// ============================================================
+
+app.get(
+    "/api/goods-receipt-note-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note Item ID is required."
+                });
+            }
+
+            console.log("=================================================");
+            console.log(
+                "GET GRI BY ID:",
+                id
+            );
+
+            const response = await axios.get(
+                `${DOTNET_API}/GoodsReceiptItems/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            console.log(
+                "GET GRI BY ID STATUS:",
+                response.status
+            );
+
+            console.log(
+                "GET GRI BY ID DATA:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET GRI BY ID ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to load Goods Receipt Note Item."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// CREATE GRI
+// POST /api/goods-receipt-note-items
+// ============================================================
+
+app.post(
+    "/api/goods-receipt-note-items",
+    async (req, res) => {
+
+        try {
+
+            console.log("=================================================");
+            console.log(
+                "POST /api/goods-receipt-note-items"
+            );
+
+            console.log(
+                "REQUEST BODY:"
+            );
+
+            console.log(req.body);
+
+            const response = await axios.post(
+                `${DOTNET_API}/GoodsReceiptItems`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "CREATE GRI STATUS:",
+                response.status
+            );
+
+            console.log(
+                "CREATE GRI RESPONSE:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE GRI ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to create Goods Receipt Note Item."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE GRI
+// PUT /api/goods-receipt-note-items/:id
+// ============================================================
+
+app.put(
+    "/api/goods-receipt-note-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note Item ID is required."
+                });
+            }
+
+            console.log("=================================================");
+            console.log(
+                "PUT GRI:",
+                id
+            );
+
+            console.log(
+                "REQUEST BODY:"
+            );
+
+            console.log(req.body);
+
+            const response = await axios.put(
+                `${DOTNET_API}/GoodsReceiptItems/${id}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "UPDATE GRI STATUS:",
+                response.status
+            );
+
+            console.log(
+                "UPDATE GRI RESPONSE:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "UPDATE GRI ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to update Goods Receipt Note Item."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE GRI
+// DELETE /api/goods-receipt-note-items/:id
+// ============================================================
+
+app.delete(
+    "/api/goods-receipt-note-items/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+                return res.status(400).json({
+                    message:
+                        "Valid Goods Receipt Note Item ID is required."
+                });
+            }
+
+            console.log("=================================================");
+            console.log(
+                "DELETE GRI:",
+                id
+            );
+
+            const response = await axios.delete(
+                `${DOTNET_API}/GoodsReceiptItems/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            console.log(
+                "DELETE GRI STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DELETE GRI RESPONSE:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE GRI ERROR:",
+                error.message
+            );
+
+            console.error(
+                "STATUS:",
+                error?.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error?.response?.data
+            );
+
+            return res
+                .status(error?.response?.status || 500)
+                .json(
+                    error?.response?.data || {
+                        message:
+                            "Failed to delete Goods Receipt Note Item."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// END GOODS RECEIPT NOTE ITEMS - GRI
+// ============================================================
 app.use(
     (req, res) => {
 

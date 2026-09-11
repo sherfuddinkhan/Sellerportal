@@ -1,22 +1,48 @@
-import React from "react";
+// ============================================================
+// GoodsReceiptNoteView.jsx
+// ============================================================
+
+import React, {
+    useEffect,
+    useState
+} from "react";
 
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
-    Typography,
-    Divider,
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+import axios from "axios";
+
+import {
+    Alert,
     Box,
-    Chip
+    Button,
+    Card,
+    CardContent,
+    Chip,
+    CircularProgress,
+    Divider,
+    Grid,
+    Snackbar,
+    Stack,
+    Typography
 } from "@mui/material";
 
 
-/* =========================================================
-   FORMAT CURRENCY
-========================================================= */
+// ============================================================
+// API
+// ============================================================
+
+const SERVER_URL = "http://localhost:5000";
+
+const GRN_API =
+    `${SERVER_URL}/api/goods-receipt-notes`;
+
+
+// ============================================================
+// FORMAT CURRENCY
+// ============================================================
 
 const formatCurrency = (value) => {
 
@@ -33,9 +59,9 @@ const formatCurrency = (value) => {
 };
 
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+// ============================================================
+// FORMAT DATE
+// ============================================================
 
 const formatDate = (value) => {
 
@@ -57,13 +83,14 @@ const formatDate = (value) => {
 };
 
 
-/* =========================================================
-   STATUS COLOR
-========================================================= */
+// ============================================================
+// STATUS COLOR
+// ============================================================
 
 const getStatusColor = (status) => {
 
-    const value = String(status || "").toLowerCase();
+    const value =
+        String(status || "").toLowerCase();
 
     if (
         value === "completed" ||
@@ -91,9 +118,41 @@ const getStatusColor = (status) => {
 };
 
 
-/* =========================================================
-   DETAIL FIELD
-========================================================= */
+// ============================================================
+// FIELD VALUE HELPER
+// Supports camelCase + PascalCase
+// ============================================================
+
+const getField = (
+    data,
+    ...fieldNames
+) => {
+
+    if (!data) {
+        return null;
+    }
+
+    for (const fieldName of fieldNames) {
+
+        const value =
+            data[fieldName];
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ) {
+            return value;
+        }
+    }
+
+    return null;
+};
+
+
+// ============================================================
+// DETAIL FIELD
+// ============================================================
 
 const DetailField = ({
     label,
@@ -128,235 +187,776 @@ const DetailField = ({
 };
 
 
-/* =========================================================
-   GOODS RECEIPT NOTE VIEW
-========================================================= */
+// ============================================================
+// COMPONENT
+// ============================================================
 
-const GoodsReceiptNoteView = ({
-    open,
-    note,
-    onClose
-}) => {
+const GoodsReceiptNoteView = () => {
 
-    if (!note) {
-        return null;
+    const {
+        id
+    } = useParams();
+
+    const navigate = useNavigate();
+
+
+    // ========================================================
+    // STATE
+    // ========================================================
+
+    const [note, setNote] =
+        useState(null);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [error, setError] =
+        useState("");
+
+
+    // ========================================================
+    // LOAD GRN
+    // ========================================================
+
+    useEffect(() => {
+
+        if (
+            !id ||
+            id === ":id"
+        ) {
+
+            setError(
+                "Invalid Goods Receipt Note ID."
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+        const numericId =
+            Number(id);
+
+        if (
+            !Number.isInteger(numericId) ||
+            numericId <= 0
+        ) {
+
+            setError(
+                "Invalid Goods Receipt Note ID."
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+        loadGoodsReceiptNote(
+            numericId
+        );
+
+    }, [id]);
+
+
+    // ========================================================
+    // GET GRN
+    // ========================================================
+
+    const loadGoodsReceiptNote = async (
+        numericId
+    ) => {
+
+        setLoading(true);
+        setError("");
+
+        try {
+
+            const url =
+                `${GRN_API}/${numericId}`;
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "GET GOODS RECEIPT NOTE VIEW"
+            );
+
+            console.log(
+                "URL:",
+                url
+            );
+
+            console.log(
+                "GRN ID:",
+                numericId
+            );
+
+            console.log(
+                "================================================"
+            );
+
+            const response =
+                await axios.get(
+                    url,
+                    {
+                        headers: {
+                            Accept:
+                                "application/json"
+                        },
+                        timeout: 15000
+                    }
+                );
+
+            console.log(
+                "GOODS RECEIPT NOTE VIEW RESPONSE:",
+                response.data
+            );
+
+            const data =
+                response.data;
+
+            if (
+                !data ||
+                typeof data !== "object"
+            ) {
+
+                setError(
+                    "Invalid Goods Receipt Note response."
+                );
+
+                return;
+            }
+
+            setNote(data);
+
+        } catch (err) {
+
+            console.error(
+                "LOAD GOODS RECEIPT NOTE VIEW ERROR:",
+                err.response?.data ||
+                err.message
+            );
+
+            const responseData =
+                err.response?.data;
+
+            if (
+                err.response?.status === 404
+            ) {
+
+                setError(
+                    "Goods Receipt Note not found."
+                );
+
+            }
+            else if (
+                typeof responseData === "string"
+            ) {
+
+                setError(
+                    responseData
+                );
+
+            }
+            else if (
+                responseData?.message
+            ) {
+
+                setError(
+                    responseData.message
+                );
+
+            }
+            else if (
+                responseData?.title
+            ) {
+
+                setError(
+                    responseData.title
+                );
+
+            }
+            else {
+
+                setError(
+                    "Failed to load Goods Receipt Note."
+                );
+            }
+
+        } finally {
+
+            setLoading(false);
+        }
+
+    };
+
+
+    // ========================================================
+    // BACK
+    // ========================================================
+
+    const handleBack = () => {
+
+        navigate(
+            "/goods-receipt-notes"
+        );
+    };
+
+
+    // ========================================================
+    // EDIT
+    // ========================================================
+
+    const handleEdit = () => {
+
+        const noteId =
+            getField(
+                note,
+                "goodsReceiptNoteId",
+                "GoodsReceiptNoteId"
+            ) || Number(id);
+
+        navigate(
+            `/goods-receipt-notes/edit/${noteId}`
+        );
+    };
+
+
+    // ========================================================
+    // LOADING
+    // ========================================================
+
+    if (loading) {
+
+        return (
+            <Box
+                sx={{
+                    width: "100%",
+                    minHeight: "400px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}
+            >
+
+                <Stack
+                    spacing={2}
+                    alignItems="center"
+                >
+
+                    <CircularProgress />
+
+                    <Typography
+                        color="text.secondary"
+                    >
+                        Loading Goods Receipt Note...
+                    </Typography>
+
+                </Stack>
+
+            </Box>
+        );
     }
 
 
+    // ========================================================
+    // ERROR
+    // ========================================================
+
+    if (
+        error ||
+        !note
+    ) {
+
+        return (
+            <Box
+                sx={{
+                    p: 3
+                }}
+            >
+
+                <Card>
+
+                    <CardContent>
+
+                        <Alert
+                            severity="error"
+                            sx={{
+                                mb: 2
+                            }}
+                        >
+                            {error ||
+                                "Goods Receipt Note not found."}
+                        </Alert>
+
+                        <Button
+                            variant="contained"
+                            onClick={handleBack}
+                        >
+                            Back to Goods Receipt Notes
+                        </Button>
+
+                    </CardContent>
+
+                </Card>
+
+                <Snackbar
+                    open={Boolean(error)}
+                    autoHideDuration={6000}
+                    onClose={() => setError("")}
+                    anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "center"
+                    }}
+                >
+
+                    <Alert
+                        severity="error"
+                        onClose={() => setError("")}
+                        sx={{
+                            width: "100%"
+                        }}
+                    >
+                        {error}
+                    </Alert>
+
+                </Snackbar>
+
+            </Box>
+        );
+    }
+
+
+    // ========================================================
+    // NORMALIZE DATA
+    // ========================================================
+
+    const goodsReceiptNoteId =
+        getField(
+            note,
+            "goodsReceiptNoteId",
+            "GoodsReceiptNoteId"
+        );
+
+    const grnNumber =
+        getField(
+            note,
+            "grnNumber",
+            "GRNNumber"
+        );
+
+    const goodsReceiptNumber =
+        getField(
+            note,
+            "goodsReceiptNumber",
+            "GoodsReceiptNumber"
+        );
+
+    const purchaseOrderId =
+        getField(
+            note,
+            "purchaseOrderId",
+            "PurchaseOrderId"
+        );
+
+    const supplierId =
+        getField(
+            note,
+            "supplierId",
+            "SupplierId"
+        );
+
+    const sellerId =
+        getField(
+            note,
+            "sellerId",
+            "SellerId"
+        );
+
+    const customerId =
+        getField(
+            note,
+            "customerId",
+            "CustomerId"
+        );
+
+    const receiptDate =
+        getField(
+            note,
+            "receiptDate",
+            "ReceiptDate"
+        );
+
+    const status =
+        getField(
+            note,
+            "status",
+            "Status"
+        );
+
+    const totalAmount =
+        getField(
+            note,
+            "totalAmount",
+            "TotalAmount"
+        );
+
+    const remarks =
+        getField(
+            note,
+            "remarks",
+            "Remarks"
+        );
+
+
+    // ========================================================
+    // RENDER
+    // ========================================================
+
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            fullWidth
-            maxWidth="md"
+        <Box
+            sx={{
+                p: 3,
+                width: "100%"
+            }}
         >
 
             {/* =================================================
-                TITLE
+                HEADER
             ================================================= */}
 
-            <DialogTitle>
-                Goods Receipt Note Details
-            </DialogTitle>
+            <Stack
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
+                justifyContent="space-between"
+                alignItems={{
+                    xs: "flex-start",
+                    sm: "center"
+                }}
+                spacing={2}
+                sx={{
+                    mb: 3
+                }}
+            >
+
+                <Box>
+
+                    <Typography
+                        variant="h5"
+                        fontWeight={600}
+                    >
+                        Goods Receipt Note
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        View Goods Receipt Note #
+                        {goodsReceiptNoteId || id}
+                    </Typography>
+
+                </Box>
+
+                <Stack
+                    direction="row"
+                    spacing={1}
+                >
+
+                    <Button
+                        variant="outlined"
+                        onClick={handleBack}
+                    >
+                        Back
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        onClick={handleEdit}
+                    >
+                        Edit
+                    </Button>
+
+                </Stack>
+
+            </Stack>
 
 
             {/* =================================================
-                CONTENT
+                MAIN CARD
             ================================================= */}
 
-            <DialogContent dividers>
+            <Card>
 
-                <Grid
-                    container
-                    spacing={3}
-                >
+                <CardContent>
 
                     {/* =========================================
-                        GRN ID
+                        BASIC INFORMATION
                     ========================================= */}
 
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
+                    <Typography
+                        variant="h6"
+                        fontWeight={600}
+                        sx={{
+                            mb: 2
+                        }}
                     >
-
-                        <DetailField
-                            label="GRN ID"
-                            value={note.GoodsReceiptNoteId}
-                        />
-
-                    </Grid>
-
-
-                    {/* =========================================
-                        GRN NUMBER
-                    ========================================= */}
+                        Basic Information
+                    </Typography>
 
                     <Grid
-                        item
-                        xs={12}
-                        md={6}
+                        container
+                        spacing={3}
                     >
 
-                        <DetailField
-                            label="GRN Number"
-                            value={note.GRNNumber}
-                        />
+                        {/* GRN ID */}
 
-                    </Grid>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
 
-
-                    {/* =========================================
-                        PURCHASE ORDER
-                    ========================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <DetailField
-                            label="Purchase Order ID"
-                            value={note.PurchaseOrderId}
-                        />
-
-                    </Grid>
-
-
-                    {/* =========================================
-                        SELLER
-                    ========================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <DetailField
-                            label="Seller ID"
-                            value={note.SellerId}
-                        />
-
-                    </Grid>
-
-
-                    {/* =========================================
-                        SUPPLIER
-                    ========================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <DetailField
-                            label="Supplier ID"
-                            value={note.SupplierId}
-                        />
-
-                    </Grid>
-
-
-                    {/* =========================================
-                        RECEIPT DATE
-                    ========================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <DetailField
-                            label="Receipt Date"
-                            value={formatDate(note.ReceiptDate)}
-                        />
-
-                    </Grid>
-
-
-                    {/* =========================================
-                        STATUS
-                    ========================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <DetailField label="Status">
-
-                            <Chip
-                                label={
-                                    note.Status || "Unknown"
+                            <DetailField
+                                label="GRN ID"
+                                value={
+                                    goodsReceiptNoteId
                                 }
-                                color={
-                                    getStatusColor(note.Status)
-                                }
-                                size="small"
-                                variant="outlined"
                             />
 
-                        </DetailField>
-
-                    </Grid>
+                        </Grid>
 
 
-                    {/* =========================================
-                        TOTAL AMOUNT
-                    ========================================= */}
+                        {/* GRN NUMBER */}
 
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <DetailField label="Total Amount">
-
-                            <Typography
-                                variant="h6"
-                                fontWeight={700}
-                            >
-                                {formatCurrency(
-                                    note.TotalAmount
-                                )}
-                            </Typography>
-
-                        </DetailField>
-
-                    </Grid>
-
-
-                    {/* =========================================
-                        REMARKS
-                    ========================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                    >
-
-                        <Divider
-                            sx={{
-                                my: 1
-                            }}
-                        />
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                                mb: 0.5
-                            }}
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
                         >
-                            Remarks
-                        </Typography>
+
+                            <DetailField
+                                label="GRN Number"
+                                value={
+                                    grnNumber
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* GOODS RECEIPT NUMBER */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Goods Receipt Number"
+                                value={
+                                    goodsReceiptNumber
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* PURCHASE ORDER */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Purchase Order ID"
+                                value={
+                                    purchaseOrderId
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* SUPPLIER */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Supplier ID"
+                                value={
+                                    supplierId
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* SELLER */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Seller ID"
+                                value={
+                                    sellerId
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* CUSTOMER */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Customer ID"
+                                value={
+                                    customerId
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* RECEIPT DATE */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Receipt Date"
+                                value={
+                                    formatDate(
+                                        receiptDate
+                                    )
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* STATUS */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Status"
+                            >
+
+                                <Chip
+                                    label={
+                                        status ||
+                                        "Unknown"
+                                    }
+                                    color={
+                                        getStatusColor(
+                                            status
+                                        )
+                                    }
+                                    size="small"
+                                    variant="outlined"
+                                />
+
+                            </DetailField>
+
+                        </Grid>
+
+
+                        {/* TOTAL AMOUNT */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                        >
+
+                            <DetailField
+                                label="Total Amount"
+                            >
+
+                                <Typography
+                                    variant="h6"
+                                    fontWeight={700}
+                                >
+                                    {formatCurrency(
+                                        totalAmount
+                                    )}
+                                </Typography>
+
+                            </DetailField>
+
+                        </Grid>
+
+                    </Grid>
+
+
+                    {/* =================================================
+                        REMARKS
+                    ================================================= */}
+
+                    <Divider
+                        sx={{
+                            my: 3
+                        }}
+                    />
+
+                    <Typography
+                        variant="h6"
+                        fontWeight={600}
+                        sx={{
+                            mb: 2
+                        }}
+                    >
+                        Remarks
+                    </Typography>
+
+                    <Box
+                        sx={{
+                            p: 2,
+                            border: "1px solid",
+                            borderColor: "divider",
+                            borderRadius: 1,
+                            backgroundColor:
+                                "background.default"
+                        }}
+                    >
 
                         <Typography
                             variant="body1"
@@ -364,39 +964,50 @@ const GoodsReceiptNoteView = ({
                                 whiteSpace: "pre-wrap"
                             }}
                         >
-                            {note.Remarks || "No remarks"}
+                            {remarks ||
+                                "No remarks"}
                         </Typography>
 
-                    </Grid>
+                    </Box>
 
-                </Grid>
+                </CardContent>
 
-            </DialogContent>
+            </Card>
 
 
             {/* =================================================
-                ACTIONS
+                FOOTER
             ================================================= */}
 
-            <DialogActions
+            <Stack
+                direction="row"
+                justifyContent="flex-end"
+                spacing={2}
                 sx={{
-                    px: 3,
-                    py: 2
+                    mt: 3
                 }}
             >
 
                 <Button
-                    variant="contained"
-                    onClick={onClose}
+                    variant="outlined"
+                    onClick={handleBack}
                 >
-                    Close
+                    Back to List
                 </Button>
 
-            </DialogActions>
+                <Button
+                    variant="contained"
+                    onClick={handleEdit}
+                >
+                    Edit Goods Receipt Note
+                </Button>
 
-        </Dialog>
+            </Stack>
+
+        </Box>
     );
 };
 
 
 export default GoodsReceiptNoteView;
+
