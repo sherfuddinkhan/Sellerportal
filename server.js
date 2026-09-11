@@ -28409,6 +28409,1049 @@ app.delete(
         }
     }
 );
+// ================================================================
+// DELIVERY CHALLAN ITEMS
+// ================================================================
+
+const DELIVERY_CHALLAN_ITEM_API =
+    `${DOTNET_API}/DeliveryChallanItem`;
+
+const deliveryChallanItemHttpsAgent =
+    new https.Agent({
+        rejectUnauthorized: false
+    });
+
+
+// ================================================================
+// GET ALL DELIVERY CHALLAN ITEMS
+// GET /api/delivery-challan-items
+// Backend: GET /api/DeliveryChallanItem
+// ================================================================
+
+app.get(
+    "/api/delivery-challan-items",
+    async (req, res) => {
+
+        console.log("\n================================================");
+        console.log("GET /api/delivery-challan-items");
+        console.log("Backend:", DELIVERY_CHALLAN_ITEM_API);
+        console.log("Query:", req.query);
+        console.log("================================================");
+
+        try {
+
+            const response = await axios.get(
+                DELIVERY_CHALLAN_ITEM_API,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    params: req.query,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "DELIVERY CHALLAN ITEMS RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "DELIVERY CHALLAN ITEMS ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Delivery Challan Items.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// GET ALL EXPLICIT
+// GET /api/delivery-challan-items/all
+// Backend: GET /api/DeliveryChallanItem/all
+// ================================================================
+
+app.get(
+    "/api/delivery-challan-items/all",
+    async (req, res) => {
+
+        console.log("\n================================================");
+        console.log("GET /api/delivery-challan-items/all");
+        console.log("Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/all`);
+        console.log("================================================");
+
+        try {
+
+            const response = await axios.get(
+                `${DELIVERY_CHALLAN_ITEM_API}/all`,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "GET ALL DELIVERY CHALLAN ITEMS"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET ALL DELIVERY CHALLAN ITEMS ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load all Delivery Challan Items.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// GET BY DELIVERY CHALLAN
+// GET /api/delivery-challan-items/challan/:deliveryChallanId
+// Backend:
+// GET /api/DeliveryChallanItem/challan/:deliveryChallanId
+// ================================================================
+
+app.get(
+    "/api/delivery-challan-items/challan/:deliveryChallanId",
+    async (req, res) => {
+
+        const {
+            deliveryChallanId
+        } = req.params;
+
+        console.log("\n================================================");
+        console.log(
+            "GET /api/delivery-challan-items/challan/:deliveryChallanId"
+        );
+        console.log(
+            "DeliveryChallanId:",
+            deliveryChallanId
+        );
+        console.log(
+            "Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/challan/${deliveryChallanId}`
+        );
+        console.log("================================================");
+
+        try {
+
+            const id =
+                Number(deliveryChallanId);
+
+            if (!Number.isInteger(id) || id <= 0) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid DeliveryChallanId."
+                });
+            }
+
+            const response = await axios.get(
+                `${DELIVERY_CHALLAN_ITEM_API}/challan/${id}`,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "DELIVERY CHALLAN ITEMS BY CHALLAN RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLAN ITEMS BY CHALLAN ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Delivery Challan Items for the challan.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// GET BY PRODUCT
+// GET /api/delivery-challan-items/product/:productId
+// Backend:
+// GET /api/DeliveryChallanItem/product/:productId
+// ================================================================
+
+app.get(
+    "/api/delivery-challan-items/product/:productId",
+    async (req, res) => {
+
+        const {
+            productId
+        } = req.params;
+
+        console.log("\n================================================");
+        console.log(
+            "GET /api/delivery-challan-items/product/:productId"
+        );
+        console.log(
+            "ProductId:",
+            productId
+        );
+        console.log(
+            "Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/product/${productId}`
+        );
+        console.log("================================================");
+
+        try {
+
+            const id =
+                Number(productId);
+
+            if (!Number.isInteger(id) || id <= 0) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid ProductId."
+                });
+            }
+
+            const response = await axios.get(
+                `${DELIVERY_CHALLAN_ITEM_API}/product/${id}`,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "DELIVERY CHALLAN ITEMS BY PRODUCT RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLAN ITEMS BY PRODUCT ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Delivery Challan Items for the product.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// SEARCH DELIVERY CHALLAN ITEMS
+// GET /api/delivery-challan-items/search?search=6
+// Backend:
+// GET /api/DeliveryChallanItem/search?search=6
+// ================================================================
+
+app.get(
+    "/api/delivery-challan-items/search",
+    async (req, res) => {
+
+        const search =
+            String(req.query.search || "").trim();
+
+        console.log("\n================================================");
+        console.log(
+            "GET /api/delivery-challan-items/search"
+        );
+        console.log(
+            "Search:",
+            search
+        );
+        console.log(
+            "Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/search`
+        );
+        console.log("================================================");
+
+        try {
+
+            const response = await axios.get(
+                `${DELIVERY_CHALLAN_ITEM_API}/search`,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    params: {
+                        search
+                    },
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "DELIVERY CHALLAN ITEM SEARCH RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "DELIVERY CHALLAN ITEM SEARCH ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to search Delivery Challan Items.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// DELIVERY CHALLAN ITEM STATISTICS
+// GET /api/delivery-challan-items/stats
+// Backend:
+// GET /api/DeliveryChallanItem/stats
+// ================================================================
+
+app.get(
+    "/api/delivery-challan-items/stats",
+    async (req, res) => {
+
+        console.log("\n================================================");
+        console.log(
+            "GET /api/delivery-challan-items/stats"
+        );
+        console.log(
+            "Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/stats`
+        );
+        console.log("================================================");
+
+        try {
+
+            const response = await axios.get(
+                `${DELIVERY_CHALLAN_ITEM_API}/stats`,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "DELIVERY CHALLAN ITEM STATISTICS RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "DELIVERY CHALLAN ITEM STATISTICS ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load Delivery Challan Item statistics.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// CREATE DELIVERY CHALLAN ITEM
+// POST /api/delivery-challan-items
+// Backend:
+// POST /api/DeliveryChallanItem
+// ================================================================
+
+app.post(
+    "/api/delivery-challan-items",
+    async (req, res) => {
+
+        console.log("\n================================================");
+        console.log(
+            "POST /api/delivery-challan-items"
+        );
+        console.log(
+            "Backend:",
+            DELIVERY_CHALLAN_ITEM_API
+        );
+        console.log(
+            "REQUEST BODY:",
+            req.body
+        );
+        console.log("================================================");
+
+        try {
+
+            const response = await axios.post(
+                DELIVERY_CHALLAN_ITEM_API,
+                req.body,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "CREATE DELIVERY CHALLAN ITEM RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "CREATE DELIVERY CHALLAN ITEM ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to create Delivery Challan Item.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// UPDATE DELIVERY CHALLAN ITEM
+// PUT /api/delivery-challan-items/:id
+// Backend:
+// PUT /api/DeliveryChallanItem/:id
+// ================================================================
+
+app.put(
+    "/api/delivery-challan-items/:id",
+    async (req, res) => {
+
+        const {
+            id
+        } = req.params;
+
+        console.log("\n================================================");
+        console.log(
+            "PUT /api/delivery-challan-items/:id"
+        );
+        console.log(
+            "ID:",
+            id
+        );
+        console.log(
+            "Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/${id}`
+        );
+        console.log(
+            "REQUEST BODY:",
+            req.body
+        );
+        console.log("================================================");
+
+        try {
+
+            const itemId =
+                Number(id);
+
+            if (!Number.isInteger(itemId) || itemId <= 0) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid DeliveryChallanItemId."
+                });
+            }
+
+            const response = await axios.put(
+                `${DELIVERY_CHALLAN_ITEM_API}/${itemId}`,
+                req.body,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "UPDATE DELIVERY CHALLAN ITEM RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE DELIVERY CHALLAN ITEM ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update Delivery Challan Item.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+
+
+// ================================================================
+// DELETE DELIVERY CHALLAN ITEM
+// DELETE /api/delivery-challan-items/:id
+// Backend:
+// DELETE /api/DeliveryChallanItem/:id
+// ================================================================
+
+app.delete(
+    "/api/delivery-challan-items/:id",
+    async (req, res) => {
+
+        const {
+            id
+        } = req.params;
+
+        console.log("\n================================================");
+        console.log(
+            "DELETE /api/delivery-challan-items/:id"
+        );
+        console.log(
+            "ID:",
+            id
+        );
+        console.log(
+            "Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/${id}`
+        );
+        console.log("================================================");
+
+        try {
+
+            const itemId =
+                Number(id);
+
+            if (!Number.isInteger(itemId) || itemId <= 0) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid DeliveryChallanItemId."
+                });
+            }
+
+            const response = await axios.delete(
+                `${DELIVERY_CHALLAN_ITEM_API}/${itemId}`,
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "DELETE DELIVERY CHALLAN ITEM RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+            return res.status(
+                response.status
+            ).json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "DELETE DELIVERY CHALLAN ITEM ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to delete Delivery Challan Item.",
+                    error:
+                        error.message
+                }
+            );
+        }
+    }
+);
+// ================================================================
+// GET DELIVERY CHALLAN ITEM BY ID
+// GET /api/delivery-challan-items/:id
+// Backend:
+// GET /api/DeliveryChallanItem/:id
+// ================================================================
+
+app.get(
+    "/api/delivery-challan-items/:id",
+    async (req, res) => {
+
+        const {
+            id
+        } = req.params;
+
+        console.log("\n================================================");
+        console.log(
+            "GET /api/delivery-challan-items/:id"
+        );
+        console.log(
+            "DeliveryChallanItemId:",
+            id
+        );
+        console.log(
+            "Backend:",
+            `${DELIVERY_CHALLAN_ITEM_API}/${id}`
+        );
+        console.log("================================================");
+
+        try {
+
+            // =================================================
+            // VALIDATE ID
+            // =================================================
+
+            const itemId =
+                Number(id);
+
+
+            if (
+                !Number.isInteger(itemId) ||
+                itemId <= 0
+            ) {
+
+                console.error(
+                    "INVALID DELIVERY CHALLAN ITEM ID:",
+                    id
+                );
+
+                return res.status(400).json({
+
+                    message:
+                        "Invalid DeliveryChallanItemId."
+
+                });
+
+            }
+
+
+            // =================================================
+            // CALL ASP.NET API
+            // =================================================
+
+            const response = await axios.get(
+
+                `${DELIVERY_CHALLAN_ITEM_API}/${itemId}`,
+
+                {
+                    httpsAgent:
+                        deliveryChallanItemHttpsAgent,
+
+                    headers: {
+                        Accept:
+                            "application/json"
+                    }
+                }
+
+            );
+
+
+            // =================================================
+            // SUCCESS RESPONSE
+            // =================================================
+
+            console.log(
+                "GET DELIVERY CHALLAN ITEM BY ID RESPONSE"
+            );
+
+            console.log(
+                "STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DATA:",
+                response.data
+            );
+
+
+            return res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLAN ITEM BY ID ERROR"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+
+            return res.status(
+                error.response?.status || 500
+            ).json(
+
+                error.response?.data || {
+
+                    message:
+                        "Failed to load Delivery Challan Item.",
+
+                    error:
+                        error.message
+
+                }
+
+            );
+
+        }
+
+    }
+);
 
 
 

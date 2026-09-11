@@ -194,8 +194,10 @@ import DeliveryChallanItemTable from "./pages/DeliveryChallanItem/DeliveryChalla
 import DeliveryChallanItemToolbar from "./pages/DeliveryChallanItem/DeliveryChallanItemToolbar";
 import DeliveryChallanItemView from "./pages/DeliveryChallanItem/DeliveryChallanItemView";
 import DeliveryChallanItemCreate  from "./pages/DeliveryChallanItem/DeliveryChallanItemCreate";
+import DeliveryChallanItemDetails  from "./pages/DeliveryChallanItem/DeliveryChallanItemDetails";
+import DeliveryChallanItemEdit from "./pages/DeliveryChallanItem/DeliveryChallanItemEdit";
 
- 
+
 
 
 /* =========================================================
@@ -1767,7 +1769,7 @@ function App() {
                     path="delivery-challan-items"
                     element={<DeliveryChallanItemList />}
                 />
-
+                 <Route path="delivery-challan-items/edit/:id" element={<DeliveryChallanItemEdit />} />
                 <Route
                     path="delivery-challan-items/search"
                     element={<DeliveryChallanItemSearch />}
@@ -1778,6 +1780,12 @@ function App() {
                     path="delivery-challan-items/statistics"
                     element={<DeliveryChallanItemStatistics />}
                 />
+           
+<Route
+    path="delivery-challan-items/details/:id"
+    element={<DeliveryChallanItemDetails />}
+/>
+
 
                 <Route
                     path="delivery-challan-items/:id"
