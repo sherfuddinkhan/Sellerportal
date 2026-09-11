@@ -176,6 +176,8 @@ import DeliveryChallanStatistics from "./pages/DeliveryChallans/DeliveryChallanS
 import DeliveryChallanTable from "./pages/DeliveryChallans/DeliveryChallanTable";
 import DeliveryChallanToolbar from "./pages/DeliveryChallans/DeliveryChallanToolbar";
 import DeliveryChallanView from "./pages/DeliveryChallans/DeliveryChallanView";
+import DeliveryChallanCreate from "./pages/DeliveryChallans/DeliveryChallanCreate";
+
 
 // =========================================================
 // DELIVERY CHALLAN ITEMS
@@ -191,8 +193,9 @@ import DeliveryChallanItemStatistics from "./pages/DeliveryChallanItem/DeliveryC
 import DeliveryChallanItemTable from "./pages/DeliveryChallanItem/DeliveryChallanItemTable";
 import DeliveryChallanItemToolbar from "./pages/DeliveryChallanItem/DeliveryChallanItemToolbar";
 import DeliveryChallanItemView from "./pages/DeliveryChallanItem/DeliveryChallanItemView";
+import DeliveryChallanItemCreate  from "./pages/DeliveryChallanItem/DeliveryChallanItemCreate";
 
-
+ 
 
 
 /* =========================================================
@@ -1736,7 +1739,10 @@ function App() {
                     path="delivery-challans"
                     element={<DeliveryChallanList />}
                 />
-
+<Route
+    path="delivery-challans/create"
+    element={<DeliveryChallanCreate />}
+/>
                 <Route
                     path="delivery-challans/search"
                     element={<DeliveryChallanSearch />}
@@ -1766,7 +1772,8 @@ function App() {
                     path="delivery-challan-items/search"
                     element={<DeliveryChallanItemSearch />}
                 />
-
+            <Route path="delivery-challans/:challanId/items/create" 
+                element={<DeliveryChallanItemCreate />} />
                 <Route
                     path="delivery-challan-items/statistics"
                     element={<DeliveryChallanItemStatistics />}
