@@ -19,16 +19,24 @@ import {
     Delete
 } from "@mui/icons-material";
 
+
 const DeliveryChallanTable = ({
-    items,
+    items = [],
     onView,
     onEdit,
     onDelete
 }) => {
 
+
+    // ==========================================================
+    // STATUS COLOR
+    // ==========================================================
+
     const getStatusColor = (status) => {
 
-        switch (status?.toLowerCase()) {
+        switch (
+            String(status || "").toLowerCase()
+        ) {
 
             case "delivered":
                 return "success";
@@ -39,15 +47,53 @@ const DeliveryChallanTable = ({
             case "in transit":
                 return "info";
 
+            case "dispatched":
+                return "info";
+
             case "cancelled":
                 return "error";
 
             default:
                 return "default";
+        }
+    };
 
+
+    // ==========================================================
+    // DATE FORMAT
+    // ==========================================================
+
+    const formatDate = (date) => {
+
+        if (!date) {
+            return "-";
         }
 
+        const parsedDate =
+            new Date(date);
+
+        if (
+            Number.isNaN(
+                parsedDate.getTime()
+            )
+        ) {
+            return "-";
+        }
+
+        return parsedDate.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
     };
+
+
+    // ==========================================================
+    // TABLE
+    // ==========================================================
 
     return (
 
@@ -57,7 +103,13 @@ const DeliveryChallanTable = ({
             className="delivery-challan-table"
         >
 
-            <Table>
+            <Table
+                stickyHeader
+            >
+
+                {/* ==================================================
+                    HEADER
+                ================================================== */}
 
                 <TableHead>
 
@@ -69,6 +121,14 @@ const DeliveryChallanTable = ({
 
                         <TableCell>
                             <b>Sales Order</b>
+                        </TableCell>
+
+                        <TableCell>
+                            <b>Seller ID</b>
+                        </TableCell>
+
+                        <TableCell>
+                            <b>Customer ID</b>
                         </TableCell>
 
                         <TableCell>
@@ -111,6 +171,11 @@ const DeliveryChallanTable = ({
 
                 </TableHead>
 
+
+                {/* ==================================================
+                    BODY
+                ================================================== */}
+
                 <TableBody>
 
                     {items.length > 0 ? (
@@ -119,64 +184,152 @@ const DeliveryChallanTable = ({
 
                             <TableRow
                                 hover
-                                key={item.DeliveryChallanId}
+                                key={
+                                    item.deliveryChallanId
+                                }
                             >
 
-                                <TableCell>
-                                    {item.DeliveryChallanId}
-                                </TableCell>
+                                {/* ID */}
 
                                 <TableCell>
-                                    {item.SalesOrderId}
+                                    {
+                                        item.deliveryChallanId
+                                    }
                                 </TableCell>
 
-                                <TableCell>
-                                    {item.ChallanNumber}
-                                </TableCell>
+
+                                {/* SALES ORDER */}
 
                                 <TableCell>
-                                    {item.ChallanDate
-                                        ? new Date(
-                                              item.ChallanDate
-                                          ).toLocaleDateString()
-                                        : "-"}
+                                    {
+                                        item.salesOrderId
+                                    }
                                 </TableCell>
 
-                                <TableCell>
-                                    {item.VehicleNumber || "-"}
-                                </TableCell>
+
+                                {/* SELLER */}
 
                                 <TableCell>
-                                    {item.DriverName || "-"}
+                                    {
+                                        item.sellerId
+                                    }
                                 </TableCell>
 
-                                <TableCell>
-                                    {item.DriverMobile || "-"}
-                                </TableCell>
+
+                                {/* CUSTOMER */}
 
                                 <TableCell>
-                                    {item.TransporterName || "-"}
+                                    {
+                                        item.customerId ??
+                                        "-"
+                                    }
                                 </TableCell>
+
+
+                                {/* CHALLAN NUMBER */}
+
+                                <TableCell>
+
+                                    <b>
+                                        {
+                                            item.challanNumber ||
+                                            "-"
+                                        }
+                                    </b>
+
+                                </TableCell>
+
+
+                                {/* CHALLAN DATE */}
+
+                                <TableCell>
+                                    {
+                                        formatDate(
+                                            item.challanDate
+                                        )
+                                    }
+                                </TableCell>
+
+
+                                {/* VEHICLE */}
+
+                                <TableCell>
+                                    {
+                                        item.vehicleNumber ||
+                                        "-"
+                                    }
+                                </TableCell>
+
+
+                                {/* DRIVER */}
+
+                                <TableCell>
+                                    {
+                                        item.driverName ||
+                                        "-"
+                                    }
+                                </TableCell>
+
+
+                                {/* DRIVER MOBILE */}
+
+                                <TableCell>
+                                    {
+                                        item.driverMobile ||
+                                        "-"
+                                    }
+                                </TableCell>
+
+
+                                {/* TRANSPORTER */}
+
+                                <TableCell>
+                                    {
+                                        item.transporterName ||
+                                        "-"
+                                    }
+                                </TableCell>
+
+
+                                {/* STATUS */}
 
                                 <TableCell>
 
                                     <Chip
                                         label={
-                                            item.Status || "N/A"
+                                            item.status ||
+                                            "N/A"
                                         }
-                                        color={getStatusColor(
-                                            item.Status
-                                        )}
+
+                                        color={
+                                            getStatusColor(
+                                                item.status
+                                            )
+                                        }
+
                                         size="small"
                                     />
 
                                 </TableCell>
 
+
+                                {/* REMARKS */}
+
                                 <TableCell>
-                                    {item.Remarks || "-"}
+
+                                    {
+                                        item.remarks ||
+                                        "-"
+                                    }
+
                                 </TableCell>
 
+
+                                {/* ACTIONS */}
+
                                 <TableCell align="center">
+
+                                    {/* VIEW */}
 
                                     <Tooltip title="View">
 
@@ -193,6 +346,9 @@ const DeliveryChallanTable = ({
 
                                     </Tooltip>
 
+
+                                    {/* EDIT */}
+
                                     <Tooltip title="Edit">
 
                                         <IconButton
@@ -207,6 +363,9 @@ const DeliveryChallanTable = ({
                                         </IconButton>
 
                                     </Tooltip>
+
+
+                                    {/* DELETE */}
 
                                     <Tooltip title="Delete">
 
@@ -234,7 +393,7 @@ const DeliveryChallanTable = ({
                         <TableRow>
 
                             <TableCell
-                                colSpan={11}
+                                colSpan={13}
                                 align="center"
                             >
 
@@ -251,9 +410,8 @@ const DeliveryChallanTable = ({
             </Table>
 
         </TableContainer>
-
     );
-
 };
+
 
 export default DeliveryChallanTable;

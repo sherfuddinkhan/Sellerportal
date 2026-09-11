@@ -1,5 +1,16 @@
-import React, {useEffect,useMemo,useState} from "react";
-import {Box,Grid,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
+import React, {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import {
+    Alert,
+    Box,
+    CircularProgress,
+    Snackbar
+} from "@mui/material";
+
 import DeliveryChallanToolbar from "./DeliveryChallanToolbar";
 import DeliveryChallanStatistics from "./DeliveryChallanStatistics";
 import DeliveryChallanSearch from "./DeliveryChallanSearch";
@@ -9,43 +20,83 @@ import DeliveryChallanModal from "./DeliveryChallanModal";
 import DeliveryChallanView from "./DeliveryChallanView";
 import DeleteDeliveryChallanDialog from "./DeleteDeliveryChallanDialog";
 
+
+const SERVER_URL = "http://localhost:5000";
+
+
 const DeliveryChallanList = () => {
 
     // ==========================================================
-    // State
+    // STATE
     // ==========================================================
 
-    const [deliveryChallans, setDeliveryChallans] = useState([]);
+    const [deliveryChallans, setDeliveryChallans] =
+        useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [searchText, setSearchText] = useState("");
+    const [searchText, setSearchText] =
+        useState("");
 
-    const [page, setPage] = useState(1);
+    const [page, setPage] =
+        useState(1);
 
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] =
+        useState(10);
 
-    const [selectedDeliveryChallan,
-        setSelectedDeliveryChallan] = useState(null);
+    const [
+        selectedDeliveryChallan,
+        setSelectedDeliveryChallan
+    ] = useState(null);
 
-    const [modalOpen, setModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] =
+        useState(false);
 
-    const [viewOpen, setViewOpen] = useState(false);
+    const [viewOpen, setViewOpen] =
+        useState(false);
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
 
-    const [snackbar, setSnackbar] = useState({
+    const [snackbar, setSnackbar] =
+        useState({
+            open: false,
+            message: "",
+            severity: "success"
+        });
 
-        open: false,
-
-        message: "",
-
-        severity: "success"
-
-    });
 
     // ==========================================================
-    // Load Delivery Challans
+    // MESSAGE
+    // ==========================================================
+
+    const showMessage = (
+        message,
+        severity = "success"
+    ) => {
+
+        setSnackbar({
+            open: true,
+            message,
+            severity
+        });
+    };
+
+
+    const closeSnackbar = () => {
+
+        setSnackbar(previous => ({
+            ...previous,
+            open: false
+        }));
+    };
+
+
+    // ==========================================================
+    // GET ALL
+    // NODE:
+    // GET /api/delivery-challans
     // ==========================================================
 
     const loadDeliveryChallans = async () => {
@@ -54,43 +105,91 @@ const DeliveryChallanList = () => {
 
             setLoading(true);
 
-            const response =
-                await apiService.getDeliveryChallans();
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "GET /api/delivery-challans"
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            const response = await fetch(
+                `${SERVER_URL}/api/delivery-challans`,
+                {
+                    method: "GET",
+                    headers: {
+                        Accept:
+                            "application/json"
+                    }
+                }
+            );
+
+
+            const data =
+                await response
+                    .json()
+                    .catch(() => null);
+
+
+            console.log(
+                "GET DELIVERY CHALLANS RESPONSE:",
+                data
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data?.message ||
+                    data?.error ||
+                    "Failed to load delivery challans."
+                );
+            }
+
+
+            const list =
+                Array.isArray(data)
+                    ? data
+                    : Array.isArray(data?.data)
+                        ? data.data
+                        : [];
+
 
             setDeliveryChallans(
-                response.data || []
+                list
             );
 
         }
         catch (error) {
 
             console.error(
-                "Delivery Challan Load Error",
+                "LOAD DELIVERY CHALLANS ERROR:",
                 error
             );
 
-            setSnackbar({
+            setDeliveryChallans([]);
 
-                open: true,
-
-                message:
-                    "Failed to load delivery challans",
-
-                severity: "error"
-
-            });
+            showMessage(
+                error.message ||
+                "Failed to load delivery challans.",
+                "error"
+            );
 
         }
         finally {
 
             setLoading(false);
-
         }
-
     };
 
+
     // ==========================================================
-    // Initial Load
+    // INITIAL LOAD
     // ==========================================================
 
     useEffect(() => {
@@ -98,308 +197,503 @@ const DeliveryChallanList = () => {
         loadDeliveryChallans();
 
     }, []);
+
+
     // ==========================================================
-    // Search Filter
+    // SEARCH
     // ==========================================================
 
-    const filteredDeliveryChallans = useMemo(() => {
+    const filteredDeliveryChallans =
+        useMemo(() => {
 
-        if (!searchText.trim())
-            return deliveryChallans;
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
 
-        const search = searchText.toLowerCase();
 
-        return deliveryChallans.filter((item) => {
+            if (!search) {
 
-            return (
+                return deliveryChallans;
+            }
 
-                String(item.DeliveryChallanId)
-                    .includes(search)
 
-                ||
+            return deliveryChallans.filter(
+                item => {
 
-                String(item.SalesOrderId)
-                    .includes(search)
+                    const values = [
 
-                ||
+                        item.DeliveryChallanId,
+                        item.deliveryChallanId,
 
-                item.ChallanNumber
-                    ?.toLowerCase()
-                    .includes(search)
+                        item.SalesOrderId,
+                        item.salesOrderId,
 
-                ||
+                        item.ChallanNumber,
+                        item.challanNumber,
 
-                item.VehicleNumber
-                    ?.toLowerCase()
-                    .includes(search)
+                        item.VehicleNumber,
+                        item.vehicleNumber,
 
-                ||
+                        item.DriverName,
+                        item.driverName,
 
-                item.DriverName
-                    ?.toLowerCase()
-                    .includes(search)
+                        item.DriverMobile,
+                        item.driverMobile,
 
-                ||
+                        item.TransporterName,
+                        item.transporterName,
 
-                item.DriverMobile
-                    ?.toLowerCase()
-                    .includes(search)
+                        item.Status,
+                        item.status
+                    ];
 
-                ||
 
-                item.TransporterName
-                    ?.toLowerCase()
-                    .includes(search)
-
-                ||
-
-                item.Status
-                    ?.toLowerCase()
-                    .includes(search)
-
+                    return values.some(
+                        value =>
+                            String(
+                                value ?? ""
+                            )
+                                .toLowerCase()
+                                .includes(search)
+                    );
+                }
             );
 
-        });
-
-    }, [
-        deliveryChallans,
-        searchText
-    ]);
-
+        }, [
+            deliveryChallans,
+            searchText
+        ]);
 
 
     // ==========================================================
-    // Statistics
+    // STATISTICS
     // ==========================================================
 
-    const statistics = useMemo(() => ({
+    const statistics =
+        useMemo(() => {
 
-        totalDeliveryChallans:
-            deliveryChallans.length,
+            return {
 
-        delivered:
-            deliveryChallans.filter(
+                totalDeliveryChallans:
+                    deliveryChallans.length,
 
-                x => x.Status === "Delivered"
+                delivered:
+                    deliveryChallans.filter(
+                        item =>
+                            String(
+                                item.Status ??
+                                item.status ??
+                                ""
+                            ).toLowerCase() ===
+                            "delivered"
+                    ).length,
 
-            ).length,
+                pending:
+                    deliveryChallans.filter(
+                        item =>
+                            String(
+                                item.Status ??
+                                item.status ??
+                                ""
+                            ).toLowerCase() ===
+                            "pending"
+                    ).length,
 
-        pending:
-            deliveryChallans.filter(
+                inTransit:
+                    deliveryChallans.filter(
+                        item =>
+                            String(
+                                item.Status ??
+                                item.status ??
+                                ""
+                            ).toLowerCase() ===
+                            "in transit"
+                    ).length
+            };
 
-                x => x.Status === "Pending"
-
-            ).length,
-
-        inTransit:
-            deliveryChallans.filter(
-
-                x => x.Status === "In Transit"
-
-            ).length
-
-    }), [deliveryChallans]);
-
+        }, [
+            deliveryChallans
+        ]);
 
 
     // ==========================================================
-    // Pagination
+    // PAGINATION
     // ==========================================================
 
     const totalRecords =
         filteredDeliveryChallans.length;
 
-    const totalPages = Math.ceil(
-        totalRecords / pageSize
-    );
 
-    const paginatedDeliveryChallans =
-        filteredDeliveryChallans.slice(
-
-            (page - 1) * pageSize,
-
-            page * pageSize
-
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                totalRecords /
+                pageSize
+            )
         );
 
 
+    const paginatedDeliveryChallans =
+        filteredDeliveryChallans.slice(
+            (page - 1) * pageSize,
+            page * pageSize
+        );
+
+
+    useEffect(() => {
+
+        setPage(1);
+
+    }, [
+        searchText
+    ]);
+
+
+    useEffect(() => {
+
+        if (page > totalPages) {
+
+            setPage(
+                totalPages
+            );
+        }
+
+    }, [
+        page,
+        totalPages
+    ]);
+
 
     // ==========================================================
-    // Add
+    // ADD
     // ==========================================================
 
     const handleAdd = () => {
 
-        setSelectedDeliveryChallan(null);
+        setSelectedDeliveryChallan(
+            null
+        );
 
         setModalOpen(true);
-
     };
 
 
-
     // ==========================================================
-    // Edit
+    // EDIT
     // ==========================================================
 
-    const handleEdit = (challan) => {
+    const handleEdit = (
+        challan
+    ) => {
 
-        setSelectedDeliveryChallan(challan);
+        setSelectedDeliveryChallan(
+            challan
+        );
 
         setModalOpen(true);
-
     };
 
 
-
     // ==========================================================
-    // View
+    // VIEW
     // ==========================================================
 
-    const handleView = (challan) => {
+    const handleView = (
+        challan
+    ) => {
 
-        setSelectedDeliveryChallan(challan);
+        setSelectedDeliveryChallan(
+            challan
+        );
 
         setViewOpen(true);
-
     };
 
 
-
     // ==========================================================
-    // Delete
+    // DELETE CLICK
     // ==========================================================
 
-    const handleDelete = (challan) => {
+    const handleDelete = (
+        challan
+    ) => {
 
-        setSelectedDeliveryChallan(challan);
+        setSelectedDeliveryChallan(
+            challan
+        );
 
         setDeleteOpen(true);
-
     };
 
 
-
     // ==========================================================
-    // Save (Create / Update)
+    // CREATE
     // ==========================================================
 
-    const handleSave = async (data) => {
+    const createDeliveryChallan =
+        async (data) => {
 
-        try {
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/delivery-challans`,
+                    {
+                        method: "POST",
 
-            if (data.DeliveryChallanId) {
+                        headers: {
+                            "Content-Type":
+                                "application/json",
 
-                await apiService.updateDeliveryChallan(
+                            Accept:
+                                "application/json"
+                        },
 
-                    data.DeliveryChallanId,
-
-                    data
-
+                        body:
+                            JSON.stringify(data)
+                    }
                 );
 
-                setSnackbar({
 
-                    open: true,
+            const result =
+                await response
+                    .json()
+                    .catch(() => null);
 
-                    message:
-                        "Delivery Challan updated successfully",
 
-                    severity: "success"
+            if (!response.ok) {
 
-                });
-
-            }
-            else {
-
-                await apiService.createDeliveryChallan(data);
-
-                setSnackbar({
-
-                    open: true,
-
-                    message:
-                        "Delivery Challan created successfully",
-
-                    severity: "success"
-
-                });
-
+                throw new Error(
+                    result?.message ||
+                    result?.error ||
+                    "Failed to create delivery challan."
+                );
             }
 
-            setModalOpen(false);
 
-            loadDeliveryChallans();
-
-        }
-        catch (error) {
-
-            console.error(error);
-
-            setSnackbar({
-
-                open: true,
-
-                message: "Save failed",
-
-                severity: "error"
-
-            });
-
-        }
-
-    };
-
+            return result;
+        };
 
 
     // ==========================================================
-    // Delete Confirm
+    // UPDATE
     // ==========================================================
 
-    const handleDeleted = async (id) => {
+    const updateDeliveryChallan =
+        async (
+            id,
+            data
+        ) => {
 
-        try {
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/delivery-challans/${id}`,
+                    {
+                        method: "PUT",
 
-            await apiService.deleteDeliveryChallan(id);
+                        headers: {
+                            "Content-Type":
+                                "application/json",
 
-            setSnackbar({
+                            Accept:
+                                "application/json"
+                        },
 
-                open: true,
+                        body:
+                            JSON.stringify(data)
+                    }
+                );
 
-                message:
-                    "Delivery Challan deleted successfully",
 
-                severity: "success"
+            const result =
+                await response
+                    .json()
+                    .catch(() => null);
 
-            });
 
-            setDeleteOpen(false);
+            if (!response.ok) {
 
-            loadDeliveryChallans();
+                throw new Error(
+                    result?.message ||
+                    result?.error ||
+                    "Failed to update delivery challan."
+                );
+            }
 
-        }
-        catch (error) {
 
-            console.error(error);
-
-            setSnackbar({
-
-                open: true,
-
-                message: "Delete failed",
-
-                severity: "error"
-
-            });
-
-        }
-
-    };
-
+            return result;
+        };
 
 
     // ==========================================================
-    // Refresh
+    // DELETE
+    // ==========================================================
+
+    const deleteDeliveryChallan =
+        async (
+            id
+        ) => {
+
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/delivery-challans/${id}`,
+                    {
+                        method: "DELETE",
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            const result =
+                await response
+                    .json()
+                    .catch(() => null);
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result?.message ||
+                    result?.error ||
+                    "Failed to delete delivery challan."
+                );
+            }
+
+
+            return result;
+        };
+
+
+    // ==========================================================
+    // SAVE
+    // ==========================================================
+
+    const handleSave =
+        async (
+            data
+        ) => {
+
+            try {
+
+                const id =
+                    data.DeliveryChallanId ??
+                    data.deliveryChallanId;
+
+
+                if (id) {
+
+                    await updateDeliveryChallan(
+                        id,
+                        data
+                    );
+
+                    showMessage(
+                        "Delivery Challan updated successfully.",
+                        "success"
+                    );
+
+                }
+                else {
+
+                    await createDeliveryChallan(
+                        data
+                    );
+
+                    showMessage(
+                        "Delivery Challan created successfully.",
+                        "success"
+                    );
+                }
+
+
+                setModalOpen(false);
+
+                setSelectedDeliveryChallan(
+                    null
+                );
+
+
+                await loadDeliveryChallans();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "SAVE DELIVERY CHALLAN ERROR:",
+                    error
+                );
+
+                showMessage(
+                    error.message ||
+                    "Failed to save delivery challan.",
+                    "error"
+                );
+            }
+        };
+
+
+    // ==========================================================
+    // DELETE CONFIRM
+    // ==========================================================
+
+    const handleDeleted =
+        async (
+            id
+        ) => {
+
+            try {
+
+                if (!id) {
+
+                    throw new Error(
+                        "Invalid delivery challan ID."
+                    );
+                }
+
+
+                await deleteDeliveryChallan(
+                    id
+                );
+
+
+                showMessage(
+                    "Delivery Challan deleted successfully.",
+                    "success"
+                );
+
+
+                setDeleteOpen(false);
+
+                setSelectedDeliveryChallan(
+                    null
+                );
+
+
+                await loadDeliveryChallans();
+
+            }
+            catch (error) {
+
+                console.error(
+                    "DELETE DELIVERY CHALLAN ERROR:",
+                    error
+                );
+
+                showMessage(
+                    error.message ||
+                    "Failed to delete delivery challan.",
+                    "error"
+                );
+            }
+        };
+
+
+    // ==========================================================
+    // REFRESH
     // ==========================================================
 
     const handleRefresh = () => {
@@ -407,132 +701,242 @@ const DeliveryChallanList = () => {
         loadDeliveryChallans();
 
     };
-        // ==========================================================
-    // Return UI
+
+
+    // ==========================================================
+    // UI
     // ==========================================================
 
     return (
 
-        <Box className="delivery-challan-container">
+        <Box
+            className="delivery-challan-container"
+            sx={{
+                p: 3
+            }}
+        >
 
             <DeliveryChallanToolbar
-                onAdd={handleAdd}
-                onRefresh={handleRefresh}
+                onAdd={
+                    handleAdd
+                }
+
+                onRefresh={
+                    handleRefresh
+                }
             />
+
 
             <DeliveryChallanStatistics
-                statistics={statistics}
+                statistics={
+                    statistics
+                }
             />
+
 
             <DeliveryChallanSearch
-                searchText={searchText}
-                setSearchText={(value) => {
+                searchText={
+                    searchText
+                }
 
-                    setPage(1);
+                setSearchText={
+                    (value) => {
 
-                    setSearchText(value);
+                        setSearchText(
+                            value
+                        );
 
-                }}
+                        setPage(1);
+                    }
+                }
             />
 
-            {
-                loading ?
 
-                (
+            {loading ? (
 
-                    <Box
-                        display="flex"
-                        justifyContent="center"
-                        mt={5}
-                    >
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        py: 8
+                    }}
+                >
 
-                        <CircularProgress />
+                    <CircularProgress />
 
-                    </Box>
+                </Box>
 
-                )
+            ) : (
 
-                :
-
-                (
+                <>
 
                     <DeliveryChallanTable
-                        items={paginatedDeliveryChallans}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
+                        items={
+                            paginatedDeliveryChallans
+                        }
+
+                        onView={
+                            handleView
+                        }
+
+                        onEdit={
+                            handleEdit
+                        }
+
+                        onDelete={
+                            handleDelete
+                        }
                     />
 
-                )
 
-            }
+                    <DeliveryChallanPagination
+                        page={
+                            page
+                        }
 
-            <DeliveryChallanPagination
-                page={page}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                totalRecords={totalRecords}
-                onPageChange={setPage}
-                onPageSizeChange={(size) => {
+                        totalPages={
+                            totalPages
+                        }
 
-                    setPageSize(size);
+                        pageSize={
+                            pageSize
+                        }
 
-                    setPage(1);
+                        totalRecords={
+                            totalRecords
+                        }
+
+                        onPageChange={
+                            setPage
+                        }
+
+                        onPageSizeChange={
+                            (size) => {
+
+                                setPageSize(
+                                    size
+                                );
+
+                                setPage(1);
+                            }
+                        }
+                    />
+
+                </>
+
+            )}
+
+
+            <DeliveryChallanModal
+                open={
+                    modalOpen
+                }
+
+                deliveryChallan={
+                    selectedDeliveryChallan
+                }
+
+                onClose={() => {
+
+                    setModalOpen(false);
+
+                    setSelectedDeliveryChallan(
+                        null
+                    );
+
+                }}
+
+                onSave={
+                    handleSave
+                }
+            />
+
+
+            <DeliveryChallanView
+                open={
+                    viewOpen
+                }
+
+                deliveryChallan={
+                    selectedDeliveryChallan
+                }
+
+                onClose={() => {
+
+                    setViewOpen(false);
+
+                    setSelectedDeliveryChallan(
+                        null
+                    );
 
                 }}
             />
 
-            <DeliveryChallanModal
-                open={modalOpen}
-                deliveryChallan={selectedDeliveryChallan}
-                onClose={() => setModalOpen(false)}
-                onSave={handleSave}
-            />
-                        <DeliveryChallanView
-                open={viewOpen}
-                deliveryChallan={selectedDeliveryChallan}
-                onClose={() => setViewOpen(false)}
-            />
 
             <DeleteDeliveryChallanDialog
-                open={deleteOpen}
-                deliveryChallan={selectedDeliveryChallan}
-                onClose={() => setDeleteOpen(false)}
-                onDeleted={handleDeleted}
+                open={
+                    deleteOpen
+                }
+
+                deliveryChallan={
+                    selectedDeliveryChallan
+                }
+
+                onClose={() => {
+
+                    setDeleteOpen(false);
+
+                    setSelectedDeliveryChallan(
+                        null
+                    );
+
+                }}
+
+                onDeleted={
+                    handleDeleted
+                }
             />
 
+
             <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={() =>
-                    setSnackbar({
-                        ...snackbar,
-                        open: false
-                    })
+                open={
+                    snackbar.open
                 }
+
+                autoHideDuration={
+                    3000
+                }
+
+                onClose={
+                    closeSnackbar
+                }
+
                 anchorOrigin={{
                     vertical: "top",
                     horizontal: "right"
                 }}
             >
+
                 <Alert
-                    severity={snackbar.severity}
+                    severity={
+                        snackbar.severity
+                    }
+
                     variant="filled"
-                    onClose={() =>
-                        setSnackbar({
-                            ...snackbar,
-                            open: false
-                        })
+
+                    onClose={
+                        closeSnackbar
                     }
                 >
                     {snackbar.message}
                 </Alert>
+
             </Snackbar>
 
         </Box>
-
     );
-
 };
+
 
 export default DeliveryChallanList;

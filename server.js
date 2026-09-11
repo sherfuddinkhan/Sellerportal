@@ -27758,6 +27758,660 @@ app.delete(
         }
     }
 );
+// ============================================================
+// GET ALL DELIVERY CHALLANS
+// Node:
+// GET /api/delivery-challans
+//
+// ASP.NET:
+// GET /api/DeliveryChallan
+// ============================================================
+
+app.get(
+    "/api/delivery-challans",
+    async (req, res) => {
+
+        console.log("");
+        console.log("================================================");
+        console.log("GET /api/delivery-challans");
+        console.log("Backend: /api/DeliveryChallan");
+        console.log("================================================");
+
+        try {
+
+            const response = await axios.get(
+                "https://localhost:7203/api/DeliveryChallan",
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    params: req.query,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            console.log(
+                "ASP.NET STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DELIVERY CHALLANS:",
+                response.data
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET /api/delivery-challans ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        success: false,
+                        message:
+                            "Failed to load delivery challans."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET ALL EXPLICIT
+// Node:
+// GET /api/delivery-challans/all
+//
+// ASP.NET:
+// GET /api/DeliveryChallan/all
+// ============================================================
+
+app.get(
+    "/api/delivery-challans/all",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                "https://localhost:7203/api/DeliveryChallan/all",
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET /api/delivery-challans/all ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load all delivery challans."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY SALES ORDER
+// Node:
+// GET /api/delivery-challans/salesorder/:salesOrderId
+//
+// ASP.NET:
+// GET /api/DeliveryChallan/salesorder/:salesOrderId
+// ============================================================
+
+app.get(
+    "/api/delivery-challans/salesorder/:salesOrderId",
+    async (req, res) => {
+
+        try {
+
+            const salesOrderId =
+                Number(req.params.salesOrderId);
+
+            if (
+                !Number.isInteger(salesOrderId) ||
+                salesOrderId <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid Sales Order ID."
+                });
+            }
+
+            const response = await axios.get(
+                `https://localhost:7203/api/DeliveryChallan/salesorder/${salesOrderId}`,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLANS BY SALES ORDER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load delivery challans."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY STATUS
+// Node:
+// GET /api/delivery-challans/status/:status
+//
+// ASP.NET:
+// GET /api/DeliveryChallan/status/:status
+// ============================================================
+
+app.get(
+    "/api/delivery-challans/status/:status",
+    async (req, res) => {
+
+        try {
+
+            const status =
+                encodeURIComponent(
+                    req.params.status
+                );
+
+            const response = await axios.get(
+                `https://localhost:7203/api/DeliveryChallan/status/${status}`,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLANS BY STATUS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load delivery challans by status."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY CHALLAN NUMBER
+// Node:
+// GET /api/delivery-challans/number/:challanNumber
+//
+// ASP.NET:
+// GET /api/DeliveryChallan/number/:challanNumber
+// ============================================================
+
+app.get(
+    "/api/delivery-challans/number/:challanNumber",
+    async (req, res) => {
+
+        try {
+
+            const challanNumber =
+                encodeURIComponent(
+                    req.params.challanNumber
+                );
+
+            const response = await axios.get(
+                `https://localhost:7203/api/DeliveryChallan/number/${challanNumber}`,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLAN BY NUMBER ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load delivery challan."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET STATISTICS
+// Node:
+// GET /api/delivery-challans/stats
+//
+// ASP.NET:
+// GET /api/DeliveryChallan/stats
+// ============================================================
+
+app.get(
+    "/api/delivery-challans/stats",
+    async (req, res) => {
+
+        try {
+
+            const response = await axios.get(
+                "https://localhost:7203/api/DeliveryChallan/stats",
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLAN STATS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load delivery challan statistics."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// GET BY ID
+// IMPORTANT:
+// Keep this AFTER all static routes
+//
+// Node:
+// GET /api/delivery-challans/:id
+//
+// ASP.NET:
+// GET /api/DeliveryChallan/:id
+// ============================================================
+
+app.get(
+    "/api/delivery-challans/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid Delivery Challan ID."
+                });
+            }
+
+            const response = await axios.get(
+                `https://localhost:7203/api/DeliveryChallan/${id}`,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLAN BY ID ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to load delivery challan."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// CREATE DELIVERY CHALLAN
+// Node:
+// POST /api/delivery-challans
+//
+// ASP.NET:
+// POST /api/DeliveryChallan
+// ============================================================
+
+app.post(
+    "/api/delivery-challans",
+    async (req, res) => {
+
+        console.log("");
+        console.log("================================================");
+        console.log("POST /api/delivery-challans");
+        console.log("BODY:", req.body);
+        console.log("================================================");
+
+        try {
+
+            const response = await axios.post(
+                "https://localhost:7203/api/DeliveryChallan",
+                req.body,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "POST /api/delivery-challans ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to create delivery challan."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE DELIVERY CHALLAN
+// Node:
+// PUT /api/delivery-challans/:id
+//
+// ASP.NET:
+// PUT /api/DeliveryChallan/:id
+// ============================================================
+
+app.put(
+    "/api/delivery-challans/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid Delivery Challan ID."
+                });
+            }
+
+            const response = await axios.put(
+                `https://localhost:7203/api/DeliveryChallan/${id}`,
+                req.body,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "PUT /api/delivery-challans ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update delivery challan."
+                    }
+                );
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE DELIVERY CHALLAN
+// Node:
+// DELETE /api/delivery-challans/:id
+//
+// ASP.NET:
+// DELETE /api/DeliveryChallan/:id
+// ============================================================
+
+app.delete(
+    "/api/delivery-challans/:id",
+    async (req, res) => {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid Delivery Challan ID."
+                });
+            }
+
+            const response = await axios.delete(
+                `https://localhost:7203/api/DeliveryChallan/${id}`,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE /api/delivery-challans ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to delete delivery challan."
+                    }
+                );
+        }
+    }
+);
+
+
+
 
 
 app.use(

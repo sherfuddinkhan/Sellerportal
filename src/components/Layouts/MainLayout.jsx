@@ -740,10 +740,6 @@ const MainLayout = () => {
                             label: "Search",
                             path: "/shipments/search",
                         },
-                        {
-                            label: "Statistics",
-                            path: "/shipments/statistics",
-                        },
                     ],
                 },
 
@@ -760,12 +756,7 @@ const MainLayout = () => {
                         {
                             label: "Create Warehouse",
                             path: "/warehouses/create",
-                        },
-                        {
-                            label: "Warehouse Details",
-                            path: "/warehouses/details/:id",
-                        },
-                       
+                        },  
                     ],
                 },
 
