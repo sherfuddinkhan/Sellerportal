@@ -1,8 +1,18 @@
-// =========================================================
+// ============================================================
 // SellerCustomerDetails.jsx
-// =========================================================
+// ============================================================
 
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
+
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+import axios from "axios";
 
 import {
     Alert,
@@ -13,42 +23,29 @@ import {
     CircularProgress,
     Divider,
     Grid,
+    Paper,
     Stack,
-    Typography,
-    Chip,
+    Typography
 } from "@mui/material";
 
-import {
-    ArrowBack,
-    Edit,
-} from "@mui/icons-material";
-
-import {
-    useNavigate,
-    useParams,
-} from "react-router-dom";
-
-import axios from "axios";
-
-// =========================================================
-// CONFIGURATION
-// =========================================================
+// ============================================================
+// CONFIG
+// ============================================================
 
 const SERVER_URL = "http://localhost:5000";
 
-// Use your current seller ID.
-// Change this if you store seller ID somewhere else.
-const SELLER_ID = 6;
-
-// =========================================================
+// ============================================================
 // COMPONENT
-// =========================================================
+// ============================================================
 
 const SellerCustomerDetails = () => {
 
-    const navigate = useNavigate();
+    const {
+        sellerId,
+        customerId
+    } = useParams();
 
-    const { id } = useParams();
+    const navigate = useNavigate();
 
     const [customer, setCustomer] = useState(null);
 
@@ -56,68 +53,126 @@ const SellerCustomerDetails = () => {
 
     const [error, setError] = useState("");
 
-    // =====================================================
+    // ========================================================
     // LOAD CUSTOMER
-    // =====================================================
+    // ========================================================
 
     useEffect(() => {
 
         const loadCustomer = async () => {
 
-            if (!id) {
-
-                setError("Customer ID is missing from URL.");
-
-                setLoading(false);
-
-                return;
-            }
-
             try {
 
                 setLoading(true);
-
                 setError("");
 
+                // ------------------------------------------------
+                // VALIDATE PARAMS
+                // ------------------------------------------------
+
+                if (!sellerId || !customerId) {
+
+                    setError(
+                        "Seller ID and Customer ID are required."
+                    );
+
+                    return;
+                }
+
+                // ------------------------------------------------
+                // NODE PROXY URL
+                // ------------------------------------------------
+
+                const url =
+                    `${SERVER_URL}/api/seller-customers/${sellerId}/customers/${customerId}`;
+
                 console.log(
-                    "Loading customer:",
+                    "================================================"
+                );
+
+                console.log(
+                    "GET SELLER CUSTOMER DETAILS"
+                );
+
+                console.log(
+                    "SELLER ID:",
+                    sellerId
+                );
+
+                console.log(
+                    "CUSTOMER ID:",
+                    customerId
+                );
+
+                console.log(
+                    "NODE URL:",
+                    url
+                );
+
+                console.log(
+                    "================================================"
+                );
+
+                // ------------------------------------------------
+                // CALL NODE
+                // ------------------------------------------------
+
+                const response = await axios.get(
+                    url,
                     {
-                        sellerId: SELLER_ID,
-                        customerId: id,
+                        headers: {
+                            Accept: "*/*"
+                        }
                     }
                 );
 
-                const response = await axios.get(
-
-                    `${SERVER_URL}/api/seller-customers/${SELLER_ID}/customers/${id}`
-
-                );
-
                 console.log(
-                    "Customer response:",
+                    "SELLER CUSTOMER RESPONSE:",
                     response.data
                 );
 
-                setCustomer(response.data);
+                // ------------------------------------------------
+                // STORE RESPONSE
+                // ------------------------------------------------
+
+                setCustomer(
+                    response.data
+                );
 
             }
             catch (err) {
 
                 console.error(
-                    "Load Seller Customer Error:",
-                    err
+                    "================================================"
                 );
 
-                const message =
-                    err.response?.data?.message ||
-                    err.response?.data ||
-                    err.message ||
-                    "Unable to load customer.";
+                console.error(
+                    "SELLER CUSTOMER DETAILS ERROR"
+                );
+
+                console.error(
+                    "MESSAGE:",
+                    err.message
+                );
+
+                console.error(
+                    "STATUS:",
+                    err.response?.status
+                );
+
+                console.error(
+                    "RESPONSE:",
+                    err.response?.data
+                );
+
+                console.error(
+                    "================================================"
+                );
 
                 setError(
-                    typeof message === "string"
-                        ? message
-                        : "Unable to load customer."
+                    err.response?.data?.message ||
+                    err.response?.data?.title ||
+                    `Failed to load seller customer. HTTP ${err.response?.status || "500"}`
                 );
 
             }
@@ -131,51 +186,81 @@ const SellerCustomerDetails = () => {
 
         loadCustomer();
 
-    }, [id]);
+    }, [
+        sellerId,
+        customerId
+    ]);
 
-    // =====================================================
+    // ========================================================
+    // COUNT HELPER
+    // ========================================================
+
+    const getCount = (value) => {
+
+        return Array.isArray(value)
+            ? value.length
+            : 0;
+
+    };
+
+    // ========================================================
+    // GET PROPERTY
+    // Supports camelCase + PascalCase
+    // ========================================================
+
+    const getValue = (
+        camelCase,
+        pascalCase,
+        fallback = ""
+    ) => {
+
+        return (
+            customer?.[camelCase] ??
+            customer?.[pascalCase] ??
+            fallback
+        );
+
+    };
+
+    // ========================================================
     // LOADING
-    // =====================================================
+    // ========================================================
 
     if (loading) {
 
         return (
-
             <Box
                 sx={{
-                    minHeight: "400px",
                     display: "flex",
-                    alignItems: "center",
                     justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: 400
                 }}
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
 
     }
 
-    // =====================================================
+    // ========================================================
     // ERROR
-    // =====================================================
+    // ========================================================
 
     if (error) {
 
         return (
-
             <Box sx={{ p: 3 }}>
 
-                <Alert severity="error">
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                >
                     {error}
                 </Alert>
 
                 <Button
-                    sx={{ mt: 2 }}
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
+                    variant="contained"
                     onClick={() =>
                         navigate("/seller-customers")
                     }
@@ -184,86 +269,204 @@ const SellerCustomerDetails = () => {
                 </Button>
 
             </Box>
-
         );
 
     }
 
-    // =====================================================
-    // CUSTOMER NOT FOUND
-    // =====================================================
+    // ========================================================
+    // NO CUSTOMER
+    // ========================================================
 
     if (!customer) {
 
         return (
-
             <Box sx={{ p: 3 }}>
 
                 <Alert severity="warning">
-                    Customer not found.
+                    Seller customer was not found.
                 </Alert>
 
-                <Button
-                    sx={{ mt: 2 }}
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={() =>
-                        navigate("/seller-customers")
-                    }
-                >
-                    Back to Seller Customers
-                </Button>
-
             </Box>
-
         );
 
     }
 
-    // =====================================================
-    // FIELD
-    // =====================================================
+    // ========================================================
+    // CUSTOMER VALUES
+    // ========================================================
 
-    const Field = ({
-        label,
-        value,
-    }) => (
+    const customerCode =
+        getValue(
+            "customerCode",
+            "CustomerCode",
+            "-"
+        );
 
-        <Grid
-            item
-            xs={12}
-            md={6}
-        >
+    const customerName =
+        getValue(
+            "customerName",
+            "CustomerName",
+            "-"
+        );
 
-            <Typography
-                variant="caption"
-                color="text.secondary"
-            >
-                {label}
-            </Typography>
+    const contactPerson =
+        getValue(
+            "contactPerson",
+            "ContactPerson",
+            "-"
+        );
 
-            <Typography
-                variant="body1"
-                fontWeight={500}
-            >
-                {value ?? "-"}
-            </Typography>
+    const email =
+        getValue(
+            "email",
+            "Email",
+            "-"
+        );
 
-        </Grid>
+    const phone =
+        getValue(
+            "phone",
+            "Phone",
+            "-"
+        );
 
-    );
+    const gstin =
+        getValue(
+            "gstin",
+            "GSTIN",
+            "-"
+        );
 
-    // =====================================================
+    const addressLine1 =
+        getValue(
+            "addressLine1",
+            "AddressLine1",
+            "-"
+        );
+
+    const addressLine2 =
+        getValue(
+            "addressLine2",
+            "AddressLine2",
+            "-"
+        );
+
+    const city =
+        getValue(
+            "city",
+            "City",
+            "-"
+        );
+
+    const state =
+        getValue(
+            "state",
+            "State",
+            "-"
+        );
+
+    const country =
+        getValue(
+            "country",
+            "Country",
+            "-"
+        );
+
+    const postalCode =
+        getValue(
+            "postalCode",
+            "PostalCode",
+            "-"
+        );
+
+    const creditLimit =
+        getValue(
+            "creditLimit",
+            "CreditLimit",
+            0
+        );
+
+    const isActive =
+        getValue(
+            "isActive",
+            "IsActive",
+            true
+        );
+
+    // ========================================================
+    // AGGREGATE COLLECTIONS
+    // ========================================================
+
+    const products =
+        customer?.products ??
+        customer?.Products ??
+        [];
+
+    const inventories =
+        customer?.inventories ??
+        customer?.Inventories ??
+        [];
+
+    const prices =
+        customer?.prices ??
+        customer?.Prices ??
+        [];
+
+    const images =
+        customer?.images ??
+        customer?.Images ??
+        [];
+
+    const stockMovements =
+        customer?.stockMovements ??
+        customer?.StockMovements ??
+        [];
+
+    const stockLedgers =
+        customer?.stockLedgers ??
+        customer?.StockLedgers ??
+        [];
+
+    const warehouses =
+        customer?.warehouses ??
+        customer?.Warehouses ??
+        [];
+
+    const warehouseLocations =
+        customer?.warehouseLocations ??
+        customer?.WarehouseLocations ??
+        [];
+
+    const suppliers =
+        customer?.suppliers ??
+        customer?.Suppliers ??
+        [];
+
+    const brands =
+        customer?.brands ??
+        customer?.Brands ??
+        [];
+
+    const marketplaceOrders =
+        customer?.marketplaceOrders ??
+        customer?.MarketplaceOrders ??
+        [];
+
+    const marketplaceReturns =
+        customer?.marketplaceReturns ??
+        customer?.MarketplaceReturns ??
+        [];
+
+    // ========================================================
     // RENDER
-    // =====================================================
+    // ========================================================
 
     return (
-
         <Box sx={{ p: 3 }}>
 
-            {/* =================================================
+            {/* ==================================================
                 HEADER
-            ================================================= */}
+            ================================================== */}
 
             <Stack
                 direction="row"
@@ -275,8 +478,8 @@ const SellerCustomerDetails = () => {
                 <Box>
 
                     <Typography
-                        variant="h5"
-                        fontWeight={600}
+                        variant="h4"
+                        fontWeight={700}
                     >
                         Seller Customer Details
                     </Typography>
@@ -285,7 +488,7 @@ const SellerCustomerDetails = () => {
                         variant="body2"
                         color="text.secondary"
                     >
-                        Customer information and account details
+                        Seller ID: {sellerId} | Customer ID: {customerId}
                     </Typography>
 
                 </Box>
@@ -297,7 +500,17 @@ const SellerCustomerDetails = () => {
 
                     <Button
                         variant="outlined"
-                        startIcon={<ArrowBack />}
+                        onClick={() =>
+                            navigate(
+                                `/seller-customers/edit/${sellerId}/${customerId}`
+                            )
+                        }
+                    >
+                        Edit
+                    </Button>
+
+                    <Button
+                        variant="outlined"
                         onClick={() =>
                             navigate("/seller-customers")
                         }
@@ -305,25 +518,13 @@ const SellerCustomerDetails = () => {
                         Back
                     </Button>
 
-                    <Button
-                        variant="contained"
-                        startIcon={<Edit />}
-                        onClick={() =>
-                            navigate(
-                                `/seller-customers/edit/${customer.CustomerId}`
-                            )
-                        }
-                    >
-                        Edit
-                    </Button>
-
                 </Stack>
 
             </Stack>
 
-            {/* =================================================
-                BASIC INFORMATION
-            ================================================= */}
+            {/* ==================================================
+                CUSTOMER INFORMATION
+            ================================================== */}
 
             <Card sx={{ mb: 3 }}>
 
@@ -331,90 +532,97 @@ const SellerCustomerDetails = () => {
 
                     <Typography
                         variant="h6"
-                        fontWeight={600}
+                        fontWeight={700}
                         sx={{ mb: 2 }}
                     >
                         Customer Information
                     </Typography>
 
-                    <Divider sx={{ mb: 3 }} />
+                    <Divider sx={{ mb: 2 }} />
 
                     <Grid
                         container
-                        spacing={3}
+                        spacing={2}
                     >
 
-                        <Field
-                            label="Customer ID"
-                            value={customer.CustomerId}
-                        />
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
+                                Customer Code
+                            </Typography>
 
-                        <Field
-                            label="Seller ID"
-                            value={customer.SellerId}
-                        />
+                            <Typography fontWeight={600}>
+                                {customerCode}
+                            </Typography>
+                        </Grid>
 
-                        <Field
-                            label="Customer Code"
-                            value={customer.CustomerCode}
-                        />
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
+                                Customer Name
+                            </Typography>
 
-                        <Field
-                            label="Customer Name"
-                            value={customer.CustomerName}
-                        />
+                            <Typography fontWeight={600}>
+                                {customerName}
+                            </Typography>
+                        </Grid>
 
-                        <Field
-                            label="Contact Person"
-                            value={customer.ContactPerson}
-                        />
-
-                        <Field
-                            label="Email"
-                            value={customer.Email}
-                        />
-
-                        <Field
-                            label="Phone"
-                            value={customer.Phone}
-                        />
-
-                        <Field
-                            label="GSTIN"
-                            value={customer.GSTIN}
-                        />
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
                                 Status
                             </Typography>
 
-                            <Box sx={{ mt: 1 }}>
+                            <Typography fontWeight={600}>
+                                {isActive ? "Active" : "Inactive"}
+                            </Typography>
+                        </Grid>
 
-                                <Chip
-                                    label={
-                                        customer.IsActive
-                                            ? "Active"
-                                            : "Inactive"
-                                    }
-                                    color={
-                                        customer.IsActive
-                                            ? "success"
-                                            : "error"
-                                    }
-                                    size="small"
-                                />
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
+                                Contact Person
+                            </Typography>
 
-                            </Box>
+                            <Typography>
+                                {contactPerson}
+                            </Typography>
+                        </Grid>
 
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
+                                Email
+                            </Typography>
+
+                            <Typography>
+                                {email}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
+                                Phone
+                            </Typography>
+
+                            <Typography>
+                                {phone}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
+                                GSTIN
+                            </Typography>
+
+                            <Typography>
+                                {gstin}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Typography variant="caption">
+                                Credit Limit
+                            </Typography>
+
+                            <Typography>
+                                ₹ {Number(creditLimit || 0).toLocaleString("en-IN")}
+                            </Typography>
                         </Grid>
 
                     </Grid>
@@ -423,9 +631,9 @@ const SellerCustomerDetails = () => {
 
             </Card>
 
-            {/* =================================================
+            {/* ==================================================
                 ADDRESS
-            ================================================= */}
+            ================================================== */}
 
             <Card sx={{ mb: 3 }}>
 
@@ -433,146 +641,160 @@ const SellerCustomerDetails = () => {
 
                     <Typography
                         variant="h6"
-                        fontWeight={600}
+                        fontWeight={700}
                         sx={{ mb: 2 }}
                     >
-                        Address Information
+                        Address
                     </Typography>
 
-                    <Divider sx={{ mb: 3 }} />
+                    <Divider sx={{ mb: 2 }} />
 
-                    <Grid
-                        container
-                        spacing={3}
-                    >
+                    <Typography>
+                        {addressLine1}
+                    </Typography>
 
-                        <Field
-                            label="Address Line 1"
-                            value={customer.AddressLine1}
-                        />
+                    <Typography>
+                        {addressLine2}
+                    </Typography>
 
-                        <Field
-                            label="Address Line 2"
-                            value={customer.AddressLine2}
-                        />
+                    <Typography>
+                        {city}, {state}
+                    </Typography>
 
-                        <Field
-                            label="City"
-                            value={customer.City}
-                        />
-
-                        <Field
-                            label="State"
-                            value={customer.State}
-                        />
-
-                        <Field
-                            label="Country"
-                            value={customer.Country}
-                        />
-
-                        <Field
-                            label="Postal Code"
-                            value={customer.PostalCode}
-                        />
-
-                    </Grid>
+                    <Typography>
+                        {country} - {postalCode}
+                    </Typography>
 
                 </CardContent>
 
             </Card>
 
-            {/* =================================================
-                FINANCIAL INFORMATION
-            ================================================= */}
+            {/* ==================================================
+                AGGREGATE SUMMARY
+            ================================================== */}
 
-            <Card sx={{ mb: 3 }}>
+            <Typography
+                variant="h5"
+                fontWeight={700}
+                sx={{ mb: 2 }}
+            >
+                Aggregate Summary
+            </Typography>
 
-                <CardContent>
+            <Grid
+                container
+                spacing={2}
+            >
 
-                    <Typography
-                        variant="h6"
-                        fontWeight={600}
-                        sx={{ mb: 2 }}
-                    >
-                        Financial Information
-                    </Typography>
+                <SummaryCard
+                    title="Products"
+                    count={getCount(products)}
+                />
 
-                    <Divider sx={{ mb: 3 }} />
+                <SummaryCard
+                    title="Inventories"
+                    count={getCount(inventories)}
+                />
 
-                    <Grid
-                        container
-                        spacing={3}
-                    >
+                <SummaryCard
+                    title="Prices"
+                    count={getCount(prices)}
+                />
 
-                        <Field
-                            label="Credit Limit"
-                            value={
-                                `₹ ${Number(
-                                    customer.CreditLimit || 0
-                                ).toLocaleString("en-IN")}`
-                            }
-                        />
+                <SummaryCard
+                    title="Images"
+                    count={getCount(images)}
+                />
 
-                    </Grid>
+                <SummaryCard
+                    title="Stock Movements"
+                    count={getCount(stockMovements)}
+                />
 
-                </CardContent>
+                <SummaryCard
+                    title="Stock Ledgers"
+                    count={getCount(stockLedgers)}
+                />
 
-            </Card>
+                <SummaryCard
+                    title="Warehouses"
+                    count={getCount(warehouses)}
+                />
 
-            {/* =================================================
-                DATES
-            ================================================= */}
+                <SummaryCard
+                    title="Warehouse Locations"
+                    count={getCount(warehouseLocations)}
+                />
 
-            <Card>
+                <SummaryCard
+                    title="Suppliers"
+                    count={getCount(suppliers)}
+                />
 
-                <CardContent>
+                <SummaryCard
+                    title="Brands"
+                    count={getCount(brands)}
+                />
 
-                    <Typography
-                        variant="h6"
-                        fontWeight={600}
-                        sx={{ mb: 2 }}
-                    >
-                        Record Information
-                    </Typography>
+                <SummaryCard
+                    title="Marketplace Orders"
+                    count={getCount(marketplaceOrders)}
+                />
 
-                    <Divider sx={{ mb: 3 }} />
+                <SummaryCard
+                    title="Marketplace Returns"
+                    count={getCount(marketplaceReturns)}
+                />
 
-                    <Grid
-                        container
-                        spacing={3}
-                    >
-
-                        <Field
-                            label="Created Date"
-                            value={
-                                customer.CreatedDate
-                                    ? new Date(
-                                        customer.CreatedDate
-                                    ).toLocaleString()
-                                    : "-"
-                            }
-                        />
-
-                        <Field
-                            label="Updated Date"
-                            value={
-                                customer.UpdatedDate
-                                    ? new Date(
-                                        customer.UpdatedDate
-                                    ).toLocaleString()
-                                    : "-"
-                            }
-                        />
-
-                    </Grid>
-
-                </CardContent>
-
-            </Card>
+            </Grid>
 
         </Box>
+    );
 
+};
+
+// ============================================================
+// SUMMARY CARD
+// ============================================================
+
+const SummaryCard = ({
+    title,
+    count
+}) => {
+
+    return (
+        <Grid
+            item
+            xs={12}
+            sm={6}
+            md={3}
+        >
+
+            <Paper
+                elevation={2}
+                sx={{
+                    p: 2,
+                    height: "100%"
+                }}
+            >
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                >
+                    {title}
+                </Typography>
+
+                <Typography
+                    variant="h4"
+                    fontWeight={700}
+                >
+                    {count}
+                </Typography>
+
+            </Paper>
+
+        </Grid>
     );
 
 };

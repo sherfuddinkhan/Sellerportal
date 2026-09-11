@@ -3,7 +3,12 @@
 // Seller Customer Edit Page
 // =========================================================
 
-import React, { useEffect, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
+
 import axios from "axios";
 
 import {
@@ -19,24 +24,31 @@ import {
     Snackbar,
     Stack,
     TextField,
-    Typography,
+    Typography
 } from "@mui/material";
 
 import {
     ArrowBack,
-    Save,
+    Save
 } from "@mui/icons-material";
 
 import {
     useNavigate,
-    useParams,
+    useParams
 } from "react-router-dom";
 
 // =========================================================
 // CONFIGURATION
 // =========================================================
 
-// React -> server.js
+// React
+//    ↓
+// Node server.js
+//    ↓
+// ASP.NET Core
+//    ↓
+// SellerPortalDB
+
 const SERVER_URL = "http://localhost:5000";
 
 // =========================================================
@@ -47,12 +59,13 @@ const SellerCustomerEdit = () => {
 
     const navigate = useNavigate();
 
-    // IMPORTANT:
-    // Route:
-    // /seller-customers/edit/:sellerId/:customerId
+    // =====================================================
+    // URL PARAMETERS
+    // =====================================================
+
     const {
         sellerId,
-        customerId,
+        customerId
     } = useParams();
 
     // =====================================================
@@ -70,19 +83,32 @@ const SellerCustomerEdit = () => {
     const [form, setForm] = useState({
 
         CustomerCode: "",
+
         CustomerName: "",
+
         ContactPerson: "",
+
         Email: "",
+
         Phone: "",
+
         GSTIN: "",
+
         AddressLine1: "",
+
         AddressLine2: "",
+
         City: "",
+
         State: "",
+
         Country: "",
+
         PostalCode: "",
+
         CreditLimit: "",
-        IsActive: true,
+
+        IsActive: true
 
     });
 
@@ -90,12 +116,23 @@ const SellerCustomerEdit = () => {
     // LOAD CUSTOMER
     // =====================================================
 
-    const loadCustomer = async () => {
+    const loadCustomer = useCallback(async () => {
 
-        if (!sellerId || !customerId) {
+        if (!sellerId) {
 
             setError(
-                "Seller ID or Customer ID is missing from URL."
+                "Seller ID is missing from URL."
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+        if (!customerId) {
+
+            setError(
+                "Customer ID is missing from URL."
             );
 
             setLoading(false);
@@ -109,81 +146,155 @@ const SellerCustomerEdit = () => {
 
             setError("");
 
+            // =================================================
+            // IMPORTANT
+            //
+            // React -> Node
+            //
+            // http://localhost:5000/api/
+            // seller-customers/6/customers/3
+            //
+            // Node -> ASP.NET
+            //
+            // https://localhost:7203/api/
+            // SellerCustomer/6/customers/3
+            // =================================================
+
+            const url =
+                `${SERVER_URL}/api/seller-customers/${sellerId}/customers/${customerId}`;
+
             console.log(
-                "Loading customer:",
-                {
-                    sellerId,
-                    customerId,
-                }
+                "================================================="
             );
 
-            // =================================================
-            // React
-            //    ↓
-            // server.js
-            //    ↓
-            // ASP.NET
-            //
-            // GET:
-            // /api/SellerCustomer/6/customers/3
-            // =================================================
+            console.log(
+                "GET SELLER CUSTOMER"
+            );
+
+            console.log(
+                "Seller ID:",
+                sellerId
+            );
+
+            console.log(
+                "Customer ID:",
+                customerId
+            );
+
+            console.log(
+                "Request URL:",
+                url
+            );
+
+            console.log(
+                "================================================="
+            );
 
             const response = await axios.get(
-
-                `${SERVER_URL}/api/SellerCustomer/${sellerId}/customers/${customerId}`
-
+                url,
+                {
+                    headers: {
+                        Accept: "*/*"
+                    }
+                }
             );
 
             const data = response.data;
 
             console.log(
-                "Customer response:",
+                "================================================="
+            );
+
+            console.log(
+                "CUSTOMER RESPONSE"
+            );
+
+            console.log(
                 data
             );
+
+            console.log(
+                "================================================="
+            );
+
+            // =================================================
+            // SUPPORT BOTH:
+            //
+            // camelCase JSON
+            // PascalCase JSON
+            // =================================================
 
             setForm({
 
                 CustomerCode:
-                    data.CustomerCode ?? "",
+                    data.customerCode ??
+                    data.CustomerCode ??
+                    "",
 
                 CustomerName:
-                    data.CustomerName ?? "",
+                    data.customerName ??
+                    data.CustomerName ??
+                    "",
 
                 ContactPerson:
-                    data.ContactPerson ?? "",
+                    data.contactPerson ??
+                    data.ContactPerson ??
+                    "",
 
                 Email:
-                    data.Email ?? "",
+                    data.email ??
+                    data.Email ??
+                    "",
 
                 Phone:
-                    data.Phone ?? "",
+                    data.phone ??
+                    data.Phone ??
+                    "",
 
                 GSTIN:
-                    data.GSTIN ?? "",
+                    data.gstin ??
+                    data.GSTIN ??
+                    "",
 
                 AddressLine1:
-                    data.AddressLine1 ?? "",
+                    data.addressLine1 ??
+                    data.AddressLine1 ??
+                    "",
 
                 AddressLine2:
-                    data.AddressLine2 ?? "",
+                    data.addressLine2 ??
+                    data.AddressLine2 ??
+                    "",
 
                 City:
-                    data.City ?? "",
+                    data.city ??
+                    data.City ??
+                    "",
 
                 State:
-                    data.State ?? "",
+                    data.state ??
+                    data.State ??
+                    "",
 
                 Country:
-                    data.Country ?? "",
+                    data.country ??
+                    data.Country ??
+                    "",
 
                 PostalCode:
-                    data.PostalCode ?? "",
+                    data.postalCode ??
+                    data.PostalCode ??
+                    "",
 
                 CreditLimit:
-                    data.CreditLimit ?? "",
+                    data.creditLimit ??
+                    data.CreditLimit ??
+                    "",
 
                 IsActive:
-                    data.IsActive ?? true,
+                    data.isActive ??
+                    data.IsActive ??
+                    true
 
             });
 
@@ -191,24 +302,65 @@ const SellerCustomerEdit = () => {
         catch (err) {
 
             console.error(
-                "Load Customer Error:",
+                "================================================="
+            );
+
+            console.error(
+                "LOAD CUSTOMER ERROR"
+            );
+
+            console.error(
                 err
             );
 
             console.error(
-                "Response:",
+                "STATUS:",
+                err.response?.status
+            );
+
+            console.error(
+                "RESPONSE:",
                 err.response?.data
             );
 
-            setError(
-
-                err.response?.data?.message ||
-
-                `Unable to load customer. HTTP ${
-                    err.response?.status || ""
-                }`
-
+            console.error(
+                "================================================="
             );
+
+            const status =
+                err.response?.status;
+
+            const backendMessage =
+                err.response?.data?.message ||
+                err.response?.data?.title;
+
+            if (status === 404) {
+
+                setError(
+                    "Customer was not found for this seller."
+                );
+
+            }
+            else if (status === 500) {
+
+                setError(
+                    backendMessage ||
+                    "Server error while loading customer details."
+                );
+
+            }
+            else {
+
+                setError(
+                    backendMessage ||
+                    `Unable to load customer details.${
+                        status
+                            ? ` HTTP ${status}`
+                            : ""
+                    }`
+                );
+
+            }
 
         }
         finally {
@@ -217,7 +369,10 @@ const SellerCustomerEdit = () => {
 
         }
 
-    };
+    }, [
+        sellerId,
+        customerId
+    ]);
 
     // =====================================================
     // EFFECT
@@ -228,8 +383,7 @@ const SellerCustomerEdit = () => {
         loadCustomer();
 
     }, [
-        sellerId,
-        customerId
+        loadCustomer
     ]);
 
     // =====================================================
@@ -240,13 +394,13 @@ const SellerCustomerEdit = () => {
 
         const {
             name,
-            value,
+            value
         } = event.target;
 
         setForm(
             previous => ({
                 ...previous,
-                [name]: value,
+                [name]: value
             })
         );
 
@@ -260,10 +414,19 @@ const SellerCustomerEdit = () => {
 
         event.preventDefault();
 
-        if (!sellerId || !customerId) {
+        if (!sellerId) {
 
             setError(
-                "Seller ID or Customer ID is missing."
+                "Seller ID is missing."
+            );
+
+            return;
+        }
+
+        if (!customerId) {
+
+            setError(
+                "Customer ID is missing."
             );
 
             return;
@@ -275,96 +438,111 @@ const SellerCustomerEdit = () => {
 
             setError("");
 
+            // =================================================
+            // PUT PAYLOAD
+            // =================================================
+
             const payload = {
 
                 CustomerCode:
-                    form.CustomerCode,
+                    form.CustomerCode?.trim() || "",
 
                 CustomerName:
-                    form.CustomerName,
+                    form.CustomerName?.trim() || "",
 
                 ContactPerson:
-                    form.ContactPerson,
+                    form.ContactPerson?.trim() || "",
 
                 Email:
-                    form.Email,
+                    form.Email?.trim() || "",
 
                 Phone:
-                    form.Phone,
+                    form.Phone?.trim() || "",
 
                 GSTIN:
-                    form.GSTIN,
+                    form.GSTIN?.trim() || "",
 
                 AddressLine1:
-                    form.AddressLine1,
+                    form.AddressLine1?.trim() || "",
 
                 AddressLine2:
-                    form.AddressLine2,
+                    form.AddressLine2?.trim() || "",
 
                 City:
-                    form.City,
+                    form.City?.trim() || "",
 
                 State:
-                    form.State,
+                    form.State?.trim() || "",
 
                 Country:
-                    form.Country,
+                    form.Country?.trim() || "",
 
                 PostalCode:
-                    form.PostalCode,
+                    form.PostalCode?.trim() || "",
 
                 CreditLimit:
-                    Number(
-                        form.CreditLimit || 0
-                    ),
+                    Number(form.CreditLimit || 0),
 
                 IsActive:
                     form.IsActive === true ||
-                    form.IsActive === "true",
+                    form.IsActive === "true"
 
             };
 
+            // =================================================
+            // NODE URL
+            //
+            // IMPORTANT:
+            // Use seller-customers
+            // NOT SellerCustomer
+            // =================================================
+
+            const url =
+                `${SERVER_URL}/api/seller-customers/${sellerId}/customers/${customerId}`;
+
             console.log(
-                "Updating customer:",
+                "================================================="
+            );
+
+            console.log(
+                "UPDATE SELLER CUSTOMER"
+            );
+
+            console.log(
+                "PUT URL:",
+                url
+            );
+
+            console.log(
+                "Payload:",
+                payload
+            );
+
+            console.log(
+                "================================================="
+            );
+
+            const response = await axios.put(
+                url,
+                payload,
                 {
-                    sellerId,
-                    customerId,
-                    payload,
+                    headers: {
+                        Accept: "*/*",
+                        "Content-Type":
+                            "application/json"
+                    }
                 }
             );
 
-            // =================================================
-            // PUT
-            //
-            // React
-            //    ↓
-            // server.js
-            //    ↓
-            // ASP.NET
-            //
-            // PUT:
-            // /api/SellerCustomer/6/customers/3
-            // =================================================
-
-            await axios.put(
-
-                `${SERVER_URL}/api/SellerCustomer/${sellerId}/customers/${customerId}`,
-
-                payload,
-
-                {
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-                }
-
+            console.log(
+                "UPDATE RESPONSE:",
+                response
             );
 
             setSuccess(true);
 
             // =================================================
-            // Go to DETAILS page
+            // GO TO DETAILS
             // =================================================
 
             setTimeout(() => {
@@ -379,23 +557,45 @@ const SellerCustomerEdit = () => {
         catch (err) {
 
             console.error(
-                "Update Customer Error:",
+                "================================================="
+            );
+
+            console.error(
+                "UPDATE CUSTOMER ERROR"
+            );
+
+            console.error(
                 err
             );
 
             console.error(
-                "Response:",
+                "STATUS:",
+                err.response?.status
+            );
+
+            console.error(
+                "RESPONSE:",
                 err.response?.data
             );
 
-            setError(
+            console.error(
+                "================================================="
+            );
 
+            const status =
+                err.response?.status;
+
+            const backendMessage =
                 err.response?.data?.message ||
+                err.response?.data?.title;
 
-                `Unable to update customer. HTTP ${
-                    err.response?.status || ""
+            setError(
+                backendMessage ||
+                `Unable to update customer.${
+                    status
+                        ? ` HTTP ${status}`
+                        : ""
                 }`
-
             );
 
         }
@@ -408,7 +608,7 @@ const SellerCustomerEdit = () => {
     };
 
     // =====================================================
-    // BACK TO DETAILS
+    // GO TO DETAILS
     // =====================================================
 
     const goToDetails = () => {
@@ -432,7 +632,7 @@ const SellerCustomerEdit = () => {
                     minHeight: "400px",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    justifyContent: "center"
                 }}
             >
 
@@ -457,9 +657,16 @@ const SellerCustomerEdit = () => {
             ================================================= */}
 
             <Stack
-                direction="row"
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
                 justifyContent="space-between"
-                alignItems="center"
+                alignItems={{
+                    xs: "flex-start",
+                    sm: "center"
+                }}
+                spacing={2}
                 sx={{ mb: 3 }}
             >
 
@@ -492,6 +699,7 @@ const SellerCustomerEdit = () => {
                     variant="outlined"
                     startIcon={<ArrowBack />}
                     onClick={goToDetails}
+                    disabled={saving}
                 >
                     Back
                 </Button>
@@ -541,7 +749,9 @@ const SellerCustomerEdit = () => {
                             spacing={2}
                         >
 
-                            {/* Customer Code */}
+                            {/* =================================================
+                                CUSTOMER CODE
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -551,6 +761,7 @@ const SellerCustomerEdit = () => {
 
                                 <TextField
                                     fullWidth
+                                    required
                                     label="Customer Code"
                                     name="CustomerCode"
                                     value={
@@ -559,12 +770,13 @@ const SellerCustomerEdit = () => {
                                     onChange={
                                         handleChange
                                     }
-                                    required
                                 />
 
                             </Grid>
 
-                            {/* Customer Name */}
+                            {/* =================================================
+                                CUSTOMER NAME
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -574,6 +786,7 @@ const SellerCustomerEdit = () => {
 
                                 <TextField
                                     fullWidth
+                                    required
                                     label="Customer Name"
                                     name="CustomerName"
                                     value={
@@ -582,12 +795,13 @@ const SellerCustomerEdit = () => {
                                     onChange={
                                         handleChange
                                     }
-                                    required
                                 />
 
                             </Grid>
 
-                            {/* Contact Person */}
+                            {/* =================================================
+                                CONTACT PERSON
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -609,7 +823,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* Email */}
+                            {/* =================================================
+                                EMAIL
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -619,9 +835,9 @@ const SellerCustomerEdit = () => {
 
                                 <TextField
                                     fullWidth
+                                    type="email"
                                     label="Email"
                                     name="Email"
-                                    type="email"
                                     value={
                                         form.Email
                                     }
@@ -632,7 +848,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* Phone */}
+                            {/* =================================================
+                                PHONE
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -654,7 +872,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* GSTIN */}
+                            {/* =================================================
+                                GSTIN
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -676,7 +896,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* Address 1 */}
+                            {/* =================================================
+                                ADDRESS LINE 1
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -697,7 +919,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* Address 2 */}
+                            {/* =================================================
+                                ADDRESS LINE 2
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -718,7 +942,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* City */}
+                            {/* =================================================
+                                CITY
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -740,7 +966,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* State */}
+                            {/* =================================================
+                                STATE
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -762,7 +990,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* Country */}
+                            {/* =================================================
+                                COUNTRY
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -784,7 +1014,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* Postal Code */}
+                            {/* =================================================
+                                POSTAL CODE
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -806,7 +1038,9 @@ const SellerCustomerEdit = () => {
 
                             </Grid>
 
-                            {/* Credit Limit */}
+                            {/* =================================================
+                                CREDIT LIMIT
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -816,9 +1050,9 @@ const SellerCustomerEdit = () => {
 
                                 <TextField
                                     fullWidth
+                                    type="number"
                                     label="Credit Limit"
                                     name="CreditLimit"
-                                    type="number"
                                     value={
                                         form.CreditLimit
                                     }
@@ -826,13 +1060,15 @@ const SellerCustomerEdit = () => {
                                         handleChange
                                     }
                                     inputProps={{
-                                        min: 0,
+                                        min: 0
                                     }}
                                 />
 
                             </Grid>
 
-                            {/* Status */}
+                            {/* =================================================
+                                STATUS
+                            ================================================= */}
 
                             <Grid
                                 item
@@ -890,24 +1126,20 @@ const SellerCustomerEdit = () => {
                                 type="submit"
                                 variant="contained"
                                 startIcon={
-                                    saving
-                                        ?
+                                    saving ? (
                                         <CircularProgress
                                             size={18}
                                             color="inherit"
                                         />
-                                        :
+                                    ) : (
                                         <Save />
+                                    )
                                 }
                                 disabled={saving}
                             >
-
-                                {
-                                    saving
-                                        ? "Saving..."
-                                        : "Save Changes"
-                                }
-
+                                {saving
+                                    ? "Saving..."
+                                    : "Save Changes"}
                             </Button>
 
                         </Stack>
@@ -928,8 +1160,16 @@ const SellerCustomerEdit = () => {
                 onClose={() =>
                     setSuccess(false)
                 }
-                message="Customer updated successfully"
-            />
+            >
+
+                <Alert
+                    severity="success"
+                    variant="filled"
+                >
+                    Customer updated successfully
+                </Alert>
+
+            </Snackbar>
 
         </Box>
 

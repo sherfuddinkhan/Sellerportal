@@ -38,12 +38,17 @@ import {
 // =========================================================
 // CONFIGURATION
 // =========================================================
-
+//
 // React
 //    ↓
-// server.js
+// Node server.js : 5000
 //    ↓
-// ASP.NET Core API
+// ASP.NET Core : 7203
+//
+// IMPORTANT:
+// React must call the Node route.
+// Do NOT call /api/SellerCustomer directly from React.
+// =========================================================
 
 const SERVER_URL = "http://localhost:5000";
 
@@ -55,10 +60,6 @@ const SERVER_URL = "http://localhost:5000";
 const SellerCustomerView = () => {
 
     const navigate = useNavigate();
-
-    // =====================================================
-    // GET IDs FROM URL
-    // =====================================================
 
     const {
         sellerId,
@@ -81,100 +82,172 @@ const SellerCustomerView = () => {
     // LOAD CUSTOMER
     // =====================================================
 
-    const loadCustomer = async () => {
-
-        // -------------------------------------------------
-        // Validate URL
-        // -------------------------------------------------
-
-        if (!sellerId || !customerId) {
-
-            setError(
-                "Seller ID or Customer ID is missing from URL."
-            );
-
-            setLoading(false);
-
-            return;
-        }
-
-
-        try {
-
-            setLoading(true);
-
-            setError("");
-
-
-            console.log(
-                "Loading Seller Customer:",
-                {
-                    sellerId,
-                    customerId,
-                }
-            );
-
-
-            // =================================================
-            // GET CUSTOMER
-            //
-            // /api/SellerCustomer/6/customers/3
-            // =================================================
-
-            const response = await axios.get(
-
-                `${SERVER_URL}/api/SellerCustomer/${sellerId}/customers/${customerId}`
-
-            );
-
-
-            console.log(
-                "Seller Customer Response:",
-                response.data
-            );
-
-
-            setCustomer(response.data);
-
-        }
-        catch (err) {
-
-            console.error(
-                "Load Seller Customer Error:",
-                err
-            );
-
-            console.error(
-                "API Response:",
-                err.response?.data
-            );
-
-
-            setError(
-
-                err.response?.data?.message ||
-
-                `Unable to load customer. HTTP ${
-                    err.response?.status || ""
-                }`
-
-            );
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
-
-
-    // =====================================================
-    // LOAD ON PAGE OPEN
-    // =====================================================
-
     useEffect(() => {
+
+        const loadCustomer = async () => {
+
+            // -------------------------------------------------
+            // Validate URL parameters
+            // -------------------------------------------------
+
+            if (!sellerId || !customerId) {
+
+                setError(
+                    "Seller ID or Customer ID is missing from the URL."
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+
+            try {
+
+                setLoading(true);
+
+                setError("");
+
+                // =================================================
+                // CORRECT NODE PROXY URL
+                // =================================================
+                //
+                // React:
+                // http://localhost:5000/api/seller-customers/6/customers/3
+                //
+                // Node forwards to:
+                // https://localhost:7203/api/SellerCustomer/6/customers/3
+                //
+                // =================================================
+
+                const url =
+                    `${SERVER_URL}/api/seller-customers/${sellerId}/customers/${customerId}`;
+
+
+                console.log(
+                    "================================================"
+                );
+
+                console.log(
+                    "GET SELLER CUSTOMER DETAILS"
+                );
+
+                console.log(
+                    "Seller ID:",
+                    sellerId
+                );
+
+                console.log(
+                    "Customer ID:",
+                    customerId
+                );
+
+                console.log(
+                    "Node URL:",
+                    url
+                );
+
+                console.log(
+                    "================================================"
+                );
+
+
+                // =================================================
+                // CALL NODE USING AXIOS
+                // =================================================
+
+                const response = await axios.get(
+                    url,
+                    {
+                        headers: {
+                            Accept: "*/*",
+                        },
+                    }
+                );
+
+
+                console.log(
+                    "================================================"
+                );
+
+                console.log(
+                    "SELLER CUSTOMER RESPONSE"
+                );
+
+                console.log(
+                    response.data
+                );
+
+                console.log(
+                    "================================================"
+                );
+
+
+                // =================================================
+                // STORE CUSTOMER
+                // =================================================
+
+                setCustomer(
+                    response.data
+                );
+
+            }
+            catch (err) {
+
+                console.error(
+                    "================================================"
+                );
+
+                console.error(
+                    "SELLER CUSTOMER LOAD ERROR"
+                );
+
+                console.error(
+                    "MESSAGE:",
+                    err.message
+                );
+
+                console.error(
+                    "STATUS:",
+                    err.response?.status
+                );
+
+                console.error(
+                    "DATA:",
+                    err.response?.data
+                );
+
+                console.error(
+                    "URL:",
+                    err.config?.url
+                );
+
+                console.error(
+                    "================================================"
+                );
+
+
+                setError(
+
+                    err.response?.data?.message ||
+
+                    err.response?.data?.title ||
+
+                    `Failed to load seller customer. HTTP ${
+                        err.response?.status || 500
+                    }`
+
+                );
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        };
+
 
         loadCustomer();
 
@@ -254,13 +327,28 @@ const SellerCustomerView = () => {
                 </Alert>
 
 
-                <Button
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={handleBack}
+                <Stack
+                    direction="row"
+                    spacing={2}
                 >
-                    Back to Customers
-                </Button>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back to Customers
+                    </Button>
+
+
+                    <Button
+                        variant="contained"
+                        onClick={() => window.location.reload()}
+                    >
+                        Retry
+                    </Button>
+
+                </Stack>
 
             </Box>
 
@@ -303,7 +391,7 @@ const SellerCustomerView = () => {
 
 
     // =====================================================
-    // SUPPORT BOTH JSON NAMING STYLES
+    // SUPPORT CAMELCASE + PASCALCASE
     // =====================================================
 
     const CustomerId =
@@ -399,7 +487,9 @@ const SellerCustomerView = () => {
                 variant="caption"
                 color="text.secondary"
                 display="block"
-                sx={{ mb: 0.5 }}
+                sx={{
+                    mb: 0.5,
+                }}
             >
                 {label}
             </Typography>
@@ -446,7 +536,9 @@ const SellerCustomerView = () => {
                     sm: "center",
                 }}
                 spacing={2}
-                sx={{ mb: 3 }}
+                sx={{
+                    mb: 3,
+                }}
             >
 
                 <Box>
@@ -471,9 +563,13 @@ const SellerCustomerView = () => {
                         variant="caption"
                         color="text.secondary"
                     >
-                        Seller ID: {SellerId || sellerId}
+                        Seller ID:{" "}
+                        {SellerId || sellerId}
+
                         {" | "}
-                        Customer ID: {CustomerId || customerId}
+
+                        Customer ID:{" "}
+                        {CustomerId || customerId}
                     </Typography>
 
                 </Box>
@@ -517,14 +613,18 @@ const SellerCustomerView = () => {
                     <Typography
                         variant="h6"
                         fontWeight={600}
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2,
+                        }}
                     >
                         Customer Information
                     </Typography>
 
 
                     <Divider
-                        sx={{ mb: 3 }}
+                        sx={{
+                            mb: 3,
+                        }}
                     />
 
 
@@ -591,21 +691,29 @@ const SellerCustomerView = () => {
                 ADDRESS
             ================================================= */}
 
-            <Card sx={{ mt: 3 }}>
+            <Card
+                sx={{
+                    mt: 3,
+                }}
+            >
 
                 <CardContent>
 
                     <Typography
                         variant="h6"
                         fontWeight={600}
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2,
+                        }}
                     >
                         Address Information
                     </Typography>
 
 
                     <Divider
-                        sx={{ mb: 3 }}
+                        sx={{
+                            mb: 3,
+                        }}
                     />
 
 
@@ -660,21 +768,29 @@ const SellerCustomerView = () => {
                 ACCOUNT INFORMATION
             ================================================= */}
 
-            <Card sx={{ mt: 3 }}>
+            <Card
+                sx={{
+                    mt: 3,
+                }}
+            >
 
                 <CardContent>
 
                     <Typography
                         variant="h6"
                         fontWeight={600}
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2,
+                        }}
                     >
                         Account Information
                     </Typography>
 
 
                     <Divider
-                        sx={{ mb: 3 }}
+                        sx={{
+                            mb: 3,
+                        }}
                     />
 
 
@@ -701,7 +817,9 @@ const SellerCustomerView = () => {
                                 variant="caption"
                                 color="text.secondary"
                                 display="block"
-                                sx={{ mb: 1 }}
+                                sx={{
+                                    mb: 1,
+                                }}
                             >
                                 Status
                             </Typography>
@@ -729,7 +847,9 @@ const SellerCustomerView = () => {
                                 CreatedDate
                                     ? new Date(
                                         CreatedDate
-                                    ).toLocaleString("en-IN")
+                                    ).toLocaleString(
+                                        "en-IN"
+                                    )
                                     : "-"
                             }
                         />
@@ -741,7 +861,9 @@ const SellerCustomerView = () => {
                                 UpdatedDate
                                     ? new Date(
                                         UpdatedDate
-                                    ).toLocaleString("en-IN")
+                                    ).toLocaleString(
+                                        "en-IN"
+                                    )
                                     : "-"
                             }
                         />
@@ -761,7 +883,9 @@ const SellerCustomerView = () => {
                 direction="row"
                 justifyContent="flex-end"
                 spacing={2}
-                sx={{ mt: 3 }}
+                sx={{
+                    mt: 3,
+                }}
             >
 
                 <Button

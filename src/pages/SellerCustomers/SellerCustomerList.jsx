@@ -3,30 +3,51 @@
 // Seller Customer Management
 // =========================================================
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import {
+    useNavigate
+} from "react-router-dom";
 
 import {
     Alert,
     Box,
-    CircularProgress,
-    Snackbar,
+    Snackbar
 } from "@mui/material";
 
-import SellerCustomerToolbar from "./SellerCustomerToolbar";
-import SellerCustomerStatistics from "./SellerCustomerStatistics";
-import SellerCustomerSearch from "./SellerCustomerSearch";
-import SellerCustomerTable from "./SellerCustomerTable";
-import SellerCustomerPagination from "./SellerCustomerPagination";
-import SellerCustomerModal from "./SellerCustomerModal";
-import SellerCustomerView from "./SellerCustomerView";
-import DeleteSellerCustomerDialog from "./DeleteSellerCustomerDialog";
+import SellerCustomerToolbar
+    from "./SellerCustomerToolbar";
+
+import SellerCustomerStatistics
+    from "./SellerCustomerStatistics";
+
+import SellerCustomerSearch
+    from "./SellerCustomerSearch";
+
+import SellerCustomerTable
+    from "./SellerCustomerTable";
+
+import SellerCustomerPagination
+    from "./SellerCustomerPagination";
+
+import SellerCustomerModal
+    from "./SellerCustomerModal";
+
+import DeleteSellerCustomerDialog
+    from "./DeleteSellerCustomerDialog";
 
 
 // =========================================================
 // CONFIGURATION
 // =========================================================
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
 
 const SELLER_ID = 6;
 
@@ -37,37 +58,755 @@ const SELLER_ID = 6;
 
 const SellerCustomerList = () => {
 
+    const navigate = useNavigate();
+
+
     // =====================================================
     // STATE
     // =====================================================
 
-    const [customers, setCustomers] = useState([]);
+    const [customers, setCustomers] =
+        useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [searchText, setSearchText] = useState("");
+    const [searchText, setSearchText] =
+        useState("");
 
-    const [statusFilter, setStatusFilter] = useState("All");
+    const [statusFilter, setStatusFilter] =
+        useState("All");
 
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [selectedCustomer, setSelectedCustomer] =
+        useState(null);
 
-    const [modalOpen, setModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] =
+        useState(false);
 
-    const [viewOpen, setViewOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [page, setPage] =
+        useState(1);
 
-    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] =
+        useState(10);
 
-    const [pageSize, setPageSize] = useState(10);
+    const [error, setError] =
+        useState("");
 
-    const [error, setError] = useState("");
 
     // =====================================================
-    // LOAD CUSTOMERS
+    // LOAD ALL SELLER CUSTOMERS
+    //
+    // Node:
+    // GET /api/seller-customers/seller/6
+    //
+    // ASP.NET:
+    // GET /api/SellerCustomer/seller/6
     // =====================================================
 
-    const loadSellerCustomers = useCallback(async () => {
+    const loadSellerCustomers = useCallback(
+        async () => {
+
+            try {
+
+                setLoading(true);
+
+                setError("");
+
+
+                const url =
+                    `${SERVER_URL}/api/seller-customers/seller/${SELLER_ID}`;
+
+
+                console.log(
+                    "================================================"
+                );
+
+                console.log(
+                    "GET SELLER CUSTOMERS"
+                );
+
+                console.log(
+                    "SELLER ID:",
+                    SELLER_ID
+                );
+
+                console.log(
+                    "NODE URL:",
+                    url
+                );
+
+                console.log(
+                    "================================================"
+                );
+
+
+                const response =
+                    await fetch(
+                        url,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                // =================================================
+                // RESPONSE CHECK
+                // =================================================
+
+                if (!response.ok) {
+
+                    const errorText =
+                        await response.text();
+
+
+                    throw new Error(
+                        `HTTP ${response.status}: ${errorText}`
+                    );
+
+                }
+
+
+                // =================================================
+                // READ RESPONSE
+                // =================================================
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "GET SELLER CUSTOMERS RESPONSE:",
+                    data
+                );
+
+
+                // =================================================
+                // NORMALIZE RESPONSE
+                // =================================================
+
+                let customerList = [];
+
+
+                if (Array.isArray(data)) {
+
+                    customerList =
+                        data;
+
+                }
+                else if (
+                    Array.isArray(
+                        data?.data
+                    )
+                ) {
+
+                    customerList =
+                        data.data;
+
+                }
+                else if (
+                    Array.isArray(
+                        data?.customers
+                    )
+                ) {
+
+                    customerList =
+                        data.customers;
+
+                }
+                else if (
+                    Array.isArray(
+                        data?.Customers
+                    )
+                ) {
+
+                    customerList =
+                        data.Customers;
+
+                }
+
+
+                console.log(
+                    "NORMALIZED CUSTOMER LIST:",
+                    customerList
+                );
+
+
+                setCustomers(
+                    customerList
+                );
+
+
+                // =================================================
+                // RESET PAGE
+                // =================================================
+
+                setPage(1);
+
+            }
+            catch (err) {
+
+                console.error(
+                    "Load Seller Customers Error:",
+                    err
+                );
+
+
+                setCustomers([]);
+
+
+                setError(
+                    err.message ||
+                    "Failed to load seller customers."
+                );
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+        []
+    );
+
+
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
+
+    useEffect(
+        () => {
+
+            loadSellerCustomers();
+
+        },
+        [
+            loadSellerCustomers
+        ]
+    );
+
+
+    // =====================================================
+    // SEARCH + STATUS FILTER
+    // =====================================================
+
+    const filteredCustomers =
+        useMemo(
+            () => {
+
+                let result =
+                    [...customers];
+
+
+                // =============================================
+                // SEARCH TEXT
+                // =============================================
+
+                const search =
+                    searchText
+                        .trim()
+                        .toLowerCase();
+
+
+                if (search) {
+
+                    result =
+                        result.filter(
+                            (item) => {
+
+                                const customerCode =
+                                    String(
+                                        item?.customerCode ??
+                                        item?.CustomerCode ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const customerName =
+                                    String(
+                                        item?.customerName ??
+                                        item?.CustomerName ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const contactPerson =
+                                    String(
+                                        item?.contactPerson ??
+                                        item?.ContactPerson ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const email =
+                                    String(
+                                        item?.email ??
+                                        item?.Email ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const phone =
+                                    String(
+                                        item?.phone ??
+                                        item?.Phone ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const gstin =
+                                    String(
+                                        item?.gstin ??
+                                        item?.GSTIN ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const city =
+                                    String(
+                                        item?.city ??
+                                        item?.City ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const state =
+                                    String(
+                                        item?.state ??
+                                        item?.State ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const country =
+                                    String(
+                                        item?.country ??
+                                        item?.Country ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                const postalCode =
+                                    String(
+                                        item?.postalCode ??
+                                        item?.PostalCode ??
+                                        ""
+                                    )
+                                        .toLowerCase();
+
+
+                                return (
+
+                                    customerCode
+                                        .includes(search)
+
+                                    ||
+
+                                    customerName
+                                        .includes(search)
+
+                                    ||
+
+                                    contactPerson
+                                        .includes(search)
+
+                                    ||
+
+                                    email
+                                        .includes(search)
+
+                                    ||
+
+                                    phone
+                                        .includes(search)
+
+                                    ||
+
+                                    gstin
+                                        .includes(search)
+
+                                    ||
+
+                                    city
+                                        .includes(search)
+
+                                    ||
+
+                                    state
+                                        .includes(search)
+
+                                    ||
+
+                                    country
+                                        .includes(search)
+
+                                    ||
+
+                                    postalCode
+                                        .includes(search)
+
+                                );
+
+                            }
+                        );
+
+                }
+
+
+                // =============================================
+                // STATUS FILTER
+                // =============================================
+
+                if (
+                    statusFilter !==
+                    "All"
+                ) {
+
+                    result =
+                        result.filter(
+                            (item) => {
+
+                                const isActive =
+                                    item?.isActive ??
+                                    item?.IsActive ??
+                                    false;
+
+
+                                if (
+                                    statusFilter ===
+                                    "Active"
+                                ) {
+
+                                    return (
+                                        isActive ===
+                                        true
+                                    );
+
+                                }
+
+
+                                if (
+                                    statusFilter ===
+                                    "Inactive"
+                                ) {
+
+                                    return (
+                                        isActive ===
+                                        false
+                                    );
+
+                                }
+
+
+                                return true;
+
+                            }
+                        );
+
+                }
+
+
+                return result;
+
+            },
+            [
+                customers,
+                searchText,
+                statusFilter
+            ]
+        );
+
+
+    // =====================================================
+    // PAGINATION
+    // =====================================================
+
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                filteredCustomers.length /
+                pageSize
+            )
+        );
+
+
+    // =====================================================
+    // KEEP PAGE VALID
+    // =====================================================
+
+    useEffect(
+        () => {
+
+            if (
+                page >
+                totalPages
+            ) {
+
+                setPage(
+                    totalPages
+                );
+
+            }
+
+        },
+        [
+            page,
+            totalPages
+        ]
+    );
+
+
+    // =====================================================
+    // PAGED CUSTOMERS
+    // =====================================================
+
+    const pagedCustomers =
+        useMemo(
+            () => {
+
+                const startIndex =
+                    (page - 1) *
+                    pageSize;
+
+
+                const endIndex =
+                    startIndex +
+                    pageSize;
+
+
+                return filteredCustomers.slice(
+                    startIndex,
+                    endIndex
+                );
+
+            },
+            [
+                filteredCustomers,
+                page,
+                pageSize
+            ]
+        );
+
+
+    // =====================================================
+    // OPEN CREATE CUSTOMER
+    // =====================================================
+
+    const handleAdd = () => {
+
+        console.log(
+            "OPEN CREATE SELLER CUSTOMER"
+        );
+
+
+        setSelectedCustomer(
+            null
+        );
+
+
+        setModalOpen(
+            true
+        );
+
+    };
+
+
+    // =====================================================
+    // VIEW CUSTOMER
+    //
+    // Route:
+    // /seller-customers/details/6/3
+    //
+    // SellerCustomerView.jsx loads the aggregate itself.
+    // =====================================================
+
+    const handleView = (row) => {
+
+        console.log(
+            "================================================"
+        );
+
+        console.log(
+            "VIEW SELLER CUSTOMER"
+        );
+
+        console.log(
+            "ROW:",
+            row
+        );
+
+        console.log(
+            "================================================"
+        );
+
+
+        const customerId =
+            row?.CustomerId ??
+            row?.customerId;
+
+
+        if (
+            customerId ===
+            undefined ||
+            customerId ===
+            null ||
+            String(customerId).trim() === ""
+        ) {
+
+            console.error(
+                "Customer ID missing:",
+                row
+            );
+
+
+            setError(
+                "Customer ID is missing."
+            );
+
+
+            return;
+
+        }
+
+
+        navigate(
+            `/seller-customers/details/${SELLER_ID}/${customerId}`
+        );
+
+    };
+
+
+    // =====================================================
+    // EDIT CUSTOMER
+    //
+    // Route:
+    // /seller-customers/edit/6/3
+    // =====================================================
+
+    const handleEdit = (row) => {
+
+        console.log(
+            "================================================"
+        );
+
+        console.log(
+            "EDIT SELLER CUSTOMER"
+        );
+
+        console.log(
+            "ROW:",
+            row
+        );
+
+        console.log(
+            "================================================"
+        );
+
+
+        const customerId =
+            row?.CustomerId ??
+            row?.customerId;
+
+
+        if (
+            customerId ===
+            undefined ||
+            customerId ===
+            null ||
+            String(customerId).trim() === ""
+        ) {
+
+            console.error(
+                "Customer ID missing:",
+                row
+            );
+
+
+            setError(
+                "Customer ID is missing."
+            );
+
+
+            return;
+
+        }
+
+
+        navigate(
+            `/seller-customers/edit/${SELLER_ID}/${customerId}`
+        );
+
+    };
+
+
+    // =====================================================
+    // OPEN DELETE DIALOG
+    // =====================================================
+
+    const handleDeleteOpen = (row) => {
+
+        console.log(
+            "================================================"
+        );
+
+        console.log(
+            "OPEN DELETE SELLER CUSTOMER"
+        );
+
+        console.log(
+            "ROW:",
+            row
+        );
+
+        console.log(
+            "================================================"
+        );
+
+
+        setSelectedCustomer(
+            row
+        );
+
+
+        setDeleteOpen(
+            true
+        );
+
+    };
+
+
+    // =====================================================
+    // SAVE CUSTOMER
+    //
+    // CREATE:
+    // POST /api/seller-customers
+    //
+    // UPDATE:
+    // PUT /api/seller-customers/6/customers/{id}
+    // =====================================================
+
+    const handleSave = async (
+        data
+    ) => {
 
         try {
 
@@ -75,242 +814,33 @@ const SellerCustomerList = () => {
 
             setError("");
 
-            const response = await fetch(
-                `${SERVER_URL}/api/seller-customers/seller/${SELLER_ID}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (!response.ok) {
-
-                const errorText = await response.text();
-
-                throw new Error(
-                    `HTTP ${response.status}: ${errorText}`
-                );
-            }
-
-            const data = await response.json();
 
             console.log(
-                "Seller Customers API Response:",
+                "================================================"
+            );
+
+            console.log(
+                "SAVE SELLER CUSTOMER"
+            );
+
+            console.log(
+                "FORM DATA:",
                 data
             );
 
-            const customerList = Array.isArray(data)
-                ? data
-                : [];
-
-            setCustomers(customerList);
-
-        }
-        catch (err) {
-
-            console.error(
-                "Load Seller Customers Error:",
-                err
+            console.log(
+                "================================================"
             );
 
-            setCustomers([]);
 
-            setError(
-                err.message ||
-                "Failed to load seller customers."
-            );
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    }, []);
-
-
-    // =====================================================
-    // INITIAL LOAD
-    // =====================================================
-
-    useEffect(() => {
-
-        loadSellerCustomers();
-
-    }, [loadSellerCustomers]);
-
-
-    // =====================================================
-    // SEARCH + FILTER
-    // =====================================================
-
-    const filteredCustomers = useMemo(() => {
-
-        let result = [...customers];
-
-        // -----------------------------------------------
-        // SEARCH
-        // -----------------------------------------------
-
-        const search = searchText
-            .trim()
-            .toLowerCase();
-
-        if (search) {
-
-            result = result.filter((item) => {
-
-                return (
-
-                    String(
-                        item.customerCode ??
-                        item.CustomerCode ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.customerName ??
-                        item.CustomerName ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.contactPerson ??
-                        item.ContactPerson ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.email ??
-                        item.Email ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.phone ??
-                        item.Phone ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.gstin ??
-                        item.GSTIN ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.city ??
-                        item.City ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-
-                    ||
-
-                    String(
-                        item.state ??
-                        item.State ??
-                        ""
-                    )
-                        .toLowerCase()
-                        .includes(search)
-                );
-
-            });
-        }
-
-
-        // -----------------------------------------------
-        // STATUS
-        // -----------------------------------------------
-
-        if (statusFilter !== "All") {
-
-            result = result.filter((item) => {
-
-                const isActive =
-                    item.isActive ??
-                    item.IsActive ??
-                    false;
-
-                return statusFilter === "Active"
-                    ? isActive === true
-                    : isActive === false;
-
-            });
-
-        }
-
-        return result;
-
-    }, [
-        customers,
-        searchText,
-        statusFilter,
-    ]);
-
-
-    // =====================================================
-    // PAGINATION
-    // =====================================================
-
-    const totalPages = Math.max(
-        1,
-        Math.ceil(
-            filteredCustomers.length /
-            pageSize
-        )
-    );
-
-
-    const pagedCustomers =
-        filteredCustomers.slice(
-            (page - 1) * pageSize,
-            page * pageSize
-        );
-
-
-    // =====================================================
-    // SAVE CUSTOMER
-    // =====================================================
-
-    const handleSave = async (data) => {
-
-        try {
-
-            setLoading(true);
+            // =================================================
+            // CUSTOMER ID
+            // =================================================
 
             const customerId =
-                data.customerId ??
-                data.CustomerId;
+                data?.customerId ??
+                data?.CustomerId;
+
 
             let response;
 
@@ -319,21 +849,44 @@ const SellerCustomerList = () => {
             // UPDATE
             // =================================================
 
-            if (customerId) {
+            if (
+                customerId !==
+                    undefined &&
+                customerId !==
+                    null &&
+                String(customerId).trim() !== ""
+            ) {
 
-                response = await fetch(
-                    `${SERVER_URL}/api/seller-customers/${SELLER_ID}/customers/${customerId}`,
-                    {
-                        method: "PUT",
+                const url =
+                    `${SERVER_URL}/api/seller-customers/${SELLER_ID}/customers/${customerId}`;
 
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
 
-                        body: JSON.stringify(data),
-                    }
+                console.log(
+                    "UPDATE CUSTOMER URL:",
+                    url
                 );
+
+
+                response =
+                    await fetch(
+                        url,
+                        {
+                            method: "PUT",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                Accept:
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    data
+                                )
+                        }
+                    );
 
             }
 
@@ -343,42 +896,90 @@ const SellerCustomerList = () => {
 
             else {
 
-                response = await fetch(
-                    `${SERVER_URL}/api/seller-customers`,
-                    {
-                        method: "POST",
+                const url =
+                    `${SERVER_URL}/api/seller-customers`;
 
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
 
-                        body: JSON.stringify({
-                            ...data,
-                            SellerId: SELLER_ID,
-                        }),
-                    }
+                console.log(
+                    "CREATE CUSTOMER URL:",
+                    url
                 );
+
+
+                response =
+                    await fetch(
+                        url,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                Accept:
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        ...data,
+
+                                        SellerId:
+                                            SELLER_ID
+                                    }
+                                )
+                        }
+                    );
 
             }
 
 
-            if (!response.ok) {
+            // =================================================
+            // RESPONSE CHECK
+            // =================================================
+
+            if (
+                !response.ok
+            ) {
 
                 const errorText =
                     await response.text();
 
+
+                console.error(
+                    "SAVE CUSTOMER ERROR RESPONSE:",
+                    errorText
+                );
+
+
                 throw new Error(
                     `HTTP ${response.status}: ${errorText}`
                 );
+
             }
 
 
+            // =================================================
+            // RELOAD CUSTOMER LIST
+            // =================================================
+
             await loadSellerCustomers();
 
-            setModalOpen(false);
 
-            setSelectedCustomer(null);
+            // =================================================
+            // CLOSE MODAL
+            // =================================================
+
+            setModalOpen(
+                false
+            );
+
+
+            setSelectedCustomer(
+                null
+            );
+
 
         }
         catch (err) {
@@ -387,6 +988,7 @@ const SellerCustomerList = () => {
                 "Save Seller Customer Error:",
                 err
             );
+
 
             setError(
                 err.message ||
@@ -405,38 +1007,130 @@ const SellerCustomerList = () => {
 
     // =====================================================
     // DELETE CUSTOMER
+    //
+    // Node:
+    // DELETE /api/seller-customers/6/customers/{id}
+    //
+    // ASP.NET:
+    // DELETE /api/SellerCustomer/6/customers/{id}
     // =====================================================
 
-    const handleDelete = async (customerId) => {
+    const handleDelete = async (
+        customerId
+    ) => {
 
         try {
 
             setLoading(true);
 
-            const response = await fetch(
-                `${SERVER_URL}/api/seller-customers/${SELLER_ID}/customers/${customerId}`,
-                {
-                    method: "DELETE",
-                }
+            setError("");
+
+
+            // =================================================
+            // VALIDATE CUSTOMER ID
+            // =================================================
+
+            if (
+                customerId ===
+                    undefined ||
+                customerId ===
+                    null ||
+                String(customerId).trim() === ""
+            ) {
+
+                throw new Error(
+                    "Customer ID is required."
+                );
+
+            }
+
+
+            const url =
+                `${SERVER_URL}/api/seller-customers/${SELLER_ID}/customers/${customerId}`;
+
+
+            console.log(
+                "================================================"
+            );
+
+            console.log(
+                "DELETE SELLER CUSTOMER"
+            );
+
+            console.log(
+                "CUSTOMER ID:",
+                customerId
+            );
+
+            console.log(
+                "NODE URL:",
+                url
+            );
+
+            console.log(
+                "================================================"
             );
 
 
-            if (!response.ok) {
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "DELETE",
+
+                        headers: {
+                            Accept:
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            // =================================================
+            // RESPONSE CHECK
+            // =================================================
+
+            if (
+                !response.ok
+            ) {
 
                 const errorText =
                     await response.text();
 
+
+                console.error(
+                    "DELETE CUSTOMER ERROR RESPONSE:",
+                    errorText
+                );
+
+
                 throw new Error(
                     `HTTP ${response.status}: ${errorText}`
                 );
+
             }
 
 
+            // =================================================
+            // RELOAD LIST
+            // =================================================
+
             await loadSellerCustomers();
 
-            setDeleteOpen(false);
 
-            setSelectedCustomer(null);
+            // =================================================
+            // CLOSE DELETE DIALOG
+            // =================================================
+
+            setDeleteOpen(
+                false
+            );
+
+
+            setSelectedCustomer(
+                null
+            );
+
 
         }
         catch (err) {
@@ -445,6 +1139,7 @@ const SellerCustomerList = () => {
                 "Delete Seller Customer Error:",
                 err
             );
+
 
             setError(
                 err.message ||
@@ -465,9 +1160,13 @@ const SellerCustomerList = () => {
     // PAGE CHANGE
     // =====================================================
 
-    const handlePageChange = (newPage) => {
+    const handlePageChange = (
+        newPage
+    ) => {
 
-        setPage(newPage);
+        setPage(
+            Number(newPage)
+        );
 
     };
 
@@ -476,11 +1175,69 @@ const SellerCustomerList = () => {
     // PAGE SIZE CHANGE
     // =====================================================
 
-    const handlePageSizeChange = (size) => {
+    const handlePageSizeChange = (
+        size
+    ) => {
 
-        setPageSize(size);
+        const newSize =
+            Number(size);
 
-        setPage(1);
+
+        setPageSize(
+            newSize
+        );
+
+
+        setPage(
+            1
+        );
+
+    };
+
+
+    // =====================================================
+    // CLOSE CREATE / EDIT MODAL
+    // =====================================================
+
+    const handleModalClose = () => {
+
+        setModalOpen(
+            false
+        );
+
+
+        setSelectedCustomer(
+            null
+        );
+
+    };
+
+
+    // =====================================================
+    // CLOSE DELETE DIALOG
+    // =====================================================
+
+    const handleDeleteClose = () => {
+
+        setDeleteOpen(
+            false
+        );
+
+
+        setSelectedCustomer(
+            null
+        );
+
+    };
+
+
+    // =====================================================
+    // CLEAR ERROR
+    // =====================================================
+
+    const handleClearError = () => {
+
+        setError("");
 
     };
 
@@ -491,28 +1248,30 @@ const SellerCustomerList = () => {
 
     return (
 
-        <Box sx={{ p: 3 }}>
+        <Box
+            sx={{
+                p: 3
+            }}
+        >
 
-            {/* ============================================
+            {/* =================================================
                 TOOLBAR
-            ============================================ */}
+            ================================================= */}
 
             <SellerCustomerToolbar
 
-                onAdd={() => {
+                onAdd={
+                    handleAdd
+                }
 
-                    setSelectedCustomer(null);
-
-                    setModalOpen(true);
-
-                }}
-
-                onRefresh={loadSellerCustomers}
+                onRefresh={
+                    loadSellerCustomers
+                }
 
                 onExport={() => {
 
                     console.log(
-                        "Export Seller Customers"
+                        "EXPORT SELLER CUSTOMERS"
                     );
 
                 }}
@@ -520,121 +1279,112 @@ const SellerCustomerList = () => {
             />
 
 
-            {/* ============================================
+            {/* =================================================
                 STATISTICS
-            ============================================ */}
+            ================================================= */}
 
             <SellerCustomerStatistics
-                customers={customers}
+
+                customers={
+                    customers
+                }
+
             />
 
 
-            {/* ============================================
-                SEARCH
-            ============================================ */}
+            {/* =================================================
+                SEARCH + STATUS FILTER
+            ================================================= */}
 
             <SellerCustomerSearch
 
-                searchText={searchText}
+                searchText={
+                    searchText
+                }
 
-                setSearchText={(value) => {
+                setSearchText={
+                    (value) => {
 
-                    setSearchText(value);
+                        setSearchText(
+                            value
+                        );
 
-                    setPage(1);
+                        setPage(
+                            1
+                        );
 
-                }}
+                    }
+                }
 
-                statusFilter={statusFilter}
+                statusFilter={
+                    statusFilter
+                }
 
-                setStatusFilter={(value) => {
+                setStatusFilter={
+                    (value) => {
 
-                    setStatusFilter(value);
+                        setStatusFilter(
+                            value
+                        );
 
-                    setPage(1);
+                        setPage(
+                            1
+                        );
 
-                }}
+                    }
+                }
 
             />
 
 
-            {/* ============================================
-                TABLE
-            ============================================ */}
+            {/* =================================================
+                CUSTOMER TABLE
+            ================================================= */}
 
-           <SellerCustomerTable
-    customers={pagedCustomers}
-    loading={loading}
+            <SellerCustomerTable
 
-    onView={(row) => {
+                customers={
+                    pagedCustomers
+                }
 
-        console.log("VIEW CUSTOMER:", row);
+                loading={
+                    loading
+                }
 
-        const customerId =
-            row.CustomerId ??
-            row.customerId;
+                onView={
+                    handleView
+                }
 
-        if (!customerId) {
+                onEdit={
+                    handleEdit
+                }
 
-            console.error(
-                "Customer ID missing:",
-                row
-            );
+                onDelete={
+                    handleDeleteOpen
+                }
 
-            return;
-        }
-
-        navigate(
-            `/seller-customers/${customerId}`
-        );
-    }}
-
-    onEdit={(row) => {
-
-        console.log("EDIT CUSTOMER:", row);
-
-        const customerId =
-            row.CustomerId ??
-            row.customerId;
-
-        if (!customerId) {
-
-            console.error(
-                "Customer ID missing:",
-                row
-            );
-
-            return;
-        }
-
-        navigate(
-            `/seller-customers/edit/${customerId}`
-        );
-    }}
-
-    onDelete={(row) => {
-
-        setSelectedCustomer(row);
-
-        setDeleteOpen(true);
-
-    }}
-/>
+            />
 
 
-            {/* ============================================
+            {/* =================================================
                 PAGINATION
-            ============================================ */}
+            ================================================= */}
 
             {!loading && (
 
                 <SellerCustomerPagination
 
-                    page={page}
+                    page={
+                        page
+                    }
 
-                    totalPages={totalPages}
+                    totalPages={
+                        totalPages
+                    }
 
-                    pageSize={pageSize}
+                    pageSize={
+                        pageSize
+                    }
 
                     totalRecords={
                         filteredCustomers.length
@@ -653,90 +1403,89 @@ const SellerCustomerList = () => {
             )}
 
 
-            {/* ============================================
-                CREATE / EDIT
-            ============================================ */}
+            {/* =================================================
+                CREATE CUSTOMER MODAL
+            ================================================= */}
 
             <SellerCustomerModal
 
-                open={modalOpen}
+                open={
+                    modalOpen
+                }
 
-                customer={selectedCustomer}
+                customer={
+                    selectedCustomer
+                }
 
-                onClose={() => {
+                onClose={
+                    handleModalClose
+                }
 
-                    setModalOpen(false);
-
-                    setSelectedCustomer(null);
-
-                }}
-
-                onSave={handleSave}
-
-            />
-
-
-            {/* ============================================
-                VIEW
-            ============================================ */}
-
-            <SellerCustomerView
-
-                open={viewOpen}
-
-                customer={selectedCustomer}
-
-                onClose={() => {
-
-                    setViewOpen(false);
-
-                    setSelectedCustomer(null);
-
-                }}
+                onSave={
+                    handleSave
+                }
 
             />
 
 
-            {/* ============================================
-                DELETE
-            ============================================ */}
+            {/* =================================================
+                DELETE CUSTOMER DIALOG
+            ================================================= */}
 
             <DeleteSellerCustomerDialog
 
-                open={deleteOpen}
+                open={
+                    deleteOpen
+                }
 
-                customer={selectedCustomer}
+                customer={
+                    selectedCustomer
+                }
 
-                onClose={() => {
+                onClose={
+                    handleDeleteClose
+                }
 
-                    setDeleteOpen(false);
-
-                    setSelectedCustomer(null);
-
-                }}
-
-                onDeleted={handleDelete}
+                onDeleted={
+                    handleDelete
+                }
 
             />
 
 
-            {/* ============================================
-                ERROR
-            ============================================ */}
+            {/* =================================================
+                ERROR SNACKBAR
+            ================================================= */}
 
             <Snackbar
 
-                open={Boolean(error)}
+                open={
+                    Boolean(error)
+                }
 
-                autoHideDuration={6000}
+                autoHideDuration={
+                    6000
+                }
 
-                onClose={() => setError("")}
+                onClose={
+                    handleClearError
+                }
 
             >
 
                 <Alert
+
                     severity="error"
-                    onClose={() => setError("")}
+
+                    onClose={
+                        handleClearError
+                    }
+
+                    sx={{
+                        width:
+                            "100%"
+                    }}
+
                 >
                     {error}
                 </Alert>
@@ -749,5 +1498,9 @@ const SellerCustomerList = () => {
 
 };
 
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default SellerCustomerList;

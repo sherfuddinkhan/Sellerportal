@@ -666,6 +666,8 @@ import SellerCustomerView from "./pages/SellerCustomers/SellerCustomerView";
 import SellerCustomerCreate from "./pages/SellerCustomers/SellerCustomerCreate";
 import SellerCustomerDetails from "./pages/SellerCustomers/SellerCustomerDetails";
 import SellerCustomerEdit from "./pages/SellerCustomers/SellerCustomerEdit";
+import SellerCustomerFilters from "./pages/SellerCustomers/SellerCustomerFilters";
+
 
 // =========================================================
 // SHIPMENTS
@@ -1003,42 +1005,48 @@ function App() {
                     element={<SellerEdit />}
                 />
 
+{/* =================================================
+    SELLER CUSTOMERS
+================================================= */}
 
-                {/* =================================================
-                    SELLER CUSTOMERS
-                ================================================= */}
+<Route
+    path="seller-customers"
+    element={<SellerCustomerList />}
+/>
 
-                <Route
-                    path="seller-customers"
-                    element={<SellerCustomerList />}
-                />
+<Route
+    path="seller-customers/create"
+    element={<SellerCustomerCreate />}
+/>
 
-                <Route
-                    path="seller-customers/create"
-                    element={<SellerCustomerCreate />}
-                />
+<Route
+    path="seller-customers/search"
+    element={<SellerCustomerSearch />}
+/>
 
-                <Route
-                    path="seller-customers/search"
-                    element={<SellerCustomerSearch />}
-                />
+<Route
+    path="seller-customers/filters"
+    element={<SellerCustomerFilters />}
+/>
 
-                <Route
-                    path="seller-customers/statistics"
-                    element={<SellerCustomerStatistics />}
-                />
+<Route
+    path="seller-customers/statistics"
+    element={<SellerCustomerStatistics />}
+/>
 
-                <Route
-                    path="seller-customers/details/:sellerId/:customerId"
-                    element={<SellerCustomerDetails />}
-                />
+<Route
+    path="seller-customers/details/:sellerId/:customerId"
+    element={<SellerCustomerDetails />}
+/>
 
-                <Route
-                    path="seller-customers/edit/:sellerId/:customerId"
-                    element={<SellerCustomerEdit />}
-                />
-
-
+<Route
+    path="seller-customers/edit/:sellerId/:customerId"
+    element={<SellerCustomerEdit />}
+/>
+<Route
+    path="seller-customers/delete/:sellerId/:customerId"
+    element={<DeleteSellerCustomerDialog />}
+/>
                 {/* =================================================
                     CATEGORIES
                 ================================================= */}

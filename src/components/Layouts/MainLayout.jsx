@@ -284,14 +284,6 @@ const MainLayout = () => {
                             label: "Customer Filters",
                             path: "/seller-customers/filters",
                         },
-                        {
-                            label: "Search Customers",
-                            path: "/seller-customers/search",
-                        },
-                        {
-                            label: "Customer Statistics",
-                            path: "/seller-customers/statistics",
-                        },
                     ],
                 },
 
