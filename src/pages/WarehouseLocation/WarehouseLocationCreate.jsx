@@ -31,15 +31,11 @@ const SERVER_URL =
 const initialState = {
 
     WarehouseId: "",
+    SellerId: "",
     CustomerId: "",
 
     LocationCode: "",
     LocationName: "",
-
-    Aisle: "",
-    Rack: "",
-    Shelf: "",
-    Bin: "",
 
     Description: "",
 
@@ -49,22 +45,29 @@ const initialState = {
 
 const WarehouseLocationCreate = () => {
 
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
+
 
     const [
         formData,
         setFormData
-    ] = useState(initialState);
+    ] = useState(
+        initialState
+    );
+
 
     const [
         loading,
         setLoading
     ] = useState(false);
 
+
     const [
         error,
         setError
     ] = useState("");
+
 
     const [
         success,
@@ -72,12 +75,17 @@ const WarehouseLocationCreate = () => {
     ] = useState("");
 
 
+    // =====================================================
+    // HANDLE CHANGE
+    // =====================================================
+
     const handleChange = event => {
 
         const {
             name,
             value
         } = event.target;
+
 
         setFormData(
             previous => ({
@@ -88,185 +96,305 @@ const WarehouseLocationCreate = () => {
     };
 
 
-    const handleSubmit = async event => {
+    // =====================================================
+    // SUBMIT
+    // =====================================================
 
-        event.preventDefault();
+    const handleSubmit =
+        async event => {
 
-        setError("");
-        setSuccess("");
+            event.preventDefault();
 
-
-        if (!formData.WarehouseId) {
-
-            setError(
-                "Warehouse ID is required."
-            );
-
-            return;
-        }
+            setError("");
+            setSuccess("");
 
 
-        if (!formData.CustomerId) {
+            // =================================================
+            // VALIDATION
+            // =================================================
 
-            setError(
-                "Customer ID is required."
-            );
+            if (!formData.WarehouseId) {
 
-            return;
-        }
-
-
-        if (!formData.LocationCode.trim()) {
-
-            setError(
-                "Location code is required."
-            );
-
-            return;
-        }
-
-
-        if (!formData.LocationName.trim()) {
-
-            setError(
-                "Location name is required."
-            );
-
-            return;
-        }
-
-
-        try {
-
-            setLoading(true);
-
-
-            const payload = {
-
-                ...formData,
-
-                WarehouseId:
-                    Number(
-                        formData.WarehouseId
-                    ),
-
-                CustomerId:
-                    Number(
-                        formData.CustomerId
-                    )
-            };
-
-
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/warehouse-locations`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(
-                                payload
-                            )
-                    }
+                setError(
+                    "Warehouse ID is required."
                 );
 
-
-            const data =
-                await response.json()
-                    .catch(() => null);
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data?.message ||
-                    "Failed to create warehouse location."
-                );
+                return;
             }
 
 
-            setSuccess(
-                "Warehouse location created successfully."
-            );
+            if (!formData.SellerId) {
 
-
-            setTimeout(() => {
-
-                navigate(
-                    "/warehouse-locations"
+                setError(
+                    "Seller ID is required."
                 );
 
-            }, 700);
+                return;
+            }
 
-        } catch (err) {
 
-            setError(
-                err.message ||
-                "Failed to create warehouse location."
-            );
+            if (!formData.LocationCode.trim()) {
 
-        } finally {
+                setError(
+                    "Location code is required."
+                );
 
-            setLoading(false);
-        }
-    };
+                return;
+            }
 
+
+            if (!formData.LocationName.trim()) {
+
+                setError(
+                    "Location name is required."
+                );
+
+                return;
+            }
+
+
+            try {
+
+                setLoading(true);
+
+
+                // =================================================
+                // PAYLOAD
+                // =================================================
+
+                const payload = {
+
+                    WarehouseId:
+                        Number(
+                            formData.WarehouseId
+                        ),
+
+                    SellerId:
+                        Number(
+                            formData.SellerId
+                        ),
+
+                    CustomerId:
+                        formData.CustomerId
+                            ? Number(
+                                formData.CustomerId
+                            )
+                            : null,
+
+                    LocationCode:
+                        formData.LocationCode.trim(),
+
+                    LocationName:
+                        formData.LocationName.trim(),
+
+                    Description:
+                        formData.Description.trim() ||
+                        null,
+
+                    IsActive:
+                        Boolean(
+                            formData.IsActive
+                        )
+                };
+
+
+                console.log(
+                    "POST /api/warehouse-locations"
+                );
+
+                console.log(
+                    "BODY:",
+                    payload
+                );
+
+
+                // =================================================
+                // NODE API
+                // =================================================
+
+                const response =
+                    await fetch(
+                        `${SERVER_URL}/api/warehouse-locations`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "Accept":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+
+                const data =
+                    await response
+                        .json()
+                        .catch(
+                            () => null
+                        );
+
+
+                console.log(
+                    "POST RESPONSE:",
+                    data
+                );
+
+
+                // =================================================
+                // ERROR
+                // =================================================
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data?.message ||
+                        data?.error ||
+                        "Failed to create warehouse location."
+                    );
+                }
+
+
+                // =================================================
+                // SUCCESS
+                // =================================================
+
+                setSuccess(
+                    "Warehouse location created successfully."
+                );
+
+
+                setTimeout(
+                    () => {
+
+                        navigate(
+                            "/warehouse-locations"
+                        );
+
+                    },
+                    700
+                );
+
+            } catch (err) {
+
+                console.error(
+                    "CREATE WAREHOUSE LOCATION ERROR:",
+                    err
+                );
+
+
+                setError(
+                    err.message ||
+                    "Failed to create warehouse location."
+                );
+
+            } finally {
+
+                setLoading(false);
+            }
+        };
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
+
         <Box sx={{ p: 3 }}>
 
+            {/* =============================================
+                BACK
+            ============================================= */}
+
             <Button
-                startIcon={<ArrowBack />}
+                startIcon={
+                    <ArrowBack />
+                }
                 onClick={() =>
                     navigate(
                         "/warehouse-locations"
                     )
                 }
-                sx={{ mb: 2 }}
+                sx={{
+                    mb: 2
+                }}
             >
                 Back
             </Button>
 
 
-            <Paper sx={{ p: 3 }}>
+            {/* =============================================
+                CARD
+            ============================================= */}
+
+            <Paper
+                sx={{
+                    p: 3
+                }}
+            >
 
                 <Typography
                     variant="h5"
                     fontWeight={700}
-                    sx={{ mb: 3 }}
+                    sx={{
+                        mb: 3
+                    }}
                 >
                     Create Warehouse Location
                 </Typography>
 
 
+                {/* =========================================
+                    ERROR
+                ========================================= */}
+
                 {error && (
+
                     <Alert
                         severity="error"
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2
+                        }}
                     >
                         {error}
                     </Alert>
                 )}
 
 
+                {/* =========================================
+                    SUCCESS
+                ========================================= */}
+
                 {success && (
+
                     <Alert
                         severity="success"
-                        sx={{ mb: 2 }}
+                        sx={{
+                            mb: 2
+                        }}
                     >
                         {success}
                     </Alert>
                 )}
 
 
+                {/* =========================================
+                    FORM
+                ========================================= */}
+
                 <Box
                     component="form"
-                    onSubmit={handleSubmit}
+                    onSubmit={
+                        handleSubmit
+                    }
                 >
 
                     <Grid
@@ -274,7 +402,16 @@ const WarehouseLocationCreate = () => {
                         spacing={2}
                     >
 
-                        <Grid item xs={12} sm={6}>
+                        {/* =================================
+                            WAREHOUSE ID
+                        ================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={4}
+                        >
+
                             <TextField
                                 fullWidth
                                 required
@@ -288,13 +425,49 @@ const WarehouseLocationCreate = () => {
                                     handleChange
                                 }
                             />
+
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        {/* =================================
+                            SELLER ID
+                        ================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={4}
+                        >
+
                             <TextField
                                 fullWidth
                                 required
+                                label="Seller ID"
+                                name="SellerId"
+                                type="number"
+                                value={
+                                    formData.SellerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================
+                            CUSTOMER ID
+                        ================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={4}
+                        >
+
+                            <TextField
+                                fullWidth
                                 label="Customer ID"
                                 name="CustomerId"
                                 type="number"
@@ -304,11 +477,22 @@ const WarehouseLocationCreate = () => {
                                 onChange={
                                     handleChange
                                 }
+                                helperText="Optional"
                             />
+
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        {/* =================================
+                            LOCATION CODE
+                        ================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <TextField
                                 fullWidth
                                 required
@@ -321,10 +505,20 @@ const WarehouseLocationCreate = () => {
                                     handleChange
                                 }
                             />
+
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        {/* =================================
+                            LOCATION NAME
+                        ================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <TextField
                                 fullWidth
                                 required
@@ -337,70 +531,19 @@ const WarehouseLocationCreate = () => {
                                     handleChange
                                 }
                             />
+
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Aisle"
-                                name="Aisle"
-                                value={
-                                    formData.Aisle
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-                        </Grid>
+                        {/* =================================
+                            DESCRIPTION
+                        ================================= */}
 
+                        <Grid
+                            item
+                            xs={12}
+                        >
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Rack"
-                                name="Rack"
-                                value={
-                                    formData.Rack
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-                        </Grid>
-
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Shelf"
-                                name="Shelf"
-                                value={
-                                    formData.Shelf
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-                        </Grid>
-
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Bin"
-                                name="Bin"
-                                value={
-                                    formData.Bin
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-                        </Grid>
-
-
-                        <Grid item xs={12}>
                             <TextField
                                 fullWidth
                                 multiline
@@ -414,10 +557,18 @@ const WarehouseLocationCreate = () => {
                                     handleChange
                                 }
                             />
+
                         </Grid>
 
 
-                        <Grid item xs={12}>
+                        {/* =================================
+                            ACTIVE
+                        ================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                        >
 
                             <FormControlLabel
                                 control={
@@ -425,16 +576,18 @@ const WarehouseLocationCreate = () => {
                                         checked={
                                             formData.IsActive
                                         }
-                                        onChange={event =>
-                                            setFormData(
-                                                previous => ({
-                                                    ...previous,
-                                                    IsActive:
-                                                        event
-                                                            .target
-                                                            .checked
-                                                })
-                                            )
+                                        onChange={
+                                            event =>
+                                                setFormData(
+                                                    previous => ({
+                                                        ...previous,
+
+                                                        IsActive:
+                                                            event
+                                                                .target
+                                                                .checked
+                                                    })
+                                                )
                                         }
                                     />
                                 }
@@ -444,13 +597,24 @@ const WarehouseLocationCreate = () => {
                         </Grid>
 
 
-                        <Grid item xs={12}>
+                        {/* =================================
+                            SAVE
+                        ================================= */}
+
+                        <Grid
+                            item
+                            xs={12}
+                        >
 
                             <Button
                                 type="submit"
                                 variant="contained"
-                                startIcon={<Save />}
-                                disabled={loading}
+                                startIcon={
+                                    <Save />
+                                }
+                                disabled={
+                                    loading
+                                }
                             >
                                 {loading
                                     ? "Saving..."

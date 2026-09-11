@@ -765,22 +765,7 @@ const MainLayout = () => {
                             label: "Warehouse Details",
                             path: "/warehouses/details/:id",
                         },
-                        {
-                            label: "Edit Warehouse",
-                            path: "/warehouses/edit/:id",
-                        },
-                        {
-                            label: "Search",
-                            path: "/warehouses/search",
-                        },
-                        {
-                            label: "Filters",
-                            path: "/warehouses/filters",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/warehouses/statistics",
-                        },
+                       
                     ],
                 },
 
@@ -798,18 +783,7 @@ const MainLayout = () => {
                             label: "Create Location",
                             path: "/warehouse-locations/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/warehouse-locations/search",
-                        },
-                        {
-                            label: "Filters",
-                            path: "/warehouse-locations/filters",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/warehouse-locations/statistics",
-                        },
+                      
                     ],
                 },
 

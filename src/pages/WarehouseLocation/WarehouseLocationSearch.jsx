@@ -20,33 +20,42 @@ const WarehouseLocationSearch = ({
                 display: "flex",
                 gap: 2,
                 mb: 3,
-                flexWrap: "wrap"
+                flexWrap: "wrap",
+                alignItems: "center"
             }}
         >
 
+            {/* =========================================
+                SEARCH
+            ========================================= */}
+
             <TextField
                 label="Search locations"
+                placeholder="Enter Seller ID"
                 value={searchText}
-                onChange={event =>
-                    onSearchChange(
-                        event.target.value
-                    )
+                onChange={(event) =>
+                    onSearchChange(event.target.value)
                 }
+                size="small"
                 sx={{
-                    minWidth: 280
+                    minWidth: 320,
+                    flex: 1
                 }}
             />
 
+
+            {/* =========================================
+                STATUS FILTER
+            ========================================= */}
 
             <TextField
                 select
                 label="Status"
                 value={statusFilter}
-                onChange={event =>
-                    onStatusChange(
-                        event.target.value
-                    )
+                onChange={(event) =>
+                    onStatusChange(event.target.value)
                 }
+                size="small"
                 sx={{
                     minWidth: 180
                 }}

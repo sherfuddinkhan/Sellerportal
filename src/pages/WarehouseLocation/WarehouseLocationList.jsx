@@ -39,52 +39,67 @@ const SERVER_URL =
 
 const WarehouseLocationList = () => {
 
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
+
+
+    // =====================================================
+    // STATE
+    // =====================================================
 
     const [
         locations,
         setLocations
     ] = useState([]);
 
+
     const [
         loading,
         setLoading
     ] = useState(false);
+
 
     const [
         error,
         setError
     ] = useState("");
 
+
     const [
         success,
         setSuccess
     ] = useState("");
+
 
     const [
         searchText,
         setSearchText
     ] = useState("");
 
+
     const [
         statusFilter,
         setStatusFilter
     ] = useState("all");
+
 
     const [
         page,
         setPage
     ] = useState(1);
 
+
     const [
         pageSize,
         setPageSize
     ] = useState(10);
 
+
     const [
         deleteOpen,
         setDeleteOpen
     ] = useState(false);
+
 
     const [
         selectedLocation,
@@ -93,52 +108,112 @@ const WarehouseLocationList = () => {
 
 
     // =====================================================
-    // LOAD
+    // LOAD ALL LOCATIONS
     // =====================================================
 
-    const loadLocations = async () => {
+    const loadLocations =
+        async () => {
 
-        try {
+            try {
 
-            setLoading(true);
-            setError("");
+                setLoading(true);
+                setError("");
 
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/warehouse-locations`
+
+                console.log(
+                    "================================================"
                 );
 
-            if (!response.ok) {
-                throw new Error(
+                console.log(
+                    "GET /api/warehouse-locations"
+                );
+
+                console.log(
+                    "================================================"
+                );
+
+
+                const response =
+                    await fetch(
+                        `${SERVER_URL}/api/warehouse-locations`,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response
+                        .json()
+                        .catch(
+                            () => null
+                        );
+
+
+                console.log(
+                    "GET RESPONSE:",
+                    data
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data?.message ||
+                        data?.error ||
+                        "Failed to load warehouse locations."
+                    );
+                }
+
+
+                const list =
+                    Array.isArray(data)
+                        ? data
+                        : Array.isArray(
+                            data?.data
+                        )
+                            ? data.data
+                            : [];
+
+
+                setLocations(list);
+
+            } catch (err) {
+
+                console.error(
+                    "LOAD WAREHOUSE LOCATIONS ERROR:",
+                    err
+                );
+
+
+                setLocations([]);
+
+
+                setError(
+                    err.message ||
                     "Failed to load warehouse locations."
                 );
+
+            } finally {
+
+                setLoading(false);
             }
+        };
 
-            const data =
-                await response.json();
 
-            setLocations(
-                Array.isArray(data)
-                    ? data
-                    : []
-            );
-
-        } catch (err) {
-
-            setError(
-                err.message ||
-                "Failed to load warehouse locations."
-            );
-
-        } finally {
-
-            setLoading(false);
-        }
-    };
-
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
 
     useEffect(() => {
+
         loadLocations();
+
     }, []);
 
 
@@ -146,84 +221,114 @@ const WarehouseLocationList = () => {
     // FILTER
     // =====================================================
 
-    const filteredLocations = useMemo(() => {
+    const filteredLocations =
+        useMemo(() => {
 
-        let result = [...locations];
+            let result =
+                [...locations];
 
-        const search =
-            searchText
-                .trim()
-                .toLowerCase();
 
-        if (search) {
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
 
-            result = result.filter(
-                location => {
 
-                    const values = [
+            // =============================================
+            // SEARCH
+            // =============================================
 
-                        location.LocationId,
-                        location.locationId,
+            if (search) {
 
-                        location.WarehouseId,
-                        location.warehouseId,
+                result =
+                    result.filter(
+                        location => {
 
-                        location.CustomerId,
-                        location.customerId,
+                            const values = [
 
-                        location.LocationCode,
-                        location.locationCode,
+                                // Location
+                                location.LocationId,
+                                location.locationId,
 
-                        location.LocationName,
-                        location.locationName,
+                                // Warehouse
+                                location.WarehouseId,
+                                location.warehouseId,
 
-                        location.Aisle,
-                        location.aisle,
+                                // Seller
+                                location.SellerId,
+                                location.sellerId,
 
-                        location.Rack,
-                        location.rack,
+                                // Customer
+                                location.CustomerId,
+                                location.customerId,
 
-                        location.Shelf,
-                        location.shelf,
+                                // Code
+                                location.LocationCode,
+                                location.locationCode,
 
-                        location.Bin,
-                        location.bin
-                    ];
+                                // Name
+                                location.LocationName,
+                                location.locationName,
 
-                    return values.some(
-                        value =>
-                            String(
-                                value ?? ""
-                            )
-                                .toLowerCase()
-                                .includes(search)
+                                // Description
+                                location.Description,
+                                location.description
+                            ];
+
+
+                            return values.some(
+                                value =>
+                                    String(
+                                        value ?? ""
+                                    )
+                                        .toLowerCase()
+                                        .includes(
+                                            search
+                                        )
+                            );
+                        }
                     );
-                }
-            );
-        }
+            }
 
 
-        if (statusFilter !== "all") {
+            // =============================================
+            // STATUS
+            // =============================================
 
-            const active =
-                statusFilter === "active";
+            if (
+                statusFilter !==
+                "all"
+            ) {
 
-            result = result.filter(
-                location =>
-                    Boolean(
-                        location.IsActive ??
-                        location.isActive
-                    ) === active
-            );
-        }
+                const active =
+                    statusFilter ===
+                    "active";
 
-        return result;
 
-    }, [
-        locations,
-        searchText,
-        statusFilter
-    ]);
+                result =
+                    result.filter(
+                        location => {
+
+                            const value =
+                                location.IsActive ??
+                                location.isActive;
+
+
+                            return Boolean(
+                                value
+                            ) === active;
+                        }
+                    );
+            }
+
+
+            return result;
+
+        }, [
+            locations,
+            searchText,
+            statusFilter
+        ]);
 
 
     // =====================================================
@@ -249,8 +354,14 @@ const WarehouseLocationList = () => {
 
     useEffect(() => {
 
-        if (page > totalPages) {
-            setPage(totalPages);
+        if (
+            page >
+            totalPages
+        ) {
+
+            setPage(
+                totalPages
+            );
         }
 
     }, [
@@ -263,106 +374,197 @@ const WarehouseLocationList = () => {
     // VIEW
     // =====================================================
 
-    const handleView = location => {
+    const handleView =
+        location => {
 
-        const id =
-            location.LocationId ??
-            location.locationId;
+            const id =
+                location.LocationId ??
+                location.locationId;
 
-        navigate(
-            `/warehouse-locations/details/${id}`
-        );
-    };
+
+            if (!id) {
+
+                setError(
+                    "Invalid warehouse location ID."
+                );
+
+                return;
+            }
+
+
+            navigate(
+                `/warehouse-locations/details/${id}`
+            );
+        };
 
 
     // =====================================================
     // EDIT
     // =====================================================
 
-    const handleEdit = location => {
+    const handleEdit =
+        location => {
 
-        const id =
-            location.LocationId ??
-            location.locationId;
+            const id =
+                location.LocationId ??
+                location.locationId;
 
-        navigate(
-            `/warehouse-locations/edit/${id}`
-        );
-    };
+
+            if (!id) {
+
+                setError(
+                    "Invalid warehouse location ID."
+                );
+
+                return;
+            }
+
+
+            navigate(
+                `/warehouse-locations/edit/${id}`
+            );
+        };
+
+
+    // =====================================================
+    // DELETE CLICK
+    // =====================================================
+
+    const handleDeleteClick =
+        location => {
+
+            setSelectedLocation(
+                location
+            );
+
+            setDeleteOpen(true);
+        };
 
 
     // =====================================================
     // DELETE
     // =====================================================
 
-    const handleDeleteClick = location => {
+    const handleDelete =
+        async () => {
 
-        setSelectedLocation(location);
-        setDeleteOpen(true);
-    };
+            if (
+                !selectedLocation
+            ) {
+
+                return;
+            }
 
 
-    const handleDelete = async () => {
+            const id =
+                selectedLocation.LocationId ??
+                selectedLocation.locationId;
 
-        if (!selectedLocation) {
-            return;
-        }
 
-        const id =
-            selectedLocation.LocationId ??
-            selectedLocation.locationId;
+            if (!id) {
 
-        try {
-
-            setError("");
-            setSuccess("");
-
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/warehouse-locations/${id}`,
-                    {
-                        method: "DELETE"
-                    }
+                setError(
+                    "Invalid warehouse location ID."
                 );
 
-            if (!response.ok) {
+                return;
+            }
 
-                const body =
-                    await response.json()
-                        .catch(() => null);
 
-                throw new Error(
-                    body?.message ||
+            try {
+
+                setError("");
+                setSuccess("");
+
+
+                console.log(
+                    "================================================"
+                );
+
+                console.log(
+                    `DELETE /api/warehouse-locations/${id}`
+                );
+
+                console.log(
+                    "================================================"
+                );
+
+
+                const response =
+                    await fetch(
+                        `${SERVER_URL}/api/warehouse-locations/${id}`,
+                        {
+                            method: "DELETE",
+
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response
+                        .json()
+                        .catch(
+                            () => null
+                        );
+
+
+                console.log(
+                    "DELETE RESPONSE:",
+                    data
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data?.message ||
+                        data?.error ||
+                        "Failed to delete warehouse location."
+                    );
+                }
+
+
+                setLocations(
+                    previous =>
+                        previous.filter(
+                            location =>
+                                (
+                                    location.LocationId ??
+                                    location.locationId
+                                ) !== id
+                        )
+                );
+
+
+                setSuccess(
+                    "Warehouse location deleted successfully."
+                );
+
+
+                setDeleteOpen(false);
+
+                setSelectedLocation(
+                    null
+                );
+
+            } catch (err) {
+
+                console.error(
+                    "DELETE WAREHOUSE LOCATION ERROR:",
+                    err
+                );
+
+
+                setError(
+                    err.message ||
                     "Failed to delete warehouse location."
                 );
             }
-
-            setLocations(
-                previous =>
-                    previous.filter(
-                        location =>
-                            (
-                                location.LocationId ??
-                                location.locationId
-                            ) !== id
-                    )
-            );
-
-            setSuccess(
-                "Warehouse location deleted successfully."
-            );
-
-            setDeleteOpen(false);
-            setSelectedLocation(null);
-
-        } catch (err) {
-
-            setError(
-                err.message ||
-                "Failed to delete warehouse location."
-            );
-        }
-    };
+        };
 
 
     // =====================================================
@@ -370,7 +572,16 @@ const WarehouseLocationList = () => {
     // =====================================================
 
     return (
-        <Box sx={{ p: 3 }}>
+
+        <Box
+            sx={{
+                p: 3
+            }}
+        >
+
+            {/* =============================================
+                TOOLBAR
+            ============================================= */}
 
             <WarehouseLocationToolbar
                 onAdd={() =>
@@ -378,7 +589,11 @@ const WarehouseLocationList = () => {
                         "/warehouse-locations/create"
                     )
                 }
-                onRefresh={loadLocations}
+
+                onRefresh={
+                    loadLocations
+                }
+
                 onExport={() =>
                     console.log(
                         "Export warehouse locations"
@@ -387,46 +602,100 @@ const WarehouseLocationList = () => {
             />
 
 
+            {/* =============================================
+                ERROR
+            ============================================= */}
+
             {error && (
+
                 <Alert
                     severity="error"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
+                    sx={{
+                        mb: 2
+                    }}
+
+                    onClose={() =>
+                        setError("")
+                    }
                 >
                     {error}
                 </Alert>
             )}
 
 
+            {/* =============================================
+                SUCCESS
+            ============================================= */}
+
             {success && (
+
                 <Alert
                     severity="success"
-                    sx={{ mb: 2 }}
-                    onClose={() => setSuccess("")}
+                    sx={{
+                        mb: 2
+                    }}
+
+                    onClose={() =>
+                        setSuccess("")
+                    }
                 >
                     {success}
                 </Alert>
             )}
 
 
+            {/* =============================================
+                STATISTICS
+            ============================================= */}
+
             <WarehouseLocationStatistics
-                locations={locations}
+                locations={
+                    locations
+                }
             />
 
+
+            {/* =============================================
+                SEARCH
+            ============================================= */}
 
             <WarehouseLocationSearch
-                searchText={searchText}
-                onSearchChange={value => {
-                    setSearchText(value);
-                    setPage(1);
-                }}
-                statusFilter={statusFilter}
-                onStatusChange={value => {
-                    setStatusFilter(value);
-                    setPage(1);
-                }}
+
+                searchText={
+                    searchText
+                }
+
+                onSearchChange={
+                    value => {
+
+                        setSearchText(
+                            value
+                        );
+
+                        setPage(1);
+                    }
+                }
+
+                statusFilter={
+                    statusFilter
+                }
+
+                onStatusChange={
+                    value => {
+
+                        setStatusFilter(
+                            value
+                        );
+
+                        setPage(1);
+                    }
+                }
             />
 
+
+            {/* =============================================
+                TABLE
+            ============================================= */}
 
             {loading ? (
 
@@ -434,52 +703,110 @@ const WarehouseLocationList = () => {
                     sx={{
                         display: "flex",
                         justifyContent: "center",
+                        alignItems: "center",
                         py: 8
                     }}
                 >
+
                     <CircularProgress />
+
                 </Box>
 
             ) : (
 
                 <>
+
                     <WarehouseLocationTable
+
                         locations={
                             paginatedLocations
                         }
-                        onView={handleView}
-                        onEdit={handleEdit}
+
+                        onView={
+                            handleView
+                        }
+
+                        onEdit={
+                            handleEdit
+                        }
+
                         onDelete={
                             handleDeleteClick
                         }
                     />
 
+
+                    {/* =====================================
+                        PAGINATION
+                    ===================================== */}
+
                     <WarehouseLocationPagination
-                        page={page}
-                        pageSize={pageSize}
+
+                        page={
+                            page
+                        }
+
+                        pageSize={
+                            pageSize
+                        }
+
                         totalItems={
                             filteredLocations.length
                         }
-                        totalPages={totalPages}
-                        onPageChange={setPage}
-                        onPageSizeChange={value => {
-                            setPageSize(value);
-                            setPage(1);
-                        }}
+
+                        totalPages={
+                            totalPages
+                        }
+
+                        onPageChange={
+                            setPage
+                        }
+
+                        onPageSizeChange={
+                            value => {
+
+                                setPageSize(
+                                    value
+                                );
+
+                                setPage(1);
+                            }
+                        }
                     />
+
                 </>
 
             )}
 
 
+            {/* =============================================
+                DELETE DIALOG
+            ============================================= */}
+
             <DeleteWarehouseLocationDialog
-                open={deleteOpen}
-                location={selectedLocation}
+
+                open={
+                    deleteOpen
+                }
+
+                location={
+                    selectedLocation
+                }
+
                 onClose={() => {
-                    setDeleteOpen(false);
-                    setSelectedLocation(null);
+
+                    setDeleteOpen(
+                        false
+                    );
+
+                    setSelectedLocation(
+                        null
+                    );
                 }}
-                onConfirm={handleDelete}
+
+                onConfirm={
+                    handleDelete
+                }
             />
 
         </Box>

@@ -552,6 +552,9 @@ import WarehouseLocationList from "./pages/WarehouseLocation/WarehouseLocationLi
 import WarehouseLocationCreate from "./pages/WarehouseLocation/WarehouseLocationCreate";
 import WarehouseLocationEdit from "./pages/WarehouseLocation/WarehouseLocationEdit";
 import WarehouseLocationDetails from "./pages/WarehouseLocation/WarehouseLocationDetails";
+import WarehouseLocationSearch from "./pages/WarehouseLocation/WarehouseLocationSearch";
+import WarehouseLocationFilters from "./pages/WarehouseLocation/WarehouseLocationSearch";
+
 
 // =========================================================
 // PURCHASE RETURNS
@@ -1110,30 +1113,39 @@ function App() {
                     element={<WarehouseEdit />}
                 />
 
+{/* =================================================
+    WAREHOUSE LOCATIONS
+================================================= */}
 
-                {/* =================================================
-                    WAREHOUSE LOCATIONS
-                ================================================= */}
+<Route
+    path="warehouse-locations"
+    element={<WarehouseLocationList />}
+/>
 
-                <Route
-                    path="warehouse-locations"
-                    element={<WarehouseLocationList />}
-                />
+<Route
+    path="warehouse-locations/create"
+    element={<WarehouseLocationCreate />}
+/>
 
-                <Route
-                    path="warehouse-locations/create"
-                    element={<WarehouseLocationCreate />}
-                />
+<Route
+    path="warehouse-locations/search"
+    element={<WarehouseLocationSearch />}
+/>
 
-                <Route
-                    path="warehouse-locations/details/:id"
-                    element={<WarehouseLocationDetails />}
-                />
+<Route
+    path="warehouse-locations/filters"
+    element={<WarehouseLocationFilters />}
+/>
 
-                <Route
-                    path="warehouse-locations/edit/:id"
-                    element={<WarehouseLocationEdit />}
-                />
+<Route
+    path="warehouse-locations/details/:id"
+    element={<WarehouseLocationDetails />}
+/>
+
+<Route
+    path="warehouse-locations/edit/:id"
+    element={<WarehouseLocationEdit />}
+/>
 
 
                 {/* =================================================
