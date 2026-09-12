@@ -675,6 +675,8 @@ import ShipmentStatistics from "./pages/Shipments/ShipmentStatistics";
 import ShipmentTable from "./pages/Shipments/ShipmentTable";
 import ShipmentToolbar from "./pages/Shipments/ShipmentToolbar";
 import ShipmentView from "./pages/Shipments/ShipmentView";
+import ShipmentCreate from "./pages/Shipments/ShipmentCreate";
+import ShipmentEdit from "./pages/Shipments/ShipmentEdit";
 
 // =========================================================
 // WISHLISTS
@@ -2439,29 +2441,39 @@ function App() {
                 />
 
 
-                {/* =================================================
-                    SHIPMENTS
-                ================================================= */}
+    {/* =================================================
+    SHIPMENTS
+================================================= */}
 
-                <Route
-                    path="shipments"
-                    element={<ShipmentList />}
-                />
+<Route
+    path="shipments"
+    element={<ShipmentList />}
+/>
 
-                <Route
-                    path="shipments/search"
-                    element={<ShipmentSearch />}
-                />
+<Route
+    path="shipments/create"
+    element={<ShipmentCreate />}
+/>
 
-                <Route
-                    path="shipments/statistics"
-                    element={<ShipmentStatistics />}
-                />
+<Route
+    path="shipments/search"
+    element={<ShipmentSearch />}
+/>
 
-                <Route
-                    path="shipments/:id"
-                    element={<ShipmentView />}
-                />
+<Route
+    path="shipments/statistics"
+    element={<ShipmentStatistics />}
+/>
+
+<Route
+    path="shipments/:id"
+    element={<ShipmentView />}
+/>
+
+<Route
+    path="shipments/edit/:id"
+    element={<ShipmentEdit />}
+/>
 
 
                 {/* =================================================
