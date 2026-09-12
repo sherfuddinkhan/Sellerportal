@@ -32062,11 +32062,288 @@ app.delete(
         }
     }
 );
-
-
 // ============================================================
 // END GOODS RECEIPT NOTE ITEMS - GRI
 // ============================================================
+
+// ============================================================
+// SHIPMENTS
+// React -> Node -> ASP.NET Core
+//
+// React:
+// http://localhost:5000/api/shipments
+//
+// ASP.NET:
+// https://localhost:7203/api/Shipment
+// ============================================================
+
+
+// ============================================================
+// GET ALL SHIPMENTS
+// GET /api/shipments
+// ASP.NET: GET /api/Shipment
+// ============================================================
+
+app.get("/api/shipments", async (req, res) => {
+
+    try {
+
+        const response =
+            await axios.get(
+                `${DOTNET_API}/Shipment`,
+                {
+                    httpsAgent
+                }
+            );
+
+        res.json(
+            response.data
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "GET shipments error:",
+            error.response?.data ||
+            error.message
+        );
+
+        res.status(
+            error.response?.status ||
+            500
+        ).json(
+            error.response?.data || {
+                message:
+                    "Failed to load shipments."
+            }
+        );
+
+    }
+
+});
+
+
+// ============================================================
+// GET SHIPMENT BY ID
+// GET /api/shipments/:id
+// ASP.NET: GET /api/Shipment/:id
+// ============================================================
+
+app.get(
+    "/api/shipments/:id",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/Shipment/${req.params.id}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            res.json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET shipment by ID error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res.status(
+                error.response?.status ||
+                500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load shipment."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// CREATE SHIPMENT
+// POST /api/shipments
+// ASP.NET: POST /api/Shipment
+// ============================================================
+
+app.post(
+    "/api/shipments",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "POST /api/shipments:",
+                req.body
+            );
+
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/Shipment`,
+                    req.body,
+                    {
+                        httpsAgent
+                    }
+                );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "POST shipment error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+                error.response?.status ||
+                500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to create shipment."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// UPDATE SHIPMENT
+// PUT /api/shipments/:id
+// ASP.NET: PUT /api/Shipment/:id
+// ============================================================
+
+app.put(
+    "/api/shipments/:id",
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                `PUT /api/shipments/${req.params.id}:`,
+                req.body
+            );
+
+
+            const response =
+                await axios.put(
+                    `${DOTNET_API}/Shipment/${req.params.id}`,
+                    req.body,
+                    {
+                        httpsAgent
+                    }
+                );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "PUT shipment error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+                error.response?.status ||
+                500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update shipment."
+                }
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// DELETE SHIPMENT
+// DELETE /api/shipments/:id
+// ASP.NET: DELETE /api/Shipment/:id
+// ============================================================
+
+app.delete(
+    "/api/shipments/:id",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.delete(
+                    `${DOTNET_API}/Shipment/${req.params.id}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+
+            res.status(
+                response.status
+            ).json(
+                response.data
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE shipment error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            res.status(
+                error.response?.status ||
+                500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to delete shipment."
+                }
+            );
+
+        }
+
+    }
+);
 app.use(
     (req, res) => {
 

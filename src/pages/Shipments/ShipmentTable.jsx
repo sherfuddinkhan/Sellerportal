@@ -1,8 +1,3 @@
-// =========================================================
-// ShipmentTable.jsx
-// Shipment Table
-// =========================================================
-
 import React from "react";
 
 import {
@@ -34,22 +29,42 @@ import {
 
 const ShipmentTable = ({
     items = [],
-    loading,
+    loading = false,
     onView,
     onEdit,
     onDelete
 }) => {
+
 
     // =====================================================
     // GET VALUE
     // Supports camelCase + PascalCase
     // =====================================================
 
-    const getValue = (row, camelCase, pascalCase) => {
+    const getValue = (
+        row,
+        camelCase,
+        pascalCase
+    ) => {
 
         return (
             row?.[camelCase] ??
             row?.[pascalCase] ??
+            null
+        );
+
+    };
+
+
+    // =====================================================
+    // GET SHIPMENT ID
+    // =====================================================
+
+    const getShipmentId = (row) => {
+
+        return (
+            row?.shipmentId ??
+            row?.ShipmentId ??
             null
         );
 
@@ -71,28 +86,16 @@ const ShipmentTable = ({
             case "pending":
                 return "warning";
 
-            case "processing":
+            case "dispatched":
                 return "info";
-
-            case "packed":
-                return "secondary";
-
-            case "shipped":
-                return "primary";
 
             case "in transit":
                 return "info";
-
-            case "out for delivery":
-                return "warning";
 
             case "delivered":
                 return "success";
 
             case "cancelled":
-                return "error";
-
-            case "returned":
                 return "error";
 
             default:
@@ -110,19 +113,26 @@ const ShipmentTable = ({
     const formatDate = (date) => {
 
         if (!date) {
+
             return "-";
+
         }
+
 
         const parsedDate =
             new Date(date);
+
 
         if (
             Number.isNaN(
                 parsedDate.getTime()
             )
         ) {
+
             return "-";
+
         }
+
 
         return parsedDate.toLocaleDateString(
             "en-IN",
@@ -132,6 +142,81 @@ const ShipmentTable = ({
                 year: "numeric"
             }
         );
+
+    };
+
+
+    // =====================================================
+    // VIEW
+    // =====================================================
+
+    const handleView = (row) => {
+
+        const id =
+            getShipmentId(row);
+
+
+        if (
+            !id ||
+            String(id) === ":id"
+        ) {
+
+            return;
+
+        }
+
+
+        onView?.(row);
+
+    };
+
+
+    // =====================================================
+    // EDIT
+    // =====================================================
+
+    const handleEdit = (row) => {
+
+        const id =
+            getShipmentId(row);
+
+
+        if (
+            !id ||
+            String(id) === ":id"
+        ) {
+
+            return;
+
+        }
+
+
+        onEdit?.(row);
+
+    };
+
+
+    // =====================================================
+    // DELETE
+    // =====================================================
+
+    const handleDelete = (row) => {
+
+        const id =
+            getShipmentId(row);
+
+
+        if (
+            !id ||
+            String(id) === ":id"
+        ) {
+
+            return;
+
+        }
+
+
+        onDelete?.(row);
 
     };
 
@@ -180,7 +265,10 @@ const ShipmentTable = ({
     // EMPTY
     // =====================================================
 
-    if (!items || items.length === 0) {
+    if (
+        !items ||
+        items.length === 0
+    ) {
 
         return (
 
@@ -307,261 +395,297 @@ const ShipmentTable = ({
 
                 <TableBody>
 
-                    {items.map((row, index) => {
+                    {items.map(
+                        (row, index) => {
 
-                        // =================================================
-                        // VALUES
-                        // =================================================
+                            // =========================================
+                            // VALUES
+                            // =========================================
 
-                        const shipmentId =
-                            getValue(
-                                row,
-                                "shipmentId",
-                                "ShipmentId"
-                            );
-
-                        const sellerId =
-                            getValue(
-                                row,
-                                "sellerId",
-                                "SellerId"
-                            );
-
-                        const customerId =
-                            getValue(
-                                row,
-                                "customerId",
-                                "CustomerId"
-                            );
-
-                        const orderId =
-                            getValue(
-                                row,
-                                "orderId",
-                                "OrderId"
-                            );
-
-                        const courierName =
-                            getValue(
-                                row,
-                                "courierName",
-                                "CourierName"
-                            );
-
-                        const trackingNumber =
-                            getValue(
-                                row,
-                                "trackingNumber",
-                                "TrackingNumber"
-                            );
-
-                        const shipmentDate =
-                            getValue(
-                                row,
-                                "shipmentDate",
-                                "ShipmentDate"
-                            );
-
-                        const deliveryDate =
-                            getValue(
-                                row,
-                                "deliveryDate",
-                                "DeliveryDate"
-                            );
-
-                        const shipmentStatus =
-                            getValue(
-                                row,
-                                "shipmentStatus",
-                                "ShipmentStatus"
-                            );
+                            const shipmentId =
+                                getValue(
+                                    row,
+                                    "shipmentId",
+                                    "ShipmentId"
+                                );
 
 
-                        // =================================================
-                        // ROW
-                        // =================================================
-
-                        return (
-
-                            <TableRow
-                                key={
-                                    shipmentId ??
-                                    index
-                                }
-                                hover
-                            >
-
-                                {/* Shipment ID */}
-
-                                <TableCell>
-
-                                    {shipmentId ?? "-"}
-
-                                </TableCell>
+                            const sellerId =
+                                getValue(
+                                    row,
+                                    "sellerId",
+                                    "SellerId"
+                                );
 
 
-                                {/* Seller ID */}
-
-                                <TableCell>
-
-                                    {sellerId ?? "-"}
-
-                                </TableCell>
-
-
-                                {/* Customer ID */}
-
-                                <TableCell>
-
-                                    {customerId ?? "-"}
-
-                                </TableCell>
+                            const customerId =
+                                getValue(
+                                    row,
+                                    "customerId",
+                                    "CustomerId"
+                                );
 
 
-                                {/* Order ID */}
-
-                                <TableCell>
-
-                                    {orderId ?? "-"}
-
-                                </TableCell>
-
-
-                                {/* Courier */}
-
-                                <TableCell>
-
-                                    {courierName || "-"}
-
-                                </TableCell>
+                            const orderId =
+                                getValue(
+                                    row,
+                                    "orderId",
+                                    "OrderId"
+                                );
 
 
-                                {/* Tracking Number */}
-
-                                <TableCell>
-
-                                    {trackingNumber || "-"}
-
-                                </TableCell>
-
-
-                                {/* Shipment Date */}
-
-                                <TableCell>
-
-                                    {formatDate(
-                                        shipmentDate
-                                    )}
-
-                                </TableCell>
+                            const courierName =
+                                getValue(
+                                    row,
+                                    "courierName",
+                                    "CourierName"
+                                );
 
 
-                                {/* Delivery Date */}
-
-                                <TableCell>
-
-                                    {formatDate(
-                                        deliveryDate
-                                    )}
-
-                                </TableCell>
+                            const trackingNumber =
+                                getValue(
+                                    row,
+                                    "trackingNumber",
+                                    "TrackingNumber"
+                                );
 
 
-                                {/* Status */}
-
-                                <TableCell>
-
-                                    <Chip
-                                        label={
-                                            shipmentStatus ||
-                                            "N/A"
-                                        }
-                                        color={
-                                            getStatusColor(
-                                                shipmentStatus
-                                            )
-                                        }
-                                        size="small"
-                                    />
-
-                                </TableCell>
+                            const shipmentDate =
+                                getValue(
+                                    row,
+                                    "shipmentDate",
+                                    "ShipmentDate"
+                                );
 
 
-                                {/* Actions */}
+                            const deliveryDate =
+                                getValue(
+                                    row,
+                                    "deliveryDate",
+                                    "DeliveryDate"
+                                );
 
-                                <TableCell
-                                    align="center"
+
+                            const shipmentStatus =
+                                getValue(
+                                    row,
+                                    "shipmentStatus",
+                                    "ShipmentStatus"
+                                );
+
+
+                            // =========================================
+                            // ROW
+                            // =========================================
+
+                            return (
+
+                                <TableRow
+                                    key={
+                                        shipmentId ??
+                                        `shipment-${index}`
+                                    }
+                                    hover
                                 >
 
-                                    {/* VIEW */}
+                                    {/* =================================
+                                        SHIPMENT ID
+                                    ================================= */}
 
-                                    <Tooltip
-                                        title="View Shipment"
+                                    <TableCell>
+
+                                        {shipmentId ?? "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        SELLER ID
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {sellerId ?? "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        CUSTOMER ID
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {customerId ?? "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        ORDER ID
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {orderId ?? "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        COURIER NAME
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {courierName || "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        TRACKING NUMBER
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {trackingNumber || "-"}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        SHIPMENT DATE
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {formatDate(
+                                            shipmentDate
+                                        )}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        DELIVERY DATE
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        {formatDate(
+                                            deliveryDate
+                                        )}
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        STATUS
+                                    ================================= */}
+
+                                    <TableCell>
+
+                                        <Chip
+                                            label={
+                                                shipmentStatus ||
+                                                "N/A"
+                                            }
+                                            color={
+                                                getStatusColor(
+                                                    shipmentStatus
+                                                )
+                                            }
+                                            size="small"
+                                        />
+
+                                    </TableCell>
+
+
+                                    {/* =================================
+                                        ACTIONS
+                                    ================================= */}
+
+                                    <TableCell
+                                        align="center"
                                     >
 
-                                        <IconButton
-                                            color="primary"
-                                            size="small"
-                                            onClick={() =>
-                                                onView?.(row)
-                                            }
+                                        {/* =============================
+                                            VIEW
+                                        ============================= */}
+
+                                        <Tooltip
+                                            title="View Shipment"
                                         >
 
-                                            <Visibility />
+                                            <IconButton
+                                                color="primary"
+                                                size="small"
+                                                onClick={() =>
+                                                    handleView(row)
+                                                }
+                                            >
 
-                                        </IconButton>
+                                                <Visibility />
 
-                                    </Tooltip>
+                                            </IconButton>
+
+                                        </Tooltip>
 
 
-                                    {/* EDIT */}
+                                        {/* =============================
+                                            EDIT
+                                        ============================= */}
 
-                                    <Tooltip
-                                        title="Edit Shipment"
-                                    >
-
-                                        <IconButton
-                                            color="warning"
-                                            size="small"
-                                            onClick={() =>
-                                                onEdit?.(row)
-                                            }
+                                        <Tooltip
+                                            title="Edit Shipment"
                                         >
 
-                                            <Edit />
+                                            <IconButton
+                                                color="warning"
+                                                size="small"
+                                                onClick={() =>
+                                                    handleEdit(row)
+                                                }
+                                            >
 
-                                        </IconButton>
+                                                <Edit />
 
-                                    </Tooltip>
+                                            </IconButton>
+
+                                        </Tooltip>
 
 
-                                    {/* DELETE */}
+                                        {/* =============================
+                                            DELETE
+                                        ============================= */}
 
-                                    <Tooltip
-                                        title="Delete Shipment"
-                                    >
-
-                                        <IconButton
-                                            color="error"
-                                            size="small"
-                                            onClick={() =>
-                                                onDelete?.(row)
-                                            }
+                                        <Tooltip
+                                            title="Delete Shipment"
                                         >
 
-                                            <Delete />
+                                            <IconButton
+                                                color="error"
+                                                size="small"
+                                                onClick={() =>
+                                                    handleDelete(row)
+                                                }
+                                            >
 
-                                        </IconButton>
+                                                <Delete />
 
-                                    </Tooltip>
+                                            </IconButton>
 
-                                </TableCell>
+                                        </Tooltip>
 
-                            </TableRow>
+                                    </TableCell>
 
-                        );
+                                </TableRow>
 
-                    })}
+                            );
+
+                        }
+                    )}
 
                 </TableBody>
 

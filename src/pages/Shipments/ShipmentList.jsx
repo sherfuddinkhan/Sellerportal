@@ -1,12 +1,11 @@
-// =========================================================
-// ShipmentList.jsx
-// Shipment Management
-// =========================================================
-
 import React, {
     useEffect,
     useState
 } from "react";
+
+import {
+    useNavigate
+} from "react-router-dom";
 
 import {
     Box,
@@ -19,15 +18,17 @@ import ShipmentStatistics from "./ShipmentStatistics";
 import ShipmentSearch from "./ShipmentSearch";
 import ShipmentTable from "./ShipmentTable";
 import ShipmentPagination from "./ShipmentPagination";
-import ShipmentModal from "./ShipmentModal";
 import ShipmentView from "./ShipmentView";
 import DeleteShipmentDialog from "./DeleteShipmentDialog";
+
 
 // =========================================================
 // SERVER URL
 // =========================================================
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
+
 
 // =========================================================
 // COMPONENT
@@ -35,38 +36,103 @@ const SERVER_URL = "http://localhost:5000";
 
 const ShipmentList = () => {
 
+    const navigate =
+        useNavigate();
+
+
     // =====================================================
     // STATE
     // =====================================================
 
-    const [shipments, setShipments] = useState([]);
+    const [
+        shipments,
+        setShipments
+    ] = useState([]);
 
-    const [filteredShipments, setFilteredShipments] = useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [
+        filteredShipments,
+        setFilteredShipments
+    ] = useState([]);
 
-    const [searchText, setSearchText] = useState("");
 
-    const [selectedShipment, setSelectedShipment] = useState(null);
+    const [
+        loading,
+        setLoading
+    ] = useState(false);
 
-    const [modalOpen, setModalOpen] = useState(false);
 
-    const [viewOpen, setViewOpen] = useState(false);
+    const [
+        searchText,
+        setSearchText
+    ] = useState("");
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
 
-    const [page, setPage] = useState(1);
+    const [
+        selectedShipment,
+        setSelectedShipment
+    ] = useState(null);
 
-    const [pageSize, setPageSize] = useState(10);
 
-    const [error, setError] = useState("");
+    const [
+        viewOpen,
+        setViewOpen
+    ] = useState(false);
 
-    const [success, setSuccess] = useState("");
+
+    const [
+        deleteOpen,
+        setDeleteOpen
+    ] = useState(false);
+
+
+    const [
+        page,
+        setPage
+    ] = useState(1);
+
+
+    const [
+        pageSize,
+        setPageSize
+    ] = useState(10);
+
+
+    const [
+        error,
+        setError
+    ] = useState("");
+
+
+    const [
+        success,
+        setSuccess
+    ] = useState("");
+
+
+    // =====================================================
+    // GET SHIPMENT ID
+    // =====================================================
+
+    const getShipmentId = (shipment) => {
+
+        return (
+            shipment?.shipmentId ??
+            shipment?.ShipmentId ??
+            null
+        );
+
+    };
 
 
     // =====================================================
     // LOAD SHIPMENTS
-    // GET /api/Shipment
+    //
+    // React:
+    // GET http://localhost:5000/api/shipments
+    //
+    // Node:
+    // GET https://localhost:7203/api/Shipment
     // =====================================================
 
     const loadShipments = async () => {
@@ -77,28 +143,61 @@ const ShipmentList = () => {
 
             setError("");
 
-            const response = await fetch(
-                `${SERVER_URL}/api/Shipment`
-            );
+
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/shipments`
+                );
+
 
             if (!response.ok) {
 
+                let message =
+                    `HTTP ${response.status}`;
+
+
+                try {
+
+                    const data =
+                        await response.json();
+
+                    message =
+                        data?.message ||
+                        data?.title ||
+                        message;
+
+                }
+                catch {
+
+                    // Ignore JSON parsing error
+
+                }
+
+
                 throw new Error(
-                    `HTTP ${response.status}`
+                    message
                 );
 
             }
 
-            const data = await response.json();
+
+            const data =
+                await response.json();
+
 
             const shipmentData =
                 Array.isArray(data)
                     ? data
                     : [];
 
-            setShipments(shipmentData);
 
-            setFilteredShipments(shipmentData);
+            setShipments(
+                shipmentData
+            );
+
+            setFilteredShipments(
+                shipmentData
+            );
 
         }
         catch (error) {
@@ -108,7 +207,9 @@ const ShipmentList = () => {
                 error
             );
 
+
             setError(
+                error?.message ||
                 "Failed to load shipments."
             );
 
@@ -139,69 +240,108 @@ const ShipmentList = () => {
 
     useEffect(() => {
 
-        let result = [
-            ...shipments
-        ];
-
         const search =
             searchText
                 .trim()
                 .toLowerCase();
 
 
-        if (search !== "") {
+        if (!search) {
 
-            result =
-                result.filter((item) => {
+            setFilteredShipments(
+                shipments
+            );
+
+            setPage(1);
+
+            return;
+
+        }
+
+
+        const result =
+            shipments.filter(
+                (item) => {
 
                     const shipmentId =
                         String(
                             item.shipmentId ??
                             item.ShipmentId ??
                             ""
-                        );
+                        )
+                            .toLowerCase();
+
 
                     const sellerId =
                         String(
                             item.sellerId ??
                             item.SellerId ??
                             ""
-                        );
+                        )
+                            .toLowerCase();
+
 
                     const customerId =
                         String(
                             item.customerId ??
                             item.CustomerId ??
                             ""
-                        );
+                        )
+                            .toLowerCase();
+
 
                     const orderId =
                         String(
                             item.orderId ??
                             item.OrderId ??
                             ""
-                        );
+                        )
+                            .toLowerCase();
+
 
                     const courierName =
                         String(
                             item.courierName ??
                             item.CourierName ??
                             ""
-                        ).toLowerCase();
+                        )
+                            .toLowerCase();
+
 
                     const trackingNumber =
                         String(
                             item.trackingNumber ??
                             item.TrackingNumber ??
                             ""
-                        ).toLowerCase();
+                        )
+                            .toLowerCase();
+
+
+                    const shipmentDate =
+                        String(
+                            item.shipmentDate ??
+                            item.ShipmentDate ??
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    const deliveryDate =
+                        String(
+                            item.deliveryDate ??
+                            item.DeliveryDate ??
+                            ""
+                        )
+                            .toLowerCase();
+
 
                     const shipmentStatus =
                         String(
                             item.shipmentStatus ??
                             item.ShipmentStatus ??
                             ""
-                        ).toLowerCase();
+                        )
+                            .toLowerCase();
 
 
                     return (
@@ -230,18 +370,28 @@ const ShipmentList = () => {
 
                         ||
 
+                        shipmentDate.includes(search)
+
+                        ||
+
+                        deliveryDate.includes(search)
+
+                        ||
+
                         shipmentStatus.includes(search)
 
                     );
 
-                });
+                }
+            );
 
-        }
 
-
-        setFilteredShipments(result);
+        setFilteredShipments(
+            result
+        );
 
         setPage(1);
+
 
     }, [
         shipments,
@@ -253,246 +403,35 @@ const ShipmentList = () => {
     // PAGINATION
     // =====================================================
 
-    const totalPages = Math.max(
-        1,
-        Math.ceil(
-            filteredShipments.length /
-            pageSize
-        )
-    );
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                filteredShipments.length /
+                pageSize
+            )
+        );
 
 
     const pagedShipments =
         filteredShipments.slice(
-            (page - 1) * pageSize,
-            page * pageSize
+            (page - 1) *
+                pageSize,
+
+            page *
+                pageSize
         );
 
 
     // =====================================================
-    // CREATE / UPDATE
+    // CREATE
     // =====================================================
 
-    const handleSave = async (data) => {
-
-        try {
-
-            setError("");
-
-            const shipmentId =
-                data.shipmentId ??
-                data.ShipmentId ??
-                0;
-
-
-            // =================================================
-            // UPDATE
-            // =================================================
-
-            if (shipmentId && shipmentId > 0) {
-
-                const response =
-                    await fetch(
-                        `${SERVER_URL}/api/Shipment/${shipmentId}`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body: JSON.stringify({
-                                ...data,
-                                shipmentId: shipmentId
-                            })
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    const text =
-                        await response.text();
-
-                    throw new Error(
-                        text ||
-                        `HTTP ${response.status}`
-                    );
-
-                }
-
-
-                setSuccess(
-                    "Shipment updated successfully."
-                );
-
-            }
-
-            // =================================================
-            // CREATE
-            // =================================================
-
-            else {
-
-                const response =
-                    await fetch(
-                        `${SERVER_URL}/api/Shipment`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body: JSON.stringify({
-
-                                shipmentId: 0,
-
-                                sellerId:
-                                    data.sellerId ??
-                                    data.SellerId,
-
-                                customerId:
-                                    data.customerId ??
-                                    data.CustomerId,
-
-                                orderId:
-                                    data.orderId ??
-                                    data.OrderId,
-
-                                courierName:
-                                    data.courierName ??
-                                    data.CourierName,
-
-                                trackingNumber:
-                                    data.trackingNumber ??
-                                    data.TrackingNumber,
-
-                                shipmentDate:
-                                    data.shipmentDate ??
-                                    data.ShipmentDate,
-
-                                deliveryDate:
-                                    data.deliveryDate ??
-                                    data.DeliveryDate,
-
-                                shipmentStatus:
-                                    data.shipmentStatus ??
-                                    data.ShipmentStatus
-
-                            })
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    const text =
-                        await response.text();
-
-                    throw new Error(
-                        text ||
-                        `HTTP ${response.status}`
-                    );
-
-                }
-
-
-                setSuccess(
-                    "Shipment created successfully."
-                );
-
-            }
-
-
-            // =================================================
-            // RELOAD
-            // =================================================
-
-            await loadShipments();
-
-            setModalOpen(false);
-
-            setSelectedShipment(null);
-
-        }
-        catch (error) {
-
-            console.error(
-                "Save Shipment Error:",
-                error
-            );
-
-            setError(
-                error.message ||
-                "Failed to save shipment."
-            );
-
-        }
-
-    };
-
-
-    // =====================================================
-    // DELETE
-    // DELETE /api/Shipment/{id}
-    // =====================================================
-
-    const handleDelete = async (id) => {
-
-        try {
-
-            setError("");
-
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/Shipment/${id}`,
-                    {
-                        method: "DELETE"
-                    }
-                );
-
-
-            if (!response.ok) {
-
-                const text =
-                    await response.text();
-
-                throw new Error(
-                    text ||
-                    `HTTP ${response.status}`
-                );
-
-            }
-
-
-            setSuccess(
-                "Shipment deleted successfully."
-            );
-
-
-            await loadShipments();
-
-            setDeleteOpen(false);
-
-            setSelectedShipment(null);
-
-        }
-        catch (error) {
-
-            console.error(
-                "Delete Shipment Error:",
-                error
-            );
-
-            setError(
-                error.message ||
-                "Failed to delete shipment."
-            );
-
-        }
+    const handleCreate = () => {
+
+        navigate(
+            "/shipments/create"
+        );
 
     };
 
@@ -503,9 +442,34 @@ const ShipmentList = () => {
 
     const handleView = (row) => {
 
-        setSelectedShipment(row);
+        const id =
+            getShipmentId(row);
 
-        setViewOpen(true);
+
+        if (
+            !id ||
+            String(id) === ":id"
+        ) {
+
+            setError(
+                "Invalid Shipment ID."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * ShipmentView can be used as a route page.
+         *
+         * Navigate directly to:
+         * /shipments/:id
+         */
+
+        navigate(
+            `/shipments/${id}`
+        );
 
     };
 
@@ -516,48 +480,145 @@ const ShipmentList = () => {
 
     const handleEdit = (row) => {
 
-        setSelectedShipment(row);
+        const id =
+            getShipmentId(row);
 
-        setModalOpen(true);
+
+        if (
+            !id ||
+            String(id) === ":id"
+        ) {
+
+            setError(
+                "Invalid Shipment ID."
+            );
+
+            return;
+
+        }
+
+
+        navigate(
+            `/shipments/edit/${id}`
+        );
 
     };
 
 
     // =====================================================
-    // DELETE DIALOG
+    // DELETE CLICK
     // =====================================================
 
     const handleDeleteClick = (row) => {
 
-        setSelectedShipment(row);
+        setSelectedShipment(
+            row
+        );
 
-        setDeleteOpen(true);
-
-    };
-
-
-    // =====================================================
-    // CLOSE MODAL
-    // =====================================================
-
-    const handleModalClose = () => {
-
-        setModalOpen(false);
-
-        setSelectedShipment(null);
+        setDeleteOpen(
+            true
+        );
 
     };
 
 
     // =====================================================
-    // CLOSE VIEW
+    // DELETE SHIPMENT
+    //
+    // DELETE:
+    // http://localhost:5000/api/shipments/:id
     // =====================================================
 
-    const handleViewClose = () => {
+    const handleDelete = async (id) => {
 
-        setViewOpen(false);
+        try {
 
-        setSelectedShipment(null);
+            setError("");
+
+
+            if (
+                !id ||
+                String(id) === ":id"
+            ) {
+
+                throw new Error(
+                    "Invalid Shipment ID."
+                );
+
+            }
+
+
+            const response =
+                await fetch(
+                    `${SERVER_URL}/api/shipments/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                let message =
+                    `HTTP ${response.status}`;
+
+
+                try {
+
+                    const data =
+                        await response.json();
+
+                    message =
+                        data?.message ||
+                        data?.title ||
+                        message;
+
+                }
+                catch {
+
+                    // Ignore JSON parsing error
+
+                }
+
+
+                throw new Error(
+                    message
+                );
+
+            }
+
+
+            setSuccess(
+                "Shipment deleted successfully."
+            );
+
+
+            setDeleteOpen(
+                false
+            );
+
+            setSelectedShipment(
+                null
+            );
+
+
+            await loadShipments();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Delete Shipment Error:",
+                error
+            );
+
+
+            setError(
+                error?.message ||
+                "Failed to delete shipment."
+            );
+
+        }
 
     };
 
@@ -568,9 +629,13 @@ const ShipmentList = () => {
 
     const handleDeleteClose = () => {
 
-        setDeleteOpen(false);
+        setDeleteOpen(
+            false
+        );
 
-        setSelectedShipment(null);
+        setSelectedShipment(
+            null
+        );
 
     };
 
@@ -584,15 +649,25 @@ const ShipmentList = () => {
         try {
 
             const headers = [
+
                 "Shipment ID",
+
                 "Seller ID",
+
                 "Customer ID",
+
                 "Order ID",
+
                 "Courier",
+
                 "Tracking Number",
+
                 "Shipment Date",
+
                 "Delivery Date",
+
                 "Status"
+
             ];
 
 
@@ -604,33 +679,41 @@ const ShipmentList = () => {
                         item.ShipmentId ??
                         "",
 
+
                         item.sellerId ??
                         item.SellerId ??
                         "",
+
 
                         item.customerId ??
                         item.CustomerId ??
                         "",
 
+
                         item.orderId ??
                         item.OrderId ??
                         "",
+
 
                         item.courierName ??
                         item.CourierName ??
                         "",
 
+
                         item.trackingNumber ??
                         item.TrackingNumber ??
                         "",
+
 
                         item.shipmentDate ??
                         item.ShipmentDate ??
                         "",
 
+
                         item.deliveryDate ??
                         item.DeliveryDate ??
                         "",
+
 
                         item.shipmentStatus ??
                         item.ShipmentStatus ??
@@ -648,12 +731,15 @@ const ShipmentList = () => {
 
             ]
                 .map(
-                    row =>
+                    (row) =>
                         row
                             .map(
-                                value =>
+                                (value) =>
                                     `"${String(value)
-                                        .replace(/"/g, '""')}"`
+                                        .replace(
+                                            /"/g,
+                                            '""'
+                                        )}"`
                             )
                             .join(",")
                 )
@@ -671,30 +757,50 @@ const ShipmentList = () => {
 
 
             const url =
-                URL.createObjectURL(blob);
+                URL.createObjectURL(
+                    blob
+                );
 
 
             const link =
-                document.createElement("a");
+                document.createElement(
+                    "a"
+                );
 
 
-            link.href = url;
+            link.href =
+                url;
+
 
             link.download =
                 "shipments.csv";
 
 
+            document.body.appendChild(
+                link
+            );
+
+
             link.click();
 
-            URL.revokeObjectURL(url);
+
+            document.body.removeChild(
+                link
+            );
+
+
+            URL.revokeObjectURL(
+                url
+            );
 
         }
         catch (error) {
 
             console.error(
-                "Export Error:",
+                "Export Shipment Error:",
                 error
             );
+
 
             setError(
                 "Failed to export shipments."
@@ -711,7 +817,11 @@ const ShipmentList = () => {
 
     return (
 
-        <Box sx={{ p: 3 }}>
+        <Box
+            sx={{
+                p: 3
+            }}
+        >
 
             {/* =================================================
                 ERROR
@@ -721,10 +831,16 @@ const ShipmentList = () => {
 
                 <Alert
                     severity="error"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
+                    sx={{
+                        mb: 2
+                    }}
+                    onClose={() =>
+                        setError("")
+                    }
                 >
+
                     {error}
+
                 </Alert>
 
             )}
@@ -736,17 +852,17 @@ const ShipmentList = () => {
 
             <ShipmentToolbar
 
-                onAdd={() => {
+                onAdd={
+                    handleCreate
+                }
 
-                    setSelectedShipment(null);
+                onRefresh={
+                    loadShipments
+                }
 
-                    setModalOpen(true);
-
-                }}
-
-                onRefresh={loadShipments}
-
-                onExport={handleExport}
+                onExport={
+                    handleExport
+                }
 
             />
 
@@ -756,7 +872,9 @@ const ShipmentList = () => {
             ================================================= */}
 
             <ShipmentStatistics
-                shipments={shipments}
+                shipments={
+                    shipments
+                }
             />
 
 
@@ -766,9 +884,13 @@ const ShipmentList = () => {
 
             <ShipmentSearch
 
-                searchText={searchText}
+                searchText={
+                    searchText
+                }
 
-                setSearchText={setSearchText}
+                setSearchText={
+                    setSearchText
+                }
 
             />
 
@@ -779,15 +901,25 @@ const ShipmentList = () => {
 
             <ShipmentTable
 
-                items={pagedShipments}
+                items={
+                    pagedShipments
+                }
 
-                loading={loading}
+                loading={
+                    loading
+                }
 
-                onView={handleView}
+                onView={
+                    handleView
+                }
 
-                onEdit={handleEdit}
+                onEdit={
+                    handleEdit
+                }
 
-                onDelete={handleDeleteClick}
+                onDelete={
+                    handleDeleteClick
+                }
 
             />
 
@@ -798,74 +930,64 @@ const ShipmentList = () => {
 
             <ShipmentPagination
 
-                page={page}
+                page={
+                    page
+                }
 
-                totalPages={totalPages}
+                totalPages={
+                    totalPages
+                }
 
-                pageSize={pageSize}
+                pageSize={
+                    pageSize
+                }
 
                 totalRecords={
                     filteredShipments.length
                 }
 
-                onPageChange={setPage}
+                onPageChange={
+                    setPage
+                }
 
-                onPageSizeChange={(size) => {
+                onPageSizeChange={
+                    (size) => {
 
-                    setPageSize(size);
+                        setPageSize(
+                            size
+                        );
 
-                    setPage(1);
+                        setPage(
+                            1
+                        );
 
-                }}
-
-            />
-
-
-            {/* =================================================
-                CREATE / EDIT MODAL
-            ================================================= */}
-
-            <ShipmentModal
-
-                open={modalOpen}
-
-                item={selectedShipment}
-
-                onClose={handleModalClose}
-
-                onSave={handleSave}
+                    }
+                }
 
             />
 
 
             {/* =================================================
-                VIEW
-            ================================================= */}
-
-            <ShipmentView
-
-                open={viewOpen}
-
-                item={selectedShipment}
-
-                onClose={handleViewClose}
-
-            />
-
-
-            {/* =================================================
-                DELETE
+                DELETE DIALOG
             ================================================= */}
 
             <DeleteShipmentDialog
 
-                open={deleteOpen}
+                open={
+                    deleteOpen
+                }
 
-                item={selectedShipment}
+                item={
+                    selectedShipment
+                }
 
-                onClose={handleDeleteClose}
+                onClose={
+                    handleDeleteClose
+                }
 
-                onDeleted={handleDelete}
+                onDeleted={
+                    handleDelete
+                }
 
             />
 
@@ -876,13 +998,21 @@ const ShipmentList = () => {
 
             <Snackbar
 
-                open={Boolean(success)}
+                open={
+                    Boolean(success)
+                }
 
-                autoHideDuration={3000}
+                autoHideDuration={
+                    3000
+                }
 
-                onClose={() => setSuccess("")}
+                onClose={() =>
+                    setSuccess("")
+                }
 
-                message={success}
+                message={
+                    success
+                }
 
             />
 
@@ -891,5 +1021,10 @@ const ShipmentList = () => {
     );
 
 };
+
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 export default ShipmentList;
