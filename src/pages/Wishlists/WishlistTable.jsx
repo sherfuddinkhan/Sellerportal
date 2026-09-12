@@ -1,350 +1,704 @@
 import React from "react";
 
 import {
+    Box,
+    Chip,
+    CircularProgress,
+    IconButton,
     Paper,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
     TablePagination,
-    Typography,
-    Box,
-    IconButton,
+    TableRow,
     Tooltip,
-    Chip,
+    Typography
 } from "@mui/material";
 
 import {
-    Visibility,
     Delete,
-    Favorite,
+    Edit,
+    Visibility
 } from "@mui/icons-material";
 
-// =========================================================
+
+// ============================================================
 // COMPONENT
-// =========================================================
+// ============================================================
 
 const WishlistTable = ({
     wishlists = [],
+
     page = 0,
+
     rowsPerPage = 10,
+
     onPageChange,
+
     onRowsPerPageChange,
+
     onView,
+
+    onEdit,
+
     onDelete,
-    loading = false,
+
+    loading = false
 }) => {
 
-    // =========================================================
-    // PAGINATED DATA
-    // =========================================================
 
-    const paginatedWishlists = wishlists.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-    );
-
-    // =========================================================
+    // ========================================================
     // STATUS COLOR
-    // =========================================================
+    // ========================================================
 
     const getStatusColor = (status) => {
-        switch (String(status || "").toLowerCase()) {
+
+        switch (
+            String(status || "")
+                .toLowerCase()
+        ) {
+
             case "active":
                 return "success";
 
             case "inactive":
                 return "default";
 
+            case "pending":
+                return "warning";
+
             case "completed":
-                return "info";
+                return "success";
 
             case "cancelled":
                 return "error";
 
             default:
-                return "warning";
+                return "default";
         }
     };
 
-    // =========================================================
-    // EMPTY STATE
-    // =========================================================
 
-    if (!loading && wishlists.length === 0) {
+    // ========================================================
+    // FORMAT DATE
+    // ========================================================
+
+    const formatDate = (value) => {
+
+        if (!value) {
+            return "-";
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "-";
+        }
+
+
+        return date.toLocaleString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+    };
+
+
+    // ========================================================
+    // GET WISHLIST ID
+    // ========================================================
+
+    const getWishlistId = (wishlist) => {
+
+        return (
+            wishlist?.wishlistId ??
+            wishlist?.WishlistId ??
+            wishlist?.id ??
+            wishlist?.Id
+        );
+    };
+
+
+    // ========================================================
+    // PAGINATION
+    // ========================================================
+
+    const safePage =
+        Number.isInteger(page) &&
+        page >= 0
+            ? page
+            : 0;
+
+
+    const safeRowsPerPage =
+        Number.isInteger(rowsPerPage) &&
+        rowsPerPage > 0
+            ? rowsPerPage
+            : 10;
+
+
+    const startIndex =
+        safePage *
+        safeRowsPerPage;
+
+
+    const paginatedWishlists =
+        wishlists.slice(
+            startIndex,
+            startIndex +
+                safeRowsPerPage
+        );
+
+
+    // ========================================================
+    // PAGE CHANGE
+    // ========================================================
+
+    const handlePageChange = (
+        event,
+        newPage
+    ) => {
+
+        if (onPageChange) {
+            onPageChange(
+                event,
+                newPage
+            );
+        }
+    };
+
+
+    // ========================================================
+    // ROWS PER PAGE CHANGE
+    // ========================================================
+
+    const handleRowsPerPageChange = (
+        event
+    ) => {
+
+        if (onRowsPerPageChange) {
+
+            onRowsPerPageChange(
+                event
+            );
+
+        }
+    };
+
+
+    // ========================================================
+    // VIEW
+    // ========================================================
+
+    const handleView = (wishlist) => {
+
+        if (onView) {
+            onView(wishlist);
+        }
+    };
+
+
+    // ========================================================
+    // EDIT
+    // ========================================================
+
+    const handleEdit = (wishlist) => {
+
+        if (onEdit) {
+            onEdit(wishlist);
+        }
+    };
+
+
+    // ========================================================
+    // DELETE
+    // ========================================================
+
+    const handleDelete = (wishlist) => {
+
+        if (onDelete) {
+            onDelete(wishlist);
+        }
+    };
+
+
+    // ========================================================
+    // LOADING
+    // ========================================================
+
+    if (loading) {
+
         return (
             <Paper
-                elevation={2}
+                elevation={1}
                 sx={{
-                    borderRadius: 2,
-                    p: 6,
-                    textAlign: "center",
+                    width: "100%",
+                    overflow: "hidden"
                 }}
             >
-                <Favorite
+
+                <Box
                     sx={{
-                        fontSize: 70,
-                        color: "text.secondary",
-                        mb: 2,
+                        minHeight: 300,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "column",
+                        gap: 2
                     }}
-                />
-
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
                 >
-                    No Wishlists Found
-                </Typography>
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                >
-                    There are currently no wishlist records.
-                </Typography>
+                    <CircularProgress />
+
+                    <Typography
+                        color="text.secondary"
+                    >
+                        Loading wishlists...
+                    </Typography>
+
+                </Box>
+
             </Paper>
         );
     }
 
-    return (
-        <Paper
-            elevation={2}
-            sx={{
-                borderRadius: 2,
-                overflow: "hidden",
-            }}
-        >
-            {/* =====================================================
-                TABLE HEADER
-               ===================================================== */}
 
-            <Box
+    // ========================================================
+    // EMPTY
+    // ========================================================
+
+    if (!wishlists.length) {
+
+        return (
+            <Paper
+                elevation={1}
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    p: 2,
+                    width: "100%"
                 }}
             >
-                <Favorite color="error" />
 
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
+                <Box
+                    sx={{
+                        minHeight: 220,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "column",
+                        gap: 1
+                    }}
                 >
-                    Wishlists
-                </Typography>
 
-                <Chip
-                    label={wishlists.length}
+                    <Typography
+                        variant="h6"
+                        fontWeight={600}
+                    >
+                        No Wishlists Found
+                    </Typography>
+
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        There are no wishlist records
+                        available.
+                    </Typography>
+
+                </Box>
+
+            </Paper>
+        );
+    }
+
+
+    // ========================================================
+    // TABLE
+    // ========================================================
+
+    return (
+        <Paper
+            elevation={1}
+            sx={{
+                width: "100%",
+                overflow: "hidden"
+            }}
+        >
+
+            <TableContainer
+                sx={{
+                    maxHeight: 600
+                }}
+            >
+
+                <Table
+                    stickyHeader
                     size="small"
-                />
-            </Box>
+                >
 
-            {/* =====================================================
-                TABLE
-               ===================================================== */}
+                    {/* =========================================
+                       HEADER
+                    ========================================= */}
 
-            <TableContainer>
-                <Table>
                     <TableHead>
+
                         <TableRow>
 
-                            <TableCell>
+                            <TableCell
+                                sx={{
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap"
+                                }}
+                            >
                                 Wishlist ID
                             </TableCell>
 
-                            <TableCell>
+
+                            <TableCell
+                                sx={{
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap"
+                                }}
+                            >
                                 Seller ID
                             </TableCell>
 
-                            <TableCell>
+
+                            <TableCell
+                                sx={{
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap"
+                                }}
+                            >
                                 Customer ID
                             </TableCell>
 
-                            <TableCell>
+
+                            <TableCell
+                                sx={{
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap"
+                                }}
+                            >
                                 Status
                             </TableCell>
 
-                            <TableCell>
+
+                            <TableCell
+                                sx={{
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap"
+                                }}
+                            >
                                 Created Date
                             </TableCell>
 
-                            <TableCell align="center">
+
+                            <TableCell
+                                align="center"
+                                sx={{
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap"
+                                }}
+                            >
                                 Actions
                             </TableCell>
 
                         </TableRow>
+
                     </TableHead>
+
+
+                    {/* =========================================
+                       BODY
+                    ========================================= */}
 
                     <TableBody>
 
-                        {loading ? (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={6}
-                                    align="center"
-                                    sx={{ py: 6 }}
-                                >
-                                    <Typography
-                                        color="text.secondary"
-                                    >
-                                        Loading wishlists...
-                                    </Typography>
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            paginatedWishlists.map((wishlist) => {
+                        {paginatedWishlists.map(
+                            (wishlist, index) => {
 
                                 const wishlistId =
-                                    wishlist.wishlistId ??
-                                    wishlist.id;
+                                    getWishlistId(
+                                        wishlist
+                                    );
+
+
+                                const sellerId =
+                                    wishlist?.sellerId ??
+                                    wishlist?.SellerId ??
+                                    "-";
+
+
+                                const customerId =
+                                    wishlist?.customerId ??
+                                    wishlist?.CustomerId ??
+                                    "-";
+
+
+                                const status =
+                                    wishlist?.status ??
+                                    wishlist?.Status ??
+                                    "Unknown";
+
+
+                                const createdDate =
+                                    wishlist?.createdDate ??
+                                    wishlist?.CreatedDate;
+
 
                                 return (
+
                                     <TableRow
-                                        key={wishlistId}
+                                        key={
+                                            wishlistId ??
+                                            `wishlist-${index}`
+                                        }
                                         hover
                                     >
 
-                                        {/* =================================
-                                            WISHLIST ID
-                                           ================================= */}
+                                        {/* =====================
+                                           WISHLIST ID
+                                        ====================== */}
 
                                         <TableCell>
                                             <Typography
                                                 variant="body2"
-                                                fontWeight="bold"
+                                                fontWeight={600}
                                             >
-                                                #{wishlistId ?? "N/A"}
+                                                {wishlistId ?? "-"}
                                             </Typography>
                                         </TableCell>
 
-                                        {/* =================================
-                                            SELLER ID
-                                           ================================= */}
+
+                                        {/* =====================
+                                           SELLER ID
+                                        ====================== */}
 
                                         <TableCell>
-                                            <Typography
-                                                variant="body2"
-                                            >
-                                                {wishlist.sellerId ??
-                                                    "N/A"}
-                                            </Typography>
+                                            {sellerId}
                                         </TableCell>
 
-                                        {/* =================================
-                                            CUSTOMER ID
-                                           ================================= */}
+
+                                        {/* =====================
+                                           CUSTOMER ID
+                                        ====================== */}
 
                                         <TableCell>
-                                            <Typography
-                                                variant="body2"
-                                            >
-                                                {wishlist.customerId ??
-                                                    "N/A"}
-                                            </Typography>
+                                            {customerId}
                                         </TableCell>
 
-                                        {/* =================================
-                                            STATUS
-                                           ================================= */}
+
+                                        {/* =====================
+                                           STATUS
+                                        ====================== */}
 
                                         <TableCell>
+
                                             <Chip
                                                 label={
-                                                    wishlist.status ||
-                                                    "N/A"
+                                                    status
                                                 }
-                                                color={getStatusColor(
-                                                    wishlist.status
-                                                )}
+                                                color={
+                                                    getStatusColor(
+                                                        status
+                                                    )
+                                                }
                                                 size="small"
+                                                variant="outlined"
                                             />
+
                                         </TableCell>
 
-                                        {/* =================================
-                                            CREATED DATE
-                                           ================================= */}
 
-                                        <TableCell>
-                                            {wishlist.createdDate
-                                                ? new Date(
-                                                      wishlist.createdDate
-                                                  ).toLocaleDateString(
-                                                      "en-IN"
-                                                  )
-                                                : "N/A"}
+                                        {/* =====================
+                                           CREATED DATE
+                                        ====================== */}
+
+                                        <TableCell
+                                            sx={{
+                                                whiteSpace:
+                                                    "nowrap"
+                                            }}
+                                        >
+                                            {formatDate(
+                                                createdDate
+                                            )}
                                         </TableCell>
 
-                                        {/* =================================
-                                            ACTIONS
-                                           ================================= */}
 
-                                        <TableCell align="center">
+                                        {/* =====================
+                                           ACTIONS
+                                        ====================== */}
 
-                                            <Tooltip title="View">
-                                                <IconButton
-                                                    color="primary"
-                                                    onClick={() =>
-                                                        onView &&
-                                                        onView(
-                                                            wishlist
-                                                        )
-                                                    }
+                                        <TableCell
+                                            align="center"
+                                        >
+
+                                            <Box
+                                                sx={{
+                                                    display:
+                                                        "flex",
+                                                    alignItems:
+                                                        "center",
+                                                    justifyContent:
+                                                        "center",
+                                                    gap: 0.5
+                                                }}
+                                            >
+
+                                                {/* =================
+                                                   VIEW
+                                                ================== */}
+
+                                                <Tooltip
+                                                    title="View Wishlist"
                                                 >
-                                                    <Visibility />
-                                                </IconButton>
-                                            </Tooltip>
 
-                                            <Tooltip title="Delete">
-                                                <IconButton
-                                                    color="error"
-                                                    onClick={() =>
-                                                        onDelete &&
-                                                        onDelete(
-                                                            wishlist
-                                                        )
-                                                    }
+                                                    <IconButton
+                                                        size="small"
+                                                        color="primary"
+                                                        onClick={() =>
+                                                            handleView(
+                                                                wishlist
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            !wishlistId
+                                                        }
+                                                    >
+
+                                                        <Visibility
+                                                            fontSize="small"
+                                                        />
+
+                                                    </IconButton>
+
+                                                </Tooltip>
+
+
+                                                {/* =================
+                                                   EDIT
+                                                   ONLY IN ACTIONS
+                                                ================== */}
+
+                                                <Tooltip
+                                                    title="Edit Wishlist"
                                                 >
-                                                    <Delete />
-                                                </IconButton>
-                                            </Tooltip>
+
+                                                    <IconButton
+                                                        size="small"
+                                                        color="primary"
+                                                        onClick={() =>
+                                                            handleEdit(
+                                                                wishlist
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            !wishlistId
+                                                        }
+                                                    >
+
+                                                        <Edit
+                                                            fontSize="small"
+                                                        />
+
+                                                    </IconButton>
+
+                                                </Tooltip>
+
+
+                                                {/* =================
+                                                   DELETE
+                                                ================== */}
+
+                                                <Tooltip
+                                                    title="Delete Wishlist"
+                                                >
+
+                                                    <IconButton
+                                                        size="small"
+                                                        color="error"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                wishlist
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            !wishlistId
+                                                        }
+                                                    >
+
+                                                        <Delete
+                                                            fontSize="small"
+                                                        />
+
+                                                    </IconButton>
+
+                                                </Tooltip>
+
+                                            </Box>
 
                                         </TableCell>
 
                                     </TableRow>
+
                                 );
-                            })
+                            }
                         )}
 
                     </TableBody>
+
                 </Table>
+
             </TableContainer>
 
-            {/* =====================================================
-                PAGINATION
-               ===================================================== */}
+
+            {/* =================================================
+               PAGINATION
+            ================================================= */}
 
             <TablePagination
                 component="div"
-                count={wishlists.length}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                onPageChange={onPageChange}
-                onRowsPerPageChange={onRowsPerPageChange}
+                count={
+                    wishlists.length
+                }
+                page={
+                    safePage
+                }
+                rowsPerPage={
+                    safeRowsPerPage
+                }
+                onPageChange={
+                    handlePageChange
+                }
+                onRowsPerPageChange={
+                    handleRowsPerPageChange
+                }
                 rowsPerPageOptions={[
                     5,
                     10,
                     25,
-                    50,
+                    50
                 ]}
             />
 
         </Paper>
     );
 };
+
 
 export default WishlistTable;

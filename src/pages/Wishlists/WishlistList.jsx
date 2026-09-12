@@ -22,24 +22,27 @@ import {
 
 import axios from "axios";
 
-import WishlistItemTable from "./WishlistTable";
+import WishlistTable from "./WishlistTable";
 
 
-// =========================================================
+// ============================================================
 // NODE SERVER
-// React -> Node -> ASP.NET Core
-// =========================================================
+// ============================================================
 
 const SERVER_URL =
+    import.meta.env.VITE_SERVER_URL ||
     "http://localhost:5000";
 
 const API_URL =
     `${SERVER_URL}/api`;
 
+const WISHLIST_API =
+    `${API_URL}/Wishlist`;
 
-// =========================================================
-// WISHLIST ITEM LIST
-// =========================================================
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const WishlistList = () => {
 
@@ -47,13 +50,13 @@ const WishlistList = () => {
         useNavigate();
 
 
-    // =====================================================
+    // ========================================================
     // STATE
-    // =====================================================
+    // ========================================================
 
     const [
-        wishlistItems,
-        setWishlistItems
+        wishlists,
+        setWishlists
     ] = useState([]);
 
     const [
@@ -67,17 +70,59 @@ const WishlistList = () => {
     ] = useState("");
 
 
-    // =====================================================
-    // LOAD WISHLIST ITEMS
-    // =====================================================
+    // ========================================================
+    // ERROR MESSAGE
+    // ========================================================
 
-    const loadWishlistItems =
+    const getErrorMessage = (err) => {
+
+        const data =
+            err?.response?.data;
+
+        if (
+            typeof data === "string" &&
+            data.trim()
+        ) {
+            return data;
+        }
+
+        if (data?.message) {
+            return data.message;
+        }
+
+        if (data?.title) {
+            return data.title;
+        }
+
+        if (data?.errors) {
+
+            const messages =
+                Object.values(data.errors)
+                    .flat()
+                    .filter(Boolean);
+
+            if (messages.length > 0) {
+                return messages.join(" ");
+            }
+        }
+
+        return (
+            err?.message ||
+            "Failed to load wishlists."
+        );
+    };
+
+
+    // ========================================================
+    // LOAD WISHLISTS
+    // ========================================================
+
+    const loadWishlists =
         useCallback(async () => {
 
             try {
 
                 setLoading(true);
-
                 setError("");
 
 
@@ -86,12 +131,12 @@ const WishlistList = () => {
                 );
 
                 console.log(
-                    "GET ALL WISHLIST ITEMS"
+                    "GET ALL WISHLISTS"
                 );
 
                 console.log(
                     "URL:",
-                    `${API_URL}/WishlistItem`
+                    WISHLIST_API
                 );
 
                 console.log(
@@ -101,7 +146,7 @@ const WishlistList = () => {
 
                 const response =
                     await axios.get(
-                        `${API_URL}/WishlistItem`,
+                        WISHLIST_API,
                         {
                             timeout: 30000
                         }
@@ -109,22 +154,20 @@ const WishlistList = () => {
 
 
                 console.log(
-                    "WISHLIST ITEMS RESPONSE:",
+                    "WISHLIST RESPONSE:",
                     response.data
                 );
 
 
                 // =================================================
-                // ASP.NET CURRENT RESPONSE IS A DIRECT ARRAY
+                // ASP.NET CURRENT RESPONSE
                 //
                 // [
                 //   {
-                //     wishlistItemId: 2,
-                //     wishlistId: 2,
-                //     sellerId: 6,
+                //     wishlistId: 1,
                 //     customerId: 3,
-                //     productId: 6,
-                //     createdDate: "..."
+                //     sellerId: 6,
+                //     status: "Active"
                 //   }
                 // ]
                 // =================================================
@@ -167,30 +210,28 @@ const WishlistList = () => {
 
                 else if (
                     Array.isArray(
-                        response.data?.wishlistItems
+                        response.data?.wishlists
                     )
                 ) {
 
                     data =
-                        response.data.wishlistItems;
+                        response.data.wishlists;
 
                 }
 
 
                 console.log(
-                    "NORMALIZED WISHLIST ITEMS:",
+                    "NORMALIZED WISHLISTS:",
                     data
                 );
 
                 console.log(
-                    "WISHLIST ITEM COUNT:",
+                    "WISHLIST COUNT:",
                     data.length
                 );
 
 
-                setWishlistItems(
-                    data
-                );
+                setWishlists(data);
 
             }
 
@@ -201,7 +242,7 @@ const WishlistList = () => {
                 );
 
                 console.error(
-                    "LOAD WISHLIST ITEMS ERROR"
+                    "LOAD WISHLISTS ERROR"
                 );
 
                 console.error(
@@ -224,14 +265,10 @@ const WishlistList = () => {
                 );
 
 
-                setWishlistItems([]);
-
+                setWishlists([]);
 
                 setError(
-                    err.response?.data?.message ||
-                    err.response?.data ||
-                    err.message ||
-                    "Failed to load wishlist items."
+                    getErrorMessage(err)
                 );
 
             }
@@ -239,37 +276,41 @@ const WishlistList = () => {
             finally {
 
                 setLoading(false);
-
             }
 
         }, []);
 
 
-    // =====================================================
+    // ========================================================
     // INITIAL LOAD
-    // =====================================================
+    // ========================================================
 
     useEffect(() => {
 
-        loadWishlistItems();
+        loadWishlists();
 
     }, [
-        loadWishlistItems
+        loadWishlists
     ]);
 
 
-    // =====================================================
+    // ========================================================
     // VIEW
-    // =====================================================
+    // ========================================================
 
     const handleView =
         useCallback(
-            (wishlistItemId) => {
+            (wishlist) => {
+
+                const wishlistId =
+                    wishlist?.wishlistId ??
+                    wishlist?.WishlistId ??
+                    wishlist?.id ??
+                    wishlist?.Id;
+
 
                 const id =
-                    Number(
-                        wishlistItemId
-                    );
+                    Number(wishlistId);
 
 
                 if (
@@ -278,23 +319,26 @@ const WishlistList = () => {
                 ) {
 
                     console.error(
-                        "Invalid Wishlist Item ID:",
-                        wishlistItemId
+                        "Invalid Wishlist ID:",
+                        wishlistId
+                    );
+
+                    setError(
+                        "Invalid Wishlist ID."
                     );
 
                     return;
-
                 }
 
 
                 console.log(
-                    "VIEW WISHLIST ITEM:",
+                    "VIEW WISHLIST:",
                     id
                 );
 
 
                 navigate(
-                    `/wishlist-items/details/${id}`
+                    `/wishlists/details/${id}`
                 );
 
             },
@@ -304,18 +348,23 @@ const WishlistList = () => {
         );
 
 
-    // =====================================================
+    // ========================================================
     // EDIT
-    // =====================================================
+    // ========================================================
 
     const handleEdit =
         useCallback(
-            (wishlistItemId) => {
+            (wishlist) => {
+
+                const wishlistId =
+                    wishlist?.wishlistId ??
+                    wishlist?.WishlistId ??
+                    wishlist?.id ??
+                    wishlist?.Id;
+
 
                 const id =
-                    Number(
-                        wishlistItemId
-                    );
+                    Number(wishlistId);
 
 
                 if (
@@ -324,23 +373,26 @@ const WishlistList = () => {
                 ) {
 
                     console.error(
-                        "Invalid Wishlist Item ID:",
-                        wishlistItemId
+                        "Invalid Wishlist ID:",
+                        wishlistId
+                    );
+
+                    setError(
+                        "Invalid Wishlist ID."
                     );
 
                     return;
-
                 }
 
 
                 console.log(
-                    "EDIT WISHLIST ITEM:",
+                    "EDIT WISHLIST:",
                     id
                 );
 
 
                 navigate(
-                    `/wishlist-items/edit/${id}`
+                    `/wishlists/edit/${id}`
                 );
 
             },
@@ -350,18 +402,23 @@ const WishlistList = () => {
         );
 
 
-    // =====================================================
+    // ========================================================
     // DELETE
-    // =====================================================
+    // ========================================================
 
     const handleDelete =
         useCallback(
-            async (wishlistItemId) => {
+            async (wishlist) => {
+
+                const wishlistId =
+                    wishlist?.wishlistId ??
+                    wishlist?.WishlistId ??
+                    wishlist?.id ??
+                    wishlist?.Id;
+
 
                 const id =
-                    Number(
-                        wishlistItemId
-                    );
+                    Number(wishlistId);
 
 
                 if (
@@ -370,24 +427,21 @@ const WishlistList = () => {
                 ) {
 
                     setError(
-                        "Invalid Wishlist Item ID."
+                        "Invalid Wishlist ID."
                     );
 
                     return;
-
                 }
 
 
                 const confirmed =
                     window.confirm(
-                        "Are you sure you want to remove this wishlist item?"
+                        `Are you sure you want to delete Wishlist #${id}?`
                     );
 
 
                 if (!confirmed) {
-
                     return;
-
                 }
 
 
@@ -397,14 +451,14 @@ const WishlistList = () => {
 
 
                     console.log(
-                        "DELETE WISHLIST ITEM:",
+                        "DELETE WISHLIST:",
                         id
                     );
 
 
                     const response =
                         await axios.delete(
-                            `${API_URL}/WishlistItem/${id}`,
+                            `${WISHLIST_API}/${id}`,
                             {
                                 timeout: 30000
                             }
@@ -412,31 +466,32 @@ const WishlistList = () => {
 
 
                     console.log(
-                        "DELETE WISHLIST ITEM SUCCESS:",
+                        "DELETE WISHLIST SUCCESS:",
                         response.status,
                         response.data
                     );
 
 
                     // =============================================
-                    // Remove immediately from UI
+                    // Remove from UI
                     // =============================================
 
-                    setWishlistItems(
-                        previousItems =>
-                            previousItems.filter(
+                    setWishlists(
+                        previousWishlists =>
+                            previousWishlists.filter(
                                 item => {
 
                                     const itemId =
                                         Number(
-                                            item?.wishlistItemId ??
-                                            item?.WishlistItemId
+                                            item?.wishlistId ??
+                                            item?.WishlistId ??
+                                            item?.id ??
+                                            item?.Id
                                         );
 
                                     return (
                                         itemId !== id
                                     );
-
                                 }
                             )
                     );
@@ -446,16 +501,14 @@ const WishlistList = () => {
                 catch (err) {
 
                     console.error(
-                        "DELETE WISHLIST ITEM ERROR:",
+                        "DELETE WISHLIST ERROR:",
                         err
                     );
-
 
                     console.error(
                         "STATUS:",
                         err.response?.status
                     );
-
 
                     console.error(
                         "DATA:",
@@ -464,12 +517,8 @@ const WishlistList = () => {
 
 
                     setError(
-                        err.response?.data?.message ||
-                        err.response?.data ||
-                        err.message ||
-                        "Failed to delete wishlist item."
+                        getErrorMessage(err)
                     );
-
                 }
 
             },
@@ -477,14 +526,13 @@ const WishlistList = () => {
         );
 
 
-    // =====================================================
+    // ========================================================
     // LOADING
-    // =====================================================
+    // ========================================================
 
     if (loading) {
 
         return (
-
             <Box
                 sx={{
                     width: "100%",
@@ -502,22 +550,19 @@ const WishlistList = () => {
                 <Typography
                     color="text.secondary"
                 >
-                    Loading wishlist items...
+                    Loading wishlists...
                 </Typography>
 
             </Box>
-
         );
-
     }
 
 
-    // =====================================================
+    // ========================================================
     // PAGE
-    // =====================================================
+    // ========================================================
 
     return (
-
         <Box
             sx={{
                 width: "100%",
@@ -526,7 +571,7 @@ const WishlistList = () => {
         >
 
             {/* =================================================
-                HEADER
+               HEADER
             ================================================= */}
 
             <Box
@@ -534,6 +579,8 @@ const WishlistList = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 2,
                     mb: 3
                 }}
             >
@@ -544,9 +591,8 @@ const WishlistList = () => {
                         variant="h5"
                         fontWeight={700}
                     >
-                        Wishlist Items
+                        Wishlists
                     </Typography>
-
 
                     <Typography
                         variant="body2"
@@ -555,7 +601,7 @@ const WishlistList = () => {
                             mt: 0.5
                         }}
                     >
-                        Manage wishlist items
+                        Manage customer wishlists
                     </Typography>
 
                 </Box>
@@ -563,15 +609,9 @@ const WishlistList = () => {
 
                 <Button
                     variant="outlined"
-                    startIcon={
-                        <Refresh />
-                    }
-                    onClick={
-                        loadWishlistItems
-                    }
-                    disabled={
-                        loading
-                    }
+                    startIcon={<Refresh />}
+                    onClick={loadWishlists}
+                    disabled={loading}
                 >
                     Refresh
                 </Button>
@@ -580,7 +620,7 @@ const WishlistList = () => {
 
 
             {/* =================================================
-                ERROR
+               ERROR
             ================================================= */}
 
             {error && (
@@ -594,22 +634,20 @@ const WishlistList = () => {
                         setError("")
                     }
                 >
-
                     {String(error)}
-
                 </Alert>
 
             )}
 
 
             {/* =================================================
-                TABLE
+               TABLE
             ================================================= */}
 
-            <WishlistItemTable
+            <WishlistTable
 
-                items={
-                    wishlistItems
+                wishlists={
+                    wishlists
                 }
 
                 onView={
@@ -624,12 +662,14 @@ const WishlistList = () => {
                     handleDelete
                 }
 
+                loading={
+                    loading
+                }
+
             />
 
         </Box>
-
     );
-
 };
 
 

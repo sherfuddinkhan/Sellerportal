@@ -1,235 +1,448 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, {
+    useEffect,
+    useState
+} from "react";
+
 import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+import axios from "axios";
+
+import {
+    Alert,
     Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    TextField,
-    Button,
-    Alert,
     CircularProgress,
     Divider,
-    MenuItem
+    Grid,
+    MenuItem,
+    Snackbar,
+    Stack,
+    TextField,
+    Typography
 } from "@mui/material";
 
 import {
     ArrowBack,
-    Save,
-    Favorite
+    Save
 } from "@mui/icons-material";
 
-import axios from "axios";
 
-
-/* =========================================================
-   CONFIGURATION
-========================================================= */
+// ============================================================
+// CONFIGURATION
+// ============================================================
 
 const SERVER_URL =
-    import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
+    import.meta.env.VITE_SERVER_URL ||
+    "http://localhost:5000";
+
+const API_URL =
+    `${SERVER_URL}/api`;
 
 const WISHLIST_API =
-    `${SERVER_URL}/api/Wishlist`;
+    `${API_URL}/Wishlist`;
 
 
-/* =========================================================
-   COMPONENT
-========================================================= */
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const WishlistEdit = ({
     wishlistId,
-    id,
     wishlist,
     onBack,
-    onUpdated
+    onSuccess
 }) => {
-  
+
+    const navigate = useNavigate();
+
+    const {
+        id: routeId
+    } = useParams();
+
+
+    // ========================================================
+    // GET ID FROM URL
+    // ========================================================
+
     const editId =
-        wishlistId ??
-        id ??
-        wishlist?.wishlistId ??
-        wishlist?.WishlistId ??
-        wishlist?.id ??
-        wishlist?.Id;
+        routeId ||
+        wishlistId ||
+        wishlist?.wishlistId;
 
 
-    /* =====================================================
-       FORM STATE
-    ===================================================== */
+    // ========================================================
+    // STATE
+    // ========================================================
 
-    const [customerId, setCustomerId] = useState("");
-    const [sellerId, setSellerId] = useState("");
-    const [status, setStatus] = useState("Active");
+    const [
+        customerId,
+        setCustomerId
+    ] = useState("");
+
+    const [
+        sellerId,
+        setSellerId
+    ] = useState("");
+
+    const [
+        status,
+        setStatus
+    ] = useState("Active");
 
 
-    /* =====================================================
-       STATE
-    ===================================================== */
+    const [
+        loading,
+        setLoading
+    ] = useState(true);
 
-    const [loading, setLoading] = useState(false);
-    const [loadingData, setLoadingData] = useState(true);
+    const [
+        saving,
+        setSaving
+    ] = useState(false);
 
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    const [
+        error,
+        setError
+    ] = useState("");
+
+    const [
+        success,
+        setSuccess
+    ] = useState(false);
 
 
-    /* =====================================================
-       LOAD WISHLIST
-    ===================================================== */
+    // ========================================================
+    // ERROR MESSAGE
+    // ========================================================
 
-    const loadWishlist = async () => {
+    const getErrorMessage = (err) => {
 
-        if (!editId) {
+        const data =
+            err?.response?.data;
 
-            setError("Wishlist ID is required.");
-            setLoadingData(false);
 
-            return;
+        if (
+            typeof data === "string" &&
+            data.trim()
+        ) {
+            return data;
         }
 
 
-        /* -------------------------------------------------
-           USE PASSED WISHLIST WHEN AVAILABLE
-        ------------------------------------------------- */
-
-        if (wishlist) {
-
-            setCustomerId(
-                wishlist.customerId ??
-                wishlist.CustomerId ??
-                ""
-            );
-
-            setSellerId(
-                wishlist.sellerId ??
-                wishlist.SellerId ??
-                ""
-            );
-
-            setStatus(
-                wishlist.status ??
-                wishlist.Status ??
-                "Active"
-            );
-
-            setLoadingData(false);
-
-            return;
+        if (data?.message) {
+            return data.message;
         }
 
 
-        /* -------------------------------------------------
-           LOAD FROM API
-        ------------------------------------------------- */
-
-        try {
-
-            setLoadingData(true);
-            setError("");
-
-            const response = await axios.get(
-                `${WISHLIST_API}/${editId}`
-            );
+        if (data?.title) {
+            return data.title;
+        }
 
 
-            const data =
-                response.data?.data ??
-                response.data;
+        if (data?.errors) {
+
+            const messages =
+                Object.values(data.errors)
+                    .flat()
+                    .filter(Boolean);
+
+            if (messages.length) {
+                return messages.join(" ");
+            }
+        }
 
 
-            if (!data) {
+        return (
+            err?.message ||
+            "An error occurred."
+        );
+    };
 
-                setError("Wishlist not found.");
+
+    // ========================================================
+    // LOAD WISHLIST
+    // ========================================================
+
+    useEffect(() => {
+
+        const loadWishlist = async () => {
+
+            // ------------------------------------------------
+            // IMPORTANT:
+            // Do not send undefined / null / ":id"
+            // ------------------------------------------------
+
+            const numericId =
+                Number(editId);
+
+
+            if (
+                !Number.isInteger(numericId) ||
+                numericId <= 0
+            ) {
+
+                console.error(
+                    "INVALID WISHLIST ID:",
+                    editId
+                );
+
+
+                setError(
+                    "Wishlist ID is required."
+                );
+
+
+                setLoading(false);
+
                 return;
             }
 
 
-            setCustomerId(
-                data.customerId ??
-                data.CustomerId ??
-                ""
-            );
+            try {
+
+                setLoading(true);
+                setError("");
 
 
-            setSellerId(
-                data.sellerId ??
-                data.SellerId ??
-                ""
-            );
+                console.log(
+                    "================================================"
+                );
+
+                console.log(
+                    "LOAD WISHLIST FOR EDIT"
+                );
+
+                console.log(
+                    "Route ID:",
+                    routeId
+                );
+
+                console.log(
+                    "Edit ID:",
+                    numericId
+                );
+
+                console.log(
+                    "URL:",
+                    `${WISHLIST_API}/${numericId}`
+                );
+
+                console.log(
+                    "================================================"
+                );
 
 
-            setStatus(
-                data.status ??
-                data.Status ??
-                "Active"
-            );
+                // ------------------------------------------------
+                // React -> Node -> ASP.NET
+                // ------------------------------------------------
 
-        } catch (err) {
-
-            console.error(
-                "LOAD WISHLIST FOR EDIT ERROR:",
-                err
-            );
-
-
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                (
-                    typeof err.response?.data === "string"
-                        ? err.response.data
-                        : null
-                ) ||
-                "Unable to load wishlist."
-            );
-
-        } finally {
-
-            setLoadingData(false);
-
-        }
-    };
+                const response =
+                    await axios.get(
+                        `${WISHLIST_API}/${numericId}`,
+                        {
+                            timeout: 30000,
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
 
 
-    /* =====================================================
-       LOAD ON ID CHANGE
-    ===================================================== */
+                console.log(
+                    "WISHLIST EDIT RESPONSE:",
+                    response.data
+                );
 
-    useEffect(() => {
+
+                const data =
+                    response.data?.data ||
+                    response.data;
+
+
+                if (!data) {
+
+                    throw new Error(
+                        "Wishlist was not found."
+                    );
+                }
+
+
+                // ------------------------------------------------
+                // Populate form
+                // ------------------------------------------------
+
+                setCustomerId(
+                    data.customerId ??
+                    data.CustomerId ??
+                    ""
+                );
+
+
+                setSellerId(
+                    data.sellerId ??
+                    data.SellerId ??
+                    ""
+                );
+
+
+                setStatus(
+                    data.status ??
+                    data.Status ??
+                    "Active"
+                );
+
+            }
+
+            catch (err) {
+
+                console.error(
+                    "LOAD WISHLIST ERROR:",
+                    err
+                );
+
+
+                console.error(
+                    "STATUS:",
+                    err?.response?.status
+                );
+
+
+                console.error(
+                    "DATA:",
+                    err?.response?.data
+                );
+
+
+                setError(
+                    getErrorMessage(err)
+                );
+
+            }
+
+            finally {
+
+                setLoading(false);
+            }
+        };
+
 
         loadWishlist();
 
-    }, [editId, wishlist]);
+    }, [
+        editId,
+        routeId
+    ]);
 
 
-    /* =====================================================
-       UPDATE WISHLIST
-    ===================================================== */
+    // ========================================================
+    // BACK
+    // ========================================================
+
+    const handleBack = () => {
+
+        if (onBack) {
+
+            onBack();
+
+            return;
+        }
+
+
+        navigate(
+            "/wishlists"
+        );
+    };
+
+
+    // ========================================================
+    // SAVE
+    // ========================================================
 
     const handleSubmit = async (event) => {
 
         event.preventDefault();
 
-        setError("");
-        setSuccess("");
+
+        const numericWishlistId =
+            Number(editId);
 
 
-        /* -------------------------------------------------
-           VALIDATION
-        ------------------------------------------------- */
+        const numericCustomerId =
+            Number(customerId);
 
-        if (!editId) {
 
-            setError("Wishlist ID is required.");
+        const numericSellerId =
+            Number(sellerId);
+
+
+        // ----------------------------------------------------
+        // Validate Wishlist ID
+        // ----------------------------------------------------
+
+        if (
+            !Number.isInteger(
+                numericWishlistId
+            ) ||
+            numericWishlistId <= 0
+        ) {
+
+            setError(
+                "Wishlist ID is required."
+            );
 
             return;
         }
 
 
-        if (!customerId) {
+        // ----------------------------------------------------
+        // Validate Customer ID
+        // ----------------------------------------------------
 
-            setError("Customer ID is required.");
+        if (
+            !Number.isInteger(
+                numericCustomerId
+            ) ||
+            numericCustomerId <= 0
+        ) {
+
+            setError(
+                "Customer ID must be greater than 0."
+            );
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Validate Seller ID
+        // ----------------------------------------------------
+
+        if (
+            !Number.isInteger(
+                numericSellerId
+            ) ||
+            numericSellerId <= 0
+        ) {
+
+            setError(
+                "Seller ID must be greater than 0."
+            );
+
+            return;
+        }
+
+
+        if (!status) {
+
+            setError(
+                "Status is required."
+            );
 
             return;
         }
@@ -237,70 +450,104 @@ const WishlistEdit = ({
 
         try {
 
-            setLoading(true);
+            setSaving(true);
+            setError("");
 
 
-            /* -------------------------------------------------
-               PAYLOAD
-            ------------------------------------------------- */
+            // ------------------------------------------------
+            // Payload
+            // ------------------------------------------------
 
             const payload = {
-                customerId: Number(customerId),
-                status: status
+                wishlistId:
+                    numericWishlistId,
+
+                customerId:
+                    numericCustomerId,
+
+                sellerId:
+                    numericSellerId,
+
+                status:
+                    status
             };
 
 
-            if (sellerId) {
+            console.log(
+                "================================================"
+            );
 
-                payload.sellerId =
-                    Number(sellerId);
+            console.log(
+                "UPDATE WISHLIST"
+            );
+
+            console.log(
+                "Wishlist ID:",
+                numericWishlistId
+            );
+
+            console.log(
+                "URL:",
+                `${WISHLIST_API}/${numericWishlistId}`
+            );
+
+            console.log(
+                "PAYLOAD:",
+                payload
+            );
+
+            console.log(
+                "================================================"
+            );
+
+
+            // ------------------------------------------------
+            // React -> Node -> ASP.NET
+            // ------------------------------------------------
+
+            await axios.put(
+                `${WISHLIST_API}/${numericWishlistId}`,
+                payload,
+                {
+                    timeout: 30000,
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                        Accept:
+                            "application/json"
+                    }
+                }
+            );
+
+
+            console.log(
+                "WISHLIST UPDATED SUCCESSFULLY"
+            );
+
+
+            setSuccess(true);
+
+
+            if (onSuccess) {
+                onSuccess();
             }
 
 
-            console.log(
-                "UPDATE WISHLIST PAYLOAD:",
-                payload
-            );
+            // ------------------------------------------------
+            // Return to Wishlist list
+            // ------------------------------------------------
 
+            setTimeout(() => {
 
-            /* -------------------------------------------------
-               API REQUEST
-            ------------------------------------------------- */
-
-            const response = await axios.put(
-                `${WISHLIST_API}/${editId}`,
-                payload
-            );
-
-
-            console.log(
-                "UPDATE WISHLIST RESPONSE:",
-                response.data
-            );
-
-
-            /* -------------------------------------------------
-               SUCCESS
-            ------------------------------------------------- */
-
-            setSuccess(
-                "Wishlist updated successfully."
-            );
-
-
-            /* -------------------------------------------------
-               CALLBACK
-            ------------------------------------------------- */
-
-            if (onUpdated) {
-
-                onUpdated(
-                    response.data?.data ??
-                    response.data
+                navigate(
+                    "/wishlists"
                 );
-            }
 
-        } catch (err) {
+            }, 800);
+
+        }
+
+        catch (err) {
 
             console.error(
                 "UPDATE WISHLIST ERROR:",
@@ -308,35 +555,41 @@ const WishlistEdit = ({
             );
 
 
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                (
-                    typeof err.response?.data === "string"
-                        ? err.response.data
-                        : null
-                ) ||
-                "Unable to update wishlist."
+            console.error(
+                "STATUS:",
+                err?.response?.status
             );
 
-        } finally {
 
-            setLoading(false);
+            console.error(
+                "DATA:",
+                err?.response?.data
+            );
 
+
+            setError(
+                getErrorMessage(err)
+            );
+
+        }
+
+        finally {
+
+            setSaving(false);
         }
     };
 
 
-    /* =====================================================
-       LOADING DATA
-    ===================================================== */
+    // ========================================================
+    // LOADING
+    // ========================================================
 
-    if (loadingData) {
+    if (loading) {
 
         return (
             <Box
                 sx={{
-                    minHeight: 350,
+                    minHeight: 400,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -347,8 +600,10 @@ const WishlistEdit = ({
 
                 <CircularProgress />
 
-                <Typography color="text.secondary">
-                    Loading Wishlist...
+                <Typography
+                    color="text.secondary"
+                >
+                    Loading wishlist...
                 </Typography>
 
             </Box>
@@ -356,16 +611,18 @@ const WishlistEdit = ({
     }
 
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // ========================================================
+    // PAGE
+    // ========================================================
 
     return (
         <Box
             sx={{
-                p: 3,
-                maxWidth: 700,
-                mx: "auto"
+                width: "100%",
+                p: {
+                    xs: 2,
+                    sm: 3
+                }
             }}
         >
 
@@ -373,231 +630,270 @@ const WishlistEdit = ({
                HEADER
             ================================================= */}
 
-            <Box
+            <Stack
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
+                justifyContent="space-between"
+                alignItems={{
+                    xs: "stretch",
+                    sm: "center"
+                }}
+                spacing={2}
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
                     mb: 3
                 }}
             >
 
+                <Box>
+
+                    <Typography
+                        variant="h5"
+                        fontWeight={700}
+                    >
+                        Edit Wishlist
+                    </Typography>
+
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                            mt: 0.5
+                        }}
+                    >
+                        Update Wishlist #{editId}
+                    </Typography>
+
+                </Box>
+
+
                 <Button
-                    startIcon={<ArrowBack />}
-                    onClick={onBack}
-                    disabled={loading}
+                    variant="outlined"
+                    startIcon={
+                        <ArrowBack />
+                    }
+                    onClick={handleBack}
                 >
                     Back
                 </Button>
 
-                <Typography
-                    variant="h4"
-                    fontWeight={700}
-                >
-                    Edit Wishlist
-                </Typography>
-
-            </Box>
+            </Stack>
 
 
             {/* =================================================
-               CARD
+               ERROR
             ================================================= */}
 
-            <Card elevation={3}>
+            {error && (
 
-                <CardContent sx={{ p: 4 }}>
+                <Alert
+                    severity="error"
+                    sx={{
+                        mb: 3
+                    }}
+                    onClose={() =>
+                        setError("")
+                    }
+                >
+                    {error}
+                </Alert>
 
-                    {/* =================================================
-                       TITLE
-                    ================================================= */}
-
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 2,
-                            mb: 3
-                        }}
-                    >
-
-                        <Favorite
-                            color="error"
-                            sx={{
-                                fontSize: 40
-                            }}
-                        />
-
-                        <Box>
-
-                            <Typography
-                                variant="h5"
-                                fontWeight={700}
-                            >
-                                Edit Wishlist
-                            </Typography>
-
-                            <Typography
-                                color="text.secondary"
-                            >
-                                Wishlist ID: {editId}
-                            </Typography>
-
-                        </Box>
-
-                    </Box>
+            )}
 
 
-                    <Divider sx={{ mb: 3 }} />
+            {/* =================================================
+               FORM
+            ================================================= */}
 
+            <Card>
 
-                    {/* =================================================
-                       ALERTS
-                    ================================================= */}
-
-                    {error && (
-
-                        <Alert
-                            severity="error"
-                            sx={{ mb: 2 }}
-                        >
-                            {error}
-                        </Alert>
-
-                    )}
-
-
-                    {success && (
-
-                        <Alert
-                            severity="success"
-                            sx={{ mb: 2 }}
-                        >
-                            {success}
-                        </Alert>
-
-                    )}
-
-
-                    {/* =================================================
-                       FORM
-                    ================================================= */}
+                <CardContent>
 
                     <Box
                         component="form"
-                        onSubmit={handleSubmit}
+                        onSubmit={
+                            handleSubmit
+                        }
                     >
 
-                        {/* =================================================
-                           WISHLIST ID
-                        ================================================= */}
-
-                        <TextField
-                            fullWidth
-                            label="Wishlist ID"
-                            value={editId ?? ""}
-                            disabled
-                            margin="normal"
-                        />
-
-
-                        {/* =================================================
-                           CUSTOMER ID
-                        ================================================= */}
-
-                        <TextField
-                            fullWidth
-                            required
-                            label="Customer ID"
-                            type="number"
-                            value={customerId}
-                            onChange={(event) =>
-                                setCustomerId(
-                                    event.target.value
-                                )
-                            }
-                            disabled={loading}
-                            margin="normal"
-                            inputProps={{
-                                min: 1
+                        <Typography
+                            variant="h6"
+                            fontWeight={600}
+                            sx={{
+                                mb: 2
                             }}
-                            helperText="Enter the customer ID"
-                        />
+                        >
+                            Wishlist Information
+                        </Typography>
 
 
-                        {/* =================================================
-                           SELLER ID
-                        ================================================= */}
-
-                        <TextField
-                            fullWidth
-                            label="Seller ID"
-                            type="number"
-                            value={sellerId}
-                            onChange={(event) =>
-                                setSellerId(
-                                    event.target.value
-                                )
-                            }
-                            disabled={loading}
-                            margin="normal"
-                            inputProps={{
-                                min: 1
+                        <Divider
+                            sx={{
+                                mb: 3
                             }}
-                            helperText="Optional"
                         />
 
 
-                        {/* =================================================
-                           STATUS
-                        ================================================= */}
-
-                        <TextField
-                            fullWidth
-                            select
-                            label="Status"
-                            value={status}
-                            onChange={(event) =>
-                                setStatus(
-                                    event.target.value
-                                )
-                            }
-                            disabled={loading}
-                            margin="normal"
+                        <Grid
+                            container
+                            spacing={3}
                         >
 
-                            <MenuItem value="Active">
-                                Active
-                            </MenuItem>
+                            {/* =================================
+                               WISHLIST ID
+                            ================================= */}
 
-                            <MenuItem value="Inactive">
-                                Inactive
-                            </MenuItem>
+                            <Grid
+                                item
+                                xs={12}
+                                md={4}
+                            >
 
-                            <MenuItem value="Removed">
-                                Removed
-                            </MenuItem>
+                                <TextField
+                                    fullWidth
+                                    label="Wishlist ID"
+                                    value={
+                                        editId || ""
+                                    }
+                                    InputProps={{
+                                        readOnly: true
+                                    }}
+                                    helperText="Wishlist ID from the URL"
+                                />
 
-                        </TextField>
+                            </Grid>
 
 
-                        {/* =================================================
-                           BUTTONS
-                        ================================================= */}
+                            {/* =================================
+                               CUSTOMER ID
+                            ================================= */}
 
-                        <Box
+                            <Grid
+                                item
+                                xs={12}
+                                md={4}
+                            >
+
+                                <TextField
+                                    fullWidth
+                                    required
+                                    type="number"
+                                    label="Customer ID"
+                                    value={
+                                        customerId
+                                    }
+                                    onChange={(event) =>
+                                        setCustomerId(
+                                            event.target.value
+                                        )
+                                    }
+                                    inputProps={{
+                                        min: 1
+                                    }}
+                                />
+
+                            </Grid>
+
+
+                            {/* =================================
+                               SELLER ID
+                            ================================= */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                md={4}
+                            >
+
+                                <TextField
+                                    fullWidth
+                                    required
+                                    type="number"
+                                    label="Seller ID"
+                                    value={
+                                        sellerId
+                                    }
+                                    onChange={(event) =>
+                                        setSellerId(
+                                            event.target.value
+                                        )
+                                    }
+                                    inputProps={{
+                                        min: 1
+                                    }}
+                                />
+
+                            </Grid>
+
+
+                            {/* =================================
+                               STATUS
+                            ================================= */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                md={4}
+                            >
+
+                                <TextField
+                                    select
+                                    fullWidth
+                                    required
+                                    label="Status"
+                                    value={
+                                        status
+                                    }
+                                    onChange={(event) =>
+                                        setStatus(
+                                            event.target.value
+                                        )
+                                    }
+                                >
+
+                                    <MenuItem value="Active">
+                                        Active
+                                    </MenuItem>
+
+                                    <MenuItem value="Inactive">
+                                        Inactive
+                                    </MenuItem>
+
+                                </TextField>
+
+                            </Grid>
+
+                        </Grid>
+
+
+                        <Divider
                             sx={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                gap: 2,
-                                mt: 4
+                                my: 3
                             }}
+                        />
+
+
+                        {/* =====================================
+                           ACTIONS
+                        ===================================== */}
+
+                        <Stack
+                            direction={{
+                                xs: "column",
+                                sm: "row"
+                            }}
+                            spacing={2}
+                            justifyContent="flex-end"
                         >
 
                             <Button
                                 variant="outlined"
-                                onClick={onBack}
-                                disabled={loading}
+                                onClick={
+                                    handleBack
+                                }
+                                disabled={saving}
                             >
                                 Cancel
                             </Button>
@@ -607,32 +903,39 @@ const WishlistEdit = ({
                                 type="submit"
                                 variant="contained"
                                 startIcon={
-                                    loading
-                                        ? (
-                                            <CircularProgress
-                                                size={20}
-                                                color="inherit"
-                                            />
-                                        )
-                                        : (
-                                            <Save />
-                                        )
+                                    <Save />
                                 }
-                                disabled={loading}
+                                disabled={saving}
                             >
-                                {loading
-                                    ? "Updating..."
-                                    : "Update Wishlist"
+
+                                {saving
+                                    ? "Saving..."
+                                    : "Save Changes"
                                 }
+
                             </Button>
 
-                        </Box>
+                        </Stack>
 
                     </Box>
 
                 </CardContent>
 
             </Card>
+
+
+            {/* =================================================
+               SUCCESS
+            ================================================= */}
+
+            <Snackbar
+                open={success}
+                autoHideDuration={1500}
+                onClose={() =>
+                    setSuccess(false)
+                }
+                message="Wishlist updated successfully."
+            />
 
         </Box>
     );
