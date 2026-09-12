@@ -179,6 +179,7 @@ import DeliveryChallanTable from "./pages/DeliveryChallans/DeliveryChallanTable"
 import DeliveryChallanToolbar from "./pages/DeliveryChallans/DeliveryChallanToolbar";
 import DeliveryChallanView from "./pages/DeliveryChallans/DeliveryChallanView";
 import DeliveryChallanCreate from "./pages/DeliveryChallans/DeliveryChallanCreate";
+import DeliveryChallanEdit from "./pages/DeliveryChallans/DeliveryChallanEdit";
 
 
 // =========================================================
@@ -1732,34 +1733,39 @@ function App() {
                 />
 
 
-                {/* =================================================
-                    DELIVERY CHALLANS
-                ================================================= */}
+  {/* =================================================
+    DELIVERY CHALLANS
+================================================= */}
 
-                <Route
-                    path="delivery-challans"
-                    element={<DeliveryChallanList />}
-                />
+<Route
+    path="delivery-challans"
+    element={<DeliveryChallanList />}
+/>
+
 <Route
     path="delivery-challans/create"
     element={<DeliveryChallanCreate />}
 />
-                <Route
-                    path="delivery-challans/search"
-                    element={<DeliveryChallanSearch />}
-                />
 
-                <Route
-                    path="delivery-challans/statistics"
-                    element={<DeliveryChallanStatistics />}
-                />
+<Route
+    path="delivery-challans/search"
+    element={<DeliveryChallanSearch />}
+/>
 
-                <Route
-                    path="delivery-challans/:id"
-                    element={<DeliveryChallanView />}
-                />
+<Route
+    path="delivery-challans/statistics"
+    element={<DeliveryChallanStatistics />}
+/>
 
+<Route
+    path="delivery-challans/:id"
+    element={<DeliveryChallanView />}
+/>
 
+<Route
+    path="delivery-challans/edit/:id"
+    element={<DeliveryChallanEdit />}
+/>
                 {/* =================================================
                     DELIVERY CHALLAN ITEMS
                 ================================================= */}

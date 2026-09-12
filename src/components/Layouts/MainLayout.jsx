@@ -354,10 +354,6 @@ const MainLayout = () => {
                             label: "Brand Filters",
                             path: "/brands/filters",
                         },
-                        {
-                            label: "Search Brands",
-                            path: "/brands/search",
-                        },
                     ],
                 },
 
@@ -374,14 +370,6 @@ const MainLayout = () => {
                         {
                             label: "Create Category",
                             path: "/categories/create",
-                        },
-                        {
-                            label: "Category Filters",
-                            path: "/categories/filters",
-                        },
-                        {
-                            label: "Search Categories",
-                            path: "/categories/search",
                         },
                     ],
                 },
@@ -400,14 +388,6 @@ const MainLayout = () => {
                             label: "Create Product Type",
                             path: "/product-types/create",
                         },
-                        {
-                            label: "Product Type Filters",
-                            path: "/product-types/filters",
-                        },
-                        {
-                            label: "Search Product Types",
-                            path: "/product-types/search",
-                        },
                     ],
                 },
 
@@ -425,14 +405,6 @@ const MainLayout = () => {
                             label: "Create Product Attribute",
                             path: "/product-attributes/create",
                         },
-                        {
-                            label: "Product Attribute Filters",
-                            path: "/product-attributes/filters",
-                        },
-                        {
-                            label: "Search Product Attributes",
-                            path: "/product-attributes/search",
-                        },
                     ],
                 },
 
@@ -449,10 +421,6 @@ const MainLayout = () => {
                         {
                             label: "Create Product Image",
                             path: "/product-images/create",
-                        },
-                        {
-                            label: "Search Product Images",
-                            path: "/product-images/search",
                         },
                         {
                             label: "Product Image Statistics",
@@ -476,14 +444,6 @@ const MainLayout = () => {
                             path: "/product-prices/create",
                         },
                         {
-                            label: "Search Product Prices",
-                            path: "/product-prices/search",
-                        },
-                        {
-                            label: "Product Price Filters",
-                            path: "/product-prices/filters",
-                        },
-                        {
                             label: "Product Price Statistics",
                             path: "/product-prices/statistics",
                         },
@@ -504,18 +464,6 @@ const MainLayout = () => {
                             label: "Create Product",
                             path: "/products/create",
                         },
-                        {
-                            label: "Product Filters",
-                            path: "/products/filters",
-                        },
-                        {
-                            label: "Search Products",
-                            path: "/products/search",
-                        },
-                        {
-                            label: "Product Statistics",
-                            path: "/products/statistics",
-                        },
                     ],
                 },
 
@@ -532,14 +480,6 @@ const MainLayout = () => {
                         {
                             label: "Create Inventory",
                             path: "/product-inventory/create",
-                        },
-                        {
-                            label: "Inventory Filters",
-                            path: "/product-inventory/filters",
-                        },
-                        {
-                            label: "Search Inventory",
-                            path: "/product-inventory/search",
                         },
                         {
                             label: "Inventory Statistics",

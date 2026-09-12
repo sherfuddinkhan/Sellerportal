@@ -1,4 +1,5 @@
 import React, {
+    useCallback,
     useEffect,
     useMemo,
     useState
@@ -11,181 +12,463 @@ import {
     Snackbar
 } from "@mui/material";
 
-import DeliveryChallanToolbar from "./DeliveryChallanToolbar";
-import DeliveryChallanStatistics from "./DeliveryChallanStatistics";
-import DeliveryChallanSearch from "./DeliveryChallanSearch";
-import DeliveryChallanTable from "./DeliveryChallanTable";
-import DeliveryChallanPagination from "./DeliveryChallanPagination";
-import DeliveryChallanModal from "./DeliveryChallanModal";
-import DeliveryChallanView from "./DeliveryChallanView";
-import DeleteDeliveryChallanDialog from "./DeleteDeliveryChallanDialog";
+import {
+    useNavigate
+} from "react-router-dom";
+
+import DeliveryChallanToolbar
+    from "./DeliveryChallanToolbar";
+
+import DeliveryChallanStatistics
+    from "./DeliveryChallanStatistics";
+
+import DeliveryChallanSearch
+    from "./DeliveryChallanSearch";
+
+import DeliveryChallanTable
+    from "./DeliveryChallanTable";
+
+import DeliveryChallanPagination
+    from "./DeliveryChallanPagination";
+
+import DeliveryChallanView
+    from "./DeliveryChallanView";
+
+import DeleteDeliveryChallanDialog
+    from "./DeleteDeliveryChallanDialog";
 
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
 
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+const getDeliveryChallanId = (
+    item
+) => {
+
+    return (
+        item?.DeliveryChallanId ??
+        item?.deliveryChallanId ??
+        item?.id ??
+        item?.Id ??
+        null
+    );
+};
+
+
+const getSalesOrderId = (
+    item
+) => {
+
+    return (
+        item?.SalesOrderId ??
+        item?.salesOrderId ??
+        null
+    );
+};
+
+
+const getChallanNumber = (
+    item
+) => {
+
+    return (
+        item?.ChallanNumber ??
+        item?.challanNumber ??
+        ""
+    );
+};
+
+
+const getChallanDate = (
+    item
+) => {
+
+    return (
+        item?.ChallanDate ??
+        item?.challanDate ??
+        ""
+    );
+};
+
+
+const getVehicleNumber = (
+    item
+) => {
+
+    return (
+        item?.VehicleNumber ??
+        item?.vehicleNumber ??
+        ""
+    );
+};
+
+
+const getDriverName = (
+    item
+) => {
+
+    return (
+        item?.DriverName ??
+        item?.driverName ??
+        ""
+    );
+};
+
+
+const getDriverMobile = (
+    item
+) => {
+
+    return (
+        item?.DriverMobile ??
+        item?.driverMobile ??
+        ""
+    );
+};
+
+
+const getTransporterName = (
+    item
+) => {
+
+    return (
+        item?.TransporterName ??
+        item?.transporterName ??
+        ""
+    );
+};
+
+
+const getCurrentStatus = (
+    item
+) => {
+
+    return (
+        item?.CurrentStatus ??
+        item?.currentStatus ??
+        item?.Status ??
+        item?.status ??
+        "Pending"
+    );
+};
+
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const DeliveryChallanList = () => {
+
+    const navigate =
+        useNavigate();
+
 
     // ==========================================================
     // STATE
     // ==========================================================
 
-    const [deliveryChallans, setDeliveryChallans] =
-        useState([]);
+    const [
+        deliveryChallans,
+        setDeliveryChallans
+    ] = useState([]);
 
-    const [loading, setLoading] =
-        useState(false);
+    const [
+        loading,
+        setLoading
+    ] = useState(false);
 
-    const [searchText, setSearchText] =
-        useState("");
+    const [
+        searchText,
+        setSearchText
+    ] = useState("");
 
-    const [page, setPage] =
-        useState(1);
+    const [
+        page,
+        setPage
+    ] = useState(1);
 
-    const [pageSize, setPageSize] =
-        useState(10);
+    const [
+        pageSize,
+        setPageSize
+    ] = useState(10);
+
+
+    // ==========================================================
+    // SELECTED DELIVERY CHALLAN
+    // ==========================================================
 
     const [
         selectedDeliveryChallan,
         setSelectedDeliveryChallan
     ] = useState(null);
 
-    const [modalOpen, setModalOpen] =
-        useState(false);
 
-    const [viewOpen, setViewOpen] =
-        useState(false);
+    // ==========================================================
+    // VIEW
+    // ==========================================================
 
-    const [deleteOpen, setDeleteOpen] =
-        useState(false);
-
-    const [snackbar, setSnackbar] =
-        useState({
-            open: false,
-            message: "",
-            severity: "success"
-        });
+    const [
+        viewOpen,
+        setViewOpen
+    ] = useState(false);
 
 
     // ==========================================================
-    // MESSAGE
+    // DELETE
     // ==========================================================
 
-    const showMessage = (
-        message,
-        severity = "success"
-    ) => {
+    const [
+        deleteOpen,
+        setDeleteOpen
+    ] = useState(false);
 
-        setSnackbar({
-            open: true,
+
+    // ==========================================================
+    // SNACKBAR
+    // ==========================================================
+
+    const [
+        snackbar,
+        setSnackbar
+    ] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
+
+
+    // ==========================================================
+    // SHOW MESSAGE
+    // ==========================================================
+
+    const showMessage = useCallback(
+        (
             message,
-            severity
-        });
-    };
+            severity = "success"
+        ) => {
 
+            setSnackbar({
+                open: true,
+                message,
+                severity
+            });
+
+        },
+        []
+    );
+
+
+    // ==========================================================
+    // CLOSE SNACKBAR
+    // ==========================================================
 
     const closeSnackbar = () => {
 
-        setSnackbar(previous => ({
-            ...previous,
-            open: false
-        }));
+        setSnackbar(
+            previous => ({
+                ...previous,
+                open: false
+            })
+        );
     };
 
 
     // ==========================================================
-    // GET ALL
-    // NODE:
+    // GET ERROR MESSAGE
+    // ==========================================================
+
+    const getErrorMessage = (
+        data,
+        fallback
+    ) => {
+
+        if (
+            typeof data === "string" &&
+            data.trim()
+        ) {
+
+            return data;
+        }
+
+
+        if (
+            data?.message
+        ) {
+
+            return data.message;
+        }
+
+
+        if (
+            data?.error
+        ) {
+
+            return data.error;
+        }
+
+
+        if (
+            data?.title
+        ) {
+
+            return data.title;
+        }
+
+
+        if (
+            Array.isArray(
+                data?.errors
+            )
+        ) {
+
+            return data.errors.join(
+                ", "
+            );
+        }
+
+
+        if (
+            data?.errors &&
+            typeof data.errors === "object"
+        ) {
+
+            return Object
+                .values(data.errors)
+                .flat()
+                .join(", ");
+        }
+
+
+        return fallback;
+    };
+
+
+    // ==========================================================
+    // GET ALL DELIVERY CHALLANS
+    //
+    // React:
     // GET /api/delivery-challans
+    //
+    // Node:
+    // GET /api/delivery-challans
+    //
+    // ASP.NET:
+    // GET /api/DeliveryChallan
     // ==========================================================
 
-    const loadDeliveryChallans = async () => {
+    const loadDeliveryChallans =
+        useCallback(
+            async () => {
 
-        try {
+                try {
 
-            setLoading(true);
-
-            console.log(
-                "================================================"
-            );
-
-            console.log(
-                "GET /api/delivery-challans"
-            );
-
-            console.log(
-                "================================================"
-            );
+                    setLoading(true);
 
 
-            const response = await fetch(
-                `${SERVER_URL}/api/delivery-challans`,
-                {
-                    method: "GET",
-                    headers: {
-                        Accept:
-                            "application/json"
+                    console.log(
+                        "================================================"
+                    );
+
+                    console.log(
+                        "GET DELIVERY CHALLANS"
+                    );
+
+                    console.log(
+                        `${SERVER_URL}/api/delivery-challans`
+                    );
+
+                    console.log(
+                        "================================================"
+                    );
+
+
+                    const response =
+                        await fetch(
+                            `${SERVER_URL}/api/delivery-challans`,
+                            {
+                                method: "GET",
+
+                                headers: {
+                                    Accept:
+                                        "application/json"
+                                }
+                            }
+                        );
+
+
+                    const data =
+                        await response
+                            .json()
+                            .catch(
+                                () => null
+                            );
+
+
+                    console.log(
+                        "DELIVERY CHALLANS RESPONSE:",
+                        data
+                    );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            getErrorMessage(
+                                data,
+                                "Failed to load delivery challans."
+                            )
+                        );
                     }
+
+
+                    const list =
+                        Array.isArray(data)
+                            ? data
+                            : Array.isArray(data?.data)
+                                ? data.data
+                                : Array.isArray(data?.items)
+                                    ? data.items
+                                    : [];
+
+
+                    setDeliveryChallans(
+                        list
+                    );
+
                 }
-            );
+                catch (error) {
+
+                    console.error(
+                        "LOAD DELIVERY CHALLANS ERROR:",
+                        error
+                    );
 
 
-            const data =
-                await response
-                    .json()
-                    .catch(() => null);
+                    setDeliveryChallans([]);
 
 
-            console.log(
-                "GET DELIVERY CHALLANS RESPONSE:",
-                data
-            );
+                    showMessage(
+                        error.message ||
+                        "Failed to load delivery challans.",
+                        "error"
+                    );
 
+                }
+                finally {
 
-            if (!response.ok) {
+                    setLoading(false);
+                }
 
-                throw new Error(
-                    data?.message ||
-                    data?.error ||
-                    "Failed to load delivery challans."
-                );
-            }
-
-
-            const list =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.data)
-                        ? data.data
-                        : [];
-
-
-            setDeliveryChallans(
-                list
-            );
-
-        }
-        catch (error) {
-
-            console.error(
-                "LOAD DELIVERY CHALLANS ERROR:",
-                error
-            );
-
-            setDeliveryChallans([]);
-
-            showMessage(
-                error.message ||
-                "Failed to load delivery challans.",
-                "error"
-            );
-
-        }
-        finally {
-
-            setLoading(false);
-        }
-    };
+            },
+            [
+                showMessage
+            ]
+        );
 
 
     // ==========================================================
@@ -196,7 +479,9 @@ const DeliveryChallanList = () => {
 
         loadDeliveryChallans();
 
-    }, []);
+    }, [
+        loadDeliveryChallans
+    ]);
 
 
     // ==========================================================
@@ -204,66 +489,81 @@ const DeliveryChallanList = () => {
     // ==========================================================
 
     const filteredDeliveryChallans =
-        useMemo(() => {
+        useMemo(
+            () => {
 
-            const search =
-                searchText
-                    .trim()
-                    .toLowerCase();
-
-
-            if (!search) {
-
-                return deliveryChallans;
-            }
+                const search =
+                    searchText
+                        .trim()
+                        .toLowerCase();
 
 
-            return deliveryChallans.filter(
-                item => {
+                if (!search) {
 
-                    const values = [
-
-                        item.DeliveryChallanId,
-                        item.deliveryChallanId,
-
-                        item.SalesOrderId,
-                        item.salesOrderId,
-
-                        item.ChallanNumber,
-                        item.challanNumber,
-
-                        item.VehicleNumber,
-                        item.vehicleNumber,
-
-                        item.DriverName,
-                        item.driverName,
-
-                        item.DriverMobile,
-                        item.driverMobile,
-
-                        item.TransporterName,
-                        item.transporterName,
-
-                        item.Status,
-                        item.status
-                    ];
-
-
-                    return values.some(
-                        value =>
-                            String(
-                                value ?? ""
-                            )
-                                .toLowerCase()
-                                .includes(search)
-                    );
+                    return deliveryChallans;
                 }
-            );
 
-        }, [
-            deliveryChallans,
-            searchText
-        ]);
+
+                return deliveryChallans.filter(
+                    item => {
+
+                        const values = [
+
+                            getDeliveryChallanId(
+                                item
+                            ),
+
+                            getSalesOrderId(
+                                item
+                            ),
+
+                            getChallanNumber(
+                                item
+                            ),
+
+                            getChallanDate(
+                                item
+                            ),
+
+                            getVehicleNumber(
+                                item
+                            ),
+
+                            getDriverName(
+                                item
+                            ),
+
+                            getDriverMobile(
+                                item
+                            ),
+
+                            getTransporterName(
+                                item
+                            ),
+
+                            getCurrentStatus(
+                                item
+                            )
+                        ];
+
+
+                        return values.some(
+                            value =>
+                                String(
+                                    value ?? ""
+                                )
+                                    .toLowerCase()
+                                    .includes(search)
+                        );
+                    }
+                );
+
+            },
+            [
+                deliveryChallans,
+                searchText
+            ]
+        );
 
 
     // ==========================================================
@@ -271,50 +571,56 @@ const DeliveryChallanList = () => {
     // ==========================================================
 
     const statistics =
-        useMemo(() => {
+        useMemo(
+            () => {
 
-            return {
+                const getStatus =
+                    item =>
+                        String(
+                            getCurrentStatus(
+                                item
+                            )
+                        )
+                            .trim()
+                            .toLowerCase();
 
-                totalDeliveryChallans:
-                    deliveryChallans.length,
 
-                delivered:
-                    deliveryChallans.filter(
-                        item =>
-                            String(
-                                item.Status ??
-                                item.status ??
-                                ""
-                            ).toLowerCase() ===
-                            "delivered"
-                    ).length,
+                return {
 
-                pending:
-                    deliveryChallans.filter(
-                        item =>
-                            String(
-                                item.Status ??
-                                item.status ??
-                                ""
-                            ).toLowerCase() ===
-                            "pending"
-                    ).length,
+                    totalDeliveryChallans:
+                        deliveryChallans.length,
 
-                inTransit:
-                    deliveryChallans.filter(
-                        item =>
-                            String(
-                                item.Status ??
-                                item.status ??
-                                ""
-                            ).toLowerCase() ===
-                            "in transit"
-                    ).length
-            };
 
-        }, [
-            deliveryChallans
-        ]);
+                    delivered:
+                        deliveryChallans.filter(
+                            item =>
+                                getStatus(item) ===
+                                "delivered"
+                        ).length,
+
+
+                    pending:
+                        deliveryChallans.filter(
+                            item =>
+                                getStatus(item) ===
+                                "pending"
+                        ).length,
+
+
+                    inTransit:
+                        deliveryChallans.filter(
+                            item =>
+                                getStatus(item) ===
+                                "in transit"
+                        ).length
+
+                };
+
+            },
+            [
+                deliveryChallans
+            ]
+        );
 
 
     // ==========================================================
@@ -336,11 +642,36 @@ const DeliveryChallanList = () => {
 
 
     const paginatedDeliveryChallans =
-        filteredDeliveryChallans.slice(
-            (page - 1) * pageSize,
-            page * pageSize
+        useMemo(
+            () => {
+
+                const start =
+                    (page - 1) *
+                    pageSize;
+
+
+                const end =
+                    start +
+                    pageSize;
+
+
+                return filteredDeliveryChallans.slice(
+                    start,
+                    end
+                );
+
+            },
+            [
+                filteredDeliveryChallans,
+                page,
+                pageSize
+            ]
         );
 
+
+    // ==========================================================
+    // RESET PAGE WHEN SEARCH CHANGES
+    // ==========================================================
 
     useEffect(() => {
 
@@ -351,9 +682,16 @@ const DeliveryChallanList = () => {
     ]);
 
 
+    // ==========================================================
+    // KEEP PAGE VALID
+    // ==========================================================
+
     useEffect(() => {
 
-        if (page > totalPages) {
+        if (
+            page >
+            totalPages
+        ) {
 
             setPage(
                 totalPages
@@ -372,161 +710,136 @@ const DeliveryChallanList = () => {
 
     const handleAdd = () => {
 
-        setSelectedDeliveryChallan(
-            null
+        navigate(
+            "/delivery-challans/create"
         );
-
-        setModalOpen(true);
     };
 
 
     // ==========================================================
     // EDIT
+    //
+    // Dedicated page:
+    // /delivery-challans/edit/:id
     // ==========================================================
 
     const handleEdit = (
         challan
     ) => {
 
-        setSelectedDeliveryChallan(
-            challan
+        const id =
+            getDeliveryChallanId(
+                challan
+            );
+
+
+        if (
+            !id ||
+            String(id) === ":id"
+        ) {
+
+            showMessage(
+                "Invalid Delivery Challan ID.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "EDIT DELIVERY CHALLAN:",
+            id
         );
 
-        setModalOpen(true);
+
+        navigate(
+            `/delivery-challans/edit/${id}`
+        );
     };
 
 
-    // ==========================================================
-    // VIEW
-    // ==========================================================
+// ==========================================================
+// VIEW
+// ==========================================================
 
-    const handleView = (
-        challan
-    ) => {
+const handleView = (
+    challan
+) => {
 
-        setSelectedDeliveryChallan(
+    const id =
+        getDeliveryChallanId(
             challan
         );
 
-        setViewOpen(true);
-    };
+    if (
+        !id ||
+        String(id) === ":id"
+    ) {
 
+        showMessage(
+            "Invalid Delivery Challan ID.",
+            "error"
+        );
+
+        return;
+    }
+
+    navigate(
+        `/delivery-challans/${id}`
+    );
+};
 
     // ==========================================================
-    // DELETE CLICK
+    // DELETE
     // ==========================================================
 
     const handleDelete = (
         challan
     ) => {
 
+        const id =
+            getDeliveryChallanId(
+                challan
+            );
+
+
+        if (
+            !id ||
+            String(id) === ":id"
+        ) {
+
+            showMessage(
+                "Invalid Delivery Challan ID.",
+                "error"
+            );
+
+            return;
+        }
+
+
         setSelectedDeliveryChallan(
             challan
         );
 
-        setDeleteOpen(true);
+
+        setDeleteOpen(
+            true
+        );
     };
 
 
     // ==========================================================
-    // CREATE
-    // ==========================================================
-
-    const createDeliveryChallan =
-        async (data) => {
-
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/delivery-challans`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            Accept:
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(data)
-                    }
-                );
-
-
-            const result =
-                await response
-                    .json()
-                    .catch(() => null);
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    result?.message ||
-                    result?.error ||
-                    "Failed to create delivery challan."
-                );
-            }
-
-
-            return result;
-        };
-
-
-    // ==========================================================
-    // UPDATE
-    // ==========================================================
-
-    const updateDeliveryChallan =
-        async (
-            id,
-            data
-        ) => {
-
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/delivery-challans/${id}`,
-                    {
-                        method: "PUT",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            Accept:
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(data)
-                    }
-                );
-
-
-            const result =
-                await response
-                    .json()
-                    .catch(() => null);
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    result?.message ||
-                    result?.error ||
-                    "Failed to update delivery challan."
-                );
-            }
-
-
-            return result;
-        };
-
-
-    // ==========================================================
-    // DELETE
+    // DELETE API
+    //
+    // React:
+    // DELETE /api/delivery-challans/:id
+    //
+    // Node:
+    // DELETE /api/delivery-challans/:id
+    //
+    // ASP.NET:
+    // DELETE /api/DeliveryChallan/:id
     // ==========================================================
 
     const deleteDeliveryChallan =
@@ -548,91 +861,26 @@ const DeliveryChallanList = () => {
                 );
 
 
-            const result =
+            const data =
                 await response
                     .json()
-                    .catch(() => null);
+                    .catch(
+                        () => null
+                    );
 
 
             if (!response.ok) {
 
                 throw new Error(
-                    result?.message ||
-                    result?.error ||
-                    "Failed to delete delivery challan."
+                    getErrorMessage(
+                        data,
+                        "Failed to delete delivery challan."
+                    )
                 );
             }
 
 
-            return result;
-        };
-
-
-    // ==========================================================
-    // SAVE
-    // ==========================================================
-
-    const handleSave =
-        async (
-            data
-        ) => {
-
-            try {
-
-                const id =
-                    data.DeliveryChallanId ??
-                    data.deliveryChallanId;
-
-
-                if (id) {
-
-                    await updateDeliveryChallan(
-                        id,
-                        data
-                    );
-
-                    showMessage(
-                        "Delivery Challan updated successfully.",
-                        "success"
-                    );
-
-                }
-                else {
-
-                    await createDeliveryChallan(
-                        data
-                    );
-
-                    showMessage(
-                        "Delivery Challan created successfully.",
-                        "success"
-                    );
-                }
-
-
-                setModalOpen(false);
-
-                setSelectedDeliveryChallan(
-                    null
-                );
-
-
-                await loadDeliveryChallans();
-
-            }
-            catch (error) {
-
-                console.error(
-                    "SAVE DELIVERY CHALLAN ERROR:",
-                    error
-                );
-
-                showMessage(
-                    error.message ||
-                    "Failed to save delivery challan.",
-                    "error"
-                );
-            }
+            return data;
         };
 
 
@@ -647,12 +895,21 @@ const DeliveryChallanList = () => {
 
             try {
 
-                if (!id) {
+                if (
+                    !id ||
+                    String(id) === ":id"
+                ) {
 
                     throw new Error(
-                        "Invalid delivery challan ID."
+                        "Invalid Delivery Challan ID."
                     );
                 }
+
+
+                console.log(
+                    "DELETE DELIVERY CHALLAN:",
+                    id
+                );
 
 
                 await deleteDeliveryChallan(
@@ -666,7 +923,10 @@ const DeliveryChallanList = () => {
                 );
 
 
-                setDeleteOpen(false);
+                setDeleteOpen(
+                    false
+                );
+
 
                 setSelectedDeliveryChallan(
                     null
@@ -682,6 +942,7 @@ const DeliveryChallanList = () => {
                     "DELETE DELIVERY CHALLAN ERROR:",
                     error
                 );
+
 
                 showMessage(
                     error.message ||
@@ -716,6 +977,10 @@ const DeliveryChallanList = () => {
             }}
         >
 
+            {/* ==================================================
+                TOOLBAR
+            ================================================== */}
+
             <DeliveryChallanToolbar
                 onAdd={
                     handleAdd
@@ -727,6 +992,10 @@ const DeliveryChallanList = () => {
             />
 
 
+            {/* ==================================================
+                STATISTICS
+            ================================================== */}
+
             <DeliveryChallanStatistics
                 statistics={
                     statistics
@@ -734,23 +1003,33 @@ const DeliveryChallanList = () => {
             />
 
 
+            {/* ==================================================
+                SEARCH
+            ================================================== */}
+
             <DeliveryChallanSearch
                 searchText={
                     searchText
                 }
 
                 setSearchText={
-                    (value) => {
+                    value => {
 
                         setSearchText(
                             value
                         );
 
-                        setPage(1);
+                        setPage(
+                            1
+                        );
                     }
                 }
             />
 
+
+            {/* ==================================================
+                CONTENT
+            ================================================== */}
 
             {loading ? (
 
@@ -771,6 +1050,10 @@ const DeliveryChallanList = () => {
 
                 <>
 
+                    {/* ==========================================
+                        TABLE
+                    ========================================== */}
+
                     <DeliveryChallanTable
                         items={
                             paginatedDeliveryChallans
@@ -789,6 +1072,10 @@ const DeliveryChallanList = () => {
                         }
                     />
 
+
+                    {/* ==========================================
+                        PAGINATION
+                    ========================================== */}
 
                     <DeliveryChallanPagination
                         page={
@@ -812,13 +1099,15 @@ const DeliveryChallanList = () => {
                         }
 
                         onPageSizeChange={
-                            (size) => {
+                            size => {
 
                                 setPageSize(
                                     size
                                 );
 
-                                setPage(1);
+                                setPage(
+                                    1
+                                );
                             }
                         }
                     />
@@ -828,30 +1117,9 @@ const DeliveryChallanList = () => {
             )}
 
 
-            <DeliveryChallanModal
-                open={
-                    modalOpen
-                }
-
-                deliveryChallan={
-                    selectedDeliveryChallan
-                }
-
-                onClose={() => {
-
-                    setModalOpen(false);
-
-                    setSelectedDeliveryChallan(
-                        null
-                    );
-
-                }}
-
-                onSave={
-                    handleSave
-                }
-            />
-
+            {/* ==================================================
+                VIEW
+            ================================================== */}
 
             <DeliveryChallanView
                 open={
@@ -864,7 +1132,9 @@ const DeliveryChallanList = () => {
 
                 onClose={() => {
 
-                    setViewOpen(false);
+                    setViewOpen(
+                        false
+                    );
 
                     setSelectedDeliveryChallan(
                         null
@@ -873,6 +1143,10 @@ const DeliveryChallanList = () => {
                 }}
             />
 
+
+            {/* ==================================================
+                DELETE
+            ================================================== */}
 
             <DeleteDeliveryChallanDialog
                 open={
@@ -885,7 +1159,9 @@ const DeliveryChallanList = () => {
 
                 onClose={() => {
 
-                    setDeleteOpen(false);
+                    setDeleteOpen(
+                        false
+                    );
 
                     setSelectedDeliveryChallan(
                         null
@@ -898,6 +1174,10 @@ const DeliveryChallanList = () => {
                 }
             />
 
+
+            {/* ==================================================
+                SNACKBAR
+            ================================================== */}
 
             <Snackbar
                 open={
@@ -929,7 +1209,9 @@ const DeliveryChallanList = () => {
                         closeSnackbar
                     }
                 >
-                    {snackbar.message}
+                    {
+                        snackbar.message
+                    }
                 </Alert>
 
             </Snackbar>

@@ -1,4 +1,22 @@
+// ============================================================
+// DeliveryChallanDetails.jsx
+//
+// Architecture:
+// React
+//   ↓
+// Node server.js :5000
+//   ↓
+// ASP.NET Core :7203
+//
+// React endpoint:
+// GET /api/delivery-challans/:id
+//
+// ASP.NET endpoint:
+// GET /api/DeliveryChallan/:id
+// ============================================================
+
 import React, {
+    useCallback,
     useEffect,
     useState
 } from "react";
@@ -33,8 +51,16 @@ import {
 } from "react-router-dom";
 
 
+// ============================================================
+// NODE SERVER
+// ============================================================
+
 const SERVER_URL = "http://localhost:5000";
 
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const DeliveryChallanDetails = () => {
 
@@ -43,14 +69,12 @@ const DeliveryChallanDetails = () => {
     const { id } = useParams();
 
 
-    // ==========================================================
+    // ========================================================
     // STATE
-    // ==========================================================
+    // ========================================================
 
-    const [
-        deliveryChallan,
-        setDeliveryChallan
-    ] = useState(null);
+    const [deliveryChallan, setDeliveryChallan] =
+        useState(null);
 
     const [loading, setLoading] =
         useState(true);
@@ -63,21 +87,24 @@ const DeliveryChallanDetails = () => {
         });
 
 
-    // ==========================================================
+    // ========================================================
     // MESSAGE
-    // ==========================================================
+    // ========================================================
 
-    const showMessage = (
-        message,
-        severity = "error"
-    ) => {
-
-        setSnackbar({
-            open: true,
+    const showMessage = useCallback(
+        (
             message,
-            severity
-        });
-    };
+            severity = "error"
+        ) => {
+
+            setSnackbar({
+                open: true,
+                message,
+                severity
+            });
+        },
+        []
+    );
 
 
     const closeSnackbar = () => {
@@ -91,9 +118,223 @@ const DeliveryChallanDetails = () => {
     };
 
 
-    // ==========================================================
+    // ========================================================
+    // GET VALUE
+    //
+    // Supports:
+    //
+    // deliveryChallanId
+    // DeliveryChallanId
+    // delivery_challan_id
+    // ========================================================
+
+    const getValue = (
+        object,
+        ...keys
+    ) => {
+
+        if (!object) {
+            return undefined;
+        }
+
+        for (const key of keys) {
+
+            if (
+                object[key] !== undefined &&
+                object[key] !== null
+            ) {
+
+                return object[key];
+            }
+        }
+
+        return undefined;
+    };
+
+
+    // ========================================================
+    // NORMALIZE API RESPONSE
+    // ========================================================
+
+   const normalizeDeliveryChallan = (responseData) => {
+
+    if (!responseData) {
+        return null;
+    }
+
+    let data = responseData;
+
+    // Handle common API wrappers
+    if (
+        responseData.data &&
+        typeof responseData.data === "object"
+    ) {
+        data = responseData.data;
+    }
+    else if (
+        responseData.result &&
+        typeof responseData.result === "object"
+    ) {
+        data = responseData.result;
+    }
+    else if (
+        responseData.deliveryChallan &&
+        typeof responseData.deliveryChallan === "object"
+    ) {
+        data = responseData.deliveryChallan;
+    }
+
+    console.log(
+        "DELIVERY CHALLAN OBJECT USED FOR BINDING:",
+        data
+    );
+
+    return {
+
+        deliveryChallanId:
+            getValue(
+                data,
+                "deliveryChallanId",
+                "DeliveryChallanId",
+                "deliveryChallanID",
+                "DeliveryChallanID",
+                "delivery_challan_id",
+                "id",
+                "Id"
+            ),
+
+        salesOrderId:
+            getValue(
+                data,
+                "salesOrderId",
+                "SalesOrderId",
+                "salesOrderID",
+                "SalesOrderID",
+                "sales_order_id"
+            ),
+
+        sellerId:
+            getValue(
+                data,
+                "sellerId",
+                "SellerId",
+                "sellerID",
+                "SellerID",
+                "seller_id"
+            ),
+
+        customerId:
+            getValue(
+                data,
+                "customerId",
+                "CustomerId",
+                "customerID",
+                "CustomerID",
+                "customer_id"
+            ),
+
+        challanNumber:
+            getValue(
+                data,
+                "challanNumber",
+                "ChallanNumber",
+                "challanNo",
+                "ChallanNo",
+                "challan_number",
+                "number",
+                "Number"
+            ),
+
+        challanDate:
+            getValue(
+                data,
+                "challanDate",
+                "ChallanDate",
+                "date",
+                "Date",
+                "challan_date"
+            ),
+
+        vehicleNumber:
+            getValue(
+                data,
+                "vehicleNumber",
+                "VehicleNumber",
+                "vehicleNo",
+                "VehicleNo",
+                "vehicle_number"
+            ),
+
+        driverName:
+            getValue(
+                data,
+                "driverName",
+                "DriverName",
+                "driver",
+                "Driver",
+                "driver_name"
+            ),
+
+        driverMobile:
+            getValue(
+                data,
+                "driverMobile",
+                "DriverMobile",
+                "driverPhone",
+                "DriverPhone",
+                "mobile",
+                "Mobile",
+                "driver_mobile"
+            ),
+
+        transporterName:
+            getValue(
+                data,
+                "transporterName",
+                "TransporterName",
+                "transporter",
+                "Transporter",
+                "transporter_name"
+            ),
+
+        status:
+            getValue(
+                data,
+                "status",
+                "Status",
+                "currentStatus",
+                "CurrentStatus",
+                "current_status"
+            ),
+
+        createdDate:
+            getValue(
+                data,
+                "createdDate",
+                "CreatedDate",
+                "createdOn",
+                "CreatedOn",
+                "created_at",
+                "created_date"
+            ),
+
+        remarks:
+            getValue(
+                data,
+                "remarks",
+                "Remarks",
+                "remark",
+                "Remark"
+            ),
+
+        _raw: data
+    };
+};
+
+
+    // ========================================================
     // FORMAT DATE
-    // ==========================================================
+    // ========================================================
 
     const formatDate = (
         value,
@@ -104,16 +345,19 @@ const DeliveryChallanDetails = () => {
             return "-";
         }
 
-        const date =
-            new Date(value);
+
+        const date = new Date(value);
+
 
         if (
             Number.isNaN(
                 date.getTime()
             )
         ) {
+
             return "-";
         }
+
 
         if (includeTime) {
 
@@ -129,6 +373,7 @@ const DeliveryChallanDetails = () => {
             );
         }
 
+
         return date.toLocaleDateString(
             "en-IN",
             {
@@ -140,9 +385,9 @@ const DeliveryChallanDetails = () => {
     };
 
 
-    // ==========================================================
+    // ========================================================
     // STATUS COLOR
-    // ==========================================================
+    // ========================================================
 
     const getStatusColor = (
         status
@@ -150,6 +395,7 @@ const DeliveryChallanDetails = () => {
 
         switch (
             String(status || "")
+                .trim()
                 .toLowerCase()
         ) {
 
@@ -160,13 +406,19 @@ const DeliveryChallanDetails = () => {
                 return "warning";
 
             case "in transit":
+            case "in_transit":
+            case "intransit":
                 return "info";
 
             case "dispatched":
                 return "info";
 
             case "cancelled":
+            case "canceled":
                 return "error";
+
+            case "completed":
+                return "success";
 
             default:
                 return "default";
@@ -174,138 +426,255 @@ const DeliveryChallanDetails = () => {
     };
 
 
-    // ==========================================================
-    // GET DELIVERY CHALLAN
-    //
-    // React:
-    // GET /api/delivery-challans/:id
-    //
-    // Node:
-    // GET /api/delivery-challans/:id
-    //
-    // ASP.NET:
-    // GET /api/DeliveryChallan/:id
-    // ==========================================================
+    // ========================================================
+    // LOAD DELIVERY CHALLAN
+    // ========================================================
 
     const loadDeliveryChallan =
-        async () => {
+        useCallback(
+            async () => {
 
-            try {
+                try {
 
-                setLoading(true);
+                    setLoading(true);
 
-
-                console.log(
-                    "================================================"
-                );
-
-                console.log(
-                    `GET /api/delivery-challans/${id}`
-                );
-
-                console.log(
-                    "================================================"
-                );
+                    setDeliveryChallan(null);
 
 
-                const numericId =
-                    Number(id);
+                    // ------------------------------------------------
+                    // Validate ID
+                    // ------------------------------------------------
+
+                    const numericId =
+                        Number(id);
 
 
-                if (
-                    !Number.isInteger(
+                    if (
+                        !Number.isInteger(
+                            numericId
+                        ) ||
+                        numericId <= 0
+                    ) {
+
+                        throw new Error(
+                            "Invalid Delivery Challan ID."
+                        );
+                    }
+
+
+                    // ------------------------------------------------
+                    // NODE API
+                    // ------------------------------------------------
+
+                    const url =
+                        `${SERVER_URL}/api/delivery-challans/${numericId}`;
+
+
+                    console.log(
+                        "================================================"
+                    );
+
+                    console.log(
+                        "DELIVERY CHALLAN DETAILS REQUEST"
+                    );
+
+                    console.log(
+                        "ID:",
                         numericId
-                    ) ||
-                    numericId <= 0
-                ) {
-
-                    throw new Error(
-                        "Invalid Delivery Challan ID."
                     );
-                }
+
+                    console.log(
+                        "URL:",
+                        url
+                    );
+
+                    console.log(
+                        "================================================"
+                    );
 
 
-                const response =
-                    await fetch(
-                        `${SERVER_URL}/api/delivery-challans/${numericId}`,
-                        {
-                            method: "GET",
+                    const response =
+                        await fetch(
+                            url,
+                            {
+                                method: "GET",
 
-                            headers: {
-                                Accept:
-                                    "application/json"
+                                headers: {
+                                    Accept:
+                                        "application/json"
+                                }
                             }
-                        }
-                    );
-
-
-                const data =
-                    await response
-                        .json()
-                        .catch(
-                            () => null
                         );
 
 
-                console.log(
-                    "DELIVERY CHALLAN DETAILS RESPONSE:",
-                    data
-                );
+                    // ------------------------------------------------
+                    // Read response safely
+                    // ------------------------------------------------
+
+                    const text =
+                        await response.text();
 
 
-                if (!response.ok) {
+                    console.log(
+                        "DELIVERY CHALLAN HTTP STATUS:",
+                        response.status
+                    );
 
-                    throw new Error(
-                        data?.message ||
-                        data?.error ||
+                    console.log(
+                        "DELIVERY CHALLAN RAW RESPONSE:",
+                        text
+                    );
+
+
+                    let data = null;
+
+
+                    if (text) {
+
+                        try {
+
+                            data =
+                                JSON.parse(text);
+
+                        }
+                        catch (jsonError) {
+
+                            console.error(
+                                "DELIVERY CHALLAN JSON PARSE ERROR:",
+                                jsonError
+                            );
+
+                            throw new Error(
+                                "Server returned an invalid JSON response."
+                            );
+                        }
+                    }
+
+
+                    // ------------------------------------------------
+                    // HTTP ERROR
+                    // ------------------------------------------------
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data?.message ||
+                            data?.Message ||
+                            data?.error ||
+                            data?.Error ||
+                            `Failed to load delivery challan. HTTP ${response.status}`
+                        );
+                    }
+
+
+                    // ------------------------------------------------
+                    // Empty response
+                    // ------------------------------------------------
+
+                    if (!data) {
+
+                        throw new Error(
+                            "Delivery Challan API returned an empty response."
+                        );
+                    }
+
+
+                    // ------------------------------------------------
+                    // Normalize
+                    // ------------------------------------------------
+
+                    const normalized =
+                        normalizeDeliveryChallan(
+                            data
+                        );
+
+
+                    console.log(
+                        "NORMALIZED DELIVERY CHALLAN:",
+                        normalized
+                    );
+
+
+                    // ------------------------------------------------
+                    // Validate normalized object
+                    // ------------------------------------------------
+
+                    if (!normalized) {
+
+                        throw new Error(
+                            "Unable to read Delivery Challan response."
+                        );
+                    }
+
+
+                    // ------------------------------------------------
+                    // Set state
+                    // ------------------------------------------------
+
+                    setDeliveryChallan(
+                        normalized
+                    );
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "================================================"
+                    );
+
+                    console.error(
+                        "DELIVERY CHALLAN DETAILS ERROR:",
+                        error
+                    );
+
+                    console.error(
+                        "================================================"
+                    );
+
+
+                    setDeliveryChallan(
+                        null
+                    );
+
+
+                    showMessage(
+                        error.message ||
                         "Failed to load delivery challan."
                     );
+
+                }
+                finally {
+
+                    setLoading(false);
                 }
 
-
-                setDeliveryChallan(
-                    data
-                );
-
-            }
-            catch (error) {
-
-                console.error(
-                    "DELIVERY CHALLAN DETAILS ERROR:",
-                    error
-                );
-
-                setDeliveryChallan(
-                    null
-                );
-
-                showMessage(
-                    error.message ||
-                    "Failed to load delivery challan."
-                );
-
-            }
-            finally {
-
-                setLoading(false);
-            }
-        };
+            },
+            [
+                id,
+                showMessage
+            ]
+        );
 
 
-    // ==========================================================
-    // LOAD
-    // ==========================================================
+    // ========================================================
+    // LOAD ON ID CHANGE
+    // ========================================================
 
-    useEffect(() => {
+    useEffect(
+        () => {
 
-        loadDeliveryChallan();
+            loadDeliveryChallan();
 
-    }, [id]);
+        },
+        [
+            loadDeliveryChallan
+        ]
+    );
 
 
-    // ==========================================================
+    // ========================================================
     // LOADING
-    // ==========================================================
+    // ========================================================
 
     if (loading) {
 
@@ -327,23 +696,32 @@ const DeliveryChallanDetails = () => {
     }
 
 
-    // ==========================================================
-    // NOT FOUND
-    // ==========================================================
+    // ========================================================
+    // NOT FOUND / ERROR
+    // ========================================================
 
     if (!deliveryChallan) {
 
         return (
 
-            <Box sx={{ p: 3 }}>
+            <Box
+                sx={{
+                    p: 3
+                }}
+            >
 
                 <Button
-                    startIcon={<ArrowBack />}
+                    startIcon={
+                        <ArrowBack />
+                    }
                     onClick={() =>
                         navigate(
                             "/delivery-challans"
                         )
                     }
+                    sx={{
+                        mb: 2
+                    }}
                 >
                     Back to Delivery Challans
                 </Button>
@@ -351,16 +729,19 @@ const DeliveryChallanDetails = () => {
 
                 <Alert
                     severity="error"
-                    sx={{ mt: 3 }}
                 >
-                    Delivery Challan not found.
+                    Delivery Challan could not be loaded.
                 </Alert>
 
 
                 <Snackbar
-                    open={snackbar.open}
-                    autoHideDuration={4000}
-                    onClose={closeSnackbar}
+                    open={
+                        snackbar.open
+                    }
+                    autoHideDuration={5000}
+                    onClose={
+                        closeSnackbar
+                    }
                     anchorOrigin={{
                         vertical: "top",
                         horizontal: "right"
@@ -372,9 +753,13 @@ const DeliveryChallanDetails = () => {
                             snackbar.severity
                         }
                         variant="filled"
-                        onClose={closeSnackbar}
+                        onClose={
+                            closeSnackbar
+                        }
                     >
-                        {snackbar.message}
+                        {
+                            snackbar.message
+                        }
                     </Alert>
 
                 </Snackbar>
@@ -384,15 +769,62 @@ const DeliveryChallanDetails = () => {
     }
 
 
-    // ==========================================================
+    // ========================================================
+    // LOCAL VALUES
+    // ========================================================
+
+    const challanId =
+        deliveryChallan.deliveryChallanId;
+
+    const salesOrderId =
+        deliveryChallan.salesOrderId;
+
+    const sellerId =
+        deliveryChallan.sellerId;
+
+    const customerId =
+        deliveryChallan.customerId;
+
+    const challanNumber =
+        deliveryChallan.challanNumber;
+
+    const status =
+        deliveryChallan.status;
+
+    const challanDate =
+        deliveryChallan.challanDate;
+
+    const createdDate =
+        deliveryChallan.createdDate;
+
+    const vehicleNumber =
+        deliveryChallan.vehicleNumber;
+
+    const driverName =
+        deliveryChallan.driverName;
+
+    const driverMobile =
+        deliveryChallan.driverMobile;
+
+    const transporterName =
+        deliveryChallan.transporterName;
+
+    const remarks =
+        deliveryChallan.remarks;
+
+
+    // ========================================================
     // RENDER
-    // ==========================================================
+    // ========================================================
 
     return (
 
         <Box
             sx={{
-                p: 3
+                p: {
+                    xs: 2,
+                    md: 3
+                }
             }}
         >
 
@@ -444,13 +876,13 @@ const DeliveryChallanDetails = () => {
 
 
                     <Typography
-                        variant="body2"
+                        variant="body1"
                         color="text.secondary"
                     >
-                        {
-                            deliveryChallan.challanNumber ||
-                            "-"
-                        }
+                        Challan Number:{" "}
+                        <strong>
+                            {challanNumber || "-"}
+                        </strong>
                     </Typography>
 
                 </Box>
@@ -464,18 +896,21 @@ const DeliveryChallanDetails = () => {
                     }
                     onClick={() =>
                         navigate(
-                            `/delivery-challans/edit/${deliveryChallan.deliveryChallanId}`
+                            `/delivery-challans/edit/${challanId}`
                         )
                     }
+                    disabled={
+                        !challanId
+                    }
                 >
-                    Edit
+                    Edit Delivery Challan
                 </Button>
 
             </Stack>
 
 
             {/* ==================================================
-                BASIC INFORMATION
+                CHALLAN INFORMATION
             ================================================== */}
 
             <Card
@@ -520,7 +955,7 @@ const DeliveryChallanDetails = () => {
                         spacing={3}
                     >
 
-                        {/* ID */}
+                        {/* DELIVERY CHALLAN ID */}
 
                         <Grid
                             item
@@ -540,15 +975,13 @@ const DeliveryChallanDetails = () => {
                                 variant="body1"
                                 fontWeight={600}
                             >
-                                {
-                                    deliveryChallan.deliveryChallanId
-                                }
+                                {challanId ?? "-"}
                             </Typography>
 
                         </Grid>
 
 
-                        {/* SALES ORDER */}
+                        {/* SALES ORDER ID */}
 
                         <Grid
                             item
@@ -568,66 +1001,7 @@ const DeliveryChallanDetails = () => {
                                 variant="body1"
                                 fontWeight={600}
                             >
-                                {
-                                    deliveryChallan.salesOrderId
-                                }
-                            </Typography>
-
-                        </Grid>
-
-
-                        {/* SELLER */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={3}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
-                                Seller ID
-                            </Typography>
-
-                            <Typography
-                                variant="body1"
-                                fontWeight={600}
-                            >
-                                {
-                                    deliveryChallan.sellerId
-                                }
-                            </Typography>
-
-                        </Grid>
-
-
-                        {/* CUSTOMER */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={3}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
-                                Customer ID
-                            </Typography>
-
-                            <Typography
-                                variant="body1"
-                                fontWeight={600}
-                            >
-                                {
-                                    deliveryChallan.customerId ??
-                                    "-"
-                                }
+                                {salesOrderId ?? "-"}
                             </Typography>
 
                         </Grid>
@@ -639,6 +1013,7 @@ const DeliveryChallanDetails = () => {
                             item
                             xs={12}
                             sm={6}
+                            md={3}
                         >
 
                             <Typography
@@ -652,39 +1027,7 @@ const DeliveryChallanDetails = () => {
                                 variant="body1"
                                 fontWeight={700}
                             >
-                                {
-                                    deliveryChallan.challanNumber ||
-                                    "-"
-                                }
-                            </Typography>
-
-                        </Grid>
-
-
-                        {/* CHALLAN DATE */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
-                                Challan Date
-                            </Typography>
-
-                            <Typography
-                                variant="body1"
-                                fontWeight={600}
-                            >
-                                {
-                                    formatDate(
-                                        deliveryChallan.challanDate
-                                    )
-                                }
+                                {challanNumber || "-"}
                             </Typography>
 
                         </Grid>
@@ -696,6 +1039,7 @@ const DeliveryChallanDetails = () => {
                             item
                             xs={12}
                             sm={6}
+                            md={3}
                         >
 
                             <Typography
@@ -711,15 +1055,45 @@ const DeliveryChallanDetails = () => {
 
                             <Chip
                                 label={
-                                    deliveryChallan.status ||
+                                    status ||
                                     "N/A"
                                 }
                                 color={
                                     getStatusColor(
-                                        deliveryChallan.status
+                                        status
                                     )
                                 }
                             />
+
+                        </Grid>
+
+
+                        {/* CHALLAN DATE */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Challan Date
+                            </Typography>
+
+                            <Typography
+                                variant="body1"
+                                fontWeight={600}
+                            >
+                                {
+                                    formatDate(
+                                        challanDate
+                                    )
+                                }
+                            </Typography>
 
                         </Grid>
 
@@ -730,6 +1104,7 @@ const DeliveryChallanDetails = () => {
                             item
                             xs={12}
                             sm={6}
+                            md={3}
                         >
 
                             <Typography
@@ -745,11 +1120,131 @@ const DeliveryChallanDetails = () => {
                             >
                                 {
                                     formatDate(
-                                        deliveryChallan.createdDate,
+                                        createdDate,
                                         true
                                     )
                                 }
                             </Typography>
+
+                        </Grid>
+
+                    </Grid>
+
+                </CardContent>
+
+            </Card>
+
+
+            {/* ==================================================
+                SELLER & CUSTOMER
+            ================================================== */}
+
+            <Card
+                elevation={3}
+                sx={{
+                    mb: 3
+                }}
+            >
+
+                <CardContent>
+
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        sx={{
+                            mb: 2
+                        }}
+                    >
+
+                        <Person />
+
+                        <Typography
+                            variant="h6"
+                            fontWeight={700}
+                        >
+                            Seller & Customer
+                        </Typography>
+
+                    </Stack>
+
+
+                    <Divider
+                        sx={{
+                            mb: 3
+                        }}
+                    />
+
+
+                    <Grid
+                        container
+                        spacing={3}
+                    >
+
+                        {/* SELLER */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
+                            <Paper
+                                variant="outlined"
+                                sx={{
+                                    p: 2
+                                }}
+                            >
+
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                >
+                                    Seller ID
+                                </Typography>
+
+                                <Typography
+                                    variant="h6"
+                                    fontWeight={700}
+                                >
+                                    {sellerId ?? "-"}
+                                </Typography>
+
+                            </Paper>
+
+                        </Grid>
+
+
+                        {/* CUSTOMER */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
+                            <Paper
+                                variant="outlined"
+                                sx={{
+                                    p: 2
+                                }}
+                            >
+
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                >
+                                    Customer ID
+                                </Typography>
+
+                                <Typography
+                                    variant="h6"
+                                    fontWeight={700}
+                                >
+                                    {customerId ?? "-"}
+                                </Typography>
+
+                            </Paper>
 
                         </Grid>
 
@@ -826,10 +1321,7 @@ const DeliveryChallanDetails = () => {
                                 variant="body1"
                                 fontWeight={600}
                             >
-                                {
-                                    deliveryChallan.vehicleNumber ||
-                                    "-"
-                                }
+                                {vehicleNumber || "-"}
                             </Typography>
 
                         </Grid>
@@ -855,10 +1347,7 @@ const DeliveryChallanDetails = () => {
                                 variant="body1"
                                 fontWeight={600}
                             >
-                                {
-                                    deliveryChallan.driverName ||
-                                    "-"
-                                }
+                                {driverName || "-"}
                             </Typography>
 
                         </Grid>
@@ -884,10 +1373,7 @@ const DeliveryChallanDetails = () => {
                                 variant="body1"
                                 fontWeight={600}
                             >
-                                {
-                                    deliveryChallan.driverMobile ||
-                                    "-"
-                                }
+                                {driverMobile || "-"}
                             </Typography>
 
                         </Grid>
@@ -911,111 +1397,7 @@ const DeliveryChallanDetails = () => {
                                 variant="body1"
                                 fontWeight={600}
                             >
-                                {
-                                    deliveryChallan.transporterName ||
-                                    "-"
-                                }
-                            </Typography>
-
-                        </Grid>
-
-                    </Grid>
-
-                </CardContent>
-
-            </Card>
-
-
-            {/* ==================================================
-                CUSTOMER / SELLER
-            ================================================== */}
-
-            <Card
-                elevation={3}
-                sx={{
-                    mb: 3
-                }}
-            >
-
-                <CardContent>
-
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        alignItems="center"
-                        sx={{
-                            mb: 2
-                        }}
-                    >
-
-                        <Person />
-
-                        <Typography
-                            variant="h6"
-                            fontWeight={700}
-                        >
-                            Seller & Customer
-                        </Typography>
-
-                    </Stack>
-
-
-                    <Divider
-                        sx={{
-                            mb: 3
-                        }}
-                    />
-
-
-                    <Grid
-                        container
-                        spacing={3}
-                    >
-
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
-                                Seller ID
-                            </Typography>
-
-                            <Typography
-                                variant="h6"
-                            >
-                                {
-                                    deliveryChallan.sellerId
-                                }
-                            </Typography>
-
-                        </Grid>
-
-
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
-                                Customer ID
-                            </Typography>
-
-                            <Typography
-                                variant="h6"
-                            >
-                                {
-                                    deliveryChallan.customerId ??
-                                    "-"
-                                }
+                                {transporterName || "-"}
                             </Typography>
 
                         </Grid>
@@ -1068,7 +1450,7 @@ const DeliveryChallanDetails = () => {
 
                         <Typography>
                             {
-                                deliveryChallan.remarks ||
+                                remarks ||
                                 "No remarks available."
                             }
                         </Typography>
@@ -1116,8 +1498,11 @@ const DeliveryChallanDetails = () => {
                     }
                     onClick={() =>
                         navigate(
-                            `/delivery-challans/edit/${deliveryChallan.deliveryChallanId}`
+                            `/delivery-challans/edit/${challanId}`
                         )
+                    }
+                    disabled={
+                        !challanId
                     }
                 >
                     Edit Delivery Challan
@@ -1134,7 +1519,7 @@ const DeliveryChallanDetails = () => {
                 open={
                     snackbar.open
                 }
-                autoHideDuration={4000}
+                autoHideDuration={5000}
                 onClose={
                     closeSnackbar
                 }
@@ -1166,4 +1551,3 @@ const DeliveryChallanDetails = () => {
 
 
 export default DeliveryChallanDetails;
-

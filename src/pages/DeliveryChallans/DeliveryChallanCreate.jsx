@@ -2,12 +2,14 @@ import React, {
     useEffect,
     useState
 } from "react";
+
 import {
     Alert,
     Box,
     Button,
     Card,
     CardContent,
+    CircularProgress,
     Divider,
     FormControl,
     Grid,
@@ -49,10 +51,6 @@ const DeliveryChallanCreate = () => {
 
             salesOrderId: "",
 
-            sellerId: "",
-
-            customerId: "",
-
             challanNumber: "",
 
             challanDate: "",
@@ -65,9 +63,7 @@ const DeliveryChallanCreate = () => {
 
             transporterName: "",
 
-            status: "Pending",
-
-            remarks: ""
+            currentStatus: "Pending"
         });
 
 
@@ -83,7 +79,7 @@ const DeliveryChallanCreate = () => {
 
 
     // ==========================================================
-    // LOADING / SUBMIT
+    // LOADING
     // ==========================================================
 
     const [loading, setLoading] =
@@ -156,10 +152,12 @@ const DeliveryChallanCreate = () => {
     // ==========================================================
     // LOAD SALES ORDERS
     //
-    // Optional lookup.
-    //
     // Node:
     // GET /api/sales-orders
+    //
+    // This is only used as a lookup for Sales Order.
+    // If the endpoint is unavailable, the user can enter
+    // the Sales Order ID manually.
     // ==========================================================
 
     const loadSalesOrders = async () => {
@@ -184,6 +182,14 @@ const DeliveryChallanCreate = () => {
 
 
             if (!response.ok) {
+
+                console.warn(
+                    "Sales Orders lookup unavailable:",
+                    response.status
+                );
+
+                setSalesOrders([]);
+
                 return;
             }
 
@@ -216,6 +222,8 @@ const DeliveryChallanCreate = () => {
                 error
             );
 
+            setSalesOrders([]);
+
         }
         finally {
 
@@ -235,6 +243,76 @@ const DeliveryChallanCreate = () => {
         loadSalesOrders();
 
     }, []);
+
+
+    // ==========================================================
+    // VALIDATION
+    // ==========================================================
+
+    const validateForm = () => {
+
+        if (
+            !String(
+                formData.salesOrderId ?? ""
+            ).trim()
+        ) {
+
+            showMessage(
+                "Sales Order ID is required.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (
+            !String(
+                formData.challanNumber ?? ""
+            ).trim()
+        ) {
+
+            showMessage(
+                "Challan Number is required.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (
+            !String(
+                formData.challanDate ?? ""
+            ).trim()
+        ) {
+
+            showMessage(
+                "Challan Date is required.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (
+            !String(
+                formData.currentStatus ?? ""
+            ).trim()
+        ) {
+
+            showMessage(
+                "Current Status is required.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        return true;
+    };
 
 
     // ==========================================================
@@ -258,57 +336,9 @@ const DeliveryChallanCreate = () => {
             event.preventDefault();
 
 
-            // --------------------------------------------------
-            // VALIDATION
-            // --------------------------------------------------
-
             if (
-                !formData.salesOrderId
+                !validateForm()
             ) {
-
-                showMessage(
-                    "Sales Order ID is required.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (
-                !formData.sellerId
-            ) {
-
-                showMessage(
-                    "Seller ID is required.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (
-                !formData.challanNumber.trim()
-            ) {
-
-                showMessage(
-                    "Challan Number is required.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (
-                !formData.challanDate
-            ) {
-
-                showMessage(
-                    "Challan Date is required.",
-                    "error"
-                );
 
                 return;
             }
@@ -330,51 +360,44 @@ const DeliveryChallanCreate = () => {
                             formData.salesOrderId
                         ),
 
-                    sellerId:
-                        Number(
-                            formData.sellerId
-                        ),
-
-                    customerId:
-                        formData.customerId
-                            ? Number(
-                                formData.customerId
-                            )
-                            : null,
-
                     challanNumber:
-                        formData.challanNumber.trim(),
+                        formData.challanNumber
+                            .trim(),
 
                     challanDate:
                         formData.challanDate,
 
                     vehicleNumber:
-                        formData.vehicleNumber.trim() ||
+                        formData.vehicleNumber
+                            .trim() ||
                         null,
 
                     driverName:
-                        formData.driverName.trim() ||
+                        formData.driverName
+                            .trim() ||
                         null,
 
                     driverMobile:
-                        formData.driverMobile.trim() ||
+                        formData.driverMobile
+                            .trim() ||
                         null,
 
                     transporterName:
-                        formData.transporterName.trim() ||
+                        formData.transporterName
+                            .trim() ||
                         null,
 
-                    status:
-                        formData.status,
-
-                    remarks:
-                        formData.remarks.trim() ||
-                        null
+                    currentStatus:
+                        formData.currentStatus
                 };
 
 
                 console.log(
                     "================================================"
+                );
+
+                console.log(
+                    "CREATE DELIVERY CHALLAN"
                 );
 
                 console.log(
@@ -426,7 +449,7 @@ const DeliveryChallanCreate = () => {
 
 
                 console.log(
-                    "CREATE RESPONSE:",
+                    "CREATE DELIVERY CHALLAN RESPONSE:",
                     data
                 );
 
@@ -436,10 +459,15 @@ const DeliveryChallanCreate = () => {
                     throw new Error(
                         data?.message ||
                         data?.error ||
+                        data?.title ||
                         "Failed to create delivery challan."
                     );
                 }
 
+
+                // --------------------------------------------------
+                // SUCCESS
+                // --------------------------------------------------
 
                 showMessage(
                     "Delivery Challan created successfully.",
@@ -448,7 +476,7 @@ const DeliveryChallanCreate = () => {
 
 
                 // --------------------------------------------------
-                // GO BACK
+                // RETURN TO LIST
                 // --------------------------------------------------
 
                 setTimeout(
@@ -567,7 +595,7 @@ const DeliveryChallanCreate = () => {
 
 
             {/* ==================================================
-                FORM
+                FORM CARD
             ================================================== */}
 
             <Card
@@ -593,7 +621,7 @@ const DeliveryChallanCreate = () => {
                         >
 
                             {/* ======================================
-                                SALES ORDER ID
+                                SALES ORDER
                             ====================================== */}
 
                             <Grid
@@ -634,6 +662,7 @@ const DeliveryChallanCreate = () => {
                                                         order.salesOrderId ??
                                                         order.SalesOrderId;
 
+
                                                     return (
 
                                                         <MenuItem
@@ -645,6 +674,7 @@ const DeliveryChallanCreate = () => {
                                                         </MenuItem>
 
                                                     );
+
                                                 }
                                             )}
 
@@ -672,66 +702,6 @@ const DeliveryChallanCreate = () => {
                                     />
 
                                 )}
-
-                            </Grid>
-
-
-                            {/* ======================================
-                                SELLER ID
-                            ====================================== */}
-
-                            <Grid
-                                item
-                                xs={12}
-                                md={6}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    required
-                                    type="number"
-                                    label="Seller ID"
-                                    name="sellerId"
-                                    value={
-                                        formData.sellerId
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    inputProps={{
-                                        min: 1
-                                    }}
-                                />
-
-                            </Grid>
-
-
-                            {/* ======================================
-                                CUSTOMER ID
-                            ====================================== */}
-
-                            <Grid
-                                item
-                                xs={12}
-                                md={6}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    type="number"
-                                    label="Customer ID"
-                                    name="customerId"
-                                    value={
-                                        formData.customerId
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    inputProps={{
-                                        min: 1
-                                    }}
-                                    helperText="Optional"
-                                />
 
                             </Grid>
 
@@ -875,7 +845,7 @@ const DeliveryChallanCreate = () => {
 
 
                             {/* ======================================
-                                TRANSPORTER
+                                TRANSPORTER NAME
                             ====================================== */}
 
                             <Grid
@@ -901,7 +871,7 @@ const DeliveryChallanCreate = () => {
 
 
                             {/* ======================================
-                                STATUS
+                                CURRENT STATUS
                             ====================================== */}
 
                             <Grid
@@ -912,18 +882,19 @@ const DeliveryChallanCreate = () => {
 
                                 <FormControl
                                     fullWidth
+                                    required
                                 >
 
                                     <InputLabel>
-                                        Status
+                                        Current Status
                                     </InputLabel>
 
                                     <Select
-                                        name="status"
+                                        name="currentStatus"
                                         value={
-                                            formData.status
+                                            formData.currentStatus
                                         }
-                                        label="Status"
+                                        label="Current Status"
                                         onChange={
                                             handleChange
                                         }
@@ -957,34 +928,7 @@ const DeliveryChallanCreate = () => {
 
 
                             {/* ======================================
-                                REMARKS
-                            ====================================== */}
-
-                            <Grid
-                                item
-                                xs={12}
-                            >
-
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    minRows={4}
-                                    label="Remarks"
-                                    name="remarks"
-                                    value={
-                                        formData.remarks
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                    placeholder="Enter delivery challan remarks..."
-                                />
-
-                            </Grid>
-
-
-                            {/* ======================================
-                                BUTTONS
+                                ACTIONS
                             ====================================== */}
 
                             <Grid
@@ -1025,7 +969,16 @@ const DeliveryChallanCreate = () => {
                                         type="submit"
                                         variant="contained"
                                         startIcon={
-                                            <Save />
+                                            loading
+                                                ? (
+                                                    <CircularProgress
+                                                        size={18}
+                                                        color="inherit"
+                                                    />
+                                                )
+                                                : (
+                                                    <Save />
+                                                )
                                         }
                                         disabled={
                                             loading
@@ -1093,4 +1046,3 @@ const DeliveryChallanCreate = () => {
 
 
 export default DeliveryChallanCreate;
-

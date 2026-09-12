@@ -28886,7 +28886,6 @@ app.get(
     }
 );
 
-
 // ============================================================
 // GET STATISTICS
 // Node:
@@ -28940,80 +28939,6 @@ app.get(
         }
     }
 );
-
-
-// ============================================================
-// GET BY ID
-// IMPORTANT:
-// Keep this AFTER all static routes
-//
-// Node:
-// GET /api/delivery-challans/:id
-//
-// ASP.NET:
-// GET /api/DeliveryChallan/:id
-// ============================================================
-
-app.get(
-    "/api/delivery-challans/:id",
-    async (req, res) => {
-
-        try {
-
-            const id =
-                Number(req.params.id);
-
-            if (
-                !Number.isInteger(id) ||
-                id <= 0
-            ) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid Delivery Challan ID."
-                });
-            }
-
-            const response = await axios.get(
-                `https://localhost:7203/api/DeliveryChallan/${id}`,
-                {
-                    httpsAgent: new https.Agent({
-                        rejectUnauthorized: false
-                    }),
-                    headers: {
-                        Accept: "application/json"
-                    }
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "GET DELIVERY CHALLAN BY ID ERROR:",
-                error.response?.data ||
-                error.message
-            );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to load delivery challan."
-                    }
-                );
-        }
-    }
-);
-
 
 // ============================================================
 // CREATE DELIVERY CHALLAN
@@ -29077,8 +29002,137 @@ app.post(
         }
     }
 );
+// ============================================================
+// DELIVERY CHALLANS
+// ============================================================
+
+// GET ALL DELIVERY CHALLANS
+// React:
+// GET /api/delivery-challans
+//
+// ASP.NET:
+// GET /api/DeliveryChallan
+app.get(
+    "/api/delivery-challans",
+    async (req, res) => {
+        try {
+
+            const response = await axios.get(
+                `${DOTNET_API}/DeliveryChallan`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET delivery challans error:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load delivery challans"
+                }
+            );
+        }
+    }
+);
 
 
+// GET DELIVERY CHALLAN BY ID
+// React:
+// GET /api/delivery-challans/:id
+//
+// ASP.NET:
+// GET /api/DeliveryChallan/{id}
+app.get(
+    "/api/delivery-challans/:id",
+    async (req, res) => {
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/DeliveryChallan/${id}`,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "GET delivery challan by ID error:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to load delivery challan"
+                }
+            );
+        }
+    }
+);
+
+
+// UPDATE DELIVERY CHALLAN
+// React:
+// PUT /api/delivery-challans/:id
+//
+// ASP.NET:
+// PUT /api/DeliveryChallan/{id}
+app.put(
+    "/api/delivery-challans/:id",
+    async (req, res) => {
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const response = await axios.put(
+                `${DOTNET_API}/DeliveryChallan/${id}`,
+                req.body,
+                {
+                    httpsAgent
+                }
+            );
+
+            res.json(response.data);
+
+        } catch (error) {
+
+            console.error(
+                "PUT delivery challan error:",
+                error.response?.data || error.message
+            );
+
+            res.status(
+                error.response?.status || 500
+            ).json(
+                error.response?.data || {
+                    message:
+                        "Failed to update delivery challan"
+                }
+            );
+        }
+    }
+);
 // ============================================================
 // UPDATE DELIVERY CHALLAN
 // Node:
@@ -29150,7 +29204,115 @@ app.put(
         }
     }
 );
+app.get(
+    "/api/delivery-challans/:id",
+    async (req, res) => {
 
+        console.log("");
+        console.log("================================================");
+        console.log("GET /api/delivery-challans/:id");
+        console.log("ID:", req.params.id);
+        console.log("Backend: /api/DeliveryChallan/:id");
+        console.log("================================================");
+
+        try {
+
+            const id = Number(req.params.id);
+
+            // ------------------------------------------------
+            // Validate ID
+            // ------------------------------------------------
+
+            if (
+                !Number.isInteger(id) ||
+                id <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid Delivery Challan ID."
+                });
+            }
+
+            // ------------------------------------------------
+            // Call ASP.NET
+            // ------------------------------------------------
+
+            const response = await axios.get(
+                `https://localhost:7203/api/DeliveryChallan/${id}`,
+                {
+                    httpsAgent: new https.Agent({
+                        rejectUnauthorized: false
+                    }),
+                    headers: {
+                        Accept: "application/json"
+                    }
+                }
+            );
+
+            // ------------------------------------------------
+            // Log backend response
+            // ------------------------------------------------
+
+            console.log(
+                "ASP.NET STATUS:",
+                response.status
+            );
+
+            console.log(
+                "DELIVERY CHALLAN BY ID:",
+                JSON.stringify(
+                    response.data,
+                    null,
+                    2
+                )
+            );
+
+            // ------------------------------------------------
+            // Return backend response
+            // ------------------------------------------------
+
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET DELIVERY CHALLAN BY ID ERROR:"
+            );
+
+            console.error(
+                "STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DATA:",
+                error.response?.data
+            );
+
+            console.error(
+                "MESSAGE:",
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        success: false,
+                        message:
+                            "Failed to load delivery challan."
+                    }
+                );
+        }
+    }
+);
 
 // ============================================================
 // DELETE DELIVERY CHALLAN
