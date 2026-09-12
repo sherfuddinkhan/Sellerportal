@@ -6633,74 +6633,68 @@ app.put(
 // DELETE /api/purchase-orders/:id
 // ================================================================
 
-app.delete(
-    "/api/purchase-orders/:id",
-    async (req, res) => {
+// ============================================================
+// DELETE SUPPLIER
+// React:
+// DELETE http://localhost:5000/api/Supplier/:supplierId
+//
+// ASP.NET:
+// DELETE https://localhost:7203/api/Supplier/:supplierId
+// ============================================================
 
-        const purchaseOrderId =
-            Number(req.params.id);
+app.delete("/api/Supplier/:supplierId", async (req, res) => {
 
-        console.log(
-            "DELETE PURCHASE ORDER:",
-            purchaseOrderId
+    const { supplierId } = req.params;
+
+    console.log(
+        `DELETE /api/Supplier/${supplierId}`
+    );
+
+    if (
+        !supplierId ||
+        supplierId === ":supplierId" ||
+        isNaN(Number(supplierId))
+    ) {
+        return res.status(400).json({
+            message: "Valid supplier ID is required"
+        });
+    }
+
+    try {
+
+        const response = await axios.delete(
+            `${DOTNET_API}/Supplier/${supplierId}`,
+            {
+                httpsAgent
+            }
         );
 
-        if (
-            !Number.isInteger(purchaseOrderId) ||
-            purchaseOrderId <= 0
-        ) {
+        console.log(
+            "Supplier deleted:",
+            response.data
+        );
 
-            return res.status(400).json({
-                message:
-                    "Invalid Purchase Order ID."
-            });
+        return res
+            .status(response.status)
+            .json(response.data);
 
-        }
+    } catch (error) {
 
-        try {
+        console.error(
+            "DELETE Supplier error:",
+            error.response?.data ||
+            error.message
+        );
 
-            const response =
-                await axios.delete(
-                    `${PURCHASE_ORDER_API}/${purchaseOrderId}`,
-                    {
-                        httpsAgent,
-                        timeout: 30000
-                    }
-                );
-
-            console.log(
-                "DELETE PURCHASE ORDER SUCCESS:",
-                response.status
+        return res
+            .status(error.response?.status || 500)
+            .json(
+                error.response?.data || {
+                    message: "Failed to delete supplier"
+                }
             );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "DELETE PURCHASE ORDER ERROR:",
-                error.response?.data ||
-                error.message
-            );
-
-            return res
-                .status(
-                    error.response?.status || 500
-                )
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to delete purchase order."
-                    }
-                );
-
-        }
-
     }
-);
+});
 // ============================================================
 // PURCHASE ORDER ITEMS
 // ============================================================

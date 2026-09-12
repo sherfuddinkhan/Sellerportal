@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
+
 import {
     Box,
     Card,
@@ -7,20 +11,41 @@ import {
     Alert,
     Grid,
     Typography,
-    Divider
+    Divider,
+    Button
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+
+import {
+    ArrowBack
+} from "@mui/icons-material";
+
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
 import axios from "axios";
 
 const API_URL = "http://localhost:5000/api";
 
 const SupplierDetails = () => {
 
-    const { id } = useParams();
+    const {
+        id
+    } = useParams();
+
+    const navigate = useNavigate();
 
     const [supplier, setSupplier] = useState(null);
+
     const [loading, setLoading] = useState(true);
+
     const [error, setError] = useState("");
+
+
+    // ========================================================
+    // LOAD SUPPLIER
+    // ========================================================
 
     useEffect(() => {
 
@@ -29,45 +54,73 @@ const SupplierDetails = () => {
             try {
 
                 setLoading(true);
+
                 setError("");
 
-                // Debug
-                console.log("URL ID:", id);
 
-                // Validate ID
-                const supplierId = Number(id);
+                console.log(
+                    "URL ID:",
+                    id
+                );
 
-                if (!Number.isInteger(supplierId)) {
+
+                const supplierId =
+                    Number(id);
+
+
+                if (
+                    !Number.isInteger(supplierId) ||
+                    supplierId <= 0
+                ) {
+
                     throw new Error(
                         `Invalid Supplier ID: ${id}`
                     );
+
                 }
 
-                const response = await axios.get(
-                    `${API_URL}/Supplier/${supplierId}`
-                );
+
+                const response =
+                    await axios.get(
+                        `${API_URL}/Supplier/${supplierId}`
+                    );
+
 
                 console.log(
                     "Supplier response:",
                     response.data
                 );
 
-                setSupplier(response.data);
 
-            } catch (err) {
+                setSupplier(
+                    response.data
+                );
+
+            }
+
+            catch (err) {
 
                 console.error(
                     "Supplier details error:",
                     err
                 );
 
+
                 setError(
+
                     err.response?.data?.message ||
+
+                    err.response?.data?.title ||
+
                     err.message ||
+
                     "Failed to load supplier details"
+
                 );
 
-            } finally {
+            }
+
+            finally {
 
                 setLoading(false);
 
@@ -75,74 +128,205 @@ const SupplierDetails = () => {
 
         };
 
+
         loadSupplier();
 
     }, [id]);
 
 
+    // ========================================================
+    // BACK
+    // ========================================================
+
+    const handleBack = () => {
+
+        navigate(
+            "/suppliers"
+        );
+
+    };
+
+
+    // ========================================================
+    // LOADING
+    // ========================================================
+
     if (loading) {
 
         return (
+
             <Box
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
                 minHeight="300px"
             >
+
                 <CircularProgress />
+
             </Box>
+
         );
 
     }
 
+
+    // ========================================================
+    // ERROR
+    // ========================================================
 
     if (error) {
 
         return (
+
             <Box sx={{ p: 3 }}>
+
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                    mb={2}
+                >
+
+                    <Button
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back
+                    </Button>
+
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            fontWeight: 600
+                        }}
+                    >
+                        Supplier Details
+                    </Typography>
+
+                </Box>
+
+
                 <Alert severity="error">
                     {error}
                 </Alert>
+
             </Box>
+
         );
 
     }
 
+
+    // ========================================================
+    // NOT FOUND
+    // ========================================================
 
     if (!supplier) {
 
         return (
+
             <Box sx={{ p: 3 }}>
+
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                    mb={2}
+                >
+
+                    <Button
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back
+                    </Button>
+
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            fontWeight: 600
+                        }}
+                    >
+                        Supplier Details
+                    </Typography>
+
+                </Box>
+
+
                 <Alert severity="warning">
                     Supplier not found.
                 </Alert>
+
             </Box>
+
         );
 
     }
 
+
+    // ========================================================
+    // UI
+    // ========================================================
 
     return (
 
         <Box sx={{ p: 3 }}>
 
-            <Typography
-                variant="h5"
-                sx={{
-                    mb: 3,
-                    fontWeight: 600
-                }}
+            {/* =================================================
+                HEADER
+            ================================================= */}
+
+            <Box
+                display="flex"
+                alignItems="center"
+                gap={2}
+                mb={3}
             >
-                Supplier Details
-            </Typography>
+
+                <Button
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
+                >
+                    Back
+                </Button>
+
+
+                <Typography
+                    variant="h5"
+                    sx={{
+                        fontWeight: 600
+                    }}
+                >
+                    Supplier Details
+                </Typography>
+
+            </Box>
+
+
+            {/* =================================================
+                SUPPLIER CARD
+            ================================================= */}
 
             <Card>
 
                 <CardContent>
 
-                    <Grid container spacing={3}>
+                    <Grid
+                        container
+                        spacing={3}
+                    >
 
-                        <Grid item xs={12} sm={6}>
+                        {/* =====================================
+                            SUPPLIER ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -153,9 +337,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.supplierId ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            SELLER ID
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -166,9 +361,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.sellerId ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            SUPPLIER NAME
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -179,9 +385,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.supplierName ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            CONTACT PERSON
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -192,9 +409,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.contactPerson ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            PHONE
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -205,9 +433,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.phone ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            EMAIL
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -218,13 +457,27 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.email ?? "-"}
                             </Typography>
+
                         </Grid>
 
+
+                        {/* =====================================
+                            DIVIDER
+                        ====================================== */}
+
                         <Grid item xs={12}>
+
                             <Divider />
+
                         </Grid>
 
+
+                        {/* =====================================
+                            ADDRESS
+                        ====================================== */}
+
                         <Grid item xs={12}>
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -235,9 +488,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.address ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+
+                        {/* =====================================
+                            CITY
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={4}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -248,9 +512,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.city ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+
+                        {/* =====================================
+                            STATE
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={4}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -261,9 +536,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.state ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+
+                        {/* =====================================
+                            COUNTRY
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={4}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -274,9 +560,20 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.country ?? "-"}
                             </Typography>
+
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+
+                        {/* =====================================
+                            GST NUMBER
+                        ====================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -287,6 +584,7 @@ const SupplierDetails = () => {
                             <Typography>
                                 {supplier.gstNumber ?? "-"}
                             </Typography>
+
                         </Grid>
 
                     </Grid>
@@ -297,6 +595,7 @@ const SupplierDetails = () => {
 
         </Box>
     );
+
 };
 
 export default SupplierDetails;

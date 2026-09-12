@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
 
 import {
     Box,
@@ -24,86 +27,242 @@ import {
 
 import axios from "axios";
 
-const API_URL = "https://localhost:7203/api";
+
+// ============================================================
+// NODE SERVER / PROXY URL
+// ============================================================
+
+const API_URL = "http://localhost:5000/api";
+
+
+// ============================================================
+// SUPPLIER EDIT
+// ============================================================
 
 const SupplierEdit = () => {
 
-    const { id } = useParams();
+    const {
+        id
+    } = useParams();
+
     const navigate = useNavigate();
 
+
+    // ========================================================
+    // FORM STATE
+    // ========================================================
+
     const [formData, setFormData] = useState({
+
         sellerId: "",
+
         supplierName: "",
+
         contactPerson: "",
+
         phone: "",
+
         email: "",
+
         address: "",
+
         city: "",
+
         state: "",
+
         country: "",
+
         gstNumber: ""
+
     });
 
+
+    // ========================================================
+    // STATE
+    // ========================================================
+
     const [loading, setLoading] = useState(true);
+
     const [saving, setSaving] = useState(false);
+
     const [error, setError] = useState("");
+
+
+    // ========================================================
+    // LOAD SUPPLIER
+    // ========================================================
 
     useEffect(() => {
 
         const loadSupplier = async () => {
 
+            // ------------------------------------------------
+            // Validate route parameter
+            // ------------------------------------------------
+
+            if (
+                !id ||
+                id === ":id" ||
+                isNaN(Number(id))
+            ) {
+
+                console.error(
+                    "Invalid supplier ID:",
+                    id
+                );
+
+                setError(
+                    "Invalid supplier ID"
+                );
+
+                setLoading(false);
+
+                return;
+            }
+
+
             try {
+
+                setLoading(true);
+
+                setError("");
+
+
+                console.log(
+                    "Loading supplier ID:",
+                    id
+                );
+
+
+                // ------------------------------------------------
+                // React -> Node
+                // ------------------------------------------------
 
                 const response =
                     await axios.get(
                         `${API_URL}/Supplier/${id}`
                     );
 
+
+                console.log(
+                    "Supplier API response:",
+                    response.data
+                );
+
+
+                const supplier =
+                    response.data;
+
+
+                if (!supplier) {
+
+                    throw new Error(
+                        "Supplier data was not returned"
+                    );
+                }
+
+
+                // ------------------------------------------------
+                // Populate form
+                // ------------------------------------------------
+
                 setFormData({
+
                     sellerId:
-                        response.data.sellerId || "",
+                        supplier.sellerId ??
+                        "",
+
                     supplierName:
-                        response.data.supplierName || "",
+                        supplier.supplierName ??
+                        "",
+
                     contactPerson:
-                        response.data.contactPerson || "",
+                        supplier.contactPerson ??
+                        "",
+
                     phone:
-                        response.data.phone || "",
+                        supplier.phone ??
+                        "",
+
                     email:
-                        response.data.email || "",
+                        supplier.email ??
+                        "",
+
                     address:
-                        response.data.address || "",
+                        supplier.address ??
+                        "",
+
                     city:
-                        response.data.city || "",
+                        supplier.city ??
+                        "",
+
                     state:
-                        response.data.state || "",
+                        supplier.state ??
+                        "",
+
                     country:
-                        response.data.country || "",
+                        supplier.country ??
+                        "",
+
                     gstNumber:
-                        response.data.gstNumber || ""
+                        supplier.gstNumber ??
+                        ""
+
                 });
 
-            } catch (err) {
+            }
+
+            catch (err) {
 
                 console.error(
                     "Supplier loading error:",
                     err
                 );
 
-                setError(
-                    err.response?.data?.message ||
-                    "Failed to load supplier"
+
+                console.error(
+                    "Response:",
+                    err.response?.data
                 );
 
-            } finally {
+
+                console.error(
+                    "Status:",
+                    err.response?.status
+                );
+
+
+                setError(
+
+                    err.response?.data?.message ||
+
+                    err.response?.data?.title ||
+
+                    err.message ||
+
+                    "Failed to load supplier"
+
+                );
+
+            }
+
+            finally {
 
                 setLoading(false);
 
             }
+
         };
+
 
         loadSupplier();
 
     }, [id]);
+
+
+    // ========================================================
+    // HANDLE CHANGE
+    // ========================================================
 
     const handleChange = (e) => {
 
@@ -112,68 +271,255 @@ const SupplierEdit = () => {
             value
         } = e.target;
 
-        setFormData((prev) => ({
-            ...prev,
+
+        setFormData((previous) => ({
+
+            ...previous,
+
             [name]: value
+
         }));
+
     };
+
+
+    // ========================================================
+    // UPDATE SUPPLIER
+    // ========================================================
 
     const handleSubmit = async (e) => {
 
         e.preventDefault();
 
+
+        // ----------------------------------------------------
+        // Validate ID
+        // ----------------------------------------------------
+
+        if (
+            !id ||
+            id === ":id" ||
+            isNaN(Number(id))
+        ) {
+
+            setError(
+                "Invalid supplier ID"
+            );
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Validate required fields
+        // ----------------------------------------------------
+
+        if (
+            !formData.sellerId ||
+            !formData.supplierName.trim()
+        ) {
+
+            setError(
+                "Seller ID and Supplier Name are required"
+            );
+
+            return;
+        }
+
+
         try {
 
             setSaving(true);
+
             setError("");
 
+
+            // ------------------------------------------------
+            // Prepare payload
+            // ------------------------------------------------
+
             const payload = {
-                ...formData,
-                sellerId: Number(formData.sellerId)
+
+                sellerId:
+                    Number(formData.sellerId),
+
+                supplierName:
+                    formData.supplierName.trim(),
+
+                contactPerson:
+                    formData.contactPerson?.trim() ||
+                    "",
+
+                phone:
+                    formData.phone?.trim() ||
+                    "",
+
+                email:
+                    formData.email?.trim() ||
+                    "",
+
+                address:
+                    formData.address?.trim() ||
+                    "",
+
+                city:
+                    formData.city?.trim() ||
+                    "",
+
+                state:
+                    formData.state?.trim() ||
+                    "",
+
+                country:
+                    formData.country?.trim() ||
+                    "",
+
+                gstNumber:
+                    formData.gstNumber?.trim() ||
+                    ""
+
             };
 
-            await axios.put(
-                `${API_URL}/Supplier/${id}`,
+
+            console.log(
+                "Updating supplier:",
+                id
+            );
+
+            console.log(
+                "Supplier payload:",
                 payload
             );
 
-            navigate("/suppliers");
 
-        } catch (err) {
+            // ------------------------------------------------
+            // React -> Node -> ASP.NET
+            // ------------------------------------------------
+
+            const response =
+                await axios.put(
+                    `${API_URL}/Supplier/${id}`,
+                    payload,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            console.log(
+                "Supplier update response:",
+                response.data
+            );
+
+
+            // ------------------------------------------------
+            // Back to supplier list
+            // ------------------------------------------------
+
+            navigate(
+                "/suppliers"
+            );
+
+        }
+
+        catch (err) {
 
             console.error(
                 "Supplier update error:",
                 err
             );
 
-            setError(
-                err.response?.data?.message ||
-                "Failed to update supplier"
+
+            console.error(
+                "Response:",
+                err.response?.data
             );
 
-        } finally {
+
+            console.error(
+                "Status:",
+                err.response?.status
+            );
+
+
+            setError(
+
+                err.response?.data?.message ||
+
+                err.response?.data?.title ||
+
+                err.message ||
+
+                "Failed to update supplier"
+
+            );
+
+        }
+
+        finally {
 
             setSaving(false);
 
         }
+
     };
+
+
+    // ========================================================
+    // BACK
+    // ========================================================
+
+    const handleBack = () => {
+
+        navigate(
+            "/suppliers"
+        );
+
+    };
+
+
+    // ========================================================
+    // LOADING
+    // ========================================================
 
     if (loading) {
 
         return (
+
             <Box
                 display="flex"
                 justifyContent="center"
-                p={5}
+                alignItems="center"
+                minHeight="300px"
             >
+
                 <CircularProgress />
+
             </Box>
+
         );
+
     }
+
+
+    // ========================================================
+    // UI
+    // ========================================================
 
     return (
 
-        <Box>
+        <Box
+            sx={{
+                width: "100%"
+            }}
+        >
+
+            {/* ================================================
+                HEADER
+            ================================================= */}
 
             <Box
                 display="flex"
@@ -184,12 +530,11 @@ const SupplierEdit = () => {
 
                 <Button
                     startIcon={<ArrowBack />}
-                    onClick={() =>
-                        navigate("/suppliers")
-                    }
+                    onClick={handleBack}
                 >
                     Back
                 </Button>
+
 
                 <Typography variant="h5">
                     Edit Supplier
@@ -197,14 +542,27 @@ const SupplierEdit = () => {
 
             </Box>
 
+
+            {/* ================================================
+                ERROR
+            ================================================= */}
+
             {error && (
+
                 <Alert
                     severity="error"
                     sx={{ mb: 2 }}
+                    onClose={() => setError("")}
                 >
                     {error}
                 </Alert>
+
             )}
+
+
+            {/* ================================================
+                FORM CARD
+            ================================================= */}
 
             <Card>
 
@@ -220,7 +578,15 @@ const SupplierEdit = () => {
                             spacing={2}
                         >
 
-                            <Grid item xs={12} sm={6}>
+                            {/* =================================
+                                SELLER ID
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
 
                                 <TextField
                                     fullWidth
@@ -228,75 +594,152 @@ const SupplierEdit = () => {
                                     type="number"
                                     label="Seller ID"
                                     name="sellerId"
-                                    value={formData.sellerId}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.sellerId
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+
+                            {/* =================================
+                                SUPPLIER NAME
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
 
                                 <TextField
                                     fullWidth
                                     required
                                     label="Supplier Name"
                                     name="supplierName"
-                                    value={formData.supplierName}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.supplierName
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+
+                            {/* =================================
+                                CONTACT PERSON
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
 
                                 <TextField
                                     fullWidth
                                     label="Contact Person"
                                     name="contactPerson"
-                                    value={formData.contactPerson}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.contactPerson
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+
+                            {/* =================================
+                                PHONE
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
 
                                 <TextField
                                     fullWidth
                                     label="Phone"
                                     name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.phone
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+
+                            {/* =================================
+                                EMAIL
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
 
                                 <TextField
                                     fullWidth
                                     type="email"
                                     label="Email"
                                     name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.email
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+
+                            {/* =================================
+                                GST NUMBER
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
 
                                 <TextField
                                     fullWidth
                                     label="GST Number"
                                     name="gstNumber"
-                                    value={formData.gstNumber}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.gstNumber
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12}>
+
+                            {/* =================================
+                                ADDRESS
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                            >
 
                                 <TextField
                                     fullWidth
@@ -304,60 +747,133 @@ const SupplierEdit = () => {
                                     rows={3}
                                     label="Address"
                                     name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.address
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
+
+                            {/* =================================
+                                CITY
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={4}
+                            >
 
                                 <TextField
                                     fullWidth
                                     label="City"
                                     name="city"
-                                    value={formData.city}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.city
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
+
+                            {/* =================================
+                                STATE
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={4}
+                            >
 
                                 <TextField
                                     fullWidth
                                     label="State"
                                     name="state"
-                                    value={formData.state}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.state
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
+
+                            {/* =================================
+                                COUNTRY
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={4}
+                            >
 
                                 <TextField
                                     fullWidth
                                     label="Country"
                                     name="country"
-                                    value={formData.country}
-                                    onChange={handleChange}
+                                    value={
+                                        formData.country
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </Grid>
 
-                            <Grid item xs={12}>
 
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    startIcon={<Save />}
-                                    disabled={saving}
+                            {/* =================================
+                                ACTIONS
+                            ================================== */}
+
+                            <Grid
+                                item
+                                xs={12}
+                            >
+
+                                <Box
+                                    display="flex"
+                                    gap={2}
                                 >
-                                    {saving
-                                        ? "Updating..."
-                                        : "Update Supplier"}
-                                </Button>
+
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        startIcon={
+                                            <Save />
+                                        }
+                                        disabled={saving}
+                                    >
+
+                                        {saving
+                                            ? "Updating..."
+                                            : "Update Supplier"}
+
+                                    </Button>
+
+
+                                    <Button
+                                        variant="outlined"
+                                        onClick={
+                                            handleBack
+                                        }
+                                        disabled={saving}
+                                    >
+                                        Cancel
+                                    </Button>
+
+                                </Box>
 
                             </Grid>
 
@@ -370,7 +886,10 @@ const SupplierEdit = () => {
             </Card>
 
         </Box>
+
     );
+
 };
+
 
 export default SupplierEdit;

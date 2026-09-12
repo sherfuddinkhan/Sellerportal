@@ -928,19 +928,7 @@ const MainLayout = () => {
                         {
                             label: "Create Supplier",
                             path: "/suppliers/create",
-                        },
-                        {
-                            label: "Search",
-                            path: "/suppliers/search",
-                        },
-                        {
-                            label: "Filters",
-                            path: "/suppliers/filters",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/suppliers/statistics",
-                        },
+                        }, 
                     ],
                 },
 
