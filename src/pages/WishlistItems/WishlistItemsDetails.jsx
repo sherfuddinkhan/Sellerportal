@@ -1,4 +1,21 @@
-import React, { useEffect, useState } from "react";
+// ============================================================
+// WishlistItemsDetails.jsx
+// Wishlist Item Details Page
+//
+// Architecture:
+// React -> Node server.js -> ASP.NET Core API
+// ============================================================
+
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
+
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
 
 import {
     Box,
@@ -23,121 +40,393 @@ import {
 import axios from "axios";
 
 
-/* =========================================================
-   CONFIGURATION
-========================================================= */
+// ============================================================
+// CONFIGURATION
+// ============================================================
 
 const SERVER_URL =
-    import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
+    import.meta.env.VITE_SERVER_URL ||
+    "http://localhost:5000";
+
+const API_URL =
+    `${SERVER_URL}/api`;
 
 const WISHLIST_ITEM_API =
-    `${SERVER_URL}/api/WishlistItem`;
+    `${API_URL}/WishlistItem`;
 
 
-/* =========================================================
-   FORMAT CURRENCY
-========================================================= */
+// ============================================================
+// ID NORMALIZER
+// ============================================================
 
-const formatCurrency = (value) => {
+const normalizeId = (value) => {
 
-    const amount = Number(value);
-
-    if (!Number.isFinite(amount)) {
-        return "₹ 0.00";
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return null;
     }
 
-    return `₹ ${amount.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
+    const numericId = Number(value);
+
+    if (
+        !Number.isInteger(numericId) ||
+        numericId <= 0
+    ) {
+        return null;
+    }
+
+    return numericId;
 };
 
 
-/* =========================================================
-   COMPONENT
-========================================================= */
+// ============================================================
+// ERROR MESSAGE
+// ============================================================
+
+const getErrorMessage = (
+    error,
+    fallback
+) => {
+
+    return (
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        (
+            typeof error?.response?.data === "string"
+                ? error.response.data
+                : null
+        ) ||
+        error?.message ||
+        fallback
+    );
+};
+
+
+// ============================================================
+// RESPONSE HELPER
+// ============================================================
+
+const getResponseData = (response) => {
+
+    if (!response) {
+        return null;
+    }
+
+    return (
+        response.data?.data ??
+        response.data
+    );
+};
+
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const WishlistItemsDetails = ({
     wishlistItemId,
     id,
-    onBack,
     onEdit,
     onDelete
 }) => {
 
+    const navigate = useNavigate();
+
+    const {
+        id: routeId
+    } = useParams();
+
+
+    // ========================================================
+    // RESOLVE ITEM ID
+    // ========================================================
+
     const itemId =
-        wishlistItemId ??
-        id;
+        normalizeId(
+            wishlistItemId ??
+            id ??
+            routeId
+        );
 
 
-    const [item, setItem] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    // ========================================================
+    // STATE
+    // ========================================================
+
+    const [item, setItem] =
+        useState(null);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [error, setError] =
+        useState("");
 
 
-    /* =====================================================
-       LOAD WISHLIST ITEM
-    ===================================================== */
+    // ========================================================
+    // BACK
+    // ========================================================
 
-    const loadWishlistItem = async () => {
+    const handleBack = useCallback(() => {
 
-        if (!itemId) {
+        navigate("/wishlist-items");
 
-            setError("Wishlist Item ID is required.");
-            setLoading(false);
+    }, [
+        navigate
+    ]);
 
-            return;
-        }
 
-        try {
+    // ========================================================
+    // LOAD WISHLIST ITEM
+    // ========================================================
 
-            setLoading(true);
-            setError("");
+    const loadWishlistItem =
+        useCallback(async () => {
 
-            const response = await axios.get(
-                `${WISHLIST_ITEM_API}/${itemId}`
+            if (!itemId) {
+
+                setError(
+                    "Wishlist Item ID is required."
+                );
+
+                setItem(null);
+                setLoading(false);
+
+                return;
+            }
+
+
+            const url =
+                `${WISHLIST_ITEM_API}/${itemId}`;
+
+
+            console.log(
+                "================================================"
             );
 
-            setItem(
-                response.data?.data ??
-                response.data
+            console.log(
+                "GET WISHLIST ITEM DETAILS"
             );
 
-        } catch (err) {
-
-            console.error(
-                "LOAD WISHLIST ITEM ERROR:",
-                err
+            console.log(
+                "URL:",
+                url
             );
 
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                "Unable to load wishlist item."
+            console.log(
+                "WISHLIST ITEM ID:",
+                itemId
             );
 
-        } finally {
-
-            setLoading(false);
-
-        }
-    };
+            console.log(
+                "================================================"
+            );
 
 
-    /* =====================================================
-       LOAD ON ID CHANGE
-    ===================================================== */
+            try {
+
+                setLoading(true);
+                setError("");
+
+
+                const response =
+                    await axios.get(
+                        url,
+                        {
+                            timeout: 30000
+                        }
+                    );
+
+
+                const data =
+                    getResponseData(response);
+
+
+                console.log(
+                    "WISHLIST ITEM DETAILS RESPONSE:",
+                    data
+                );
+
+
+                if (!data) {
+
+                    throw new Error(
+                        `Wishlist item ${itemId} was not found.`
+                    );
+                }
+
+
+                setItem(data);
+
+            } catch (err) {
+
+                console.error(
+                    "LOAD WISHLIST ITEM DETAILS ERROR:",
+                    {
+                        url,
+                        status:
+                            err.response?.status,
+                        response:
+                            err.response?.data,
+                        message:
+                            err.message
+                    }
+                );
+
+
+                setItem(null);
+
+
+                if (
+                    err.response?.status === 404
+                ) {
+
+                    setError(
+                        `Wishlist item ${itemId} was not found.`
+                    );
+
+                } else {
+
+                    setError(
+                        getErrorMessage(
+                            err,
+                            "Unable to load wishlist item."
+                        )
+                    );
+                }
+
+            } finally {
+
+                setLoading(false);
+            }
+
+        }, [
+            itemId
+        ]);
+
+
+    // ========================================================
+    // LOAD ON ID CHANGE
+    // ========================================================
 
     useEffect(() => {
 
         loadWishlistItem();
 
-    }, [itemId]);
+    }, [
+        loadWishlistItem
+    ]);
 
 
-    /* =====================================================
-       LOADING STATE
-    ===================================================== */
+    // ========================================================
+    // DISPLAY ID
+    // ========================================================
+
+    const displayedItemId =
+        normalizeId(
+            item?.wishlistItemId ??
+            item?.WishlistItemId
+        ) ??
+        itemId;
+
+
+    // ========================================================
+    // FIELD VALUES
+    // ========================================================
+
+    const wishlistId =
+        item?.wishlistId ??
+        item?.WishlistId ??
+        "-";
+
+
+    const sellerId =
+        item?.sellerId ??
+        item?.SellerId ??
+        "-";
+
+
+    const customerId =
+        item?.customerId ??
+        item?.CustomerId ??
+        "-";
+
+
+    const productId =
+        item?.productId ??
+        item?.ProductId ??
+        "-";
+
+
+    const createdDate =
+        item?.createdDate ??
+        item?.CreatedDate ??
+        null;
+
+
+    // ========================================================
+    // STATUS
+    // ========================================================
+
+    const status =
+        item?.status ??
+        item?.Status ??
+        "Active";
+
+
+    // ========================================================
+    // EDIT
+    // ========================================================
+
+    const handleEdit = () => {
+
+        if (
+            typeof onEdit ===
+            "function"
+        ) {
+
+            onEdit(item);
+
+            return;
+        }
+
+
+        navigate(
+            `/wishlist-items/edit/${displayedItemId}`
+        );
+    };
+
+
+    // ========================================================
+    // DELETE
+    // ========================================================
+
+    const handleDelete = () => {
+
+        if (
+            typeof onDelete ===
+            "function"
+        ) {
+
+            onDelete(item);
+
+            return;
+        }
+
+
+        console.log(
+            "DELETE WISHLIST ITEM:",
+            displayedItemId
+        );
+    };
+
+
+    // ========================================================
+    // LOADING
+    // ========================================================
 
     if (loading) {
 
@@ -155,18 +444,32 @@ const WishlistItemsDetails = ({
 
                 <CircularProgress />
 
-                <Typography color="text.secondary">
+                <Typography
+                    color="text.secondary"
+                >
                     Loading Wishlist Item...
                 </Typography>
+
+
+                {itemId && (
+
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                    >
+                        Wishlist Item ID: {itemId}
+                    </Typography>
+
+                )}
 
             </Box>
         );
     }
 
 
-    /* =====================================================
-       ERROR STATE
-    ===================================================== */
+    // ========================================================
+    // ERROR
+    // ========================================================
 
     if (error) {
 
@@ -180,10 +483,36 @@ const WishlistItemsDetails = ({
                     {error}
                 </Alert>
 
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                >
+                    API Endpoint
+                </Typography>
+
+
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontFamily: "monospace",
+                        wordBreak: "break-all",
+                        mb: 2
+                    }}
+                >
+                    {itemId
+                        ? `${WISHLIST_ITEM_API}/${itemId}`
+                        : WISHLIST_ITEM_API}
+                </Typography>
+
+
                 <Button
                     variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={onBack}
+                    startIcon={
+                        <ArrowBack />
+                    }
+                    onClick={handleBack}
                 >
                     Back
                 </Button>
@@ -193,9 +522,9 @@ const WishlistItemsDetails = ({
     }
 
 
-    /* =====================================================
-       NO DATA
-    ===================================================== */
+    // ========================================================
+    // NO DATA
+    // ========================================================
 
     if (!item) {
 
@@ -206,10 +535,13 @@ const WishlistItemsDetails = ({
                     Wishlist item not found.
                 </Alert>
 
+
                 <Button
                     sx={{ mt: 2 }}
-                    startIcon={<ArrowBack />}
-                    onClick={onBack}
+                    startIcon={
+                        <ArrowBack />
+                    }
+                    onClick={handleBack}
                 >
                     Back
                 </Button>
@@ -219,78 +551,15 @@ const WishlistItemsDetails = ({
     }
 
 
-    /* =====================================================
-       EXTRACT DATA
-    ===================================================== */
-
-    const wishlistItemIdValue =
-        item.wishlistItemId ??
-        item.WishlistItemId ??
-        item.id ??
-        item.Id ??
-        itemId;
-
-
-    const wishlistId =
-        item.wishlistId ??
-        item.WishlistId ??
-        "-";
-
-
-    const productId =
-        item.productId ??
-        item.ProductId ??
-        "-";
-
-
-    const productName =
-        item.productName ??
-        item.ProductName ??
-        item.name ??
-        item.Name ??
-        `Product #${productId}`;
-
-
-    const productCode =
-        item.productCode ??
-        item.ProductCode ??
-        "-";
-
-
-    const quantity =
-        item.quantity ??
-        item.Quantity ??
-        0;
-
-
-    const price =
-        item.price ??
-        item.Price ??
-        0;
-
-
-    const status =
-        item.status ??
-        item.Status ??
-        "Active";
-
-
-    const createdDate =
-        item.createdDate ??
-        item.CreatedDate ??
-        item.createdAt ??
-        item.CreatedAt;
-
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
         <Box sx={{ p: 3 }}>
 
             {/* =================================================
-               HEADER
+                HEADER
             ================================================= */}
 
             <Box
@@ -307,18 +576,31 @@ const WishlistItemsDetails = ({
                 <Box>
 
                     <Button
-                        startIcon={<ArrowBack />}
-                        onClick={onBack}
+                        startIcon={
+                            <ArrowBack />
+                        }
+                        onClick={handleBack}
                         sx={{ mb: 1 }}
                     >
                         Back
                     </Button>
+
 
                     <Typography
                         variant="h4"
                         fontWeight={700}
                     >
                         Wishlist Item Details
+                    </Typography>
+
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Wishlist Item ID:{" "}
+                        {displayedItemId}
                     </Typography>
 
                 </Box>
@@ -331,24 +613,24 @@ const WishlistItemsDetails = ({
                     }}
                 >
 
-                    {/* EDIT */}
-
                     <Button
                         variant="outlined"
-                        startIcon={<Edit />}
-                        onClick={() => onEdit?.(item)}
+                        startIcon={
+                            <Edit />
+                        }
+                        onClick={handleEdit}
                     >
                         Edit
                     </Button>
 
 
-                    {/* DELETE */}
-
                     <Button
                         variant="outlined"
                         color="error"
-                        startIcon={<Delete />}
-                        onClick={() => onDelete?.(item)}
+                        startIcon={
+                            <Delete />
+                        }
+                        onClick={handleDelete}
                     >
                         Delete
                     </Button>
@@ -359,16 +641,12 @@ const WishlistItemsDetails = ({
 
 
             {/* =================================================
-               MAIN CARD
+                MAIN CARD
             ================================================= */}
 
             <Card elevation={2}>
 
                 <CardContent sx={{ p: 3 }}>
-
-                    {/* =================================================
-                       PRODUCT HEADER
-                    ================================================= */}
 
                     <Box
                         sx={{
@@ -386,19 +664,22 @@ const WishlistItemsDetails = ({
                             }}
                         />
 
+
                         <Box>
 
                             <Typography
                                 variant="h5"
                                 fontWeight={700}
                             >
-                                {productName}
+                                Wishlist Item #
+                                {displayedItemId}
                             </Typography>
+
 
                             <Typography
                                 color="text.secondary"
                             >
-                                SKU: {productCode}
+                                Product ID: {productId}
                             </Typography>
 
                         </Box>
@@ -406,21 +687,22 @@ const WishlistItemsDetails = ({
                     </Box>
 
 
-                    <Divider sx={{ mb: 3 }} />
+                    <Divider
+                        sx={{ mb: 3 }}
+                    />
 
-
-                    {/* =================================================
-                       DETAILS
-                    ================================================= */}
 
                     <Grid
                         container
                         spacing={3}
                     >
 
-                        {/* WISHLIST ITEM ID */}
-
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                        >
 
                             <Typography
                                 variant="caption"
@@ -429,16 +711,22 @@ const WishlistItemsDetails = ({
                                 Wishlist Item ID
                             </Typography>
 
-                            <Typography fontWeight={600}>
-                                {wishlistItemIdValue}
+
+                            <Typography
+                                fontWeight={600}
+                            >
+                                {displayedItemId}
                             </Typography>
 
                         </Grid>
 
 
-                        {/* WISHLIST ID */}
-
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                        >
 
                             <Typography
                                 variant="caption"
@@ -447,16 +735,70 @@ const WishlistItemsDetails = ({
                                 Wishlist ID
                             </Typography>
 
-                            <Typography fontWeight={600}>
+
+                            <Typography
+                                fontWeight={600}
+                            >
                                 {wishlistId}
                             </Typography>
 
                         </Grid>
 
 
-                        {/* PRODUCT ID */}
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                        >
 
-                        <Grid item xs={12} sm={6} md={3}>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Seller ID
+                            </Typography>
+
+
+                            <Typography
+                                fontWeight={600}
+                            >
+                                {sellerId}
+                            </Typography>
+
+                        </Grid>
+
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Customer ID
+                            </Typography>
+
+
+                            <Typography
+                                fontWeight={600}
+                            >
+                                {customerId}
+                            </Typography>
+
+                        </Grid>
+
+
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                        >
 
                             <Typography
                                 variant="caption"
@@ -465,16 +807,22 @@ const WishlistItemsDetails = ({
                                 Product ID
                             </Typography>
 
-                            <Typography fontWeight={600}>
+
+                            <Typography
+                                fontWeight={600}
+                            >
                                 {productId}
                             </Typography>
 
                         </Grid>
 
 
-                        {/* STATUS */}
-
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                        >
 
                             <Typography
                                 variant="caption"
@@ -483,13 +831,16 @@ const WishlistItemsDetails = ({
                                 Status
                             </Typography>
 
+
                             <Box sx={{ mt: 0.5 }}>
 
                                 <Chip
                                     label={status}
                                     size="small"
                                     color={
-                                        String(status).toLowerCase() === "active"
+                                        String(status)
+                                            .toLowerCase() ===
+                                        "active"
                                             ? "success"
                                             : "default"
                                     }
@@ -500,71 +851,34 @@ const WishlistItemsDetails = ({
                         </Grid>
 
 
-                        {/* QUANTITY */}
-
-                        <Grid item xs={12} sm={6}>
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
-                                Quantity
-                            </Typography>
-
-                            <Typography
-                                variant="h6"
-                                fontWeight={700}
-                            >
-                                {quantity}
-                            </Typography>
-
-                        </Grid>
-
-
-                        {/* PRICE */}
-
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={6}
+                        >
 
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
                             >
-                                Price
+                                Created Date
                             </Typography>
+
 
                             <Typography
-                                variant="h6"
-                                fontWeight={700}
-                                color="primary"
+                                fontWeight={600}
                             >
-                                {formatCurrency(price)}
-                            </Typography>
-
-                        </Grid>
-
-
-                        {/* CREATED DATE */}
-
-                        {createdDate && (
-
-                            <Grid item xs={12}>
-
-                                <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                >
-                                    Created Date
-                                </Typography>
-
-                                <Typography>
-                                    {new Date(
+                                {createdDate
+                                    ? new Date(
                                         createdDate
-                                    ).toLocaleString("en-IN")}
-                                </Typography>
+                                    ).toLocaleString(
+                                        "en-IN"
+                                    )
+                                    : "-"}
+                            </Typography>
 
-                            </Grid>
-
-                        )}
+                        </Grid>
 
                     </Grid>
 

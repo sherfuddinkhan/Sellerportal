@@ -1,289 +1,520 @@
-
-import React, { useEffect, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
 
 import {
-    Box,
-    Typography,
     Alert,
+    Box,
     Button,
-    CircularProgress
+    CircularProgress,
+    Typography
 } from "@mui/material";
 
 import {
     Refresh
 } from "@mui/icons-material";
 
+import {
+    useNavigate
+} from "react-router-dom";
+
 import axios from "axios";
 
 import WishlistItemTable from "./WishlistTable";
 
 
-/* =========================================================
-   SERVER URL
-========================================================= */
+// =========================================================
+// NODE SERVER
+// React -> Node -> ASP.NET Core
+// =========================================================
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
+
+const API_URL =
+    `${SERVER_URL}/api`;
 
 
-/* =========================================================
-   WISHLIST ITEM LIST
-========================================================= */
+// =========================================================
+// WISHLIST ITEM LIST
+// =========================================================
 
 const WishlistList = () => {
 
-    /* =====================================================
-       STATE
-    ===================================================== */
-
-    const [wishlistItems, setWishlistItems] = useState([]);
-
-    const [loading, setLoading] = useState(false);
-
-    const [error, setError] = useState("");
+    const navigate =
+        useNavigate();
 
 
-    /* =====================================================
-       LOAD ALL WISHLIST ITEMS
-    ===================================================== */
+    // =====================================================
+    // STATE
+    // =====================================================
 
-    const loadWishlistItems = async () => {
+    const [
+        wishlistItems,
+        setWishlistItems
+    ] = useState([]);
 
-        try {
+    const [
+        loading,
+        setLoading
+    ] = useState(true);
 
-            setLoading(true);
-            setError("");
-
-            console.log(
-                "================================================"
-            );
-
-            console.log(
-                "GET ALL WISHLIST ITEMS"
-            );
-
-            console.log(
-                "================================================"
-            );
+    const [
+        error,
+        setError
+    ] = useState("");
 
 
-            const response = await axios.get(
-                `${SERVER_URL}/api/WishlistItem`
-            );
+    // =====================================================
+    // LOAD WISHLIST ITEMS
+    // =====================================================
+
+    const loadWishlistItems =
+        useCallback(async () => {
+
+            try {
+
+                setLoading(true);
+
+                setError("");
 
 
-            console.log(
-                "WISHLIST ITEMS RESPONSE:",
-                response.data
-            );
+                console.log(
+                    "================================================"
+                );
+
+                console.log(
+                    "GET ALL WISHLIST ITEMS"
+                );
+
+                console.log(
+                    "URL:",
+                    `${API_URL}/WishlistItem`
+                );
+
+                console.log(
+                    "================================================"
+                );
 
 
-            /* =============================================
-               NORMALIZE API RESPONSE
-            ============================================= */
+                const response =
+                    await axios.get(
+                        `${API_URL}/WishlistItem`,
+                        {
+                            timeout: 30000
+                        }
+                    );
 
-            let data = [];
+
+                console.log(
+                    "WISHLIST ITEMS RESPONSE:",
+                    response.data
+                );
 
 
-            if (Array.isArray(response.data)) {
+                // =================================================
+                // ASP.NET CURRENT RESPONSE IS A DIRECT ARRAY
+                //
+                // [
+                //   {
+                //     wishlistItemId: 2,
+                //     wishlistId: 2,
+                //     sellerId: 6,
+                //     customerId: 3,
+                //     productId: 6,
+                //     createdDate: "..."
+                //   }
+                // ]
+                // =================================================
 
-                data = response.data;
+                let data = [];
 
-            } else if (
-                Array.isArray(response.data?.data)
-            ) {
 
-                data = response.data.data;
+                if (
+                    Array.isArray(
+                        response.data
+                    )
+                ) {
 
-            } else if (
-                Array.isArray(response.data?.items)
-            ) {
+                    data =
+                        response.data;
 
-                data = response.data.items;
+                }
 
-            } else if (
-                Array.isArray(response.data?.wishlistItems)
-            ) {
+                else if (
+                    Array.isArray(
+                        response.data?.data
+                    )
+                ) {
 
-                data = response.data.wishlistItems;
+                    data =
+                        response.data.data;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        response.data?.items
+                    )
+                ) {
+
+                    data =
+                        response.data.items;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        response.data?.wishlistItems
+                    )
+                ) {
+
+                    data =
+                        response.data.wishlistItems;
+
+                }
+
+
+                console.log(
+                    "NORMALIZED WISHLIST ITEMS:",
+                    data
+                );
+
+                console.log(
+                    "WISHLIST ITEM COUNT:",
+                    data.length
+                );
+
+
+                setWishlistItems(
+                    data
+                );
 
             }
 
+            catch (err) {
 
-            console.log(
-                "NORMALIZED WISHLIST ITEMS:",
-                data
-            );
+                console.error(
+                    "================================================"
+                );
 
+                console.error(
+                    "LOAD WISHLIST ITEMS ERROR"
+                );
 
-            setWishlistItems(data);
+                console.error(
+                    "MESSAGE:",
+                    err.message
+                );
 
-        } catch (error) {
+                console.error(
+                    "STATUS:",
+                    err.response?.status
+                );
 
-            console.error(
-                "LOAD WISHLIST ITEMS ERROR:",
-                error.response?.data || error.message
-            );
+                console.error(
+                    "DATA:",
+                    err.response?.data
+                );
 
-
-            setError(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Failed to load wishlist items."
-            );
-
-
-            setWishlistItems([]);
-
-        } finally {
-
-            setLoading(false);
-
-        }
-    };
+                console.error(
+                    "================================================"
+                );
 
 
-    /* =====================================================
-       LOAD ON COMPONENT MOUNT
-    ===================================================== */
+                setWishlistItems([]);
+
+
+                setError(
+                    err.response?.data?.message ||
+                    err.response?.data ||
+                    err.message ||
+                    "Failed to load wishlist items."
+                );
+
+            }
+
+            finally {
+
+                setLoading(false);
+
+            }
+
+        }, []);
+
+
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
 
     useEffect(() => {
 
         loadWishlistItems();
 
-    }, []);
+    }, [
+        loadWishlistItems
+    ]);
 
 
-    /* =====================================================
-       VIEW
-    ===================================================== */
+    // =====================================================
+    // VIEW
+    // =====================================================
 
-    const handleView = (wishlistItemId) => {
+    const handleView =
+        useCallback(
+            (wishlistItemId) => {
 
-        console.log(
-            "VIEW WISHLIST ITEM:",
-            wishlistItemId
-        );
-
-        // Navigation can be added here if required.
-        // Example:
-        //
-        // navigate(
-        //     `/wishlist-items/details/${wishlistItemId}`
-        // );
-    };
+                const id =
+                    Number(
+                        wishlistItemId
+                    );
 
 
-    /* =====================================================
-       EDIT
-    ===================================================== */
+                if (
+                    !Number.isInteger(id) ||
+                    id <= 0
+                ) {
 
-    const handleEdit = (wishlistItemId) => {
+                    console.error(
+                        "Invalid Wishlist Item ID:",
+                        wishlistItemId
+                    );
 
-        console.log(
-            "EDIT WISHLIST ITEM:",
-            wishlistItemId
-        );
+                    return;
 
-        // Example:
-        //
-        // navigate(
-        //     `/wishlist-items/edit/${wishlistItemId}`
-        // );
-    };
+                }
 
 
-    /* =====================================================
-       DELETE
-    ===================================================== */
-
-    const handleDelete = async (wishlistItemId) => {
-
-        if (!wishlistItemId) {
-
-            console.error(
-                "Wishlist Item ID not found."
-            );
-
-            return;
-        }
+                console.log(
+                    "VIEW WISHLIST ITEM:",
+                    id
+                );
 
 
-        const confirmed = window.confirm(
-            "Are you sure you want to remove this wishlist item?"
+                navigate(
+                    `/wishlist-items/details/${id}`
+                );
+
+            },
+            [
+                navigate
+            ]
         );
 
 
-        if (!confirmed) {
-            return;
-        }
+    // =====================================================
+    // EDIT
+    // =====================================================
+
+    const handleEdit =
+        useCallback(
+            (wishlistItemId) => {
+
+                const id =
+                    Number(
+                        wishlistItemId
+                    );
 
 
-        try {
+                if (
+                    !Number.isInteger(id) ||
+                    id <= 0
+                ) {
 
-            console.log(
-                `DELETE WISHLIST ITEM: ${wishlistItemId}`
-            );
+                    console.error(
+                        "Invalid Wishlist Item ID:",
+                        wishlistItemId
+                    );
 
+                    return;
 
-            await axios.delete(
-                `${SERVER_URL}/api/WishlistItem/${wishlistItemId}`
-            );
-
-
-            /* =============================================
-               REMOVE FROM UI
-            ============================================= */
-
-            setWishlistItems((previous) =>
-                previous.filter((item) => {
-
-                    const id =
-                        item?.wishlistItemId ??
-                        item?.WishlistItemId ??
-                        item?.id ??
-                        item?.Id;
-
-                    return id !== wishlistItemId;
-
-                })
-            );
+                }
 
 
-            console.log(
-                "WISHLIST ITEM DELETED SUCCESSFULLY"
-            );
-
-        } catch (error) {
-
-            console.error(
-                "DELETE WISHLIST ITEM ERROR:",
-                error.response?.data || error.message
-            );
+                console.log(
+                    "EDIT WISHLIST ITEM:",
+                    id
+                );
 
 
-            setError(
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Failed to delete wishlist item."
-            );
-        }
-    };
+                navigate(
+                    `/wishlist-items/edit/${id}`
+                );
+
+            },
+            [
+                navigate
+            ]
+        );
 
 
-    /* =====================================================
-       RETRY / REFRESH
-    ===================================================== */
+    // =====================================================
+    // DELETE
+    // =====================================================
 
-    const handleRetry = () => {
+    const handleDelete =
+        useCallback(
+            async (wishlistItemId) => {
 
-        loadWishlistItems();
+                const id =
+                    Number(
+                        wishlistItemId
+                    );
 
-    };
+
+                if (
+                    !Number.isInteger(id) ||
+                    id <= 0
+                ) {
+
+                    setError(
+                        "Invalid Wishlist Item ID."
+                    );
+
+                    return;
+
+                }
 
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+                const confirmed =
+                    window.confirm(
+                        "Are you sure you want to remove this wishlist item?"
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    setError("");
+
+
+                    console.log(
+                        "DELETE WISHLIST ITEM:",
+                        id
+                    );
+
+
+                    const response =
+                        await axios.delete(
+                            `${API_URL}/WishlistItem/${id}`,
+                            {
+                                timeout: 30000
+                            }
+                        );
+
+
+                    console.log(
+                        "DELETE WISHLIST ITEM SUCCESS:",
+                        response.status,
+                        response.data
+                    );
+
+
+                    // =============================================
+                    // Remove immediately from UI
+                    // =============================================
+
+                    setWishlistItems(
+                        previousItems =>
+                            previousItems.filter(
+                                item => {
+
+                                    const itemId =
+                                        Number(
+                                            item?.wishlistItemId ??
+                                            item?.WishlistItemId
+                                        );
+
+                                    return (
+                                        itemId !== id
+                                    );
+
+                                }
+                            )
+                    );
+
+                }
+
+                catch (err) {
+
+                    console.error(
+                        "DELETE WISHLIST ITEM ERROR:",
+                        err
+                    );
+
+
+                    console.error(
+                        "STATUS:",
+                        err.response?.status
+                    );
+
+
+                    console.error(
+                        "DATA:",
+                        err.response?.data
+                    );
+
+
+                    setError(
+                        err.response?.data?.message ||
+                        err.response?.data ||
+                        err.message ||
+                        "Failed to delete wishlist item."
+                    );
+
+                }
+
+            },
+            []
+        );
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+
+            <Box
+                sx={{
+                    width: "100%",
+                    minHeight: 300,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 2
+                }}
+            >
+
+                <CircularProgress />
+
+                <Typography
+                    color="text.secondary"
+                >
+                    Loading wishlist items...
+                </Typography>
+
+            </Box>
+
+        );
+
+    }
+
+
+    // =====================================================
+    // PAGE
+    // =====================================================
 
     return (
 
@@ -295,7 +526,7 @@ const WishlistList = () => {
         >
 
             {/* =================================================
-                PAGE HEADER
+                HEADER
             ================================================= */}
 
             <Box
@@ -320,7 +551,9 @@ const WishlistList = () => {
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ mt: 0.5 }}
+                        sx={{
+                            mt: 0.5
+                        }}
                     >
                         Manage wishlist items
                     </Typography>
@@ -330,9 +563,15 @@ const WishlistList = () => {
 
                 <Button
                     variant="outlined"
-                    startIcon={<Refresh />}
-                    onClick={handleRetry}
-                    disabled={loading}
+                    startIcon={
+                        <Refresh />
+                    }
+                    onClick={
+                        loadWishlistItems
+                    }
+                    disabled={
+                        loading
+                    }
                 >
                     Refresh
                 </Button>
@@ -348,70 +587,49 @@ const WishlistList = () => {
 
                 <Alert
                     severity="error"
-                    sx={{ mb: 3 }}
-                    action={
-                        <Button
-                            color="inherit"
-                            size="small"
-                            onClick={handleRetry}
-                        >
-                            Retry
-                        </Button>
+                    sx={{
+                        mb: 3
+                    }}
+                    onClose={() =>
+                        setError("")
                     }
                 >
-                    {error}
+
+                    {String(error)}
+
                 </Alert>
 
             )}
 
 
             {/* =================================================
-                LOADING
+                TABLE
             ================================================= */}
 
-            {loading && wishlistItems.length === 0 ? (
+            <WishlistItemTable
 
-                <Box
-                    sx={{
-                        minHeight: 300,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 2
-                    }}
-                >
+                items={
+                    wishlistItems
+                }
 
-                    <CircularProgress />
+                onView={
+                    handleView
+                }
 
+                onEdit={
+                    handleEdit
+                }
 
-                    <Typography
-                        color="text.secondary"
-                    >
-                        Loading wishlist items...
-                    </Typography>
+                onDelete={
+                    handleDelete
+                }
 
-                </Box>
-
-            ) : (
-
-                /* =============================================
-                   WISHLIST ITEM TABLE
-                ============================================= */
-
-                <WishlistItemTable
-                    items={wishlistItems}
-                    wishlistItems={wishlistItems}
-                    loading={loading}
-                    onView={handleView}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
-
-            )}
+            />
 
         </Box>
+
     );
+
 };
 
 

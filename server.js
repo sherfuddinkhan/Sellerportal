@@ -13539,140 +13539,213 @@ app.delete("/api/Wishlist/:id", async (req, res) => {
 /////////////whishlist items/////////
 /* =========================================================
    WISHLIST ITEMS
+   React -> Node -> ASP.NET Core
 ========================================================= */
 
 
 /* =========================================================
    GET ALL WISHLIST ITEMS
+
+   React:
+   GET http://localhost:5000/api/WishlistItem
+
+   ASP.NET:
+   GET https://localhost:7203/api/WishlistItem
 ========================================================= */
 
-app.get("/api/WishlistItem", async (req, res) => {
+app.get(
+    "/api/WishlistItem",
+    async (req, res) => {
 
-    try {
-
-        console.log("GET ALL WISHLIST ITEMS");
-
-        const response = await axios.get(
-            `${DOTNET_API}/WishlistItem`,
-            {
-                httpsAgent
-            }
+        console.log(
+            "GET ALL WISHLIST ITEMS"
         );
 
-        res
-            .status(response.status)
-            .json(response.data);
+        try {
 
-    } catch (error) {
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/WishlistItem`,
+                    {
+                        httpsAgent,
+                        timeout: 30000
+                    }
+                );
 
-        console.error(
-            "GET ALL WISHLIST ITEMS ERROR:",
-            error.response?.data || error.message
-        );
+            console.log(
+                "GET ALL WISHLIST ITEMS SUCCESS:",
+                response.status
+            );
 
-        res
-            .status(error.response?.status || 500)
-            .json({
-                message:
-                    error.response?.data?.message ||
-                    error.response?.data ||
-                    "Failed to fetch wishlist items"
-            });
+            return res
+                .status(response.status)
+                .json(response.data);
+
+        }
+        catch (error) {
+
+            console.error(
+                "GET ALL WISHLIST ITEMS ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch wishlist items."
+                    }
+                );
+        }
     }
-});
+);
 
 
 /* =========================================================
    CREATE WISHLIST ITEM
+
+   React:
+   POST /api/WishlistItem
+
+   ASP.NET:
+   POST /api/WishlistItem
 ========================================================= */
 
-app.post("/api/WishlistItem", async (req, res) => {
-
-    try {
+app.post(
+    "/api/WishlistItem",
+    async (req, res) => {
 
         console.log(
-            "CREATE WISHLIST ITEM REQUEST:",
-            JSON.stringify(req.body, null, 2)
+            "CREATE WISHLIST ITEM:",
+            JSON.stringify(
+                req.body,
+                null,
+                2
+            )
         );
 
-        const response = await axios.post(
-            `${DOTNET_API}/WishlistItem`,
-            req.body,
-            {
-                httpsAgent,
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }
-        );
+        try {
 
-        res
-            .status(response.status)
-            .json(response.data);
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/WishlistItem`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
 
-    } catch (error) {
+            console.log(
+                "CREATE WISHLIST ITEM SUCCESS:",
+                response.status
+            );
 
-        console.error(
-            "CREATE WISHLIST ITEM ERROR:",
-            error.response?.data || error.message
-        );
+            return res
+                .status(response.status)
+                .json(response.data);
 
-        res
-            .status(error.response?.status || 500)
-            .json({
-                message:
-                    error.response?.data?.message ||
-                    error.response?.data ||
-                    "Failed to create wishlist item"
-            });
+        }
+        catch (error) {
+
+            console.error(
+                "CREATE WISHLIST ITEM ERROR:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to create wishlist item."
+                    }
+                );
+        }
     }
-});
+);
 
 
 /* =========================================================
    GET WISHLIST ITEMS BY WISHLIST
+
    IMPORTANT:
-   This must come BEFORE /:id
+   Must be before /:id
 ========================================================= */
 
 app.get(
     "/api/WishlistItem/wishlist/:wishlistId",
     async (req, res) => {
 
+        const wishlistId =
+            Number(req.params.wishlistId);
+
+        console.log(
+            "GET WISHLIST ITEMS BY WISHLIST:",
+            wishlistId
+        );
+
+        if (
+            !Number.isInteger(wishlistId) ||
+            wishlistId <= 0
+        ) {
+
+            return res.status(400).json({
+                message:
+                    "Invalid Wishlist ID."
+            });
+        }
+
         try {
 
-            const { wishlistId } = req.params;
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/WishlistItem/wishlist/${wishlistId}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000
+                    }
+                );
 
             console.log(
-                `GET WISHLIST ITEMS BY WISHLIST: ${wishlistId}`
+                "GET WISHLIST ITEMS BY WISHLIST SUCCESS:",
+                response.status
             );
 
-            const response = await axios.get(
-                `${DOTNET_API}/WishlistItem/wishlist/${wishlistId}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            res
+            return res
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET WISHLIST ITEMS BY WISHLIST ERROR:",
-                error.response?.data || error.message
+                error.response?.data ||
+                error.message
             );
 
-            res
-                .status(error.response?.status || 500)
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data ||
-                        "Failed to fetch wishlist items by wishlist"
-                });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch wishlist items by wishlist."
+                    }
+                );
         }
     }
 );
@@ -13680,48 +13753,73 @@ app.get(
 
 /* =========================================================
    GET WISHLIST ITEMS BY PRODUCT
+
    IMPORTANT:
-   This must come BEFORE /:id
+   Must be before /:id
 ========================================================= */
 
 app.get(
     "/api/WishlistItem/product/:productId",
     async (req, res) => {
 
+        const productId =
+            Number(req.params.productId);
+
+        console.log(
+            "GET WISHLIST ITEMS BY PRODUCT:",
+            productId
+        );
+
+        if (
+            !Number.isInteger(productId) ||
+            productId <= 0
+        ) {
+
+            return res.status(400).json({
+                message:
+                    "Invalid Product ID."
+            });
+        }
+
         try {
 
-            const { productId } = req.params;
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/WishlistItem/product/${productId}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000
+                    }
+                );
 
             console.log(
-                `GET WISHLIST ITEMS BY PRODUCT: ${productId}`
+                "GET WISHLIST ITEMS BY PRODUCT SUCCESS:",
+                response.status
             );
 
-            const response = await axios.get(
-                `${DOTNET_API}/WishlistItem/product/${productId}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            res
+            return res
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "GET WISHLIST ITEMS BY PRODUCT ERROR:",
-                error.response?.data || error.message
+                error.response?.data ||
+                error.message
             );
 
-            res
-                .status(error.response?.status || 500)
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data ||
-                        "Failed to fetch wishlist items by product"
-                });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch wishlist items by product."
+                    }
+                );
         }
     }
 );
@@ -13735,40 +13833,64 @@ app.get(
     "/api/WishlistItem/:id",
     async (req, res) => {
 
+        const wishlistItemId =
+            Number(req.params.id);
+
+        console.log(
+            "GET WISHLIST ITEM:",
+            wishlistItemId
+        );
+
+        if (
+            !Number.isInteger(wishlistItemId) ||
+            wishlistItemId <= 0
+        ) {
+
+            return res.status(400).json({
+                message:
+                    "Invalid Wishlist Item ID."
+            });
+        }
+
         try {
 
-            const { id } = req.params;
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/WishlistItem/${wishlistItemId}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000
+                    }
+                );
 
             console.log(
-                `GET WISHLIST ITEM BY ID: ${id}`
+                "GET WISHLIST ITEM SUCCESS:",
+                response.status
             );
 
-            const response = await axios.get(
-                `${DOTNET_API}/WishlistItem/${id}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            res
+            return res
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
-                "GET WISHLIST ITEM BY ID ERROR:",
-                error.response?.data || error.message
+                "GET WISHLIST ITEM ERROR:",
+                error.response?.data ||
+                error.message
             );
 
-            res
-                .status(error.response?.status || 500)
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data ||
-                        "Failed to fetch wishlist item"
-                });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to fetch wishlist item."
+                    }
+                );
         }
     }
 );
@@ -13782,45 +13904,78 @@ app.put(
     "/api/WishlistItem/:id",
     async (req, res) => {
 
+        const wishlistItemId =
+            Number(req.params.id);
+
+        console.log(
+            "UPDATE WISHLIST ITEM:",
+            wishlistItemId
+        );
+
+        console.log(
+            "UPDATE BODY:",
+            JSON.stringify(
+                req.body,
+                null,
+                2
+            )
+        );
+
+        if (
+            !Number.isInteger(wishlistItemId) ||
+            wishlistItemId <= 0
+        ) {
+
+            return res.status(400).json({
+                message:
+                    "Invalid Wishlist Item ID."
+            });
+        }
+
         try {
 
-            const { id } = req.params;
+            const response =
+                await axios.put(
+                    `${DOTNET_API}/WishlistItem/${wishlistItemId}`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        timeout: 30000,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
 
             console.log(
-                `UPDATE WISHLIST ITEM ${id}:`,
-                JSON.stringify(req.body, null, 2)
+                "UPDATE WISHLIST ITEM SUCCESS:",
+                response.status
             );
 
-            const response = await axios.put(
-                `${DOTNET_API}/WishlistItem/${id}`,
-                req.body,
-                {
-                    httpsAgent,
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                }
-            );
-
-            res
+            return res
                 .status(response.status)
                 .json(response.data);
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "UPDATE WISHLIST ITEM ERROR:",
-                error.response?.data || error.message
+                error.response?.data ||
+                error.message
             );
 
-            res
-                .status(error.response?.status || 500)
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data ||
-                        "Failed to update wishlist item"
-                });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to update wishlist item."
+                    }
+                );
         }
     }
 );
@@ -13834,50 +13989,82 @@ app.delete(
     "/api/WishlistItem/:id",
     async (req, res) => {
 
+        const wishlistItemId =
+            Number(req.params.id);
+
+        console.log(
+            "DELETE WISHLIST ITEM:",
+            wishlistItemId
+        );
+
+        if (
+            !Number.isInteger(wishlistItemId) ||
+            wishlistItemId <= 0
+        ) {
+
+            return res.status(400).json({
+                message:
+                    "Invalid Wishlist Item ID."
+            });
+        }
+
         try {
 
-            const { id } = req.params;
+            const response =
+                await axios.delete(
+                    `${DOTNET_API}/WishlistItem/${wishlistItemId}`,
+                    {
+                        httpsAgent,
+                        timeout: 30000
+                    }
+                );
 
             console.log(
-                `DELETE WISHLIST ITEM: ${id}`
+                "DELETE WISHLIST ITEM SUCCESS:",
+                response.status
             );
 
-            const response = await axios.delete(
-                `${DOTNET_API}/WishlistItem/${id}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            res
+            return res
                 .status(response.status)
                 .json(
                     response.data || {
                         success: true,
                         message:
-                            "Wishlist item deleted successfully"
+                            "Wishlist item deleted successfully."
                     }
                 );
 
-        } catch (error) {
+        }
+        catch (error) {
+
+            console.error(
+                "DELETE WISHLIST ITEM ERROR STATUS:",
+                error.response?.status
+            );
+
+            console.error(
+                "DELETE WISHLIST ITEM ERROR DATA:",
+                error.response?.data
+            );
 
             console.error(
                 "DELETE WISHLIST ITEM ERROR:",
-                error.response?.data || error.message
+                error.message
             );
 
-            res
-                .status(error.response?.status || 500)
-                .json({
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data ||
-                        "Failed to delete wishlist item"
-                });
+            return res
+                .status(
+                    error.response?.status || 500
+                )
+                .json(
+                    error.response?.data || {
+                        message:
+                            "Failed to delete wishlist item."
+                    }
+                );
         }
     }
 );
-
 
 
 

@@ -12,21 +12,21 @@ import {
     Tooltip,
     Typography,
     Box,
-    Chip,
+    Chip
 } from "@mui/material";
 
 import {
     Visibility,
     Edit,
     Delete,
-    FavoriteBorder,
+    FavoriteBorder
 } from "@mui/icons-material";
 
 
-/* =========================================================
-   GET FIELD
-   Supports camelCase + PascalCase API responses
-========================================================= */
+// ============================================================
+// GET FIELD
+// Supports camelCase + PascalCase
+// ============================================================
 
 const getField = (
     item,
@@ -34,6 +34,7 @@ const getField = (
     pascalCase,
     fallback = null
 ) => {
+
     return (
         item?.[camelCase] ??
         item?.[pascalCase] ??
@@ -42,9 +43,9 @@ const getField = (
 };
 
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+// ============================================================
+// FORMAT DATE
+// ============================================================
 
 const formatDate = (value) => {
 
@@ -54,56 +55,76 @@ const formatDate = (value) => {
 
     const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
         return "N/A";
     }
 
-    return date.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    return date.toLocaleString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
 };
 
 
-/* =========================================================
-   WISHLIST ITEM TABLE
-========================================================= */
+// ============================================================
+// WISHLIST ITEM TABLE
+// ============================================================
 
 const WishlistItemTable = ({
     items = [],
     wishlistItems = [],
-
     onView,
     onEdit,
-    onDelete,
+    onDelete
 }) => {
 
-    /* =====================================================
-       NORMALIZE DATA
-    ===================================================== */
+    // ========================================================
+    // SUPPORT BOTH PROPS
+    //
+    // Preferred:
+    // items
+    //
+    // Backward compatible:
+    // wishlistItems
+    // ========================================================
 
-    const data = Array.isArray(items)
-        ? items
-        : Array.isArray(wishlistItems)
-            ? wishlistItems
-            : [];
+    const data =
+        Array.isArray(items)
+            ? items
+            : Array.isArray(wishlistItems)
+                ? wishlistItems
+                : [];
 
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    console.log(
+        "WishlistItemTable ITEMS:",
+        data
+    );
+
+
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
+
         <TableContainer
             component={Paper}
             elevation={2}
             sx={{
                 width: "100%",
                 borderRadius: 2,
-                overflowX: "auto",
+                overflowX: "auto"
             }}
         >
 
@@ -111,12 +132,12 @@ const WishlistItemTable = ({
                 stickyHeader
                 size="small"
                 sx={{
-                    minWidth: 900,
+                    minWidth: 850
                 }}
             >
 
                 {/* =================================================
-                   HEADER
+                    HEADER
                 ================================================= */}
 
                 <TableHead>
@@ -147,11 +168,9 @@ const WishlistItemTable = ({
                             Created Date
                         </TableCell>
 
-                        <TableCell>
-                            Status
-                        </TableCell>
-
-                        <TableCell align="center">
+                        <TableCell
+                            align="center"
+                        >
                             Actions
                         </TableCell>
 
@@ -161,21 +180,17 @@ const WishlistItemTable = ({
 
 
                 {/* =================================================
-                   BODY
+                    BODY
                 ================================================= */}
 
                 <TableBody>
-
-                    {/* =================================================
-                       EMPTY STATE
-                    ================================================= */}
 
                     {data.length === 0 ? (
 
                         <TableRow>
 
                             <TableCell
-                                colSpan={8}
+                                colSpan={7}
                                 align="center"
                             >
 
@@ -186,14 +201,14 @@ const WishlistItemTable = ({
                                         flexDirection: "column",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        gap: 1,
+                                        gap: 1
                                     }}
                                 >
 
                                     <FavoriteBorder
                                         sx={{
                                             fontSize: 50,
-                                            color: "text.disabled",
+                                            color: "text.disabled"
                                         }}
                                     />
 
@@ -212,298 +227,326 @@ const WishlistItemTable = ({
 
                     ) : (
 
-                        /* =================================================
-                           DATA
-                        ================================================= */
+                        data.map(
+                            (item, index) => {
 
-                        data.map((item, index) => {
+                                // =========================================
+                                // FIELD VALUES
+                                // =========================================
 
-                            /* =============================================
-                               IDENTIFIERS
-                            ============================================= */
+                                const wishlistItemId =
+                                    getField(
+                                        item,
+                                        "wishlistItemId",
+                                        "WishlistItemId",
+                                        null
+                                    );
 
-                            const wishlistItemId = getField(
-                                item,
-                                "wishlistItemId",
-                                "WishlistItemId",
-                                `wishlist-item-${index}`
-                            );
+                                const wishlistId =
+                                    getField(
+                                        item,
+                                        "wishlistId",
+                                        "WishlistId",
+                                        "-"
+                                    );
 
-                            const wishlistId = getField(
-                                item,
-                                "wishlistId",
-                                "WishlistId",
-                                "-"
-                            );
+                                const sellerId =
+                                    getField(
+                                        item,
+                                        "sellerId",
+                                        "SellerId",
+                                        "-"
+                                    );
 
-                            const sellerId = getField(
-                                item,
-                                "sellerId",
-                                "SellerId",
-                                "-"
-                            );
+                                const customerId =
+                                    getField(
+                                        item,
+                                        "customerId",
+                                        "CustomerId",
+                                        "-"
+                                    );
 
-                            const customerId = getField(
-                                item,
-                                "customerId",
-                                "CustomerId",
-                                "-"
-                            );
+                                const productId =
+                                    getField(
+                                        item,
+                                        "productId",
+                                        "ProductId",
+                                        "-"
+                                    );
 
-                            const productId = getField(
-                                item,
-                                "productId",
-                                "ProductId",
-                                "-"
-                            );
-
-                            const createdDate = getField(
-                                item,
-                                "createdDate",
-                                "CreatedDate",
-                                null
-                            );
-
-
-                            /* =============================================
-                               STATUS
-
-                               WishlistItem API currently does not return
-                               status, so Active is only a display fallback.
-                            ============================================= */
-
-                            const status = getField(
-                                item,
-                                "status",
-                                "Status",
-                                "Active"
-                            ) ?? "Active";
-
-                            const normalizedStatus =
-                                String(status).toLowerCase();
+                                const createdDate =
+                                    getField(
+                                        item,
+                                        "createdDate",
+                                        "CreatedDate",
+                                        null
+                                    );
 
 
-                            /* =============================================
-                               ACTION ID
+                                // =========================================
+                                // VALID ACTION ID
+                                // =========================================
 
-                               Use the real numeric WishlistItemId for
-                               View/Edit/Delete callbacks.
-                            ============================================= */
-
-                            const actionId = getField(
-                                item,
-                                "wishlistItemId",
-                                "WishlistItemId",
-                                null
-                            );
+                                const actionId =
+                                    Number(
+                                        wishlistItemId
+                                    );
 
 
-                            return (
-
-                                <TableRow
-                                    hover
-                                    key={
-                                        actionId ??
-                                        `wishlist-item-${index}`
-                                    }
-                                >
-
-                                    {/* =====================================
-                                       WISHLIST ITEM ID
-                                    ===================================== */}
-
-                                    <TableCell>
-
-                                        <Typography
-                                            fontWeight={600}
-                                        >
-                                            #{wishlistItemId}
-                                        </Typography>
-
-                                    </TableCell>
+                                const validActionId =
+                                    Number.isInteger(
+                                        actionId
+                                    ) &&
+                                    actionId > 0
+                                        ? actionId
+                                        : null;
 
 
-                                    {/* =====================================
-                                       WISHLIST ID
-                                    ===================================== */}
+                                // =========================================
+                                // ROW
+                                // =========================================
 
-                                    <TableCell>
+                                return (
 
-                                        <Chip
-                                            label={`#${wishlistId}`}
-                                            size="small"
-                                            color="primary"
-                                            variant="outlined"
-                                        />
+                                    <TableRow
+                                        hover
+                                        key={
+                                            validActionId ??
+                                            `wishlist-item-${index}`
+                                        }
+                                    >
 
-                                    </TableCell>
+                                        {/* =================================
+                                            WISHLIST ITEM ID
+                                        ================================= */}
 
+                                        <TableCell>
 
-                                    {/* =====================================
-                                       SELLER ID
-                                    ===================================== */}
+                                            <Typography
+                                                fontWeight={600}
+                                            >
+                                                {validActionId
+                                                    ? `#${validActionId}`
+                                                    : "-"
+                                                }
+                                            </Typography>
 
-                                    <TableCell>
-                                        {sellerId}
-                                    </TableCell>
-
-
-                                    {/* =====================================
-                                       CUSTOMER ID
-                                    ===================================== */}
-
-                                    <TableCell>
-                                        {customerId}
-                                    </TableCell>
+                                        </TableCell>
 
 
-                                    {/* =====================================
-                                       PRODUCT ID
-                                    ===================================== */}
+                                        {/* =================================
+                                            WISHLIST ID
+                                        ================================= */}
 
-                                    <TableCell>
+                                        <TableCell>
 
-                                        <Typography
-                                            fontWeight={600}
-                                        >
-                                            #{productId}
-                                        </Typography>
-
-                                    </TableCell>
-
-
-                                    {/* =====================================
-                                       CREATED DATE
-                                    ===================================== */}
-
-                                    <TableCell>
-
-                                        <Typography
-                                            variant="body2"
-                                            whiteSpace="nowrap"
-                                        >
-                                            {formatDate(createdDate)}
-                                        </Typography>
-
-                                    </TableCell>
-
-
-                                    {/* =====================================
-                                       STATUS
-                                    ===================================== */}
-
-                                    <TableCell>
-
-                                        <Chip
-                                            size="small"
-                                            label={status}
-                                            color={
-                                                normalizedStatus === "active"
-                                                    ? "success"
-                                                    : normalizedStatus === "inactive"
-                                                        ? "default"
-                                                        : "warning"
+                                            {wishlistId !== "-"
+                                                ? (
+                                                    <Chip
+                                                        label={
+                                                            `#${wishlistId}`
+                                                        }
+                                                        size="small"
+                                                        color="primary"
+                                                        variant="outlined"
+                                                    />
+                                                )
+                                                : "-"
                                             }
-                                        />
 
-                                    </TableCell>
+                                        </TableCell>
 
 
-                                    {/* =====================================
-                                       ACTIONS
-                                    ===================================== */}
+                                        {/* =================================
+                                            SELLER ID
+                                        ================================= */}
 
-                                    <TableCell align="center">
+                                        <TableCell>
 
-                                        <Box
-                                            sx={{
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                gap: 0.5,
-                                            }}
+                                            {sellerId}
+
+                                        </TableCell>
+
+
+                                        {/* =================================
+                                            CUSTOMER ID
+                                        ================================= */}
+
+                                        <TableCell>
+
+                                            {customerId}
+
+                                        </TableCell>
+
+
+                                        {/* =================================
+                                            PRODUCT ID
+                                        ================================= */}
+
+                                        <TableCell>
+
+                                            <Typography
+                                                fontWeight={600}
+                                            >
+
+                                                {productId !== "-"
+                                                    ? `#${productId}`
+                                                    : "-"
+                                                }
+
+                                            </Typography>
+
+                                        </TableCell>
+
+
+                                        {/* =================================
+                                            CREATED DATE
+                                        ================================= */}
+
+                                        <TableCell>
+
+                                            <Typography
+                                                variant="body2"
+                                                whiteSpace="nowrap"
+                                            >
+
+                                                {formatDate(
+                                                    createdDate
+                                                )}
+
+                                            </Typography>
+
+                                        </TableCell>
+
+
+                                        {/* =================================
+                                            ACTIONS
+                                        ================================= */}
+
+                                        <TableCell
+                                            align="center"
                                         >
 
-                                            {/* =============================
-                                               VIEW
-                                            ============================= */}
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    justifyContent: "center",
+                                                    alignItems: "center",
+                                                    gap: 0.5
+                                                }}
+                                            >
 
-                                            <Tooltip title="View">
+                                                {/* =========================
+                                                    VIEW
+                                                ========================= */}
 
-                                                <IconButton
-                                                    size="small"
-                                                    color="info"
-                                                    disabled={!actionId}
-                                                    onClick={() =>
-                                                        onView?.(actionId)
-                                                    }
+                                                <Tooltip
+                                                    title="View"
                                                 >
 
-                                                    <Visibility
-                                                        fontSize="small"
-                                                    />
+                                                    <span>
 
-                                                </IconButton>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="info"
+                                                            disabled={
+                                                                !validActionId
+                                                            }
+                                                            onClick={() =>
+                                                                onView?.(
+                                                                    validActionId
+                                                                )
+                                                            }
+                                                        >
 
-                                            </Tooltip>
+                                                            <Visibility
+                                                                fontSize="small"
+                                                            />
+
+                                                        </IconButton>
+
+                                                    </span>
+
+                                                </Tooltip>
 
 
-                                            {/* =============================
-                                               EDIT
-                                            ============================= */}
+                                                {/* =========================
+                                                    EDIT
+                                                ========================= */}
 
-                                            <Tooltip title="Edit">
-
-                                                <IconButton
-                                                    size="small"
-                                                    color="primary"
-                                                    disabled={!actionId}
-                                                    onClick={() =>
-                                                        onEdit?.(actionId)
-                                                    }
+                                                <Tooltip
+                                                    title="Edit"
                                                 >
 
-                                                    <Edit
-                                                        fontSize="small"
-                                                    />
+                                                    <span>
 
-                                                </IconButton>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="primary"
+                                                            disabled={
+                                                                !validActionId
+                                                            }
+                                                            onClick={() =>
+                                                                onEdit?.(
+                                                                    validActionId
+                                                                )
+                                                            }
+                                                        >
 
-                                            </Tooltip>
+                                                            <Edit
+                                                                fontSize="small"
+                                                            />
+
+                                                        </IconButton>
+
+                                                    </span>
+
+                                                </Tooltip>
 
 
-                                            {/* =============================
-                                               DELETE
-                                            ============================= */}
+                                                {/* =========================
+                                                    DELETE
+                                                ========================= */}
 
-                                            <Tooltip title="Delete">
-
-                                                <IconButton
-                                                    size="small"
-                                                    color="error"
-                                                    disabled={!actionId}
-                                                    onClick={() =>
-                                                        onDelete?.(actionId)
-                                                    }
+                                                <Tooltip
+                                                    title="Delete"
                                                 >
 
-                                                    <Delete
-                                                        fontSize="small"
-                                                    />
+                                                    <span>
 
-                                                </IconButton>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="error"
+                                                            disabled={
+                                                                !validActionId
+                                                            }
+                                                            onClick={() =>
+                                                                onDelete?.(
+                                                                    validActionId
+                                                                )
+                                                            }
+                                                        >
 
-                                            </Tooltip>
+                                                            <Delete
+                                                                fontSize="small"
+                                                            />
 
-                                        </Box>
+                                                        </IconButton>
 
-                                    </TableCell>
+                                                    </span>
 
-                                </TableRow>
+                                                </Tooltip>
 
-                            );
+                                            </Box>
 
-                        })
+                                        </TableCell>
+
+                                    </TableRow>
+
+                                );
+
+                            }
+                        )
 
                     )}
 
@@ -512,7 +555,9 @@ const WishlistItemTable = ({
             </Table>
 
         </TableContainer>
+
     );
+
 };
 
 

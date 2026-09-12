@@ -1058,14 +1058,6 @@ const MainLayout = () => {
                             label: "Create Wishlist Item",
                             path: "/wishlist-items/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/wishlist-items/search",
-                        },
-                        {
-                            label: "Statistics",
-                            path: "/wishlist-items/statistics",
-                        },
                     ],
                 },
 

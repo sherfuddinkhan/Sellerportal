@@ -1,494 +1,441 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
 
 import {
-    Box,
-    Typography,
-    Alert,
-    Button,
-    CircularProgress
-} from "@mui/material";
-
-import {
-    ArrowBack
-} from "@mui/icons-material";
+    useNavigate,
+    useParams
+} from "react-router-dom";
 
 import axios from "axios";
 
-import WishlistItemModal from "./WishlistItemModal";
+import {
+    Alert,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Divider,
+    Grid,
+    MenuItem,
+    Snackbar,
+    Stack,
+    TextField,
+    Typography
+} from "@mui/material";
 
 
-/* =========================================================
-   CONFIGURATION
-========================================================= */
+// ============================================================
+// API CONFIGURATION
+// ============================================================
 
 const SERVER_URL =
-    import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
+    import.meta.env.VITE_SERVER_URL ||
+    "http://localhost:5000";
 
-const WISHLIST_ITEM_API =
-    `${SERVER_URL}/api/WishlistItem`;
-
-const WISHLIST_API =
-    `${SERVER_URL}/api/Wishlist`;
-
-const PRODUCT_API =
-    `${SERVER_URL}/api/Product`;
+const API_URL = `${SERVER_URL}/api`;
 
 
-/* =========================================================
-   RESPONSE HELPER
-========================================================= */
-
-const getResponseData = (response) => {
-
-    if (!response) {
-        return null;
-    }
-
-    return (
-        response.data?.data ??
-        response.data
-    );
-};
-
-
-/* =========================================================
-   ID HELPER
-========================================================= */
-
-const getItemId = ({
-    wishlistItemId,
-    id,
-    item,
-    wishlistItem
-}) => {
-
-    const value =
-        wishlistItemId ??
-        id ??
-        item?.wishlistItemId ??
-        item?.WishlistItemId ??
-        wishlistItem?.wishlistItemId ??
-        wishlistItem?.WishlistItemId;
-
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-        return null;
-    }
-
-    const numericId = Number(value);
-
-    return Number.isFinite(numericId)
-        ? numericId
-        : null;
-};
-
-
-/* =========================================================
-   COMPONENT
-========================================================= */
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const WishlistItemsEdit = ({
     wishlistItemId,
     id,
-
     item,
     wishlistItem,
-
-    onBack,
     onUpdated
 }) => {
 
-    /* =====================================================
-       ITEM ID
-    ===================================================== */
+    const navigate = useNavigate();
+    const params = useParams();
 
-    const itemId = getItemId({
-        wishlistItemId,
-        id,
-        item,
-        wishlistItem
+    // ========================================================
+    // ID
+    // ========================================================
+
+    const routeId =
+        params?.id ||
+        wishlistItemId ||
+        id ||
+        item?.wishlistItemId ||
+        wishlistItem?.wishlistItemId;
+
+    const numericId = Number(routeId);
+
+
+    // ========================================================
+    // STATE
+    // ========================================================
+
+    const [loading, setLoading] = useState(true);
+
+    const [saving, setSaving] = useState(false);
+
+    const [error, setError] = useState("");
+
+    const [success, setSuccess] = useState("");
+
+    const [wishlists, setWishlists] = useState([]);
+
+    const [products, setProducts] = useState([]);
+
+
+    const [formData, setFormData] = useState({
+        wishlistId: "",
+        sellerId: "",
+        customerId: "",
+        productId: ""
     });
 
 
-    /* =====================================================
-       INITIAL ITEM
-    ===================================================== */
+    // ========================================================
+    // LOAD WISHLISTS
+    // ========================================================
 
-    const initialItem =
-        item ||
-        wishlistItem ||
-        null;
-
-
-    /* =====================================================
-       STATE
-    ===================================================== */
-
-    const [currentItem, setCurrentItem] =
-        useState(initialItem);
-
-    const [wishlists, setWishlists] =
-        useState([]);
-
-    const [products, setProducts] =
-        useState([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [saving, setSaving] =
-        useState(false);
-
-    const [error, setError] =
-        useState("");
-
-    const [open, setOpen] =
-        useState(true);
-
-
-    /* =====================================================
-       LOAD WISHLIST ITEM
-    ===================================================== */
-
-    const loadWishlistItem = async () => {
-
-        /*
-         * If the parent already supplied the item,
-         * don't unnecessarily call GET /{id}.
-         */
-
-        if (currentItem) {
-
-            console.log(
-                "WISHLIST ITEM PROVIDED BY PARENT:",
-                currentItem
-            );
-
-            return currentItem;
-        }
-
-
-        if (!itemId) {
-
-            throw new Error(
-                "Wishlist Item ID is missing."
-            );
-        }
-
-
-        const url =
-            `${WISHLIST_ITEM_API}/${itemId}`;
-
-
-        console.log(
-            "LOADING WISHLIST ITEM:",
-            url
-        );
-
+    const loadWishlists = useCallback(async () => {
 
         try {
 
-            const response =
-                await axios.get(url);
-
-
-            const data =
-                getResponseData(response);
-
-
-            console.log(
-                "WISHLIST ITEM RESPONSE:",
-                data
+            const response = await axios.get(
+                `${API_URL}/Wishlist`
             );
 
+            const data = response?.data;
 
-            if (!data) {
+            let list = [];
 
-                throw new Error(
-                    "Wishlist item was not returned by the API."
-                );
+            if (Array.isArray(data)) {
+                list = data;
+            } else if (Array.isArray(data?.data)) {
+                list = data.data;
+            } else if (Array.isArray(data?.items)) {
+                list = data.items;
+            } else if (Array.isArray(data?.wishlists)) {
+                list = data.wishlists;
             }
 
-
-            setCurrentItem(data);
-
-            return data;
+            setWishlists(list);
 
         } catch (err) {
 
             console.error(
-                "WISHLIST ITEM GET ERROR:",
-                {
-                    url,
-                    status: err.response?.status,
-                    response: err.response?.data,
-                    error: err
-                }
+                "Failed to load wishlists:",
+                err
             );
 
-            throw err;
+            setError(
+                err.response?.data?.message ||
+                err.response?.data ||
+                "Failed to load wishlists."
+            );
         }
-    };
+
+    }, []);
 
 
-    /* =====================================================
-       LOAD WISHLISTS
-    ===================================================== */
+    // ========================================================
+    // LOAD PRODUCTS
+    // ========================================================
 
-    const loadWishlists = async () => {
-
-        const url =
-            WISHLIST_API;
-
-
-        console.log(
-            "LOADING WISHLISTS:",
-            url
-        );
-
+    const loadProducts = useCallback(async () => {
 
         try {
 
-            const response =
-                await axios.get(url);
-
-
-            const data =
-                getResponseData(response);
-
-
-            console.log(
-                "WISHLISTS RESPONSE:",
-                data
+            const response = await axios.get(
+                `${API_URL}/Products`
             );
 
+            const data = response?.data;
 
-            setWishlists(
-                Array.isArray(data)
-                    ? data
-                    : []
-            );
+            let list = [];
+
+            if (Array.isArray(data)) {
+                list = data;
+            } else if (Array.isArray(data?.data)) {
+                list = data.data;
+            } else if (Array.isArray(data?.items)) {
+                list = data.items;
+            } else if (Array.isArray(data?.products)) {
+                list = data.products;
+            }
+
+            setProducts(list);
 
         } catch (err) {
 
             console.error(
-                "WISHLIST LIST ERROR:",
-                {
-                    url,
-                    status: err.response?.status,
-                    response: err.response?.data,
-                    error: err
-                }
+                "Failed to load products:",
+                err
             );
 
-            /*
-             * Don't prevent the edit form from opening
-             * just because the dropdown API failed.
-             */
-
-            setWishlists([]);
+            setError(
+                err.response?.data?.message ||
+                err.response?.data ||
+                "Failed to load products."
+            );
         }
-    };
+
+    }, []);
 
 
-    /* =====================================================
-       LOAD PRODUCTS
-    ===================================================== */
+    // ========================================================
+    // LOAD WISHLIST ITEM
+    // ========================================================
 
-    const loadProducts = async () => {
+    const loadWishlistItem = useCallback(async () => {
 
-        const url =
-            PRODUCT_API;
+        if (!numericId || numericId <= 0) {
 
-
-        console.log(
-            "LOADING PRODUCTS:",
-            url
-        );
-
-
-        try {
-
-            const response =
-                await axios.get(url);
-
-
-            const data =
-                getResponseData(response);
-
-
-            console.log(
-                "PRODUCTS RESPONSE:",
-                data
+            setError(
+                "Wishlist Item ID is required."
             );
 
+            setLoading(false);
 
-            setProducts(
-                Array.isArray(data)
-                    ? data
-                    : []
-            );
-
-        } catch (err) {
-
-            console.error(
-                "PRODUCT LIST ERROR:",
-                {
-                    url,
-                    status: err.response?.status,
-                    response: err.response?.data,
-                    error: err
-                }
-            );
-
-            /*
-             * Don't prevent the edit form from opening.
-             */
-
-            setProducts([]);
+            return;
         }
-    };
 
-
-    /* =====================================================
-       LOAD ALL DATA
-    ===================================================== */
-
-    const loadData = async () => {
 
         try {
 
             setLoading(true);
+
             setError("");
 
 
-            /*
-             * First load the actual item.
-             *
-             * This is the important request for Edit.
-             */
-
-            await loadWishlistItem();
-
-
-            /*
-             * Load dropdown data independently.
-             */
-
-            await Promise.all([
-                loadWishlists(),
-                loadProducts()
-            ]);
-
-        } catch (err) {
-
-            console.error(
-                "LOAD WISHLIST ITEM EDIT ERROR:",
-                err
+            const response = await axios.get(
+                `${API_URL}/WishlistItem/${numericId}`
             );
 
 
-            const status =
-                err.response?.status;
+            const data = response?.data;
 
 
-            if (status === 404) {
-
-                setError(
-                    `Wishlist item ${itemId} was not found. ` +
-                    `Please verify that this WishlistItemId exists in the database.`
-                );
-
-            } else {
+            if (!data) {
 
                 setError(
-                    err.response?.data?.message ||
-                    err.response?.data?.title ||
-                    err.message ||
-                    "Unable to load wishlist item."
-                );
-            }
-
-        } finally {
-
-            setLoading(false);
-        }
-    };
-
-
-    /* =====================================================
-       EFFECT
-    ===================================================== */
-
-    useEffect(() => {
-
-        /*
-         * Reset state when editing another item.
-         */
-
-        setCurrentItem(
-            item ||
-            wishlistItem ||
-            null
-        );
-
-        setOpen(true);
-
-        loadData();
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        itemId
-    ]);
-
-
-    /* =====================================================
-       UPDATE
-    ===================================================== */
-
-    const handleUpdate = async (payload) => {
-
-        try {
-
-            setSaving(true);
-            setError("");
-
-
-            const updateId =
-                payload?.wishlistItemId ??
-                payload?.WishlistItemId ??
-                currentItem?.wishlistItemId ??
-                currentItem?.WishlistItemId ??
-                itemId;
-
-
-            const numericUpdateId =
-                Number(updateId);
-
-
-            if (
-                !Number.isFinite(numericUpdateId) ||
-                numericUpdateId <= 0
-            ) {
-
-                setError(
-                    "Invalid Wishlist Item ID."
+                    "Wishlist item was not found."
                 );
 
                 return;
             }
 
 
-            const url =
-                `${WISHLIST_ITEM_API}/${numericUpdateId}`;
+            setFormData({
+                wishlistId:
+                    data.wishlistId ??
+                    "",
+
+                sellerId:
+                    data.sellerId ??
+                    "",
+
+                customerId:
+                    data.customerId ??
+                    "",
+
+                productId:
+                    data.productId ??
+                    ""
+            });
+
+
+        } catch (err) {
+
+            console.error(
+                "Failed to load wishlist item:",
+                err
+            );
+
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data ||
+                "Failed to load wishlist item."
+            );
+
+        } finally {
+
+            setLoading(false);
+        }
+
+    }, [numericId]);
+
+
+    // ========================================================
+    // INITIAL LOAD
+    // ========================================================
+
+    useEffect(() => {
+
+        loadWishlistItem();
+
+        loadWishlists();
+
+        loadProducts();
+
+    }, [
+        loadWishlistItem,
+        loadWishlists,
+        loadProducts
+    ]);
+
+
+    // ========================================================
+    // HANDLE INPUT
+    // ========================================================
+
+    const handleChange = (event) => {
+
+        const {
+            name,
+            value
+        } = event.target;
+
+
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
+
+
+        if (error) {
+            setError("");
+        }
+    };
+
+
+    // ========================================================
+    // BACK
+    // ========================================================
+
+    const handleBack = useCallback(() => {
+
+        if (saving) {
+            return;
+        }
+
+        navigate("/wishlist-items");
+
+    }, [
+        navigate,
+        saving
+    ]);
+
+
+    // ========================================================
+    // VALIDATE FORM
+    // ========================================================
+
+    const validateForm = () => {
+
+        if (
+            !formData.wishlistId ||
+            Number(formData.wishlistId) <= 0
+        ) {
+
+            setError(
+                "Please select a wishlist."
+            );
+
+            return false;
+        }
+
+
+        if (
+            !formData.sellerId ||
+            Number(formData.sellerId) <= 0
+        ) {
+
+            setError(
+                "Seller ID must be greater than 0."
+            );
+
+            return false;
+        }
+
+
+        if (
+            !formData.customerId ||
+            Number(formData.customerId) <= 0
+        ) {
+
+            setError(
+                "Customer ID must be greater than 0."
+            );
+
+            return false;
+        }
+
+
+        if (
+            !formData.productId ||
+            Number(formData.productId) <= 0
+        ) {
+
+            setError(
+                "Please select a product."
+            );
+
+            return false;
+        }
+
+
+        return true;
+    };
+
+
+    // ========================================================
+    // UPDATE
+    // ========================================================
+
+    const handleUpdate = async () => {
+
+        if (!numericId || numericId <= 0) {
+
+            setError(
+                "Wishlist Item ID is required."
+            );
+
+            return;
+        }
+
+
+        if (!validateForm()) {
+            return;
+        }
+
+
+        try {
+
+            setSaving(true);
+
+            setError("");
+
+
+            const payload = {
+                wishlistId:
+                    Number(formData.wishlistId),
+
+                sellerId:
+                    Number(formData.sellerId),
+
+                customerId:
+                    Number(formData.customerId),
+
+                productId:
+                    Number(formData.productId)
+            };
 
 
             console.log(
-                "UPDATING WISHLIST ITEM:",
-                url
+                "UPDATE WISHLIST ITEM:",
+                numericId
             );
 
             console.log(
@@ -497,72 +444,76 @@ const WishlistItemsEdit = ({
             );
 
 
-            const response =
-                await axios.put(
-                    url,
-                    payload
-                );
-
-
-            const updatedItem =
-                getResponseData(response);
-
-
-            console.log(
-                "WISHLIST ITEM UPDATED:",
-                updatedItem
-            );
-
-
-            setCurrentItem(
-                updatedItem
-            );
-
-            setOpen(false);
-
-
-            if (
-                typeof onUpdated === "function"
-            ) {
-
-                onUpdated(
-                    updatedItem
-                );
-            }
-
-
-            if (
-                typeof onBack === "function"
-            ) {
-
-                onBack();
-            }
-
-        } catch (err) {
-
-            console.error(
-                "UPDATE WISHLIST ITEM ERROR:",
+            const response = await axios.put(
+                `${API_URL}/WishlistItem/${numericId}`,
+                payload,
                 {
-                    url:
-                        `${WISHLIST_ITEM_API}/${payload?.wishlistItemId ?? payload?.WishlistItemId ?? itemId}`,
-
-                    status:
-                        err.response?.status,
-
-                    response:
-                        err.response?.data,
-
-                    error:
-                        err
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    timeout: 30000
                 }
             );
 
 
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                "Unable to update wishlist item."
+            console.log(
+                "WISHLIST ITEM UPDATE SUCCESS:",
+                response?.data
             );
+
+
+            setSuccess(
+                "Wishlist item updated successfully."
+            );
+
+
+            if (typeof onUpdated === "function") {
+                onUpdated(response?.data);
+            }
+
+
+            // Give Snackbar a moment to display,
+            // then return to the list page.
+            setTimeout(() => {
+
+                navigate("/wishlist-items");
+
+            }, 700);
+
+
+        } catch (err) {
+
+            console.error(
+                "WISHLIST ITEM UPDATE ERROR:",
+                err
+            );
+
+
+            let message =
+                "Failed to update wishlist item.";
+
+
+            if (err.response?.data?.message) {
+
+                message =
+                    err.response.data.message;
+
+            } else if (
+                typeof err.response?.data === "string"
+            ) {
+
+                message =
+                    err.response.data;
+
+            } else if (err.message) {
+
+                message =
+                    err.message;
+            }
+
+
+            setError(message);
 
         } finally {
 
@@ -571,209 +522,519 @@ const WishlistItemsEdit = ({
     };
 
 
-    /* =====================================================
-       CLOSE
-    ===================================================== */
+    // ========================================================
+    // CLOSE SUCCESS MESSAGE
+    // ========================================================
 
-    const handleClose = () => {
-
-        setOpen(false);
-
-        if (
-            typeof onBack === "function"
-        ) {
-
-            onBack();
-        }
+    const handleSuccessClose = () => {
+        setSuccess("");
     };
 
 
-    /* =====================================================
-       LOADING
-    ===================================================== */
+    // ========================================================
+    // LOADING SCREEN
+    // ========================================================
 
     if (loading) {
 
         return (
             <Box
                 sx={{
-                    minHeight: 350,
+                    width: "100%",
+                    minHeight: "60vh",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                    gap: 2
+                    justifyContent: "center"
                 }}
             >
 
-                <CircularProgress />
+                <Stack
+                    spacing={2}
+                    alignItems="center"
+                >
 
-                <Typography color="text.secondary">
-                    Loading Wishlist Item...
-                </Typography>
+                    <CircularProgress />
 
-                {itemId && (
                     <Typography
-                        variant="caption"
+                        variant="body2"
                         color="text.secondary"
                     >
-                        Wishlist Item ID: {itemId}
+                        Loading wishlist item...
                     </Typography>
-                )}
+
+                </Stack>
 
             </Box>
         );
     }
 
 
-    /* =====================================================
-       ERROR
-    ===================================================== */
+    // ========================================================
+    // INVALID ID / LOAD ERROR
+    // ========================================================
 
-    if (error && !currentItem) {
+    if (
+        !numericId ||
+        numericId <= 0 ||
+        (
+            error &&
+            !formData.wishlistId &&
+            !formData.productId
+        )
+    ) {
 
         return (
             <Box sx={{ p: 3 }}>
 
-                <Alert severity="error">
-                    {error}
-                </Alert>
+                <Card>
+
+                    <CardContent>
+
+                        <Typography
+                            variant="h5"
+                            fontWeight={600}
+                            gutterBottom
+                        >
+                            Edit Wishlist Item
+                        </Typography>
 
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 2 }}
-                >
-                    API Endpoint:
-                </Typography>
+                        <Alert
+                            severity="error"
+                            sx={{ mb: 3 }}
+                        >
+                            {error ||
+                                "Wishlist Item ID is required."}
+                        </Alert>
 
 
-                <Typography
-                    variant="body2"
-                    sx={{
-                        fontFamily: "monospace",
-                        wordBreak: "break-all"
-                    }}
-                >
-                    {itemId
-                        ? `${WISHLIST_ITEM_API}/${itemId}`
-                        : WISHLIST_ITEM_API
-                    }
-                </Typography>
+                        <Button
+                            variant="outlined"
+                            onClick={handleBack}
+                        >
+                            Back to Wishlist Items
+                        </Button>
 
+                    </CardContent>
 
-                <Button
-                    sx={{ mt: 2 }}
-                    startIcon={<ArrowBack />}
-                    onClick={onBack}
-                >
-                    Back
-                </Button>
+                </Card>
 
             </Box>
         );
     }
 
 
-    /* =====================================================
-       NO ITEM
-    ===================================================== */
+    // ========================================================
+    // FIND DISPLAY VALUES
+    // ========================================================
 
-    if (!currentItem) {
+    const getWishlistId = (wishlist) =>
+        wishlist?.wishlistId ??
+        wishlist?.id ??
+        "";
 
-        return (
-            <Box sx={{ p: 3 }}>
-
-                <Alert severity="warning">
-                    Wishlist item not found.
-                </Alert>
-
-
-                <Button
-                    sx={{ mt: 2 }}
-                    startIcon={<ArrowBack />}
-                    onClick={onBack}
-                >
-                    Back
-                </Button>
-
-            </Box>
-        );
-    }
+    const getProductId = (product) =>
+        product?.productId ??
+        product?.id ??
+        "";
 
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // ========================================================
+    // RENDER FULL PAGE
+    // ========================================================
 
     return (
         <Box sx={{ p: 3 }}>
 
-            {/* =========================================
-               HEADER
-            ========================================= */}
+            {/* =================================================
+                PAGE HEADER
+            ================================================= */}
 
-            <Box sx={{ mb: 3 }}>
+            <Stack
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
+                justifyContent="space-between"
+                alignItems={{
+                    xs: "flex-start",
+                    sm: "center"
+                }}
+                spacing={2}
+                sx={{ mb: 3 }}
+            >
+
+                <Box>
+
+                    <Typography
+                        variant="h4"
+                        fontWeight={600}
+                    >
+                        Edit Wishlist Item
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Update the wishlist item details
+                    </Typography>
+
+                </Box>
+
 
                 <Button
-                    startIcon={<ArrowBack />}
-                    onClick={handleClose}
+                    variant="outlined"
+                    onClick={handleBack}
+                    disabled={saving}
                 >
                     Back
                 </Button>
 
-
-                <Typography
-                    variant="h4"
-                    fontWeight={700}
-                    sx={{ mt: 1 }}
-                >
-                    Edit Wishlist Item
-                </Typography>
+            </Stack>
 
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                >
-                    Wishlist Item ID:{" "}
-                    {currentItem?.wishlistItemId ??
-                        currentItem?.WishlistItemId ??
-                        itemId}
-                </Typography>
-
-            </Box>
-
-
-            {/* =========================================
-               ERROR
-            ========================================= */}
+            {/* =================================================
+                ERROR
+            ================================================= */}
 
             {error && (
-
                 <Alert
                     severity="error"
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 3 }}
+                    onClose={() => setError("")}
                 >
                     {error}
                 </Alert>
             )}
 
 
-            {/* =========================================
-               MODAL
-            ========================================= */}
+            {/* =================================================
+                EDIT CARD
+            ================================================= */}
 
-            <WishlistItemModal
-                open={open}
-                onClose={handleClose}
-                onSave={handleUpdate}
-                item={currentItem}
-                loading={saving}
-                wishlistOptions={wishlists}
-                productOptions={products}
+            <Card>
+
+                <CardContent sx={{ p: 3 }}>
+
+                    <Typography
+                        variant="h6"
+                        fontWeight={600}
+                        gutterBottom
+                    >
+                        Wishlist Item Information
+                    </Typography>
+
+
+                    <Divider sx={{ mb: 3 }} />
+
+
+                    {/* =================================================
+                        ITEM ID
+                    ================================================= */}
+
+                    <Grid
+                        container
+                        spacing={3}
+                    >
+
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Wishlist Item ID"
+                                value={numericId}
+                                disabled
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            WISHLIST
+                        ================================================= */}
+
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
+
+                            <TextField
+                                select
+                                fullWidth
+                                required
+                                name="wishlistId"
+                                label="Wishlist"
+                                value={
+                                    formData.wishlistId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            >
+
+                                <MenuItem value="">
+                                    Select Wishlist
+                                </MenuItem>
+
+
+                                {wishlists.map(
+                                    (wishlist) => {
+
+                                        const wishlistId =
+                                            getWishlistId(
+                                                wishlist
+                                            );
+
+
+                                        if (!wishlistId) {
+                                            return null;
+                                        }
+
+
+                                        const wishlistName =
+                                            wishlist?.name ||
+                                            wishlist?.wishlistName ||
+                                            wishlist?.title ||
+                                            `Wishlist ${wishlistId}`;
+
+
+                                        return (
+                                            <MenuItem
+                                                key={wishlistId}
+                                                value={wishlistId}
+                                            >
+                                                {wishlistName}
+                                                {" "}
+                                                (ID: {wishlistId})
+                                            </MenuItem>
+                                        );
+                                    }
+                                )}
+
+                            </TextField>
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            SELLER ID
+                        ================================================= */}
+
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
+
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                name="sellerId"
+                                label="Seller ID"
+                                value={
+                                    formData.sellerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 1
+                                }}
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            CUSTOMER ID
+                        ================================================= */}
+
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
+
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                name="customerId"
+                                label="Customer ID"
+                                value={
+                                    formData.customerId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                inputProps={{
+                                    min: 1
+                                }}
+                            />
+
+                        </Grid>
+
+
+                        {/* =================================================
+                            PRODUCT
+                        ================================================= */}
+
+                        <Grid
+                            size={{
+                                xs: 12
+                            }}
+                        >
+
+                            <TextField
+                                select
+                                fullWidth
+                                required
+                                name="productId"
+                                label="Product"
+                                value={
+                                    formData.productId
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            >
+
+                                <MenuItem value="">
+                                    Select Product
+                                </MenuItem>
+
+
+                                {products.map(
+                                    (product) => {
+
+                                        const productId =
+                                            getProductId(
+                                                product
+                                            );
+
+
+                                        if (!productId) {
+                                            return null;
+                                        }
+
+
+                                        const productName =
+                                            product?.productName ||
+                                            product?.name ||
+                                            product?.title ||
+                                            product?.sku ||
+                                            `Product ${productId}`;
+
+
+                                        const sku =
+                                            product?.sku ||
+                                            product?.SKU ||
+                                            "";
+
+
+                                        return (
+                                            <MenuItem
+                                                key={productId}
+                                                value={productId}
+                                            >
+
+                                                {productName}
+
+                                                {sku
+                                                    ? ` (${sku})`
+                                                    : ` (ID: ${productId})`
+                                                }
+
+                                            </MenuItem>
+                                        );
+                                    }
+                                )}
+
+                            </TextField>
+
+                        </Grid>
+
+                    </Grid>
+
+
+                    <Divider sx={{ mt: 4, mb: 3 }} />
+
+
+                    {/* =================================================
+                        ACTIONS
+                    ================================================= */}
+
+                    <Stack
+                        direction={{
+                            xs: "column-reverse",
+                            sm: "row"
+                        }}
+                        spacing={2}
+                        justifyContent="flex-end"
+                    >
+
+                        <Button
+                            variant="outlined"
+                            onClick={handleBack}
+                            disabled={saving}
+                        >
+                            Cancel
+                        </Button>
+
+
+                        <Button
+                            variant="contained"
+                            onClick={handleUpdate}
+                            disabled={saving}
+                            startIcon={
+                                saving
+                                    ? (
+                                        <CircularProgress
+                                            size={18}
+                                            color="inherit"
+                                        />
+                                    )
+                                    : null
+                            }
+                        >
+                            {saving
+                                ? "Updating..."
+                                : "Update Wishlist Item"
+                            }
+                        </Button>
+
+                    </Stack>
+
+                </CardContent>
+
+            </Card>
+
+
+            {/* =================================================
+                SUCCESS SNACKBAR
+            ================================================= */}
+
+            <Snackbar
+                open={Boolean(success)}
+                autoHideDuration={1500}
+                onClose={handleSuccessClose}
+                message={success}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center"
+                }}
             />
 
         </Box>

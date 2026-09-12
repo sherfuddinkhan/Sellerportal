@@ -9,9 +9,9 @@ import {
     Typography,
     Box,
     Grid,
-    Chip,
+    IconButton,
     Divider,
-    IconButton
+    Chip
 } from "@mui/material";
 
 import {
@@ -22,28 +22,9 @@ import {
 } from "@mui/icons-material";
 
 
-/* =========================================================
-   FORMAT CURRENCY
-========================================================= */
-
-const formatCurrency = (value) => {
-
-    const number = Number(value);
-
-    if (!Number.isFinite(number)) {
-        return "₹ 0.00";
-    }
-
-    return `₹ ${number.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
-};
-
-
-/* =========================================================
-   WISHLIST ITEM VIEW
-========================================================= */
+// ============================================================
+// WISHLIST ITEM VIEW
+// ============================================================
 
 const WishlistItemView = ({
     open,
@@ -56,12 +37,19 @@ const WishlistItemView = ({
     onDelete
 }) => {
 
-    const data = item || wishlistItem || {};
+    // ========================================================
+    // DATA
+    // ========================================================
+
+    const data =
+        item ||
+        wishlistItem ||
+        {};
 
 
-    /* =====================================================
-       DATA
-    ===================================================== */
+    // ========================================================
+    // FIELD HELPERS
+    // ========================================================
 
     const wishlistItemId =
         data.wishlistItemId ??
@@ -69,73 +57,104 @@ const WishlistItemView = ({
         data.id ??
         "-";
 
+
     const wishlistId =
         data.wishlistId ??
         data.WishlistId ??
         "-";
+
+
+    const sellerId =
+        data.sellerId ??
+        data.SellerId ??
+        "-";
+
+
+    const customerId =
+        data.customerId ??
+        data.CustomerId ??
+        "-";
+
 
     const productId =
         data.productId ??
         data.ProductId ??
         "-";
 
-    const productName =
-        data.productName ??
-        data.ProductName ??
-        data.name ??
-        data.Name ??
-        `Product #${productId}`;
 
-    const productCode =
-        data.productCode ??
-        data.ProductCode ??
-        "-";
-
-    const quantity =
-        data.quantity ??
-        data.Quantity ??
-        0;
-
-    const price =
-        data.price ??
-        data.Price ??
-        0;
-
-    const status =
-        data.status ??
-        data.Status ??
-        "Active";
+    const createdDate =
+        data.createdDate ??
+        data.CreatedDate ??
+        null;
 
 
-    /* =====================================================
-       EDIT
-    ===================================================== */
+    // ========================================================
+    // DATE FORMAT
+    // ========================================================
+
+    const formatDate = (value) => {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return String(value);
+        }
+
+        return date.toLocaleString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+    };
+
+
+    // ========================================================
+    // EDIT
+    // ========================================================
 
     const handleEdit = () => {
 
-        if (typeof onEdit === "function") {
+        if (
+            typeof onEdit ===
+            "function"
+        ) {
             onEdit(data);
         }
-
     };
 
 
-    /* =====================================================
-       DELETE
-    ===================================================== */
+    // ========================================================
+    // DELETE
+    // ========================================================
 
     const handleDelete = () => {
 
-        if (typeof onDelete === "function") {
+        if (
+            typeof onDelete ===
+            "function"
+        ) {
             onDelete(data);
         }
-
     };
 
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
         <Dialog
@@ -146,7 +165,7 @@ const WishlistItemView = ({
         >
 
             {/* =================================================
-               TITLE
+                TITLE
             ================================================= */}
 
             <DialogTitle
@@ -177,7 +196,10 @@ const WishlistItemView = ({
                 </Box>
 
 
-                <IconButton onClick={onClose}>
+                <IconButton
+                    onClick={onClose}
+                    aria-label="Close"
+                >
                     <Close />
                 </IconButton>
 
@@ -185,13 +207,13 @@ const WishlistItemView = ({
 
 
             {/* =================================================
-               CONTENT
+                CONTENT
             ================================================= */}
 
             <DialogContent dividers>
 
                 {/* =================================================
-                   PRODUCT
+                    SUMMARY
                 ================================================= */}
 
                 <Box
@@ -201,29 +223,38 @@ const WishlistItemView = ({
                     }}
                 >
 
+                    <Favorite
+                        color="error"
+                        sx={{
+                            fontSize: 42,
+                            mb: 1
+                        }}
+                    />
+
+
                     <Typography
                         variant="h5"
                         fontWeight={700}
                     >
-                        {productName}
+                        Wishlist Item
                     </Typography>
+
 
                     <Typography
                         variant="body2"
                         color="text.secondary"
                         sx={{ mt: 0.5 }}
                     >
-                        SKU: {productCode}
+                        Wishlist Item ID:{" "}
+                        {wishlistItemId}
                     </Typography>
 
+
                     <Chip
-                        label={status}
-                        color={
-                            String(status).toLowerCase() === "active"
-                                ? "success"
-                                : "default"
-                        }
+                        label="Wishlist Item"
                         size="small"
+                        color="primary"
+                        variant="outlined"
                         sx={{ mt: 1 }}
                     />
 
@@ -234,7 +265,7 @@ const WishlistItemView = ({
 
 
                 {/* =================================================
-                   DETAILS
+                    DETAILS
                 ================================================= */}
 
                 <Grid
@@ -242,7 +273,15 @@ const WishlistItemView = ({
                     spacing={2}
                 >
 
-                    <Grid item xs={6}>
+                    {/* =============================================
+                        WISHLIST ITEM ID
+                    ============================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="caption"
@@ -251,14 +290,24 @@ const WishlistItemView = ({
                             Wishlist Item ID
                         </Typography>
 
-                        <Typography fontWeight={600}>
+                        <Typography
+                            fontWeight={600}
+                        >
                             {wishlistItemId}
                         </Typography>
 
                     </Grid>
 
 
-                    <Grid item xs={6}>
+                    {/* =============================================
+                        WISHLIST ID
+                    ============================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="caption"
@@ -267,14 +316,76 @@ const WishlistItemView = ({
                             Wishlist ID
                         </Typography>
 
-                        <Typography fontWeight={600}>
+                        <Typography
+                            fontWeight={600}
+                        >
                             {wishlistId}
                         </Typography>
 
                     </Grid>
 
 
-                    <Grid item xs={6}>
+                    {/* =============================================
+                        SELLER ID
+                    ============================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Seller ID
+                        </Typography>
+
+                        <Typography
+                            fontWeight={600}
+                        >
+                            {sellerId}
+                        </Typography>
+
+                    </Grid>
+
+
+                    {/* =============================================
+                        CUSTOMER ID
+                    ============================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Customer ID
+                        </Typography>
+
+                        <Typography
+                            fontWeight={600}
+                        >
+                            {customerId}
+                        </Typography>
+
+                    </Grid>
+
+
+                    {/* =============================================
+                        PRODUCT ID
+                    ============================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="caption"
@@ -283,44 +394,38 @@ const WishlistItemView = ({
                             Product ID
                         </Typography>
 
-                        <Typography fontWeight={600}>
+                        <Typography
+                            fontWeight={600}
+                        >
                             {productId}
                         </Typography>
 
                     </Grid>
 
 
-                    <Grid item xs={6}>
+                    {/* =============================================
+                        CREATED DATE
+                    ============================================= */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                    >
 
                         <Typography
                             variant="caption"
                             color="text.secondary"
                         >
-                            Quantity
-                        </Typography>
-
-                        <Typography fontWeight={600}>
-                            {quantity}
-                        </Typography>
-
-                    </Grid>
-
-
-                    <Grid item xs={12}>
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Price
+                            Created Date
                         </Typography>
 
                         <Typography
-                            variant="h6"
-                            fontWeight={700}
-                            color="primary"
+                            fontWeight={600}
                         >
-                            {formatCurrency(price)}
+                            {formatDate(
+                                createdDate
+                            )}
                         </Typography>
 
                     </Grid>
@@ -331,33 +436,60 @@ const WishlistItemView = ({
 
 
             {/* =================================================
-               ACTIONS
+                ACTIONS
             ================================================= */}
 
             <DialogActions
                 sx={{
                     px: 3,
-                    py: 2
+                    py: 2,
+                    justifyContent:
+                        "space-between"
                 }}
             >
 
                 <Button
                     variant="outlined"
                     color="error"
-                    startIcon={<Delete/>}
-                    onClick={handleDelete}
+                    startIcon={
+                        <Delete />
+                    }
+                    onClick={
+                        handleDelete
+                    }
                 >
                     Delete
                 </Button>
 
 
-                <Button
-                    variant="contained"
-                    startIcon={<Edit />}
-                    onClick={handleEdit}
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 1
+                    }}
                 >
-                    Edit
-                </Button>
+
+                    <Button
+                        variant="outlined"
+                        onClick={onClose}
+                    >
+                        Close
+                    </Button>
+
+
+                    <Button
+                        variant="contained"
+                        startIcon={
+                            <Edit />
+                        }
+                        onClick={
+                            handleEdit
+                        }
+                    >
+                        Edit
+                    </Button>
+
+                </Box>
 
             </DialogActions>
 
