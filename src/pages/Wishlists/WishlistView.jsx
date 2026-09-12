@@ -1,25 +1,20 @@
-// =========================================================
-// WishlistView.jsx
-// =========================================================
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 
 import {
-    Box,
-    Paper,
-    Typography,
-    Grid,
     Alert,
-    CircularProgress,
+    Box,
     Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
+    CircularProgress,
+    Grid,
     MenuItem,
-    useMediaQuery,
-    useTheme,
+    Paper,
+    TextField,
+    Typography,
 } from "@mui/material";
 
 import {
@@ -27,21 +22,32 @@ import {
     Refresh,
 } from "@mui/icons-material";
 
+import {
+    useNavigate,
+} from "react-router-dom";
+
+import axios from "axios";
+
 // Components
 import WishlistToolbar from "./WishlistToolbar";
 import WishlistTable from "./WishlistTable";
 import WishlistList from "./WishlistList";
 
 // =========================================================
+// CONSTANTS
+// =========================================================
+
+const SERVER_URL = "http://localhost:5000";
+const API_URL = `${SERVER_URL}/api`;
+const WISHLIST_API = `${API_URL}/Wishlist`;
+
+// =========================================================
 // VIEW COMPONENT
 // =========================================================
 
 const WishlistView = () => {
-    const theme = useTheme();
 
-    const isMobile = useMediaQuery(
-        theme.breakpoints.down("md")
-    );
+    const navigate = useNavigate();
 
     // =========================================================
     // STATE
@@ -49,7 +55,7 @@ const WishlistView = () => {
 
     const [wishlists, setWishlists] = useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [error, setError] = useState("");
 
@@ -57,191 +63,220 @@ const WishlistView = () => {
 
     const [search, setSearch] = useState("");
 
-    const [filter, setFilter] = useState("all");
+    const [statusFilter, setStatusFilter] =
+        useState("all");
 
     const [page, setPage] = useState(0);
 
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] =
+        useState(10);
 
     const [selectedWishlists, setSelectedWishlists] =
         useState([]);
 
-    const [viewMode, setViewMode] = useState(
-        "table"
-    );
-
-    // =========================================================
-    // MODAL STATE
-    // =========================================================
-
-    const [openModal, setOpenModal] = useState(false);
-
-    const [selectedWishlist, setSelectedWishlist] =
-        useState(null);
-
-    // =========================================================
-    // SAMPLE DATA
-    // =========================================================
-    // Replace this with your API response.
-    // =========================================================
-
-    const sampleWishlists = [
-        {
-            wishlistId: 1,
-            customerId: 2,
-            customerName: "TechNova Retail Customer",
-            customerCode: "CUST-F10EA404",
-            productId: 6,
-            productName: "Wireless Bluetooth Headphones",
-            productCode: "PRD-001",
-            categoryName: "Electronics",
-            brand: "SoundMax",
-            price: 2499,
-            stock: 25,
-            productImage: "",
-            createdDate: "2026-08-25",
-        },
-        {
-            wishlistId: 2,
-            customerId: 2,
-            customerName: "TechNova Retail Customer",
-            customerCode: "CUST-F10EA404",
-            productId: 7,
-            productName: "Mechanical Keyboard",
-            productCode: "PRD-002",
-            categoryName: "Electronics",
-            brand: "KeyPro",
-            price: 3499,
-            stock: 10,
-            productImage: "",
-            createdDate: "2026-08-24",
-        },
-        {
-            wishlistId: 3,
-            customerId: 3,
-            customerName: "ABC Retail",
-            customerCode: "CUST-1003",
-            productId: 8,
-            productName: "Running Shoes",
-            productCode: "PRD-003",
-            categoryName: "Footwear",
-            brand: "FastRun",
-            price: 2999,
-            stock: 0,
-            productImage: "",
-            createdDate: "2026-08-23",
-        },
-    ];
+    const [viewMode, setViewMode] =
+        useState("table");
 
     // =========================================================
     // LOAD WISHLISTS
     // =========================================================
 
-    const loadWishlists = async () => {
+    const loadWishlists = useCallback(async () => {
+
         try {
+
             setLoading(true);
             setError("");
 
-            /*
-             * Replace with your actual API.
-             *
-             * Example:
-             *
-             * const response = await apiService.get(
-             *     "/Wishlist"
-             * );
-             *
-             * setWishlists(response.data);
-             */
-
-            await new Promise((resolve) =>
-                setTimeout(resolve, 500)
+            console.log(
+                "GET ALL WISHLISTS"
             );
 
-            setWishlists(sampleWishlists);
+            const response = await axios.get(
+                WISHLIST_API,
+                {
+                    timeout: 30000,
+                }
+            );
+
+            console.log(
+                "WISHLISTS RESPONSE:",
+                response.data
+            );
+
+            // -------------------------------------------------
+            // ASP.NET normally returns an array.
+            // Keep normalization defensive.
+            // -------------------------------------------------
+
+            let data = response.data;
+
+            if (Array.isArray(data)) {
+                data = data;
+            } else if (
+                Array.isArray(data?.data)
+            ) {
+                data = data.data;
+            } else if (
+                Array.isArray(data?.items)
+            ) {
+                data = data.items;
+            } else if (
+                Array.isArray(data?.wishlists)
+            ) {
+                data = data.wishlists;
+            } else if (data) {
+                data = [data];
+            } else {
+                data = [];
+            }
+
+            setWishlists(data);
+
+            console.log(
+                "NORMALIZED WISHLISTS:",
+                data
+            );
+
         } catch (err) {
+
             console.error(
                 "Wishlist loading error:",
                 err
             );
 
+            const message =
+                err.response?.data?.message ||
+                err.response?.data ||
+                err.message ||
+                "Unable to load wishlists.";
+
             setError(
-                "Unable to load wishlist data."
+                typeof message === "string"
+                    ? message
+                    : "Unable to load wishlists."
             );
+
         } finally {
+
             setLoading(false);
+
         }
-    };
+
+    }, []);
 
     // =========================================================
     // INITIAL LOAD
     // =========================================================
 
     useEffect(() => {
+
         loadWishlists();
-    }, []);
+
+    }, [loadWishlists]);
 
     // =========================================================
-    // FILTERED WISHLISTS
+    // STATUS OPTIONS
+    // =========================================================
+
+    const statusOptions = useMemo(() => {
+
+        const statuses = wishlists
+            .map(
+                (wishlist) =>
+                    wishlist.status
+            )
+            .filter(Boolean)
+            .map(
+                (status) =>
+                    String(status)
+            );
+
+        return [
+            ...new Set(statuses),
+        ];
+
+    }, [wishlists]);
+
+    // =========================================================
+    // FILTER WISHLISTS
     // =========================================================
 
     const filteredWishlists = useMemo(() => {
-        return wishlists.filter((wishlist) => {
-            const searchValue =
-                search.toLowerCase().trim();
 
-            const matchesSearch =
-                !searchValue ||
-                wishlist.productName
-                    ?.toLowerCase()
-                    .includes(searchValue) ||
-                wishlist.productCode
-                    ?.toLowerCase()
-                    .includes(searchValue) ||
-                wishlist.customerName
-                    ?.toLowerCase()
-                    .includes(searchValue) ||
-                wishlist.customerCode
-                    ?.toLowerCase()
-                    .includes(searchValue) ||
-                wishlist.categoryName
-                    ?.toLowerCase()
-                    .includes(searchValue);
+        const searchValue =
+            search
+                .toLowerCase()
+                .trim();
 
-            let matchesFilter = true;
+        return wishlists.filter(
+            (wishlist) => {
 
-            if (filter === "in-stock") {
-                matchesFilter =
-                    Number(wishlist.stock) > 0;
+                // ---------------------------------------------
+                // SEARCH
+                // ---------------------------------------------
+
+                const wishlistId =
+                    String(
+                        wishlist.wishlistId ??
+                        wishlist.id ??
+                        ""
+                    );
+
+                const sellerId =
+                    String(
+                        wishlist.sellerId ??
+                        ""
+                    );
+
+                const customerId =
+                    String(
+                        wishlist.customerId ??
+                        ""
+                    );
+
+                const status =
+                    String(
+                        wishlist.status ??
+                        ""
+                    );
+
+                const matchesSearch =
+                    !searchValue ||
+                    wishlistId
+                        .toLowerCase()
+                        .includes(searchValue) ||
+                    sellerId
+                        .toLowerCase()
+                        .includes(searchValue) ||
+                    customerId
+                        .toLowerCase()
+                        .includes(searchValue) ||
+                    status
+                        .toLowerCase()
+                        .includes(searchValue);
+
+                // ---------------------------------------------
+                // STATUS FILTER
+                // ---------------------------------------------
+
+                const matchesStatus =
+                    statusFilter === "all" ||
+                    status.toLowerCase() ===
+                        statusFilter.toLowerCase();
+
+                return (
+                    matchesSearch &&
+                    matchesStatus
+                );
             }
-
-            if (filter === "out-of-stock") {
-                matchesFilter =
-                    Number(wishlist.stock) === 0;
-            }
-
-            if (filter === "low-stock") {
-                matchesFilter =
-                    Number(wishlist.stock) > 0 &&
-                    Number(wishlist.stock) <= 10;
-            }
-
-            return (
-                matchesSearch &&
-                matchesFilter
-            );
-        });
-    }, [wishlists, search, filter]);
-
-    // =========================================================
-    // PAGINATION
-    // =========================================================
-
-    const paginatedWishlists =
-        filteredWishlists.slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage
         );
+
+    }, [
+        wishlists,
+        search,
+        statusFilter,
+    ]);
 
     // =========================================================
     // PAGE CHANGE
@@ -251,7 +286,9 @@ const WishlistView = () => {
         event,
         newPage
     ) => {
+
         setPage(newPage);
+
     };
 
     // =========================================================
@@ -261,6 +298,7 @@ const WishlistView = () => {
     const handleChangeRowsPerPage = (
         event
     ) => {
+
         setRowsPerPage(
             parseInt(
                 event.target.value,
@@ -269,100 +307,195 @@ const WishlistView = () => {
         );
 
         setPage(0);
+
     };
 
     // =========================================================
     // SEARCH
     // =========================================================
 
-    const handleSearch = (value) => {
+    const handleSearch = (
+        value
+    ) => {
+
         setSearch(value);
+
         setPage(0);
+
     };
 
     // =========================================================
-    // FILTER
+    // STATUS FILTER
     // =========================================================
 
-    const handleFilter = (value) => {
-        setFilter(value);
+    const handleStatusFilter = (
+        value
+    ) => {
+
+        setStatusFilter(value);
+
         setPage(0);
+
     };
 
     // =========================================================
     // VIEW WISHLIST
     // =========================================================
-
-    const handleView = (wishlist) => {
-        setSelectedWishlist(wishlist);
-        setOpenModal(true);
-    };
-
-    // =========================================================
-    // CLOSE MODAL
+    //
+    // Full-page details route:
+    // /wishlists/details/:id
+    //
+    // No popup/modal.
     // =========================================================
 
-    const handleCloseModal = () => {
-        setOpenModal(false);
-        setSelectedWishlist(null);
-    };
+    const handleView = (
+        wishlist
+    ) => {
 
-    // =========================================================
-    // DELETE SINGLE ITEM
-    // =========================================================
+        const id =
+            wishlist?.wishlistId ??
+            wishlist?.id;
 
-    const handleDelete = async (wishlist) => {
-        const confirmed = window.confirm(
-            `Remove "${wishlist.productName}" from the wishlist?`
+        if (!id) {
+
+            setError(
+                "Wishlist ID is missing."
+            );
+
+            return;
+        }
+
+        navigate(
+            `/wishlists/details/${id}`
         );
+
+    };
+
+    // =========================================================
+    // EDIT WISHLIST
+    // =========================================================
+    //
+    // Available for future toolbar/table use.
+    // =========================================================
+
+    const handleEdit = (
+        wishlist
+    ) => {
+
+        const id =
+            wishlist?.wishlistId ??
+            wishlist?.id;
+
+        if (!id) {
+
+            setError(
+                "Wishlist ID is missing."
+            );
+
+            return;
+        }
+
+        navigate(
+            `/wishlists/edit/${id}`
+        );
+
+    };
+
+    // =========================================================
+    // DELETE SINGLE WISHLIST
+    // =========================================================
+
+    const handleDelete = async (
+        wishlist
+    ) => {
+
+        const wishlistId =
+            wishlist?.wishlistId ??
+            wishlist?.id;
+
+        if (!wishlistId) {
+
+            setError(
+                "Wishlist ID is missing."
+            );
+
+            return;
+        }
+
+        const confirmed =
+            window.confirm(
+                `Are you sure you want to delete Wishlist #${wishlistId}?`
+            );
 
         if (!confirmed) {
             return;
         }
 
         try {
-            /*
-             * Replace with:
-             *
-             * await apiService.delete(
-             *     `/Wishlist/${wishlist.wishlistId}`
-             * );
-             */
 
-            setWishlists((prev) =>
-                prev.filter(
-                    (item) =>
-                        item.wishlistId !==
-                        wishlist.wishlistId
-                )
+            setError("");
+
+            console.log(
+                "DELETE WISHLIST:",
+                wishlistId
             );
 
-            setSelectedWishlists((prev) =>
-                prev.filter(
-                    (id) =>
-                        id !==
-                        wishlist.wishlistId
-                )
+            await axios.delete(
+                `${WISHLIST_API}/${wishlistId}`,
+                {
+                    timeout: 30000,
+                }
+            );
+
+            setWishlists(
+                (prev) =>
+                    prev.filter(
+                        (item) =>
+                            (
+                                item.wishlistId ??
+                                item.id
+                            ) !== wishlistId
+                    )
+            );
+
+            setSelectedWishlists(
+                (prev) =>
+                    prev.filter(
+                        (id) =>
+                            id !== wishlistId
+                    )
             );
 
             setSuccess(
-                "Wishlist item removed successfully."
+                `Wishlist #${wishlistId} deleted successfully.`
             );
 
             setTimeout(
                 () => setSuccess(""),
                 3000
             );
+
         } catch (err) {
+
             console.error(
                 "Delete wishlist error:",
                 err
             );
 
+            const message =
+                err.response?.data?.message ||
+                err.response?.data ||
+                err.message ||
+                "Unable to delete wishlist.";
+
             setError(
-                "Unable to remove wishlist item."
+                typeof message === "string"
+                    ? message
+                    : "Unable to delete wishlist."
             );
+
         }
+
     };
 
     // =========================================================
@@ -370,113 +503,192 @@ const WishlistView = () => {
     // =========================================================
 
     const handleAdd = () => {
-        /*
-         * Navigate to your product page or
-         * open an Add Wishlist modal here.
-         *
-         * Example:
-         *
-         * navigate("/wishlists/create");
-         */
 
-        setSuccess(
-            "Add Wishlist functionality can be connected to the Product API."
+        navigate(
+            "/wishlists/create"
         );
 
-        setTimeout(
-            () => setSuccess(""),
-            3000
-        );
     };
 
     // =========================================================
-    // SELECTED ITEMS
+    // SELECT WISHLIST
     // =========================================================
 
-    const handleRemoveSelected = async () => {
-        if (
-            selectedWishlists.length === 0
-        ) {
-            return;
-        }
+    const handleSelectItem = (
+        wishlistId
+    ) => {
 
-        const confirmed = window.confirm(
-            `Remove ${selectedWishlists.length} selected item(s)?`
+        setSelectedWishlists(
+            (prev) => {
+
+                if (
+                    prev.includes(
+                        wishlistId
+                    )
+                ) {
+
+                    return prev.filter(
+                        (id) =>
+                            id !== wishlistId
+                    );
+
+                }
+
+                return [
+                    ...prev,
+                    wishlistId,
+                ];
+
+            }
         );
 
-        if (!confirmed) {
-            return;
-        }
+    };
 
-        try {
-            /*
-             * If your API supports bulk delete:
-             *
-             * await apiService.post(
-             *     "/Wishlist/delete-bulk",
-             *     {
-             *         wishlistIds:
-             *             selectedWishlists
-             *     }
-             * );
-             */
+    // =========================================================
+    // REMOVE SELECTED
+    // =========================================================
+    //
+    // Backend does not expose a bulk-delete endpoint.
+    // Delete each selected Wishlist using DELETE /Wishlist/{id}.
+    // =========================================================
 
-            setWishlists((prev) =>
-                prev.filter(
-                    (item) =>
-                        !selectedWishlists.includes(
-                            item.wishlistId
+    const handleRemoveSelected =
+        async () => {
+
+            if (
+                selectedWishlists.length === 0
+            ) {
+                return;
+            }
+
+            const confirmed =
+                window.confirm(
+                    `Are you sure you want to delete ${selectedWishlists.length} selected wishlist(s)?`
+                );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+
+                setLoading(true);
+                setError("");
+
+                for (
+                    const wishlistId of
+                    selectedWishlists
+                ) {
+
+                    await axios.delete(
+                        `${WISHLIST_API}/${wishlistId}`,
+                        {
+                            timeout: 30000,
+                        }
+                    );
+
+                }
+
+                setWishlists(
+                    (prev) =>
+                        prev.filter(
+                            (item) =>
+                                !selectedWishlists.includes(
+                                    item.wishlistId ??
+                                    item.id
+                                )
                         )
-                )
-            );
+                );
 
-            setSelectedWishlists([]);
+                setSelectedWishlists([]);
 
-            setSuccess(
-                "Selected wishlist items removed successfully."
-            );
+                setPage(0);
 
-            setTimeout(
-                () => setSuccess(""),
-                3000
-            );
-        } catch (err) {
-            console.error(
-                "Bulk delete error:",
-                err
-            );
+                setSuccess(
+                    "Selected wishlists deleted successfully."
+                );
 
-            setError(
-                "Unable to remove selected items."
-            );
-        }
-    };
+                setTimeout(
+                    () => setSuccess(""),
+                    3000
+                );
+
+            } catch (err) {
+
+                console.error(
+                    "Bulk wishlist delete error:",
+                    err
+                );
+
+                const message =
+                    err.response?.data?.message ||
+                    err.response?.data ||
+                    err.message ||
+                    "Unable to delete selected wishlists.";
+
+                setError(
+                    typeof message === "string"
+                        ? message
+                        : "Unable to delete selected wishlists."
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        };
 
     // =========================================================
     // CLEAR ALL
     // =========================================================
+    //
+    // There is no /Wishlist/clear endpoint.
+    // Therefore delete each existing Wishlist individually.
+    // =========================================================
 
     const handleClearAll = async () => {
+
         if (wishlists.length === 0) {
             return;
         }
 
-        const confirmed = window.confirm(
-            "Are you sure you want to remove all wishlist items?"
-        );
+        const confirmed =
+            window.confirm(
+                `Are you sure you want to delete all ${wishlists.length} wishlists?`
+            );
 
         if (!confirmed) {
             return;
         }
 
         try {
-            /*
-             * Replace with your API:
-             *
-             * await apiService.delete(
-             *     "/Wishlist/clear"
-             * );
-             */
+
+            setLoading(true);
+            setError("");
+
+            for (
+                const wishlist of
+                wishlists
+            ) {
+
+                const wishlistId =
+                    wishlist.wishlistId ??
+                    wishlist.id;
+
+                if (!wishlistId) {
+                    continue;
+                }
+
+                await axios.delete(
+                    `${WISHLIST_API}/${wishlistId}`,
+                    {
+                        timeout: 30000,
+                    }
+                );
+
+            }
 
             setWishlists([]);
 
@@ -485,71 +697,72 @@ const WishlistView = () => {
             setPage(0);
 
             setSuccess(
-                "All wishlist items have been removed."
+                "All wishlists have been deleted successfully."
             );
 
             setTimeout(
                 () => setSuccess(""),
                 3000
             );
+
         } catch (err) {
+
             console.error(
                 "Clear wishlist error:",
                 err
             );
 
+            const message =
+                err.response?.data?.message ||
+                err.response?.data ||
+                err.message ||
+                "Unable to clear wishlists.";
+
             setError(
-                "Unable to clear wishlist."
+                typeof message === "string"
+                    ? message
+                    : "Unable to clear wishlists."
             );
+
+            // Reload because some records may
+            // have already been deleted.
+            await loadWishlists();
+
+        } finally {
+
+            setLoading(false);
+
         }
-    };
 
-    // =========================================================
-    // SELECT ITEM
-    // =========================================================
-
-    const handleSelectItem = (
-        wishlistId
-    ) => {
-        setSelectedWishlists((prev) => {
-            if (prev.includes(wishlistId)) {
-                return prev.filter(
-                    (id) =>
-                        id !== wishlistId
-                );
-            }
-
-            return [
-                ...prev,
-                wishlistId,
-            ];
-        });
     };
 
     // =========================================================
     // TOTALS
     // =========================================================
 
-    const totalItems = wishlists.length;
+    const totalWishlists =
+        wishlists.length;
 
-    const inStockItems =
+    const activeWishlists =
         wishlists.filter(
-            (item) =>
-                Number(item.stock) > 0
+            (wishlist) =>
+                String(
+                    wishlist.status || ""
+                ).toLowerCase() ===
+                "active"
         ).length;
 
-    const outOfStockItems =
+    const inactiveWishlists =
         wishlists.filter(
-            (item) =>
-                Number(item.stock) === 0
+            (wishlist) =>
+                String(
+                    wishlist.status || ""
+                ).toLowerCase() ===
+                "inactive"
         ).length;
 
-    const lowStockItems =
-        wishlists.filter(
-            (item) =>
-                Number(item.stock) > 0 &&
-                Number(item.stock) <= 10
-        ).length;
+    const selectedCount =
+        selectedWishlists.length;
 
     // =========================================================
     // RENDER
@@ -557,6 +770,7 @@ const WishlistView = () => {
 
     return (
         <Box sx={{ p: 3 }}>
+
             {/* =====================================================
                 PAGE HEADER
                ===================================================== */}
@@ -572,14 +786,15 @@ const WishlistView = () => {
                     gap: 2,
                 }}
             >
+
                 <Box
                     sx={{
                         display: "flex",
-                        alignItems:
-                            "center",
+                        alignItems: "center",
                         gap: 1.5,
                     }}
                 >
+
                     <Favorite
                         color="error"
                         sx={{
@@ -588,6 +803,7 @@ const WishlistView = () => {
                     />
 
                     <Box>
+
                         <Typography
                             variant="h4"
                             fontWeight="bold"
@@ -599,20 +815,24 @@ const WishlistView = () => {
                             variant="body2"
                             color="text.secondary"
                         >
-                            Manage customer wishlist
-                            items.
+                            Manage customer wishlists.
                         </Typography>
+
                     </Box>
+
                 </Box>
 
                 <Button
                     variant="outlined"
                     startIcon={<Refresh />}
-                    onClick={loadWishlists}
+                    onClick={
+                        loadWishlists
+                    }
                     disabled={loading}
                 >
                     Refresh
                 </Button>
+
             </Box>
 
             {/* =====================================================
@@ -652,11 +872,12 @@ const WishlistView = () => {
                 spacing={2}
                 sx={{ mb: 3 }}
             >
+
                 <Grid
                     item
                     xs={12}
                     sm={6}
-                    md={3}
+                    md={4}
                 >
                     <Paper
                         sx={{
@@ -668,14 +889,14 @@ const WishlistView = () => {
                             variant="body2"
                             color="text.secondary"
                         >
-                            Total Wishlist Items
+                            Total Wishlists
                         </Typography>
 
                         <Typography
                             variant="h4"
                             fontWeight="bold"
                         >
-                            {totalItems}
+                            {totalWishlists}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -684,7 +905,7 @@ const WishlistView = () => {
                     item
                     xs={12}
                     sm={6}
-                    md={3}
+                    md={4}
                 >
                     <Paper
                         sx={{
@@ -696,14 +917,14 @@ const WishlistView = () => {
                             variant="body2"
                             color="text.secondary"
                         >
-                            In Stock
+                            Active
                         </Typography>
 
                         <Typography
                             variant="h4"
                             fontWeight="bold"
                         >
-                            {inStockItems}
+                            {activeWishlists}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -712,7 +933,7 @@ const WishlistView = () => {
                     item
                     xs={12}
                     sm={6}
-                    md={3}
+                    md={4}
                 >
                     <Paper
                         sx={{
@@ -724,45 +945,18 @@ const WishlistView = () => {
                             variant="body2"
                             color="text.secondary"
                         >
-                            Low Stock
+                            Inactive
                         </Typography>
 
                         <Typography
                             variant="h4"
                             fontWeight="bold"
                         >
-                            {lowStockItems}
+                            {inactiveWishlists}
                         </Typography>
                     </Paper>
                 </Grid>
 
-                <Grid
-                    item
-                    xs={12}
-                    sm={6}
-                    md={3}
-                >
-                    <Paper
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                        }}
-                    >
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            Out of Stock
-                        </Typography>
-
-                        <Typography
-                            variant="h4"
-                            fontWeight="bold"
-                        >
-                            {outOfStockItems}
-                        </Typography>
-                    </Paper>
-                </Grid>
             </Grid>
 
             {/* =====================================================
@@ -770,17 +964,25 @@ const WishlistView = () => {
                ===================================================== */}
 
             <WishlistToolbar
-                totalItems={totalItems}
+                totalItems={
+                    totalWishlists
+                }
                 selectedCount={
-                    selectedWishlists.length
+                    selectedCount
                 }
                 loading={loading}
-                onRefresh={loadWishlists}
-                onAdd={handleAdd}
+                onRefresh={
+                    loadWishlists
+                }
+                onAdd={
+                    handleAdd
+                }
                 onRemoveSelected={
                     handleRemoveSelected
                 }
-                onClearAll={handleClearAll}
+                onClearAll={
+                    handleClearAll
+                }
             />
 
             {/* =====================================================
@@ -794,27 +996,30 @@ const WishlistView = () => {
                     borderRadius: 2,
                 }}
             >
+
                 <Grid
                     container
                     spacing={2}
                 >
+
                     <Grid
                         item
                         xs={12}
                         md={8}
                     >
+
                         <TextField
                             fullWidth
                             label="Search Wishlist"
-                            placeholder="Search product, customer, code..."
+                            placeholder="Search wishlist ID, seller ID, customer ID, status..."
                             value={search}
                             onChange={(event) =>
                                 handleSearch(
-                                    event.target
-                                        .value
+                                    event.target.value
                                 )
                             }
                         />
+
                     </Grid>
 
                     <Grid
@@ -822,36 +1027,42 @@ const WishlistView = () => {
                         xs={12}
                         md={4}
                     >
+
                         <TextField
                             fullWidth
                             select
-                            label="Stock Filter"
-                            value={filter}
+                            label="Status"
+                            value={
+                                statusFilter
+                            }
                             onChange={(event) =>
-                                handleFilter(
-                                    event.target
-                                        .value
+                                handleStatusFilter(
+                                    event.target.value
                                 )
                             }
                         >
+
                             <MenuItem value="all">
-                                All Items
+                                All Statuses
                             </MenuItem>
 
-                            <MenuItem value="in-stock">
-                                In Stock
-                            </MenuItem>
+                            {statusOptions.map(
+                                (status) => (
+                                    <MenuItem
+                                        key={status}
+                                        value={status}
+                                    >
+                                        {status}
+                                    </MenuItem>
+                                )
+                            )}
 
-                            <MenuItem value="low-stock">
-                                Low Stock
-                            </MenuItem>
-
-                            <MenuItem value="out-of-stock">
-                                Out of Stock
-                            </MenuItem>
                         </TextField>
+
                     </Grid>
+
                 </Grid>
+
             </Paper>
 
             {/* =====================================================
@@ -859,32 +1070,42 @@ const WishlistView = () => {
                ===================================================== */}
 
             {loading ? (
+
                 <Paper
                     sx={{
                         p: 8,
                         textAlign: "center",
                     }}
                 >
+
                     <CircularProgress />
 
                     <Typography
                         sx={{ mt: 2 }}
                         color="text.secondary"
                     >
-                        Loading wishlist...
+                        Loading wishlists...
                     </Typography>
+
                 </Paper>
-            ) : isMobile ||
-              viewMode === "list" ? (
+
+            ) : viewMode === "list" ? (
+
                 <WishlistList
                     wishlists={
-                        paginatedWishlists
+                        filteredWishlists
                     }
                     loading={loading}
-                    onView={handleView}
-                    onDelete={handleDelete}
+                    onView={
+                        handleView
+                    }
+                    onDelete={
+                        handleDelete
+                    }
                 />
+
             ) : (
+
                 <WishlistTable
                     wishlists={
                         filteredWishlists
@@ -900,186 +1121,16 @@ const WishlistView = () => {
                     onRowsPerPageChange={
                         handleChangeRowsPerPage
                     }
-                    onView={handleView}
-                    onDelete={handleDelete}
+                    onView={
+                        handleView
+                    }
+                    onDelete={
+                        handleDelete
+                    }
                 />
+
             )}
 
-            {/* =====================================================
-                VIEW MODAL
-               ===================================================== */}
-
-            <Dialog
-                open={openModal}
-                onClose={
-                    handleCloseModal
-                }
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle>
-                    Wishlist Details
-                </DialogTitle>
-
-                <DialogContent dividers>
-                    {selectedWishlist && (
-                        <Box>
-                            <Typography
-                                variant="h6"
-                                fontWeight="bold"
-                                gutterBottom
-                            >
-                                {
-                                    selectedWishlist.productName
-                                }
-                            </Typography>
-
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{
-                                    mb: 2,
-                                }}
-                            >
-                                Product Code:{" "}
-                                {
-                                    selectedWishlist.productCode
-                                }
-                            </Typography>
-
-                            <Grid
-                                container
-                                spacing={2}
-                            >
-                                <Grid
-                                    item
-                                    xs={6}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                    >
-                                        Customer
-                                    </Typography>
-
-                                    <Typography>
-                                        {
-                                            selectedWishlist.customerName
-                                        }
-                                    </Typography>
-                                </Grid>
-
-                                <Grid
-                                    item
-                                    xs={6}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                    >
-                                        Customer Code
-                                    </Typography>
-
-                                    <Typography>
-                                        {
-                                            selectedWishlist.customerCode
-                                        }
-                                    </Typography>
-                                </Grid>
-
-                                <Grid
-                                    item
-                                    xs={6}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                    >
-                                        Category
-                                    </Typography>
-
-                                    <Typography>
-                                        {
-                                            selectedWishlist.categoryName
-                                        }
-                                    </Typography>
-                                </Grid>
-
-                                <Grid
-                                    item
-                                    xs={6}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                    >
-                                        Brand
-                                    </Typography>
-
-                                    <Typography>
-                                        {
-                                            selectedWishlist.brand ||
-                                            "N/A"
-                                        }
-                                    </Typography>
-                                </Grid>
-
-                                <Grid
-                                    item
-                                    xs={6}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                    >
-                                        Price
-                                    </Typography>
-
-                                    <Typography
-                                        fontWeight="bold"
-                                    >
-                                        ₹
-                                        {Number(
-                                            selectedWishlist.price ||
-                                                0
-                                        ).toLocaleString(
-                                            "en-IN"
-                                        )}
-                                    </Typography>
-                                </Grid>
-
-                                <Grid
-                                    item
-                                    xs={6}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                    >
-                                        Stock
-                                    </Typography>
-
-                                    <Typography>
-                                        {
-                                            selectedWishlist.stock
-                                        }
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                        </Box>
-                    )}
-                </DialogContent>
-
-                <DialogActions>
-                    <Button
-                        onClick={
-                            handleCloseModal
-                        }
-                    >
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     );
 };

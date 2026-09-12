@@ -1,77 +1,203 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
 
 import {
-    Box,
-    Typography,
-    Button,
-    CircularProgress,
+    useNavigate,
+    useParams
+} from "react-router-dom";
+
+import axios from "axios";
+
+import {
     Alert,
+    Box,
+    Button,
     Card,
     CardContent,
-    Grid,
     Chip,
-    Divider
+    CircularProgress,
+    Divider,
+    Grid,
+    Typography
 } from "@mui/material";
 
 import {
     ArrowBack,
-    Edit,
     Delete,
-    Favorite,
-    Person
+    Edit,
+    Favorite
 } from "@mui/icons-material";
 
-import axios from "axios";
 
-
-/* =========================================================
+/* ============================================================
    CONFIGURATION
-========================================================= */
+============================================================ */
 
 const SERVER_URL =
-    import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
+    import.meta.env.VITE_SERVER_URL ||
+    "http://localhost:5000";
 
 const WISHLIST_API =
     `${SERVER_URL}/api/Wishlist`;
 
 
-/* =========================================================
+/* ============================================================
    COMPONENT
-========================================================= */
+============================================================ */
 
 const WishlistDetails = ({
     wishlistId,
     id,
+    wishlist: initialWishlist,
     onBack,
     onEdit,
     onDelete
 }) => {
 
+    const {
+        id: routeId
+    } = useParams();
+
+    const navigate = useNavigate();
+
+
+    /* ========================================================
+       ID
+    ======================================================== */
+
     const itemId =
-        wishlistId ??
-        id;
+        routeId ||
+        wishlistId ||
+        id ||
+        initialWishlist?.wishlistId ||
+        initialWishlist?.WishlistId;
 
 
-    /* =====================================================
+    /* ========================================================
        STATE
-    ===================================================== */
+    ======================================================== */
 
-    const [wishlist, setWishlist] = useState(null);
+    const [wishlist, setWishlist] =
+        useState(initialWishlist || null);
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [error, setError] = useState("");
+    const [error, setError] =
+        useState("");
 
 
-    /* =====================================================
+    /* ========================================================
+       BACK
+    ======================================================== */
+
+    const handleBack = () => {
+
+        if (onBack) {
+            onBack();
+            return;
+        }
+
+        navigate("/wishlists");
+    };
+
+
+    /* ========================================================
+       EDIT
+    ======================================================== */
+
+    const handleEdit = () => {
+
+        if (onEdit) {
+            onEdit(wishlist);
+            return;
+        }
+
+        if (itemId) {
+            navigate(`/wishlists/edit/${itemId}`);
+        }
+    };
+
+
+    /* ========================================================
+       DELETE
+    ======================================================== */
+
+    const handleDelete = () => {
+
+        if (onDelete) {
+            onDelete(wishlist);
+            return;
+        }
+
+        /*
+         * Actual deletion should normally be handled by the
+         * WishlistList/Delete dialog so that the user can see
+         * the deletion confirmation there.
+         *
+         * We therefore navigate back rather than performing
+         * an unexpected DELETE directly from the details page.
+         */
+        navigate("/wishlists");
+    };
+
+
+    /* ========================================================
+       ERROR MESSAGE
+    ======================================================== */
+
+    const getErrorMessage = (err) => {
+
+        const data =
+            err?.response?.data;
+
+        if (
+            typeof data === "string" &&
+            data.trim()
+        ) {
+            return data;
+        }
+
+        if (data?.message) {
+            return data.message;
+        }
+
+        if (data?.title) {
+            return data.title;
+        }
+
+        if (data?.errors) {
+
+            const validationErrors =
+                Object.values(data.errors)
+                    .flat()
+                    .filter(Boolean);
+
+            if (validationErrors.length > 0) {
+                return validationErrors.join(" ");
+            }
+        }
+
+        return (
+            err?.message ||
+            "Unable to load wishlist."
+        );
+    };
+
+
+    /* ========================================================
        LOAD WISHLIST
-    ===================================================== */
+    ======================================================== */
 
     const loadWishlist = async () => {
 
         if (!itemId) {
 
-            setError("Wishlist ID is required.");
+            setError(
+                "Wishlist ID is required."
+            );
 
             setLoading(false);
 
@@ -82,18 +208,44 @@ const WishlistDetails = ({
         try {
 
             setLoading(true);
-
             setError("");
 
 
+            console.log(
+                "GET WISHLIST:",
+                itemId
+            );
+
+
             const response = await axios.get(
-                `${WISHLIST_API}/${itemId}`
+                `${WISHLIST_API}/${itemId}`,
+                {
+                    timeout: 30000
+                }
+            );
+
+
+            console.log(
+                "GET WISHLIST RESPONSE:",
+                response.data
             );
 
 
             const data =
                 response.data?.data ??
                 response.data;
+
+
+            if (!data) {
+
+                setWishlist(null);
+
+                setError(
+                    "Wishlist not found."
+                );
+
+                return;
+            }
 
 
             setWishlist(data);
@@ -105,29 +257,20 @@ const WishlistDetails = ({
                 err
             );
 
-
             setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                (
-                    typeof err.response?.data === "string"
-                        ? err.response.data
-                        : null
-                ) ||
-                "Unable to load wishlist."
+                getErrorMessage(err)
             );
 
         } finally {
 
             setLoading(false);
-
         }
     };
 
 
-    /* =====================================================
+    /* ========================================================
        LOAD WHEN ID CHANGES
-    ===================================================== */
+    ======================================================== */
 
     useEffect(() => {
 
@@ -136,9 +279,9 @@ const WishlistDetails = ({
     }, [itemId]);
 
 
-    /* =====================================================
+    /* ========================================================
        LOADING
-    ===================================================== */
+    ======================================================== */
 
     if (loading) {
 
@@ -150,7 +293,8 @@ const WishlistDetails = ({
                     alignItems: "center",
                     justifyContent: "center",
                     flexDirection: "column",
-                    gap: 2
+                    gap: 2,
+                    p: 3
                 }}
             >
 
@@ -165,9 +309,9 @@ const WishlistDetails = ({
     }
 
 
-    /* =====================================================
+    /* ========================================================
        ERROR
-    ===================================================== */
+    ======================================================== */
 
     if (error) {
 
@@ -184,9 +328,9 @@ const WishlistDetails = ({
                 <Button
                     variant="outlined"
                     startIcon={<ArrowBack />}
-                    onClick={onBack}
+                    onClick={handleBack}
                 >
-                    Back
+                    Back to Wishlists
                 </Button>
 
             </Box>
@@ -194,9 +338,9 @@ const WishlistDetails = ({
     }
 
 
-    /* =====================================================
+    /* ========================================================
        NO DATA
-    ===================================================== */
+    ======================================================== */
 
     if (!wishlist) {
 
@@ -209,10 +353,11 @@ const WishlistDetails = ({
 
                 <Button
                     sx={{ mt: 2 }}
+                    variant="outlined"
                     startIcon={<ArrowBack />}
-                    onClick={onBack}
+                    onClick={handleBack}
                 >
-                    Back
+                    Back to Wishlists
                 </Button>
 
             </Box>
@@ -220,9 +365,11 @@ const WishlistDetails = ({
     }
 
 
-    /* =====================================================
-       EXTRACT DATA
-    ===================================================== */
+    /* ========================================================
+       EXTRACT WISHLIST DATA
+
+       These fields match the Wishlist model/API response.
+    ======================================================== */
 
     const wishlistIdValue =
         wishlist.wishlistId ??
@@ -236,14 +383,6 @@ const WishlistDetails = ({
         wishlist.customerId ??
         wishlist.CustomerId ??
         "-";
-
-
-    const customerName =
-        wishlist.customerName ??
-        wishlist.CustomerName ??
-        wishlist.customer?.customerName ??
-        wishlist.Customer?.CustomerName ??
-        `Customer #${customerId}`;
 
 
     const sellerId =
@@ -272,26 +411,14 @@ const WishlistDetails = ({
         wishlist.UpdatedAt;
 
 
-    /* =====================================================
-       WISHLIST ITEMS
-    ===================================================== */
-
-    const items =
-        wishlist.items ??
-        wishlist.Items ??
-        wishlist.wishlistItems ??
-        wishlist.WishlistItems ??
-        [];
-
-
-    /* =====================================================
+    /* ========================================================
        STATUS COLOR
-    ===================================================== */
+    ======================================================== */
 
     const getStatusColor = (value) => {
 
         switch (
-            String(value)
+            String(value || "")
                 .toLowerCase()
                 .trim()
         ) {
@@ -305,21 +432,57 @@ const WishlistDetails = ({
             case "removed":
                 return "error";
 
+            case "completed":
+                return "info";
+
+            case "cancelled":
+                return "error";
+
             default:
                 return "default";
         }
     };
 
 
-    /* =====================================================
+    /* ========================================================
+       DATE FORMAT
+    ======================================================== */
+
+    const formatDate = (value) => {
+
+        if (!value) {
+            return "-";
+        }
+
+        const date =
+            new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return value;
+        }
+
+        return date.toLocaleString(
+            "en-IN"
+        );
+    };
+
+
+    /* ========================================================
        RENDER
-    ===================================================== */
+    ======================================================== */
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box
+            sx={{
+                p: {
+                    xs: 2,
+                    sm: 3
+                }
+            }}
+        >
 
             {/* =================================================
-               HEADER
+               PAGE HEADER
             ================================================= */}
 
             <Box
@@ -337,7 +500,7 @@ const WishlistDetails = ({
 
                     <Button
                         startIcon={<ArrowBack />}
-                        onClick={onBack}
+                        onClick={handleBack}
                         sx={{ mb: 1 }}
                     >
                         Back
@@ -350,8 +513,19 @@ const WishlistDetails = ({
                         Wishlist Details
                     </Typography>
 
+                    <Typography
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        View wishlist information
+                    </Typography>
+
                 </Box>
 
+
+                {/* =================================================
+                   ACTIONS
+                ================================================= */}
 
                 <Box
                     sx={{
@@ -363,9 +537,7 @@ const WishlistDetails = ({
                     <Button
                         variant="outlined"
                         startIcon={<Edit />}
-                        onClick={() =>
-                            onEdit?.(wishlist)
-                        }
+                        onClick={handleEdit}
                     >
                         Edit
                     </Button>
@@ -375,9 +547,7 @@ const WishlistDetails = ({
                         variant="outlined"
                         color="error"
                         startIcon={<Delete />}
-                        onClick={() =>
-                            onDelete?.(wishlist)
-                        }
+                        onClick={handleDelete}
                     >
                         Delete
                     </Button>
@@ -393,7 +563,14 @@ const WishlistDetails = ({
 
             <Card elevation={2}>
 
-                <CardContent sx={{ p: 3 }}>
+                <CardContent
+                    sx={{
+                        p: {
+                            xs: 2,
+                            sm: 4
+                        }
+                    }}
+                >
 
                     {/* =================================================
                        WISHLIST HEADER
@@ -439,15 +616,26 @@ const WishlistDetails = ({
 
 
                     {/* =================================================
-                       BASIC DETAILS
+                       WISHLIST INFORMATION
                     ================================================= */}
+
+                    <Typography
+                        variant="h6"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
+                    >
+                        General Information
+                    </Typography>
+
 
                     <Grid
                         container
                         spacing={3}
                     >
 
-                        {/* WISHLIST ID */}
+                        {/* =================================================
+                           WISHLIST ID
+                        ================================================= */}
 
                         <Grid
                             item
@@ -463,14 +651,18 @@ const WishlistDetails = ({
                                 Wishlist ID
                             </Typography>
 
-                            <Typography fontWeight={600}>
+                            <Typography
+                                fontWeight={600}
+                            >
                                 {wishlistIdValue}
                             </Typography>
 
                         </Grid>
 
 
-                        {/* CUSTOMER ID */}
+                        {/* =================================================
+                           CUSTOMER ID
+                        ================================================= */}
 
                         <Grid
                             item
@@ -486,52 +678,18 @@ const WishlistDetails = ({
                                 Customer ID
                             </Typography>
 
-                            <Typography fontWeight={600}>
+                            <Typography
+                                fontWeight={600}
+                            >
                                 {customerId}
                             </Typography>
 
                         </Grid>
 
 
-                        {/* CUSTOMER */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={3}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                            >
-                                Customer
-                            </Typography>
-
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1
-                                }}
-                            >
-
-                                <Person
-                                    fontSize="small"
-                                    color="action"
-                                />
-
-                                <Typography fontWeight={600}>
-                                    {customerName}
-                                </Typography>
-
-                            </Box>
-
-                        </Grid>
-
-
-                        {/* SELLER ID */}
+                        {/* =================================================
+                           SELLER ID
+                        ================================================= */}
 
                         <Grid
                             item
@@ -547,19 +705,24 @@ const WishlistDetails = ({
                                 Seller ID
                             </Typography>
 
-                            <Typography fontWeight={600}>
+                            <Typography
+                                fontWeight={600}
+                            >
                                 {sellerId}
                             </Typography>
 
                         </Grid>
 
 
-                        {/* STATUS */}
+                        {/* =================================================
+                           STATUS
+                        ================================================= */}
 
                         <Grid
                             item
                             xs={12}
                             sm={6}
+                            md={3}
                         >
 
                             <Typography
@@ -582,168 +745,93 @@ const WishlistDetails = ({
                         </Grid>
 
 
-                        {/* CREATED DATE */}
+                        {/* =================================================
+                           CREATED DATE
+                        ================================================= */}
 
-                        {createdDate && (
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
 
-                            <Grid
-                                item
-                                xs={12}
-                                sm={6}
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
                             >
+                                Created Date
+                            </Typography>
 
-                                <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                >
-                                    Created Date
-                                </Typography>
-
-                                <Typography>
-                                    {new Date(
-                                        createdDate
-                                    ).toLocaleString("en-IN")}
-                                </Typography>
-
-                            </Grid>
-
-                        )}
-
-
-                        {/* UPDATED DATE */}
-
-                        {updatedDate && (
-
-                            <Grid
-                                item
-                                xs={12}
-                                sm={6}
+                            <Typography
+                                fontWeight={500}
                             >
+                                {formatDate(createdDate)}
+                            </Typography>
 
-                                <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                >
-                                    Updated Date
-                                </Typography>
+                        </Grid>
 
-                                <Typography>
-                                    {new Date(
-                                        updatedDate
-                                    ).toLocaleString("en-IN")}
-                                </Typography>
 
-                            </Grid>
+                        {/* =================================================
+                           UPDATED DATE
+                        ================================================= */}
 
-                        )}
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                        >
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Updated Date
+                            </Typography>
+
+                            <Typography
+                                fontWeight={500}
+                            >
+                                {formatDate(updatedDate)}
+                            </Typography>
+
+                        </Grid>
 
                     </Grid>
 
 
                     {/* =================================================
-                       WISHLIST ITEMS
+                       BOTTOM ACTIONS
                     ================================================= */}
 
-                    {items.length > 0 && (
+                    <Divider sx={{ my: 4 }} />
 
-                        <>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: 2,
+                            flexWrap: "wrap"
+                        }}
+                    >
 
-                            <Divider sx={{ my: 4 }} />
-
-                            <Typography
-                                variant="h6"
-                                fontWeight={700}
-                                sx={{ mb: 2 }}
-                            >
-                                Wishlist Items
-                            </Typography>
-
-
-                            <Grid
-                                container
-                                spacing={2}
-                            >
-
-                                {items.map(
-                                    (wishlistItem, index) => {
-
-                                        const itemIdValue =
-                                            wishlistItem.wishlistItemId ??
-                                            wishlistItem.WishlistItemId ??
-                                            wishlistItem.id ??
-                                            wishlistItem.Id ??
-                                            index + 1;
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={handleBack}
+                        >
+                            Back to Wishlists
+                        </Button>
 
 
-                                        const productId =
-                                            wishlistItem.productId ??
-                                            wishlistItem.ProductId ??
-                                            "-";
+                        <Button
+                            variant="contained"
+                            startIcon={<Edit />}
+                            onClick={handleEdit}
+                        >
+                            Edit Wishlist
+                        </Button>
 
-
-                                        const productName =
-                                            wishlistItem.productName ??
-                                            wishlistItem.ProductName ??
-                                            wishlistItem.product?.productName ??
-                                            wishlistItem.Product?.ProductName ??
-                                            `Product #${productId}`;
-
-
-                                        const quantity =
-                                            wishlistItem.quantity ??
-                                            wishlistItem.Quantity ??
-                                            0;
-
-
-                                        return (
-                                            <Grid
-                                                item
-                                                xs={12}
-                                                sm={6}
-                                                md={4}
-                                                key={itemIdValue}
-                                            >
-
-                                                <Card
-                                                    variant="outlined"
-                                                >
-
-                                                    <CardContent>
-
-                                                        <Typography
-                                                            fontWeight={700}
-                                                        >
-                                                            {productName}
-                                                        </Typography>
-
-                                                        <Typography
-                                                            variant="body2"
-                                                            color="text.secondary"
-                                                        >
-                                                            Product ID: {productId}
-                                                        </Typography>
-
-                                                        <Typography
-                                                            variant="body2"
-                                                            sx={{ mt: 1 }}
-                                                        >
-                                                            Quantity: {quantity}
-                                                        </Typography>
-
-                                                    </CardContent>
-
-                                                </Card>
-
-                                            </Grid>
-                                        );
-                                    }
-                                )}
-
-                            </Grid>
-
-                        </>
-
-                    )}
+                    </Box>
 
                 </CardContent>
 

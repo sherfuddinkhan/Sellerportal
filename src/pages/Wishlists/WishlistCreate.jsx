@@ -1,49 +1,57 @@
 import React, { useState } from "react";
 
 import {
+    useNavigate
+} from "react-router-dom";
+
+import axios from "axios";
+
+import {
+    Alert,
     Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    TextField,
-    Button,
-    Alert,
     CircularProgress,
-    Divider
+    Divider,
+    TextField,
+    Typography
 } from "@mui/material";
 
 import {
     ArrowBack,
-    Save,
-    Favorite
+    Favorite,
+    Save
 } from "@mui/icons-material";
 
-import axios from "axios";
 
-
-/* =========================================================
+/* ============================================================
    CONFIGURATION
-========================================================= */
+============================================================ */
 
 const SERVER_URL =
-    import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
+    import.meta.env.VITE_SERVER_URL ||
+    "http://localhost:5000";
 
 const WISHLIST_API =
     `${SERVER_URL}/api/Wishlist`;
 
 
-/* =========================================================
+/* ============================================================
    COMPONENT
-========================================================= */
+============================================================ */
 
 const WishlistCreate = ({
     onBack,
     onCreated
 }) => {
 
-    /* =====================================================
+    const navigate = useNavigate();
+
+
+    /* ========================================================
        FORM STATE
-    ===================================================== */
+    ======================================================== */
 
     const [customerId, setCustomerId] = useState("");
     const [sellerId, setSellerId] = useState("");
@@ -53,9 +61,64 @@ const WishlistCreate = ({
     const [success, setSuccess] = useState("");
 
 
-    /* =====================================================
+    /* ========================================================
+       BACK
+    ======================================================== */
+
+    const handleBack = () => {
+
+        if (onBack) {
+            onBack();
+            return;
+        }
+
+        navigate("/wishlists");
+    };
+
+
+    /* ========================================================
+       ERROR MESSAGE
+    ======================================================== */
+
+    const getErrorMessage = (err) => {
+
+        const data = err?.response?.data;
+
+        if (typeof data === "string" && data.trim()) {
+            return data;
+        }
+
+        if (data?.message) {
+            return data.message;
+        }
+
+        if (data?.title) {
+            return data.title;
+        }
+
+        if (data?.errors) {
+
+            const validationErrors = Object.values(
+                data.errors
+            )
+                .flat()
+                .filter(Boolean);
+
+            if (validationErrors.length > 0) {
+                return validationErrors.join(" ");
+            }
+        }
+
+        return (
+            err?.message ||
+            "Unable to create wishlist."
+        );
+    };
+
+
+    /* ========================================================
        CREATE WISHLIST
-    ===================================================== */
+    ======================================================== */
 
     const handleSubmit = async (event) => {
 
@@ -65,15 +128,46 @@ const WishlistCreate = ({
         setSuccess("");
 
 
-        /* -------------------------------------------------
-           VALIDATION
-        ------------------------------------------------- */
+        /* ----------------------------------------------------
+           CUSTOMER VALIDATION
+        ---------------------------------------------------- */
 
-        if (!customerId) {
+        const customerValue =
+            Number(customerId);
 
-            setError("Customer ID is required.");
+        if (
+            !customerId ||
+            !Number.isInteger(customerValue) ||
+            customerValue <= 0
+        ) {
+            setError(
+                "Customer ID must be a valid positive number."
+            );
 
             return;
+        }
+
+
+        /* ----------------------------------------------------
+           SELLER VALIDATION
+        ---------------------------------------------------- */
+
+        let sellerValue = null;
+
+        if (sellerId !== "") {
+
+            sellerValue = Number(sellerId);
+
+            if (
+                !Number.isInteger(sellerValue) ||
+                sellerValue <= 0
+            ) {
+                setError(
+                    "Seller ID must be a valid positive number."
+                );
+
+                return;
+            }
         }
 
 
@@ -82,24 +176,16 @@ const WishlistCreate = ({
             setLoading(true);
 
 
-            /* -------------------------------------------------
+            /* ------------------------------------------------
                REQUEST PAYLOAD
-            ------------------------------------------------- */
+            ------------------------------------------------ */
 
             const payload = {
-                customerId: Number(customerId)
+                customerId: customerValue
             };
 
-
-            /*
-             * SellerId is included only when entered.
-             *
-             * If your Wishlist entity contains SellerId,
-             * this will be sent to the API.
-             */
-
-            if (sellerId) {
-                payload.sellerId = Number(sellerId);
+            if (sellerValue !== null) {
+                payload.sellerId = sellerValue;
             }
 
 
@@ -109,13 +195,22 @@ const WishlistCreate = ({
             );
 
 
-            /* -------------------------------------------------
+            /* ------------------------------------------------
                API REQUEST
-            ------------------------------------------------- */
+
+               React -> Node
+               http://localhost:5000/api/Wishlist
+            ------------------------------------------------ */
 
             const response = await axios.post(
                 WISHLIST_API,
-                payload
+                payload,
+                {
+                    timeout: 30000,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
             );
 
 
@@ -125,34 +220,48 @@ const WishlistCreate = ({
             );
 
 
-            /* -------------------------------------------------
+            /* ------------------------------------------------
+               RESPONSE DATA
+            ------------------------------------------------ */
+
+            const createdWishlist =
+                response.data?.data ??
+                response.data;
+
+
+            /* ------------------------------------------------
                SUCCESS
-            ------------------------------------------------- */
+            ------------------------------------------------ */
 
             setSuccess(
                 "Wishlist created successfully."
             );
 
 
-            /* -------------------------------------------------
+            /* ------------------------------------------------
                CALLBACK
-            ------------------------------------------------- */
+            ------------------------------------------------ */
 
             if (onCreated) {
 
                 onCreated(
-                    response.data?.data ??
-                    response.data
+                    createdWishlist
                 );
             }
 
 
-            /* -------------------------------------------------
-               CLEAR FORM
-            ------------------------------------------------- */
+            /* ------------------------------------------------
+               RETURN TO WISHLIST LIST
 
-            setCustomerId("");
-            setSellerId("");
+               Small delay allows the success message to
+               render before navigation.
+            ------------------------------------------------ */
+
+            setTimeout(() => {
+
+                navigate("/wishlists");
+
+            }, 800);
 
 
         } catch (err) {
@@ -162,43 +271,35 @@ const WishlistCreate = ({
                 err
             );
 
-
-            const message =
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                (
-                    typeof err.response?.data === "string"
-                        ? err.response.data
-                        : null
-                ) ||
-                "Unable to create wishlist.";
-
-
-            setError(message);
+            setError(
+                getErrorMessage(err)
+            );
 
         } finally {
 
             setLoading(false);
-
         }
     };
 
 
-    /* =====================================================
+    /* ========================================================
        RENDER
-    ===================================================== */
+    ======================================================== */
 
     return (
         <Box
             sx={{
-                p: 3,
+                p: {
+                    xs: 2,
+                    sm: 3
+                },
                 maxWidth: 700,
                 mx: "auto"
             }}
         >
 
             {/* =================================================
-               HEADER
+               PAGE HEADER
             ================================================= */}
 
             <Box
@@ -212,7 +313,7 @@ const WishlistCreate = ({
 
                 <Button
                     startIcon={<ArrowBack />}
-                    onClick={onBack}
+                    onClick={handleBack}
                     disabled={loading}
                 >
                     Back
@@ -229,14 +330,23 @@ const WishlistCreate = ({
 
 
             {/* =================================================
-               CARD
+               FORM CARD
             ================================================= */}
 
             <Card elevation={3}>
 
-                <CardContent sx={{ p: 4 }}>
+                <CardContent
+                    sx={{
+                        p: {
+                            xs: 2,
+                            sm: 4
+                        }
+                    }}
+                >
 
-                    {/* TITLE */}
+                    {/* =================================================
+                       CARD HEADER
+                    ================================================= */}
 
                     <Box
                         sx={{
@@ -249,7 +359,9 @@ const WishlistCreate = ({
 
                         <Favorite
                             color="error"
-                            sx={{ fontSize: 40 }}
+                            sx={{
+                                fontSize: 40
+                            }}
                         />
 
                         <Box>
@@ -276,7 +388,7 @@ const WishlistCreate = ({
 
 
                     {/* =================================================
-                       ALERTS
+                       ERROR
                     ================================================= */}
 
                     {error && (
@@ -290,6 +402,10 @@ const WishlistCreate = ({
 
                     )}
 
+
+                    {/* =================================================
+                       SUCCESS
+                    ================================================= */}
 
                     {success && (
 
@@ -310,9 +426,12 @@ const WishlistCreate = ({
                     <Box
                         component="form"
                         onSubmit={handleSubmit}
+                        noValidate
                     >
 
-                        {/* CUSTOMER ID */}
+                        {/* =================================================
+                           CUSTOMER ID
+                        ================================================= */}
 
                         <TextField
                             fullWidth
@@ -320,9 +439,12 @@ const WishlistCreate = ({
                             label="Customer ID"
                             type="number"
                             value={customerId}
-                            onChange={(event) =>
-                                setCustomerId(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setCustomerId(
+                                    event.target.value
+                                );
+                                setError("");
+                            }}
                             disabled={loading}
                             margin="normal"
                             inputProps={{
@@ -332,16 +454,21 @@ const WishlistCreate = ({
                         />
 
 
-                        {/* SELLER ID */}
+                        {/* =================================================
+                           SELLER ID
+                        ================================================= */}
 
                         <TextField
                             fullWidth
                             label="Seller ID"
                             type="number"
                             value={sellerId}
-                            onChange={(event) =>
-                                setSellerId(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setSellerId(
+                                    event.target.value
+                                );
+                                setError("");
+                            }}
                             disabled={loading}
                             margin="normal"
                             inputProps={{
@@ -352,7 +479,7 @@ const WishlistCreate = ({
 
 
                         {/* =================================================
-                           BUTTONS
+                           ACTION BUTTONS
                         ================================================= */}
 
                         <Box
@@ -366,7 +493,7 @@ const WishlistCreate = ({
 
                             <Button
                                 variant="outlined"
-                                onClick={onBack}
+                                onClick={handleBack}
                                 disabled={loading}
                             >
                                 Cancel
@@ -377,19 +504,20 @@ const WishlistCreate = ({
                                 type="submit"
                                 variant="contained"
                                 startIcon={
-                                    loading
-                                        ? <CircularProgress
+                                    loading ? (
+                                        <CircularProgress
                                             size={20}
                                             color="inherit"
-                                          />
-                                        : <Save />
+                                        />
+                                    ) : (
+                                        <Save />
+                                    )
                                 }
                                 disabled={loading}
                             >
                                 {loading
                                     ? "Creating..."
-                                    : "Create Wishlist"
-                                }
+                                    : "Create Wishlist"}
                             </Button>
 
                         </Box>

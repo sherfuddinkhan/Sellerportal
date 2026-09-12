@@ -1,7 +1,3 @@
-// =========================================================
-// WishlistTable.jsx
-// =========================================================
-
 import React from "react";
 
 import {
@@ -18,13 +14,11 @@ import {
     IconButton,
     Tooltip,
     Chip,
-    Avatar,
 } from "@mui/material";
 
 import {
     Visibility,
     Delete,
-    ShoppingCart,
     Favorite,
 } from "@mui/icons-material";
 
@@ -42,6 +36,7 @@ const WishlistTable = ({
     onDelete,
     loading = false,
 }) => {
+
     // =========================================================
     // PAGINATED DATA
     // =========================================================
@@ -50,6 +45,29 @@ const WishlistTable = ({
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
+
+    // =========================================================
+    // STATUS COLOR
+    // =========================================================
+
+    const getStatusColor = (status) => {
+        switch (String(status || "").toLowerCase()) {
+            case "active":
+                return "success";
+
+            case "inactive":
+                return "default";
+
+            case "completed":
+                return "info";
+
+            case "cancelled":
+                return "error";
+
+            default:
+                return "warning";
+        }
+    };
 
     // =========================================================
     // EMPTY STATE
@@ -77,7 +95,7 @@ const WishlistTable = ({
                     variant="h6"
                     fontWeight="bold"
                 >
-                    No Wishlist Items Found
+                    No Wishlists Found
                 </Typography>
 
                 <Typography
@@ -85,7 +103,7 @@ const WishlistTable = ({
                     color="text.secondary"
                     sx={{ mt: 1 }}
                 >
-                    There are currently no products in the wishlist.
+                    There are currently no wishlist records.
                 </Typography>
             </Paper>
         );
@@ -117,7 +135,7 @@ const WishlistTable = ({
                     variant="h6"
                     fontWeight="bold"
                 >
-                    Wishlist Items
+                    Wishlists
                 </Typography>
 
                 <Chip
@@ -134,223 +152,127 @@ const WishlistTable = ({
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>
-                                Product
-                            </TableCell>
 
                             <TableCell>
-                                Customer
+                                Wishlist ID
                             </TableCell>
 
                             <TableCell>
-                                Product Code
+                                Seller ID
                             </TableCell>
 
                             <TableCell>
-                                Category
-                            </TableCell>
-
-                            <TableCell align="right">
-                                Price
-                            </TableCell>
-
-                            <TableCell align="center">
-                                Stock
+                                Customer ID
                             </TableCell>
 
                             <TableCell>
-                                Added Date
+                                Status
+                            </TableCell>
+
+                            <TableCell>
+                                Created Date
                             </TableCell>
 
                             <TableCell align="center">
                                 Actions
                             </TableCell>
+
                         </TableRow>
                     </TableHead>
 
                     <TableBody>
+
                         {loading ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={8}
+                                    colSpan={6}
                                     align="center"
                                     sx={{ py: 6 }}
                                 >
                                     <Typography
                                         color="text.secondary"
                                     >
-                                        Loading wishlist...
+                                        Loading wishlists...
                                     </Typography>
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            paginatedWishlists.map(
-                                (wishlist) => (
+                            paginatedWishlists.map((wishlist) => {
+
+                                const wishlistId =
+                                    wishlist.wishlistId ??
+                                    wishlist.id;
+
+                                return (
                                     <TableRow
-                                        key={
-                                            wishlist.wishlistId ??
-                                            wishlist.id
-                                        }
+                                        key={wishlistId}
                                         hover
                                     >
-                                        {/* =================================
-                                            PRODUCT
-                                           ================================= */}
-
-                                        <TableCell>
-                                            <Box
-                                                sx={{
-                                                    display: "flex",
-                                                    alignItems:
-                                                        "center",
-                                                    gap: 1.5,
-                                                }}
-                                            >
-                                                <Avatar
-                                                    variant="rounded"
-                                                    src={
-                                                        wishlist.productImage ||
-                                                        wishlist.image ||
-                                                        ""
-                                                    }
-                                                >
-                                                    <ShoppingCart />
-                                                </Avatar>
-
-                                                <Box>
-                                                    <Typography
-                                                        variant="body2"
-                                                        fontWeight="bold"
-                                                    >
-                                                        {wishlist.productName ||
-                                                            wishlist.product
-                                                                ?.productName ||
-                                                            "N/A"}
-                                                    </Typography>
-
-                                                    {wishlist.brand && (
-                                                        <Typography
-                                                            variant="caption"
-                                                            color="text.secondary"
-                                                        >
-                                                            {
-                                                                wishlist.brand
-                                                            }
-                                                        </Typography>
-                                                    )}
-                                                </Box>
-                                            </Box>
-                                        </TableCell>
 
                                         {/* =================================
-                                            CUSTOMER
+                                            WISHLIST ID
                                            ================================= */}
 
                                         <TableCell>
                                             <Typography
                                                 variant="body2"
-                                                fontWeight="medium"
-                                            >
-                                                {wishlist.customerName ||
-                                                    wishlist.customer
-                                                        ?.customerName ||
-                                                    "N/A"}
-                                            </Typography>
-
-                                            {wishlist.customerCode && (
-                                                <Typography
-                                                    variant="caption"
-                                                    color="text.secondary"
-                                                >
-                                                    {
-                                                        wishlist.customerCode
-                                                    }
-                                                </Typography>
-                                            )}
-                                        </TableCell>
-
-                                        {/* =================================
-                                            PRODUCT CODE
-                                           ================================= */}
-
-                                        <TableCell>
-                                            {wishlist.productCode ||
-                                                wishlist.product
-                                                    ?.productCode ||
-                                                "N/A"}
-                                        </TableCell>
-
-                                        {/* =================================
-                                            CATEGORY
-                                           ================================= */}
-
-                                        <TableCell>
-                                            {wishlist.categoryName ||
-                                                wishlist.category
-                                                    ?.categoryName ||
-                                                "N/A"}
-                                        </TableCell>
-
-                                        {/* =================================
-                                            PRICE
-                                           ================================= */}
-
-                                        <TableCell align="right">
-                                            <Typography
                                                 fontWeight="bold"
                                             >
-                                                ₹
-                                                {Number(
-                                                    wishlist.price ||
-                                                        wishlist.product
-                                                            ?.price ||
-                                                        0
-                                                ).toLocaleString(
-                                                    "en-IN"
-                                                )}
+                                                #{wishlistId ?? "N/A"}
                                             </Typography>
                                         </TableCell>
 
                                         {/* =================================
-                                            STOCK
-                                           ================================= */}
-
-                                        <TableCell align="center">
-                                            {Number(
-                                                wishlist.stock ??
-                                                    wishlist.product
-                                                        ?.stock ??
-                                                    0
-                                            ) > 0 ? (
-                                                <Chip
-                                                    label={`${
-                                                        wishlist.stock ??
-                                                        wishlist
-                                                            .product
-                                                            ?.stock
-                                                    } Available`}
-                                                    color="success"
-                                                    size="small"
-                                                />
-                                            ) : (
-                                                <Chip
-                                                    label="Out of Stock"
-                                                    color="error"
-                                                    size="small"
-                                                />
-                                            )}
-                                        </TableCell>
-
-                                        {/* =================================
-                                            DATE
+                                            SELLER ID
                                            ================================= */}
 
                                         <TableCell>
-                                            {wishlist.createdDate ||
-                                            wishlist.addedDate
+                                            <Typography
+                                                variant="body2"
+                                            >
+                                                {wishlist.sellerId ??
+                                                    "N/A"}
+                                            </Typography>
+                                        </TableCell>
+
+                                        {/* =================================
+                                            CUSTOMER ID
+                                           ================================= */}
+
+                                        <TableCell>
+                                            <Typography
+                                                variant="body2"
+                                            >
+                                                {wishlist.customerId ??
+                                                    "N/A"}
+                                            </Typography>
+                                        </TableCell>
+
+                                        {/* =================================
+                                            STATUS
+                                           ================================= */}
+
+                                        <TableCell>
+                                            <Chip
+                                                label={
+                                                    wishlist.status ||
+                                                    "N/A"
+                                                }
+                                                color={getStatusColor(
+                                                    wishlist.status
+                                                )}
+                                                size="small"
+                                            />
+                                        </TableCell>
+
+                                        {/* =================================
+                                            CREATED DATE
+                                           ================================= */}
+
+                                        <TableCell>
+                                            {wishlist.createdDate
                                                 ? new Date(
-                                                      wishlist.createdDate ||
-                                                          wishlist.addedDate
+                                                      wishlist.createdDate
                                                   ).toLocaleDateString(
                                                       "en-IN"
                                                   )
@@ -362,6 +284,7 @@ const WishlistTable = ({
                                            ================================= */}
 
                                         <TableCell align="center">
+
                                             <Tooltip title="View">
                                                 <IconButton
                                                     color="primary"
@@ -389,11 +312,14 @@ const WishlistTable = ({
                                                     <Delete />
                                                 </IconButton>
                                             </Tooltip>
+
                                         </TableCell>
+
                                     </TableRow>
-                                )
-                            )
+                                );
+                            })
                         )}
+
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -416,6 +342,7 @@ const WishlistTable = ({
                     50,
                 ]}
             />
+
         </Paper>
     );
 };
