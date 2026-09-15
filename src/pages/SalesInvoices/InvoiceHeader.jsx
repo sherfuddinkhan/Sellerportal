@@ -1,207 +1,336 @@
+// ============================================================
+// InvoiceHeader.jsx
+// Sales Invoice Header
+//
+// Layout:
+// Company Information -> EXTREME LEFT
+// Barcode             -> EXTREME LEFT
+// QR Code             -> EXTREME RIGHT
+// TAX INVOICE         -> CENTER
+// ============================================================
+
 import React from "react";
+
 import {
     Box,
-    Typography,
-    Divider
+    Divider,
+    Grid,
+    Typography
 } from "@mui/material";
 
-const getValue = (object, ...keys) => {
-    for (const key of keys) {
-        if (
-            object &&
-            object[key] !== undefined &&
-            object[key] !== null &&
-            String(object[key]).trim() !== ""
-        ) {
-            return object[key];
-        }
-    }
+import Barcode from "react-barcode";
 
-    return "";
-};
+import InvoiceBuyerQR from "./InvoiceBuyerQR";
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 const InvoiceHeader = ({
-    invoice,
+    invoice = {},
     seller = {},
-    printMode = false
+    customer = {}
 }) => {
 
-    const sellerName =
-        getValue(
-            seller,
-            "CompanyName",
-            "companyName",
-            "TradeName",
-            "tradeName",
-            "LegalName",
-            "legalName",
-            "Name",
-            "name"
-        ) || "YOUR COMPANY NAME";
+    const invoiceNumber =
+        invoice?.InvoiceNumber ||
+        invoice?.invoiceNumber ||
+        "-";
 
-    const sellerAddress =
-        getValue(
-            seller,
-            "CompanyAddress",
-            "companyAddress",
-            "Address",
-            "address"
-        );
+    // ========================================================
+    // COMPANY INFORMATION
+    // ========================================================
 
-    const sellerCity =
-        getValue(
-            seller,
-            "CompanyCity",
-            "companyCity",
-            "City",
-            "city"
-        );
+    const companyName =
+        seller?.companyName ||
+        seller?.CompanyName ||
+        "YOUR COMPANY NAME";
 
-    const sellerState =
-        getValue(
-            seller,
-            "CompanyState",
-            "companyState",
-            "State",
-            "state"
-        );
-
-    const sellerPin =
-        getValue(
-            seller,
-            "CompanyPINCode",
-            "companyPINCode",
-            "PINCode",
-            "pinCode",
-            "PostalCode",
-            "postalCode"
-        );
-
-    const sellerGSTIN =
-        getValue(
-            seller,
-            "GSTIN",
-            "Gstin",
-            "gstin",
-            "GSTNumber",
-            "gstNumber"
-        ) ||
-        invoice?.UserGSTIN ||
+    const address =
+        seller?.companyAddress ||
+        seller?.CompanyAddress ||
         "";
 
-    const sellerMobile =
-        getValue(
-            seller,
-            "MobileNo",
-            "mobileNo",
-            "Mobile",
-            "mobile",
-            "Phone",
-            "phone",
-            "PhoneNo",
-            "phoneNo"
-        );
+    const city =
+        seller?.companyCity ||
+        seller?.CompanyCity ||
+        "";
 
-    const sellerEmail =
-        getValue(
-            seller,
-            "EmailAddress",
-            "emailAddress",
-            "Email",
-            "email"
-        );
+    const state =
+        seller?.companyState ||
+        seller?.CompanyState ||
+        "";
+
+    const pinCode =
+        seller?.companyPINCode ||
+        seller?.CompanyPINCode ||
+        "";
+
+    const gstin =
+        seller?.gstin ||
+        seller?.GSTIN ||
+        seller?.UserGSTIN ||
+        invoice?.UserGSTIN ||
+        invoice?.userGSTIN ||
+        "";
+
+    // ========================================================
+    // LOCATION
+    // ========================================================
+
+    const locationParts = [
+        address,
+        city,
+        state,
+        pinCode
+    ].filter(Boolean);
+
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
+
         <Box
+            className="invoice-header"
             sx={{
-                border: "1px solid #222",
-                backgroundColor: "#fff"
+                width: "100%",
+                boxSizing: "border-box",
+                color: "#000"
             }}
-            className={
-                printMode
-                    ? "invoice-print-header"
-                    : "invoice-header"
-            }
         >
+
+            {/* =================================================
+                COMPANY INFORMATION
+            ================================================= */}
+
             <Box
                 sx={{
-                    textAlign: "center",
-                    px: 2,
-                    py: 2
+                    width: "100%",
+                    textAlign: "left",
+                    mb: "4mm"
                 }}
             >
+
                 <Typography
-                    variant="h5"
-                    fontWeight={700}
                     sx={{
-                        textTransform: "uppercase"
+                        fontSize: "20px",
+                        fontWeight: 800,
+                        lineHeight: 1.2,
+                        textAlign: "left",
+                        mb: 0.8
                     }}
                 >
-                    {sellerName}
+                    {companyName}
                 </Typography>
 
-                {sellerAddress && (
-                    <Typography variant="body2">
-                        {sellerAddress}
+                {locationParts.length > 0 && (
+
+                    <Typography
+                        sx={{
+                            fontSize: "10px",
+                            lineHeight: 1.5,
+                            textAlign: "left"
+                        }}
+                    >
+                        {locationParts.join(", ")}
                     </Typography>
+
                 )}
 
-                {(sellerCity ||
-                    sellerState ||
-                    sellerPin) && (
-                    <Typography variant="body2">
-                        {[sellerCity, sellerState, sellerPin]
-                            .filter(Boolean)
-                            .join(" - ")}
+                {gstin && (
+
+                    <Typography
+                        sx={{
+                            mt: 0.5,
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            textAlign: "left"
+                        }}
+                    >
+                        GSTIN: {gstin}
                     </Typography>
+
                 )}
 
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        flexWrap: "wrap",
-                        gap: 2,
-                        mt: 0.5
-                    }}
-                >
-                    {sellerMobile && (
-                        <Typography variant="body2">
-                            Mobile: {sellerMobile}
-                        </Typography>
-                    )}
-
-                    {sellerEmail && (
-                        <Typography variant="body2">
-                            Email: {sellerEmail}
-                        </Typography>
-                    )}
-
-                    {sellerGSTIN && (
-                        <Typography variant="body2">
-                            GSTIN: {sellerGSTIN}
-                        </Typography>
-                    )}
-                </Box>
             </Box>
 
-            <Divider sx={{ borderColor: "#222" }} />
+            {/* =================================================
+                BARCODE LEFT / QR RIGHT
+            ================================================= */}
+
+            <Grid
+                container
+                sx={{
+                    width: "100%",
+                    margin: 0,
+                    mb: "4mm",
+                    alignItems: "flex-start"
+                }}
+            >
+
+                {/* =================================================
+                    EXTREME LEFT
+                    BARCODE
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={6}
+                    sx={{
+                        width: "50%",
+                        maxWidth: "50%",
+                        flexBasis: "50%",
+                        padding: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        justifyContent: "flex-start",
+                        textAlign: "left",
+                        boxSizing: "border-box"
+                    }}
+                >
+
+                    <Typography
+                        sx={{
+                            fontSize: "9px",
+                            fontWeight: 700,
+                            mb: 0.5,
+                            textAlign: "left"
+                        }}
+                    >
+                        Invoice Barcode
+                    </Typography>
+
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "flex-start",
+                            width: "100%",
+                            textAlign: "left"
+                        }}
+                    >
+
+                        <Barcode
+                            value={String(invoiceNumber)}
+                            format="CODE128"
+                            width={1.25}
+                            height={42}
+                            displayValue={false}
+                            margin={0}
+                            background="#ffffff"
+                        />
+
+                    </Box>
+
+                    <Typography
+                        sx={{
+                            mt: 0.5,
+                            fontSize: "9px",
+                            fontWeight: 700,
+                            letterSpacing: "0.4px",
+                            textAlign: "left"
+                        }}
+                    >
+                        {invoiceNumber}
+                    </Typography>
+
+                </Grid>
+
+                {/* =================================================
+                    EXTREME RIGHT
+                    QR CODE
+                ================================================= */}
+
+                <Grid
+                    item
+                    xs={6}
+                    sx={{
+                        width: "50%",
+                        maxWidth: "50%",
+                        flexBasis: "50%",
+                        padding: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        justifyContent: "flex-start",
+                        textAlign: "right",
+                        boxSizing: "border-box"
+                    }}
+                >
+
+                    <Box
+                        sx={{
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignItems: "flex-start",
+                            textAlign: "right"
+                        }}
+                    >
+
+                        <InvoiceBuyerQR
+                            invoice={invoice}
+                            customer={customer}
+                        />
+
+                    </Box>
+
+                </Grid>
+
+            </Grid>
+
+            {/* =================================================
+                DIVIDER
+            ================================================= */}
+
+            <Divider
+                sx={{
+                    borderColor: "#000",
+                    width: "100%"
+                }}
+            />
+
+            {/* =================================================
+                TAX INVOICE
+            ================================================= */}
 
             <Box
                 sx={{
+                    width: "100%",
                     textAlign: "center",
-                    py: 1
+                    py: "2mm"
                 }}
             >
+
                 <Typography
-                    variant="h6"
-                    fontWeight={800}
+                    sx={{
+                        fontSize: "17px",
+                        fontWeight: 800,
+                        letterSpacing: "0.8px",
+                        textAlign: "center"
+                    }}
                 >
                     TAX INVOICE
                 </Typography>
+
             </Box>
+
+            <Divider
+                sx={{
+                    borderColor: "#000",
+                    width: "100%"
+                }}
+            />
+
         </Box>
+
     );
 };
+
+// ============================================================
+// EXPORT
+// ============================================================
 
 export default InvoiceHeader;

@@ -36,16 +36,42 @@ import {
     Download
 } from "@mui/icons-material";
 
-import InvoiceHeader from "./InvoiceHeader";
-import InvoiceCustomerSection from "./InvoiceCustomerSection";
-import InvoiceInformation from "./InvoiceInformation";
-import InvoiceItems from "./InvoiceItems";
-import InvoiceTaxSection from "./InvoiceTaxSection";
-import InvoiceCharges from "./InvoiceCharges";
-import InvoiceSummary from "./InvoiceSummary";
-import InvoicePayment from "./InvoicePayment";
-import InvoiceTransport from "./InvoiceTransport";
-import InvoiceProjectSection from "./InvoiceProjectSection";
+// ============================================================
+// INVOICE COMPONENTS
+// ============================================================
+
+import InvoiceHeader
+    from "./InvoiceHeader";
+
+import InvoiceCustomerSection
+    from "./InvoiceCustomerSection";
+
+import InvoiceInformation
+    from "./InvoiceInformation";
+
+import InvoiceItems
+    from "./InvoiceItems";
+
+import InvoiceTaxSection
+    from "./InvoiceTaxSection";
+
+import InvoiceCharges
+    from "./InvoiceCharges";
+
+import InvoiceSummary
+    from "./InvoiceSummary";
+
+import InvoicePayment
+    from "./InvoicePayment";
+
+import InvoiceTransport
+    from "./InvoiceTransport";
+
+import InvoiceProjectSection
+    from "./InvoiceProjectSection";
+
+import InvoiceDeliveryTerms
+    from "./InvoiceDeliveryTerms";
 
 // ============================================================
 // CONFIG
@@ -59,9 +85,7 @@ const SERVER_URL = "http://localhost:5000";
 
 const SalesInvoicePrint = () => {
 
-    const {
-        id
-    } = useParams();
+    const { id } = useParams();
 
     const navigate = useNavigate();
 
@@ -84,6 +108,7 @@ const SalesInvoicePrint = () => {
         try {
 
             setLoading(true);
+
             setError("");
 
             console.log(
@@ -109,21 +134,26 @@ const SalesInvoicePrint = () => {
                 err
             );
 
+            const responseData =
+                err?.response?.data;
+
             setError(
-                err?.response?.data?.message ||
-                err?.response?.data ||
+                responseData?.message ||
+                responseData ||
+                err?.message ||
                 "Unable to load sales invoice."
             );
 
         } finally {
 
             setLoading(false);
+
         }
 
     }, [id]);
 
     // ========================================================
-    // EFFECT
+    // LOAD ON PAGE
     // ========================================================
 
     useEffect(() => {
@@ -132,7 +162,10 @@ const SalesInvoicePrint = () => {
             loadInvoice();
         }
 
-    }, [id, loadInvoice]);
+    }, [
+        id,
+        loadInvoice
+    ]);
 
     // ========================================================
     // DOWNLOAD PDF
@@ -140,7 +173,10 @@ const SalesInvoicePrint = () => {
 
     const handleDownloadPDF = async () => {
 
-        if (!invoiceRef.current || !invoice) {
+        if (
+            !invoiceRef.current ||
+            !invoice
+        ) {
             return;
         }
 
@@ -148,31 +184,48 @@ const SalesInvoicePrint = () => {
 
             setDownloading(true);
 
-            // Small delay allows the browser to finish rendering
+            setError("");
+
             await new Promise(resolve =>
-                setTimeout(resolve, 150)
+                setTimeout(resolve, 300)
             );
+
+            // ------------------------------------------------
+            // INVOICE NUMBER
+            // ------------------------------------------------
 
             const invoiceNumber =
                 invoice?.InvoiceNumber ||
                 invoice?.invoiceNumber ||
                 `Invoice-${id}`;
 
+            // ------------------------------------------------
+            // SAFE FILE NAME
+            // ------------------------------------------------
+
             const safeFileName =
                 String(invoiceNumber)
                     .replace(/[\\/:*?"<>|]/g, "-")
                     .trim();
 
+            // ------------------------------------------------
+            // PDF ELEMENT
+            // ------------------------------------------------
+
             const element =
                 invoiceRef.current;
+
+            // ------------------------------------------------
+            // PDF OPTIONS
+            // ------------------------------------------------
 
             const options = {
 
                 margin: [
-                    8,
-                    8,
-                    8,
-                    8
+                    6,
+                    6,
+                    6,
+                    6
                 ],
 
                 filename:
@@ -184,35 +237,70 @@ const SalesInvoicePrint = () => {
                 },
 
                 html2canvas: {
+
                     scale: 2,
+
                     useCORS: true,
+
                     allowTaint: false,
+
                     logging: false,
-                    backgroundColor: "#ffffff"
+
+                    backgroundColor:
+                        "#ffffff",
+
+                    scrollX: 0,
+
+                    scrollY: 0
+
                 },
 
                 jsPDF: {
+
                     unit: "mm",
+
                     format: "a4",
-                    orientation: "portrait"
+
+                    orientation: "portrait",
+
+                    compress: true
+
                 },
 
                 pagebreak: {
+
                     mode: [
                         "css",
                         "legacy"
                     ],
+
                     avoid: [
+
                         ".invoice-section",
+
                         ".invoice-table",
+
                         ".invoice-summary",
+
                         ".invoice-payment",
+
                         ".invoice-transport",
-                        ".invoice-project"
+
+                        ".invoice-project",
+
+                        ".invoice-buyer-section",
+
+                        ".invoice-delivery-terms"
+
                     ]
+
                 }
 
             };
+
+            // ------------------------------------------------
+            // GENERATE PDF
+            // ------------------------------------------------
 
             await html2pdf()
                 .set(options)
@@ -227,13 +315,15 @@ const SalesInvoicePrint = () => {
             );
 
             setError(
-                "Unable to generate PDF."
+                "Unable to generate PDF. Please try again."
             );
 
         } finally {
 
             setDownloading(false);
+
         }
+
     };
 
     // ========================================================
@@ -260,14 +350,20 @@ const SalesInvoicePrint = () => {
 
                     <CircularProgress />
 
-                    <Typography>
+                    <Typography
+                        sx={{
+                            fontSize: "14px"
+                        }}
+                    >
                         Loading invoice...
                     </Typography>
 
                 </Stack>
 
             </Box>
+
         );
+
     }
 
     // ========================================================
@@ -295,16 +391,22 @@ const SalesInvoicePrint = () => {
 
                 <Button
                     variant="outlined"
-                    startIcon={<ArrowBack />}
+                    startIcon={
+                        <ArrowBack />
+                    }
                     onClick={() =>
-                        navigate("/sales-invoices")
+                        navigate(
+                            "/sales-invoices"
+                        )
                     }
                 >
                     Back to Sales Invoices
                 </Button>
 
             </Box>
+
         );
+
     }
 
     // ========================================================
@@ -326,11 +428,13 @@ const SalesInvoicePrint = () => {
                 </Alert>
 
             </Box>
+
         );
+
     }
 
     // ========================================================
-    // NORMALIZE DATA
+    // NORMALIZE CHILD DATA
     // ========================================================
 
     const items =
@@ -402,6 +506,7 @@ const SalesInvoicePrint = () => {
             invoice?.CustomerGSTIN ||
             invoice?.customerGSTIN ||
             ""
+
     };
 
     // ========================================================
@@ -445,6 +550,7 @@ const SalesInvoicePrint = () => {
             invoice?.UserGSTIN ||
             invoice?.userGSTIN ||
             ""
+
     };
 
     // ========================================================
@@ -457,12 +563,13 @@ const SalesInvoicePrint = () => {
             sx={{
                 minHeight: "100vh",
                 backgroundColor: "#f1f3f6",
-                py: 3
+                py: 3,
+                boxSizing: "border-box"
             }}
         >
 
             {/* =================================================
-                TOP ACTION BAR
+                ACTION BAR
             ================================================= */}
 
             <Box
@@ -477,7 +584,8 @@ const SalesInvoicePrint = () => {
                     px: {
                         xs: 2,
                         md: 0
-                    }
+                    },
+                    boxSizing: "border-box"
                 }}
             >
 
@@ -486,7 +594,7 @@ const SalesInvoicePrint = () => {
                         xs: "column",
                         sm: "row"
                     }}
-                    spacing={1}
+                    spacing={1.5}
                     justifyContent="space-between"
                     alignItems={{
                         xs: "stretch",
@@ -496,9 +604,13 @@ const SalesInvoicePrint = () => {
 
                     <Button
                         variant="outlined"
-                        startIcon={<ArrowBack />}
+                        startIcon={
+                            <ArrowBack />
+                        }
                         onClick={() =>
-                            navigate("/sales-invoices")
+                            navigate(
+                                "/sales-invoices"
+                            )
                         }
                     >
                         Back to Sales Invoices
@@ -507,19 +619,33 @@ const SalesInvoicePrint = () => {
                     <Button
                         variant="contained"
                         startIcon={
-                            downloading
-                                ? <CircularProgress
+
+                            downloading ? (
+
+                                <CircularProgress
                                     size={18}
                                     color="inherit"
                                 />
-                                : <Download />
+
+                            ) : (
+
+                                <Download />
+
+                            )
+
                         }
-                        onClick={handleDownloadPDF}
-                        disabled={downloading}
+                        onClick={
+                            handleDownloadPDF
+                        }
+                        disabled={
+                            downloading
+                        }
                     >
+
                         {downloading
                             ? "Generating PDF..."
                             : "Download PDF"}
+
                     </Button>
 
                 </Stack>
@@ -527,168 +653,376 @@ const SalesInvoicePrint = () => {
             </Box>
 
             {/* =================================================
-                A4 INVOICE
+                A4 PAPER
             ================================================= */}
 
             <Paper
-                elevation={3}
                 ref={invoiceRef}
+                elevation={3}
                 className="sales-invoice-pdf"
                 sx={{
-                    width: "210mm",
-                    minHeight: "297mm",
-                    maxWidth: "100%",
-                    mx: "auto",
-                    backgroundColor: "#fff",
-                    boxSizing: "border-box",
 
-                    px: "10mm",
-                    py: "8mm",
+                    width: "210mm",
+
+                    minHeight: "297mm",
+
+                    maxWidth: "100%",
+
+                    mx: "auto",
+
+                    backgroundColor:
+                        "#ffffff",
+
+                    color: "#000000",
+
+                    boxSizing:
+                        "border-box",
+
+                    px: "9mm",
+
+                    py: "7mm",
 
                     overflow: "hidden",
 
-                    color: "#000",
+                    // ==========================================
+                    // GLOBAL SECTIONS
+                    // ==========================================
 
                     "& .invoice-section": {
+
                         width: "100%",
-                        boxSizing: "border-box",
-                        marginBottom: "5mm",
-                        pageBreakInside: "avoid"
+
+                        boxSizing:
+                            "border-box",
+
+                        marginBottom:
+                            "4mm",
+
+                        pageBreakInside:
+                            "avoid"
+
                     },
 
-                    "& table": {
+                    // ==========================================
+                    // BUYER
+                    // ==========================================
+
+                    "& .invoice-buyer-section": {
+
                         width: "100%",
-                        borderCollapse: "collapse",
-                        tableLayout: "fixed"
+
+                        boxSizing:
+                            "border-box",
+
+                        pageBreakInside:
+                            "avoid"
+
+                    },
+
+                    // ==========================================
+                    // DELIVERY TERMS
+                    // ==========================================
+
+                    "& .invoice-delivery-terms": {
+
+                        width: "100%",
+
+                        boxSizing:
+                            "border-box",
+
+                        pageBreakInside:
+                            "avoid"
+
+                    },
+
+                    // ==========================================
+                    // TABLES
+                    // ==========================================
+
+                    "& table": {
+
+                        width: "100%",
+
+                        borderCollapse:
+                            "collapse",
+
+                        boxSizing:
+                            "border-box"
+
                     },
 
                     "& th": {
+
                         fontSize: "9px",
+
                         fontWeight: 700,
-                        padding: "5px 4px",
-                        verticalAlign: "middle",
-                        wordBreak: "break-word"
+
+                        padding:
+                            "5px 5px",
+
+                        verticalAlign:
+                            "middle",
+
+                        wordBreak:
+                            "break-word"
+
                     },
 
                     "& td": {
+
                         fontSize: "9px",
-                        padding: "5px 4px",
-                        verticalAlign: "top",
-                        wordBreak: "break-word"
+
+                        padding:
+                            "5px 5px",
+
+                        verticalAlign:
+                            "top",
+
+                        wordBreak:
+                            "break-word"
+
                     },
+
+                    // ==========================================
+                    // ITEM TABLE
+                    // ==========================================
 
                     "& .invoice-table": {
-                        pageBreakInside: "avoid"
+
+                        width: "100%",
+
+                        boxSizing:
+                            "border-box",
+
+                        pageBreakInside:
+                            "auto"
+
                     },
+
+                    "& .invoice-table tr": {
+
+                        pageBreakInside:
+                            "avoid"
+
+                    },
+
+                    // ==========================================
+                    // SUMMARY
+                    // ==========================================
 
                     "& .invoice-summary": {
-                        pageBreakInside: "avoid"
+
+                        width: "100%",
+
+                        boxSizing:
+                            "border-box",
+
+                        pageBreakInside:
+                            "avoid"
+
                     },
+
+                    // ==========================================
+                    // PAYMENT
+                    // ==========================================
 
                     "& .invoice-payment": {
-                        pageBreakInside: "avoid"
+
+                        width: "100%",
+
+                        boxSizing:
+                            "border-box",
+
+                        pageBreakInside:
+                            "avoid"
+
                     },
+
+                    // ==========================================
+                    // TRANSPORT
+                    // ==========================================
 
                     "& .invoice-transport": {
-                        pageBreakInside: "avoid"
+
+                        width: "100%",
+
+                        boxSizing:
+                            "border-box",
+
+                        pageBreakInside:
+                            "avoid"
+
                     },
 
+                    // ==========================================
+                    // PROJECT
+                    // ==========================================
+
                     "& .invoice-project": {
-                        pageBreakInside: "avoid"
+
+                        width: "100%",
+
+                        boxSizing:
+                            "border-box",
+
+                        pageBreakInside:
+                            "avoid"
+
                     },
+
+                    // ==========================================
+                    // IMAGES / SVG
+                    // ==========================================
+
+                    "& img": {
+
+                        maxWidth:
+                            "100%"
+
+                    },
+
+                    "& svg": {
+
+                        maxWidth:
+                            "100%"
+
+                    },
+
+                    // ==========================================
+                    // PRINT
+                    // ==========================================
 
                     "@media print": {
 
                         width: "210mm",
+
                         minHeight: "297mm",
+
                         margin: 0,
-                        padding: "8mm",
+
+                        padding:
+                            "7mm 9mm",
 
                         boxShadow: "none",
 
-                        backgroundColor: "#fff"
+                        backgroundColor:
+                            "#ffffff"
+
                     }
+
                 }}
             >
 
                 {/* =================================================
-                    HEADER
+                    1. COMPANY HEADER
+                       COMPANY
+                       BARCODE LEFT
+                       QR RIGHT
+                       TAX INVOICE
                 ================================================= */}
 
                 <Box
                     className="invoice-section"
                 >
+
                     <InvoiceHeader
                         invoice={invoice}
                         seller={seller}
+                        customer={customer}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    CUSTOMER
+                    2. BUYER / CUSTOMER
                 ================================================= */}
 
                 <Box
-                    className="invoice-section"
+                    className="invoice-buyer-section"
+                    sx={{
+                        border:
+                            "1px solid #000",
+
+                        mb: "4mm",
+
+                        boxSizing:
+                            "border-box"
+                    }}
                 >
+
                     <InvoiceCustomerSection
                         invoice={invoice}
                         customer={customer}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    INVOICE INFORMATION
+                    3. INVOICE INFORMATION
                 ================================================= */}
 
                 <Box
                     className="invoice-section"
                 >
+
                     <InvoiceInformation
                         invoice={invoice}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    PROJECT
+                    4. PROJECT INFORMATION
                 ================================================= */}
 
                 <Box
-                    className="invoice-project invoice-section"
+                    className="invoice-project"
+                    sx={{
+                        mb: "4mm"
+                    }}
                 >
+
                     <InvoiceProjectSection
                         invoice={invoice}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    ITEMS
+                    5. PRODUCTS / ITEMS
                 ================================================= */}
 
                 <Box
-                    className="invoice-table invoice-section"
+                    className="invoice-table"
+                    sx={{
+                        mb: "4mm"
+                    }}
                 >
+
                     <InvoiceItems
                         invoice={invoice}
                         items={items}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    TAX
+                    6. TAX DETAILS
                 ================================================= */}
 
                 <Box
                     className="invoice-section"
                 >
+
                     <InvoiceTaxSection
                         invoice={invoice}
                         items={items}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    ADDITIONAL CHARGES
+                    7. ADDITIONAL CHARGES
                 ================================================= */}
 
                 {additionalCharges.length > 0 && (
@@ -696,104 +1030,113 @@ const SalesInvoicePrint = () => {
                     <Box
                         className="invoice-section"
                     >
+
                         <InvoiceCharges
                             invoice={invoice}
-                            charges={additionalCharges}
+                            charges={
+                                additionalCharges
+                            }
                         />
+
                     </Box>
+
                 )}
 
                 {/* =================================================
-                    SUMMARY
+                    8. SUMMARY
                 ================================================= */}
 
                 <Box
-                    className="invoice-summary invoice-section"
+                    className="invoice-summary"
+                    sx={{
+                        mb: "4mm"
+                    }}
                 >
+
                     <InvoiceSummary
                         invoice={invoice}
                         items={items}
-                        charges={additionalCharges}
+                        charges={
+                            additionalCharges
+                        }
                     />
+
                 </Box>
 
                 {/* =================================================
-                    PAYMENT
+                    9. PAYMENT
                 ================================================= */}
 
                 <Box
-                    className="invoice-payment invoice-section"
+                    className="invoice-payment"
+                    sx={{
+                        mb: "4mm"
+                    }}
                 >
+
                     <InvoicePayment
                         invoice={invoice}
                         payments={payments}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    TRANSPORT
+                    10. TRANSPORT
                 ================================================= */}
 
                 <Box
-                    className="invoice-transport invoice-section"
+                    className="invoice-transport"
+                    sx={{
+                        mb: "4mm"
+                    }}
                 >
+
                     <InvoiceTransport
                         invoice={invoice}
                     />
+
                 </Box>
 
                 {/* =================================================
-                    TERMS
+                    11. TERMS OF DELIVERY
+                    MOVED TO BOTTOM
+                ================================================= */}
+
+                <Box
+                    className="invoice-delivery-terms"
+                    sx={{
+                        mb: "4mm"
+                    }}
+                >
+
+                    <InvoiceDeliveryTerms
+                        invoice={invoice}
+                    />
+
+                </Box>
+
+                {/* =================================================
+                    12. SIGNATURE
                 ================================================= */}
 
                 <Box
                     className="invoice-section"
                     sx={{
-                        mt: 3,
-                        pt: 1.5,
-                        borderTop: "1px solid #000"
-                    }}
-                >
-
-                    <Typography
-                        sx={{
-                            fontSize: "10px",
-                            fontWeight: 700,
-                            mb: 0.5
-                        }}
-                    >
-                        Terms of Delivery
-                    </Typography>
-
-                    <Typography
-                        sx={{
-                            fontSize: "9px",
-                            lineHeight: 1.5
-                        }}
-                    >
-                        {invoice?.Transport ||
-                            invoice?.transport ||
-                            "-"}
-                    </Typography>
-
-                </Box>
-
-                {/* =================================================
-                    SIGNATURE
-                ================================================= */}
-
-                <Box
-                    sx={{
-                        mt: 10,
+                        mt: "10mm",
                         display: "flex",
-                        justifyContent: "flex-end"
+                        justifyContent:
+                            "flex-end",
+                        pageBreakInside:
+                            "avoid"
                     }}
                 >
 
                     <Box
                         sx={{
                             width: "55mm",
-                            textAlign: "center"
+                            textAlign:
+                                "center"
                         }}
                     >
 
@@ -820,22 +1163,27 @@ const SalesInvoicePrint = () => {
                 </Box>
 
                 {/* =================================================
-                    FOOTER
+                    13. FOOTER
                 ================================================= */}
 
                 <Box
                     sx={{
-                        mt: 6,
-                        pt: 1,
-                        borderTop: "1px solid #999",
-                        textAlign: "center"
+                        mt: "6mm",
+                        pt: "2mm",
+                        borderTop:
+                            "1px solid #999",
+                        textAlign:
+                            "center",
+                        pageBreakInside:
+                            "avoid"
                     }}
                 >
 
                     <Typography
                         sx={{
                             fontSize: "8px",
-                            color: "#555"
+                            color: "#555",
+                            lineHeight: 1.4
                         }}
                     >
                         This is a computer generated invoice.
@@ -846,7 +1194,13 @@ const SalesInvoicePrint = () => {
             </Paper>
 
         </Box>
+
     );
+
 };
+
+// ============================================================
+// EXPORT
+// ============================================================
 
 export default SalesInvoicePrint;
