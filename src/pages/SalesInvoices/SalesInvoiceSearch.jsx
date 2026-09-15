@@ -12,16 +12,22 @@ import {
     Clear
 } from "@mui/icons-material";
 
+
 const SalesInvoiceSearch = ({
     searchText,
     setSearchText
 }) => {
 
+
     const handleClear = () => {
+
         setSearchText("");
+
     };
 
+
     return (
+
         <Box
             sx={{
                 mb: 3,
@@ -33,20 +39,28 @@ const SalesInvoiceSearch = ({
                 fullWidth
                 size="small"
                 label="Search Sales Invoices"
-                placeholder="Invoice Number, Sales Order ID, Payment Status, Status or Remarks..."
+                placeholder="Invoice Number, Company, Sales Order ID, Payment Status, Status or Remarks..."
                 value={searchText}
-                onChange={(e) =>
-                    setSearchText(e.target.value)
+                onChange={(event) =>
+                    setSearchText(
+                        event.target.value
+                    )
                 }
                 InputProps={{
+
                     startAdornment: (
+
                         <InputAdornment position="start">
+
                             <Search color="action" />
+
                         </InputAdornment>
                     ),
 
-                    endAdornment: searchText && (
+                    endAdornment: searchText ? (
+
                         <InputAdornment position="end">
+
                             <IconButton
                                 size="small"
                                 onClick={handleClear}
@@ -54,13 +68,17 @@ const SalesInvoiceSearch = ({
                             >
                                 <Clear />
                             </IconButton>
+
                         </InputAdornment>
-                    )
+
+                    ) : null
+
                 }}
             />
 
         </Box>
     );
 };
+
 
 export default SalesInvoiceSearch;

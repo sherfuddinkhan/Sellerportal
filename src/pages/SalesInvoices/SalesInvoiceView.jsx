@@ -14,15 +14,15 @@ import {
 } from "@mui/material";
 
 
-/* --------------------------------
-   Format Currency
--------------------------------- */
+/* =========================================================
+   FORMAT CURRENCY
+========================================================= */
 
 const formatCurrency = (value) => {
 
     const amount = Number(value);
 
-    if (Number.isNaN(amount)) {
+    if (!Number.isFinite(amount)) {
         return "₹ 0.00";
     }
 
@@ -33,9 +33,9 @@ const formatCurrency = (value) => {
 };
 
 
-/* --------------------------------
-   Format Date
--------------------------------- */
+/* =========================================================
+   FORMAT DATE
+========================================================= */
 
 const formatDate = (value) => {
 
@@ -57,23 +57,26 @@ const formatDate = (value) => {
 };
 
 
-/* --------------------------------
-   Status Color
--------------------------------- */
+/* =========================================================
+   STATUS COLOR
+========================================================= */
 
 const getStatusColor = (status) => {
 
     switch (
-        String(status || "").toLowerCase()
+        String(status || "").toLowerCase().trim()
     ) {
 
         case "paid":
         case "completed":
+        case "confirmed":
             return "success";
 
         case "pending":
         case "draft":
         case "open":
+        case "due":
+        case "due-pending":
             return "warning";
 
         case "partial":
@@ -85,6 +88,7 @@ const getStatusColor = (status) => {
 
         case "cancelled":
         case "rejected":
+        case "failed":
             return "error";
 
         default:
@@ -93,9 +97,27 @@ const getStatusColor = (status) => {
 };
 
 
-/* --------------------------------
-   Detail Item
--------------------------------- */
+/* =========================================================
+   GET VALUE
+   Supports PascalCase + camelCase
+========================================================= */
+
+const getValue = (
+    item,
+    pascalCase,
+    camelCase
+) => {
+
+    return (
+        item?.[pascalCase] ??
+        item?.[camelCase]
+    );
+};
+
+
+/* =========================================================
+   DETAIL ITEM
+========================================================= */
 
 const DetailItem = ({
     label,
@@ -134,9 +156,32 @@ const DetailItem = ({
 };
 
 
-/* --------------------------------
-   Sales Invoice View
--------------------------------- */
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+const SectionTitle = ({
+    children
+}) => {
+
+    return (
+        <Grid item xs={12}>
+
+            <Typography
+                variant="subtitle1"
+                fontWeight="bold"
+            >
+                {children}
+            </Typography>
+
+        </Grid>
+    );
+};
+
+
+/* =========================================================
+   SALES INVOICE VIEW
+========================================================= */
 
 const SalesInvoiceView = ({
     open,
@@ -149,122 +194,436 @@ const SalesInvoiceView = ({
     }
 
 
-    /* --------------------------------
-       Support PascalCase + camelCase
-    -------------------------------- */
+    /* =========================================================
+       BASIC INFORMATION
+    ========================================================= */
 
     const invoiceId =
-        item.SalesInvoiceId ??
-        item.salesInvoiceId;
+        getValue(
+            item,
+            "SalesInvoiceId",
+            "salesInvoiceId"
+        );
 
     const salesOrderId =
-        item.SalesOrderId ??
-        item.salesOrderId;
+        getValue(
+            item,
+            "SalesOrderId",
+            "salesOrderId"
+        );
 
     const sellerId =
-        item.SellerId ??
-        item.sellerId;
+        getValue(
+            item,
+            "SellerId",
+            "sellerId"
+        );
 
     const customerId =
-        item.CustomerId ??
-        item.customerId;
+        getValue(
+            item,
+            "CustomerId",
+            "customerId"
+        );
 
     const invoiceNumber =
-        item.InvoiceNumber ??
-        item.invoiceNumber;
+        getValue(
+            item,
+            "InvoiceNumber",
+            "invoiceNumber"
+        );
 
     const invoiceDate =
-        item.InvoiceDate ??
-        item.invoiceDate;
+        getValue(
+            item,
+            "InvoiceDate",
+            "invoiceDate"
+        );
+
+
+    /* =========================================================
+       CUSTOMER INFORMATION
+    ========================================================= */
+
+    const companyName =
+        getValue(
+            item,
+            "CompanyName",
+            "companyName"
+        );
+
+    const mobileNo =
+        getValue(
+            item,
+            "MobileNo",
+            "mobileNo"
+        );
+
+    const emailAddress =
+        getValue(
+            item,
+            "EmailAddress",
+            "emailAddress"
+        );
+
+    const companyAddress =
+        getValue(
+            item,
+            "CompanyAddress",
+            "companyAddress"
+        );
+
+    const companyCity =
+        getValue(
+            item,
+            "CompanyCity",
+            "companyCity"
+        );
+
+    const companyState =
+        getValue(
+            item,
+            "CompanyState",
+            "companyState"
+        );
+
+    const companyPINCode =
+        getValue(
+            item,
+            "CompanyPINCode",
+            "companyPINCode"
+        );
+
+    const customerGSTIN =
+        getValue(
+            item,
+            "CustomerGSTIN",
+            "customerGSTIN"
+        );
+
+
+    /* =========================================================
+       CLASSIFICATION
+    ========================================================= */
 
     const invoiceScenario =
-        item.InvoiceScenario ??
-        item.invoiceScenario;
+        getValue(
+            item,
+            "InvoiceScenario",
+            "invoiceScenario"
+        );
 
     const category =
-        item.Category ??
-        item.category;
+        getValue(
+            item,
+            "Category",
+            "category"
+        );
 
     const transactionType =
-        item.TransactionType ??
-        item.transactionType;
-
-    const userGSTIN =
-        item.UserGSTIN ??
-        item.userGSTIN;
+        getValue(
+            item,
+            "TransactionType",
+            "transactionType"
+        );
 
     const documentType =
-        item.DocumentType ??
-        item.documentType;
+        getValue(
+            item,
+            "DocumentType",
+            "documentType"
+        );
 
     const supplyType =
-        item.SupplyType ??
-        item.supplyType;
+        getValue(
+            item,
+            "SupplyType",
+            "supplyType"
+        );
 
     const placeOfSupply =
-        item.PlaceOfSupply ??
-        item.placeOfSupply;
+        getValue(
+            item,
+            "PlaceOfSupply",
+            "placeOfSupply"
+        );
+
+    const stateCode =
+        getValue(
+            item,
+            "StateCode",
+            "stateCode"
+        );
 
     const financialYear =
-        item.FinancialYear ??
-        item.financialYear;
+        getValue(
+            item,
+            "FinancialYear",
+            "financialYear"
+        );
 
     const reverseCharge =
-        item.ReverseCharge ??
-        item.reverseCharge;
+        getValue(
+            item,
+            "ReverseCharge",
+            "reverseCharge"
+        );
+
+    const userGSTIN =
+        getValue(
+            item,
+            "UserGSTIN",
+            "userGSTIN"
+        );
+
+
+    /* =========================================================
+       PURCHASE / REFERENCE INFORMATION
+    ========================================================= */
+
+    const purchaseOrderNo =
+        getValue(
+            item,
+            "PurchaseOrderNo",
+            "purchaseOrderNo"
+        );
+
+    const purchaseOrderDate =
+        getValue(
+            item,
+            "PurchaseOrderDate",
+            "purchaseOrderDate"
+        );
+
+    const otherReferences =
+        getValue(
+            item,
+            "OtherReferences",
+            "otherReferences"
+        );
+
+    const despatchedDocumentNumber =
+        getValue(
+            item,
+            "DespatchedDocumentNumber",
+            "despatchedDocumentNumber"
+        );
 
     const referenceId =
-        item.Id ??
-        item.id;
+        getValue(
+            item,
+            "Id",
+            "id"
+        );
 
     const refId =
-        item.RefId ??
-        item.refId;
+        getValue(
+            item,
+            "RefId",
+            "refId"
+        );
+
+
+    /* =========================================================
+       TRANSPORT INFORMATION
+    ========================================================= */
+
+    const deliveryNote =
+        getValue(
+            item,
+            "DeliveryNote",
+            "deliveryNote"
+        );
+
+    const deliveryNoteDate =
+        getValue(
+            item,
+            "DeliveryNoteDate",
+            "deliveryNoteDate"
+        );
+
+    const eWayBillNumber =
+        getValue(
+            item,
+            "EWayBillNumber",
+            "eWayBillNumber"
+        );
+
+    const vehicleNo =
+        getValue(
+            item,
+            "VehicleNo",
+            "vehicleNo"
+        );
+
+    const distance =
+        getValue(
+            item,
+            "Distance",
+            "distance"
+        );
+
+    const transport =
+        getValue(
+            item,
+            "Transport",
+            "transport"
+        );
+
+    const transporterName =
+        getValue(
+            item,
+            "TransporterName",
+            "transporterName"
+        );
+
+    const transporterID =
+        getValue(
+            item,
+            "TransporterID",
+            "transporterID"
+        );
+
+    const transporterDocNo =
+        getValue(
+            item,
+            "TransporterDocNo",
+            "transporterDocNo"
+        );
+
+    const transportMode =
+        getValue(
+            item,
+            "TransportMode",
+            "transportMode"
+        );
+
+    const destination =
+        getValue(
+            item,
+            "Destination",
+            "destination"
+        );
+
+    const billOfLandingOrLRRRNo =
+        getValue(
+            item,
+            "BillOfLandingOrLRRRNo",
+            "billOfLandingOrLRRRNo"
+        );
+
+    const despatchedThrough =
+        getValue(
+            item,
+            "DespatchedThrough",
+            "despatchedThrough"
+        );
+
+    const modeOrTermsOfPayment =
+        getValue(
+            item,
+            "ModeOrTermsOfPayment",
+            "modeOrTermsOfPayment"
+        );
+
+
+    /* =========================================================
+       AMOUNTS
+    ========================================================= */
 
     const subTotal =
-        item.SubTotal ??
-        item.subTotal;
+        getValue(
+            item,
+            "SubTotal",
+            "subTotal"
+        );
 
     const discountAmount =
-        item.DiscountAmount ??
-        item.discountAmount;
+        getValue(
+            item,
+            "DiscountAmount",
+            "discountAmount"
+        );
 
     const taxAmount =
-        item.TaxAmount ??
-        item.taxAmount;
+        getValue(
+            item,
+            "TaxAmount",
+            "taxAmount"
+        );
 
     const totalAmount =
-        item.TotalAmount ??
-        item.totalAmount;
+        getValue(
+            item,
+            "TotalAmount",
+            "totalAmount"
+        );
 
     const paidAmount =
-        item.PaidAmount ??
-        item.paidAmount;
+        getValue(
+            item,
+            "PaidAmount",
+            "paidAmount"
+        );
 
     const balanceAmount =
-        item.BalanceAmount ??
-        item.balanceAmount;
+        getValue(
+            item,
+            "BalanceAmount",
+            "balanceAmount"
+        );
+
+    const paymentMode =
+        getValue(
+            item,
+            "PaymentMode",
+            "paymentMode"
+        );
 
     const paymentStatus =
-        item.PaymentStatus ??
-        item.paymentStatus;
+        getValue(
+            item,
+            "PaymentStatus",
+            "paymentStatus"
+        );
 
     const status =
-        item.Status ??
-        item.status;
+        getValue(
+            item,
+            "Status",
+            "status"
+        );
 
     const remarks =
-        item.Remarks ??
-        item.remarks;
+        getValue(
+            item,
+            "Remarks",
+            "remarks"
+        );
+
+
+    /* =========================================================
+       AUDIT
+    ========================================================= */
 
     const createdDate =
-        item.CreatedDate ??
-        item.createdDate;
+        getValue(
+            item,
+            "CreatedDate",
+            "createdDate"
+        );
 
     const updatedDate =
-        item.UpdatedDate ??
-        item.updatedDate;
+        getValue(
+            item,
+            "UpdatedDate",
+            "updatedDate"
+        );
 
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
 
     return (
         <Dialog
@@ -274,9 +633,9 @@ const SalesInvoiceView = ({
             fullWidth
         >
 
-            {/* =========================
-                TITLE
-            ========================= */}
+            {/* =================================================
+               TITLE
+            ================================================= */}
 
             <DialogTitle>
 
@@ -299,9 +658,9 @@ const SalesInvoiceView = ({
             </DialogTitle>
 
 
-            {/* =========================
-                CONTENT
-            ========================= */}
+            {/* =================================================
+               CONTENT
+            ================================================= */}
 
             <DialogContent dividers>
 
@@ -310,18 +669,13 @@ const SalesInvoiceView = ({
                     spacing={3}
                 >
 
-                    {/* Basic Information */}
+                    {/* =================================================
+                       BASIC INFORMATION
+                    ================================================= */}
 
-                    <Grid item xs={12}>
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                        >
-                            Basic Information
-                        </Typography>
-
-                    </Grid>
+                    <SectionTitle>
+                        Basic Information
+                    </SectionTitle>
 
                     <DetailItem
                         label="Sales Invoice ID"
@@ -360,18 +714,68 @@ const SalesInvoiceView = ({
                     </Grid>
 
 
-                    {/* Invoice Classification */}
+                    {/* =================================================
+                       CUSTOMER INFORMATION
+                    ================================================= */}
+
+                    <SectionTitle>
+                        Customer Information
+                    </SectionTitle>
+
+                    <DetailItem
+                        label="Company Name"
+                        value={companyName}
+                        bold
+                    />
+
+                    <DetailItem
+                        label="Mobile Number"
+                        value={mobileNo}
+                    />
+
+                    <DetailItem
+                        label="Email Address"
+                        value={emailAddress}
+                    />
+
+                    <DetailItem
+                        label="Company Address"
+                        value={companyAddress}
+                    />
+
+                    <DetailItem
+                        label="City"
+                        value={companyCity}
+                    />
+
+                    <DetailItem
+                        label="State"
+                        value={companyState}
+                    />
+
+                    <DetailItem
+                        label="PIN Code"
+                        value={companyPINCode}
+                    />
+
+                    <DetailItem
+                        label="Customer GSTIN"
+                        value={customerGSTIN}
+                    />
+
 
                     <Grid item xs={12}>
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                        >
-                            Invoice Classification
-                        </Typography>
-
+                        <Divider />
                     </Grid>
+
+
+                    {/* =================================================
+                       INVOICE CLASSIFICATION
+                    ================================================= */}
+
+                    <SectionTitle>
+                        Invoice Classification
+                    </SectionTitle>
 
                     <DetailItem
                         label="Invoice Scenario"
@@ -404,6 +808,11 @@ const SalesInvoiceView = ({
                     />
 
                     <DetailItem
+                        label="State Code"
+                        value={stateCode}
+                    />
+
+                    <DetailItem
                         label="Financial Year"
                         value={financialYear}
                     />
@@ -430,18 +839,33 @@ const SalesInvoiceView = ({
                     </Grid>
 
 
-                    {/* Reference Information */}
+                    {/* =================================================
+                       PURCHASE / REFERENCE
+                    ================================================= */}
 
-                    <Grid item xs={12}>
+                    <SectionTitle>
+                        Purchase & Reference Information
+                    </SectionTitle>
 
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                        >
-                            Reference Information
-                        </Typography>
+                    <DetailItem
+                        label="Purchase Order No"
+                        value={purchaseOrderNo}
+                    />
 
-                    </Grid>
+                    <DetailItem
+                        label="Purchase Order Date"
+                        value={formatDate(purchaseOrderDate)}
+                    />
+
+                    <DetailItem
+                        label="Other References"
+                        value={otherReferences}
+                    />
+
+                    <DetailItem
+                        label="Despatched Document Number"
+                        value={despatchedDocumentNumber}
+                    />
 
                     <DetailItem
                         label="Reference ID"
@@ -459,18 +883,97 @@ const SalesInvoiceView = ({
                     </Grid>
 
 
-                    {/* Amount Details */}
+                    {/* =================================================
+                       TRANSPORT
+                    ================================================= */}
+
+                    <SectionTitle>
+                        Transport & Delivery
+                    </SectionTitle>
+
+                    <DetailItem
+                        label="Delivery Note"
+                        value={deliveryNote}
+                    />
+
+                    <DetailItem
+                        label="Delivery Note Date"
+                        value={formatDate(deliveryNoteDate)}
+                    />
+
+                    <DetailItem
+                        label="E-Way Bill Number"
+                        value={eWayBillNumber}
+                    />
+
+                    <DetailItem
+                        label="Vehicle Number"
+                        value={vehicleNo}
+                    />
+
+                    <DetailItem
+                        label="Distance"
+                        value={distance}
+                    />
+
+                    <DetailItem
+                        label="Transport"
+                        value={transport}
+                    />
+
+                    <DetailItem
+                        label="Transporter Name"
+                        value={transporterName}
+                    />
+
+                    <DetailItem
+                        label="Transporter ID"
+                        value={transporterID}
+                    />
+
+                    <DetailItem
+                        label="Transporter Document No"
+                        value={transporterDocNo}
+                    />
+
+                    <DetailItem
+                        label="Transport Mode"
+                        value={transportMode}
+                    />
+
+                    <DetailItem
+                        label="Destination"
+                        value={destination}
+                    />
+
+                    <DetailItem
+                        label="Bill of Landing / LR-RR No"
+                        value={billOfLandingOrLRRRNo}
+                    />
+
+                    <DetailItem
+                        label="Despatched Through"
+                        value={despatchedThrough}
+                    />
+
+                    <DetailItem
+                        label="Mode / Terms of Payment"
+                        value={modeOrTermsOfPayment}
+                    />
+
 
                     <Grid item xs={12}>
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                        >
-                            Amount Details
-                        </Typography>
-
+                        <Divider />
                     </Grid>
+
+
+                    {/* =================================================
+                       AMOUNT DETAILS
+                    ================================================= */}
+
+                    <SectionTitle>
+                        Amount Details
+                    </SectionTitle>
 
 
                     <Grid
@@ -605,26 +1108,24 @@ const SalesInvoiceView = ({
                     </Grid>
 
 
+                    <DetailItem
+                        label="Payment Mode"
+                        value={paymentMode}
+                    />
+
+
                     <Grid item xs={12}>
                         <Divider />
                     </Grid>
 
 
-                    {/* Status */}
+                    {/* =================================================
+                       STATUS
+                    ================================================= */}
 
-                    <Grid item xs={12}>
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                            sx={{
-                                mb: 1
-                            }}
-                        >
-                            Status
-                        </Typography>
-
-                    </Grid>
+                    <SectionTitle>
+                        Status
+                    </SectionTitle>
 
 
                     <Grid
@@ -644,9 +1145,7 @@ const SalesInvoiceView = ({
                         </Typography>
 
                         <Chip
-                            label={
-                                paymentStatus || "-"
-                            }
+                            label={paymentStatus || "-"}
                             color={getStatusColor(
                                 paymentStatus
                             )}
@@ -673,19 +1172,17 @@ const SalesInvoiceView = ({
                         </Typography>
 
                         <Chip
-                            label={
-                                status || "-"
-                            }
-                            color={getStatusColor(
-                                status
-                            )}
+                            label={status || "-"}
+                            color={getStatusColor(status)}
                             size="small"
                         />
 
                     </Grid>
 
 
-                    {/* Remarks */}
+                    {/* =================================================
+                       REMARKS
+                    ================================================= */}
 
                     <Grid item xs={12}>
 
@@ -721,19 +1218,13 @@ const SalesInvoiceView = ({
                     </Grid>
 
 
-                    {/* Audit Information */}
+                    {/* =================================================
+                       AUDIT INFORMATION
+                    ================================================= */}
 
-                    <Grid item xs={12}>
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                        >
-                            Audit Information
-                        </Typography>
-
-                    </Grid>
-
+                    <SectionTitle>
+                        Audit Information
+                    </SectionTitle>
 
                     <DetailItem
                         label="Created Date"
@@ -750,9 +1241,9 @@ const SalesInvoiceView = ({
             </DialogContent>
 
 
-            {/* =========================
-                ACTIONS
-            ========================= */}
+            {/* =================================================
+               ACTIONS
+            ================================================= */}
 
             <DialogActions>
 

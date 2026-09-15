@@ -10,30 +10,22 @@ import {
     Typography
 } from "@mui/material";
 
+
 const SalesInvoicePagination = ({
-
     page,
-
     totalPages,
-
     pageSize,
-
     totalRecords,
-
     onPageChange,
-
     onPageSizeChange
-
 }) => {
 
-    // =========================================================
-    // CALCULATE RECORD RANGE
-    // =========================================================
 
     const startRecord =
         totalRecords === 0
             ? 0
             : (page - 1) * pageSize + 1;
+
 
     const endRecord =
         Math.min(
@@ -55,25 +47,13 @@ const SalesInvoicePagination = ({
             }}
         >
 
-            {/* =====================================================
-                RECORD INFORMATION
-            ===================================================== */}
+            <Typography
+                variant="body2"
+                color="text.secondary"
+            >
+                Showing {startRecord}–{endRecord} of {totalRecords}
+            </Typography>
 
-            <Box>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    Showing {startRecord}–{endRecord} of {totalRecords}
-                </Typography>
-
-            </Box>
-
-
-            {/* =====================================================
-                PAGINATION CONTROLS
-            ===================================================== */}
 
             <Box
                 sx={{
@@ -83,10 +63,6 @@ const SalesInvoicePagination = ({
                     flexWrap: "wrap"
                 }}
             >
-
-                {/* =================================================
-                    ROWS PER PAGE
-                ================================================= */}
 
                 <FormControl
                     size="small"
@@ -136,10 +112,6 @@ const SalesInvoicePagination = ({
                 </FormControl>
 
 
-                {/* =================================================
-                    PAGINATION
-                ================================================= */}
-
                 <Pagination
                     color="primary"
                     shape="rounded"
@@ -157,9 +129,8 @@ const SalesInvoicePagination = ({
             </Box>
 
         </Box>
-
     );
-
 };
+
 
 export default SalesInvoicePagination;

@@ -18,35 +18,44 @@ import {
 import {
     Visibility,
     Edit,
+    Print,
     Delete
 } from "@mui/icons-material";
 
+
+/* =========================================================
+   SALES INVOICE TABLE
+========================================================= */
 
 const SalesInvoiceTable = ({
     items = [],
     onView,
     onEdit,
+    onPrint,
     onDelete
 }) => {
 
 
-    /* --------------------------------
-       Status Color
-    -------------------------------- */
+    /* =========================================================
+       STATUS COLOR
+    ========================================================= */
 
     const getStatusColor = (status) => {
 
         switch (
-            String(status || "").toLowerCase()
+            String(status || "").toLowerCase().trim()
         ) {
 
             case "paid":
             case "completed":
+            case "confirmed":
                 return "success";
 
             case "pending":
             case "draft":
             case "open":
+            case "due":
+            case "due-pending":
                 return "warning";
 
             case "partial":
@@ -58,6 +67,7 @@ const SalesInvoiceTable = ({
 
             case "cancelled":
             case "rejected":
+            case "failed":
                 return "error";
 
             default:
@@ -66,31 +76,28 @@ const SalesInvoiceTable = ({
     };
 
 
-    /* --------------------------------
-       Format Currency
-    -------------------------------- */
+    /* =========================================================
+       FORMAT CURRENCY
+    ========================================================= */
 
     const formatAmount = (value) => {
 
         const amount = Number(value);
 
-        if (Number.isNaN(amount)) {
+        if (!Number.isFinite(amount)) {
             return "₹ 0.00";
         }
 
-        return `₹ ${amount.toLocaleString(
-            "en-IN",
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        )}`;
+        return `₹ ${amount.toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`;
     };
 
 
-    /* --------------------------------
-       Format Date
-    -------------------------------- */
+    /* =========================================================
+       FORMAT DATE
+    ========================================================= */
 
     const formatDate = (value) => {
 
@@ -104,25 +111,21 @@ const SalesInvoiceTable = ({
             return "-";
         }
 
-        return date.toLocaleDateString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric"
-            }
-        );
+        return date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
     };
 
 
-    /* --------------------------------
-       Empty State
-    -------------------------------- */
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
 
     if (!items.length) {
 
         return (
-
             <Paper
                 elevation={1}
                 sx={{
@@ -139,17 +142,15 @@ const SalesInvoiceTable = ({
                 </Typography>
 
             </Paper>
-
         );
     }
 
 
-    /* --------------------------------
-       Table
-    -------------------------------- */
+    /* =========================================================
+       TABLE
+    ========================================================= */
 
     return (
-
         <TableContainer
             component={Paper}
             elevation={1}
@@ -162,13 +163,13 @@ const SalesInvoiceTable = ({
             <Table
                 size="small"
                 sx={{
-                    minWidth: 1200
+                    minWidth: 1250
                 }}
             >
 
-                {/* =========================
-                    TABLE HEADER
-                ========================= */}
+                {/* =================================================
+                   TABLE HEADER
+                ================================================= */}
 
                 <TableHead>
 
@@ -219,18 +220,19 @@ const SalesInvoiceTable = ({
                 </TableHead>
 
 
-                {/* =========================
-                    TABLE BODY
-                ========================= */}
+                {/* =================================================
+                   TABLE BODY
+                ================================================= */}
 
                 <TableBody>
 
-                    {items.map((item) => {
+                    {items.map((item, index) => {
 
                         const invoiceId =
                             item.SalesInvoiceId ??
                             item.salesInvoiceId ??
-                            item.id;
+                            item.id ??
+                            index;
 
                         const invoiceNumber =
                             item.InvoiceNumber ??
@@ -264,27 +266,31 @@ const SalesInvoiceTable = ({
                             item.Status ??
                             item.status;
 
-                        return (
 
+                        return (
                             <TableRow
                                 key={invoiceId}
                                 hover
                             >
 
-                                {/* Invoice ID */}
+                                {/* =================================================
+                                   INVOICE ID
+                                ================================================= */}
 
                                 <TableCell>
                                     {invoiceId ?? "-"}
                                 </TableCell>
 
 
-                                {/* Invoice Number */}
+                                {/* =================================================
+                                   INVOICE NUMBER
+                                ================================================= */}
 
                                 <TableCell>
 
                                     <Typography
                                         variant="body2"
-                                        fontWeight="medium"
+                                        fontWeight={600}
                                     >
                                         {invoiceNumber || "-"}
                                     </Typography>
@@ -292,21 +298,27 @@ const SalesInvoiceTable = ({
                                 </TableCell>
 
 
-                                {/* Sales Order ID */}
+                                {/* =================================================
+                                   SALES ORDER ID
+                                ================================================= */}
 
                                 <TableCell>
                                     {salesOrderId ?? "-"}
                                 </TableCell>
 
 
-                                {/* Invoice Date */}
+                                {/* =================================================
+                                   INVOICE DATE
+                                ================================================= */}
 
                                 <TableCell>
                                     {formatDate(invoiceDate)}
                                 </TableCell>
 
 
-                                {/* Total */}
+                                {/* =================================================
+                                   TOTAL
+                                ================================================= */}
 
                                 <TableCell align="right">
 
@@ -317,7 +329,9 @@ const SalesInvoiceTable = ({
                                 </TableCell>
 
 
-                                {/* Paid */}
+                                {/* =================================================
+                                   PAID
+                                ================================================= */}
 
                                 <TableCell align="right">
 
@@ -328,12 +342,14 @@ const SalesInvoiceTable = ({
                                 </TableCell>
 
 
-                                {/* Balance */}
+                                {/* =================================================
+                                   BALANCE
+                                ================================================= */}
 
                                 <TableCell align="right">
 
                                     <Typography
-                                        fontWeight="medium"
+                                        fontWeight={600}
                                     >
                                         {formatAmount(
                                             balanceAmount
@@ -343,15 +359,16 @@ const SalesInvoiceTable = ({
                                 </TableCell>
 
 
-                                {/* Payment Status */}
+                                {/* =================================================
+                                   PAYMENT STATUS
+                                ================================================= */}
 
                                 <TableCell>
 
                                     <Chip
                                         size="small"
                                         label={
-                                            paymentStatus ||
-                                            "-"
+                                            paymentStatus || "-"
                                         }
                                         color={getStatusColor(
                                             paymentStatus
@@ -362,15 +379,16 @@ const SalesInvoiceTable = ({
                                 </TableCell>
 
 
-                                {/* Invoice Status */}
+                                {/* =================================================
+                                   INVOICE STATUS
+                                ================================================= */}
 
                                 <TableCell>
 
                                     <Chip
                                         size="small"
                                         label={
-                                            status ||
-                                            "-"
+                                            status || "-"
                                         }
                                         color={getStatusColor(
                                             status
@@ -381,80 +399,107 @@ const SalesInvoiceTable = ({
                                 </TableCell>
 
 
-                                {/* Actions */}
+                                {/* =================================================
+                                   ACTIONS
+                                ================================================= */}
 
                                 <TableCell align="center">
 
                                     <Box
                                         sx={{
                                             display: "flex",
-                                            justifyContent:
-                                                "center",
-                                            alignItems:
-                                                "center"
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            gap: 0.25
                                         }}
                                     >
 
-                                        {/* View */}
+                                        {/* =================================================
+                                           VIEW
+                                        ================================================= */}
 
-                                        <Tooltip
-                                            title="View Invoice"
-                                        >
+                                        <Tooltip title="View Invoice">
 
                                             <IconButton
                                                 size="small"
                                                 color="primary"
-                                                onClick={() =>
-                                                    onView &&
-                                                    onView(item)
-                                                }
+                                                onClick={() => {
+                                                    if (onView) {
+                                                        onView(item);
+                                                    }
+                                                }}
                                             >
 
-                                                <Visibility />
+                                                <Visibility fontSize="small" />
 
                                             </IconButton>
 
                                         </Tooltip>
 
 
-                                        {/* Edit */}
+                                        {/* =================================================
+                                           EDIT
+                                        ================================================= */}
 
-                                        <Tooltip
-                                            title="Edit Invoice"
-                                        >
+                                        <Tooltip title="Edit Invoice">
 
                                             <IconButton
                                                 size="small"
                                                 color="warning"
-                                                onClick={() =>
-                                                    onEdit &&
-                                                    onEdit(item)
-                                                }
+                                                onClick={() => {
+                                                    if (onEdit) {
+                                                        onEdit(item);
+                                                    }
+                                                }}
                                             >
 
-                                                <Edit />
+                                                <Edit fontSize="small" />
 
                                             </IconButton>
 
                                         </Tooltip>
 
 
-                                        {/* Delete */}
+                                        {/* =================================================
+                                           PRINT
+                                        ================================================= */}
 
-                                        <Tooltip
-                                            title="Delete Invoice"
-                                        >
+                                        <Tooltip title="Print Invoice">
+
+                                            <IconButton
+                                                size="small"
+                                                color="success"
+                                                onClick={() => {
+                                                    if (onPrint) {
+                                                        onPrint(item);
+                                                    }
+                                                }}
+                                            >
+
+                                                <Print fontSize="small" />
+
+                                            </IconButton>
+
+                                        </Tooltip>
+
+
+                                        {/* =================================================
+                                           DELETE
+                                        ================================================= */}
+
+                                        <Tooltip title="Delete Invoice">
 
                                             <IconButton
                                                 size="small"
                                                 color="error"
-                                                onClick={() =>
-                                                    onDelete &&
-                                                    onDelete(item)
-                                                }
+                                                onClick={() => {
+                                                    if (onDelete) {
+                                                        onDelete(item);
+                                                    }
+                                                }}
                                             >
 
-                                                <Delete />
+                                                <Delete fontSize="small" />
 
                                             </IconButton>
 
@@ -465,9 +510,7 @@ const SalesInvoiceTable = ({
                                 </TableCell>
 
                             </TableRow>
-
                         );
-
                     })}
 
                 </TableBody>
@@ -475,9 +518,7 @@ const SalesInvoiceTable = ({
             </Table>
 
         </TableContainer>
-
     );
-
 };
 
 

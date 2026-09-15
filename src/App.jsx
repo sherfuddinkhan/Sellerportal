@@ -625,6 +625,7 @@ import SalesInvoiceView from "./pages/SalesInvoices/SalesInvoiceView";
 import SalesInvoiceCreate from "./pages/SalesInvoices/SalesInvoiceCreate";
 import SalesInvoiceDetails from "./pages/SalesInvoices/SalesInvoiceDetails";
 import SalesInvoiceEdit from "./pages/SalesInvoices/SalesInvoiceEdit";
+import SalesInvoicePrint from "./pages/SalesInvoices/SalesInvoicePrint";
 // =========================================================
 // SALES ORDER ITEMS
 // =========================================================
@@ -2439,7 +2440,7 @@ function App() {
                     path="sales-invoices/:id"
                     element={<SalesInvoiceView />}
                 />
-
+                <Route path="/sales-invoices/print/:id" element={<SalesInvoicePrint />}/>
 
     {/* =================================================
     SHIPMENTS

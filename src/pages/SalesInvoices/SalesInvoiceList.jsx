@@ -1,28 +1,42 @@
 import React, {
+    useCallback,
     useEffect,
     useMemo,
     useState
 } from "react";
 
 import {
+    Alert,
     Box,
+    CircularProgress,
     Grid,
     Snackbar,
-    Alert,
-    CircularProgress,
     Typography
 } from "@mui/material";
 
 import axios from "axios";
 
-import SalesInvoiceToolbar from "./SalesInvoiceToolbar";
-import SalesInvoiceStatistics from "./SalesInvoiceStatistics";
-import SalesInvoiceSearch from "./SalesInvoiceSearch";
-import SalesInvoiceTable from "./SalesInvoiceTable";
-import SalesInvoicePagination from "./SalesInvoicePagination";
-import SalesInvoiceModal from "./SalesInvoiceModal";
-import SalesInvoiceView from "./SalesInvoiceView";
-import DeleteSalesInvoiceDialog from "./DeleteSalesInvoiceDialog";
+import {
+    useNavigate
+} from "react-router-dom";
+
+import SalesInvoiceToolbar
+    from "./SalesInvoiceToolbar";
+
+import SalesInvoiceStatistics
+    from "./SalesInvoiceStatistics";
+
+import SalesInvoiceSearch
+    from "./SalesInvoiceSearch";
+
+import SalesInvoiceTable
+    from "./SalesInvoiceTable";
+
+import SalesInvoicePagination
+    from "./SalesInvoicePagination";
+
+import DeleteSalesInvoiceDialog
+    from "./DeleteSalesInvoiceDialog";
 
 import "./SalesInvoices.css";
 
@@ -31,7 +45,8 @@ import "./SalesInvoices.css";
 // SERVER URL
 // =========================================================
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+    "http://localhost:5000";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -42,34 +57,61 @@ const DEFAULT_PAGE_SIZE = 10;
 
 const SalesInvoiceList = () => {
 
-    const [salesInvoices, setSalesInvoices] =
-        useState([]);
+    const navigate = useNavigate();
 
-    const [loading, setLoading] =
-        useState(true);
 
-    const [searchText, setSearchText] =
-        useState("");
+    // =========================================================
+    // STATE
+    // =========================================================
 
-    const [page, setPage] =
-        useState(1);
+    const [
+        salesInvoices,
+        setSalesInvoices
+    ] = useState([]);
 
-    const [pageSize, setPageSize] =
-        useState(DEFAULT_PAGE_SIZE);
 
-    const [modalOpen, setModalOpen] =
-        useState(false);
+    const [
+        loading,
+        setLoading
+    ] = useState(true);
 
-    const [viewOpen, setViewOpen] =
-        useState(false);
 
-    const [deleteOpen, setDeleteOpen] =
-        useState(false);
+    const [
+        searchText,
+        setSearchText
+    ] = useState("");
 
-    const [selectedInvoice, setSelectedInvoice] =
-        useState(null);
 
-    const [snackbar, setSnackbar] = useState({
+    const [
+        page,
+        setPage
+    ] = useState(1);
+
+
+    const [
+        pageSize,
+        setPageSize
+    ] = useState(
+        DEFAULT_PAGE_SIZE
+    );
+
+
+    const [
+        deleteOpen,
+        setDeleteOpen
+    ] = useState(false);
+
+
+    const [
+        selectedInvoice,
+        setSelectedInvoice
+    ] = useState(null);
+
+
+    const [
+        snackbar,
+        setSnackbar
+    ] = useState({
         open: false,
         severity: "success",
         message: ""
@@ -80,54 +122,63 @@ const SalesInvoiceList = () => {
     // LOAD SALES INVOICES
     // =========================================================
 
-    const loadSalesInvoices = async () => {
+    const loadSalesInvoices = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setLoading(true);
+                setLoading(true);
 
-            const response = await axios.get(
-                `${SERVER_URL}/api/sales-invoices`
-            );
+                const response =
+                    await axios.get(
+                        `${SERVER_URL}/api/sales-invoices`
+                    );
 
-            console.log(
-                "SALES INVOICES:",
-                response.data
-            );
 
-            const data =
-                Array.isArray(response.data)
-                    ? response.data
-                    : [];
+                console.log(
+                    "SALES INVOICES:",
+                    response.data
+                );
 
-            setSalesInvoices(data);
 
-        }
-        catch (error) {
+                const data =
+                    Array.isArray(response.data)
+                        ? response.data
+                        : [];
 
-            console.error(
-                "LOAD SALES INVOICES ERROR:",
-                error
-            );
 
-            setSalesInvoices([]);
+                setSalesInvoices(data);
 
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.response?.data?.message ||
-                    "Failed to load Sales Invoices."
-            });
+            }
+            catch (error) {
 
-        }
-        finally {
+                console.error(
+                    "LOAD SALES INVOICES ERROR:",
+                    error
+                );
 
-            setLoading(false);
 
-        }
+                setSalesInvoices([]);
 
-    };
+
+                setSnackbar({
+                    open: true,
+                    severity: "error",
+                    message:
+                        error.response?.data?.message ||
+                        "Failed to load Sales Invoices."
+                });
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+        []
+    );
 
 
     // =========================================================
@@ -138,189 +189,219 @@ const SalesInvoiceList = () => {
 
         loadSalesInvoices();
 
-    }, []);
+    }, [
+        loadSalesInvoices
+    ]);
 
 
     // =========================================================
     // SEARCH
     // =========================================================
 
-    const filteredInvoices = useMemo(() => {
+    const filteredInvoices =
+        useMemo(() => {
 
-        const searchValue =
-            searchText
-                .toLowerCase()
-                .trim();
+            const searchValue =
+                searchText
+                    .toLowerCase()
+                    .trim();
 
-        if (!searchValue) {
 
-            return salesInvoices;
+            if (!searchValue) {
 
-        }
-
-        return salesInvoices.filter(
-            (invoice) => {
-
-                const invoiceNumber =
-                    invoice.InvoiceNumber ??
-                    invoice.invoiceNumber ??
-                    "";
-
-                const paymentStatus =
-                    invoice.PaymentStatus ??
-                    invoice.paymentStatus ??
-                    "";
-
-                const status =
-                    invoice.Status ??
-                    invoice.status ??
-                    "";
-
-                const remarks =
-                    invoice.Remarks ??
-                    invoice.remarks ??
-                    "";
-
-                const invoiceId =
-                    invoice.SalesInvoiceId ??
-                    invoice.salesInvoiceId;
-
-                const salesOrderId =
-                    invoice.SalesOrderId ??
-                    invoice.salesOrderId;
-
-                const customerId =
-                    invoice.CustomerId ??
-                    invoice.customerId;
-
-                return (
-
-                    String(invoiceNumber)
-                        .toLowerCase()
-                        .includes(searchValue)
-
-                    ||
-
-                    String(paymentStatus)
-                        .toLowerCase()
-                        .includes(searchValue)
-
-                    ||
-
-                    String(status)
-                        .toLowerCase()
-                        .includes(searchValue)
-
-                    ||
-
-                    String(remarks)
-                        .toLowerCase()
-                        .includes(searchValue)
-
-                    ||
-
-                    String(invoiceId ?? "")
-                        .toLowerCase()
-                        .includes(searchValue)
-
-                    ||
-
-                    String(salesOrderId ?? "")
-                        .toLowerCase()
-                        .includes(searchValue)
-
-                    ||
-
-                    String(customerId ?? "")
-                        .toLowerCase()
-                        .includes(searchValue)
-
-                );
+                return salesInvoices;
 
             }
-        );
 
-    }, [
-        salesInvoices,
-        searchText
-    ]);
+
+            return salesInvoices.filter(
+                (invoice) => {
+
+                    const invoiceNumber =
+                        invoice.InvoiceNumber ??
+                        invoice.invoiceNumber ??
+                        "";
+
+
+                    const paymentStatus =
+                        invoice.PaymentStatus ??
+                        invoice.paymentStatus ??
+                        "";
+
+
+                    const status =
+                        invoice.Status ??
+                        invoice.status ??
+                        "";
+
+
+                    const remarks =
+                        invoice.Remarks ??
+                        invoice.remarks ??
+                        "";
+
+
+                    const invoiceId =
+                        invoice.SalesInvoiceId ??
+                        invoice.salesInvoiceId ??
+                        "";
+
+
+                    const salesOrderId =
+                        invoice.SalesOrderId ??
+                        invoice.salesOrderId ??
+                        "";
+
+
+                    const customerId =
+                        invoice.CustomerId ??
+                        invoice.customerId ??
+                        "";
+
+
+                    const companyName =
+                        invoice.CompanyName ??
+                        invoice.companyName ??
+                        "";
+
+
+                    return (
+
+                        String(invoiceNumber)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                        ||
+
+                        String(paymentStatus)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                        ||
+
+                        String(status)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                        ||
+
+                        String(remarks)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                        ||
+
+                        String(invoiceId)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                        ||
+
+                        String(salesOrderId)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                        ||
+
+                        String(customerId)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                        ||
+
+                        String(companyName)
+                            .toLowerCase()
+                            .includes(searchValue)
+
+                    );
+
+                }
+            );
+
+        }, [
+            salesInvoices,
+            searchText
+        ]);
 
 
     // =========================================================
     // STATISTICS
     // =========================================================
 
-    const statistics = useMemo(() => {
+    const statistics =
+        useMemo(() => {
 
-        const totalInvoices =
-            salesInvoices.length;
-
-
-        const totalAmount =
-            salesInvoices.reduce(
-                (sum, item) => {
-
-                    const amount =
-                        item.TotalAmount ??
-                        item.totalAmount ??
-                        0;
-
-                    return sum + Number(amount);
-
-                },
-                0
-            );
+            const totalInvoices =
+                salesInvoices.length;
 
 
-        const paidAmount =
-            salesInvoices.reduce(
-                (sum, item) => {
+            const totalAmount =
+                salesInvoices.reduce(
+                    (sum, item) => {
 
-                    const amount =
-                        item.PaidAmount ??
-                        item.paidAmount ??
-                        0;
+                        const amount =
+                            item.TotalAmount ??
+                            item.totalAmount ??
+                            0;
 
-                    return sum + Number(amount);
+                        return (
+                            sum +
+                            Number(amount)
+                        );
 
-                },
-                0
-            );
-
-
-        const balanceAmount =
-            salesInvoices.reduce(
-                (sum, item) => {
-
-                    const amount =
-                        item.BalanceAmount ??
-                        item.balanceAmount ??
-                        0;
-
-                    return sum + Number(amount);
-
-                },
-                0
-            );
+                    },
+                    0
+                );
 
 
-        const result = {
-            totalInvoices,
-            totalAmount,
-            paidAmount,
-            balanceAmount
-        };
+            const paidAmount =
+                salesInvoices.reduce(
+                    (sum, item) => {
+
+                        const amount =
+                            item.PaidAmount ??
+                            item.paidAmount ??
+                            0;
+
+                        return (
+                            sum +
+                            Number(amount)
+                        );
+
+                    },
+                    0
+                );
 
 
-        console.log(
-            "SALES INVOICE STATISTICS:",
-            result
-        );
+            const balanceAmount =
+                salesInvoices.reduce(
+                    (sum, item) => {
+
+                        const amount =
+                            item.BalanceAmount ??
+                            item.balanceAmount ??
+                            0;
+
+                        return (
+                            sum +
+                            Number(amount)
+                        );
+
+                    },
+                    0
+                );
 
 
-        return result;
+            return {
+                totalInvoices,
+                totalAmount,
+                paidAmount,
+                balanceAmount
+            };
 
-    }, [salesInvoices]);
+        }, [
+            salesInvoices
+        ]);
 
 
     // =========================================================
@@ -335,7 +416,8 @@ const SalesInvoiceList = () => {
         Math.max(
             1,
             Math.ceil(
-                totalRecords / pageSize
+                totalRecords /
+                pageSize
             )
         );
 
@@ -355,7 +437,9 @@ const SalesInvoiceList = () => {
 
         setPage(1);
 
-    }, [searchText]);
+    }, [
+        searchText
+    ]);
 
 
     // =========================================================
@@ -382,22 +466,9 @@ const SalesInvoiceList = () => {
 
     const handleAdd = () => {
 
-        setSelectedInvoice(null);
-
-        setModalOpen(true);
-
-    };
-
-
-    // =========================================================
-    // EDIT
-    // =========================================================
-
-    const handleEdit = (invoice) => {
-
-        setSelectedInvoice(invoice);
-
-        setModalOpen(true);
+        navigate(
+            "/sales-invoices/create"
+        );
 
     };
 
@@ -408,9 +479,46 @@ const SalesInvoiceList = () => {
 
     const handleView = (invoice) => {
 
-        setSelectedInvoice(invoice);
+        const invoiceId =
+            invoice.SalesInvoiceId ??
+            invoice.salesInvoiceId;
 
-        setViewOpen(true);
+
+        if (!invoiceId) {
+
+            return;
+
+        }
+
+
+        navigate(
+            `/sales-invoices/details/${invoiceId}`
+        );
+
+    };
+
+
+    // =========================================================
+    // EDIT
+    // =========================================================
+
+    const handleEdit = (invoice) => {
+
+        const invoiceId =
+            invoice.SalesInvoiceId ??
+            invoice.salesInvoiceId;
+
+
+        if (!invoiceId) {
+
+            return;
+
+        }
+
+
+        navigate(
+            `/sales-invoices/edit/${invoiceId}`
+        );
 
     };
 
@@ -421,7 +529,9 @@ const SalesInvoiceList = () => {
 
     const handleDelete = (invoice) => {
 
-        setSelectedInvoice(invoice);
+        setSelectedInvoice(
+            invoice
+        );
 
         setDeleteOpen(true);
 
@@ -429,95 +539,26 @@ const SalesInvoiceList = () => {
 
 
     // =========================================================
-    // SAVE
-    // CREATE / UPDATE
+    // PRINT
     // =========================================================
 
-    const handleSave = async (invoice) => {
+    const handlePrint = (invoice) => {
 
-        try {
-
-            const invoiceId =
-                invoice.SalesInvoiceId ??
-                invoice.salesInvoiceId;
+        const invoiceId =
+            invoice.SalesInvoiceId ??
+            invoice.salesInvoiceId;
 
 
-            // =====================================================
-            // UPDATE
-            // =====================================================
+        if (!invoiceId) {
 
-            if (invoiceId) {
-
-                await axios.put(
-                    `${SERVER_URL}/api/sales-invoices/${invoiceId}`,
-                    invoice
-                );
-
-
-                setSnackbar({
-                    open: true,
-                    severity: "success",
-                    message:
-                        "Sales Invoice updated successfully."
-                });
-
-            }
-
-
-            // =====================================================
-            // CREATE
-            // =====================================================
-
-            else {
-
-                await axios.post(
-                    `${SERVER_URL}/api/sales-invoices`,
-                    invoice
-                );
-
-
-                setSnackbar({
-                    open: true,
-                    severity: "success",
-                    message:
-                        "Sales Invoice created successfully."
-                });
-
-            }
-
-
-            // =====================================================
-            // CLOSE MODAL
-            // =====================================================
-
-            setModalOpen(false);
-
-            setSelectedInvoice(null);
-
-
-            // =====================================================
-            // RELOAD
-            // =====================================================
-
-            await loadSalesInvoices();
+            return;
 
         }
-        catch (error) {
 
-            console.error(
-                "SAVE SALES INVOICE ERROR:",
-                error
-            );
 
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.response?.data?.message ||
-                    "Unable to save Sales Invoice."
-            });
-
-        }
+        navigate(
+            `/sales-invoices/print/${invoiceId}`
+        );
 
     };
 
@@ -526,49 +567,56 @@ const SalesInvoiceList = () => {
     // DELETE CONFIRM
     // =========================================================
 
-    const handleDeleteConfirm = async (id) => {
+    const handleDeleteConfirm =
+        async (id) => {
 
-        try {
+            try {
 
-            await axios.delete(
-                `${SERVER_URL}/api/sales-invoices/${id}`
-            );
-
-
-            setDeleteOpen(false);
-
-            setSelectedInvoice(null);
+                await axios.delete(
+                    `${SERVER_URL}/api/sales-invoices/${id}`
+                );
 
 
-            setSnackbar({
-                open: true,
-                severity: "success",
-                message:
-                    "Sales Invoice deleted successfully."
-            });
+                setDeleteOpen(
+                    false
+                );
 
 
-            await loadSalesInvoices();
+                setSelectedInvoice(
+                    null
+                );
 
-        }
-        catch (error) {
 
-            console.error(
-                "DELETE SALES INVOICE ERROR:",
-                error
-            );
+                setSnackbar({
+                    open: true,
+                    severity: "success",
+                    message:
+                        "Sales Invoice deleted successfully."
+                });
 
-            setSnackbar({
-                open: true,
-                severity: "error",
-                message:
-                    error.response?.data?.message ||
-                    "Unable to delete Sales Invoice."
-            });
 
-        }
+                await loadSalesInvoices();
 
-    };
+            }
+            catch (error) {
+
+                console.error(
+                    "DELETE SALES INVOICE ERROR:",
+                    error
+                );
+
+
+                setSnackbar({
+                    open: true,
+                    severity: "error",
+                    message:
+                        error.response?.data?.message ||
+                        "Unable to delete Sales Invoice."
+                });
+
+            }
+
+        };
 
 
     // =========================================================
@@ -603,7 +651,9 @@ const SalesInvoiceList = () => {
 
     return (
 
-        <Box className="sales-invoices-container">
+        <Box
+            className="sales-invoices-container"
+        >
 
             {/* ================================================= */}
             {/* TITLE */}
@@ -668,6 +718,7 @@ const SalesInvoiceList = () => {
                         onView={handleView}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        onPrint={handlePrint}
                     />
 
                 </Grid>
@@ -696,41 +747,6 @@ const SalesInvoiceList = () => {
 
 
             {/* ================================================= */}
-            {/* CREATE / EDIT MODAL */}
-            {/* ================================================= */}
-
-            <SalesInvoiceModal
-                open={modalOpen}
-                item={selectedInvoice}
-                onClose={() => {
-
-                    setModalOpen(false);
-
-                    setSelectedInvoice(null);
-
-                }}
-                onSave={handleSave}
-            />
-
-
-            {/* ================================================= */}
-            {/* VIEW */}
-            {/* ================================================= */}
-
-            <SalesInvoiceView
-                open={viewOpen}
-                item={selectedInvoice}
-                onClose={() => {
-
-                    setViewOpen(false);
-
-                    setSelectedInvoice(null);
-
-                }}
-            />
-
-
-            {/* ================================================= */}
             {/* DELETE */}
             {/* ================================================= */}
 
@@ -739,12 +755,18 @@ const SalesInvoiceList = () => {
                 item={selectedInvoice}
                 onClose={() => {
 
-                    setDeleteOpen(false);
+                    setDeleteOpen(
+                        false
+                    );
 
-                    setSelectedInvoice(null);
+                    setSelectedInvoice(
+                        null
+                    );
 
                 }}
-                onDeleted={handleDeleteConfirm}
+                onDeleted={
+                    handleDeleteConfirm
+                }
                 loading={loading}
             />
 
@@ -765,7 +787,9 @@ const SalesInvoiceList = () => {
             >
 
                 <Alert
-                    severity={snackbar.severity}
+                    severity={
+                        snackbar.severity
+                    }
                     variant="filled"
                 >
                     {snackbar.message}

@@ -32,7 +32,6 @@ const formatCurrency = (value) => {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
-
 };
 
 
@@ -90,7 +89,6 @@ const StatCard = ({
                             width: 54,
                             height: 54,
                             minWidth: 54,
-
                             borderRadius: 2,
 
                             display: "flex",
@@ -148,7 +146,6 @@ const StatCard = ({
 
         </Card>
     );
-
 };
 
 
@@ -157,28 +154,20 @@ const StatCard = ({
 ========================================================= */
 
 const SalesInvoiceStatistics = ({
-    statistics
+    statistics = {}
 }) => {
 
-    /*
-        Default values prevent the UI from breaking
-        when the API response is empty/null.
-    */
-
-    const stats = statistics || {};
-
-
     const totalInvoices =
-        Number(stats.totalInvoices) || 0;
+        Number(statistics.totalInvoices) || 0;
 
     const totalAmount =
-        Number(stats.totalAmount) || 0;
+        Number(statistics.totalAmount) || 0;
 
     const paidAmount =
-        Number(stats.paidAmount) || 0;
+        Number(statistics.paidAmount) || 0;
 
     const balanceAmount =
-        Number(stats.balanceAmount) || 0;
+        Number(statistics.balanceAmount) || 0;
 
 
     return (
@@ -279,7 +268,6 @@ const SalesInvoiceStatistics = ({
 
         </Grid>
     );
-
 };
 
 
