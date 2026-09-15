@@ -4844,42 +4844,27 @@ app.get(
 // GET /api/SalesInvoice/:id
 // =====================================================
 
-app.get(
-    "/api/sales-invoices/:id",
-    async (req, res) => {
+app.get("/api/sales-invoices/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const targetUrl = `${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`;
 
-        try {
+        const response = await axios.get(targetUrl, {
+            httpsAgent,
+            responseType: 'json', // Explicitly force JSON parsing
+            timeout: 10000        // Prevent hanging stream timeouts
+        });
 
-            const { id } = req.params;
+        return res.status(200).json(response.data);
 
-            const response = await axios.get(
-                `${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "GET SALES INVOICE ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message: "Failed to load Sales Invoice"
-                    }
-                );
-        }
+    } catch (error) {
+        console.error("❌ GET SALES INVOICE PROXY ERROR:", error.message);
+        return res.status(500).json({
+            message: "Failed to load Sales Invoice",
+            details: error.message
+        });
     }
-);
+});
 
 
 // =====================================================
@@ -32645,12 +32630,450 @@ app.use(
         });
     }
 );
+// ============================================================
+// SELLER CUSTOMER APIs
+// ============================================================
 
 
+// ============================================================
+// GET ALL SELLER CUSTOMERS
+//
+// React:
+// GET /api/SellerCustomer
+//
+// ASP.NET:
+// GET /api/SellerCustomer
+// ============================================================
+
+app.get(
+    "/api/SellerCustomer",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Get all seller customers"
+            );
+
+        }
+
+    }
+);
 
 
+// ============================================================
+// GET CUSTOMERS BY SELLER
+//
+// React:
+// GET /api/SellerCustomer/seller/6
+//
+// ASP.NET:
+// GET /api/SellerCustomer/seller/6
+// ============================================================
+
+app.get(
+    "/api/SellerCustomer/seller/:sellerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/seller/${sellerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Get seller customers"
+            );
+
+        }
+
+    }
+);
 
 
+// ============================================================
+// GET CUSTOMER WITH PRODUCTS
+//
+// React:
+// GET /api/SellerCustomer/6/customers/3
+//
+// ASP.NET:
+// GET /api/SellerCustomer/6/customers/3
+// ============================================================
+
+app.get(
+    "/api/SellerCustomer/:sellerId/customers/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Get customer"
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// GET CUSTOMER BY CODE
+//
+// React:
+// GET /api/SellerCustomer/6/code/CUST-F10EA404
+//
+// ASP.NET:
+// GET /api/SellerCustomer/6/code/CUST-F10EA404
+// ============================================================
+
+app.get(
+    "/api/SellerCustomer/:sellerId/code/:customerCode",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerCode
+            } = req.params;
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/code/${encodeURIComponent(customerCode)}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Get customer by code"
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// FILTER CUSTOMERS
+//
+// React:
+// GET /api/SellerCustomer/filter?sellerId=6&search=TechNova&isActive=true
+//
+// ASP.NET:
+// GET /api/SellerCustomer/filter?sellerId=6&search=TechNova&isActive=true
+// ============================================================
+
+app.get(
+    "/api/SellerCustomer/filter",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                search,
+                isActive
+            } = req.query;
+
+
+            const params = {
+                sellerId
+            };
+
+
+            if (
+                search !== undefined &&
+                search !== null &&
+                search !== ""
+            ) {
+
+                params.search = search;
+
+            }
+
+
+            if (
+                isActive !== undefined &&
+                isActive !== null &&
+                isActive !== ""
+            ) {
+
+                params.isActive = isActive;
+
+            }
+
+
+            const response =
+                await axios.get(
+                    `${DOTNET_API}/SellerCustomer/filter`,
+                    {
+                        params,
+                        httpsAgent
+                    }
+                );
+
+            return res.json(
+                response.data
+            );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Filter seller customers"
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// CREATE SELLER CUSTOMER
+//
+// React:
+// POST /api/SellerCustomer
+//
+// ASP.NET:
+// POST /api/SellerCustomer
+// ============================================================
+
+app.post(
+    "/api/SellerCustomer",
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await axios.post(
+                    `${DOTNET_API}/SellerCustomer`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+            return res
+                .status(
+                    response.status || 201
+                )
+                .json(
+                    response.data
+                );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Create seller customer"
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// UPDATE SELLER CUSTOMER
+//
+// React:
+// PUT /api/SellerCustomer/6/customers/3
+//
+// ASP.NET:
+// PUT /api/SellerCustomer/6/customers/3
+// ============================================================
+
+app.put(
+    "/api/SellerCustomer/:sellerId/customers/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.put(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
+                    req.body,
+                    {
+                        httpsAgent,
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            if (
+                response.status === 204
+            ) {
+
+                return res.sendStatus(
+                    204
+                );
+
+            }
+
+
+            return res
+                .status(
+                    response.status || 200
+                )
+                .json(
+                    response.data
+                );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Update seller customer"
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// DELETE SELLER CUSTOMER
+//
+// React:
+// DELETE /api/SellerCustomer/6/customers/3
+//
+// ASP.NET:
+// DELETE /api/SellerCustomer/6/customers/3
+// ============================================================
+
+app.delete(
+    "/api/SellerCustomer/:sellerId/customers/:customerId",
+    async (req, res) => {
+
+        try {
+
+            const {
+                sellerId,
+                customerId
+            } = req.params;
+
+            const response =
+                await axios.delete(
+                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
+                    {
+                        httpsAgent
+                    }
+                );
+
+
+            if (
+                response.status === 204
+            ) {
+
+                return res.sendStatus(
+                    204
+                );
+
+            }
+
+
+            return res
+                .status(
+                    response.status || 200
+                )
+                .json(
+                    response.data
+                );
+
+        } catch (error) {
+
+            return handleProxyError(
+                res,
+                error,
+                "Delete seller customer"
+            );
+
+        }
+
+    }
+);
 // =========================================================
 // START SERVER
 // =========================================================
