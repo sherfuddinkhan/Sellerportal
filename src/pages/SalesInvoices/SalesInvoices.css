@@ -270,6 +270,46 @@
 }
 
 /* ==========================================================
+   MULTI-COPY PRINT & PDF STYLING
+========================================================== */
+
+.invoice-page {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.copy-badge {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 0;
+    border-bottom: 1px dashed #cccccc;
+    margin-bottom: 12px;
+}
+
+.page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+    height: 0;
+    display: block;
+}
+
+/* ==========================================================
+   INVOICE SECTIONS SPACING
+========================================================== */
+
+.invoice-section {
+    margin-bottom: 24px; /* Adjust this value to increase or decrease the gap */
+}
+
+.invoice-section:last-child {
+    margin-bottom: 0;
+}
+
+/* ==========================================================
    RESPONSIVE MEDIA QUERIES
 ========================================================== */
 
@@ -452,8 +492,25 @@
         display: none !important;
     }
 
+    /* Page separation for multi-set rendering */
+    .invoice-page {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .invoice-section {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 1000px !important; /* Slightly tighter gap optimized for print layout */
+    }
+
     .sales-invoice-table tbody tr {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+    }
+
+    .invoice-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
     }
 }
