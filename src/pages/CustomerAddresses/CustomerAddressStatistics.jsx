@@ -1,14 +1,92 @@
 import React from "react";
-import {Grid,Card,CardContent,Typography,Stack} from "@mui/material";
-import {Home,LocationOn,Star,Public} from "@mui/icons-material";
+
+import {
+    Grid,
+    Card,
+    CardContent,
+    Typography,
+    Stack
+} from "@mui/material";
+
+import {
+    Home,
+    LocationOn,
+    Star,
+    Public
+} from "@mui/icons-material";
+
 
 const CustomerAddressStatistics = ({
     addresses = []
 }) => {
-    const totalAddresses = addresses.length;
-    const defaultAddresses = addresses.filter(address => address.IsDefault).length;
-    const nonDefaultAddresses = totalAddresses - defaultAddresses;
-    const citiesCovered = new Set(addresses.map(item => item.City).filter(Boolean)).size;
+
+    // ============================================================
+    // NORMALIZE ADDRESS DATA
+    // Supports PascalCase + camelCase
+    // ============================================================
+
+    const normalizedAddresses = addresses.map(
+        (address = {}) => ({
+            CustomerAddressId:
+                address.CustomerAddressId ??
+                address.customerAddressId ??
+                0,
+
+            CustomerId:
+                address.CustomerId ??
+                address.customerId ??
+                0,
+
+            AddressType:
+                address.AddressType ??
+                address.addressType ??
+                "",
+
+            City:
+                address.City ??
+                address.city ??
+                "",
+
+            IsDefault:
+                address.IsDefault ??
+                address.isDefault ??
+                false
+        })
+    );
+
+
+    // ============================================================
+    // STATISTICS
+    // ============================================================
+
+    const totalAddresses =
+        normalizedAddresses.length;
+
+
+    const defaultAddresses =
+        normalizedAddresses.filter(
+            address => Boolean(address.IsDefault)
+        ).length;
+
+
+    const nonDefaultAddresses =
+        totalAddresses - defaultAddresses;
+
+
+    const citiesCovered =
+        new Set(
+            normalizedAddresses
+                .map(address =>
+                    address.City?.trim()
+                )
+                .filter(Boolean)
+        ).size;
+
+
+    // ============================================================
+    // STATISTICS CARDS
+    // ============================================================
+
     const statistics = [
         {
             title: "Total Addresses",
@@ -51,14 +129,25 @@ const CustomerAddressStatistics = ({
             color: "info"
         }
     ];
+
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+
     return (
+
         <Grid
             container
             spacing={3}
-            sx={{ mb: 3 }}
+            sx={{
+                mb: 3
+            }}
         >
-            {
-                statistics.map((item, index) => (
+
+            {statistics.map(
+                (item, index) => (
+
                     <Grid
                         item
                         xs={12}
@@ -66,12 +155,14 @@ const CustomerAddressStatistics = ({
                         md={3}
                         key={index}
                     >
+
                         <Card
                             elevation={3}
                             sx={{
                                 borderRadius: 2,
                                 height: "100%",
                                 transition: "0.3s",
+
                                 "&:hover": {
                                     transform:
                                         "translateY(-4px)",
@@ -79,47 +170,62 @@ const CustomerAddressStatistics = ({
                                 }
                             }}
                         >
+
                             <CardContent>
+
                                 <Stack
                                     direction="row"
                                     justifyContent="space-between"
                                     alignItems="center"
                                 >
+
+                                    {/* =================================
+                                        TEXT
+                                    ================================= */}
+
                                     <div>
+
                                         <Typography
                                             variant="subtitle2"
                                             color="text.secondary"
                                         >
-                                            {
-                                                item.title
-                                            }
+                                            {item.title}
                                         </Typography>
+
                                         <Typography
                                             variant="h5"
                                             fontWeight="bold"
                                         >
-                                            {
-                                                item.value
-                                            }
+                                            {item.value}
                                         </Typography>
+
                                     </div>
+
+
+                                    {/* =================================
+                                        ICON
+                                    ================================= */}
+
                                     <Stack
-                                        color={
-                                            `${item.color}.main`
-                                        }
+                                        color={`${item.color}.main`}
                                     >
-                                        {
-                                            item.icon
-                                        }
+                                        {item.icon}
                                     </Stack>
+
                                 </Stack>
+
                             </CardContent>
+
                         </Card>
+
                     </Grid>
-                ))
-            }
+
+                )
+            )}
+
         </Grid>
     );
 };
+
 
 export default CustomerAddressStatistics;

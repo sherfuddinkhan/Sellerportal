@@ -49,6 +49,87 @@ const COPY_TYPES = [
 
 
 // ============================================================
+// TRANSACTION TYPES
+// ============================================================
+
+const TRANSACTION_TYPES = {
+    REG: "REG",
+
+    BILL_TO_SHIP_TO:
+        "Bill To - Ship To",
+
+    BILL_FROM_DISPATCH_FROM:
+        "Bill From - Dispatch From",
+
+    BILL_TO_BILL_TO_SHIP_TO_SHIP_TO:
+        "Bill To - Bill To - Ship To - Ship To"
+};
+
+
+// ============================================================
+// NORMALIZE TRANSACTION TYPE
+// ============================================================
+
+const normalizeTransactionType = (value) => {
+
+    const type =
+        String(value || "").trim();
+
+
+    // TYPE 1
+    if (
+        !type ||
+        type === "REG" ||
+        type === "Regular" ||
+        type === "Bill To = Ship To" ||
+        type === "Bill To - Ship To Same"
+    ) {
+        return TRANSACTION_TYPES.REG;
+    }
+
+
+    // TYPE 2
+    if (
+        type === "Bill To - Ship To" ||
+        type === "BILL TO - SHIP TO"
+    ) {
+        return TRANSACTION_TYPES.BILL_TO_SHIP_TO;
+    }
+
+
+    // TYPE 3
+    if (
+        type === "Bill From - Dispatch From" ||
+        type === "Bill From - Ship From" ||
+        type === "BILL FROM - DISPATCH FROM" ||
+        type === "BILL FROM - SHIP FROM"
+    ) {
+        return TRANSACTION_TYPES.BILL_FROM_DISPATCH_FROM;
+    }
+
+
+    // TYPE 4
+    if (
+        type ===
+            "Bill To - Bill To - Ship To - Ship To" ||
+        type ===
+            "BILL TO - BILL TO - SHIP TO - SHIP TO" ||
+        type ===
+            "BILL TO BILL TO - SHIP TO SHIP TO" ||
+        type === "COMBINED"
+    ) {
+        return (
+            TRANSACTION_TYPES
+                .BILL_TO_BILL_TO_SHIP_TO_SHIP_TO
+        );
+    }
+
+
+    return TRANSACTION_TYPES.REG;
+};
+
+
+// ============================================================
 // HELPERS
 // ============================================================
 
@@ -276,6 +357,7 @@ const SalesInvoicePrint = () => {
 
     const invoiceRef = useRef(null);
 
+
     const [invoice, setInvoice] =
         useState(null);
 
@@ -290,7 +372,7 @@ const SalesInvoicePrint = () => {
 
 
     // ========================================================
-    // LOAD INVOICE DATA
+    // LOAD INVOICE
     // ========================================================
 
     const loadInvoiceData =
@@ -426,7 +508,8 @@ const SalesInvoicePrint = () => {
 
                             if (Array.isArray(data)) {
 
-                                salesOrderItems = data;
+                                salesOrderItems =
+                                    data;
 
                             } else if (data?.$values) {
 
@@ -613,8 +696,6 @@ const SalesInvoicePrint = () => {
         salesOrder?.GSTIN ||
         invoice?.sellerGSTIN ||
         invoice?.SellerGSTIN ||
-        invoice?.customerGSTIN ||
-        invoice?.CustomerGSTIN ||
         "36ABCDE1234F1Z5";
 
 
@@ -668,6 +749,24 @@ const SalesInvoicePrint = () => {
         .join(", ");
 
 
+    const buyerCity =
+        customer?.city ||
+        customer?.City ||
+        "";
+
+
+    const buyerState =
+        customer?.state ||
+        customer?.State ||
+        "";
+
+
+    const buyerPIN =
+        customer?.postalCode ||
+        customer?.PostalCode ||
+        "";
+
+
     const buyerPhone =
         customer?.phone ||
         customer?.Phone ||
@@ -684,6 +783,170 @@ const SalesInvoicePrint = () => {
         customer?.gstin ||
         customer?.GSTIN ||
         "29KLMNO7890P1Z3";
+
+
+    // ============================================================
+    // TRANSACTION TYPE
+    // ============================================================
+
+    const transactionType =
+        normalizeTransactionType(
+            invoice?.transactionType ||
+            invoice?.TransactionType ||
+            salesOrder?.transactionType ||
+            salesOrder?.TransactionType ||
+            "REG"
+        );
+
+
+    const isRegularTransaction =
+        transactionType ===
+        TRANSACTION_TYPES.REG;
+
+
+    const isBillToShipTo =
+        transactionType ===
+        TRANSACTION_TYPES.BILL_TO_SHIP_TO;
+
+
+    const isBillFromDispatchFrom =
+        transactionType ===
+        TRANSACTION_TYPES.BILL_FROM_DISPATCH_FROM;
+
+
+    const isBillToBillToShipToShipTo =
+        transactionType ===
+        TRANSACTION_TYPES
+            .BILL_TO_BILL_TO_SHIP_TO_SHIP_TO;
+
+
+    // ============================================================
+    // SHIP TO
+    //
+    // TYPE 2 + TYPE 4
+    // ============================================================
+
+    const shipToGSTIN =
+        invoice?.buyerClients?.gstin ||
+        invoice?.buyerClients?.GSTIN ||
+        customer?.gstin ||
+        customer?.GSTIN ||
+        buyerGstin ||
+        "";
+
+
+    const shipToName =
+        invoice?.buyerClients?.companyName?.trim() ||
+        invoice?.buyerClients?.tradeName?.trim() ||
+        invoice?.buyerClients?.legalName?.trim() ||
+        customer?.tradeName ||
+        customer?.legalName ||
+        customer?.customerName ||
+        "";
+
+
+    const shipToAddress =
+        invoice?.buyerClients?.officeAddress?.trim() ||
+        invoice?.buyerClients?.address?.trim() ||
+        buyerAddress ||
+        "";
+
+
+    const shipToCity =
+        invoice?.buyerClients?.city ||
+        invoice?.buyerClients?.City ||
+        buyerCity ||
+        "";
+
+
+    const shipToState =
+        invoice?.buyerClients?.masterStateNames?.stateName ||
+        invoice?.buyerClients?.state ||
+        invoice?.buyerClients?.State ||
+        buyerState ||
+        "";
+
+
+    const shipToStateCode =
+        invoice?.buyerClients?.masterStateNames?.stateCode ||
+        invoice?.buyerClients?.stateCode ||
+        invoice?.buyerClients?.StateCode ||
+        invoice?.stateCode ||
+        "";
+
+
+    const shipToPIN =
+        invoice?.buyerClients?.pinCode ||
+        invoice?.buyerClients?.PinCode ||
+        invoice?.buyerClients?.poBox?.match(
+            /\b\d{6}\b/
+        )?.[0] ||
+        buyerPIN ||
+        "";
+
+
+    // ============================================================
+    // DISPATCH FROM / SHIP FROM
+    //
+    // TYPE 3 + TYPE 4
+    // ============================================================
+
+    const dispatchFromGSTIN =
+        invoice?.companyBranches?.gstin ||
+        invoice?.companyBranches?.GSTIN ||
+        invoice?.companyBranch?.gstin ||
+        sellerGstin ||
+        "";
+
+
+    const dispatchFromName =
+        invoice?.companyBranches?.companyName?.trim() ||
+        invoice?.companyBranches?.tradeName?.trim() ||
+        invoice?.company_Name?.trim() ||
+        sellerName ||
+        "";
+
+
+    const dispatchFromAddress =
+        invoice?.addressForIRN?.trim() ||
+        invoice?.companyBranches?.officeAddress?.trim() ||
+        invoice?.companyBranches?.address?.trim() ||
+        invoice?.companyBranch?.address?.trim() ||
+        sellerAddress ||
+        "";
+
+
+    const dispatchFromCity =
+        invoice?.company_City ||
+        invoice?.companyBranches?.city ||
+        invoice?.companyBranches?.City ||
+        sellerCity ||
+        "";
+
+
+    const dispatchFromState =
+        invoice?.company_State ||
+        invoice?.companyBranches?.state ||
+        invoice?.companyBranches?.State ||
+        sellerState ||
+        "";
+
+
+    const dispatchFromStateCode =
+        invoice?.companyBranches?.stateCode ||
+        invoice?.companyBranches?.StateCode ||
+        salesOrder?.stateCode ||
+        sellerState ||
+        "";
+
+
+    const dispatchFromPIN =
+        invoice?.companyBranches?.pinCode ||
+        invoice?.companyBranches?.PinCode ||
+        invoice?.companyBranches?.PINCode ||
+        invoice?.companyBranch?.pinCode ||
+        sellerPIN ||
+        "";
 
 
     // ============================================================
@@ -997,293 +1260,43 @@ const SalesInvoicePrint = () => {
                         grandTotal,
 
                     buyerGstin:
-                        buyerGstin
+                        buyerGstin,
+
+                    transactionType:
+                        transactionType
+
                 }),
             [
                 sellerGstin,
                 invoiceNo,
                 invoiceDate,
                 grandTotal,
-                buyerGstin
+                buyerGstin,
+                transactionType
             ]
         );
 
 
     // ============================================================
-    // DOWNLOAD FOUR A4 PAGES
-    //
-    // IMPORTANT:
-    // We DO NOT use html2pdf here.
-    //
-    // Each invoice page is captured independently and placed
-    // directly onto one jsPDF A4 page.
+    // DOWNLOAD PDF
     // ============================================================
 
-    // ============================================================
-// DOWNLOAD FOUR A4 PAGES
-//
-// UI IS NOT CHANGED.
-//
-// Each invoice copy is:
-// 1. Cloned
-// 2. Placed into an isolated A4 container
-// 3. Rendered independently
-// 4. Captured with html2canvas
-// 5. Added to exactly one jsPDF A4 page
-// ============================================================
+    const handleDownloadPDF = async () => {
 
-const handleDownloadPDF = async () => {
-
-    if (
-        !invoiceRef.current ||
-        !invoice
-    ) {
-        return;
-    }
-
-    try {
-
-        setDownloading(true);
-
-        setError("");
-
-
-        // ========================================================
-        // WAIT FOR COMPLETE UI RENDER
-        // ========================================================
-
-        await new Promise((resolve) => {
-
-            requestAnimationFrame(() => {
-
-                requestAnimationFrame(() => {
-
-                    setTimeout(
-                        resolve,
-                        500
-                    );
-
-                });
-
-            });
-
-        });
-
-
-        // ========================================================
-        // GET EXACTLY FOUR INVOICE COPIES
-        // ========================================================
-
-        const pages =
-            Array.from(
-                invoiceRef.current.querySelectorAll(
-                    ".invoice-page"
-                )
-            );
-
-
-        if (pages.length !== 4) {
-
-            throw new Error(
-                `Expected 4 invoice pages but found ${pages.length}.`
-            );
-
+        if (
+            !invoiceRef.current ||
+            !invoice
+        ) {
+            return;
         }
 
 
-        // ========================================================
-        // CREATE A4 PDF
-        // ========================================================
+        try {
 
-        const pdf =
-            new jsPDF({
-                orientation: "portrait",
-                unit: "mm",
-                format: "a4",
-                compress: true
-            });
+            setDownloading(true);
 
+            setError("");
 
-        // ========================================================
-        // SAFE FILE NAME
-        // ========================================================
-
-        const safeFileName =
-            String(
-                invoiceNo ||
-                invoice?.InvoiceNumber ||
-                "Sales-Invoice"
-            )
-                .replace(
-                    /[\\/:*?"<>|]/g,
-                    "-"
-                )
-                .trim();
-
-
-        // ========================================================
-        // PROCESS EACH COPY
-        // ========================================================
-
-        for (
-            let index = 0;
-            index < pages.length;
-            index++
-        ) {
-
-            const originalPage =
-                pages[index];
-
-
-            // ====================================================
-            // CREATE ISOLATED CONTAINER
-            // ====================================================
-
-            const container =
-                document.createElement(
-                    "div"
-                );
-
-
-            container.style.position =
-                "fixed";
-
-            container.style.left =
-                "0px";
-
-            container.style.top =
-                "0px";
-
-            container.style.width =
-                "210mm";
-
-            container.style.height =
-                "297mm";
-
-            container.style.margin =
-                "0";
-
-            container.style.padding =
-                "0";
-
-            container.style.backgroundColor =
-                "#ffffff";
-
-            container.style.overflow =
-                "hidden";
-
-            container.style.zIndex =
-                "2147483647";
-
-            container.style.display =
-                "block";
-
-            container.style.visibility =
-                "visible";
-
-            container.style.opacity =
-                "1";
-
-            container.style.pointerEvents =
-                "none";
-
-
-            // ====================================================
-            // CLONE CURRENT UI
-            //
-            // IMPORTANT:
-            // This does NOT create a new invoice design.
-            //
-            // It copies the exact existing invoice page.
-            // ====================================================
-
-            const page =
-                originalPage.cloneNode(
-                    true
-                );
-
-
-            // ====================================================
-            // FORCE EXACT A4 BOUNDARY
-            // ====================================================
-
-            page.style.width =
-                "210mm";
-
-            page.style.height =
-                "297mm";
-
-            page.style.minWidth =
-                "210mm";
-
-            page.style.minHeight =
-                "297mm";
-
-            page.style.maxWidth =
-                "210mm";
-
-            page.style.maxHeight =
-                "297mm";
-
-            page.style.margin =
-                "0";
-
-            page.style.padding =
-                "6mm";
-
-            page.style.boxSizing =
-                "border-box";
-
-            page.style.overflow =
-                "hidden";
-
-            page.style.backgroundColor =
-                "#ffffff";
-
-            page.style.color =
-                "#000000";
-
-            page.style.position =
-                "relative";
-
-            page.style.left =
-                "0";
-
-            page.style.top =
-                "0";
-
-            page.style.transform =
-                "none";
-
-            page.style.visibility =
-                "visible";
-
-            page.style.display =
-                "block";
-
-            page.style.flex =
-                "none";
-
-            page.style.flexShrink =
-                "0";
-
-
-            // ====================================================
-            // APPEND CLONE
-            // ====================================================
-
-            container.appendChild(
-                page
-            );
-
-            document.body.appendChild(
-                container
-            );
-
-
-            // ====================================================
-            // WAIT FOR CLONE TO RENDER
-            // ====================================================
 
             await new Promise((resolve) => {
 
@@ -1293,7 +1306,7 @@ const handleDownloadPDF = async () => {
 
                         setTimeout(
                             resolve,
-                            200
+                            500
                         );
 
                     });
@@ -1303,236 +1316,371 @@ const handleDownloadPDF = async () => {
             });
 
 
-            // ====================================================
-            // FORCE TABLE DIMENSIONS
-            // ====================================================
-
-            const tables =
-                page.querySelectorAll(
-                    "table"
+            const pages =
+                Array.from(
+                    invoiceRef.current.querySelectorAll(
+                        ".invoice-page"
+                    )
                 );
 
 
-            tables.forEach((table) => {
+            if (pages.length !== 4) {
 
-                table.style.width =
-                    "100%";
+                throw new Error(
+                    `Expected 4 invoice pages but found ${pages.length}.`
+                );
+            }
 
-                table.style.maxWidth =
-                    "100%";
 
-                table.style.tableLayout =
+            const pdf =
+                new jsPDF({
+                    orientation: "portrait",
+                    unit: "mm",
+                    format: "a4",
+                    compress: true
+                });
+
+
+            const safeFileName =
+                String(
+                    invoiceNo ||
+                    invoice?.InvoiceNumber ||
+                    "Sales-Invoice"
+                )
+                    .replace(
+                        /[\\/:*?"<>|]/g,
+                        "-"
+                    )
+                    .trim();
+
+
+            for (
+                let index = 0;
+                index < pages.length;
+                index++
+            ) {
+
+                const originalPage =
+                    pages[index];
+
+
+                const container =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                container.style.position =
                     "fixed";
 
-                table.style.borderCollapse =
-                    "collapse";
+                container.style.left =
+                    "0px";
 
-                table.style.boxSizing =
+                container.style.top =
+                    "0px";
+
+                container.style.width =
+                    "210mm";
+
+                container.style.height =
+                    "297mm";
+
+                container.style.margin =
+                    "0";
+
+                container.style.padding =
+                    "0";
+
+                container.style.background =
+                    "#ffffff";
+
+                container.style.overflow =
+                    "hidden";
+
+                container.style.zIndex =
+                    "2147483647";
+
+                container.style.display =
+                    "block";
+
+                container.style.visibility =
+                    "visible";
+
+                container.style.opacity =
+                    "1";
+
+                container.style.pointerEvents =
+                    "none";
+
+
+                const page =
+                    originalPage.cloneNode(
+                        true
+                    );
+
+
+                page.style.width =
+                    "210mm";
+
+                page.style.height =
+                    "297mm";
+
+                page.style.minWidth =
+                    "210mm";
+
+                page.style.minHeight =
+                    "297mm";
+
+                page.style.maxWidth =
+                    "210mm";
+
+                page.style.maxHeight =
+                    "297mm";
+
+                page.style.margin =
+                    "0";
+
+                page.style.padding =
+                    "6mm";
+
+                page.style.boxSizing =
                     "border-box";
 
-            });
+                page.style.overflow =
+                    "hidden";
+
+                page.style.backgroundColor =
+                    "#ffffff";
+
+                page.style.position =
+                    "relative";
+
+                page.style.left =
+                    "0";
+
+                page.style.top =
+                    "0";
+
+                page.style.transform =
+                    "none";
+
+                page.style.visibility =
+                    "visible";
+
+                page.style.display =
+                    "block";
+
+                page.style.flex =
+                    "none";
+
+                page.style.flexShrink =
+                    "0";
 
 
-            // ====================================================
-            // GET ACTUAL A4 PIXEL SIZE
-            // ====================================================
+                container.appendChild(
+                    page
+                );
 
-            const width =
-                page.offsetWidth;
-
-            const height =
-                page.offsetHeight;
+                document.body.appendChild(
+                    container
+                );
 
 
-            if (
-                !width ||
-                !height
-            ) {
+                await new Promise((resolve) => {
+
+                    requestAnimationFrame(() => {
+
+                        requestAnimationFrame(() => {
+
+                            setTimeout(
+                                resolve,
+                                200
+                            );
+
+                        });
+
+                    });
+
+                });
+
+
+                const tables =
+                    page.querySelectorAll(
+                        "table"
+                    );
+
+
+                tables.forEach(
+                    (table) => {
+
+                        table.style.width =
+                            "100%";
+
+                        table.style.maxWidth =
+                            "100%";
+
+                        table.style.tableLayout =
+                            "fixed";
+
+                        table.style.borderCollapse =
+                            "collapse";
+
+                        table.style.boxSizing =
+                            "border-box";
+
+                    }
+                );
+
+
+                const width =
+                    page.offsetWidth;
+
+
+                const height =
+                    page.offsetHeight;
+
 
                 if (
-                    container.parentNode
+                    !width ||
+                    !height
                 ) {
 
-                    container.parentNode.removeChild(
-                        container
-                    );
+                    container.remove();
 
+                    throw new Error(
+                        `Unable to determine dimensions for invoice copy ${index + 1}.`
+                    );
                 }
 
-                throw new Error(
-                    `Unable to determine dimensions for invoice copy ${index + 1}.`
-                );
 
-            }
+                let canvas;
 
 
-            // ====================================================
-            // CAPTURE THIS COPY ONLY
-            // ====================================================
+                try {
 
-            let canvas;
+                    canvas =
+                        await html2canvas(
+                            page,
+                            {
 
+                                scale: 2,
 
-            try {
-
-                canvas =
-                    await html2canvas(
-                        page,
-                        {
-
-                            scale: 2,
-
-                            width:
                                 width,
 
-                            height:
                                 height,
 
-                            windowWidth:
-                                width,
+                                windowWidth:
+                                    width,
 
-                            windowHeight:
-                                height,
+                                windowHeight:
+                                    height,
 
-                            x: 0,
+                                x: 0,
 
-                            y: 0,
+                                y: 0,
 
-                            scrollX: 0,
+                                scrollX: 0,
 
-                            scrollY: 0,
+                                scrollY: 0,
 
-                            backgroundColor:
-                                "#ffffff",
+                                backgroundColor:
+                                    "#ffffff",
 
-                            useCORS:
-                                true,
+                                useCORS:
+                                    true,
 
-                            allowTaint:
-                                false,
+                                allowTaint:
+                                    false,
 
-                            foreignObjectRendering:
-                                false,
+                                foreignObjectRendering:
+                                    false,
 
-                            imageTimeout:
-                                15000,
+                                imageTimeout:
+                                    15000,
 
-                            logging:
-                                false
+                                logging:
+                                    false
+                            }
+                        );
 
-                        }
-                    );
+                } finally {
 
-            } finally {
+                    if (
+                        container.parentNode
+                    ) {
 
-                // ================================================
-                // REMOVE TEMPORARY COPY
-                // ================================================
+                        container.parentNode.removeChild(
+                            container
+                        );
+                    }
+                }
+
 
                 if (
-                    container.parentNode
+                    !canvas ||
+                    canvas.width <= 0 ||
+                    canvas.height <= 0
                 ) {
 
-                    container.parentNode.removeChild(
-                        container
+                    throw new Error(
+                        `Unable to capture invoice copy ${index + 1}.`
                     );
-
                 }
 
+
+                if (index > 0) {
+
+                    pdf.addPage(
+                        "a4",
+                        "portrait"
+                    );
+                }
+
+
+                const imageData =
+                    canvas.toDataURL(
+                        "image/jpeg",
+                        0.98
+                    );
+
+
+                pdf.addImage(
+                    imageData,
+                    "JPEG",
+                    0,
+                    0,
+                    210,
+                    297,
+                    undefined,
+                    "FAST"
+                );
             }
 
 
-            // ====================================================
-            // VALIDATE CANVAS
-            // ====================================================
-
-            if (
-                !canvas ||
-                canvas.width <= 0 ||
-                canvas.height <= 0
-            ) {
-
-                throw new Error(
-                    `Unable to capture invoice copy ${index + 1}.`
-                );
-
-            }
-
-
-            // ====================================================
-            // ADD NEW PDF PAGE
-            //
-            // First copy uses the jsPDF initial page.
-            // Copies 2, 3 and 4 each get their own page.
-            // ====================================================
-
-            if (index > 0) {
-
-                pdf.addPage(
-                    "a4",
-                    "portrait"
-                );
-
-            }
-
-
-            // ====================================================
-            // CONVERT CANVAS TO IMAGE
-            // ====================================================
-
-            const imageData =
-                canvas.toDataURL(
-                    "image/jpeg",
-                    0.98
-                );
-
-
-            // ====================================================
-            // EXACT A4 DIMENSIONS
-            // ====================================================
-
-            pdf.addImage(
-                imageData,
-                "JPEG",
-                0,
-                0,
-                210,
-                297,
-                undefined,
-                "FAST"
+            pdf.save(
+                `${safeFileName}-All-Copies.pdf`
             );
 
+
+        } catch (err) {
+
+            console.error(
+                "PDF Download Error:",
+                err
+            );
+
+
+            setError(
+                err?.message ||
+                "Unable to generate PDF. Please try again."
+            );
+
+        } finally {
+
+            setDownloading(false);
         }
+    };
 
-
-        // ========================================================
-        // SAVE
-        // ========================================================
-
-        pdf.save(
-            `${safeFileName}-All-Copies.pdf`
-        );
-
-
-    } catch (err) {
-
-        console.error(
-            "PDF Download Error:",
-            err
-        );
-
-
-        setError(
-            err?.message ||
-            "Unable to generate PDF. Please try again."
-        );
-
-    } finally {
-
-        setDownloading(false);
-
-    }
-};
 
     // ============================================================
     // LOADING
@@ -1718,11 +1866,9 @@ const handleDownloadPDF = async () => {
                             downloading
                         }
                     >
-
                         {downloading
                             ? "Generating 4 Pages..."
                             : "Download All 4 Copies (PDF)"}
-
                     </Button>
 
                 </Stack>
@@ -1778,7 +1924,7 @@ const handleDownloadPDF = async () => {
             >
 
                 {/* ==================================================
-                    FOUR INDEPENDENT A4 PAGES
+                    FOUR COPIES
                 ================================================== */}
 
                 {COPY_TYPES.map(
@@ -1794,10 +1940,6 @@ const handleDownloadPDF = async () => {
                             elevation={0}
 
                             sx={{
-
-                                // ======================================
-                                // EXACT A4 SIZE
-                                // ======================================
 
                                 width:
                                     "210mm",
@@ -1817,11 +1959,6 @@ const handleDownloadPDF = async () => {
                                 maxHeight:
                                     "297mm",
 
-
-                                // ======================================
-                                // CRITICAL
-                                // ======================================
-
                                 boxSizing:
                                     "border-box",
 
@@ -1831,28 +1968,13 @@ const handleDownloadPDF = async () => {
                                 flexShrink:
                                     0,
 
-
-                                // ======================================
-                                // NO EXTERNAL SPACE
-                                // ======================================
-
                                 margin: 0,
 
                                 padding:
                                     "6mm",
 
-
-                                // ======================================
-                                // KEEP EVERYTHING INSIDE
-                                // ======================================
-
                                 overflow:
                                     "hidden",
-
-
-                                // ======================================
-                                // VISUAL
-                                // ======================================
 
                                 backgroundColor:
                                     "#ffffff",
@@ -1863,18 +1985,8 @@ const handleDownloadPDF = async () => {
                                 border:
                                     "1px solid #000",
 
-
-                                // ======================================
-                                // FONT
-                                // ======================================
-
                                 fontFamily:
                                     "'Segoe UI', Roboto, Arial, sans-serif",
-
-
-                                // ======================================
-                                // TABLE
-                                // ======================================
 
                                 "& table": {
 
@@ -1893,7 +2005,6 @@ const handleDownloadPDF = async () => {
                                     boxSizing:
                                         "border-box"
                                 },
-
 
                                 "& th, & td": {
 
@@ -1921,11 +2032,6 @@ const handleDownloadPDF = async () => {
                                     overflowWrap:
                                         "anywhere"
                                 },
-
-
-                                // ======================================
-                                // PRINT
-                                // ======================================
 
                                 "@media print": {
 
@@ -1983,10 +2089,7 @@ const handleDownloadPDF = async () => {
 
                                     pb: 0.5,
 
-                                    mb: 0.5,
-
-                                    boxSizing:
-                                        "border-box"
+                                    mb: 0.5
                                 }}
                             >
 
@@ -1998,10 +2101,7 @@ const handleDownloadPDF = async () => {
                                             "flex",
 
                                         justifyContent:
-                                            "flex-start",
-
-                                        overflow:
-                                            "hidden"
+                                            "flex-start"
                                     }}
                                 >
 
@@ -2185,7 +2285,7 @@ const handleDownloadPDF = async () => {
 
 
                             {/* ==================================================
-                                BUYER + DOCUMENT
+                                BILL TO + DOCUMENT
                             ================================================== */}
 
                             <Box
@@ -2207,7 +2307,7 @@ const handleDownloadPDF = async () => {
                                 }}
                             >
 
-                                {/* BUYER */}
+                                {/* BILL TO */}
 
                                 <Box
                                     sx={{
@@ -2246,10 +2346,7 @@ const handleDownloadPDF = async () => {
                                                 "bold",
 
                                             lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                1.1
                                         }}
                                     >
                                         {buyerName}
@@ -2262,10 +2359,7 @@ const handleDownloadPDF = async () => {
                                                 "9px",
 
                                             lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                1.1
                                         }}
                                     >
                                         {buyerAddress || "-"}
@@ -2294,10 +2388,7 @@ const handleDownloadPDF = async () => {
                                                 "9px",
 
                                             lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                1.1
                                         }}
                                     >
                                         Phone:{" "}
@@ -2325,9 +2416,7 @@ const handleDownloadPDF = async () => {
                                     <Typography
                                         sx={{
                                             fontSize:
-                                                "9px",
-                                            lineHeight:
-                                                1.1
+                                                "9px"
                                         }}
                                     >
                                         <strong>
@@ -2340,9 +2429,7 @@ const handleDownloadPDF = async () => {
                                     <Typography
                                         sx={{
                                             fontSize:
-                                                "9px",
-                                            lineHeight:
-                                                1.1
+                                                "9px"
                                         }}
                                     >
                                         <strong>
@@ -2357,59 +2444,45 @@ const handleDownloadPDF = async () => {
                                     <Typography
                                         sx={{
                                             fontSize:
-                                                "9px",
-                                            lineHeight:
-                                                1.1
+                                                "9px"
                                         }}
                                     >
                                         <strong>
                                             SO No:
                                         </strong>{" "}
-                                        {salesOrderNo}{" "}
-                                        (
+                                        {salesOrderNo} (
                                         {formatDate(
                                             salesOrderDate
-                                        )}
-                                        )
+                                        )})
                                     </Typography>
 
 
                                     <Typography
                                         sx={{
                                             fontSize:
-                                                "9px",
-                                            lineHeight:
-                                                1.1
+                                                "9px"
                                         }}
                                     >
                                         <strong>
                                             PO Ref:
                                         </strong>{" "}
-                                        {purchaseOrderNo}{" "}
-                                        (
+                                        {purchaseOrderNo} (
                                         {formatDate(
                                             purchaseOrderDate
-                                        )}
-                                        )
+                                        )})
                                     </Typography>
 
 
                                     <Typography
                                         sx={{
                                             fontSize:
-                                                "9px",
-                                            lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                "9px"
                                         }}
                                     >
                                         <strong>
                                             Place of Supply:
                                         </strong>{" "}
-                                        {placeOfSupply}{" "}
-                                        (State Code:{" "}
+                                        {placeOfSupply} (
                                         {stateCode})
                                     </Typography>
 
@@ -2417,19 +2490,22 @@ const handleDownloadPDF = async () => {
                                     <Typography
                                         sx={{
                                             fontSize:
-                                                "9px",
-                                            lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                "9px"
                                         }}
                                     >
                                         <strong>
                                             E-Way Bill:
                                         </strong>{" "}
                                         {eWayBillNo}
-                                        {" | "}
+                                    </Typography>
+
+
+                                    <Typography
+                                        sx={{
+                                            fontSize:
+                                                "9px"
+                                        }}
+                                    >
                                         <strong>
                                             Vehicle:
                                         </strong>{" "}
@@ -2440,21 +2516,799 @@ const handleDownloadPDF = async () => {
                                     <Typography
                                         sx={{
                                             fontSize:
-                                                "9px",
-                                            lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                "9px"
                                         }}
                                     >
                                         <strong>
-                                            Despatched Via:
+                                            Transport:
                                         </strong>{" "}
                                         {transportMode}
                                     </Typography>
 
                                 </Box>
+
+                            </Box>
+
+
+                            {/* ==================================================
+                                TRANSACTION SCENARIO
+                            ================================================== */}
+
+                            <Box
+                                sx={{
+                                    width: "100%",
+
+                                    border:
+                                        "1px solid #000",
+
+                                    mb:
+                                        0.5,
+
+                                    boxSizing:
+                                        "border-box"
+                                }}
+                            >
+
+                                {/* TITLE */}
+
+                                <Box
+                                    sx={{
+                                        px: 0.7,
+
+                                        py: 0.35,
+
+                                        borderBottom:
+                                            "1px solid #000",
+
+                                        backgroundColor:
+                                            "#f0f0f0"
+                                    }}
+                                >
+
+                                    <Typography
+                                        sx={{
+                                            fontSize:
+                                                "9px",
+
+                                            fontWeight:
+                                                "bold"
+                                        }}
+                                    >
+                                        Transaction Type:{" "}
+                                        {transactionType}
+                                    </Typography>
+
+                                </Box>
+
+
+                                {/* ==================================================
+                                    TYPE 1
+                                    REG
+                                    BILL TO = SHIP TO
+                                ================================================== */}
+
+                                {isRegularTransaction && (
+
+                                    <Box
+                                        sx={{
+                                            display:
+                                                "flex"
+                                        }}
+                                    >
+
+                                        <Box
+                                            sx={{
+                                                width:
+                                                    "50%",
+
+                                                p:
+                                                    0.7,
+
+                                                borderRight:
+                                                    "1px solid #000"
+                                            }}
+                                        >
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8.5px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                Bill To
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                {buyerName}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                GSTIN:{" "}
+                                                {buyerGstin}
+                                            </Typography>
+
+                                        </Box>
+
+
+                                        <Box
+                                            sx={{
+                                                width:
+                                                    "50%",
+
+                                                p:
+                                                    0.7
+                                            }}
+                                        >
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8.5px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                Ship To
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                Same as Bill To
+                                            </Typography>
+
+                                        </Box>
+
+                                    </Box>
+                                )}
+
+
+                                {/* ==================================================
+                                    TYPE 2
+                                    BILL TO - SHIP TO
+                                ================================================== */}
+
+                                {isBillToShipTo && (
+
+                                    <Box
+                                        sx={{
+                                            display:
+                                                "flex"
+                                        }}
+                                    >
+
+                                        {/* BILL TO */}
+
+                                        <Box
+                                            sx={{
+                                                width:
+                                                    "50%",
+
+                                                p:
+                                                    0.7,
+
+                                                borderRight:
+                                                    "1px solid #000"
+                                            }}
+                                        >
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8.5px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                Bill To
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                {buyerName}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                {buyerAddress || "-"}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                GSTIN:{" "}
+                                                {buyerGstin}
+                                            </Typography>
+
+                                        </Box>
+
+
+                                        {/* SHIP TO */}
+
+                                        <Box
+                                            sx={{
+                                                width:
+                                                    "50%",
+
+                                                p:
+                                                    0.7
+                                            }}
+                                        >
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8.5px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                Ship To
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                {shipToName || "-"}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                {shipToAddress || "-"}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                {shipToCity}
+
+                                                {shipToCity &&
+                                                shipToState
+                                                    ? ", "
+                                                    : ""}
+
+                                                {shipToState}
+
+                                                {shipToPIN
+                                                    ? ` - ${shipToPIN}`
+                                                    : ""}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                GSTIN:{" "}
+                                                {shipToGSTIN || "-"}
+                                            </Typography>
+
+                                        </Box>
+
+                                    </Box>
+                                )}
+
+
+                                {/* ==================================================
+                                    TYPE 3
+                                    BILL FROM - DISPATCH FROM
+                                ================================================== */}
+
+                                {isBillFromDispatchFrom && (
+
+                                    <Box
+                                        sx={{
+                                            display:
+                                                "flex"
+                                        }}
+                                    >
+
+                                        {/* BILL FROM */}
+
+                                        <Box
+                                            sx={{
+                                                width:
+                                                    "50%",
+
+                                                p:
+                                                    0.7,
+
+                                                borderRight:
+                                                    "1px solid #000"
+                                            }}
+                                        >
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8.5px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                Bill From
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                {sellerName}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                {sellerAddress}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                GSTIN:{" "}
+                                                {sellerGstin}
+                                            </Typography>
+
+                                        </Box>
+
+
+                                        {/* DISPATCH FROM */}
+
+                                        <Box
+                                            sx={{
+                                                width:
+                                                    "50%",
+
+                                                p:
+                                                    0.7
+                                            }}
+                                        >
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8.5px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                Dispatch From / Ship From
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px",
+
+                                                    fontWeight:
+                                                        "bold"
+                                                }}
+                                            >
+                                                {dispatchFromName || "-"}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                {dispatchFromAddress || "-"}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                {dispatchFromCity}
+
+                                                {dispatchFromCity &&
+                                                dispatchFromState
+                                                    ? ", "
+                                                    : ""}
+
+                                                {dispatchFromState}
+
+                                                {dispatchFromPIN
+                                                    ? ` - ${dispatchFromPIN}`
+                                                    : ""}
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    fontSize:
+                                                        "8px"
+                                                }}
+                                            >
+                                                GSTIN:{" "}
+                                                {dispatchFromGSTIN || "-"}
+                                            </Typography>
+
+                                        </Box>
+
+                                    </Box>
+                                )}
+
+
+                                {/* ==================================================
+                                    TYPE 4
+                                    BILL TO - BILL TO - SHIP TO - SHIP TO
+                                ================================================== */}
+
+                                {isBillToBillToShipToShipTo && (
+
+                                    <Box>
+
+                                        {/* ================================
+                                            BILL TO + SHIP TO
+                                        ================================= */}
+
+                                        <Box
+                                            sx={{
+                                                display:
+                                                    "flex",
+
+                                                borderBottom:
+                                                    "1px solid #000"
+                                            }}
+                                        >
+
+                                            {/* BILL TO */}
+
+                                            <Box
+                                                sx={{
+                                                    width:
+                                                        "50%",
+
+                                                    p:
+                                                        0.7,
+
+                                                    borderRight:
+                                                        "1px solid #000"
+                                                }}
+                                            >
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8.5px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    Bill To
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    {buyerName}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    {buyerAddress || "-"}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    GSTIN:{" "}
+                                                    {buyerGstin}
+                                                </Typography>
+
+                                            </Box>
+
+
+                                            {/* SHIP TO */}
+
+                                            <Box
+                                                sx={{
+                                                    width:
+                                                        "50%",
+
+                                                    p:
+                                                        0.7
+                                                }}
+                                            >
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8.5px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    Ship To
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    {shipToName || "-"}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    {shipToAddress || "-"}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    {shipToCity}
+
+                                                    {shipToCity &&
+                                                    shipToState
+                                                        ? ", "
+                                                        : ""}
+
+                                                    {shipToState}
+
+                                                    {shipToPIN
+                                                        ? ` - ${shipToPIN}`
+                                                        : ""}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    GSTIN:{" "}
+                                                    {shipToGSTIN || "-"}
+                                                </Typography>
+
+                                            </Box>
+
+                                        </Box>
+
+
+                                        {/* ================================
+                                            BILL FROM + DISPATCH FROM
+                                        ================================= */}
+
+                                        <Box
+                                            sx={{
+                                                display:
+                                                    "flex"
+                                            }}
+                                        >
+
+                                            {/* BILL FROM */}
+
+                                            <Box
+                                                sx={{
+                                                    width:
+                                                        "50%",
+
+                                                    p:
+                                                        0.7,
+
+                                                    borderRight:
+                                                        "1px solid #000"
+                                                }}
+                                            >
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8.5px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    Bill From
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    {sellerName}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    {sellerAddress}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    GSTIN:{" "}
+                                                    {sellerGstin}
+                                                </Typography>
+
+                                            </Box>
+
+
+                                            {/* DISPATCH FROM */}
+
+                                            <Box
+                                                sx={{
+                                                    width:
+                                                        "50%",
+
+                                                    p:
+                                                        0.7
+                                                }}
+                                            >
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8.5px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    Dispatch From / Ship From
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px",
+
+                                                        fontWeight:
+                                                            "bold"
+                                                    }}
+                                                >
+                                                    {dispatchFromName || "-"}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    {dispatchFromAddress || "-"}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    {dispatchFromCity}
+
+                                                    {dispatchFromCity &&
+                                                    dispatchFromState
+                                                        ? ", "
+                                                        : ""}
+
+                                                    {dispatchFromState}
+
+                                                    {dispatchFromPIN
+                                                        ? ` - ${dispatchFromPIN}`
+                                                        : ""}
+                                                </Typography>
+
+                                                <Typography
+                                                    sx={{
+                                                        fontSize:
+                                                            "8px"
+                                                    }}
+                                                >
+                                                    GSTIN:{" "}
+                                                    {dispatchFromGSTIN || "-"}
+                                                </Typography>
+
+                                            </Box>
+
+                                        </Box>
+
+                                    </Box>
+                                )}
 
                             </Box>
 
@@ -2598,11 +3452,9 @@ const handleDownloadPDF = async () => {
                                                             {idx + 1}
                                                         </td>
 
-
                                                         <td>
                                                             {item.description}
                                                         </td>
-
 
                                                         <td
                                                             style={{
@@ -2613,7 +3465,6 @@ const handleDownloadPDF = async () => {
                                                             {item.hsncode}
                                                         </td>
 
-
                                                         <td
                                                             style={{
                                                                 textAlign:
@@ -2623,7 +3474,6 @@ const handleDownloadPDF = async () => {
                                                             {item.quantity}
                                                         </td>
 
-
                                                         <td
                                                             style={{
                                                                 textAlign:
@@ -2632,7 +3482,6 @@ const handleDownloadPDF = async () => {
                                                         >
                                                             {item.uom}
                                                         </td>
-
 
                                                         <td
                                                             style={{
@@ -2645,7 +3494,6 @@ const handleDownloadPDF = async () => {
                                                             )}
                                                         </td>
 
-
                                                         <td
                                                             style={{
                                                                 textAlign:
@@ -2656,7 +3504,6 @@ const handleDownloadPDF = async () => {
                                                                 item.taxAmount
                                                             )}
                                                         </td>
-
 
                                                         <td
                                                             style={{
@@ -2713,20 +3560,13 @@ const handleDownloadPDF = async () => {
                                     justifyContent:
                                         "space-between",
 
-                                    mb: 0.5,
-
-                                    boxSizing:
-                                        "border-box"
+                                    mb: 0.5
                                 }}
                             >
 
-                                {/* HSN */}
-
                                 <Box
                                     sx={{
-                                        width: "56%",
-
-                                        minWidth: 0
+                                        width: "56%"
                                     }}
                                 >
 
@@ -2837,8 +3677,7 @@ const handleDownloadPDF = async () => {
                                                             >
                                                                 {formatCurrency(
                                                                     row.cgstAmount
-                                                                )}{" "}
-                                                                (
+                                                                )} (
                                                                 {row.cgstPer}
                                                                 %)
                                                             </td>
@@ -2851,8 +3690,7 @@ const handleDownloadPDF = async () => {
                                                             >
                                                                 {formatCurrency(
                                                                     row.sgstAmount
-                                                                )}{" "}
-                                                                (
+                                                                )} (
                                                                 {row.sgstPer}
                                                                 %)
                                                             </td>
@@ -2865,8 +3703,7 @@ const handleDownloadPDF = async () => {
                                                             >
                                                                 {formatCurrency(
                                                                     row.igstAmount
-                                                                )}{" "}
-                                                                (
+                                                                )} (
                                                                 {row.igstPer}
                                                                 %)
                                                             </td>
@@ -2883,9 +3720,7 @@ const handleDownloadPDF = async () => {
                                                         colSpan={5}
                                                         style={{
                                                             textAlign:
-                                                                "center",
-                                                            padding:
-                                                                "4px"
+                                                                "center"
                                                         }}
                                                     >
                                                         No tax breakdown available
@@ -2901,13 +3736,9 @@ const handleDownloadPDF = async () => {
                                 </Box>
 
 
-                                {/* TOTALS */}
-
                                 <Box
                                     sx={{
-                                        width: "40%",
-
-                                        minWidth: 0
+                                        width: "40%"
                                     }}
                                 >
 
@@ -3038,7 +3869,7 @@ const handleDownloadPDF = async () => {
                                                     style={{
                                                         textAlign:
                                                             "right"
-                                                    }}
+                                                        }}
                                                 >
                                                     ₹{" "}
                                                     {formatCurrency(
@@ -3051,11 +3882,6 @@ const handleDownloadPDF = async () => {
 
                                             <tr
                                                 style={{
-                                                    color:
-                                                        balanceAmount > 0
-                                                            ? "#d32f2f"
-                                                            : "#2e7d32",
-
                                                     fontWeight:
                                                         "bold"
                                                 }}
@@ -3107,18 +3933,13 @@ const handleDownloadPDF = async () => {
                                         "flex",
 
                                     justifyContent:
-                                        "space-between",
-
-                                    boxSizing:
-                                        "border-box"
+                                        "space-between"
                                 }}
                             >
 
                                 <Box
                                     sx={{
-                                        width: "60%",
-
-                                        minWidth: 0
+                                        width: "60%"
                                     }}
                                 >
 
@@ -3128,19 +3949,13 @@ const handleDownloadPDF = async () => {
                                                 "8px",
 
                                             lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                1.1
                                         }}
                                     >
-
                                         <strong>
                                             Terms of Payment:
                                         </strong>{" "}
-
                                         {paymentTerms}
-
                                     </Typography>
 
 
@@ -3185,10 +4000,7 @@ const handleDownloadPDF = async () => {
                                                 "bold",
 
                                             lineHeight:
-                                                1.1,
-
-                                            wordBreak:
-                                                "break-word"
+                                                1.1
                                         }}
                                     >
                                         For {sellerName}

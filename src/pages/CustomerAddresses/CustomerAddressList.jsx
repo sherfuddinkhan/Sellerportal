@@ -1,5 +1,19 @@
-import React, {useEffect,useMemo,useState} from "react";
-import {Box,Grid,Typography,CircularProgress,Snackbar,Alert} from "@mui/material";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import axios from "axios";
+
+import {
+    Alert,
+    Box,
+    CircularProgress,
+    Snackbar
+} from "@mui/material";
+
 import CustomerAddressToolbar from "./CustomerAddressToolbar";
 import CustomerAddressStatistics from "./CustomerAddressStatistics";
 import CustomerAddressSearch from "./CustomerAddressSearch";
@@ -10,205 +24,648 @@ import CustomerAddressView from "./CustomerAddressView";
 import DeleteCustomerAddressDialog from "./DeleteCustomerAddressDialog";
 
 
+// ============================================================
+// API
+// ============================================================
+
+const API_URL =
+    "http://localhost:5000/api/customer-addresses";
+
+
+// ============================================================
+// NORMALIZE ADDRESS
+// Supports PascalCase + camelCase
+// ============================================================
+
+const normalizeAddress = (item = {}) => ({
+    CustomerAddressId:
+        item.CustomerAddressId ??
+        item.customerAddressId ??
+        0,
+
+    CustomerId:
+        item.CustomerId ??
+        item.customerId ??
+        0,
+
+    AddressType:
+        item.AddressType ??
+        item.addressType ??
+        "",
+
+    AddressLine1:
+        item.AddressLine1 ??
+        item.addressLine1 ??
+        "",
+
+    AddressLine2:
+        item.AddressLine2 ??
+        item.addressLine2 ??
+        "",
+
+    City:
+        item.City ??
+        item.city ??
+        "",
+
+    State:
+        item.State ??
+        item.state ??
+        "",
+
+    Country:
+        item.Country ??
+        item.country ??
+        "",
+
+    PostalCode:
+        item.PostalCode ??
+        item.postalCode ??
+        "",
+
+    IsDefault:
+        item.IsDefault ??
+        item.isDefault ??
+        false,
+
+    CreatedDate:
+        item.CreatedDate ??
+        item.createdDate ??
+        null
+});
+
+
+// ============================================================
+// COMPONENT
+// ============================================================
+
 const CustomerAddressList = () => {
-    // ==========================================
-    // State
-    // ==========================================
+
+    // ========================================================
+    // STATE
+    // ========================================================
 
     const [addresses, setAddresses] = useState([]);
-    const [filteredAddresses, setFilteredAddresses] = useState([]);
+
     const [loading, setLoading] = useState(false);
+
     const [searchText, setSearchText] = useState("");
-    const [addressTypeFilter, setAddressTypeFilter] =useState("All");
-    const [selectedAddress, setSelectedAddress] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [viewOpen, setViewOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+
+    const [addressTypeFilter, setAddressTypeFilter] =
+        useState("All");
+
+    const [selectedAddress, setSelectedAddress] =
+        useState(null);
+
+    const [modalOpen, setModalOpen] =
+        useState(false);
+
+    const [viewOpen, setViewOpen] =
+        useState(false);
+
+    const [deleteOpen, setDeleteOpen] =
+        useState(false);
+
+    const [page, setPage] =
+        useState(1);
+
+    const [pageSize, setPageSize] =
+        useState(10);
+
+    // ========================================================
+    // SNACKBAR
+    // ========================================================
+
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
 
 
+    // ========================================================
+    // SHOW MESSAGE
+    // ========================================================
 
-    // ==========================================
-    // Load Customer Addresses
-    // ==========================================
+    const showMessage = (
+        message,
+        severity = "success"
+    ) => {
 
-
-    const loadCustomerAddresses = async () => {
-
-        try {
-            setLoading(true);
-            const response = await apiService.getCustomerAddresses();
-            setAddresses(response.data);
-            setFilteredAddresses(response.data);
-        }
-        catch (error) {
-            console.log("Load Customer Addresses Error",
-                error
-            );
-        }
-        finally {
-            setLoading(false);
-        }
+        setSnackbar({
+            open: true,
+            message,
+            severity
+        });
     };
+
+
+    // ========================================================
+    // LOAD ALL CUSTOMER ADDRESSES
+    // GET:
+    // http://localhost:5000/api/customer-addresses
+    // ========================================================
+
+    const loadCustomerAddresses = useCallback(
+        async () => {
+
+            try {
+
+                setLoading(true);
+
+                const response =
+                    await axios.get(API_URL);
+
+                const data =
+                    Array.isArray(response.data)
+                        ? response.data
+                        : [];
+
+                const normalizedData =
+                    data.map(normalizeAddress);
+
+                setAddresses(normalizedData);
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Load Customer Addresses Error:",
+                    error
+                );
+
+                setAddresses([]);
+
+                showMessage(
+                    error.response?.data?.message ||
+                    "Failed to load customer addresses.",
+                    "error"
+                );
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+        []
+    );
+
+
+    // ========================================================
+    // INITIAL LOAD
+    // ========================================================
+
     useEffect(() => {
+
         loadCustomerAddresses();
-    }, []);
-    // ==========================================
-    // Search & Filter
-    // ==========================================
-    useEffect(() => {
-        let result = [
-            ...addresses
-        ];
-        if (
-            searchText.trim() !== ""
-        ) {
-            const search = searchText.toLowerCase();
-            result = result.filter(item =>item.AddressType
-                    ?.toLowerCase()
-                    .includes(search)
-                ||
-                item.AddressLine1
-                    ?.toLowerCase()
-                    .includes(search)
-                ||
-                item.AddressLine2
-                    ?.toLowerCase()
-                    .includes(search)
-                ||
-                item.City
-                    ?.toLowerCase()
-                    .includes(search)
-                ||
-                item.State
-                    ?.toLowerCase()
-                    .includes(search)
-                ||
-                item.Country
-                    ?.toLowerCase()
-                    .includes(search)
-                ||
-                item.PostalCode
-                    ?.toLowerCase()
-                    .includes(search)
+
+    }, [loadCustomerAddresses]);
+
+
+    // ========================================================
+    // SEARCH + FILTER
+    // ========================================================
+
+    const filteredAddresses = useMemo(() => {
+
+        let result = [...addresses];
+
+        // ----------------------------------------------------
+        // SEARCH
+        // ----------------------------------------------------
+
+        if (searchText.trim() !== "") {
+
+            const search =
+                searchText
+                    .trim()
+                    .toLowerCase();
+
+            result = result.filter((item) => {
+
+                return (
+
+                    item.AddressType
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.AddressLine1
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.AddressLine2
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.City
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.State
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.Country
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.PostalCode
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    String(item.CustomerId)
+                        .includes(search)
+
+                );
+
+            });
+        }
+
+
+        // ----------------------------------------------------
+        // ADDRESS TYPE
+        // ----------------------------------------------------
+
+        if (addressTypeFilter !== "All") {
+
+            result = result.filter(
+                (item) =>
+                    item.AddressType ===
+                    addressTypeFilter
             );
+
         }
-        if (
-            addressTypeFilter !== "All"
-        ) {
-            result = result.filter(item =>item.AddressType ===addressTypeFilter);
-        }
-        setFilteredAddresses(result);
-        setPage(1);
+
+        return result;
+
     }, [
         addresses,
         searchText,
         addressTypeFilter
     ]);
-    // ==========================================
-    // Pagination
-    // ==========================================
 
-    const totalPages = Math.ceil(
-        filteredAddresses.length /
-        pageSize
-    );
-    const pagedAddresses =
-        filteredAddresses.slice(
-            (page - 1) * pageSize,
-            page * pageSize
+
+    // ========================================================
+    // RESET PAGE WHEN SEARCH/FILTER CHANGES
+    // ========================================================
+
+    useEffect(() => {
+
+        setPage(1);
+
+    }, [
+        searchText,
+        addressTypeFilter
+    ]);
+
+
+    // ========================================================
+    // PAGINATION
+    // ========================================================
+
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                filteredAddresses.length /
+                pageSize
+            )
         );
-    // ==========================================
-    // Save Address
-    // ==========================================
+
+
+    const pagedAddresses =
+        useMemo(() => {
+
+            const startIndex =
+                (page - 1) * pageSize;
+
+            return filteredAddresses.slice(
+                startIndex,
+                startIndex + pageSize
+            );
+
+        }, [
+            filteredAddresses,
+            page,
+            pageSize
+        ]);
+
+
+    // ========================================================
+    // CREATE / UPDATE
+    // ========================================================
 
     const handleSave = async (data) => {
+
         try {
-            if (data.CustomerAddressId) {
-                await apiService.updateCustomerAddress(
-                    data.CustomerAddressId,
-                    data
+
+            setLoading(true);
+
+            const customerAddressId =
+                data.CustomerAddressId ??
+                data.customerAddressId ??
+                0;
+
+
+            // =================================================
+            // UPDATE
+            // =================================================
+
+            if (customerAddressId > 0) {
+
+                const payload = {
+                    ...data,
+
+                    CustomerAddressId:
+                        customerAddressId
+                };
+
+                await axios.put(
+                    `${API_URL}/${customerAddressId}`,
+                    payload
                 );
+
+                showMessage(
+                    "Customer address updated successfully.",
+                    "success"
+                );
+
             }
+
+            // =================================================
+            // CREATE
+            // =================================================
+
             else {
-                await apiService.createCustomerAddress(data);
+
+                const payload = {
+                    ...data,
+
+                    CustomerAddressId: 0,
+
+                    CreatedDate: null
+                };
+
+                await axios.post(
+                    API_URL,
+                    payload
+                );
+
+                showMessage(
+                    "Customer address created successfully.",
+                    "success"
+                );
+
             }
+
+
+            // =================================================
+            // REFRESH
+            // =================================================
+
             await loadCustomerAddresses();
+
             setModalOpen(false);
+
             setSelectedAddress(null);
+
         }
-        catch(error) {
-            console.log(
-                "Save Address Error",
+        catch (error) {
+
+            console.error(
+                "Save Customer Address Error:",
                 error
             );
+
+            showMessage(
+                error.response?.data?.message ||
+                "Failed to save customer address.",
+                "error"
+            );
+
         }
+        finally {
+
+            setLoading(false);
+
+        }
+
     };
-        // ==========================================
-    // Delete Address
-    // ==========================================
+
+
+    // ========================================================
+    // DELETE
+    // ========================================================
 
     const handleDelete = async (id) => {
+
         try {
-            await apiService.deleteCustomerAddress(id);
+
+            setLoading(true);
+
+            await axios.delete(
+                `${API_URL}/${id}`
+            );
+
+            showMessage(
+                "Customer address deleted successfully.",
+                "success"
+            );
+
             await loadCustomerAddresses();
+
             setDeleteOpen(false);
+
             setSelectedAddress(null);
+
         }
-        catch(error) {
-        console.log( "Delete Address Error",error);
+        catch (error) {
+
+            console.error(
+                "Delete Customer Address Error:",
+                error
+            );
+
+            showMessage(
+                error.response?.data?.message ||
+                "Failed to delete customer address.",
+                "error"
+            );
+
         }
+        finally {
+
+            setLoading(false);
+
+        }
+
     };
 
-    // ==========================================
-    // Render
-    // ==========================================
 
+    // ========================================================
+    // VIEW
+    // ========================================================
+
+    const handleView = (row) => {
+
+        setSelectedAddress(row);
+
+        setViewOpen(true);
+
+    };
+
+
+    // ========================================================
+    // EDIT
+    // ========================================================
+
+    const handleEdit = (row) => {
+
+        setSelectedAddress(row);
+
+        setModalOpen(true);
+
+    };
+
+
+    // ========================================================
+    // DELETE DIALOG
+    // ========================================================
+
+    const handleDeleteClick = (row) => {
+
+        setSelectedAddress(row);
+
+        setDeleteOpen(true);
+
+    };
+
+
+    // ========================================================
+    // ADD
+    // ========================================================
+
+    const handleAdd = () => {
+
+        setSelectedAddress(null);
+
+        setModalOpen(true);
+
+    };
+
+
+    // ========================================================
+    // CLOSE MODAL
+    // ========================================================
+
+    const handleModalClose = () => {
+
+        setModalOpen(false);
+
+        setSelectedAddress(null);
+
+    };
+
+
+    // ========================================================
+    // CLOSE VIEW
+    // ========================================================
+
+    const handleViewClose = () => {
+
+        setViewOpen(false);
+
+        setSelectedAddress(null);
+
+    };
+
+
+    // ========================================================
+    // CLOSE DELETE
+    // ========================================================
+
+    const handleDeleteClose = () => {
+
+        setDeleteOpen(false);
+
+        setSelectedAddress(null);
+
+    };
+
+
+    // ========================================================
+    // PAGE SIZE
+    // ========================================================
+
+    const handlePageSizeChange = (size) => {
+
+        setPageSize(size);
+
+        setPage(1);
+
+    };
+
+
+    // ========================================================
+    // RENDER
+    // ========================================================
 
     return (
 
-        <Box sx={{ p: 3 }}>
+        <Box
+            sx={{
+                p: 3,
+                position: "relative"
+            }}
+        >
 
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
 
             <CustomerAddressToolbar
 
-                onAdd={() => {
-
-
-                    setSelectedAddress(null);
-
-
-                    setModalOpen(true);
-
-
-                }}
-
+                onAdd={handleAdd}
 
                 onRefresh={loadCustomerAddresses}
 
-
                 onExport={() =>
-
                     console.log(
-
                         "Export Customer Addresses"
-
                     )
-
                 }
 
             />
 
 
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
 
             <CustomerAddressStatistics
-
                 addresses={addresses}
-
             />
 
 
+            {/* =================================================
+                SEARCH
+            ================================================= */}
 
             <CustomerAddressSearch
 
@@ -216,103 +673,87 @@ const CustomerAddressList = () => {
 
                 setSearchText={setSearchText}
 
-                addressTypeFilter={addressTypeFilter}
+                addressTypeFilter={
+                    addressTypeFilter
+                }
 
                 setAddressTypeFilter={
-
                     setAddressTypeFilter
-
                 }
 
             />
 
 
+            {/* =================================================
+                LOADING
+            ================================================= */}
 
-            <CustomerAddressTable
+            {loading && addresses.length === 0 ? (
 
-                addresses={pagedAddresses}
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        py: 6
+                    }}
+                >
 
-                loading={loading}
+                    <CircularProgress />
 
+                </Box>
 
-                onView={(row) => {
+            ) : (
 
+                /* =============================================
+                   TABLE
+                ============================================= */
 
-                    setSelectedAddress(row);
+                <CustomerAddressTable
 
+                    addresses={pagedAddresses}
 
-                    setViewOpen(true);
+                    loading={loading}
 
+                    onView={handleView}
 
-                }}
+                    onEdit={handleEdit}
 
+                    onDelete={handleDeleteClick}
 
+                />
 
-                onEdit={(row) => {
-
-
-                    setSelectedAddress(row);
-
-
-                    setModalOpen(true);
-
-
-                }}
-
-
-
-                onDelete={(row) => {
-
-
-                    setSelectedAddress(row);
-
-
-                    setDeleteOpen(true);
-
-
-                }}
-
-            />
+            )}
 
 
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
 
             <CustomerAddressPagination
 
-
                 page={page}
-
 
                 totalPages={totalPages}
 
-
                 pageSize={pageSize}
 
-
                 totalRecords={
-
                     filteredAddresses.length
-
                 }
-
 
                 onPageChange={setPage}
 
-
-
-                onPageSizeChange={(size) => {
-
-
-                    setPageSize(size);
-
-
-                    setPage(1);
-
-
-                }}
+                onPageSizeChange={
+                    handlePageSizeChange
+                }
 
             />
 
 
+            {/* =================================================
+                CREATE / EDIT MODAL
+            ================================================= */}
 
             <CustomerAddressModal
 
@@ -320,81 +761,89 @@ const CustomerAddressList = () => {
 
                 address={selectedAddress}
 
-
-                onClose={() => {
-
-
-                    setModalOpen(false);
-
-
-                    setSelectedAddress(null);
-
-
-                }}
-
-
+                onClose={handleModalClose}
 
                 onSave={handleSave}
 
             />
 
 
+            {/* =================================================
+                VIEW
+            ================================================= */}
 
             <CustomerAddressView
 
                 open={viewOpen}
 
-
                 address={selectedAddress}
 
-
-
-                onClose={() => {
-
-
-                    setViewOpen(false);
-
-
-                    setSelectedAddress(null);
-
-
-                }}
+                onClose={handleViewClose}
 
             />
 
 
+            {/* =================================================
+                DELETE
+            ================================================= */}
 
             <DeleteCustomerAddressDialog
 
                 open={deleteOpen}
 
-
                 address={selectedAddress}
 
-
-
-                onClose={() => {
-
-
-                    setDeleteOpen(false);
-
-
-                    setSelectedAddress(null);
-
-
-                }}
-
-
+                onClose={handleDeleteClose}
 
                 onDeleted={handleDelete}
 
             />
 
 
+            {/* =================================================
+                SNACKBAR
+            ================================================= */}
+
+            <Snackbar
+
+                open={snackbar.open}
+
+                autoHideDuration={4000}
+
+                onClose={() =>
+                    setSnackbar((prev) => ({
+                        ...prev,
+                        open: false
+                    }))
+                }
+
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right"
+                }}
+
+            >
+
+                <Alert
+                    severity={snackbar.severity}
+                    variant="filled"
+                    onClose={() =>
+                        setSnackbar((prev) => ({
+                            ...prev,
+                            open: false
+                        }))
+                    }
+                >
+
+                    {snackbar.message}
+
+                </Alert>
+
+            </Snackbar>
+
         </Box>
 
     );
-
 };
 
 

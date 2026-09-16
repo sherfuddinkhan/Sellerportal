@@ -1,108 +1,265 @@
 import React from "react";
-import {Dialog,DialogTitle,DialogContent,DialogActions,Button,Typography,Divider} from "@mui/material";
+
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Typography,
+    Divider,
+    Chip,
+    Box
+} from "@mui/material";
+
+
 const DeleteCustomerAddressDialog = ({
     open,
     address,
     onClose,
     onDeleted
 }) => {
-    if (!address) return null;
+
+    // ============================================================
+    // NO ADDRESS
+    // ============================================================
+
+    if (!address) {
+        return null;
+    }
+
+
+    // ============================================================
+    // SUPPORT PASCALCASE + CAMELCASE
+    // ============================================================
+
+    const customerAddressId =
+        address.CustomerAddressId ??
+        address.customerAddressId ??
+        0;
+
+    const customerId =
+        address.CustomerId ??
+        address.customerId ??
+        0;
+
+    const addressType =
+        address.AddressType ??
+        address.addressType ??
+        "";
+
+    const addressLine1 =
+        address.AddressLine1 ??
+        address.addressLine1 ??
+        "";
+
+    const addressLine2 =
+        address.AddressLine2 ??
+        address.addressLine2 ??
+        "";
+
+    const city =
+        address.City ??
+        address.city ??
+        "";
+
+    const state =
+        address.State ??
+        address.state ??
+        "";
+
+    const postalCode =
+        address.PostalCode ??
+        address.postalCode ??
+        "";
+
+
+    // ============================================================
+    // DELETE
+    // ============================================================
+
     const handleDelete = () => {
+
         onDeleted(
-            address.CustomerAddressId
+            customerAddressId
         );
     };
+
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+
     return (
+
         <Dialog
             open={open}
             onClose={onClose}
             fullWidth
             maxWidth="sm"
         >
-            <DialogTitle>
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
+            <DialogTitle
+                sx={{
+                    fontWeight: "bold"
+                }}
+            >
                 Delete Customer Address
             </DialogTitle>
+
+
             <Divider />
+
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
             <DialogContent
                 sx={{
                     mt: 2
                 }}
             >
+
                 <Typography>
-                    Are you sure you want to delete this customer address?
+                    Are you sure you want to delete this customer
+                    address?
                 </Typography>
-                <Typography
-                    sx={{ mt: 2 }}
-                    fontWeight="bold"
+
+
+                {/* =============================================
+                    ADDRESS INFORMATION
+                ============================================= */}
+
+                <Box
+                    sx={{
+                        mt: 2,
+                        p: 2,
+                        borderRadius: 1,
+                        bgcolor: "grey.50"
+                    }}
                 >
-                    Address ID :
-                    {" "}
-                    {
-                        address.CustomerAddressId
-                    }
-                </Typography>
-                <Typography>
-                    Customer ID :
-                    {" "}
-                    {
-                        address.CustomerId
-                    }
-                </Typography>
-                <Typography>
-                    Address Type :
-                    {" "}
-                    {
-                        address.AddressType
-                    }
-                </Typography>
-                <Typography>
-                    Address :
-                    {" "}
-                    {
-                        address.AddressLine1 ||
-                        "-"
-                    }
-                </Typography>
-                {
-                    address.AddressLine2 &&
-                    <Typography>
-                        {
-                            address.AddressLine2
-                        }
+
+                    {/* ADDRESS ID */}
+
+                    <Typography
+                        fontWeight="bold"
+                    >
+                        Address ID :{" "}
+                        {customerAddressId}
                     </Typography>
-                }
-                <Typography>
-                    City :
-                    {" "}
-                    {
-                        address.City ||
-                        "-"
-                    }
-                </Typography>
-                <Typography>
-                    State :
-                    {" "}
-                    {
-                        address.State ||
-                        "-"
-                    }
-                </Typography>
-                <Typography>
-                    Postal Code :
-                    {" "}
-                    {
-                        address.PostalCode ||
-                        "-"
-                    }
-                </Typography>
+
+
+                    {/* CUSTOMER ID */}
+
+                    <Typography>
+                        Customer ID :{" "}
+                        {customerId}
+                    </Typography>
+
+
+                    {/* ADDRESS TYPE */}
+
+                    <Box
+                        sx={{
+                            mt: 1,
+                            mb: 1
+                        }}
+                    >
+
+                        <Typography
+                            component="span"
+                            sx={{
+                                mr: 1
+                            }}
+                        >
+                            Address Type :
+                        </Typography>
+
+                        <Chip
+                            label={
+                                addressType || "-"
+                            }
+                            size="small"
+                        />
+
+                    </Box>
+
+
+                    {/* ADDRESS LINE 1 */}
+
+                    <Typography>
+                        Address :{" "}
+                        {addressLine1 || "-"}
+                    </Typography>
+
+
+                    {/* ADDRESS LINE 2 */}
+
+                    {addressLine2 && (
+
+                        <Typography
+                            sx={{
+                                ml: 4
+                            }}
+                            color="text.secondary"
+                        >
+                            {addressLine2}
+                        </Typography>
+
+                    )}
+
+
+                    {/* CITY */}
+
+                    <Typography>
+                        City :{" "}
+                        {city || "-"}
+                    </Typography>
+
+
+                    {/* STATE */}
+
+                    <Typography>
+                        State :{" "}
+                        {state || "-"}
+                    </Typography>
+
+
+                    {/* POSTAL CODE */}
+
+                    <Typography>
+                        Postal Code :{" "}
+                        {postalCode || "-"}
+                    </Typography>
+
+                </Box>
+
             </DialogContent>
-            <DialogActions>
+
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
+
                 <Button
                     variant="outlined"
                     onClick={onClose}
                 >
                     Cancel
                 </Button>
+
                 <Button
                     variant="contained"
                     color="error"
@@ -110,7 +267,9 @@ const DeleteCustomerAddressDialog = ({
                 >
                     Delete
                 </Button>
+
             </DialogActions>
+
         </Dialog>
     );
 };

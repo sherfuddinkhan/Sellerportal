@@ -50,7 +50,7 @@
 
 
 /* ==========================================================
-   Statistics Cards
+   Statistics
 ========================================================== */
 
 .customer-address-statistics {
@@ -64,7 +64,9 @@
 
     border-radius: 12px;
 
-    transition: all 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 
 }
 
@@ -73,11 +75,15 @@
 
     transform: translateY(-4px);
 
+    box-shadow:
+        0 8px 20px
+        rgba(0, 0, 0, 0.12);
+
 }
 
 
 /* ==========================================================
-   Search Area
+   Search
 ========================================================== */
 
 .customer-address-search {
@@ -93,6 +99,8 @@
 
 .customer-address-table {
 
+    width: 100%;
+
     margin-top: 16px;
 
     overflow-x: auto;
@@ -103,6 +111,8 @@
 .customer-address-table table {
 
     min-width: 1000px;
+
+    width: 100%;
 
 }
 
@@ -133,7 +143,9 @@
 
     height: 100%;
 
-    transition: all 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 
 }
 
@@ -143,14 +155,10 @@
     transform: translateY(-4px);
 
     box-shadow:
-
         8px
-
         8px
-
         20px
-
-        rgba(0,0,0,0.12);
+        rgba(0, 0, 0, 0.12);
 
 }
 
@@ -185,7 +193,7 @@
 
 
 /* ==========================================================
-   Default Address Status
+   Default Address
 ========================================================== */
 
 .default-address {
@@ -228,10 +236,11 @@
 
 
 /* ==========================================================
-   Dialog / View
+   Dialog
 ========================================================== */
 
-.customer-address-dialog .MuiDialog-paper {
+.customer-address-dialog
+.MuiDialog-paper {
 
     border-radius: 12px;
 
@@ -264,11 +273,22 @@
 
 
 /* ==========================================================
-   Responsive
+   Delete Dialog
+========================================================== */
+
+.customer-address-delete-dialog
+.MuiDialog-paper {
+
+    border-radius: 12px;
+
+}
+
+
+/* ==========================================================
+   Responsive - Tablet
 ========================================================== */
 
 @media (max-width: 900px) {
-
 
     .customer-address-toolbar {
 
@@ -279,13 +299,11 @@
     }
 
 
-
     .customer-address-toolbar-actions {
 
         justify-content: center;
 
     }
-
 
 
     .customer-address-pagination {
@@ -297,20 +315,20 @@
     }
 
 
-
     .customer-address-table table {
 
         min-width: 850px;
 
     }
 
-
 }
 
 
+/* ==========================================================
+   Responsive - Mobile
+========================================================== */
 
 @media (max-width: 600px) {
-
 
     .customer-address-container {
 
@@ -319,13 +337,20 @@
     }
 
 
-
     .customer-address-toolbar-actions {
 
         flex-direction: column;
 
+        width: 100%;
+
     }
 
+
+    .customer-address-toolbar-actions button {
+
+        width: 100%;
+
+    }
 
 
     .customer-address-card-actions {
@@ -335,12 +360,10 @@
     }
 
 
-
     .customer-address-table table {
 
         min-width: 750px;
 
     }
-
 
 }

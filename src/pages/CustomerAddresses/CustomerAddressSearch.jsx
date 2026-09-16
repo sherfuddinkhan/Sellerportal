@@ -1,6 +1,20 @@
 import React from "react";
-import {Paper,Grid,TextField,FormControl,InputLabel,Select,MenuItem,InputAdornment} from "@mui/material";
-import {Search} from "@mui/icons-material";
+
+import {
+    Paper,
+    Grid,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    InputAdornment
+} from "@mui/material";
+
+import {
+    Search
+} from "@mui/icons-material";
+
 
 const CustomerAddressSearch = ({
     searchText,
@@ -8,7 +22,9 @@ const CustomerAddressSearch = ({
     addressTypeFilter,
     setAddressTypeFilter
 }) => {
+
     return (
+
         <Paper
             elevation={2}
             sx={{
@@ -16,22 +32,31 @@ const CustomerAddressSearch = ({
                 mb: 3
             }}
         >
+
             <Grid
                 container
                 spacing={2}
             >
+
+                {/* =================================================
+                    SEARCH
+                ================================================= */}
+
                 <Grid
                     item
                     xs={12}
                     md={8}
                 >
+
                     <TextField
                         fullWidth
                         label="Search Addresses"
                         placeholder="Search by Address Type, Address, City, State, Country or Postal Code"
                         value={searchText}
-                        onChange={(e) =>
-                            setSearchText(e.target.value)
+                        onChange={(event) =>
+                            setSearchText(
+                                event.target.value
+                            )
                         }
                         InputProps={{
                             startAdornment: (
@@ -43,44 +68,62 @@ const CustomerAddressSearch = ({
                             )
                         }}
                     />
+
                 </Grid>
+
+
+                {/* =================================================
+                    ADDRESS TYPE FILTER
+                ================================================= */}
+
                 <Grid
                     item
                     xs={12}
                     md={4}
                 >
+
                     <FormControl
                         fullWidth
                     >
+
                         <InputLabel>
                             Address Type
                         </InputLabel>
+
                         <Select
                             value={addressTypeFilter}
                             label="Address Type"
-                            onChange={(e) =>
-                                setAddressTypeFilter(e.target.value)
+                            onChange={(event) =>
+                                setAddressTypeFilter(
+                                    event.target.value
+                                )
                             }
                         >
+
                             <MenuItem value="All">
                                 All
                             </MenuItem>
+
                             <MenuItem value="Billing">
                                 Billing
                             </MenuItem>
+
                             <MenuItem value="Shipping">
                                 Shipping
                             </MenuItem>
-                            <MenuItem value="Office">
-                                Office
+
+                            <MenuItem value="Both">
+                                Both
                             </MenuItem>
-                            <MenuItem value="Home">
-                                Home
-                            </MenuItem>
+
                         </Select>
+
                     </FormControl>
+
                 </Grid>
+
             </Grid>
+
         </Paper>
     );
 };

@@ -1,6 +1,24 @@
 import React from "react";
-import {Card,CardContent,CardActions,Typography,Chip,Stack,Divider,IconButton,Tooltip} from "@mui/material";
-import {Visibility,Edit,Delete,LocationOn} from "@mui/icons-material";
+
+import {
+    Card,
+    CardContent,
+    CardActions,
+    Typography,
+    Chip,
+    Stack,
+    Divider,
+    IconButton,
+    Tooltip
+} from "@mui/material";
+
+import {
+    Visibility,
+    Edit,
+    Delete,
+    LocationOn
+} from "@mui/icons-material";
+
 
 const CustomerAddressCard = ({
     address,
@@ -8,14 +26,105 @@ const CustomerAddressCard = ({
     onEdit,
     onDelete
 }) => {
-    if (!address) return null;
+
+    // ============================================================
+    // NO ADDRESS
+    // ============================================================
+
+    if (!address) {
+        return null;
+    }
+
+
+    // ============================================================
+    // SUPPORT PASCALCASE + CAMELCASE
+    // ============================================================
+
+    const customerAddressId =
+        address.CustomerAddressId ??
+        address.customerAddressId ??
+        0;
+
+    const customerId =
+        address.CustomerId ??
+        address.customerId ??
+        0;
+
+    const addressType =
+        address.AddressType ??
+        address.addressType ??
+        "";
+
+    const addressLine1 =
+        address.AddressLine1 ??
+        address.addressLine1 ??
+        "";
+
+    const addressLine2 =
+        address.AddressLine2 ??
+        address.addressLine2 ??
+        "";
+
+    const city =
+        address.City ??
+        address.city ??
+        "";
+
+    const state =
+        address.State ??
+        address.state ??
+        "";
+
+    const country =
+        address.Country ??
+        address.country ??
+        "";
+
+    const postalCode =
+        address.PostalCode ??
+        address.postalCode ??
+        "";
+
+    const isDefault =
+        address.IsDefault ??
+        address.isDefault ??
+        false;
+
+
+    // ============================================================
+    // ADDRESS TYPE COLOR
+    // ============================================================
+
+    const getAddressTypeColor = (type) => {
+
+        switch (
+            type?.toLowerCase()
+        ) {
+
+            case "billing":
+                return "primary";
+
+            case "shipping":
+                return "success";
+
+            case "both":
+                return "info";
+
+            default:
+                return "default";
+        }
+    };
+
+
     return (
+
         <Card
             elevation={3}
             sx={{
                 height: "100%",
                 borderRadius: 2,
                 transition: "0.3s",
+
                 "&:hover": {
                     boxShadow: 8,
                     transform:
@@ -23,119 +132,203 @@ const CustomerAddressCard = ({
                 }
             }}
         >
+
             <CardContent>
+
+                {/* =================================================
+                    HEADER
+                ================================================= */}
+
                 <Stack
                     direction="row"
                     justifyContent="space-between"
                     alignItems="center"
                     mb={2}
                 >
+
                     <LocationOn
                         color="primary"
                         fontSize="large"
                     />
+
+
                     <Chip
                         label={
-                            address.IsDefault
+                            isDefault
                                 ? "Default"
                                 : "Normal"
                         }
                         color={
-                            address.IsDefault
+                            isDefault
                                 ? "success"
                                 : "default"
                         }
                         size="small"
                     />
+
                 </Stack>
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    gutterBottom
-                >
-                    {
-                        address.AddressType
+
+
+                {/* =================================================
+                    ADDRESS TYPE
+                ================================================= */}
+
+                <Chip
+                    label={
+                        addressType || "-"
                     }
+                    color={
+                        getAddressTypeColor(
+                            addressType
+                        )
+                    }
+                    size="small"
+                    sx={{
+                        mb: 1
+                    }}
+                />
+
+
+                {/* =================================================
+                    ADDRESS ID
+                ================================================= */}
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                        mb: 1
+                    }}
+                >
+                    <strong>Address ID:</strong>{" "}
+                    {customerAddressId}
                 </Typography>
+
+
+                {/* =================================================
+                    CUSTOMER ID
+                ================================================= */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
                     <strong>Customer ID:</strong>{" "}
-                    {
-                        address.CustomerId
-                    }
+                    {customerId}
                 </Typography>
+
+
+                {/* =================================================
+                    ADDRESS LINE 1
+                ================================================= */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{
+                        mt: 1
+                    }}
                 >
                     <strong>Address:</strong>{" "}
-                    {
-                        address.AddressLine1 ||
-                        "-"
-                    }
+                    {addressLine1 || "-"}
                 </Typography>
-                {
-                    address.AddressLine2 &&
+
+
+                {/* =================================================
+                    ADDRESS LINE 2
+                ================================================= */}
+
+                {addressLine2 && (
+
                     <Typography
                         variant="body2"
                         color="text.secondary"
+                        sx={{
+                            ml: 9
+                        }}
                     >
-                        {
-                            address.AddressLine2
-                        }
+                        {addressLine2}
                     </Typography>
-                }
+
+                )}
+
+
+                {/* =================================================
+                    CITY
+                ================================================= */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
+                    sx={{
+                        mt: 1
+                    }}
                 >
                     <strong>City:</strong>{" "}
-                    {
-                        address.City ||
-                        "-"
-                    }
+                    {city || "-"}
                 </Typography>
+
+
+                {/* =================================================
+                    STATE
+                ================================================= */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
                     <strong>State:</strong>{" "}
-                    {
-                        address.State ||
-                        "-"
-                    }
+                    {state || "-"}
                 </Typography>
+
+
+                {/* =================================================
+                    COUNTRY
+                ================================================= */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
                     <strong>Country:</strong>{" "}
-                    {
-                        address.Country ||
-                        "-"
-                    }
+                    {country || "-"}
                 </Typography>
+
+
+                {/* =================================================
+                    POSTAL CODE
+                ================================================= */}
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
                     <strong>Postal Code:</strong>{" "}
-                    {
-                        address.PostalCode ||
-                        "-"
-                    }
+                    {postalCode || "-"}
                 </Typography>
+
             </CardContent>
+
+
             <Divider />
+
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
             <CardActions
                 sx={{
-                    justifyContent:
-                        "flex-end"
+                    justifyContent: "flex-end"
                 }}
             >
-                <Tooltip title="View">
+
+                {/* VIEW */}
+
+                <Tooltip
+                    title="View"
+                >
+
                     <IconButton
                         color="primary"
                         onClick={() =>
@@ -144,8 +337,16 @@ const CustomerAddressCard = ({
                     >
                         <Visibility />
                     </IconButton>
+
                 </Tooltip>
-                <Tooltip title="Edit">
+
+
+                {/* EDIT */}
+
+                <Tooltip
+                    title="Edit"
+                >
+
                     <IconButton
                         color="warning"
                         onClick={() =>
@@ -154,8 +355,16 @@ const CustomerAddressCard = ({
                     >
                         <Edit />
                     </IconButton>
+
                 </Tooltip>
-                <Tooltip title="Delete">
+
+
+                {/* DELETE */}
+
+                <Tooltip
+                    title="Delete"
+                >
+
                     <IconButton
                         color="error"
                         onClick={() =>
@@ -164,8 +373,11 @@ const CustomerAddressCard = ({
                     >
                         <Delete />
                     </IconButton>
+
                 </Tooltip>
+
             </CardActions>
+
         </Card>
     );
 };

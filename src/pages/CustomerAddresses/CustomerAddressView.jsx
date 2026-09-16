@@ -1,158 +1,370 @@
 import React from "react";
-import {Dialog,DialogTitle,DialogContent,DialogActions,Grid,Typography,Button, Divider,Chip} from "@mui/material";
+
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Grid,
+    Typography,
+    Button,
+    Divider,
+    Chip
+} from "@mui/material";
+
+
 const CustomerAddressView = ({
     open,
     address,
     onClose
 }) => {
-    if (!address) return null;
+
+    // ============================================================
+    // NO ADDRESS
+    // ============================================================
+
+    if (!address) {
+        return null;
+    }
+
+
+    // ============================================================
+    // SUPPORT PASCALCASE + CAMELCASE
+    // ============================================================
+
+    const customerAddressId =
+        address.CustomerAddressId ??
+        address.customerAddressId ??
+        0;
+
+    const customerId =
+        address.CustomerId ??
+        address.customerId ??
+        0;
+
+    const addressType =
+        address.AddressType ??
+        address.addressType ??
+        "";
+
+    const addressLine1 =
+        address.AddressLine1 ??
+        address.addressLine1 ??
+        "";
+
+    const addressLine2 =
+        address.AddressLine2 ??
+        address.addressLine2 ??
+        "";
+
+    const city =
+        address.City ??
+        address.city ??
+        "";
+
+    const state =
+        address.State ??
+        address.state ??
+        "";
+
+    const country =
+        address.Country ??
+        address.country ??
+        "";
+
+    const postalCode =
+        address.PostalCode ??
+        address.postalCode ??
+        "";
+
+    const isDefault =
+        address.IsDefault ??
+        address.isDefault ??
+        false;
+
+    const createdDate =
+        address.CreatedDate ??
+        address.createdDate ??
+        null;
+
+
+    // ============================================================
+    // ADDRESS TYPE COLOR
+    // ============================================================
+
+    const getAddressTypeColor = (type) => {
+
+        switch (
+            type?.toLowerCase()
+        ) {
+
+            case "billing":
+                return "primary";
+
+            case "shipping":
+                return "success";
+
+            case "both":
+                return "info";
+
+            default:
+                return "default";
+        }
+    };
+
+
+    // ============================================================
+    // FIELD COMPONENT
+    // ============================================================
+
     const Field = ({
         label,
         value
     }) => (
+
         <Grid
             item
             xs={12}
             md={6}
         >
+
             <Typography
                 variant="caption"
                 color="text.secondary"
             >
                 {label}
             </Typography>
+
             <Typography
                 variant="body1"
                 fontWeight={500}
+                sx={{
+                    wordBreak: "break-word"
+                }}
             >
-                {
-                    value || "-"
-                }
+                {value || "-"}
+
             </Typography>
+
         </Grid>
     );
+
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+
     return (
+
         <Dialog
             open={open}
             onClose={onClose}
             fullWidth
             maxWidth="md"
         >
-            <DialogTitle>
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
+            <DialogTitle
+                sx={{
+                    fontWeight: "bold"
+                }}
+            >
                 Customer Address Details
             </DialogTitle>
+
+
             <Divider />
+
+
+            {/* =================================================
+                CONTENT
+            ================================================= */}
+
             <DialogContent
                 sx={{
                     mt: 2
                 }}
             >
+
                 <Grid
                     container
                     spacing={3}
                 >
-                    <Field
-                        label="Customer Address ID"
-                        value={
-                            address.CustomerAddressId
-                        }
-                    />
-                    <Field
-                        label="Customer ID"
-                        value={
-                            address.CustomerId
-                        }
-                    />
+
+                    {/* CUSTOMER ADDRESS ID */}
 
                     <Field
-                        label="Address Type"
-                        value={
-                            address.AddressType
-                        }
+                        label="Customer Address ID"
+                        value={customerAddressId}
                     />
+
+
+                    {/* CUSTOMER ID */}
+
                     <Field
-                        label="Address Line 1"
-                        value={
-                            address.AddressLine1
-                        }
+                        label="Customer ID"
+                        value={customerId}
                     />
-                    <Field
-                        label="Address Line 2"
-                        value={
-                            address.AddressLine2
-                        }
-                    />
-                    <Field
-                        label="City"
-                        value={
-                            address.City
-                        }
-                    />
-                    <Field
-                        label="State"
-                        value={
-                            address.State
-                        }
-                    />
-                    <Field
-                        label="Country"
-                        value={
-                            address.Country
-                        }
-                    />
-                    <Field
-                        label="Postal Code"
-                        value={
-                            address.PostalCode
-                        }
-                    />
+
+
+                    {/* ADDRESS TYPE */}
+
                     <Grid
                         item
                         xs={12}
                         md={6}
                     >
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Address Type
+                        </Typography>
+
+                        <br />
+
+                        <Chip
+                            label={
+                                addressType || "-"
+                            }
+                            color={
+                                getAddressTypeColor(
+                                    addressType
+                                )
+                            }
+                            size="small"
+                        />
+
+                    </Grid>
+
+
+                    {/* DEFAULT ADDRESS */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                    >
+
                         <Typography
                             variant="caption"
                             color="text.secondary"
                         >
                             Default Address
                         </Typography>
+
                         <br />
+
                         <Chip
                             label={
-                                address.IsDefault
+                                isDefault
                                     ? "Yes"
                                     : "No"
                             }
                             color={
-                                address.IsDefault
+                                isDefault
                                     ? "success"
                                     : "default"
                             }
+                            size="small"
                         />
+
                     </Grid>
+
+
+                    {/* ADDRESS LINE 1 */}
+
+                    <Field
+                        label="Address Line 1"
+                        value={addressLine1}
+                    />
+
+
+                    {/* ADDRESS LINE 2 */}
+
+                    <Field
+                        label="Address Line 2"
+                        value={addressLine2}
+                    />
+
+
+                    {/* CITY */}
+
+                    <Field
+                        label="City"
+                        value={city}
+                    />
+
+
+                    {/* STATE */}
+
+                    <Field
+                        label="State"
+                        value={state}
+                    />
+
+
+                    {/* COUNTRY */}
+
+                    <Field
+                        label="Country"
+                        value={country}
+                    />
+
+
+                    {/* POSTAL CODE */}
+
+                    <Field
+                        label="Postal Code"
+                        value={postalCode}
+                    />
+
+
+                    {/* CREATED DATE */}
+
                     <Field
                         label="Created Date"
                         value={
-                            address.CreatedDate
+                            createdDate
                                 ? new Date(
-                                    address.CreatedDate
-                                  ).toLocaleString()
+                                    createdDate
+                                ).toLocaleString()
                                 : "-"
                         }
                     />
+
                 </Grid>
+
             </DialogContent>
-            <DialogActions>
+
+
+            {/* =================================================
+                ACTIONS
+            ================================================= */}
+
+            <DialogActions
+                sx={{
+                    px: 3,
+                    pb: 2
+                }}
+            >
+
                 <Button
                     variant="contained"
                     onClick={onClose}
                 >
                     Close
                 </Button>
+
             </DialogActions>
+
         </Dialog>
     );
 };
+
 
 export default CustomerAddressView;
