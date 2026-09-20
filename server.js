@@ -33264,6 +33264,261 @@ app.delete(
         }
     }
 );
+
+///////////////////// e-invoice and E-way bill /////////////////
+const {
+  EINV_BASE_URL, EWB_BASE_URL,
+  GSP_CLIENT_ID, GSP_CLIENT_SECRET,
+  GSP_USER_NAME, GSP_PASSWORD, GSTIN,
+} = process.env;
+
+// In-memory token cache
+let einvToken = { token: null, expiry: 0 };
+let ewbToken = { token: null, expiry: 0 };
+
+const getEinvToken = async () => {
+  if(einvToken.token && Date.now() < einvToken.expiry) return einvToken.token;
+  const res = await axios.post(`${EINV_BASE_URL}/eivital/v1.04/auth`, {
+    ClientId: GSP_CLIENT_ID,
+    ClientSecret: GSP_CLIENT_SECRET,
+    UserName: GSP_USER_NAME,
+    Password: GSP_PASSWORD,
+    Gstin: GSTIN
+  });
+  // Response: {Status:1, Data:{Token, Sek,...}}
+  einvToken = { token: res.data.Data.Token, expiry: Date.now() + 5*3600*1000 };
+  return einvToken.token;
+};
+
+// ============ E-INVOICE PAYLOAD BUILDER - WITH YOUR 4 TRANSACTION TYPES ============
+function buildEInvoicePayload(inv, so, items, cust) {
+  const rawTx = (inv.transactionType || so.transactionType || "REG").toUpperCase();
+  const isShipTo = rawTx.includes("BILL_TO_SHIP_TO") || rawTx.includes("COMBINED");
+  const isDispatch = rawTx.includes("BILL_FROM") || rawTx.includes("COMBINED");
+
+  const taxable = items.reduce((s,i)=> s + (Number(i.quantity)*Number(i.unitPrice)), 0);
+  const igst = taxable * 0.18;
+
+  const payload = {
+    Version: "1.1",
+    TranDtls: {
+      TaxSch: "GST",
+      SupTyp: isShipTo || rawTx.includes("BILL_TO_SHIP_TO")? "B2B" : "B2B",
+      RegRev: "N",
+      EcmGstin: null,
+      IgstOnIntra: "N"
+    },
+    DocDtls: {
+      Typ: "INV",
+      No: inv.invoiceNumber,
+      Dt: new Date(inv.invoiceDate).toLocaleDateString('en-GB').split('/').reverse().join('-') // DD/MM/YYYY -> YYYY-MM-DD
+    },
+    SellerDtls: {
+      Gstin: so.gstin || GSTIN,
+      LglNm: so.company_Name,
+      Addr1: so.company_Address,
+      Loc: so.company_City || "Hyderabad",
+      Pin: 500001,
+      Stcd: (so.gstin || GSTIN).substring(0,2),
+      Ph: "9959963344",
+      Em: "swastikmachineryhyd@gmail.com"
+    },
+    // BILL FROM DISPATCH FROM LOGIC
+   ...(isDispatch? {
+      DispDtls: {
+        Nm: so.dispatchFromCompanyName,
+        Addr1: so.dispatchFromAddress,
+        Loc: so.dispatchFromCity || "Hyderabad",
+        Pin: 500001,
+        Stcd: so.dispatchFromGSTIN.substring(0,2)
+      }
+    } : {}),
+    BuyerDtls: {
+      Gstin: cust.gstin,
+      LglNm: cust.legalName,
+      Pos: cust.gstin.substring(0,2),
+      Addr1: cust.addressLine1,
+      Loc: cust.city,
+      Pin: Number(cust.pincode || 560001),
+      Stcd: cust.gstin.substring(0,2),
+      Ph: "9999999999"
+    },
+    // BILL TO SHIP TO LOGIC
+   ...(isShipTo? {
+      ShipDtls: {
+        Gstin: so.shipToGSTIN,
+        LglNm: so.shipToCompanyName,
+        Addr1: so.shipToAddress,
+        Loc: so.shipToCity || so.shipToState,
+        Pin: 173205,
+        Stcd: so.shipToGSTIN.substring(0,2)
+      }
+    } : {}),
+    ItemList: items.map((it,i)=> ({
+      SlNo: String(i+1),
+      PrdDesc: it.description,
+      IsServc: "N",
+      HsnCd: it.hsncode || "8483",
+      Qty: Number(it.quantity),
+      Unit: it.uom || "NOS",
+      UnitPrice: Number(it.unitPrice),
+      TotAmt: Number(it.quantity)*Number(it.unitPrice),
+      AssAmt: Number(it.quantity)*Number(it.unitPrice),
+      GstRt: 18,
+      IgstAmt: (Number(it.quantity)*Number(it.unitPrice))*0.18,
+      CgstAmt: 0,
+      SgstAmt: 0,
+      TotItemVal: (Number(it.quantity)*Number(it.unitPrice))*1.18
+    })),
+    ValDtls: {
+      AssVal: taxable,
+      IgstVal: igst,
+      CgstVal: 0,
+      SgstVal: 0,
+      TotInvVal: taxable+igst,
+      CesVal: 0
+    },
+    EwbDtls: {
+      TransId: "",
+      TransName: "",
+      TransMode: "1",
+      Distance: Number(so.distance || 30),
+      TransDocNo: "",
+      TransDocDt: "",
+      VehNo: so.vehicleNo || "TS07XX1234",
+      VehType: "R"
+    }
+  };
+  return payload;
+}
+
+// ============ ROUTES ============
+
+// 1. GENERATE E-INVOICE (IRN)
+app.post('/api/e-invoice/generate/:invoiceId', async (req,res)=>{
+  try{
+    const token = await getEinvToken();
+    const invoiceId = req.params.invoiceId;
+
+    // Fetch your invoice data from.NET backend
+    const invRes = await axios.get(`http://localhost:5001/api/sales-invoices/${invoiceId}`);
+    const inv = invRes.data.$values?.[0] || invRes.data;
+    const soRes = await axios.get(`http://localhost:5001/api/SalesOrder/${inv.salesOrderId}`);
+    const so = soRes.data;
+    const itemsRes = await axios.get(`http://localhost:5001/api/sales-order-items/${inv.salesOrderId}`);
+    const items = itemsRes.data.$values || itemsRes.data;
+    const custRes = await axios.get(`http://localhost:5001/api/SellerCustomer/${inv.sellerId}/customers/${inv.customerId}`);
+    const cust = custRes.data;
+
+    const payload = buildEInvoicePayload(inv, so, items, cust);
+
+    const nicRes = await axios.post(`${EINV_BASE_URL}/eicore/v1.03/invoice`, payload, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'X-GSTIN': payload.SellerDtls.Gstin,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // NIC returns: AckNo, AckDt, Irn, SignedInvoice, SignedQRCode, EwbNo, EwbDt
+    const data = nicRes.data.Data;
+
+    // Save back to your DB
+    await axios.put(`http://localhost:5001/api/sales-invoices/${invoiceId}/irn`, {
+      irnNumber: data.Irn,
+      ackNo: data.AckNo,
+      ackDate: data.AckDt,
+      signedInvoice: data.SignedInvoice,
+      signedQRCode: data.SignedQRCode,
+      eWayBillNumber: data.EwbNo,
+      eWayBillDate: data.EwbDt
+    });
+
+    res.json({ success: true, Irn: data.Irn, AckNo: data.AckNo, EwbNo: data.EwbNo, SignedQRCode: data.SignedQRCode });
+
+  }catch(err){
+    console.error("EINV Error:", err.response?.data || err.message);
+    res.status(500).json({ success:false, error: err.response?.data || err.message });
+  }
+});
+
+// 2. PRINT VIEW - Used by SalesInvoicePrint.jsx
+app.get('/api/e-invoice/print-view/:invoiceId', async (req,res)=>{
+  try{
+    const invoiceId = req.params.invoiceId;
+    const invRes = await axios.get(`http://localhost:5001/api/sales-invoices/${invoiceId}`);
+    const inv = invRes.data.$values?.[0] || invRes.data;
+    // Assuming you saved IRN details in same table
+    res.json({
+      irnNumber: inv.irnNumber,
+      ackNo: inv.ackNo,
+      invoice: inv,
+      eWayBillNumber: inv.eWayBillNumber
+    });
+  }catch(e){
+    res.json({ irnNumber: "", ackNo: "", invoice: {} });
+  }
+});
+
+// 3. GENERATE E-WAY BILL (Separate if needed after IRN)
+app.post('/api/eway-bill/generate/:invoiceId', async (req,res)=>{
+  try{
+    const invoiceId = req.params.invoiceId;
+    const token = await getEinvToken(); // EWB uses same auth in sandbox
+
+    const invRes = await axios.get(`http://localhost:5001/api/sales-invoices/${invoiceId}`);
+    const inv = invRes.data.$values?.[0] || invRes.data;
+
+    const ewbPayload = {
+      supplyType: "O",
+      subSupplyType: 1,
+      docType: "INV",
+      docNo: inv.invoiceNumber,
+      docDate: new Date(inv.invoiceDate).toLocaleDateString('en-GB').split('/').reverse().join('/'),
+      fromTrdName: req.body.fromTrdName,
+      fromGstin: req.body.fromGstin,
+      fromAddr1: req.body.fromAddr1,
+      fromPlace: req.body.fromPlace,
+      fromPincode: 500001,
+      fromStateCode: req.body.fromGstin.substring(0,2),
+      toTrdName: req.body.toTrdName,
+      toGstin: req.body.toGstin,
+      toAddr1: req.body.toAddr1,
+      toPlace: req.body.toPlace,
+      toPincode: 173205,
+      toStateCode: req.body.toGstin.substring(0,2),
+      totalValue: req.body.totalValue,
+      cgstValue: 0,
+      sgstValue: 0,
+      igstValue: req.body.igstValue,
+      cessValue: 0,
+      transMode: 1,
+      transDistance: req.body.distance || 30,
+      vehicleNo: req.body.vehicleNo,
+      vehicleType: "R",
+      transactionType: req.body.transactionType === "REG"? 1 : req.body.transactionType === "BILL_TO_SHIP_TO"? 2 : req.body.transactionType === "BILL_FROM_DISPATCH_FROM"? 3 : 4
+    };
+
+    const nicRes = await axios.post(`${EWB_BASE_URL}/api/ewayapi/gen_ewaybill`, ewbPayload, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    });
+
+    res.json(nicRes.data);
+
+  }catch(err){
+    res.status(500).json({ error: err.response?.data || err.message });
+  }
+});
+
+// 4. SALES INVOICES LIST (Proxy to.NET)
+app.get('/api/sales-invoices/:id', async (req,res)=>{
+  try{
+    const r = await axios.get(`http://localhost:5001/api/sales-invoices/${req.params.id}`);
+    res.json(r.data);
+  }catch(e){ res.status(500).json({error:e.message}); }
+});
+
+
 // =========================================================
 // START SERVER
 // =========================================================
