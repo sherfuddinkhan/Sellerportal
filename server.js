@@ -3891,7 +3891,40 @@ app.post("/api/sales-order-items", async (req, res) => {
 
 });
 
+app.get("/api/sales-order-items/product/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
 
+    const salesOrderItemsResponse = await axios.get(
+      `${DOTNET_API}/sales-order-items/product/${productId}`,
+      {
+        httpsAgent,
+      }
+    );
+
+    console.log("========================================");
+    console.log("SALES ORDER ITEMS BY PRODUCT");
+    console.log("Product ID:", productId);
+    console.log("Status:", salesOrderItemsResponse.status);
+    console.log("Response:", salesOrderItemsResponse.data);
+    console.log("========================================");
+
+    res.status(salesOrderItemsResponse.status).json(
+      salesOrderItemsResponse.data
+    );
+  } catch (error) {
+    console.error("Sales Order Items Product proxy error:");
+    console.error("Status:", error.response?.status);
+    console.error("Data:", error.response?.data);
+    console.error("Message:", error.message);
+
+    res.status(error.response?.status || 500).json(
+      error.response?.data || {
+        message: error.message,
+      }
+    );
+  }
+});
 // =========================================================
 // UPDATE SALES ORDER ITEM
 // PUT /api/sales-order-items/:id
@@ -3916,6 +3949,37 @@ app.post("/api/sales-order-items", async (req, res) => {
 // UPDATE SALES ORDER
 // PUT /api/SalesOrder/:id
 // =========================================================
+app.get("/api/SalesOrder/:id", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `${DOTNET_API}/SalesOrder/${req.params.id}`,
+      {
+        httpsAgent,
+      }
+    );
+
+    console.log(
+      "SalesOrder API:",
+      req.params.id,
+      response.status,
+      response.data
+    );
+
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error(
+      "SalesOrder proxy error:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    res.status(error.response?.status || 500).json(
+      error.response?.data || {
+        message: error.message,
+      }
+    );
+  }
+});
 
 app.put("/api/SalesOrder/:id", async (req, res) => {
 
@@ -4060,6 +4124,39 @@ app.get("/api/sales-order-items", async (req, res) => {
             }
         );
     }
+});
+
+
+app.get("/api/sales-order-items/:salesOrderId", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `${DOTNET_API}/sales-order-items/${req.params.salesOrderId}`,
+      {
+        httpsAgent,
+      }
+    );
+
+    console.log(
+      "SalesOrderItems API:",
+      req.params.salesOrderId,
+      response.status,
+      response.data
+    );
+
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error(
+      "SalesOrderItems proxy error:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    res.status(error.response?.status || 500).json(
+      error.response?.data || {
+        message: error.message,
+      }
+    );
+  }
 });
 // =========================================================
 // SALES ORDER ITEMS - STATISTICS
@@ -4233,63 +4330,6 @@ app.get(
         }
     }
 );
-
-
-// ---------------------------------------------------------
-// GET BY PRODUCT
-// GET /api/sales-order-items/product/1
-// ---------------------------------------------------------
-
-app.get(
-    "/api/sales-order-items/product/:productId",
-    async (req, res) => {
-
-        try {
-
-            const productId =
-                Number(req.params.productId);
-
-            if (
-                !Number.isInteger(productId) ||
-                productId <= 0
-            ) {
-
-                return res.status(400).json({
-                    message: "Invalid Product ID"
-                });
-
-            }
-
-            const response = await axios.get(
-                `${DOTNET_API}/SalesOrderItem/product/${productId}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res.status(200).json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "GET ITEMS BY PRODUCT ERROR:",
-                error.response?.data ||
-                error.message
-            );
-
-            return res.status(
-                error.response?.status || 500
-            ).json(
-                error.response?.data || {
-                    message:
-                        "Failed to fetch items by Product"
-                }
-            );
-        }
-    }
-);
-
-
 // ---------------------------------------------------------
 // STATISTICS
 // GET /api/sales-order-items/stats
@@ -32734,39 +32774,55 @@ app.get(
 // ============================================================
 
 app.get(
-    "/api/SellerCustomer/:sellerId/customers/:customerId",
-    async (req, res) => {
+  "/api/SellerCustomer/:sellerId/customers/:customerId",
+  async (req, res) => {
+    try {
+      const { sellerId, customerId } = req.params;
 
-        try {
+      console.log("========================================");
+      console.log("SELLER CUSTOMER PROXY");
+      console.log("Seller ID:", sellerId);
+      console.log("Customer ID:", customerId);
 
-            const {
-                sellerId,
-                customerId
-            } = req.params;
-
-            const response =
-                await axios.get(
-                    `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
-                    {
-                        httpsAgent
-                    }
-                );
-
-            return res.json(
-                response.data
-            );
-
-        } catch (error) {
-
-            return handleProxyError(
-                res,
-                error,
-                "Get customer"
-            );
-
+      const sellerCustomerResponse = await axios.get(
+        `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`,
+        {
+          httpsAgent,
         }
+      );
 
+      console.log(
+        "ASP.NET STATUS:",
+        sellerCustomerResponse.status
+      );
+
+      console.log(
+        "ASP.NET RESPONSE:",
+        sellerCustomerResponse.data
+      );
+
+      console.log("========================================");
+
+      res
+        .status(sellerCustomerResponse.status)
+        .json(sellerCustomerResponse.data);
+
+    } catch (error) {
+      console.error("SELLER CUSTOMER PROXY ERROR");
+      console.error("Status:", error.response?.status);
+      console.error("Response:", error.response?.data);
+      console.error("Message:", error.message);
+
+      res
+        .status(error.response?.status || 500)
+        .json(
+          error.response?.data || {
+            success: false,
+            message: error.message,
+          }
+        );
     }
+  }
 );
 
 
@@ -33442,21 +33498,135 @@ app.post('/api/e-invoice/generate/:invoiceId', async (req,res)=>{
   }
 });
 
-// 2. PRINT VIEW - Used by SalesInvoicePrint.jsx
-app.get('/api/e-invoice/print-view/:invoiceId', async (req,res)=>{
-  try{
+// ============================================================
+// E-INVOICE PRINT VIEW
+// Used by SalesInvoicePrint.jsx
+// ============================================================
+app.get("/api/e-invoice/print-view/:invoiceId", async (req, res) => {
+  try {
     const invoiceId = req.params.invoiceId;
-    const invRes = await axios.get(`http://localhost:5001/api/sales-invoices/${invoiceId}`);
-    const inv = invRes.data.$values?.[0] || invRes.data;
-    // Assuming you saved IRN details in same table
-    res.json({
-      irnNumber: inv.irnNumber,
-      ackNo: inv.ackNo,
-      invoice: inv,
-      eWayBillNumber: inv.eWayBillNumber
+
+    console.log(
+      "========== E-INVOICE PRINT VIEW =========="
+    );
+
+    console.log(
+      "Invoice ID:",
+      invoiceId
+    );
+
+    // Get invoice through ASP.NET API
+    const invoiceResponse = await axios.get(
+      `${DOTNET_API}/sales-invoices/${invoiceId}`,
+      {
+        httpsAgent,
+      }
+    );
+
+    console.log(
+      "ASP.NET Invoice Status:",
+      invoiceResponse.status
+    );
+
+    console.log(
+      "ASP.NET Invoice Response:",
+      invoiceResponse.data
+    );
+
+    const invoiceData = invoiceResponse.data;
+
+    const invoice =
+      invoiceData?.$values?.[0] ||
+      (Array.isArray(invoiceData)
+        ? invoiceData[0]
+        : invoiceData) ||
+      {};
+
+    console.log(
+      "Normalized Invoice:",
+      invoice
+    );
+
+    // Return data required by SalesInvoicePrint.jsx
+    const responseData = {
+      irnNumber:
+        invoice?.irnNumber ??
+        invoice?.IRNNumber ??
+        invoice?.irn ??
+        "",
+
+      ackNo:
+        invoice?.ackNo ??
+        invoice?.AckNo ??
+        invoice?.ackNumber ??
+        "",
+
+      ackDate:
+        invoice?.ackDate ??
+        invoice?.AckDate ??
+        "",
+
+      eWayBillNumber:
+        invoice?.eWayBillNumber ??
+        invoice?.EWayBillNumber ??
+        "",
+
+      vehicleNo:
+        invoice?.vehicleNo ??
+        invoice?.VehicleNo ??
+        "",
+
+      invoice: invoice,
+    };
+
+    console.log(
+      "========== PRINT VIEW RESPONSE =========="
+    );
+
+    console.log(
+      JSON.stringify(
+        responseData,
+        null,
+        2
+      )
+    );
+
+    res.status(200).json(responseData);
+
+  } catch (error) {
+
+    console.error(
+      "E-Invoice Print View Error:"
+    );
+
+    console.error(
+      "Status:",
+      error.response?.status
+    );
+
+    console.error(
+      "Response:",
+      error.response?.data
+    );
+
+    console.error(
+      "Message:",
+      error.message
+    );
+
+    res.status(
+      error.response?.status || 500
+    ).json({
+      irnNumber: "",
+      ackNo: "",
+      ackDate: "",
+      eWayBillNumber: "",
+      vehicleNo: "",
+      invoice: {},
+      error:
+        error.response?.data ||
+        error.message,
     });
-  }catch(e){
-    res.json({ irnNumber: "", ackNo: "", invoice: {} });
   }
 });
 
