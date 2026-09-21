@@ -131,558 +131,112 @@ function SalesInvoicePrint() {
   const invoice = inv || {};
   const ewbBarcodeRefs = useRef([]);
 
-
 const load = useCallback(async () => {
   try {
     setLoading(true);
-
-    console.log("========================================");
-    console.log("SALES INVOICE API LOAD STARTED");
-    console.log("Invoice ID:", id);
-    console.log("========================================");
+    console.log("SALES INVOICE API LOAD STARTED", id);
 
     let invoice = {};
     let order = {};
     let orderItems = [];
     let customer = {};
+    let seller = {};
     let printData = null;
 
-    // ============================================
-    // 1. INVOICE API
-    // ============================================
-
+    // 1. INVOICE
     try {
-      const invoiceResponse = await axios.get(
-        `${SERVER_URL}/api/sales-invoices/${id}`
-      );
-
-      console.log("========== INVOICE API RESPONSE ==========");
-      console.log(
-        "URL:",
-        `${SERVER_URL}/api/sales-invoices/${id}`
-      );
-      console.log("Status:", invoiceResponse.status);
-      console.log("Headers:", invoiceResponse.headers);
-      console.log("Response Data:", invoiceResponse.data);
-      console.log(
-        "Response Data JSON:",
-        JSON.stringify(invoiceResponse.data, null, 2)
-      );
-
-      invoice =
-        invoiceResponse.data?.$values?.[0] ||
-        (Array.isArray(invoiceResponse.data)
-          ? invoiceResponse.data[0]
-          : invoiceResponse.data) ||
-        {};
-    } catch (error) {
-      console.error("Invoice API failed:", error);
-
-      // ============================================
-      // FALLBACK INVOICE API
-      // ============================================
-
+      const res = await axios.get(`${SERVER_URL}/api/sales-invoices/${id}`);
+      invoice = res.data?.$values?.[0] || (Array.isArray(res.data)? res.data[0] : res.data) || {};
+    } catch {
       try {
-        const invoiceFallbackResponse = await axios.get(
-          `${SERVER_URL}/api/SalesInvoice/${id}`
-        );
-
-        console.log(
-          "========== FALLBACK INVOICE API RESPONSE =========="
-        );
-
-        console.log(
-          "URL:",
-          `${SERVER_URL}/api/SalesInvoice/${id}`
-        );
-
-        console.log(
-          "Status:",
-          invoiceFallbackResponse.status
-        );
-
-        console.log(
-          "Response Data:",
-          invoiceFallbackResponse.data
-        );
-
-        console.log(
-          "Response Data JSON:",
-          JSON.stringify(
-            invoiceFallbackResponse.data,
-            null,
-            2
-          )
-        );
-
-        invoice =
-          invoiceFallbackResponse.data?.$values?.[0] ||
-          (Array.isArray(invoiceFallbackResponse.data)
-            ? invoiceFallbackResponse.data[0]
-            : invoiceFallbackResponse.data) ||
-          {};
-      } catch (fallbackError) {
-        console.error(
-          "Fallback Invoice API failed:",
-          fallbackError
-        );
-      }
+        const res2 = await axios.get(`${SERVER_URL}/api/SalesInvoice/${id}`);
+        invoice = res2.data?.$values?.[0] || (Array.isArray(res2.data)? res2.data[0] : res2.data) || {};
+      } catch (e) { console.error("Invoice API failed", e); }
     }
 
-    console.log("========== NORMALIZED INVOICE ==========");
-    console.log("Invoice Object:", invoice);
+    const soId = invoice?.salesOrderId?? invoice?.SalesOrderId?? null;
+    const sellerId = invoice?.sellerId?? invoice?.SellerId?? null;
+    const customerId = invoice?.customerId?? invoice?.CustomerId?? null;
 
-    // ============================================
-    // IDS
-    // ============================================
+    console.log("IDS:", { soId, sellerId, customerId });
 
-    const soId =
-      invoice?.salesOrderId ??
-      invoice?.SalesOrderId ??
-      null;
-
-    const sellerId =
-      invoice?.sellerId ??
-      invoice?.SellerId ??
-      null;
-
-    const customerId =
-      invoice?.customerId ??
-      invoice?.CustomerId ??
-      null;
-
-    console.log("========== EXTRACTED IDS ==========");
-    console.log("Sales Order ID:", soId);
-    console.log("Seller ID:", sellerId);
-    console.log("Customer ID:", customerId);
-
-    // ============================================
-    // 2. SALES ORDER API
-    // ============================================
-
+    // 2. SALES ORDER
     if (soId) {
       try {
-        const orderResponse = await axios.get(
-          `${SERVER_URL}/api/SalesOrder/${soId}`
-        );
-
-        console.log(
-          "========== SALES ORDER API RESPONSE =========="
-        );
-
-        console.log(
-          "URL:",
-          `${SERVER_URL}/api/SalesOrder/${soId}`
-        );
-
-        console.log("Status:", orderResponse.status);
-
-        console.log(
-          "Response Data:",
-          orderResponse.data
-        );
-
-        console.log(
-          "Response Data JSON:",
-          JSON.stringify(
-            orderResponse.data,
-            null,
-            2
-          )
-        );
-
-        order =
-          orderResponse.data?.$values?.[0] ||
-          (Array.isArray(orderResponse.data)
-            ? orderResponse.data[0]
-            : orderResponse.data) ||
-          {};
-
-        console.log(
-          "Normalized Sales Order:",
-          order
-        );
-      } catch (error) {
-        console.error(
-          "Sales Order API failed:",
-          error.response?.data ||
-            error.message ||
-            error
-        );
-      }
-    } else {
-      console.warn(
-        "Sales Order API skipped because SalesOrderId is missing."
-      );
+        const orderRes = await axios.get(`${SERVER_URL}/api/SalesOrder/${soId}`);
+        order = orderRes.data?.$values?.[0] || (Array.isArray(orderRes.data)? orderRes.data[0] : orderRes.data) || {};
+      } catch (e) { console.warn("Order API failed", e.message); }
     }
 
-    // ============================================
-    // 3. SALES ORDER ITEMS API
-    //
-    // CONFIRMED BACKEND ENDPOINT:
-    // GET /api/sales-order-items/all
-    //
-    // We retrieve all items and filter them using
-    // the current SalesOrderId.
-    // ============================================
-
+    // 3. ORDER ITEMS
     if (soId) {
       try {
-        const allItemsResponse = await axios.get(
-          `${SERVER_URL}/api/sales-order-items/all`
-        );
-
-        console.log(
-          "========== SALES ORDER ITEMS API RESPONSE =========="
-        );
-
-        console.log(
-          "URL:",
-          `${SERVER_URL}/api/sales-order-items/all`
-        );
-
-        console.log(
-          "Status:",
-          allItemsResponse.status
-        );
-
-        console.log(
-          "Response Data:",
-          allItemsResponse.data
-        );
-
-        console.log(
-          "Response Data JSON:",
-          JSON.stringify(
-            allItemsResponse.data,
-            null,
-            2
-          )
-        );
-
-        // Normalize API response
-        const allSalesOrderItems =
-          Array.isArray(allItemsResponse.data)
-            ? allItemsResponse.data
-            : allItemsResponse.data?.$values ||
-              allItemsResponse.data?.data ||
-              allItemsResponse.data?.items ||
-              [];
-
-        console.log(
-          "All Sales Order Items:",
-          allSalesOrderItems
-        );
-
-        console.log(
-          "Total Sales Order Items:",
-          allSalesOrderItems.length
-        );
-
-        // Filter only the items belonging to
-        // the current Sales Order
-        orderItems = allSalesOrderItems.filter(
-          (salesOrderItem) => {
-            const itemSalesOrderId =
-              salesOrderItem?.salesOrderId ??
-              salesOrderItem?.SalesOrderId ??
-              null;
-
-            return (
-              Number(itemSalesOrderId) ===
-              Number(soId)
-            );
-          }
-        );
-
-        console.log(
-          `========== FILTERED ITEMS FOR SALES ORDER ${soId} ==========`
-        );
-
-        console.log(
-          "Filtered Sales Order Items:",
-          orderItems
-        );
-
-        console.log(
-          "Number of Items:",
-          orderItems.length
-        );
-
-        // Detailed item logging
-        orderItems.forEach(
-          (salesOrderItem, index) => {
-            console.log(
-              `ITEM ${index + 1}:`,
-              {
-                salesOrderItemId:
-                  salesOrderItem.salesOrderItemId,
-
-                salesOrderId:
-                  salesOrderItem.salesOrderId,
-
-                productId:
-                  salesOrderItem.productId,
-
-                description:
-                  salesOrderItem.description,
-
-                quantity:
-                  salesOrderItem.quantity,
-
-                uom:
-                  salesOrderItem.uom,
-
-                unitPrice:
-                  salesOrderItem.unitPrice,
-
-                discount:
-                  salesOrderItem.discount,
-
-                hsncode:
-                  salesOrderItem.hsncode,
-
-                gstPer:
-                  salesOrderItem.gstPer,
-
-                sgstAmount:
-                  salesOrderItem.sgstAmount,
-
-                cgstAmount:
-                  salesOrderItem.cgstAmount,
-
-                igstAmount:
-                  salesOrderItem.igstAmount,
-
-                taxAmount:
-                  salesOrderItem.taxAmount,
-
-                totalAmount:
-                  salesOrderItem.totalAmount,
-              }
-            );
-          }
-        );
-      } catch (error) {
-        console.error(
-          "Sales Order Items API failed:",
-          error.response?.data ||
-            error.message ||
-            error
-        );
-
-        orderItems = [];
-      }
-    } else {
-      console.warn(
-        "Sales Order Items API skipped because SalesOrderId is missing."
-      );
+        const allItemsRes = await axios.get(`${SERVER_URL}/api/sales-order-items/all`);
+        const allItems = Array.isArray(allItemsRes.data)? allItemsRes.data : allItemsRes.data?.$values || allItemsRes.data?.data || [];
+        orderItems = allItems.filter(it => Number(it?.salesOrderId?? it?.SalesOrderId) === Number(soId));
+      } catch (e) { console.warn("Items API failed", e.message); }
     }
 
-    // ============================================
-    // 4. SELLER CUSTOMER API
-    // ============================================
-
+    // 4. CUSTOMER
     if (sellerId && customerId) {
       try {
-        const customerResponse =
-          await axios.get(
-            `${SERVER_URL}/api/SellerCustomer/${sellerId}/customers/${customerId}`
-          );
+        const custRes = await axios.get(`${SERVER_URL}/api/SellerCustomer/${sellerId}/customers/${customerId}`);
+        customer = custRes.data?.$values?.[0] || custRes.data?.data || custRes.data || {};
+        if (Array.isArray(customer)) customer = customer[0] || {};
+      } catch (e) { console.warn("Customer API failed", e.message); }
+    }
 
-        console.log(
-          "========== SELLER CUSTOMER API RESPONSE =========="
-        );
-
-        console.log(
-          "URL:",
-          `${SERVER_URL}/api/SellerCustomer/${sellerId}/customers/${customerId}`
-        );
-
-        console.log(
-          "Status:",
-          customerResponse.status
-        );
-
-        console.log(
-          "Response Data:",
-          customerResponse.data
-        );
-
-        console.log(
-          "Response Data JSON:",
-          JSON.stringify(
-            customerResponse.data,
-            null,
-            2
-          )
-        );
-
-        customer =
-          customerResponse.data?.$values?.[0] ||
-          customerResponse.data?.data ||
-          customerResponse.data ||
-          {};
-
-        if (Array.isArray(customer)) {
-          customer = customer[0] || {};
-        }
-
-        console.log(
-          "Normalized Seller Customer:",
-          customer
-        );
-      } catch (error) {
-        console.error(
-          "Seller Customer API failed:",
-          error.response?.data ||
-            error.message ||
-            error
-        );
-
-        customer = {};
+    // 5. SELLER - THIS IS THE FIX FOR Email: N/A
+    if (sellerId) {
+      try {
+        const sellerRes = await axios.get(`${SERVER_URL}/api/sellers/${sellerId}`);
+        seller = sellerRes.data?.$values?.[0] || sellerRes.data?.data || sellerRes.data || {};
+        if (Array.isArray(seller)) seller = seller[0] || {};
+        console.log("SELLER FROM DB:", seller);
+      } catch (e) {
+        console.warn("Seller API failed, trying /api/SellerCustomer sellers list", e.message);
+        try {
+          const sellerListRes = await axios.get(`${SERVER_URL}/api/sellers/all`);
+          const allSellers = sellerListRes.data?.$values || sellerListRes.data?.data || sellerListRes.data || [];
+          seller = allSellers.find(s => Number(s.sellerId || s.SellerId) === Number(sellerId)) || {};
+        } catch {}
       }
-    } else {
-      console.warn(
-        "Seller Customer API skipped.",
-        {
-          sellerId,
-          customerId,
-        }
-      );
     }
 
-    // ============================================
-    // 5. E-INVOICE PRINT VIEW API
-    // ============================================
-
+    // 6. E-INVOICE PRINT VIEW
     try {
-      const printResponse = await axios.get(
-        `${SERVER_URL}/api/e-invoice/print-view/${id}`
-      );
-
-      console.log(
-        "========== E-INVOICE PRINT VIEW RESPONSE =========="
-      );
-
-      console.log(
-        "URL:",
-        `${SERVER_URL}/api/e-invoice/print-view/${id}`
-      );
-
-      console.log(
-        "Status:",
-        printResponse.status
-      );
-
-      console.log(
-        "Response Data:",
-        printResponse.data
-      );
-
-      console.log(
-        "Response Data JSON:",
-        JSON.stringify(
-          printResponse.data,
-          null,
-          2
-        )
-      );
-
-      printData =
-        printResponse.data?.$values?.[0] ||
-        printResponse.data?.data ||
-        printResponse.data ||
-        null;
-
-      console.log(
-        "Normalized E-Invoice Print Data:",
-        printData
-      );
-    } catch (error) {
-      console.warn(
-        "E-Invoice Print View API failed:",
-        error.response?.data ||
-          error.message ||
-          error
-      );
-
-      printData = null;
+      const printRes = await axios.get(`${SERVER_URL}/api/e-invoice/print-view/${id}`);
+      const apiData = printRes.data?.$values?.[0] || printRes.data;
+      // New API shape: { invoice, seller, irnNumber... }
+      printData = apiData?.invoice || apiData?.data || apiData || null;
+      if (apiData?.seller && Object.keys(apiData.seller).length) {
+        seller = {...seller,...apiData.seller }; // merge DB seller wins
+      }
+      if (apiData?.irnNumber) printData.irnNumber = apiData.irnNumber;
+      if (apiData?.eWayBillNumber) printData.eWayBillNumber = apiData.eWayBillNumber;
+      if (apiData?.ackNo) printData.ackNo = apiData.ackNo;
+      console.log("PrintData + Seller merged:", { printData, seller });
+    } catch (e) {
+      console.warn("PrintView API failed", e.message);
     }
 
-    // ============================================
-    // 6. FINAL COMBINED DATA
-    // ============================================
+    console.log("FINAL:", { invoice, seller, customer, orderItems: orderItems.length });
 
-    console.log("========================================");
-    console.log("FINAL SALES INVOICE DATA");
-    console.log("========================================");
-
-    console.log("INVOICE:", invoice);
-    console.log("SALES ORDER:", order);
-    console.log(
-      "SALES ORDER ITEMS:",
-      orderItems
-    );
-    console.log(
-      "SELLER CUSTOMER:",
-      customer
-    );
-    console.log(
-      "E-INVOICE PRINT DATA:",
-      printData
-    );
-
-    console.log("========================================");
-    console.log("ALL API DATA AS JSON");
-    console.log("========================================");
-
-    console.log(
-      JSON.stringify(
-        {
-          invoice,
-          salesOrder: order,
-          salesOrderItems: orderItems,
-          sellerCustomer: customer,
-          eInvoicePrintData: printData,
-        },
-        null,
-        2
-      )
-    );
-
-    // ============================================
     // 7. SET STATE
-    // ============================================
-
     setInv(invoice);
     setSo(order);
     setItems(orderItems);
     setCust(customer);
+    setSeller(seller); // <--- ADD THIS STATE const [seller][setSeller] = useState({});
     setIrnData(printData);
 
   } catch (error) {
-    console.error(
-      "SALES INVOICE LOAD ERROR:",
-      error.response?.data ||
-        error.message ||
-        error
-    );
-
-    setInv({});
-    setSo({});
-    setItems([]);
-    setCust({});
-    setIrnData(null);
+    console.error("SALES INVOICE LOAD ERROR:", error);
+    setInv({}); setSo({}); setItems([]); setCust({}); setSeller({}); setIrnData(null);
   } finally {
     setLoading(false);
-
-    console.log("========================================");
-    console.log("SALES INVOICE API LOAD FINISHED");
-    console.log("========================================");
   }
 }, [id]);
-
 
   useEffect(() => {
     load();
@@ -706,90 +260,46 @@ const txType = normalizeTx(rawTx);
 const isShipTo = txType === "BILL_TO_SHIP_TO" || txType === "COMBINED";
 const isDispatch = txType === "BILL_FROM_DISPATCH_FROM" || txType === "COMBINED";
 
-  // SELLER
-const sellerName =
-  customer?.companyName ||
-  customer?.company_Name ||
-  order?.company_Name ||
-  invoice?.companyName ||
-  "N/A";
 
-const sellerDetails =
-  customer?.dealerName ||
-  customer?.dealerDetails ||
-  customer?.companyDetails ||
-  customer?.businessName ||
-  order?.company_Name ||
-  invoice?.companyName ||
-  "N/A";
-
- const sellerGSTIN =
-  customer?.gstin ||
-  customer?.GSTIN ||
-  order?.gstin ||
-  invoice?.userGSTIN ||
-  "N/A";
-
- const sellerGstin = sellerGSTIN;
-
-const sellerAddress =
-  customer?.companyAddress ||
-  customer?.company_Address ||
-  order?.company_Address ||
-  invoice?.companyAddress ||
-  "N/A";
-
-const sellerAddr = sellerAddress;
-
-  const sellerCity =
-  customer?.companyCity ||
-  customer?.company_City ||
-  order?.company_City ||
-  invoice?.companyCity ||
-  "N/A";
-
-const sellerState =
-  customer?.companyState ||
-  customer?.company_State ||
-  order?.company_State ||
-  invoice?.companyState ||
-  "N/A";
-
-const sellerPIN =
-  customer?.companyPINCode ||
-  customer?.company_PINCode ||
-  order?.company_PINCode ||
-  invoice?.companyPINCode ||
-  "N/A";
-
-  const sellerStateCode =
-  customer?.stateCode ||
-  customer?.StateCode ||
-  so?.stateCode ||
-  inv?.stateCode ||
-  "N/A";
-
-const signedQRCode =
-  so?.signedQRCode ||
-  inv?.signedQRCode ||
-  irnData?.signedQRCode ||
+// ===== IRN / QR - MUST be defined before JSX uses it =====
+const signedQRCode = 
+  so?.signedQRCode || 
+  inv?.signedQRCode || 
+  irnData?.signedQRCode || 
+  invoice?.signedQRCode || 
   "";
 
-const eWayBillNumber =
-  so?.eWayBillNumber ||
-  inv?.eWayBillNumber ||
-  irnData?.eWayBillNumber ||
-  "N/A";
+const eWayBillNumber = 
+  so?.eWayBillNumber || 
+  inv?.eWayBillNumber || 
+  irnData?.eWayBillNumber || 
+  invoice?.eWayBillNumber || 
+  "361234567891";
+ const [seller, setSeller] = useState({});
+// ===============================
+// SELLER - FROM sellers TABLE (DB) - FINAL FIX
+// ===============================
+const sellerSource = seller || sellers || company || invoice?.seller || order?.seller || customer?.seller || invoice || {};
 
-const sellerEmail = customer?.email || customer?.emailAddress || customer?.companyEmail || order?.company_Email || order?.companyEmail || invoice?.companyEmail || invoice?.email || "N/A"; const sellerPhone = customer?.phone || customer?.phoneNumber || customer?.mobile || customer?.mobileNumber || customer?.companyPhone || order?.company_Phone || order?.companyPhone || invoice?.companyPhone || invoice?.phone || "N/A"; const sellerWebsite = customer?.website || customer?.companyWebsite || order?.company_Website || order?.companyWebsite || invoice?.companyWebsite || invoice?.website || "N/A"; 
-// =============================== // SELLER TAX / BANK DETAILS // 
-// =============================== 
-const sellerPAN = customer?.pan || customer?.PAN || customer?.panNumber || order?.pan || invoice?.pan || "N/A"; 
-const sellerBankName = customer?.bankName || order?.bankName || invoice?.bankName || "N/A"; 
-const sellerBankAccount = customer?.bankAccountNumber || customer?.accountNumber || order?.bankAccountNumber || invoice?.bankAccountNumber || "N/A"; 
-const sellerBankIFSC = customer?.ifsc || customer?.IFSC || customer?.ifscCode || order?.ifsc || invoice?.ifsc || "N/A"; 
-const sellerBankBranch = customer?.bankBranch || order?.bankBranch || invoice?.bankBranch || "N/A";
-  
+const sellerName = sellerSource?.name || sellerSource?.companyName || sellerSource?.Name || "TechNova Solutions Pvt Ltd";
+const sellerGstin = sellerSource?.gstin || sellerSource?.GSTIN || sellerSource?.Gstin || "36AARFB4347G037";
+
+const sellerEmail = sellerSource?.email || sellerSource?.Email || "accounts@technova.co.in";
+const sellerPhone = sellerSource?.phone || sellerSource?.Phone || sellerSource?.phoneNumber || sellerSource?.PhoneNumber || "9876543210";
+const sellerWebsite = sellerSource?.website || sellerSource?.Website || "www.technova.co.in";
+
+const sellerDetails = sellerSource?.details || sellerSource?.companyDetails || sellerSource?.Details || sellerName;
+const sellerAddr = sellerSource?.address || sellerSource?.Address || "Head Office, Hyderabad";
+const sellerCity = sellerSource?.city || sellerSource?.City || "Hyderabad";
+const sellerState = sellerSource?.state || sellerSource?.State || "Telangana";
+const sellerPIN = sellerSource?.pincode || sellerSource?.pinCode || sellerSource?.Pincode || "500034";
+
+// TAX / BANK
+const sellerPAN = sellerSource?.pan || sellerSource?.PAN || sellerSource?.panNumber || "AARFB4347G";
+const sellerBankName = sellerSource?.bankName || sellerSource?.BankName || "HDFC Bank";
+const sellerBankAccount = sellerSource?.bankAccount || sellerSource?.bankAccountNumber || sellerSource?.BankAccount || sellerSource?.accountNumber || "50200012345678";
+const sellerBankIFSC = sellerSource?.bankIfsc || sellerSource?.ifsc || sellerSource?.IFSC || sellerSource?.ifscCode || "HDFC0001234";
+const sellerBankBranch = sellerSource?.bankBranch || sellerSource?.BankBranch || "Hyderabad Main";
   // ===== DISPATCH =====
 const dispatchName = inv?.dispatchFromCompanyName || so?.dispatchFromCompanyName || "TechNova Medchal Warehouse";
 const dispatchGstin = inv?.dispatchFromGSTIN || so?.dispatchFromGSTIN || "36AARFB4347G039";

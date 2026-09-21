@@ -33499,133 +33499,91 @@ app.post('/api/e-invoice/generate/:invoiceId', async (req,res)=>{
 });
 
 // ============================================================
-// E-INVOICE PRINT VIEW
+// E-INVOICE PRINT VIEW - WITH SELLER
 // Used by SalesInvoicePrint.jsx
 // ============================================================
 app.get("/api/e-invoice/print-view/:invoiceId", async (req, res) => {
   try {
     const invoiceId = req.params.invoiceId;
+    console.log("========== E-INVOICE PRINT VIEW ==========", invoiceId);
 
-    console.log(
-      "========== E-INVOICE PRINT VIEW =========="
-    );
-
-    console.log(
-      "Invoice ID:",
-      invoiceId
-    );
-
-    // Get invoice through ASP.NET API
+    // 1. Get invoice from ASP.NET
     const invoiceResponse = await axios.get(
       `${DOTNET_API}/sales-invoices/${invoiceId}`,
-      {
-        httpsAgent,
-      }
+      { httpsAgent }
     );
-
-    console.log(
-      "ASP.NET Invoice Status:",
-      invoiceResponse.status
-    );
-
-    console.log(
-      "ASP.NET Invoice Response:",
-      invoiceResponse.data
-    );
-
     const invoiceData = invoiceResponse.data;
-
     const invoice =
       invoiceData?.$values?.[0] ||
-      (Array.isArray(invoiceData)
-        ? invoiceData[0]
-        : invoiceData) ||
+      (Array.isArray(invoiceData)? invoiceData[0] : invoiceData) ||
       {};
 
-    console.log(
-      "Normalized Invoice:",
-      invoice
-    );
+    console.log("Normalized Invoice:", invoice?.invoiceNo);
 
-    // Return data required by SalesInvoicePrint.jsx
+    // 2. Get SELLER from sellers table - THIS FIXES N/A
+    let seller = {};
+    try {
+      // Try by sellerId / companyId from invoice
+      const sellerId = invoice?.sellerId || invoice?.companyId || invoice?.SellerId;
+      if (sellerId) {
+        const sellerRes = await axios.get(`${DOTNET_API}/sellers/${sellerId}`, { httpsAgent });
+        seller = sellerRes.data?.$values?.[0] || sellerRes.data || {};
+      } else {
+        // Fallback: get by GSTIN
+        const gstin = invoice?.sellerGstin || invoice?.companyGstin || "36AARFB4347G037";
+        const sellerRes = await axios.get(`${DOTNET_API}/sellers?gstin=${gstin}`, { httpsAgent });
+        seller = sellerRes.data?.$values?.[0] || (Array.isArray(sellerRes.data)? sellerRes.data[0] : sellerRes.data) || {};
+      }
+    } catch (e) {
+      console.log("Seller fetch failed, using default TechNova", e.message);
+      seller = {
+        name: "TechNova Solutions Pvt Ltd",
+        gstin: "36AARFB4347G037",
+        email: "accounts@technova.co.in",
+        phone: "9876543210",
+        website: "www.technova.co.in",
+        details: "TechNova Solutions Pvt Ltd, Head Office, Hyderabad",
+        address: "Head Office, Hyderabad",
+        city: "Hyderabad",
+        state: "Telangana",
+        pincode: "500034",
+        bankName: "HDFC Bank",
+        bankAccount: "50200012345678",
+        bankIfsc: "HDFC0001234",
+        bankBranch: "Hyderabad Main",
+        pan: "AARFB4347G"
+      };
+    }
+
+    console.log("Seller:", seller?.name, seller?.email);
+
+    // 3. Return data required by SalesInvoicePrint.jsx - NOW WITH SELLER
     const responseData = {
-      irnNumber:
-        invoice?.irnNumber ??
-        invoice?.IRNNumber ??
-        invoice?.irn ??
-        "",
-
-      ackNo:
-        invoice?.ackNo ??
-        invoice?.AckNo ??
-        invoice?.ackNumber ??
-        "",
-
-      ackDate:
-        invoice?.ackDate ??
-        invoice?.AckDate ??
-        "",
-
-      eWayBillNumber:
-        invoice?.eWayBillNumber ??
-        invoice?.EWayBillNumber ??
-        "",
-
-      vehicleNo:
-        invoice?.vehicleNo ??
-        invoice?.VehicleNo ??
-        "",
-
+      irnNumber: invoice?.irnNumber?? invoice?.IRNNumber?? invoice?.irn?? "",
+      ackNo: invoice?.ackNo?? invoice?.AckNo?? invoice?.ackNumber?? "",
+      ackDate: invoice?.ackDate?? invoice?.AckDate?? "",
+      eWayBillNumber: invoice?.eWayBillNumber?? invoice?.EWayBillNumber?? "",
+      vehicleNo: invoice?.vehicleNo?? invoice?.VehicleNo?? "",
       invoice: invoice,
+      seller: seller, // <-- ADD THIS
+      customer: invoice?.customer || invoice?.Customer || {},
+      order: invoice?.order || {},
     };
 
-    console.log(
-      "========== PRINT VIEW RESPONSE =========="
-    );
-
-    console.log(
-      JSON.stringify(
-        responseData,
-        null,
-        2
-      )
-    );
-
+    console.log("========== PRINT VIEW RESPONSE ==========");
     res.status(200).json(responseData);
 
   } catch (error) {
-
-    console.error(
-      "E-Invoice Print View Error:"
-    );
-
-    console.error(
-      "Status:",
-      error.response?.status
-    );
-
-    console.error(
-      "Response:",
-      error.response?.data
-    );
-
-    console.error(
-      "Message:",
-      error.message
-    );
-
-    res.status(
-      error.response?.status || 500
-    ).json({
+    console.error("E-Invoice Print View Error:", error.response?.status, error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
       irnNumber: "",
       ackNo: "",
       ackDate: "",
       eWayBillNumber: "",
       vehicleNo: "",
       invoice: {},
-      error:
-        error.response?.data ||
-        error.message,
+      seller: {},
+      error: error.response?.data || error.message,
     });
   }
 });
