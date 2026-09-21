@@ -33647,6 +33647,65 @@ app.get('/api/sales-invoices/:id', async (req,res)=>{
 });
 
 
+/////////////////////////////////Marketplace get/////////////
+// Dynamic - works for ANY sellerId / customerId
+app.get('/api/marketplace/customers/:sellerId/:customerId', async (req, res) => {
+  const sellerId = parseInt(req.params.sellerId);
+  const customerId = parseInt(req.params.customerId);
+
+  if (!sellerId || !customerId) {
+    return res.status(400).json({ message: 'sellerId and customerId must be numbers' });
+  }
+
+  try {
+    // 1. Try your working .NET API - fully dynamic
+    const r = await axios.get(`${DOTNET_API}/api/marketplace/customers/${sellerId}/${customerId}`);
+    return res.json(r.data);
+  } catch (err) {
+    // 2. If .NET down, try direct SQL for same numbers
+    try {
+      const pool = await sql.connect({
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        server: process.env.DB_SERVER,
+        database: process.env.DB_NAME,
+        options: { encrypt: false, trustServerCertificate: true }
+      });
+      const result = await pool.request()
+        .input('sellerId', sql.Int, sellerId)
+        .input('customerId', sql.Int, customerId)
+        .query('SELECT * FROM MarketplaceCustomers WHERE SellerId=@sellerId AND CustomerId=@customerId');
+
+      if (result.recordset.length === 0) return res.status(404).json({ message: `Customer ${customerId} not found for seller ${sellerId}` });
+      return res.json(result.recordset[0]);
+    } catch (sqlErr) {
+      return res.status(404).json({ message: sqlErr.message });
+    }
+  }
+});
+
+// Dynamic GET all by seller
+app.get('/api/marketplace/customers/seller/:sellerId', async (req, res) => {
+  const sellerId = parseInt(req.params.sellerId);
+  const r = await axios.get(`${DOTNET_API}/api/marketplace/customers/all`);
+  const list = r.data?.$values || r.data || [];
+  const filtered = list.filter(x => Number(x.sellerId || x.SellerId) === sellerId);
+  res.json(filtered);
+});
+
+// Dynamic UPSERT - no duplicate key error
+app.post('/api/marketplace/customers', async (req, res) => {
+  try {
+    const r = await axios.post(`${DOTNET_API}/api/marketplace/customers`, req.body);
+    res.json(r.data);
+  } catch (err) {
+    res.status(err.response?.status || 500).json(err.response?.data || { error: err.message });
+  }
+});
+
+
+
+
 // =========================================================
 // START SERVER
 // =========================================================
