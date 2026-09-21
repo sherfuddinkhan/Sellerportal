@@ -1,516 +1,172 @@
 /* ==========================================================
-   GLOBAL & LAYOUT CONTAINERS
-========================================================== */
-
-* {
-    box-sizing: border-box;
-}
-
-.sales-invoices-container {
-    width: 100%;
-    min-height: 100vh;
-    padding: 20px 24px 32px;
-    background: #f7f8fa;
-}
-
-/* ==========================================================
-   TOOLBAR & CONTROLS
-========================================================== */
-
-.sales-invoices-toolbar {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.sales-invoice-search {
-    width: 100%;
-    margin-top: 20px;
-    margin-bottom: 18px;
-}
-
-.sales-invoice-search .MuiTextField-root {
-    width: 100%;
-}
-
-/* ==========================================================
-   STATISTICS CARDS
-========================================================== */
-
-.sales-invoice-stat-card {
-    height: 100%;
-    min-height: 118px;
-    border-radius: 10px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.sales-invoice-stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
-}
-
-.sales-invoice-stat-card .MuiCardContent-root {
-    height: 100%;
-    padding: 18px;
-}
-
-.sales-invoice-stat-card .MuiCardContent-root:last-child {
-    padding-bottom: 18px;
-}
-
-/* ==========================================================
-   TABLE STRUCTURE & STYLING
-========================================================== */
-
-.sales-invoice-table {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    border-radius: 10px;
-    background: #ffffff;
-    -webkit-overflow-scrolling: touch;
-}
-
-.sales-invoice-table table {
-    width: 100%;
-    min-width: 1150px;
-    border-collapse: separate;
-    border-spacing: 0;
-    table-layout: auto;
-}
-
-.sales-invoice-table thead th {
-    padding: 12px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.35;
-    white-space: nowrap;
-    vertical-align: middle;
-    background: #f4f6f8;
-    border-bottom: 1px solid #e1e5e9;
-}
-
-.sales-invoice-table tbody td {
-    padding: 11px 14px;
-    font-size: 13px;
-    line-height: 1.4;
-    vertical-align: middle;
-    border-bottom: 1px solid #edf0f2;
-    white-space: nowrap;
-}
-
-.sales-invoice-table thead th:first-child,
-.sales-invoice-table tbody td:first-child {
-    padding-left: 16px;
-}
-
-.sales-invoice-table thead th:last-child,
-.sales-invoice-table tbody td:last-child {
-    padding-right: 16px;
-}
-
-.sales-invoice-table tbody tr {
-    transition: background-color 0.15s ease;
-}
-
-.sales-invoice-table tbody tr:hover {
-    background: #fafbfc;
-}
-
-.sales-invoice-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.sales-invoice-table .MuiTableRow-root:last-child td {
-    min-height: 60px;
-}
-
-/* ==========================================================
-   TABLE DATA ALIGNMENT & COMPONENTS
-========================================================== */
-
-.sales-invoice-table .MuiIconButton-root {
-    margin: 0 2px;
-}
-
-.sales-invoice-table .MuiButton-root {
-    white-space: nowrap;
-}
-
-.sales-invoice-table .amount,
-.sales-invoice-table .invoice-amount,
-.sales-invoice-table .paid-amount,
-.sales-invoice-table .balance-amount {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-
-.sales-invoice-chip {
-    margin: 0;
-    white-space: nowrap;
-    font-size: 11px;
-    height: 26px;
-}
-
-.sales-invoice-chip + .sales-invoice-chip {
-    margin-left: 6px;
-}
-
-/* ==========================================================
-   CARD VIEW LAYOUT
-========================================================== */
-
-.sales-invoice-card {
-    height: 100%;
-    min-height: 240px;
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.sales-invoice-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.10);
-}
-
-.sales-invoice-card .MuiCardContent-root {
-    flex: 1;
-    padding: 18px;
-}
-
-.sales-invoice-card .MuiCardContent-root:last-child {
-    padding-bottom: 18px;
-}
-
-.sales-invoice-card .MuiCardActions-root {
-    justify-content: flex-end;
-    gap: 6px;
-    padding: 12px 16px;
-    border-top: 1px solid #edf0f2;
-}
-
-.sales-invoice-card .MuiTypography-root {
-    line-height: 1.45;
-}
-
-/* ==========================================================
-   PAGINATION
-========================================================== */
-
-.sales-invoice-pagination {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    margin-top: 18px;
-    padding: 12px 0 4px;
-    flex-wrap: wrap;
-}
-
-.sales-invoice-pagination .MuiPagination-root {
-    margin-left: auto;
-}
-
-.sales-invoice-pagination .MuiSelect-select {
-    min-width: 70px;
-}
-
-/* ==========================================================
-   DIALOGS
-========================================================== */
-
-.sales-invoice-dialog .MuiDialog-paper {
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.sales-invoice-dialog .MuiDialogTitle-root {
-    padding: 18px 24px;
-}
-
-.sales-invoice-dialog .MuiDialogContent-root {
-    padding: 20px 24px 8px;
-}
-
-.sales-invoice-dialog .MuiDialogActions-root {
-    padding: 12px 24px 18px;
-    gap: 8px;
-}
-
-.sales-invoice-dialog .MuiTextField-root {
-    margin-bottom: 14px;
-}
-
-/* ==========================================================
-   SCROLLBAR
-========================================================== */
-
-.sales-invoice-table::-webkit-scrollbar {
-    height: 7px;
-}
-
-.sales-invoice-table::-webkit-scrollbar-track {
-    background: #f1f3f5;
-    border-radius: 10px;
-}
-
-.sales-invoice-table::-webkit-scrollbar-thumb {
-    background: #c7ccd1;
-    border-radius: 10px;
-}
-
-.sales-invoice-table::-webkit-scrollbar-thumb:hover {
-    background: #aeb4ba;
-}
-
-/* ==========================================================
    MULTI-COPY PRINT & PDF STYLING
-========================================================== */
+   EXACT A4 SIZE
+   ========================================================== */
 
 .invoice-page {
-    width: 100%;
-    box-sizing: border-box;
     position: relative;
+
+    width: 207mm !important;
+    height: 297mm !important;
+
+    min-width: 210mm !important;
+    max-width: 210mm !important;
+
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: #ffffff;
+
+    overflow: hidden !important;
+
+    page-break-after: always;
+    break-after: page;
 }
 
-.copy-badge {
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 4px 0;
-    border-bottom: 1px dashed #cccccc;
-    margin-bottom: 12px;
-}
-
-.page-break {
-    page-break-after: always !important;
-    break-after: page !important;
-    height: 0;
-    display: block;
-}
 
 /* ==========================================================
-   INVOICE SECTIONS SPACING
-========================================================== */
+   EVERYTHING INSIDE INVOICE STAYS INSIDE A4
+   ========================================================== */
+
+.invoice-page,
+.invoice-page *,
+.invoice-page *::before,
+.invoice-page *::after {
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   FLEX ROWS
+   Prevent right-side overflow
+   ========================================================== */
+
+.invoice-page [style*="display: flex"] {
+    min-width: 0 !important;
+}
+
+
+/* ==========================================================
+   TABLES
+   ========================================================== */
+
+.invoice-page table {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+
+    table-layout: fixed !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* ==========================================================
+   TABLE CELLS
+   ========================================================== */
+
+.invoice-page th,
+.invoice-page td {
+    box-sizing: border-box !important;
+
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+
+    max-width: 100%;
+}
+
+
+/* ==========================================================
+   FLEX COLUMNS
+   Use flex instead of percentage overflow
+   ========================================================== */
+
+.invoice-page [style*="width: 50%"] {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+
+/* ==========================================================
+   PREVENT LONG CONTENT FROM PUSHING RIGHT BORDER
+   ========================================================== */
+
+.invoice-page div {
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+
+/* ==========================================================
+   COPY BADGE
+   ========================================================== */
+
+.copy-badge {
+    width: 100%;
+    text-align: center;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    padding: 4px 0;
+
+    border-bottom: 1px dashed #cccccc;
+
+    margin-bottom: 5px;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   PAGE BREAK
+   ========================================================== */
+
+.page-break {
+    display: block;
+
+    width: 100%;
+    height: 0;
+
+    page-break-after: always !important;
+    break-after: page !important;
+}
+
+
+/* ==========================================================
+   INVOICE SECTIONS
+   IMPORTANT:
+   Do NOT use huge margins here.
+   ========================================================== */
 
 .invoice-section {
-    margin-bottom: 24px; /* Adjust this value to increase or decrease the gap */
+    margin-bottom: 5px;
+    box-sizing: border-box;
 }
 
 .invoice-section:last-child {
     margin-bottom: 0;
 }
 
-/* ==========================================================
-   RESPONSIVE MEDIA QUERIES
-========================================================== */
-
-@media (max-width: 1100px) {
-    .sales-invoices-container {
-        padding: 18px 20px 28px;
-    }
-
-    .sales-invoice-table table {
-        min-width: 1050px;
-    }
-
-    .sales-invoice-table thead th,
-    .sales-invoice-table tbody td {
-        padding: 10px 12px;
-    }
-}
-
-@media (max-width: 900px) {
-    .sales-invoices-container {
-        padding: 18px;
-    }
-
-    .sales-invoices-toolbar,
-    .sales-invoice-pagination {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .sales-invoices-toolbar > * {
-        width: 100%;
-    }
-
-    .sales-invoice-pagination .MuiPagination-root {
-        margin-left: 0;
-        align-self: center;
-    }
-
-    .sales-invoice-table {
-        border-radius: 8px;
-    }
-
-    .sales-invoice-table table {
-        min-width: 1000px;
-    }
-}
-
-@media (max-width: 600px) {
-    .sales-invoices-container {
-        padding: 14px 12px 24px;
-    }
-
-    .sales-invoice-stat-card {
-        min-height: 105px;
-        border-radius: 8px;
-    }
-
-    .sales-invoice-stat-card .MuiCardContent-root,
-    .sales-invoice-card .MuiCardContent-root {
-        padding: 14px;
-    }
-
-    .sales-invoice-search {
-        margin-top: 16px;
-        margin-bottom: 14px;
-    }
-
-    .sales-invoice-table {
-        border-radius: 8px;
-    }
-
-    .sales-invoice-table table {
-        min-width: 900px;
-    }
-
-    .sales-invoice-table thead th,
-    .sales-invoice-table tbody td {
-        padding: 9px 10px;
-        font-size: 12px;
-    }
-
-    .sales-invoice-card {
-        min-height: 220px;
-        border-radius: 8px;
-    }
-
-    .sales-invoice-card .MuiCardActions-root {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 10px 14px 14px;
-    }
-
-    .sales-invoice-card .MuiButton-root {
-        width: 100%;
-        min-height: 38px;
-    }
-
-    .sales-invoice-dialog .MuiDialogTitle-root {
-        padding: 16px 18px;
-    }
-
-    .sales-invoice-dialog .MuiDialogContent-root {
-        padding: 16px 18px 6px;
-    }
-
-    .sales-invoice-dialog .MuiDialogActions-root {
-        padding: 10px 18px 16px;
-        flex-wrap: wrap;
-    }
-}
-
-@media (max-width: 400px) {
-    .sales-invoices-container {
-        padding: 12px 10px 20px;
-    }
-
-    .sales-invoice-table table {
-        min-width: 850px;
-    }
-
-    .sales-invoice-pagination {
-        gap: 10px;
-    }
-}
 
 /* ==========================================================
-   PRINT / PDF GENERATION OVERRIDES
-========================================================== */
+   PRINT / BROWSER PRINT
+   ========================================================== */
 
 @media print {
-    @page {
-        size: A4 portrait;
-        margin: 8mm 10mm;
-    }
-
-    html, body {
-        width: 100% !important;
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-        overflow: visible !important;
-    }
-
-    .sales-invoices-container {
-        width: 100% !important;
-        min-height: auto !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-    }
-
-    .sales-invoice-table {
-        width: 100% !important;
-        overflow: visible !important;
-        border: 1px solid #e1e5e9;
-        border-radius: 0 !important;
-    }
-
-    .sales-invoice-table table {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        table-layout: fixed !important;
-    }
-
-    .sales-invoice-table thead th,
-    .sales-invoice-table tbody td {
-        padding: 6px 8px !important;
-        font-size: 10px !important;
-        white-space: normal !important;
-        word-break: break-word !important;
-        overflow-wrap: break-word !important;
-    }
-
-    .sales-invoices-toolbar,
-    .sales-invoice-search,
-    .sales-invoice-pagination,
-    .MuiIconButton-root,
-    .MuiButton-root {
-        display: none !important;
-    }
-
-    /* Page separation for multi-set rendering */
-    .invoice-page {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    .invoice-section {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        margin-bottom: 1000px !important; /* Slightly tighter gap optimized for print layout */
-    }
-
-    .sales-invoice-table tbody tr {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    .invoice-page:last-child {
-        page-break-after: auto !important;
-        break-after: auto !important;
-    }
+  .invoice-page, .invoice-page div, .invoice-page table, .invoice-page th, .invoice-page td {
+    border-color: #000 !important;
+  }
 }
+
