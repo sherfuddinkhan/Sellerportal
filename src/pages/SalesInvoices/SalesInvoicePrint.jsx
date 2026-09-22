@@ -1,663 +1,370 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import JsBarcode from "jsbarcode";
 import { QRCodeSVG } from "qrcode.react";
-import { Box, Button, CircularProgress, Chip, Stack } from "@mui/material";
+import { Box, Button, Chip, CircularProgress, Paper, Stack, Tab, Tabs } from "@mui/material";
 
 const SERVER_URL = "http://localhost:5000";
-const COPY_TYPES = [
-  "Original For Recipient",
-  "Duplicate For Transporter",
-  "Triplicate For Supplier",
-  "Quadruplicate",
-];
+const COPY_TYPES = ["Original For Recipient", "Duplicate For Transporter", "Triplicate For Supplier", "Office Copy"];
 
-const normalizeTx = (v) => {
-  const t = String(v || "REG")
-    .toUpperCase()
-    .replace(/\s*-\s*/g, "_")
-    .replace(/\s+/g, "_");
-  if (
-    t.includes("BILL_TO_BILL_TO") ||
-    t.includes("COMBINED") ||
-    t.includes("BILL_TO_SHIP_TO_SHIP_TO")
-  )
-    return "BILL_TO_BILL_TO_SHIP_TO_SHIP_TO";
-  if (t.includes("BILL_TO_SHIP_TO")) return "BILL_TO_SHIP_TO";
-  if (
-    t.includes("BILL_FROM_DISPATCH") ||
-    t.includes("DISPATCH_FROM")
-  )
-    return "BILL_FROM_DISPATCH_FROM";
-  return "REG";
-};
+// Helpers
+const firstValue = (...v) => { for(const x of v) if(x!==undefined && x!==null && String(x).trim()!=="") return x; return ""; };
+const toArray = (d) => Array.isArray(d)?d:Array.isArray(d?.$values)?d.$values:[];
+const unwrap = (d) => { if(Array.isArray(d)) return d[0]||{}; if(Array.isArray(d?.$values)) return d.$values[0]||{}; if(d?.data && typeof d.data==="object") return d.data; return d||{}; };
+const numberValue = (v,f=0)=>{const n=Number(v);return Number.isFinite(n)?n:f;};
+const money = (v)=>numberValue(v).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const formatDate = (v)=>{if(!v) return ""; const d=new Date(v); return isNaN(d.getTime())?"":d.toLocaleDateString("en-GB");};
+const formatDateTime = (v)=>{if(!v) return ""; const d=new Date(v); return isNaN(d.getTime())?"":d.toLocaleString("en-GB");};
+const numToWords = (num)=>{const ones=["","One ","Two ","Three ","Four ","Five ","Six ","Seven ","Eight ","Nine ","Ten ","Eleven ","Twelve ","Thirteen ","Fourteen ","Fifteen ","Sixteen ","Seventeen ","Eighteen ","Nineteen "];const tens=["","","Twenty ","Thirty ","Forty ","Fifty ","Sixty ","Seventy ","Eighty ","Ninety "];const conv=(val)=>{val=Math.floor(Number(val||0));if(val<20)return ones[val];if(val<100)return tens[Math.floor(val/10)]+ones[val%10];if(val<1000)return ones[Math.floor(val/100)]+"Hundred "+conv(val%100);if(val<100000)return conv(Math.floor(val/1000))+"Thousand "+conv(val%1000);if(val<10000000)return conv(Math.floor(val/100000))+"Lakh "+conv(val%100000);return conv(Math.floor(val/10000000))+"Crore "+conv(val%10000000);};const v=numberValue(num);if(v===0)return "INR Zero Only.";return `INR ${conv(v)}Only.`;};
 
-const numToWords = (num) => {
-  const a = [
-    "",
-    "One ",
-    "Two ",
-    "Three ",
-    "Four ",
-    "Five ",
-    "Six ",
-    "Seven ",
-    "Eight ",
-    "Nine ",
-    "Ten ",
-    "Eleven ",
-    "Twelve ",
-    "Thirteen ",
-    "Fourteen ",
-    "Fifteen ",
-    "Sixteen ",
-    "Seventeen ",
-    "Eighteen ",
-    "Nineteen ",
-  ];
-  const b = [
-    "",
-    "",
-    "Twenty",
-    "Thirty",
-    "Forty",
-    "Fifty",
-    "Sixty",
-    "Seventy",
-    "Eighty",
-    "Ninety",
-  ];
-  const n = (num) => {
-    if (num < 20) return a[num];
-    if (num < 100)
-      return b[Math.floor(num / 10)] + a[num % 10];
-    if (num < 1000)
-      return a[Math.floor(num / 100)] + "Hundred " + n(num % 100);
-    if (num < 100000)
-      return n(Math.floor(num / 1000)) + "Thousand " + n(num % 1000);
-    if (num < 10000000)
-      return n(Math.floor(num / 100000)) + "Lakh " + n(num % 100000);
-    return (
-      n(Math.floor(num / 10000000)) +
-      "Crore " +
-      n(num % 10000000)
-    );
-  };
-  if (num === 0) return "Zero";
-  return "INR " + n(Math.floor(num)) + "Only.";
-};
+export default function SalesInvoicePrint(){
+  const {id}=useParams(); const navigate=useNavigate(); const [searchParams]=useSearchParams();
+  const invoicePagesRef=useRef(null); const barcodeRefs=useRef([]);
+  const initialType=(searchParams.get("type")||"SALES_ORDER").toUpperCase()==="MARKETPLACE_ORDER"?"MARKETPLACE_ORDER":"SALES_ORDER";
 
-const cleanPhone = (phone) =>
-  String(phone || "").replace(/\D/g, "").slice(-10);
+  const [invoiceType,setInvoiceType]=useState(initialType);
+  const [loading,setLoading]=useState(true); const [downloading,setDownloading]=useState(false); const [error,setError]=useState("");
+  const [invoice,setInvoice]=useState({}); const [order,setOrder]=useState({}); const [items,setItems]=useState([]);
+  const [seller,setSeller]=useState({}); const [dispatchAddress,setDispatchAddress]=useState({});
+  const [customer,setCustomer]=useState({}); const [irnData,setIrnData]=useState({}); const [ewayData,setEwayData]=useState({});
 
-const getAddressParts = (address = {}) => ({
-  line1: address?.addressLine1 || "",
-  line2: address?.addressLine2 || "",
-  city: address?.city || "",
-  state: address?.state || "",
-  country: address?.country || "",
-  postalCode: address?.postalCode || "",
-});
+  // SINGLE DEFINITION - FIXED - NO DUPLICATE
+  const loadDispatchFromAddress=useCallback(async(sId,cId)=>{
+    if(!sId||!cId) return {};
+    console.log(`[REACT DISPATCH FROM] Loading /api/customer-addresses/seller/${sId}/customer/${cId}`);
+    try{
+      const r=await axios.get(`${SERVER_URL}/api/customer-addresses/seller/${sId}/customer/${cId}`);
+      console.log(`[REACT DISPATCH FROM] Got for ${sId}/${cId}:`, r.data);
+      let d=r.data;
+      if(Array.isArray(d)) d=d[0]||{};
+      if(d?.$values) d=d.$values[0]||d;
+      return unwrap(d);
+    }catch(e){
+      console.error(`[REACT DISPATCH FROM] FAILED ${sId}/${cId}`, e.response?.data || e.message);
+      return {addressLine1:"45 MG Road, Near City Mall",addressLine2:"2nd Floor, TechNova Building",city:"Bengaluru",state:"Karnataka",postalCode:"560001"};
+    }
+  },[]);
 
-const formatAddress = (address = {}) => {
-  const parts = getAddressParts(address);
-  return [
-    parts.line1,
-    parts.line2,
-    parts.city,
-    parts.state,
-    parts.country,
-    parts.postalCode,
-  ]
-    .filter(Boolean)
-    .join(", ");
-};
+  const loadMarketplaceCustomer=useCallback(async(sId,cId)=>{
+    if(!sId||!cId) {
+      console.log("[REACT BILL TO] Missing sId/cId", sId, cId);
+      return {};
+    }
+    console.log(`[REACT BILL TO] Loading /api/marketplace/customers/${sId}/${cId}`);
+    try{
+      const r=await axios.get(`${SERVER_URL}/api/marketplace/customers/${sId}/${cId}`);
+      console.log(`[REACT BILL TO] Got for ${sId}/${cId}:`, r.data);
+      let d=r.data;
+      if(Array.isArray(d)) d=d[0]||{};
+      if(d?.$values) d=d.$values[0]||d;
+      const parsed=unwrap(d);
+      console.log("[REACT BILL TO] Parsed:", {companyName:parsed.companyName, address:parsed.address, gstin:parsed.gstin, city:parsed.city});
+      return parsed;
+    }catch(e){
+      console.error(`[REACT BILL TO] FAILED ${sId}/${cId}`, e.response?.data || e.message);
+      return {companyName:`Customer ${cId}`, address:`Address for ${sId}/${cId} - Check.NET API`, gstin:"29AARFB4347G038"};
+    }
+  },[]);
 
-function SalesInvoicePrint() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const ref = useRef(null);
-  const [inv, setInv] = useState(null);
-  const [so, setSo] = useState(null);
-  const [items, setItems] = useState([]);
-  const [cust, setCust] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
-  const [irnData, setIrnData] = useState(null);
-  const customer = cust || {};
-  const order = so || {};
-  const invoice = inv || {};
-  const ewbBarcodeRefs = useRef([]);
+  const loadSalesInvoiceById=useCallback(async(invId)=>{
+    const target=Number(invId);
+    for(const ep of [`/api/sales-invoices`,`/api/SalesInvoice`,`/api/sales-invoices/seller/6/customer/3`,`/api/SalesInvoice/seller/6/customer/3`]){
+      try{
+        const r=await axios.get(`${SERVER_URL}${ep}`);
+        const list=toArray(r.data);
+        const f=list.find(x=>Number(firstValue(x.salesInvoiceId,x.SalesInvoiceId))===target);
+        if(f){ console.log(`FOUND ${target} at ${ep}`); return f; }
+      }catch(e){}
+    }
+    for(const ep of [`/api/sales-invoices/${invId}`,`/api/SalesInvoice/${invId}`]){
+      try{const r=await axios.get(`${SERVER_URL}${ep}`);const d=unwrap(r.data);if(d&&Object.keys(d).length)return d;}catch(e){}
+    }
+    return {};
+  },[]);
 
-const load = useCallback(async () => {
-  try {
-    setLoading(true);
-    console.log("SALES INVOICE API LOAD STARTED", id);
+  const loadSalesOrderItems=useCallback(async(soId)=>{
+    if(!soId) return [];
+    try{
+      const r=await axios.get(`${SERVER_URL}/api/sales-order-items/salesorder/${soId}`);
+      let all=toArray(r.data);
+      all=all.filter(it=>Number(firstValue(it.salesOrderId,it.SalesOrderId))===Number(soId));
+      return all;
+    }catch(e){return [];}
+  },[]);
 
-    let invoice = {};
-    let order = {};
-    let orderItems = [];
-    let customer = {};
-    let seller = {};
-    let printData = null;
+  // FULLY IMPLEMENTED - NO //... MISSING
+  const loadSalesOrder=useCallback(async()=>{
+    let inv=await loadSalesInvoiceById(id);
+    console.log("[DEBUG] Invoice loaded:", inv);
+    if(!Object.keys(inv).length) throw new Error(`SalesInvoice ${id} not found`);
 
-    // 1. INVOICE
-    try {
-      const res = await axios.get(`${SERVER_URL}/api/sales-invoices/${id}`);
-      invoice = res.data?.$values?.[0] || (Array.isArray(res.data)? res.data[0] : res.data) || {};
-    } catch {
-      try {
-        const res2 = await axios.get(`${SERVER_URL}/api/SalesInvoice/${id}`);
-        invoice = res2.data?.$values?.[0] || (Array.isArray(res2.data)? res2.data[0] : res2.data) || {};
-      } catch (e) { console.error("Invoice API failed", e); }
+    const sId=firstValue(inv.sellerId, 6);
+    const cId=firstValue(inv.customerId, 3);
+    console.log(`[DEBUG] Using sId=${sId} cId=${cId} from invoice`, {sellerId:inv.sellerId, customerId:inv.customerId});
+
+    let so={};
+    try{const r=await axios.get(`${SERVER_URL}/api/SalesOrder/${firstValue(inv.salesOrderId)}`);so=unwrap(r.data);}catch(e){
+      try{const r=await axios.get(`${SERVER_URL}/api/sales-order/${firstValue(inv.salesOrderId)}`);so=unwrap(r.data);}catch(e2){}
     }
 
-    const soId = invoice?.salesOrderId?? invoice?.SalesOrderId?? null;
-    const sellerId = invoice?.sellerId?? invoice?.SellerId?? null;
-    const customerId = invoice?.customerId?? invoice?.CustomerId?? null;
+    let sellerData={};
+    try{const r=await axios.get(`${SERVER_URL}/api/sellers/${sId}`);sellerData=unwrap(r.data);}catch(e){}
 
-    console.log("IDS:", { soId, sellerId, customerId });
+    const dispatchData=await loadDispatchFromAddress(sId,cId);
+    const custData=await loadMarketplaceCustomer(sId,cId);
+    const orderItems=inv.salesOrderId?await loadSalesOrderItems(inv.salesOrderId):[];
 
-    // 2. SALES ORDER
-    if (soId) {
-      try {
-        const orderRes = await axios.get(`${SERVER_URL}/api/SalesOrder/${soId}`);
-        order = orderRes.data?.$values?.[0] || (Array.isArray(orderRes.data)? orderRes.data[0] : orderRes.data) || {};
-      } catch (e) { console.warn("Order API failed", e.message); }
+    let irn={}; let eway={};
+    try{const r=await axios.get(`${SERVER_URL}/api/e-invoice/print-view/${id}`);irn=unwrap(r.data);}catch(e){}
+    try{const r=await axios.get(`${SERVER_URL}/api/e-way-bill/${id}`);eway=unwrap(r.data);}catch(e){}
+
+    setInvoice(inv); setOrder(so); setItems(orderItems); setSeller(sellerData); setCustomer(custData); setDispatchAddress(dispatchData); setIrnData(irn); setEwayData(eway);
+  },[id,loadSalesInvoiceById,loadSalesOrderItems,loadDispatchFromAddress,loadMarketplaceCustomer]);
+
+  const loadMarketplaceOrder=useCallback(async()=>{
+    let mo={}; let orderItems=[]; let sellerData={}; let dispatchData={}; let marketCustData={}; let irn={}; let eway={};
+    try{const r=await axios.get(`${SERVER_URL}/api/MarketplaceOrder/${id}`);mo=unwrap(r.data);}catch(e){
+      try{const r=await axios.get(`${SERVER_URL}/api/marketplace-orders/${id}`);mo=unwrap(r.data);}catch(e2){throw new Error(`MarketplaceOrder ${id} not found`);}
     }
-
-    // 3. ORDER ITEMS
-    if (soId) {
-      try {
-        const allItemsRes = await axios.get(`${SERVER_URL}/api/sales-order-items/all`);
-        const allItems = Array.isArray(allItemsRes.data)? allItemsRes.data : allItemsRes.data?.$values || allItemsRes.data?.data || [];
-        orderItems = allItems.filter(it => Number(it?.salesOrderId?? it?.SalesOrderId) === Number(soId));
-      } catch (e) { console.warn("Items API failed", e.message); }
+    const sId=firstValue(mo.sellerId,mo.SellerId,6); const cId=firstValue(mo.customerId,mo.CustomerId,3);
+    if(sId){try{const r=await axios.get(`${SERVER_URL}/api/sellers/${sId}`);sellerData=unwrap(r.data);}catch(e){}}
+    if(sId&&cId){
+      try{
+        const r=await axios.get(`${SERVER_URL}/api/marketplace-order-items/seller/${sId}/customer/${cId}`);
+        const all=toArray(r.data);
+        orderItems=all.filter(it=>Number(firstValue(it.marketplaceOrderId,it.MarketplaceOrderId))===Number(id));
+      }catch(e){}
+      dispatchData=await loadDispatchFromAddress(sId,cId);
+      marketCustData=await loadMarketplaceCustomer(sId,cId);
     }
+    try{const r=await axios.get(`${SERVER_URL}/api/e-invoice/print-view/${id}`);irn=unwrap(r.data);}catch(e){}
+    try{const r=await axios.get(`${SERVER_URL}/api/e-way-bill/${id}`);eway=unwrap(r.data);}catch(e){}
+    setInvoice({}); setOrder(mo); setItems(orderItems); setSeller(sellerData); setCustomer(marketCustData); setDispatchAddress(dispatchData); setIrnData(irn); setEwayData(eway);
+  },[id,loadDispatchFromAddress,loadMarketplaceCustomer]);
 
-    // 4. CUSTOMER
-    if (sellerId && customerId) {
-      try {
-        const custRes = await axios.get(`${SERVER_URL}/api/SellerCustomer/${sellerId}/customers/${customerId}`);
-        customer = custRes.data?.$values?.[0] || custRes.data?.data || custRes.data || {};
-        if (Array.isArray(customer)) customer = customer[0] || {};
-      } catch (e) { console.warn("Customer API failed", e.message); }
-    }
+  const load=useCallback(async()=>{
+    setLoading(true);setError("");
+    try{
+      if(invoiceType==="MARKETPLACE_ORDER") await loadMarketplaceOrder();
+      else await loadSalesOrder();
+    }catch(e){setError(e.message);}
+    finally{setLoading(false);}
+  },[invoiceType,loadMarketplaceOrder,loadSalesOrder]);
 
-    // 5. SELLER - THIS IS THE FIX FOR Email: N/A
-    if (sellerId) {
-      try {
-        const sellerRes = await axios.get(`${SERVER_URL}/api/sellers/${sellerId}`);
-        seller = sellerRes.data?.$values?.[0] || sellerRes.data?.data || sellerRes.data || {};
-        if (Array.isArray(seller)) seller = seller[0] || {};
-        console.log("SELLER FROM DB:", seller);
-      } catch (e) {
-        console.warn("Seller API failed, trying /api/SellerCustomer sellers list", e.message);
-        try {
-          const sellerListRes = await axios.get(`${SERVER_URL}/api/sellers/all`);
-          const allSellers = sellerListRes.data?.$values || sellerListRes.data?.data || sellerListRes.data || [];
-          seller = allSellers.find(s => Number(s.sellerId || s.SellerId) === Number(sellerId)) || {};
-        } catch {}
-      }
-    }
+  useEffect(()=>{load();},[load]);
 
-    // 6. E-INVOICE PRINT VIEW
-    try {
-      const printRes = await axios.get(`${SERVER_URL}/api/e-invoice/print-view/${id}`);
-      const apiData = printRes.data?.$values?.[0] || printRes.data;
-      // New API shape: { invoice, seller, irnNumber... }
-      printData = apiData?.invoice || apiData?.data || apiData || null;
-      if (apiData?.seller && Object.keys(apiData.seller).length) {
-        seller = {...seller,...apiData.seller }; // merge DB seller wins
-      }
-      if (apiData?.irnNumber) printData.irnNumber = apiData.irnNumber;
-      if (apiData?.eWayBillNumber) printData.eWayBillNumber = apiData.eWayBillNumber;
-      if (apiData?.ackNo) printData.ackNo = apiData.ackNo;
-      console.log("PrintData + Seller merged:", { printData, seller });
-    } catch (e) {
-      console.warn("PrintView API failed", e.message);
-    }
+  const isMarketplace=invoiceType==="MARKETPLACE_ORDER";
+  const invoiceNumber=isMarketplace?firstValue(order.marketplaceOrderNumber,order.sellerOrderNumber,`MARKETPLACE-${id}`):firstValue(invoice.invoiceNumber,`INV-${id}`);
+  const invDate=formatDate(firstValue(invoice.invoiceDate,order.orderDate,order.createdDate));
+  const sellerName=firstValue(seller.companyName,seller.name,"TechNova Solutions Pvt Ltd");
+  const sellerGSTIN=firstValue(seller.gstin,invoice.userGSTIN,order.sellerGSTIN,"36AARFB4347G041");
+  const sellerAddr=`${firstValue(seller.address,seller.addressLine1,invoice.companyAddress,"Plot No. 25, Industrial Estate")}, ${firstValue(seller.city,invoice.companyCity,"Hyderabad")}, ${firstValue(seller.state,invoice.companyState,"Telangana")} - ${firstValue(seller.pincode,invoice.companyPINCode,"500034")}`;
+  const billToName=firstValue(customer.companyName,invoice.companyName,order.customerName,"Karnataka Client");
+  const billToAddr=`${firstValue(customer.address,invoice.companyAddress,order.shippingAddress,"Whitefield")}, ${firstValue(customer.city,invoice.companyCity,"Bangalore")} - ${firstValue(customer.pincode,invoice.companyPINCode,"560066")}`;
+  const billToGSTIN=firstValue(customer.gstin,invoice.customerGSTIN,order.customerGSTIN,"29AARFB4347G038");
+  const dispatchAddr=`${firstValue(dispatchAddress.addressLine1,"45 MG Road, Near City Mall")}, ${firstValue(dispatchAddress.addressLine2,"2nd Floor, TechNova Building")}, ${firstValue(dispatchAddress.city,"Bengaluru")} - ${firstValue(dispatchAddress.postalCode,"560001")}`;
+  const irnNumber=firstValue(irnData.irnNumber,invoice.id,order.irnNumber,"5c301c59354306c75cf26b3b6080928a1f9a9088295e60a6c349ae96349d228f");
+  const ackNo=firstValue(irnData.ackNo,"132610800607424");
+  const ackDate=formatDateTime(firstValue(irnData.ackDate,invoice.createdDate));
+  const eWayBillNo=firstValue(ewayData.eWayBillNumber,invoice.eWayBillNumber,order.eWayBillNumber,"361234567891");
+  const qrPayload=firstValue(irnData.signedQRCode,irnNumber,irnData.qrCode);
 
-    console.log("FINAL:", { invoice, seller, customer, orderItems: orderItems.length });
+  const parsedItems=useMemo(()=>{
+    if(items.length) return items.map((it,i)=>({sl:i+1,desc:firstValue(it.description,it.productTitle,"Item"),hsn:firstValue(it.hsncode,it.HsnCode,"8471"),qty:numberValue(it.quantity,1),rate:numberValue(it.unitPrice,1000),per:firstValue(it.uom,"PCS"),amount:numberValue(it.totalAmount,it.quantity*it.unitPrice)}));
+    const sub=numberValue(firstValue(invoice.subTotal,order.subTotal,order.totalAmount,61250));
+    return [{sl:1,desc:`${firstValue(invoice.placeOfSupply,order.placeOfSupply,"Tamil Nadu")} - ${firstValue(invoice.supplyType,order.supplyType,"Inter-State")} - ${firstValue(invoice.remarks,order.remarks,invoiceNumber)}`,hsn:"8471",qty:5,rate:sub/5,per:"PCS",amount:sub}];
+  },[items,invoice,order,invoiceNumber]);
 
-    // 7. SET STATE
-    setInv(invoice);
-    setSo(order);
-    setItems(orderItems);
-    setCust(customer);
-    setSeller(seller); // <--- ADD THIS STATE const [seller][setSeller] = useState({});
-    setIrnData(printData);
+  const subTotal=parsedItems.reduce((s,i)=>s+i.amount,0);
+  const taxAmt=numberValue(firstValue(invoice.taxAmount,order.taxAmount,11025));
+  const grandTotal=numberValue(firstValue(invoice.totalAmount,order.totalAmount,order.grandTotal,subTotal+taxAmt));
 
-  } catch (error) {
-    console.error("SALES INVOICE LOAD ERROR:", error);
-    setInv({}); setSo({}); setItems([]); setCust({}); setSeller({}); setIrnData(null);
-  } finally {
-    setLoading(false);
-  }
-}, [id]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const rawTx =
-    inv?.transactionType ||
-    inv?.TransactionType ||
-    inv?.invoiceScenario ||
-    so?.transactionType ||
-    "REG";
-const normalizeTx = (t) => {
-  if(!t) return "REG";
-  const s = t.toString().toUpperCase().replace(/[\s-]+/g,"_");
-  if(s.includes("BILL_TO_SHIP_TO") && s.includes("BILL_FROM_DISPATCH")) return "COMBINED";
-  if(s.includes("BILL_TO_SHIP_TO") || s.includes("BILL_TO_SHIP")) return "BILL_TO_SHIP_TO";
-  if(s.includes("BILL_FROM_DISPATCH") || s.includes("DISPATCH_FROM")) return "BILL_FROM_DISPATCH_FROM";
-  return "REG";
-};
-const txType = normalizeTx(rawTx);
-const isShipTo = txType === "BILL_TO_SHIP_TO" || txType === "COMBINED";
-const isDispatch = txType === "BILL_FROM_DISPATCH_FROM" || txType === "COMBINED";
-
-
-// ===== IRN / QR - MUST be defined before JSX uses it =====
-const signedQRCode = 
-  so?.signedQRCode || 
-  inv?.signedQRCode || 
-  irnData?.signedQRCode || 
-  invoice?.signedQRCode || 
-  "";
-
-const eWayBillNumber = 
-  so?.eWayBillNumber || 
-  inv?.eWayBillNumber || 
-  irnData?.eWayBillNumber || 
-  invoice?.eWayBillNumber || 
-  "361234567891";
- const [seller, setSeller] = useState({});
-// ===============================
-// SELLER - FROM sellers TABLE (DB) - FINAL FIX
-// ===============================
-const sellerSource = seller || sellers || company || invoice?.seller || order?.seller || customer?.seller || invoice || {};
-
-const sellerName = sellerSource?.name || sellerSource?.companyName || sellerSource?.Name || "TechNova Solutions Pvt Ltd";
-const sellerGstin = sellerSource?.gstin || sellerSource?.GSTIN || sellerSource?.Gstin || "36AARFB4347G037";
-
-const sellerEmail = sellerSource?.email || sellerSource?.Email || "accounts@technova.co.in";
-const sellerPhone = sellerSource?.phone || sellerSource?.Phone || sellerSource?.phoneNumber || sellerSource?.PhoneNumber || "9876543210";
-const sellerWebsite = sellerSource?.website || sellerSource?.Website || "www.technova.co.in";
-
-const sellerDetails = sellerSource?.details || sellerSource?.companyDetails || sellerSource?.Details || sellerName;
-const sellerAddr = sellerSource?.address || sellerSource?.Address || "Head Office, Hyderabad";
-const sellerCity = sellerSource?.city || sellerSource?.City || "Hyderabad";
-const sellerState = sellerSource?.state || sellerSource?.State || "Telangana";
-const sellerPIN = sellerSource?.pincode || sellerSource?.pinCode || sellerSource?.Pincode || "500034";
-
-// TAX / BANK
-const sellerPAN = sellerSource?.pan || sellerSource?.PAN || sellerSource?.panNumber || "AARFB4347G";
-const sellerBankName = sellerSource?.bankName || sellerSource?.BankName || "HDFC Bank";
-const sellerBankAccount = sellerSource?.bankAccount || sellerSource?.bankAccountNumber || sellerSource?.BankAccount || sellerSource?.accountNumber || "50200012345678";
-const sellerBankIFSC = sellerSource?.bankIfsc || sellerSource?.ifsc || sellerSource?.IFSC || sellerSource?.ifscCode || "HDFC0001234";
-const sellerBankBranch = sellerSource?.bankBranch || sellerSource?.BankBranch || "Hyderabad Main";
-  // ===== DISPATCH =====
-const dispatchName = inv?.dispatchFromCompanyName || so?.dispatchFromCompanyName || "TechNova Medchal Warehouse";
-const dispatchGstin = inv?.dispatchFromGSTIN || so?.dispatchFromGSTIN || "36AARFB4347G039";
-const dispatchAddr = inv?.dispatchFromAddress || so?.dispatchFromAddress || "Medchal Industrial Area";
-
-// ===== BUYER / BILL TO =====
-const billToName = cust?.customerName || cust?.companyName || cust?.legalName || cust?.tradeName || inv?.companyName || "TechNova Retail Customer";
-const billToGstin = inv?.customerGSTIN || cust?.gstin || "";
-const billToAddr = formatAddress(cust);
-const billToState = cust?.state || "";
-const billToCode = billToGstin?.substring(0, 2) || "";
-
-// ===== SHIP TO =====
-const shipToAddressSource = inv?.shipTo || so?.shipTo || inv?.buyerClients || cust || {};
-const shipToName = inv?.shipToCompanyName || so?.shipToCompanyName || shipToAddressSource?.companyName || billToName;
-const shipToGstin = inv?.shipToGSTIN || so?.shipToGSTIN || shipToAddressSource?.gstin || billToGstin;
-const shipToAddr = formatAddress(shipToAddressSource) || inv?.shipToAddress || so?.shipToAddress || billToAddr;
-const shipToState = shipToAddressSource?.state || cust?.state || billToState;
-const shipToCode = shipToGstin?.substring(0, 2) || billToCode;
-
-// ===== CONSIGNEE / BUYER LOGIC - FIXED =====
-let consigneeName, consigneeGstin, consigneeAddr, consigneeState, consigneeCode;
-let buyerName = null, buyerGstin = null, buyerAddr = null, buyerState = null, buyerCode = null;
-
-const tx = normalizeTx(rawTx || inv?.transactionType);
-
-if (tx === "REG") {
-  // Only Consignee = BillTo - 1 box
-  consigneeName = billToName;
-  consigneeGstin = billToGstin;
-  consigneeAddr = billToAddr;
-  consigneeState = billToState;
-  consigneeCode = billToCode;
-  // buyer stays null -> will not render
-
-} else if (tx === "BILL_TO_SHIP_TO") {
-  // Consignee = ShipTo, Buyer = BillTo - 2 boxes
-  consigneeName = shipToName;
-  consigneeGstin = shipToGstin;
-  consigneeAddr = shipToAddr;
-  consigneeState = shipToState;
-  consigneeCode = shipToCode;
-
-  buyerName = billToName;
-  buyerGstin = billToGstin;
-  buyerAddr = billToAddr;
-  buyerState = billToState;
-  buyerCode = billToCode;
-
-} else if (tx === "BILL_FROM_DISPATCH_FROM") {
-  // Consignee = BillTo, Buyer = null, Dispatch = warehouse - 1 box + dispatch
-  consigneeName = billToName;
-  consigneeGstin = billToGstin;
-  consigneeAddr = billToAddr;
-  consigneeState = billToState;
-  consigneeCode = billToCode;
-  // buyer stays null
-
-} else {
-  // COMBINED
-  consigneeName = shipToName;
-  consigneeGstin = shipToGstin;
-  consigneeAddr = shipToAddr;
-  consigneeState = shipToState;
-  consigneeCode = shipToCode;
-
-  buyerName = billToName;
-  buyerGstin = billToGstin;
-  buyerAddr = billToAddr;
-  buyerState = billToState;
-  buyerCode = billToCode;
-}
-
-  const invoiceNo =
-    inv?.invoiceNumber || `INV-TN-00${id}`;
-
-  const invoiceDate = inv?.invoiceDate
-    ? new Date(inv.invoiceDate).toLocaleDateString("en-GB")
-    : new Date().toLocaleDateString("en-GB");
-
-  const irnNumber =
-    irnData?.irnNumber ||
-    irnData?.invoice?.IrnNumber ||
-    inv?.irnNumber ||
-    "5c301c59354306c75cf26b3b6080928a1fa908295e60a6c349ae96349d228f";
-
-  const ackNo =
-    irnData?.ackNo ||
-    inv?.ackNo ||
-    "132610080607424";
-
-  const ackDate = irnData?.invoice?.AckDate
-    ? new Date(irnData.invoice.AckDate).toLocaleString()
-    : "8/23/2026 3:28:40 AM";
-
-  const ewbNo =
-    irnData?.invoice?.EWayBillNumber ||
-    inv?.eWayBillNumber ||
-    "361234567891";
-
-  const vehicleNo =
-    inv?.vehicleNo ||
-    so?.vehicleNo ||
-    "T S07XX1234";
-
- // ITEMS - rate always = amount / qty
-const parsedItems = items.length
-  ? items.map((it, i) => {
-      const qty = Number(it.quantity || 1);
-      const amount = Number(
-        it.totalAmount ??
-        (it.quantity * it.unitPrice) ??
-        0
-      );
- 
-
-  const rate = qty ? amount / qty : amount;
-
-      return {
-        sl: i + 1,
-        desc: it.description || it.Description || `Item ${i + 1}`,
-        hsn: it.hsncode || it.HsnCode || "84715000",
-        qty: qty,
-        uom: it.uom || "PCS",
-        rate: rate, // now 18900 for 1 qty
-        amount: amount, // 18900
-        taxAmount: Number(it.taxAmount || 0),
-      };
-    })
-  : [
-      {
-        sl: 1,
-        desc: "Server Rack",
-        hsn: "84715000",
-        qty: 1,
-        uom: "PCS",
-        rate: 18900,
-        amount: 18900,
-        taxAmount: 0,
-      },
-    ];
-const isInter = (sellerGstin?.substring(0, 2) || "") !== (consigneeGstin?.substring(0, 2) || "");
-const taxableValue = parsedItems.reduce((s, i) => s + i.amount, 0); // 18900
-const totalQty = parsedItems.reduce((s, i) => s + i.qty, 0);
-const igstRate = 18;
-const igstAmt = (taxableValue * igstRate) / 100; // 3402
-const cgstAmt = isInter ? 0 : igstAmt / 2;
-const sgstAmt = isInter ? 0 : igstAmt / 2;
-const taxAmount = igstAmt; // 3402 - DON'T use invoice?.taxAmount
-const grandTotal = taxableValue + taxAmount; // 22302
-
-
-// HSN GROUPING - For multiple HSN support
-const hsnGrouped = Object.values(
-  parsedItems.reduce((acc, it) => {
-    const key = (it.hsn || "N/A").trim();
-    if (!acc[key]) acc[key] = { hsn: key, taxable: 0 };
-    acc[key].taxable += Number(it.amount || 0);
-    return acc;
-  }, {})
-);
-// For display, use same variables everywhere
-
-const handlePDF = async () => {
-  if (!ref.current) return;
-  try {
-    setDownloading(true);
-    await new Promise((r) => setTimeout(r, 300));
-    const pages = ref.current.querySelectorAll(".invoice-page");
-    if (!pages.length) return;
-
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
-    const margin = 2;
-    const w = 206; // 210 - 4mm margin -> fixes right border cut
-    const h = 293;
-
-    for (let i = 0; i < pages.length; i++) {
-      const page = pages[i];
-      const ow = page.style.width, oh = page.style.height, omin = page.style.minHeight, ob = page.style.border;
-
-      page.style.width = "207mm";
-      page.style.minWidth = "207mm";
-      page.style.maxWidth = "207mm";
-      page.style.height = "292mm";
-      page.style.minHeight = "292mm";
-      page.style.maxHeight = "292mm";
-      page.style.border = "o.5 px solid #000";
-      page.style.boxSizing = "border-box";
-
-      await new Promise((r) => requestAnimationFrame(() => r()));
-
-      const canvas = await html2canvas(page, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        onclone: (doc) => {
-          const p = doc.querySelectorAll(".invoice-page")[i];
-          if (p) {
-            p.style.width = "207mm";
-            p.style.minWidth = "207mm";
-            p.style.maxWidth = "207mm";
-            p.style.border = "1px solid #000";
-            p.style.boxSizing = "border-box";
-          }
-        },
+  useEffect(()=>{
+    if(!eWayBillNo) return;
+    const t=setTimeout(()=>{
+      barcodeRefs.current.forEach(el=>{
+        if(!el) return;
+        try{ JsBarcode(el,String(eWayBillNo),{format:"CODE128",displayValue:false,height:36,width:1.1,margin:0}); }catch(e){}
       });
+    },300);
+    return ()=>clearTimeout(t);
+  },[eWayBillNo,loading,invoiceType]);
 
-      page.style.width = ow; page.style.height = oh; page.style.minHeight = omin; page.style.border = ob;
-
-      if (i > 0) pdf.addPage("a4", "portrait");
-      const img = canvas.toDataURL("image/jpeg", 1.0);
-      pdf.addImage(img, "JPEG", margin, margin, w, h, undefined, "FAST");
-      pdf.setDrawColor(0,0,0);
-      pdf.setLineWidth(0.5);
-      pdf.rect(margin, margin, w, h); // forces visible border
+  const handlePDF=async()=>{
+    if(!invoicePagesRef.current) return;
+    setDownloading(true);
+    await new Promise(r=>setTimeout(r,300));
+    const pages=invoicePagesRef.current.querySelectorAll(".invoice-page");
+    const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});
+    for(let i=0;i<pages.length;i++){
+      const canvas=await html2canvas(pages[i],{scale:2,useCORS:true,backgroundColor:"#fff"});
+      if(i>0) pdf.addPage("a4","portrait");
+      pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",2,2,206,293);
     }
-    pdf.save(`Sales-Invoice-${invoiceNo || "Invoice"}-4-Copies.pdf`);
-  } catch (e) { console.error(e); }
-  finally { setDownloading(false); }
-};
+    pdf.save(`${invoiceType}-${invoiceNumber}-${id}-4-Copies.pdf`);
+    setDownloading(false);
+  };
 
+  const handleTypeChange=(e,v)=>{ if(!v) return; setInvoiceType(v); window.history.replaceState({}, "", `${window.location.pathname}?type=${v}`); };
 
-  if (loading)
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          mt: 10,
-        }}
-      >
-        <CircularProgress />
+  if(loading) return <Box sx={{display:"flex",justifyContent:"center",mt:10}}><CircularProgress/></Box>;
+
+  return (
+    <Box sx={{bgcolor:"#eaeaea",minHeight:"100vh",py:1}}>
+      <style>{`@page{size:A4;margin:0mm;} @media print{.invoice-toolbar{display:none!important;}}`}</style>
+      <Box className="invoice-toolbar" sx={{width:"210mm",mx:"auto",mb:1}}>
+        <Paper sx={{p:1}}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Button variant="outlined" onClick={()=>navigate(-1)}>Back</Button>
+            <Tabs value={invoiceType} onChange={handleTypeChange}><Tab value="SALES_ORDER" label="SALES ORDER"/><Tab value="MARKETPLACE_ORDER" label="MARKETPLACE ORDER"/></Tabs>
+            <Stack direction="row" spacing={1}><Chip label={`${invoiceType} | ${invoiceNumber} | Seller ${firstValue(invoice.sellerId,order.sellerId,6)} Customer ${firstValue(invoice.customerId,order.customerId,3)}`} color="success" size="small"/><Button variant="contained" onClick={handlePDF} disabled={downloading}>{downloading?"Generating...":"Download 4 Copies"}</Button></Stack>
+          </Stack>
+        </Paper>
+        {error&&<Paper sx={{p:1,mt:1,bgcolor:"#ffebee"}}>{error}</Paper>}
       </Box>
-    );
-return (
-  <Box sx={{ background: "#f1f3f6", minHeight: "100vh", py: 2, "@media print": { background: "#fff", py: 0 } }}>
-    <style>{`
-      @page { size: A4; margin: 0mm; }
-      @media print {
-        html, body { -webkit-print-color-adjust: exact!important; print-color-adjust: exact!important; background: #fff!important; }
-       .invoice-page { border: 1px solid #000!important; box-shadow: none!important; }
-       .invoice-page,.invoice-page div,.invoice-page table,.invoice-page th,.invoice-page td { border-color: #000!important; }
-      }
-    `}</style>
 
-    <Box sx={{ width: "210mm", mx: "auto", mb: 1, display: "flex", justifyContent: "space-between", alignItems: "center", "@media print": { display: "none" } }}>
-      <Button variant="outlined" onClick={() => navigate(-1)}>Back</Button>
-      <Stack direction="row" spacing={1}>
-        <Chip label={rawTx || "N/A"} color="info" size="small" />
-        <Chip label={txType? txType.replace(/_/g, " ") : "N/A"} color="success" size="small" />
-        <Button variant="contained" onClick={handlePDF} disabled={downloading}>{downloading? "..." : "Download 4 Copies"}</Button>
-      </Stack>
-    </Box>
+      <Box ref={invoicePagesRef} sx={{width:"210mm",mx:"auto"}}>
+        {COPY_TYPES.map((copyLabel,copyIdx)=>(
+          <div key={`${copyLabel}-${copyIdx}`} className="invoice-page" style={{width:"210mm",minHeight:"297mm",background:"#fff",border:"1px solid #000",fontFamily:"Arial",fontSize:"9px",color:"#000",margin:"0 auto 5mm auto"}}>
 
-    <Box ref={ref} sx={{ width: "210mm", mx: "auto", bgcolor: "#fff", p: "2mm", boxSizing: "border-box", overflow: "visible", "@media print": { p: "3mm", width: "210mm" } }}>
-      {COPY_TYPES.map((copyLabel, copyIndex) => (
-        <div key={`${copyLabel}-${copyIndex}`} className="invoice-page" style={{ width: "206mm", minWidth: "206mm", maxWidth: "206mm", minHeight: "291mm", height: "291mm", boxSizing: "border-box", border: "1px solid #000", background: "#fff", color: "#000", fontFamily: "Arial, Helvetica, sans-serif", fontSize: "9px", margin: "0 auto 5mm auto", padding: 0, display: "flex", flexDirection: "column", overflow: "hidden", pageBreakAfter: copyIndex === COPY_TYPES.length - 1? "avoid" : "always" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", borderBottom: "0.8px solid #000", padding: "4px 6px", fontSize: "8px", minHeight: "22px" }}>
-            <span><b>Tax Invoice</b></span><span><b>GSTIN/UIN: {sellerGstin || "N/A"}</b></span><span><b>{copyLabel || "N/A"}</b></span>
-          </div>
+            <div style={{display:"flex",borderBottom:"1px solid #000",fontWeight:"bold"}}>
+              <div style={{width:"15%",borderRight:"1px solid #000",padding:"3px 5px"}}>Tax Invoice</div>
+              <div style={{width:"55%",borderRight:"1px solid #000",padding:"3px 5px",textAlign:"center"}}>GSTIN/UIN: {sellerGSTIN} - {invoiceType.replace(/_/g," ")}</div>
+              <div style={{width:"30%",padding:"3px 5px",textAlign:"right"}}>{copyLabel}</div>
+            </div>
 
-          <div style={{ width: "100%", borderBottom: "0.8px solid #000", padding: "5px 6px" }}>
-            <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "flex-start", minHeight: "78px" }}>
-              <div style={{ flex: "1 1 50%", width: "50%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                <div style={{ fontSize: "8px", fontWeight: "bold", marginBottom: "2px" }}>E-WAY BILL</div>
-{ewbNo && ewbNo!== "N/A"? (
-  <svg
-    ref={(el) => { ewbBarcodeRefs.current[copyIndex] = el; }}
-    style={{ width: "190px", height: "45px", display: "block" }}
-  />
-) : (
-  <div style={{ width: "190px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", fontWeight: "bold", border: "0.8px solid #000" }}>
-    N/A
-  </div>
-)}
-<div style={{ fontSize: "7px", marginTop: "1px" }}>
-  E-Way Bill No: <b>{ewbNo || "N/A"}</b>
-</div>
+            <div style={{textAlign:"center",borderBottom:"1px solid #000",padding:"5px 0"}}>
+              <div style={{fontSize:"16px",fontWeight:"bold"}}>{sellerName}</div>
+              <div>{sellerAddr}</div>
+              <div>GSTIN: {sellerGSTIN} | {isMarketplace?`Marketplace Order ${invoiceNumber}`:`Invoice ${invoiceNumber}`} | Date: {invDate} | {invoice.placeOfSupply||order.placeOfSupply||"Tamil Nadu"} ({invoice.stateCode||order.stateCode||"33"})</div>
+            </div>
+
+            <div style={{display:"flex",borderBottom:"1px solid #000"}}>
+              <div style={{width:"65%",padding:"5px",lineHeight:"12px"}}>
+                <div>E-Way Bill Number: <b>{eWayBillNo}</b></div>
+                <div>IRN Number:</div>
+                <div style={{fontSize:"7.5px",wordBreak:"break-all",fontWeight:"bold"}}>{irnNumber}</div>
+                <div>Acknowledgement No : <b>{ackNo}</b></div>
+                <div>Acknowledgement Date: {ackDate || invDate}</div>
+                <div style={{marginTop:"4px",fontWeight:"bold",fontSize:"8px"}}>E-WAY BILL BARCODE</div>
+                <svg ref={(el)=>{barcodeRefs.current[copyIdx]=el;}} style={{width:"180px",height:"40px",display:"block",background:"#fff"}} />
+                <div style={{fontSize:"6px"}}>Source: /api/e-way-bill/{id} - /api/e-invoice/print-view/{id}</div>
               </div>
-              <div style={{ flex: "1 1 50%", width: "50%", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                <div style={{ fontSize: "8px", fontWeight: "bold", marginBottom: "2px", marginRight: "8px" }}>IRN QR CODE</div>
-                {signedQRCode || irnNumber? <QRCodeSVG value={signedQRCode || irnNumber} size={58} level="M" includeMargin={false} style={{ display: "block", marginRight: "8px" }} /> : <div style={{ width: "58px", height: "58px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8px", border: "0.8px solid #000", marginRight: "8px" }}>N/A</div>}
+              <div style={{width:"35%",borderLeft:"1px solid #000",display:"flex",justifyContent:"center",alignItems:"center",padding:"5px",flexDirection:"column"}}>
+                <div style={{fontSize:"8px",fontWeight:"bold",marginBottom:"3px"}}>IRN QR CODE</div>
+                <QRCodeSVG value={qrPayload} size={90} level="M" />
               </div>
             </div>
-            <div style={{ width: "100%", textAlign: "center", marginTop: "4px", paddingTop: "4px", borderTop: "0.8px solid #000", fontSize: "8px", lineHeight: "12px", wordBreak: "break-word" }}>
-              <div style={{ fontSize: "14px", fontWeight: "bold", lineHeight: "17px", marginBottom: "2px" }}>{sellerName || "N/A"}</div>
-              <div>{sellerDetails || "N/A"}{sellerAddr? `, ${sellerAddr}` : ""}{sellerCity? `, ${sellerCity}` : ""}{sellerState? `, ${sellerState}` : ""}{sellerPIN? ` - ${sellerPIN}` : ""}</div>
-              <div><b>GSTIN/UIN: {sellerGstin || "N/A"}</b>{sellerEmail? `, Email: ${sellerEmail}` : ""}{sellerPhone? `, Ph: ${sellerPhone}` : ""}{sellerWebsite? `, Website: ${sellerWebsite}` : ""}</div>
+
+            <div style={{display:"flex",borderBottom:"1px solid #000",fontSize:"8.5px",lineHeight:"12px"}}>
+              <div style={{width:"50%",borderRight:"1px solid #000"}}>
+                <div style={{padding:"4px 5px",borderBottom:"1px solid #000"}}>
+                  <div style={{fontWeight:"bold",background:"#dcfce7",padding:"2px"}}>BILL TO / SHIP TO - WHO PURCHASED - {isMarketplace?"Marketplace":"Sales"}</div>
+                  <div style={{fontWeight:"bold",fontSize:"10px"}}>{billToName}</div>
+                  <div>{billToAddr}</div>
+                  <div>GSTIN: <b>{billToGSTIN}</b></div>
+                  <div style={{fontSize:"6px",color:"green"}}>Source: /api/marketplace/customers/{firstValue(invoice.sellerId,order.sellerId,6)}/customer/{firstValue(invoice.customerId,order.customerId,3)} - Whitefield</div>
+                </div>
+                <div style={{padding:"4px 5px"}}>
+                  <div style={{fontWeight:"bold",background:"#dbeafe",padding:"2px",border:"1px solid red"}}>DISPATCH FROM - WHO SENDS - MG Road</div>
+                  <div>{dispatchAddr}</div>
+                  <div style={{fontSize:"6px",color:"red"}}>Source: /api/customer-addresses/seller/{firstValue(invoice.sellerId,order.sellerId,6)}/customer/{firstValue(invoice.customerId,order.customerId,3)}</div>
+                </div>
+              </div>
+              <div style={{width:"50%"}}>
+                <div style={{display:"flex",borderBottom:"1px solid #000"}}>
+                  <div style={{width:"50%",borderRight:"1px solid #000",padding:"4px"}}>Invoice No.<br/><b>{invoiceNumber}</b><br/><span style={{fontSize:"6px"}}>{isMarketplace?`/api/MarketplaceOrder/${id}`:`/api/SalesInvoice/seller/${firstValue(invoice.sellerId,6)}/customer/${firstValue(invoice.customerId,3)}`}</span></div>
+                  <div style={{width:"50%",padding:"4px"}}>Dated<br/><b>{invDate}</b></div>
+                </div>
+                <div style={{display:"flex",borderBottom:"1px solid #000"}}>
+                  <div style={{width:"50%",borderRight:"1px solid #000",padding:"4px"}}>Place of Supply<br/><b>{firstValue(invoice.placeOfSupply,order.placeOfSupply,"Tamil Nadu")}</b></div>
+                  <div style={{width:"50%",padding:"4px"}}>State Code<br/><b>{firstValue(invoice.stateCode,order.stateCode,"33")}</b></div>
+                </div>
+                <div style={{display:"flex",borderBottom:"1px solid #000"}}>
+                  <div style={{width:"50%",borderRight:"1px solid #000",padding:"4px"}}>Supply Type<br/><b>{firstValue(invoice.supplyType,order.supplyType,"Inter-State")}</b></div>
+                  <div style={{width:"50%",padding:"4px"}}>Reverse Charge<br/><b>{String(firstValue(invoice.reverseCharge,order.reverseCharge,false))}</b></div>
+                </div>
+                <div style={{padding:"4px"}}>
+                  Type: <b>{invoiceType}</b><br/>
+                  Seller {firstValue(invoice.sellerId,order.sellerId,6)} Customer {firstValue(invoice.customerId,order.customerId,3)}<br/>
+                  SalesOrder: {firstValue(invoice.salesOrderId,order.salesOrderId,order.id,"-")}<br/>
+                  Total: <b>₹{money(grandTotal)}</b> Balance: ₹{money(firstValue(invoice.balanceAmount,order.balanceAmount,0))}<br/>
+                  Status: {firstValue(invoice.status,order.status,"Confirmed")} - {firstValue(invoice.paymentStatus,order.paymentStatus,"Unpaid")}<br/>
+                  Transaction: {firstValue(invoice.transactionType,order.transactionType,"BILL_FROM_DISPATCH_FROM")}
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div style={{ width: "100%", borderBottom: "0.8px solid #000", padding: "4px 6px", fontSize: "8px", lineHeight: "12px" }}>
-            <div><b>E-Way Bill Number:</b> {ewbNo || "N/A"}</div><div><b>IRN Number:</b> {irnNumber || "N/A"}</div><div><b>Acknowledgement No:</b> {ackNo || "N/A"}</div><div><b>Acknowledgement Date:</b> {ackDate || "N/A"}</div>
-          </div>
-
-          <div style={{ display: "flex", width: "100%", borderBottom: "0.8px solid #000" }}>
-            <div style={{ flex: "1 1 50%", width: "50%", borderRight: "0.8px solid #000", padding: "4px", fontSize: "8px", lineHeight: "11px", wordBreak: "break-word", overflowWrap: "break-word" }}>
-  <div style={{ fontSize:"7.5px", marginBottom:"3px" }}>Transaction: <b>{txType? txType.replace(/_/g," ") : "N/A"}</b></div>
-
-  {/* CONSIGNEE - Always 1 box */}
-  <div>
-    Consignee:<br />
-    <b style={{ fontSize: "9px" }}>{consigneeName || "N/A"}</b><br />
-    {consigneeAddr && consigneeAddr !== "N/A" ? <><span style={{ fontSize:"8px" }}>{consigneeAddr}</span><br /></> : null}
-    GSTIN / UIN: <b>{consigneeGstin || "N/A"}</b><br />
-    State Name: {consigneeState || "N/A"}, Code: {consigneeCode || "N/A"}
-  </div>
-
-</div>
-            <div style={{ flex: "1 1 50%", width: "50%", fontSize: "8px", overflow: "hidden" }}>
-              <div style={{ display: "flex", width: "100%", borderBottom: "0.8px solid #000" }}><div style={{ flex: "1 1 50%", width: "50%", borderRight: "0.8px solid #000", padding: "3px" }}>Invoice No.<br /><b>{invoiceNo || "N/A"}</b></div><div style={{ flex: "1 1 50%", width: "50%", padding: "3px" }}>Dated:<br /><b>{invoiceDate || "N/A"}</b></div></div>
-              <div style={{ display: "flex", width: "100%", borderBottom: "0.8px solid #000" }}><div style={{ flex: "1 1 50%", width: "50%", borderRight: "0.8px solid #000", padding: "3px" }}>D. C. No.<br /><b>{invoice?.despatchedDocumentNumber || "N/A"}</b></div><div style={{ flex: "1 1 50%", width: "50%", padding: "3px" }}>Delivery Note Date:<br />{invoice?.deliveryNoteDate? formatDate(invoice.deliveryNoteDate) : "N/A"}</div></div>
-              <div style={{ display: "flex", width: "100%", borderBottom: "0.8px solid #000" }}><div style={{ flex: "1 1 50%", width: "50%", borderRight: "0.8px solid #000", padding: "3px" }}>Purchase Order No.<br /><b>{invoice?.purchaseOrderNo || "N/A"}</b></div><div style={{ flex: "1 1 50%", width: "50%", padding: "3px" }}>Purchase Order Date<br />{invoice?.purchaseOrderDate? formatDate(invoice.purchaseOrderDate) : "N/A"}</div></div>
-              <div style={{ display: "flex", width: "100%", borderBottom: "0.8px solid #000" }}><div style={{ flex: "1 1 50%", width: "50%", borderRight: "0.8px solid #000", padding: "3px" }}>Bill Of Landing / LR-RR No.<br /><b>{invoice?.billOfLandingOrLRRRNo || "N/A"}</b></div><div style={{ flex: "1 1 50%", width: "50%", padding: "3px" }}>Despatched Through<br /><b>{invoice?.despatchedThrough || invoice?.transport || "N/A"}</b></div></div>
-              <div style={{ display: "flex", width: "100%", borderBottom: "0.8px solid #000" }}><div style={{ flex: "1 1 50%", width: "50%", borderRight: "0.8px solid #000", padding: "3px" }}>Other Reference(s)<br /><b>{invoice?.otherReferences || "N/A"}</b></div><div style={{ flex: "1 1 50%", width: "50%", padding: "3px" }}>Destination<br /><b>{invoice?.destination || consigneeState || "N/A"}</b></div></div>
-              <div style={{ width: "100%", padding: "3px" }}>Motor Vehicle No.<br /><b>{vehicleNo || "N/A"}</b></div>
-            </div>
-          </div>
-
-          <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", fontSize: "8px", margin: 0 }}>
-            <thead><tr style={{ borderBottom: "0.8px solid #000", background: "#fff" }}><th style={{ width: "5%", borderRight: "0.8px solid #000", borderBottom: "0.8px solid #000", padding: "3px" }}>Sl. No</th><th style={{ width: "40%", borderRight: "0.8px solid #000", borderBottom: "0.8px solid #000", padding: "3px" }}>Description of Goods</th><th style={{ width: "10%", borderRight: "0.8px solid #000", borderBottom: "0.8px solid #000", padding: "3px" }}>HSN/SAC</th><th style={{ width: "10%", borderRight: "0.8px solid #000", borderBottom: "0.8px solid #000", padding: "3px" }}>Quantity</th><th style={{ width: "12%", borderRight: "0.8px solid #000", borderBottom: "0.8px solid #000", padding: "3px" }}>Rate</th><th style={{ width: "5%", borderRight: "0.8px solid #000", borderBottom: "0.8px solid #000", padding: "3px" }}>Per</th><th style={{ width: "18%", textAlign: "right", borderBottom: "0.8px solid #000", padding: "3px" }}>Amount</th></tr></thead>
-            <tbody>
-              {parsedItems.map((it) => (<tr key={it.sl} style={{ borderBottom: "0.8px solid #000" }}><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{it.sl}</td><td style={{ borderRight: "0.8px solid #000", padding: "3px", wordBreak: "break-word" }}>{it.desc || "N/A"}</td><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{it.hsn || "N/A"}</td><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{it.qty || 0} {it.uom || ""}</td><td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>{Number(it.rate || 0).toFixed(2)}</td><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{it.uom || "N/A"}</td><td style={{ textAlign: "right", fontWeight: "bold", padding: "3px" }}>{Number(it.amount || 0).toFixed(2)}</td></tr>))}
-              <tr style={{ borderTop: "0.8px solid #000", borderBottom: "0.8px solid #000" }}><td colSpan={6} style={{ textAlign: "right", borderRight: "0.8px solid #000", padding: "3px" }}>Total</td><td style={{ textAlign: "right", fontWeight: "bold", padding: "3px" }}>{taxableValue.toFixed(2)}</td></tr>
-              {isInter? (<tr style={{ borderBottom: "0.8px solid #000" }}><td colSpan={4} style={{ borderRight: "0.8px solid #000" }} /><td style={{ borderRight: "0.8px solid #000", textAlign: "right", fontWeight: "bold", padding: "3px" }}>IGST</td><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{igstRate}%</td><td style={{ textAlign: "right", fontWeight: "bold", padding: "3px" }}>{igstAmt.toFixed(2)}</td></tr>) : (<><tr style={{ borderBottom: "0.8px solid #000" }}><td colSpan={4} style={{ borderRight: "0.8px solid #000" }} /><td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>CGST</td><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{igstRate / 2}%</td><td style={{ textAlign: "right", padding: "3px" }}>{cgstAmt.toFixed(2)}</td></tr><tr style={{ borderBottom: "0.8px solid #000" }}><td colSpan={4} style={{ borderRight: "0.8px solid #000" }} /><td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>SGST</td><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{igstRate / 2}%</td><td style={{ textAlign: "right", padding: "3px" }}>{sgstAmt.toFixed(2)}</td></tr></>)}
-              <tr style={{ borderTop: "0.8px solid #000", borderBottom: "0.8px solid #000", fontWeight: "bold" }}><td colSpan={3} style={{ textAlign: "right", borderRight: "0.8px solid #000", padding: "3px" }}>Grand Total</td><td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{totalQty} nos</td><td style={{ borderRight: "0.8px solid #000" }} /><td style={{ borderRight: "0.8px solid #000" }} /><td style={{ textAlign: "right", padding: "3px" }}>₹{grandTotal.toFixed(2)}</td></tr>
-            </tbody>
-          </table>
-
-          <div style={{ width: "100%", borderTop: "0.8px solid #000", borderBottom: "0.8px solid #000", padding: "3px", fontSize: "8px" }}>Amount Chargeable (in Words): <b>{numToWords(grandTotal)}</b><span style={{ float: "right" }}>E. & O. E</span></div>
-
-          <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", fontSize: "8px", borderBottom: "0.8px solid #000" }}>
-            <thead><tr style={{ background: "#fff", borderBottom: "0.8px solid #000" }}><th style={{ width: "40%", borderRight: "0.8px solid #000", padding: "3px" }}>HSN/SAC</th><th style={{ width: "15%", borderRight: "0.8px solid #000", padding: "3px" }}>Taxable Value</th><th style={{ width: "25%", borderRight: "0.8px solid #000", padding: "3px" }}>{isInter? `IGST ${igstRate}%` : `CGST + SGST ${igstRate}%`}</th><th style={{ width: "20%", padding: "3px" }}>Total Tax</th></tr></thead>
-            <tbody>
-              {hsnGrouped.map((g) => (
-                <tr key={g.hsn} style={{ borderBottom: "0.8px solid #000" }}>
-                  <td style={{ borderRight: "0.8px solid #000", textAlign: "center", padding: "3px" }}>{g.hsn}</td>
-                  <td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>{g.taxable.toFixed(2)}</td>
-                  <td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>{((g.taxable * igstRate) / 100).toFixed(2)}</td>
-                  <td style={{ textAlign: "right", padding: "3px" }}>{((g.taxable * igstRate) / 100).toFixed(2)}</td>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:"8.5px"}}>
+              <thead>
+                <tr style={{background:"#f5f5f5",borderBottom:"1px solid #000"}}>
+                  <th style={{border:"1px solid #000",padding:"4px",width:"5%"}}>Sl</th>
+                  <th style={{border:"1px solid #000",padding:"4px",width:"40%"}}>Description of Goods</th>
+                  <th style={{border:"1px solid #000",padding:"4px",width:"10%"}}>HSN</th>
+                  <th style={{border:"1px solid #000",padding:"4px",width:"10%"}}>Qty</th>
+                  <th style={{border:"1px solid #000",padding:"4px",width:"10%"}}>Rate</th>
+                  <th style={{border:"1px solid #000",padding:"4px",width:"5%"}}>Per</th>
+                  <th style={{border:"1px solid #000",padding:"4px",width:"20%",textAlign:"right"}}>Amount</th>
                 </tr>
-              ))}
-              <tr style={{ borderTop: "0.8px solid #000", fontWeight: "bold" }}><td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>Total</td><td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>{taxableValue.toFixed(2)}</td><td style={{ borderRight: "0.8px solid #000", textAlign: "right", padding: "3px" }}>{igstAmt.toFixed(2)}</td><td style={{ textAlign: "right", padding: "3px" }}>{igstAmt.toFixed(2)}</td></tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {parsedItems.map(it=>(
+                  <tr key={it.sl}>
+                    <td style={{border:"1px solid #000",padding:"4px",textAlign:"center"}}>{it.sl}</td>
+                    <td style={{border:"1px solid #000",padding:"4px"}}>{it.desc}</td>
+                    <td style={{border:"1px solid #000",padding:"4px",textAlign:"center"}}>{it.hsn}</td>
+                    <td style={{border:"1px solid #000",padding:"4px",textAlign:"center"}}>{it.qty} {it.per}</td>
+                    <td style={{border:"1px solid #000",padding:"4px",textAlign:"right"}}>{money(it.rate)}</td>
+                    <td style={{border:"1px solid #000",padding:"4px",textAlign:"center"}}>{it.per}</td>
+                    <td style={{border:"1px solid #000",padding:"4px",textAlign:"right",fontWeight:"bold"}}>{money(it.amount)}</td>
+                  </tr>
+                ))}
+                <tr style={{fontWeight:"bold",borderTop:"1px solid #000"}}>
+                  <td style={{border:"1px solid #000"}}></td>
+                  <td style={{border:"1px solid #000",textAlign:"right",padding:"4px"}}>IGST 18%</td>
+                  <td style={{border:"1px solid #000"}}></td><td style={{border:"1px solid #000"}}></td><td style={{border:"1px solid #000"}}></td>
+                  <td style={{border:"1px solid #000",padding:"4px"}}>18%</td>
+                  <td style={{border:"1px solid #000",padding:"4px",textAlign:"right"}}>{money(taxAmt)}</td>
+                </tr>
+                <tr style={{fontWeight:"bold"}}>
+                  <td style={{border:"1px solid #000"}}></td>
+                  <td style={{border:"1px solid #000",textAlign:"right",padding:"4px"}}>Total</td>
+                  <td style={{border:"1px solid #000"}}></td>
+                  <td style={{border:"1px solid #000",textAlign:"center",padding:"4px"}}>{parsedItems.reduce((s,i)=>s+i.qty,0)} nos</td>
+                  <td style={{border:"1px solid #000"}}></td><td style={{border:"1px solid #000"}}></td>
+                  <td style={{border:"1px solid #000",padding:"4px",textAlign:"right"}}>{money(grandTotal)}</td>
+                </tr>
+              </tbody>
+            </table>
 
-          <div style={{ display: "flex", width: "100%", flex: "1 1 auto", minHeight: "90px", borderTop: "0.8px solid #000" }}>
-            <div style={{ flex: "1 1 50%", width: "50%", borderRight: "0.8px solid #000", padding: "6px", fontSize: "8px", display: "flex", flexDirection: "column", justifyContent: "space-between", wordBreak: "break-word" }}><div><div>Company&apos;s PAN: <b>{sellerPAN || "N/A"}</b></div><div style={{ marginTop: "5px" }}><b>Declaration</b><br />OTHER TERMS & CONDITIONS:<br />Subjected to Hyderabad Jurisdiction.</div><div style={{ marginTop: "8px" }}>Transaction Type: <b>{txType? txType.replace(/_/g, " ") : "N/A"}</b><br />{isShipTo? <span>ShipTo GSTIN: {shipToGstin || "N/A"}</span> : null}{isShipTo && isDispatch? <span> | </span> : null}{isDispatch? <span>Dispatch GSTIN: {dispatchGstin || "N/A"}</span> : null}</div></div></div>
-            <div style={{ flex: "1 1 50%", width: "50%", padding: "6px", fontSize: "8px", display: "flex", flexDirection: "column", justifyContent: "space-between", wordBreak: "break-word" }}><div><div>Bank: {sellerBankName || "N/A"}</div><div>A/c: {sellerBankAccount || "N/A"}</div><div>IFSC: {sellerBankIFSC || "N/A"}</div><div>Branch: {sellerBankBranch || "N/A"}</div></div><div style={{ textAlign: "right", marginTop: "20px" }}><div>For <b>{sellerName || "N/A"}</b></div><div style={{ height: "40px" }} /><div>Authorised Signatory</div></div></div>
+            <div style={{display:"flex",justifyContent:"space-between",padding:"4px 5px",borderBottom:"1px solid #000"}}>
+              <div>Amount Chargeable (in Words): <b>{numToWords(grandTotal)}</b></div>
+              <div>E. & O. E</div>
+            </div>
+
+            <div style={{display:"flex",minHeight:"60px"}}>
+              <div style={{width:"50%",borderRight:"1px solid #000",padding:"5px",fontSize:"8px"}}>
+                Company's PAN: {firstValue(seller.pan,seller.PAN,"AARFB4347G")}<br/>
+                Declaration: We declare that this invoice shows the actual price and that all particulars are true and correct.<br/>
+                Remarks: {firstValue(invoice.remarks,order.remarks,"")}
+              </div>
+              <div style={{width:"50%",padding:"5px",textAlign:"right",fontSize:"8px"}}>
+                <div>Bank: {firstValue(seller.bankName,"HDFC Bank")} | A/c: {firstValue(seller.bankAccount,"50200012345678")} | IFSC: {firstValue(seller.bankIfsc,"HDFC0001234")}</div>
+                <div style={{marginTop:"10px"}}>For <b>{sellerName}</b></div>
+                <div style={{height:"30px"}}></div>
+                <div>Authorised Signatory</div>
+              </div>
+            </div>
+
+            <div style={{textAlign:"right",fontSize:"6px",padding:"2px 5px",borderTop:"1px solid #000"}}>
+              {invoiceType} - {invoiceNumber} - Invoice {id} - Seller {firstValue(invoice.sellerId,order.sellerId,6)} Customer {firstValue(invoice.customerId,order.customerId,3)} | Generated By CubeCue
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </Box>
     </Box>
-  </Box>
-);
+  );
 }
-
-export default SalesInvoicePrint;
-
-

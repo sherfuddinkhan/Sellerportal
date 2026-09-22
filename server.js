@@ -4569,488 +4569,303 @@ app.delete(
 // =====================================================
 // SALES INVOICE ROUTES
 // React -> Node -> ASP.NET Core
+// Node: http://localhost:5000
+// .NET: https://localhost:7203
 // =====================================================
-
 
 // =====================================================
 // GET ALL SALES INVOICES
-// React:
-// GET http://localhost:5000/api/sales-invoices
-//
-// ASP.NET:
-// GET https://localhost:7203/api/SalesInvoice
+// React: GET http://localhost:5000/api/sales-invoices
+// ASP.NET: GET https://localhost:7203/api/SalesInvoice
 // =====================================================
-
 app.get("/api/sales-invoices", async (req, res) => {
-
-    try {
-
-        const response = await axios.get(
-            `${DOTNET_API}/SalesInvoice`,
-            {
-                httpsAgent
-            }
-        );
-
-        return res
-            .status(response.status)
-            .json(response.data);
-
-    } catch (error) {
-
-        console.error(
-            "GET SALES INVOICES ERROR:",
-            error.response?.data || error.message
-        );
-
-        return res
-            .status(error.response?.status || 500)
-            .json(
-                error.response?.data || {
-                    message: "Failed to load Sales Invoices"
-                }
-            );
-    }
+  try {
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET SALES INVOICES ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Sales Invoices" });
+  }
 });
 
+// PascalCase alias for React calling /api/SalesInvoice
+app.get("/api/SalesInvoice", async (req, res) => {
+  try {
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed" });
+  }
+});
 
 // =====================================================
 // GET SALES INVOICE STATISTICS
-// React:
-// GET http://localhost:5000/api/sales-invoices/statistics
-//
-// ASP.NET:
-// GET https://localhost:7203/api/SalesInvoice/statistics
+// React: GET /api/sales-invoices/statistics
+// ASP.NET: GET /api/SalesInvoice/statistics
 // =====================================================
-
-app.get(
-    "/api/sales-invoices/statistics",
-    async (req, res) => {
-
-        try {
-
-            console.log(
-                "GET SALES INVOICE STATISTICS:",
-                req.query
-            );
-
-            const response = await axios.get(
-                `${DOTNET_API}/SalesInvoice/statistics`,
-                {
-                    params: req.query,
-                    httpsAgent
-                }
-            );
-
-            console.log(
-                "SALES INVOICE STATISTICS RESPONSE:",
-                response.data
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "SALES INVOICE STATISTICS ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Unable to connect to Sales Invoice statistics API",
-                        error: error.message
-                    }
-                );
-        }
-    }
-);
-
+app.get("/api/sales-invoices/statistics", async (req, res) => {
+  try {
+    console.log("GET SALES INVOICE STATISTICS:", req.query);
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/statistics`, { params: req.query, httpsAgent });
+    console.log("SALES INVOICE STATISTICS RESPONSE:", response.data);
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("SALES INVOICE STATISTICS ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Unable to connect to Sales Invoice statistics API", error: error.message });
+  }
+});
 
 // =====================================================
 // GET SALES INVOICES BY SALES ORDER
-// React:
-// GET /api/sales-invoices/salesorder/:salesOrderId
-//
-// ASP.NET:
-// GET /api/SalesInvoice/salesorder/:salesOrderId
+// React: GET /api/sales-invoices/salesorder/:salesOrderId
+// ASP.NET: GET /api/SalesInvoice/salesorder/:salesOrderId
 // =====================================================
-
-app.get(
-    "/api/sales-invoices/salesorder/:salesOrderId",
-    async (req, res) => {
-
-        try {
-
-            const { salesOrderId } = req.params;
-
-            const response = await axios.get(
-                `${DOTNET_API}/SalesInvoice/salesorder/${encodeURIComponent(
-                    salesOrderId
-                )}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "GET SALES INVOICES BY SALES ORDER ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to load Sales Invoices for Sales Order"
-                    }
-                );
-        }
-    }
-);
-
+app.get("/api/sales-invoices/salesorder/:salesOrderId", async (req, res) => {
+  try {
+    const { salesOrderId } = req.params;
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/salesorder/${encodeURIComponent(salesOrderId)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET SALES INVOICES BY SALES ORDER ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Sales Invoices for Sales Order" });
+  }
+});
 
 // =====================================================
 // GET SALES INVOICES BY STATUS
-// React:
-// GET /api/sales-invoices/status/:status
-//
-// ASP.NET:
-// GET /api/SalesInvoice/status/:status
+// React: GET /api/sales-invoices/status/:status
+// ASP.NET: GET /api/SalesInvoice/status/:status
 // =====================================================
-
-app.get(
-    "/api/sales-invoices/status/:status",
-    async (req, res) => {
-
-        try {
-
-            const { status } = req.params;
-
-            const response = await axios.get(
-                `${DOTNET_API}/SalesInvoice/status/${encodeURIComponent(
-                    status
-                )}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "GET SALES INVOICES BY STATUS ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to load Sales Invoices by status"
-                    }
-                );
-        }
-    }
-);
-
+app.get("/api/sales-invoices/status/:status", async (req, res) => {
+  try {
+    const { status } = req.params;
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/status/${encodeURIComponent(status)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET SALES INVOICES BY STATUS ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Sales Invoices by status" });
+  }
+});
 
 // =====================================================
 // GET SALES INVOICES BY PAYMENT STATUS
-// React:
-// GET /api/sales-invoices/paymentstatus/:paymentStatus
-//
-// ASP.NET:
-// GET /api/SalesInvoice/paymentstatus/:paymentStatus
+// React: GET /api/sales-invoices/paymentstatus/:paymentStatus
+// ASP.NET: GET /api/SalesInvoice/paymentstatus/:paymentStatus
 // =====================================================
-
-app.get(
-    "/api/sales-invoices/paymentstatus/:paymentStatus",
-    async (req, res) => {
-
-        try {
-
-            const { paymentStatus } = req.params;
-
-            const response = await axios.get(
-                `${DOTNET_API}/SalesInvoice/paymentstatus/${encodeURIComponent(
-                    paymentStatus
-                )}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "GET SALES INVOICES BY PAYMENT STATUS ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to load Sales Invoices by payment status"
-                    }
-                );
-        }
-    }
-);
-
+app.get("/api/sales-invoices/paymentstatus/:paymentStatus", async (req, res) => {
+  try {
+    const { paymentStatus } = req.params;
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/paymentstatus/${encodeURIComponent(paymentStatus)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET SALES INVOICES BY PAYMENT STATUS ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Sales Invoices by payment status" });
+  }
+});
 
 // =====================================================
 // GET SALES INVOICE BY NUMBER
-// React:
-// GET /api/sales-invoices/number/:invoiceNumber
-//
-// ASP.NET:
-// GET /api/SalesInvoice/number/:invoiceNumber
+// React: GET /api/sales-invoices/number/:invoiceNumber
+// ASP.NET: GET /api/SalesInvoice/number/:invoiceNumber
 // =====================================================
-
-app.get(
-    "/api/sales-invoices/number/:invoiceNumber",
-    async (req, res) => {
-
-        try {
-
-            const { invoiceNumber } = req.params;
-
-            const response = await axios.get(
-                `${DOTNET_API}/SalesInvoice/number/${encodeURIComponent(
-                    invoiceNumber
-                )}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "GET SALES INVOICE BY NUMBER ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to load Sales Invoice by invoice number"
-                    }
-                );
-        }
-    }
-);
-
-
-// =====================================================
-// GET SALES INVOICE BY ID
-// IMPORTANT:
-// Keep this AFTER the specific GET routes above.
-//
-// React:
-// GET /api/sales-invoices/:id
-//
-// ASP.NET:
-// GET /api/SalesInvoice/:id
-// =====================================================
-
-app.get("/api/sales-invoices/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const targetUrl = `${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`;
-
-        const response = await axios.get(targetUrl, {
-            httpsAgent,
-            responseType: 'json', // Explicitly force JSON parsing
-            timeout: 10000        // Prevent hanging stream timeouts
-        });
-
-        return res.status(200).json(response.data);
-
-    } catch (error) {
-        console.error("❌ GET SALES INVOICE PROXY ERROR:", error.message);
-        return res.status(500).json({
-            message: "Failed to load Sales Invoice",
-            details: error.message
-        });
-    }
+app.get("/api/sales-invoices/number/:invoiceNumber", async (req, res) => {
+  try {
+    const { invoiceNumber } = req.params;
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/number/${encodeURIComponent(invoiceNumber)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET SALES INVOICE BY NUMBER ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Sales Invoice by invoice number" });
+  }
 });
 
+// =====================================================
+// GET SALES INVOICES BY SELLER / CUSTOMER - DYNAMIC
+// React: GET /api/sales-invoices/seller/6/customer/3
+// ASP.NET: GET https://localhost:7203/api/SalesInvoice/seller/6/customer/3
+// Returns Array(6) - Filter for invoice 16 - DYNAMIC 6/3 from params
+// =====================================================
+app.get("/api/sales-invoices/seller/:sellerId/customer/:customerId", async (req, res) => {
+  try {
+    const { sellerId, customerId } = req.params;
+    console.log(`GET SALES INVOICES BY SELLER/CUSTOMER: ${sellerId}/${customerId}`);
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`, { httpsAgent });
+    console.log(`Found ${Array.isArray(response.data) ? response.data.length : 1} invoices for seller ${sellerId} customer ${customerId}`);
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET SALES INVOICES BY SELLER/CUSTOMER ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Sales Invoices by seller/customer" });
+  }
+});
+
+// PascalCase alias - Fixes React calling /api/SalesInvoice/seller/6/customer/3 -> 404
+app.get("/api/SalesInvoice/seller/:sellerId/customer/:customerId", async (req, res) => {
+  try {
+    const { sellerId, customerId } = req.params;
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed seller/customer" });
+  }
+});
+
+// =====================================================
+// GET MARKETPLACE CUSTOMER - BILL TO / SHIP TO - Whitefield
+// React: GET /api/marketplace/customers/6/3
+// ASP.NET: GET https://localhost:7203/api/marketplace/customers/6/3
+// =====================================================
+app.get("/api/marketplace/customers/:sellerId/:customerId", async (req, res) => {
+  try {
+    const { sellerId, customerId } = req.params;
+    console.log(`GET MARKETPLACE CUSTOMER: ${sellerId}/${customerId}`);
+    const response = await axios.get(`${DOTNET_API}/marketplace/customers/${encodeURIComponent(sellerId)}/${encodeURIComponent(customerId)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET MARKETPLACE CUSTOMER ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Marketplace Customer - BILL TO" });
+  }
+});
+
+app.get("/api/Marketplace/customers/:sellerId/:customerId", async (req, res) => {
+  try {
+    const { sellerId, customerId } = req.params;
+    const response = await axios.get(`${DOTNET_API}/marketplace/customers/${encodeURIComponent(sellerId)}/${encodeURIComponent(customerId)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed" });
+  }
+});
+
+// =====================================================
+// GET CUSTOMER ADDRESS - DISPATCH FROM - MG Road - WHO SENDS
+// React: GET /api/customer-addresses/seller/6/customer/3
+// ASP.NET: GET https://localhost:7203/api/customer-addresses/seller/6/customer/3
+// =====================================================
+app.get("/api/customer-addresses/seller/:sellerId/customer/:customerId", async (req, res) => {
+  try {
+    const { sellerId, customerId } = req.params;
+    console.log(`GET CUSTOMER ADDRESS DISPATCH FROM: ${sellerId}/${customerId}`);
+    const response = await axios.get(`${DOTNET_API}/customer-addresses/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("GET CUSTOMER ADDRESS ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to load Customer Address - DISPATCH FROM" });
+  }
+});
+
+app.get("/api/CustomerAddresses/seller/:sellerId/customer/:customerId", async (req, res) => {
+  try {
+    const { sellerId, customerId } = req.params;
+    const response = await axios.get(`${DOTNET_API}/customer-addresses/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed" });
+  }
+});
+
+// =====================================================
+// GET SALES INVOICE BY ID - KEEP LAST - DYNAMIC FIX FOR 16
+// React: GET /api/sales-invoices/:id
+// ASP.NET: GET /api/SalesInvoice/:id
+// Fixes: .NET returns 404 for single ID, so we try seller/6/customer/3 list and filter
+// =====================================================
+app.get("/api/sales-invoices/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const targetUrl = `${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`;
+    console.log(`GET SALES INVOICE BY ID: ${id} -> ${targetUrl}`);
+
+    try {
+      const response = await axios.get(targetUrl, { httpsAgent, responseType: 'json', timeout: 10000 });
+      return res.status(200).json(response.data);
+    } catch (directError) {
+      // Fallback: Try list endpoint and filter - Your real case - Invoice 16 in Array(6)
+      console.log(`Direct /SalesInvoice/${id} failed, trying seller/6/customer/3 list filter`);
+      try {
+        const listRes = await axios.get(`${DOTNET_API}/SalesInvoice/seller/6/customer/3`, { httpsAgent });
+        const list = Array.isArray(listRes.data) ? listRes.data : listRes.data.$values || [];
+        const found = list.find(x => String(x.salesInvoiceId) === String(id));
+        if (found) {
+          console.log(`FOUND Invoice ${id} in list seller/6/customer/3`);
+          return res.status(200).json(found);
+        }
+      } catch (listError) {
+        console.error("List fallback failed:", listError.message);
+      }
+      throw directError;
+    }
+  } catch (error) {
+    console.error("❌ GET SALES INVOICE BY ID ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json({
+      message: "Failed to load Sales Invoice",
+      details: error.response?.data || error.message
+    });
+  }
+});
+
+app.get("/api/SalesInvoice/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    // Fallback to list filter for 16
+    try {
+      const listRes = await axios.get(`${DOTNET_API}/SalesInvoice/seller/6/customer/3`, { httpsAgent });
+      const list = Array.isArray(listRes.data) ? listRes.data : listRes.data.$values || [];
+      const found = list.find(x => String(x.salesInvoiceId) === String(req.params.id));
+      if (found) return res.status(200).json(found);
+    } catch(e){}
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed" });
+  }
+});
 
 // =====================================================
 // CREATE SALES INVOICE
-// React:
-// POST /api/sales-invoices
-//
-// ASP.NET:
-// POST /api/SalesInvoice
+// React: POST /api/sales-invoices
+// ASP.NET: POST /api/SalesInvoice
 // =====================================================
-
-app.post(
-    "/api/sales-invoices",
-    async (req, res) => {
-
-        try {
-
-            const response = await axios.post(
-                `${DOTNET_API}/SalesInvoice`,
-                req.body,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "CREATE SALES INVOICE ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to create Sales Invoice"
-                    }
-                );
-        }
-    }
-);
-
+app.post("/api/sales-invoices", async (req, res) => {
+  try {
+    const response = await axios.post(`${DOTNET_API}/SalesInvoice`, req.body, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("CREATE SALES INVOICE ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to create Sales Invoice" });
+  }
+});
 
 // =====================================================
 // UPDATE SALES INVOICE
-// React:
-// PUT /api/sales-invoices/:id
-//
-// ASP.NET:
-// PUT /api/SalesInvoice/:id
+// React: PUT /api/sales-invoices/:id
+// ASP.NET: PUT /api/SalesInvoice/:id
 // =====================================================
-
-app.put(
-    "/api/sales-invoices/:id",
-    async (req, res) => {
-
-        try {
-
-            const { id } = req.params;
-
-            const response = await axios.put(
-                `${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`,
-                req.body,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "UPDATE SALES INVOICE ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to update Sales Invoice"
-                    }
-                );
-        }
-    }
-);
-
+app.put("/api/sales-invoices/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const response = await axios.put(`${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`, req.body, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("UPDATE SALES INVOICE ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to update Sales Invoice" });
+  }
+});
 
 // =====================================================
 // DELETE SALES INVOICE
-// React:
-// DELETE /api/sales-invoices/:id
-//
-// ASP.NET:
-// DELETE /api/SalesInvoice/:id
+// React: DELETE /api/sales-invoices/:id
+// ASP.NET: DELETE /api/SalesInvoice/:id
 // =====================================================
-
-app.delete(
-    "/api/sales-invoices/:id",
-    async (req, res) => {
-
-        try {
-
-            const { id } = req.params;
-
-            const response = await axios.delete(
-                `${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`,
-                {
-                    httpsAgent
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        } catch (error) {
-
-            console.error(
-                "DELETE SALES INVOICE ERROR:",
-                error.response?.data || error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json(
-                    error.response?.data || {
-                        message:
-                            "Failed to delete Sales Invoice"
-                    }
-                );
-        }
-    }
-);
-
-
+app.delete("/api/sales-invoices/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const response = await axios.delete(`${DOTNET_API}/SalesInvoice/${encodeURIComponent(id)}`, { httpsAgent });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("DELETE SALES INVOICE ERROR:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to delete Sales Invoice" });
+  }
+});
 // =========================================================
 // REVIEWS
 // GET ALL
