@@ -8,54 +8,56 @@ const SERVER_URL = "http://localhost:5000";
 const BrandEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // FIX 1: your route is :brandId not :id
   const { brandId, id } = useParams();
-  const finalId = brandId || id; // support both
+  const finalId = brandId || id;
 
-  const [brand, setBrand] = useState(location.state?.brand || null); // FIX 2: use passed state if exists
+  const [brand, setBrand] = useState(location.state?.brand || null);
   const [loading, setLoading] = useState(!location.state?.brand);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!finalId || finalId === ":id" ||!/^\d+$/.test(String(finalId))) {
+    if (!finalId ||!/^\d+$/.test(String(finalId))) {
       setError(`Invalid Brand ID: ${finalId}`);
       setLoading(false);
       return;
     }
-    // If we already have brand from navigate state, don't fetch again
     if (!brand) {
       loadBrand();
+    } else {
+      // FIX: Normalize the PASSED OBJECT also (has BrandCode, SellerId)
+      setBrand(normalize(dataOrBrand = brand));
+      setLoading(false);
     }
   }, [finalId]);
+
+  const normalize = (data) => {
+    return {
+      brandId: data.brandId?? data.BrandId?? finalId,
+      brandCode: data.brandCode?? data.BrandCode?? "", // <-- FIX ADDED
+      brandName: data.brandName?? data.BrandName?? "",
+      description: data.description?? data.Description?? "",
+      sellerId: data.sellerId?? data.SellerId?? data.seller?.sellerId?? data.Seller?.SellerId?? 0, // <-- FIX ADDED
+      seller: data.seller?? data.Seller?? null,
+      logoUrl: data.logoUrl?? data.LogoUrl?? "",
+      productIds: data.productIds?? data.ProductIds?? [0],
+      isActive: data.isActive?? data.IsActive?? true,
+      _raw: data
+    };
+  };
 
   const loadBrand = async () => {
     try {
       setLoading(true);
       setError("");
-      console.log("LOAD BRAND ID:", finalId);
-      // FIX 3: Capital B - /api/Brand not /api/brand (depends on your.NET route)
       const response = await fetch(`${SERVER_URL}/api/Brand/${finalId}`, {
-        method: "GET",
         headers: { Accept: "application/json" }
       });
       const data = await response.json();
-      console.log("GET response:", data);
-      if (!response.ok) {
-        throw new Error(data?.message || data?.title || `HTTP ${response.status}`);
-      }
-      // Normalize PascalCase / camelCase
-      const normalized = {
-        brandId: data.brandId?? data.BrandId?? finalId,
-        brandName: data.brandName?? data.BrandName?? "",
-        description: data.description?? data.Description?? "",
-        isActive: data.isActive?? data.IsActive?? true
-      };
-      setBrand(normalized);
+      if (!response.ok) throw new Error(data?.message || `HTTP ${response.status}`);
+      console.log("GET response has brandCode?", data.BrandCode, data.brandCode, "sellerId?", data.SellerId);
+      setBrand(normalize(data));
     } catch (err) {
-      console.error("Load Brand Error:", err);
-      setError(err.message || "Unable to load Brand.");
-      setBrand(null);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -64,29 +66,35 @@ const BrandEdit = () => {
   const handleUpdate = async (values) => {
     try {
       setError("");
+      console.log("values from BrandForm:", values);
+
       const requestBody = {
         brandId: Number(finalId),
+        productIds: values.productIds?? [0],
         brandName: values.brandName,
-        brandCode: values.brandCode,
+        brandCode: values.brandCode, // <-- NOW HAS VALUE
         description: values.description,
-        isActive: Boolean(values.isActive)
+        isActive: values.isActive,
+        sellerId: Number(values.sellerId)?? 0 // <-- NOW HAS VALUE
       };
-      console.log("UPDATE:", requestBody);
+
+      console.log("UPDATE PAYLOAD:", requestBody);
+
       const response = await fetch(`${SERVER_URL}/api/Brand/${finalId}`, {
         method: "PUT",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
       });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data?.message || `HTTP ${response.status}`);
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result?.message || `HTTP ${response.status}`);
+
       alert("Brand Updated Successfully.");
       navigate("/brands");
     } catch (err) {
-      setError(err.message || "Unable to Update Brand.");
+      setError(err.message);
     }
   };
-
-  const handleCancel = () => navigate("/brands");
 
   if (loading) return <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px"><CircularProgress /></Box>;
   if (error) return <Box p={3}><Alert severity="error">{error}</Alert></Box>;
@@ -96,8 +104,8 @@ const BrandEdit = () => {
     <Box p={3}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
         <Typography variant="h4" gutterBottom>Edit Brand</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Brand ID: {brand.brandId}</Typography>
-        <BrandForm initialValues={brand} onSubmit={handleUpdate} onCancel={handleCancel} />
+        <Typography variant="body2" sx={{ mb: 3 }}>Brand ID: {brand.brandId} | Code: {brand.brandCode} | Seller: {brand.sellerId}</Typography>
+        <BrandForm initialValues={brand} onSubmit={handleUpdate} onCancel={() => navigate("/brands")} />
       </Paper>
     </Box>
   );

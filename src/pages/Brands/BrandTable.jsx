@@ -29,6 +29,7 @@ const BrandTable = ({ brands = [], loading = false, onView, onEdit, onDelete, on
     }));
   }, [brands]);
 
+
   const filteredBrands = useMemo(() => {
     let result = [...normalizedBrands];
     const search = searchText.trim().toLowerCase();
@@ -56,13 +57,7 @@ const BrandTable = ({ brands = [], loading = false, onView, onEdit, onDelete, on
   const columns = [
     { field: "brandId", headerName: "ID", width: 90 },
     { field: "brandName", headerName: "Brand Name", flex: 1.5, minWidth: 180 },
-    {
-      field: "brandCode",
-      headerName: "Brand Code",
-      flex: 1,
-      minWidth: 120,
-      renderCell: (params) => <strong>{params.value || "-"}</strong>
-    },
+    { field: "brandCode",headerName: "Brand Code",flex: 1,minWidth: 120,renderCell: (params) => <strong>{params.value || "-"}</strong>},
     { field: "description", headerName: "Description", flex: 2, minWidth: 250, renderCell: (params) => <span>{params.value || "-"}</span> },
     { field: "productCount", headerName: "Products", width: 90, type: "number", renderCell: (params) => <span>{params.value?? 0}</span> },
     { field: "modelCount", headerName: "Models", width: 90, type: "number", renderCell: (params) => <span>{params.value?? 0}</span> },
