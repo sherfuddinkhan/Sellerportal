@@ -1,30 +1,7 @@
-import React, {
-    useEffect,
-    useMemo,
-    useState
-} from "react";
-
-import {
-    Box,
-    Chip,
-    IconButton,
-    Tooltip,
-    TextField,
-    MenuItem,
-    InputAdornment,
-    Stack
-} from "@mui/material";
-
+import React, {useEffect,useMemo,useState} from "react";
+import {Box,Chip,IconButton,Tooltip,TextField,MenuItem,InputAdornment,Stack} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-
-import {
-    Visibility,
-    Edit,
-    Delete,
-    AccountTree,
-    Search,
-    Clear
-} from "@mui/icons-material";
+import {Visibility,Edit,Delete,AccountTree,Search,Clear} from "@mui/icons-material";
 
 
 const BrandTable = ({
@@ -39,25 +16,16 @@ const BrandTable = ({
     // =========================================================
     // SEARCH
     // =========================================================
-
-    const [searchText, setSearchText] =
-        useState("");
-
-
+    const [searchText, setSearchText] =useState("");
     // =========================================================
     // STATUS FILTER
     // =========================================================
-
-    const [statusFilter, setStatusFilter] =
-        useState("All");
-
-
+    const [statusFilter, setStatusFilter] = useState("All");
     // =========================================================
     // RESET SEARCH/FILTER WHEN BRAND DATA CHANGES
     // =========================================================
 
     useEffect(() => {
-
         setSearchText("");
         setStatusFilter("All");
 
@@ -172,274 +140,412 @@ const BrandTable = ({
     // COLUMNS
     // =========================================================
 
-    const columns = [
+ const columns = [
 
-        // =====================================================
-        // ID
-        // =====================================================
+    // =====================================================
+    // ID
+    // =====================================================
 
-        {
-            field: "brandId",
+    {
+        field: "brandId",
 
-            headerName: "ID",
+        headerName: "ID",
 
-            width: 90
-        },
+        width: 90
+    },
 
 
-        // =====================================================
-        // BRAND NAME
-        // =====================================================
+    // =====================================================
+    // BRAND NAME
+    // =====================================================
 
-        {
-            field: "brandName",
+    {
+        field: "brandName",
 
-            headerName: "Brand Name",
+        headerName: "Brand Name",
 
-            flex: 1.5,
+        flex: 1.5,
 
-            minWidth: 180
-        },
+        minWidth: 180
+    },
 
 
-        // =====================================================
-        // DESCRIPTION
-        // =====================================================
+    // =====================================================
+    // BRAND CODE
+    // =====================================================
 
-        {
-            field: "description",
+    {
+        field: "brandCode",
 
-            headerName: "Description",
+        headerName: "Brand Code",
 
-            flex: 2,
+        flex: 1,
 
-            minWidth: 250,
+        minWidth: 150,
 
-            renderCell: (params) => (
+        renderCell: (params) => (
 
-                <span>
+            <span>
 
-                    {params.value || "-"}
+                {params.value || "-"}
 
-                </span>
+            </span>
 
-            )
-        },
+        )
+    },
 
 
-        // =====================================================
-        // STATUS
-        // =====================================================
+    // =====================================================
+    // DESCRIPTION
+    // =====================================================
 
-        {
-            field: "isActive",
+    {
+        field: "description",
 
-            headerName: "Status",
+        headerName: "Description",
 
-            width: 120,
+        flex: 2,
 
-            renderCell: (params) => (
+        minWidth: 250,
 
-                <Chip
-                    label={
-                        params.value
-                            ? "Active"
-                            : "Inactive"
-                    }
+        renderCell: (params) => (
 
-                    color={
-                        params.value
-                            ? "success"
-                            : "error"
-                    }
+            <span>
 
-                    size="small"
-                />
+                {params.value || "-"}
 
-            )
-        },
+            </span>
 
+        )
+    },
 
-        // =====================================================
-        // CREATED DATE
-        // =====================================================
 
-        {
-            field: "createdDate",
+    // =====================================================
+    // PRODUCT COUNT
+    // =====================================================
 
-            headerName: "Created Date",
+    {
+        field: "productCount",
 
-            width: 180,
+        headerName: "Products",
 
-            renderCell: (params) => (
+        width: 120,
 
-                params.value
+        type: "number",
 
-                    ? new Date(
-                        params.value
-                    ).toLocaleDateString()
+        renderCell: (params) => (
 
-                    : "-"
+            <span>
 
-            )
-        },
+                {params.value ?? 0}
 
+            </span>
 
-        // =====================================================
-        // UPDATED DATE
-        // =====================================================
+        )
+    },
 
-        {
-            field: "updatedDate",
 
-            headerName: "Updated Date",
+    // =====================================================
+    // MODEL COUNT
+    // =====================================================
 
-            width: 180,
+    {
+        field: "modelCount",
 
-            renderCell: (params) => (
+        headerName: "Models",
 
-                params.value
+        width: 120,
 
-                    ? new Date(
-                        params.value
-                    ).toLocaleDateString()
+        type: "number",
 
-                    : "-"
+        renderCell: (params) => (
 
-            )
-        },
+            <span>
 
+                {params.value ?? 0}
 
-        // =====================================================
-        // ACTIONS
-        // =====================================================
+            </span>
 
-        {
-            field: "actions",
+        )
+    },
 
-            headerName: "Actions",
 
-            width: 230,
+    // =====================================================
+    // SELLER ID
+    // =====================================================
 
-            sortable: false,
+    {
+        field: "sellerId",
 
-            filterable: false,
+        headerName: "Seller ID",
 
-            renderCell: (params) => {
+        width: 110,
 
-                const brand =
-                    params.row;
+        renderCell: (params) => (
 
+            <span>
 
-                return (
+                {params.value ?? "-"}
 
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center"
-                        }}
-                    >
+            </span>
 
-                        {/* =====================================
-                            BRAND MODELS
-                        ===================================== */}
+        )
+    },
 
-                        <Tooltip title="Brand Models">
 
-                            <IconButton
-                                color="secondary"
+    // =====================================================
+    // LOGO
+    // =====================================================
 
-                                onClick={() =>
-                                    onModels?.(
-                                        brand
-                                    )
-                                }
-                            >
+    {
+        field: "logoUrl",
 
-                                <AccountTree />
+        headerName: "Logo",
 
-                            </IconButton>
+        width: 100,
 
-                        </Tooltip>
+        sortable: false,
 
+        renderCell: (params) => {
 
-                        {/* =====================================
-                            VIEW
-                        ===================================== */}
+            if (!params.value) {
 
-                        <Tooltip title="View">
-
-                            <IconButton
-                                color="primary"
-
-                                onClick={() =>
-                                    onView?.(
-                                        brand
-                                    )
-                                }
-                            >
-
-                                <Visibility />
-
-                            </IconButton>
-
-                        </Tooltip>
-
-
-                        {/* =====================================
-                            EDIT
-                        ===================================== */}
-
-                        <Tooltip title="Edit">
-
-                            <IconButton
-                                color="warning"
-
-                                onClick={() =>
-                                    onEdit?.(
-                                        brand
-                                    )
-                                }
-                            >
-
-                                <Edit />
-
-                            </IconButton>
-
-                        </Tooltip>
-
-
-                        {/* =====================================
-                            DELETE
-                        ===================================== */}
-
-                        <Tooltip title="Delete">
-
-                            <IconButton
-                                color="error"
-
-                                onClick={() =>
-                                    onDelete?.(
-                                        brand
-                                    )
-                                }
-                            >
-
-                                <Delete />
-
-                            </IconButton>
-
-                        </Tooltip>
-
-                    </Box>
-
-                );
+                return "-";
 
             }
 
+            return (
+
+                <img
+                    src={params.value}
+                    alt="Brand Logo"
+                    style={{
+                        width: 40,
+                        height: 40,
+                        objectFit: "contain",
+                        borderRadius: 4
+                    }}
+                />
+
+            );
+
+        }
+    },
+
+
+    // =====================================================
+    // STATUS
+    // =====================================================
+
+    {
+        field: "isActive",
+
+        headerName: "Status",
+
+        width: 120,
+
+        renderCell: (params) => (
+
+            <Chip
+                label={
+                    params.value
+                        ? "Active"
+                        : "Inactive"
+                }
+
+                color={
+                    params.value
+                        ? "success"
+                        : "error"
+                }
+
+                size="small"
+            />
+
+        )
+    },
+
+
+    // =====================================================
+    // CREATED DATE
+    // =====================================================
+
+    {
+        field: "createdDate",
+
+        headerName: "Created Date",
+
+        width: 180,
+
+        renderCell: (params) => (
+
+            params.value
+
+                ? new Date(
+                    params.value
+                ).toLocaleDateString()
+
+                : "-"
+
+        )
+    },
+
+
+    // =====================================================
+    // UPDATED DATE
+    // =====================================================
+
+    {
+        field: "updatedDate",
+
+        headerName: "Updated Date",
+
+        width: 180,
+
+        renderCell: (params) => (
+
+            params.value
+
+                ? new Date(
+                    params.value
+                ).toLocaleDateString()
+
+                : "-"
+
+        )
+    },
+
+
+    // =====================================================
+    // ACTIONS
+    // =====================================================
+
+    {
+        field: "actions",
+
+        headerName: "Actions",
+
+        width: 230,
+
+        sortable: false,
+
+        filterable: false,
+
+        renderCell: (params) => {
+
+            const brand =
+                params.row;
+
+
+            return (
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center"
+                    }}
+                >
+
+                    {/* =====================================
+                        BRAND MODELS
+                    ===================================== */}
+
+                    <Tooltip title="Brand Models">
+
+                        <IconButton
+                            color="secondary"
+
+                            onClick={() =>
+                                onModels?.(
+                                    brand
+                                )
+                            }
+                        >
+
+                            <AccountTree />
+
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* =====================================
+                        VIEW
+                    ===================================== */}
+
+                    <Tooltip title="View">
+
+                        <IconButton
+                            color="primary"
+
+                            onClick={() =>
+                                onView?.(
+                                    brand
+                                )
+                            }
+                        >
+
+                            <Visibility />
+
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* =====================================
+                        EDIT
+                    ===================================== */}
+
+                    <Tooltip title="Edit">
+
+                        <IconButton
+                            color="warning"
+
+                            onClick={() =>
+                                onEdit?.(
+                                    brand
+                                )
+                            }
+                        >
+
+                            <Edit />
+
+                        </IconButton>
+
+                    </Tooltip>
+
+
+                    {/* =====================================
+                        DELETE
+                    ===================================== */}
+
+                    <Tooltip title="Delete">
+
+                        <IconButton
+                            color="error"
+
+                            onClick={() =>
+                                onDelete?.(
+                                    brand
+                                )
+                            }
+                        >
+
+                            <Delete />
+
+                        </IconButton>
+
+                    </Tooltip>
+
+                </Box>
+
+            );
+
         }
 
-    ];
+    }
+
+];
 
 
     // =========================================================

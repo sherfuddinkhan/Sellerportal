@@ -31,20 +31,11 @@ const BrandList = () => {
     // STATE
     // =========================================================
 
-    const [brands, setBrands] =
-        useState([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [error, setError] =
-        useState("");
-
-    const [page, setPage] =
-        useState(0);
-
-    const [rowsPerPage, setRowsPerPage] =
-        useState(10);
+    const [brands, setBrands] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
 
     // =========================================================
@@ -52,47 +43,19 @@ const BrandList = () => {
     // =========================================================
 
     const loadBrands = async () => {
-
         try {
 
             setLoading(true);
             setError("");
 
-            console.log(
-                "Fetching brands..."
-            );
-
-
-            const response = await fetch(
-                `${SERVER_URL}/api/brand`
-            );
-
-
-            console.log(
-                "Brand response status:",
-                response.status
-            );
-
-
+            console.log("Fetching brands...");
+            const response = await fetch(`${SERVER_URL}/api/brand`);
+            console.log("Brand response status:",response.status);
             if (!response.ok) {
-
-                throw new Error(
-                    `HTTP ${response.status}: ${response.statusText}`
-                );
-
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-
-
-            const data =
-                await response.json();
-
-
-            console.log(
-                "Brand API response:",
-                data
-            );
-
-
+            const data = await response.json();
+            console.log("Brand API response:",data);
             // =====================================================
             // HANDLE DIFFERENT API RESPONSE FORMATS
             // =====================================================
@@ -111,15 +74,8 @@ const BrandList = () => {
                                     : [];
 
 
-            console.log(
-                "Brands extracted:",
-                brandData
-            );
-
-
-            setBrands(
-                brandData
-            );
+            console.log("Brands extracted:",brandData);
+            setBrands(brandData);
 
 
             // Reset pagination after refresh
@@ -129,10 +85,7 @@ const BrandList = () => {
 
         } catch (err) {
 
-            console.error(
-                "Brand loading error:",
-                err
-            );
+            console.error("Brand loading error:", err);
 
 
             setError(
@@ -169,39 +122,17 @@ const BrandList = () => {
     // =========================================================
 
     const handleView = (brand) => {
-
-        console.log(
-            "View Brand:",
-            brand
-        );
-
-
-        const brandId =
-            brand?.brandId ??
-            brand?.BrandId;
-
-
-        console.log(
-            "Brand ID:",
-            brandId
-        );
-
-
+        console.log("View Brand:", brand);
+        const brandId = brand?.brandId ?? brand?.BrandId;
+        console.log("Brand ID:", brandId);
         if (
             brandId === undefined ||
             brandId === null ||
             brandId === ""
         ) {
-
-            setError(
-                "Brand ID is missing."
-            );
-
+            setError("Brand ID is missing.");
             return;
-
         }
-
-
         navigate(
             `/brands/details/${brandId}`
         );
@@ -215,38 +146,17 @@ const BrandList = () => {
 
     const handleEdit = (brand) => {
 
-        console.log(
-            "Edit Brand:",
-            brand
-        );
-
-
-        const brandId =
-            brand?.brandId ??
-            brand?.BrandId;
-
-
-        console.log(
-            "Brand ID:",
-            brandId
-        );
-
-
+        console.log("Edit Brand:", brand);
+        const brandId = brand?.brandId ?? brand?.BrandId;
+        console.log("Brand ID:", brandId);
         if (
             brandId === undefined ||
             brandId === null ||
             brandId === ""
         ) {
-
-            setError(
-                "Brand ID is missing."
-            );
-
+            setError("Brand ID is missing.");
             return;
-
         }
-
-
         navigate(
             `/brands/${brandId}/edit`
         );
@@ -296,11 +206,7 @@ const BrandList = () => {
             brandId === null ||
             brandId === ""
         ) {
-
-            setError(
-                "Brand ID is missing."
-            );
-
+            setError("Brand ID is missing.");
             return;
 
         }
@@ -366,10 +272,7 @@ const BrandList = () => {
             setError("");
 
 
-            console.log(
-                "Deleting Brand:",
-                brandId
-            );
+            console.log("Deleting Brand:", brandId);
 
 
             const response =

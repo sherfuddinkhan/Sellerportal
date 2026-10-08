@@ -1885,7 +1885,7 @@ app.get(
             const response =
                 await axios.get(
 
-                    `${DOTNET_API}/BrandModel/${encodeURIComponent(id)}`,
+                    `${DOTNET_API}/Brand/${encodeURIComponent(id)}`,
 
                     {
                         params:
@@ -1920,219 +1920,149 @@ app.get(
 
 // =========================================================
 // CREATE BRAND MODEL
+// POST /api/Brand/:brandId/models
 // =========================================================
-
-app.post(
-    "/api/BrandModel",
-    async (req, res) => {
-
-        try {
-
-            const response =
-                await axios.post(
-
-                    `${DOTNET_API}/BrandModel`,
-
-                    req.body,
-
-                    {
-                        httpsAgent,
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            Accept:
-                                "application/json"
-                        },
-
-                        timeout: 30000
-                    }
-                );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleAxiosError(
-                res,
-                error,
-                "CREATE BRAND MODEL"
-            );
-        }
+app.post("/api/Brand/:brandId/models", async (req, res) => {
+    const { brandId } = req.params;
+    try {
+        const response = await axios.post(
+            `${DOTNET_API}/Brand/${encodeURIComponent(brandId)}/models`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleAxiosError(res, error, `CREATE BRAND MODEL FOR BRAND ${brandId}`);
     }
-);
+});
+
+// =========================================================
+// GET BRAND MODELS BY BRAND ID
+// GET /api/Brand/:brandId/models
+// =========================================================
+app.get("/api/Brand/:brandId/models", async (req, res) => {
+    const { brandId } = req.params;
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/Brand/${encodeURIComponent(brandId)}/models`,
+            {
+                params: req.query,
+                httpsAgent,
+                headers: { Accept: "application/json" },
+                timeout: 30000
+            }
+        );
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleAxiosError(res, error, `GET BRAND MODELS BY BRAND ${brandId}`);
+    }
+});
+
+// =========================================================
+// GET SINGLE BRAND MODEL
+// GET /api/Brand/:brandId/models/:modelId
+// =========================================================
+app.get("/api/Brand/:brandId/models/:modelId", async (req, res) => {
+    const { brandId, modelId } = req.params;
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/Brand/${encodeURIComponent(brandId)}/models/${encodeURIComponent(modelId)}`,
+            {
+                params: req.query,
+                httpsAgent,
+                headers: { Accept: "application/json" },
+                timeout: 30000
+            }
+        );
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleAxiosError(res, error, `GET BRAND MODEL ${modelId} FOR BRAND ${brandId}`);
+    }
+});
 
 // =========================================================
 // UPDATE BRAND MODEL
+// PUT /api/Brand/:brandId/models/:modelId
 // =========================================================
-
-app.put(
-    "/api/BrandModel/:id",
-    async (req, res) => {
-
-        const { id } = req.params;
-
-        try {
-
-            const response =
-                await axios.put(
-
-                    `${DOTNET_API}/BrandModel/${encodeURIComponent(id)}`,
-
-                    req.body,
-
-                    {
-                        params:
-                            req.query,
-
-                        httpsAgent,
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            Accept:
-                                "application/json"
-                        },
-
-                        timeout: 30000
-                    }
-                );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleAxiosError(
-                res,
-                error,
-                `UPDATE BRAND MODEL ${id}`
-            );
-        }
+app.put("/api/Brand/:brandId/models/:modelId", async (req, res) => {
+    const { brandId, modelId } = req.params;
+    try {
+        const response = await axios.put(
+            `${DOTNET_API}/Brand/${encodeURIComponent(brandId)}/models/${encodeURIComponent(modelId)}`,
+            req.body,
+            {
+                params: req.query,
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleAxiosError(res, error, `UPDATE BRAND MODEL ${modelId}`);
     }
-);
+});
 
 // =========================================================
-// PATCH BRAND MODEL
+// PATCH BRAND MODEL -> Convert to PUT for .NET
+// PATCH /api/Brand/:brandId/models/:modelId
 // =========================================================
-
-app.patch(
-    "/api/BrandModel/:id",
-    async (req, res) => {
-
-        const { id } = req.params;
-
-        try {
-
-            const response =
-                await axios.patch(
-
-                    `${DOTNET_API}/BrandModel/${encodeURIComponent(id)}`,
-
-                    req.body,
-
-                    {
-                        params:
-                            req.query,
-
-                        httpsAgent,
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            Accept:
-                                "application/json"
-                        },
-
-                        timeout: 30000
-                    }
-                );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleAxiosError(
-                res,
-                error,
-                `PATCH BRAND MODEL ${id}`
-            );
-        }
+app.patch("/api/Brand/:brandId/models/:modelId", async (req, res) => {
+    const { brandId, modelId } = req.params;
+    try {
+        const response = await axios.put(
+            `${DOTNET_API}/Brand/${encodeURIComponent(brandId)}/models/${encodeURIComponent(modelId)}`,
+            req.body,
+            {
+                params: req.query,
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleAxiosError(res, error, `PATCH BRAND MODEL ${modelId}`);
     }
-);
+});
 
 // =========================================================
 // DELETE BRAND MODEL
+// DELETE /api/Brand/:brandId/models/:modelId
 // =========================================================
-
-app.delete(
-    "/api/BrandModel/:id",
-    async (req, res) => {
-
-        const { id } = req.params;
-
-        try {
-
-            const response =
-                await axios.delete(
-
-                    `${DOTNET_API}/BrandModel/${encodeURIComponent(id)}`,
-
-                    {
-                        params:
-                            req.query,
-
-                        httpsAgent,
-
-                        headers: {
-                            Accept:
-                                "application/json"
-                        },
-
-                        timeout: 30000
-                    }
-                );
-
-            if (
-                response.data === undefined ||
-                response.data === null
-            ) {
-
-                return res
-                    .status(response.status)
-                    .send();
+app.delete("/api/Brand/:brandId/models/:modelId", async (req, res) => {
+    const { brandId, modelId } = req.params;
+    try {
+        const response = await axios.delete(
+            `${DOTNET_API}/Brand/${encodeURIComponent(brandId)}/models/${encodeURIComponent(modelId)}`,
+            {
+                params: req.query,
+                httpsAgent,
+                headers: { Accept: "application/json" },
+                timeout: 30000
             }
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
+        );
+        if (response.data === undefined || response.data === null) {
+            return res.status(response.status).send();
         }
-        catch (error) {
-
-            return handleAxiosError(
-                res,
-                error,
-                `DELETE BRAND MODEL ${id}`
-            );
-        }
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleAxiosError(res, error, `DELETE BRAND MODEL ${modelId}`);
     }
-);
-
+});
 // =========================================================
 // =========================================================
 // CATEGORY
@@ -33525,232 +33455,71 @@ app.post('/api/marketplace/customers', async (req, res) => {
 // START SERVER
 // =========================================================
 
-app.listen(
-    PORT,
-    () => {
+app.listen(PORT, () => {
 
-        console.log(
-            "================================================"
-        );
+    console.log("================================================");
+    console.log("MARKETPLACE SELLER PORTAL");
+    console.log("NODE SERVER STARTED");
+    console.log("================================================");
 
-        console.log(
-            "MARKETPLACE SELLER PORTAL"
-        );
+    console.log(`Node URL: http://localhost:${PORT}`);
+    console.log("React URL: http://localhost:5173");
+    console.log(`ASP.NET API: ${DOTNET_API}`);
 
-        console.log(
-            "NODE SERVER STARTED"
-        );
+    console.log("================================================");
+    console.log("AUTH:");
+    console.log("POST /api/AuthManagement/login");
+    console.log("POST /api/AuthManagement/register");
+    console.log("POST /api/AuthManagement/forgot-password");
+    console.log("POST /api/AuthManagement/reset-password");
 
-        console.log(
-            "================================================"
-        );
+    console.log("================================================");
+    console.log("CATEGORY:");
+    console.log("GET    /api/Category");
+    console.log("GET    /api/Category/:id");
+    console.log("POST   /api/Category");
+    console.log("PUT    /api/Category/:id");
+    console.log("PATCH  /api/Category/:id");
+    console.log("DELETE /api/Category/:id");
+    console.log("GET    /api/Category/statistics");
+    console.log("GET    /api/Category/filters");
 
-        console.log(
-            `Node URL: http://localhost:${PORT}`
-        );
+    console.log("================================================");
+    console.log("PRODUCT:");
+    console.log("GET    /api/Product");
+    console.log("GET    /api/Product/:id");
+    console.log("POST   /api/Product");
+    console.log("PUT    /api/Product/:id");
+    console.log("PATCH  /api/Product/:id");
+    console.log("DELETE /api/Product/:id");
+    console.log("GET    /api/Product/statistics");
+    console.log("GET    /api/Product/filters");
+    console.log("GET    /api/Product/search");
 
-        console.log(
-            "React URL: http://localhost:5173"
-        );
+    console.log("================================================");
+    console.log("BRAND:");
+    console.log("GET    /api/Brand");
+    console.log("GET    /api/Brand/:id");
+    console.log("POST   /api/Brand");
+    console.log("PUT    /api/Brand/:id");
+    console.log("PATCH  /api/Brand/:id");
+    console.log("DELETE /api/Brand/:id");
+    console.log("GET    /api/Brand/statistics");
+    console.log("GET    /api/Brand/filters");
 
-        console.log(
-            `ASP.NET API: ${DOTNET_API}`
-        );
+    console.log("================================================");
+    console.log("BRAND MODEL:");
+    console.log("GET    /api/BrandModel");
+    console.log("GET    /api/BrandModel/:id");
+    console.log("POST   /api/BrandModel");
+    console.log("PUT    /api/BrandModel/:id");
+    console.log("PATCH  /api/BrandModel/:id");
+    console.log("DELETE /api/BrandModel/:id");
 
-        console.log(
-            "================================================"
-        );
+    console.log("================================================");
+    console.log("PRODUCT TYPE:");
+    console.log("GET    /api/producttype");
 
-        console.log(
-            "AUTH:"
-        );
+    console.log("================================================");
 
-        console.log(
-            "POST /api/AuthManagement/login"
-        );
-
-        console.log(
-            "POST /api/AuthManagement/register"
-        );
-
-        console.log(
-            "POST /api/AuthManagement/forgot-password"
-        );
-
-        console.log(
-            "POST /api/AuthManagement/reset-password"
-        );
-
-        console.log(
-            "================================================"
-        );
-
-        console.log(
-            "CATEGORY:"
-        );
-
-        console.log(
-            "GET    /api/Category"
-        );
-
-        console.log(
-            "GET    /api/Category/:id"
-        );
-
-        console.log(
-            "POST   /api/Category"
-        );
-
-        console.log(
-            "PUT    /api/Category/:id"
-        );
-
-        console.log(
-            "PATCH  /api/Category/:id"
-        );
-
-        console.log(
-            "DELETE /api/Category/:id"
-        );
-
-        console.log(
-            "GET    /api/Category/statistics"
-        );
-
-        console.log(
-            "GET    /api/Category/filters"
-        );
-
-        console.log(
-            "================================================"
-        );
-
-        console.log(
-            "PRODUCT:"
-        );
-
-        console.log(
-            "GET    /api/Product"
-        );
-
-        console.log(
-            "GET    /api/Product/:id"
-        );
-
-        console.log(
-            "POST   /api/Product"
-        );
-
-        console.log(
-            "PUT    /api/Product/:id"
-        );
-
-        console.log(
-            "PATCH  /api/Product/:id"
-        );
-
-        console.log(
-            "DELETE /api/Product/:id"
-        );
-
-        console.log(
-            "GET    /api/Product/statistics"
-        );
-
-        console.log(
-            "GET    /api/Product/filters"
-        );
-
-        console.log(
-            "GET    /api/Product/search"
-        );
-
-        console.log(
-            "================================================"
-        );
-
-        console.log(
-            "BRAND:"
-        );
-
-        console.log(
-            "GET    /api/Brand"
-        );
-
-        console.log(
-            "GET    /api/Brand/:id"
-        );
-
-        console.log(
-            "POST   /api/Brand"
-        );
-
-        console.log(
-            "PUT    /api/Brand/:id"
-        );
-
-        console.log(
-            "PATCH  /api/Brand/:id"
-        );
-
-        console.log(
-            "DELETE /api/Brand/:id"
-        );
-
-        console.log(
-            "GET    /api/Brand/statistics"
-        );
-
-        console.log(
-            "GET    /api/Brand/filters"
-        );
-
-        console.log(
-            "================================================"
-        );
-
-        console.log(
-            "BRAND MODEL:"
-        );
-
-        console.log(
-            "GET    /api/BrandModel"
-        );
-
-        console.log(
-            "GET    /api/BrandModel/:id"
-        );
-
-        console.log(
-            "POST   /api/BrandModel"
-        );
-
-        console.log(
-            "PUT    /api/BrandModel/:id"
-        );
-
-        console.log(
-            "PATCH  /api/BrandModel/:id"
-        );
-
-        console.log(
-            "DELETE /api/BrandModel/:id"
-        );
-
-        console.log(
-            "================================================"
-        );
-
-        console.log(
-            "PRODUCT TYPE:"
-        );
-
-        console.log(
-            "GET    /api/producttype"
-        );
-
-        console.log(
-            "================================================"
-        );
-    }
-);
+});
