@@ -231,8 +231,7 @@ const CategoryList = () => {
                         response.data
                     );
 
-                    const data =
-                        response.data;
+                    const data = response.data;
 
                     // =================================================
                     // NODE RESPONSE

@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import {
+    Box,
     Paper,
     Typography,
     Snackbar,
-    Alert
+    Alert,
+    Button,
+    Divider,
+    Stack
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import { useNavigate } from "react-router-dom";
 import CategoryForm from "./CategoryForm";
 
@@ -12,9 +19,7 @@ const SERVER_URL = "http://localhost:5000";
 
 const CategoryCreate = () => {
     const navigate = useNavigate();
-
     const [loading, setLoading] = useState(false);
-
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: "",
@@ -51,8 +56,6 @@ const CategoryCreate = () => {
                 );
             }
 
-            console.log("Category created:", data);
-
             setSnackbar({
                 open: true,
                 message: "Category created successfully.",
@@ -65,11 +68,9 @@ const CategoryCreate = () => {
 
         } catch (err) {
             console.error("Create Category Error:", err);
-
             setSnackbar({
                 open: true,
-                message:
-                    err.message || "Unable to create Category.",
+                message: err.message || "Unable to create Category.",
                 severity: "error"
             });
         } finally {
@@ -78,25 +79,62 @@ const CategoryCreate = () => {
     };
 
     return (
-        <Paper sx={{ p: 3 }}>
-            <Typography
-                variant="h5"
-                fontWeight="bold"
-                mb={3}
+        <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 2, md: 3 } }}>
+            {/* Back Navigation */}
+            <Button
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate("/categories")}
+                sx={{ mb: 3, color: "text.secondary", textTransform: "none", fontWeight: 500 }}
             >
-                Create Category
-            </Typography>
+                Back to Categories
+            </Button>
 
-            <CategoryForm
-                initialValues={initialValues}
-                loading={loading}
-                onSubmit={handleSubmit}
-                onCancel={() => navigate("/categories")}
-            />
+            {/* Main Form Container */}
+            <Paper 
+                elevation={0} 
+                variant="outlined" 
+                sx={{ p: { xs: 3, md: 4 }, borderRadius: 3, borderColor: "divider" }}
+            >
+                {/* Main Heading */}
+                <Typography variant="h5" fontWeight="600" color="text.primary" gutterBottom>
+                    Create New Category
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    Fill out the information below to structure your product catalog efficiently.
+                </Typography>
 
+                <Divider sx={{ mb: 4 }} />
+
+                {/* Neatly Spaced Sections inside the Form wrapper */}
+                <Stack spacing={4}>
+                    {/* Section 1 Heading */}
+                    <Box>
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                            <InfoOutlinedIcon fontSize="small" color="primary" />
+                            <Typography variant="subtitle1" fontWeight="600" color="text.primary">
+                                Basic Information
+                            </Typography>
+                        </Stack>
+                        <Typography variant="body2" color="text.secondary">
+                            Provide the core details such as the category name and description.
+                        </Typography>
+                    </Box>
+
+                    {/* Section 2 / Form Component */}
+                    <CategoryForm
+                        initialValues={initialValues}
+                        loading={loading}
+                        onSubmit={handleSubmit}
+                        onCancel={() => navigate("/categories")}
+                    />
+                </Stack>
+            </Paper>
+
+            {/* Feedback Snackbar */}
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={3000}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 onClose={() =>
                     setSnackbar({
                         ...snackbar,
@@ -107,11 +145,12 @@ const CategoryCreate = () => {
                 <Alert
                     severity={snackbar.severity}
                     variant="filled"
+                    sx={{ width: "100%" }}
                 >
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-        </Paper>
+        </Box>
     );
 };
 
