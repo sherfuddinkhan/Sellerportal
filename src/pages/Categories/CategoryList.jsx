@@ -166,6 +166,384 @@ const CategoryList = () => {
     };
 
     // =====================================================
+    // NORMALIZE SUBCATEGORY
+    //
+    // Keeps the complete Category DTO structure.
+    // =====================================================
+
+    const normalizeSubCategory = (
+        subCategory,
+        parentCategoryName = null
+    ) => {
+
+        if (!subCategory) {
+
+            return null;
+
+        }
+
+        return {
+
+            categoryId:
+                subCategory.categoryId ??
+                subCategory.id ??
+                0,
+
+            categoryName:
+                subCategory.categoryName ??
+                subCategory.name ??
+                "",
+
+            parentCategoryId:
+                subCategory.parentCategoryId ??
+                null,
+
+            description:
+                subCategory.description ??
+                "",
+
+            isActive:
+                subCategory.isActive ??
+                true,
+
+            createdDate:
+                subCategory.createdDate ??
+                new Date().toISOString(),
+
+            updatedDate:
+                subCategory.updatedDate ??
+                null,
+
+            categoryCode:
+                subCategory.categoryCode ??
+                "",
+
+            categoryPath:
+                subCategory.categoryPath ??
+                "",
+
+            categoryLevel:
+                subCategory.categoryLevel ??
+                null,
+
+            displayOrder:
+                subCategory.displayOrder ??
+                0,
+
+            imageUrl:
+                subCategory.imageUrl ??
+                "",
+
+            batchId:
+                subCategory.batchId ??
+                "",
+
+            isBulkUpload:
+                subCategory.isBulkUpload ??
+                false,
+
+            channelCode:
+                subCategory.channelCode ??
+                "CUSTOM",
+
+            sellerId:
+                subCategory.sellerId ??
+                null,
+
+            customerId:
+                subCategory.customerId ??
+                null,
+
+            createdBy:
+                subCategory.createdBy ??
+                "System",
+
+            updatedBy:
+                subCategory.updatedBy ??
+                null,
+
+            productCount:
+                subCategory.productCount ??
+                0,
+
+            parentCategory:
+                subCategory.parentCategory ??
+                parentCategoryName ??
+                null,
+
+            subCategories:
+                Array.isArray(
+                    subCategory.subCategories
+                )
+                    ? subCategory.subCategories
+                        .map(
+                            (child) =>
+                                normalizeSubCategory(
+                                    child,
+                                    subCategory.categoryName
+                                )
+                        )
+                        .filter(Boolean)
+                    : [],
+
+            bannerUrl:
+                subCategory.bannerUrl ??
+                "",
+
+            iconUrl:
+                subCategory.iconUrl ??
+                "",
+
+            metaTitle:
+                subCategory.metaTitle ??
+                "",
+
+            metaDescription:
+                subCategory.metaDescription ??
+                "",
+
+            isSystemDefined:
+                subCategory.isSystemDefined ??
+                false,
+
+            hsnCode:
+                subCategory.hsnCode ??
+                "",
+
+            gstPercentage:
+                subCategory.gstPercentage ??
+                null,
+        };
+
+    };
+
+    // =====================================================
+    // BUILD COMPLETE CATEGORY PAYLOAD
+    //
+    // IMPORTANT:
+    // products are intentionally NOT included.
+    //
+    // Product is an EF navigation property and including
+    // it can recreate the huge nested Product Swagger graph.
+    // =====================================================
+
+    const buildCategoryPayload = (
+        category,
+        options = {}
+    ) => {
+
+        const {
+
+            categoryId,
+            categoryName,
+            isActive,
+
+        } = options;
+
+        const resolvedCategoryName =
+            categoryName !== undefined
+                ? categoryName
+                : (
+                    category?.categoryName ??
+                    category?.name ??
+                    ""
+                );
+
+        const resolvedCategoryId =
+            categoryId !== undefined
+                ? categoryId
+                : (
+                    category?.categoryId ??
+                    category?.id ??
+                    0
+                );
+
+        const resolvedIsActive =
+            isActive !== undefined
+                ? isActive
+                : (
+                    category?.isActive ??
+                    true
+                );
+
+        return {
+
+            // =================================================
+            // BASIC CATEGORY INFORMATION
+            // =================================================
+
+            categoryId:
+                resolvedCategoryId,
+
+            categoryName:
+                resolvedCategoryName,
+
+            parentCategoryId:
+                category?.parentCategoryId ??
+                null,
+
+            description:
+                category?.description ??
+                "",
+
+            isActive:
+                resolvedIsActive,
+
+            createdDate:
+                category?.createdDate ??
+                new Date().toISOString(),
+
+            updatedDate:
+                category?.updatedDate ??
+                null,
+
+            // =================================================
+            // CATEGORY IDENTIFICATION
+            // =================================================
+
+            categoryCode:
+                category?.categoryCode ??
+                "",
+
+            categoryPath:
+                category?.categoryPath ??
+                "",
+
+            categoryLevel:
+                category?.categoryLevel ??
+                null,
+
+            displayOrder:
+                category?.displayOrder ??
+                0,
+
+            // =================================================
+            // IMAGE / BULK / CHANNEL
+            // =================================================
+
+            imageUrl:
+                category?.imageUrl ??
+                "",
+
+            batchId:
+                category?.batchId ??
+                "",
+
+            isBulkUpload:
+                category?.isBulkUpload ??
+                false,
+
+            channelCode:
+                category?.channelCode ??
+                "CUSTOM",
+
+            // =================================================
+            // SELLER / CUSTOMER
+            // =================================================
+
+            sellerId:
+                category?.sellerId ??
+                null,
+
+            customerId:
+                category?.customerId ??
+                null,
+
+            // =================================================
+            // AUDIT
+            // =================================================
+
+            createdBy:
+                category?.createdBy ??
+                "System",
+
+            updatedBy:
+                category?.updatedBy ??
+                null,
+
+            // =================================================
+            // STATISTICS / PARENT
+            // =================================================
+
+            productCount:
+                category?.productCount ??
+                0,
+
+            parentCategory:
+                category?.parentCategoryName ??
+                category?.parentCategory ??
+                null,
+
+            // =================================================
+            // SUB CATEGORIES
+            // =================================================
+
+            subCategories:
+                Array.isArray(
+                    category?.subCategories
+                )
+                    ? category.subCategories
+                        .map(
+                            (subCategory) =>
+                                normalizeSubCategory(
+                                    subCategory,
+                                    resolvedCategoryName
+                                )
+                        )
+                        .filter(Boolean)
+                    : [],
+
+            // =================================================
+            // SEO / DISPLAY
+            // =================================================
+
+            bannerUrl:
+                category?.bannerUrl ??
+                "",
+
+            iconUrl:
+                category?.iconUrl ??
+                "",
+
+            metaTitle:
+                category?.metaTitle ??
+                "",
+
+            metaDescription:
+                category?.metaDescription ??
+                "",
+
+            // =================================================
+            // SYSTEM / TAX
+            // =================================================
+
+            isSystemDefined:
+                category?.isSystemDefined ??
+                false,
+
+            hsnCode:
+                category?.hsnCode ??
+                "",
+
+            gstPercentage:
+                category?.gstPercentage ??
+                null,
+
+            // =================================================
+            // IMPORTANT
+            //
+            // Do NOT send:
+            //
+            // products
+            //
+            // because Products is an EF navigation property.
+            // =================================================
+
+        };
+
+    };
+
+    // =====================================================
     // LOAD CATEGORIES
     //
     // STATUS FILTER IS HANDLED BY NODE SERVER
@@ -231,7 +609,8 @@ const CategoryList = () => {
                         response.data
                     );
 
-                    const data = response.data;
+                    const data =
+                        response.data;
 
                     // =================================================
                     // NODE RESPONSE
@@ -246,7 +625,8 @@ const CategoryList = () => {
                     // =================================================
 
                     let items =
-                        data?.items || [];
+                        data?.items ||
+                        [];
 
                     if (
                         !Array.isArray(items)
@@ -309,9 +689,9 @@ const CategoryList = () => {
     ]);
 
     // =====================================================
-    // SEARCH ONLY
+    // SEARCH
     //
-    // STATUS FILTER IS ALREADY HANDLED BY NODE
+    // STATUS FILTER IS ALREADY HANDLED BY NODE.
     // =====================================================
 
     useEffect(() => {
@@ -348,6 +728,19 @@ const CategoryList = () => {
 
                         const parentCategory =
                             category.parentCategoryName ||
+                            category.parentCategory ||
+                            "";
+
+                        const categoryCode =
+                            category.categoryCode ||
+                            "";
+
+                        const categoryPath =
+                            category.categoryPath ||
+                            "";
+
+                        const hsnCode =
+                            category.hsnCode ||
                             "";
 
                         return (
@@ -365,6 +758,25 @@ const CategoryList = () => {
                             ||
 
                             parentCategory
+                                .toString()
+                                .toLowerCase()
+                                .includes(search)
+
+                            ||
+
+                            categoryCode
+                                .toLowerCase()
+                                .includes(search)
+
+                            ||
+
+                            categoryPath
+                                .toLowerCase()
+                                .includes(search)
+
+                            ||
+
+                            hsnCode
                                 .toLowerCase()
                                 .includes(search)
 
@@ -560,6 +972,9 @@ const CategoryList = () => {
 
                 // =================================================
                 // GET ORIGINAL CATEGORY
+                //
+                // This is important because the list response may
+                // not contain every Category DTO field.
                 // =================================================
 
                 const response =
@@ -579,37 +994,34 @@ const CategoryList = () => {
                     response.data;
 
                 // =================================================
-                // CREATE COPY
+                // BUILD COMPLETE COPY
+                //
+                // New category must have CategoryId = 0.
                 // =================================================
 
-                const duplicateData = {
+                const duplicateData =
+                    buildCategoryPayload(
+                        original,
+                        {
+                            categoryId: 0,
 
-                    categoryName:
-                        `${
-                            original.categoryName ||
-                            category.categoryName ||
-                            "Category"
-                        } Copy`,
-
-                    parentCategoryId:
-                        original.parentCategoryId ??
-                        category.parentCategoryId ??
-                        null,
-
-                    description:
-                        original.description ||
-                        "",
-
-                    isActive:
-                        original.isActive ??
-                        true,
-
-                };
+                            categoryName:
+                                `${
+                                    original.categoryName ||
+                                    category.categoryName ||
+                                    "Category"
+                                } Copy`,
+                        }
+                    );
 
                 console.log(
-                    "DUPLICATE CATEGORY:",
+                    "DUPLICATE CATEGORY PAYLOAD:",
                     duplicateData
                 );
+
+                // =================================================
+                // CREATE DUPLICATE
+                // =================================================
 
                 await axios.post(
                     `${SERVER_URL}/api/categories`,
@@ -684,33 +1096,63 @@ const CategoryList = () => {
 
                 }
 
-                const updateData = {
+                // =================================================
+                // GET COMPLETE CATEGORY
+                //
+                // Do not rely only on the table row because the
+                // table may contain a reduced category object.
+                // =================================================
 
-                    categoryName:
-                        category.categoryName ||
-                        category.name ||
-                        "",
+                const response =
+                    await axios.get(
+                        `${SERVER_URL}/api/categories/${categoryId}`,
+                        {
+                            headers: {
+                                Accept:
+                                    "application/json",
+                            },
 
-                    parentCategoryId:
-                        category.parentCategoryId ??
-                        null,
+                            timeout: 30000,
+                        }
+                    );
 
-                    description:
-                        category.description ||
-                        "",
+                const original =
+                    response.data;
 
-                    isActive:
-                        !Boolean(
-                            category.isActive
-                        ),
+                // =================================================
+                // TOGGLE ONLY isActive
+                //
+                // All other Category DTO fields remain unchanged.
+                // =================================================
 
-                };
+                const updateData =
+                    buildCategoryPayload(
+                        original,
+                        {
+                            categoryId:
+                                categoryId,
+
+                            categoryName:
+                                original.categoryName ||
+                                category.categoryName ||
+                                "",
+
+                            isActive:
+                                !Boolean(
+                                    original.isActive ??
+                                    category.isActive
+                                ),
+                        }
+                    );
 
                 console.log(
-                    "UPDATE CATEGORY:",
-                    categoryId,
+                    "UPDATE CATEGORY PAYLOAD:",
                     updateData
                 );
+
+                // =================================================
+                // UPDATE
+                // =================================================
 
                 await axios.put(
                     `${SERVER_URL}/api/categories/${categoryId}`,
@@ -846,7 +1288,20 @@ const CategoryList = () => {
             "Category Name",
             "Parent Category",
             "Description",
+            "Category Code",
+            "Category Path",
+            "Category Level",
+            "Display Order",
             "Status",
+            "Channel Code",
+            "Seller ID",
+            "Customer ID",
+            "Product Count",
+            "HSN Code",
+            "GST Percentage",
+            "Batch ID",
+            "Created By",
+            "Updated By",
             "Created Date",
             "Updated Date",
 
@@ -865,14 +1320,54 @@ const CategoryList = () => {
                     "",
 
                     category.parentCategoryName ||
+                    category.parentCategory ||
                     "Root",
 
                     category.description ||
                     "",
 
+                    category.categoryCode ||
+                    "",
+
+                    category.categoryPath ||
+                    "",
+
+                    category.categoryLevel ??
+                    "",
+
+                    category.displayOrder ??
+                    "",
+
                     category.isActive
                         ? "Active"
                         : "Inactive",
+
+                    category.channelCode ||
+                    "",
+
+                    category.sellerId ??
+                    "",
+
+                    category.customerId ??
+                    "",
+
+                    category.productCount ??
+                    0,
+
+                    category.hsnCode ||
+                    "",
+
+                    category.gstPercentage ??
+                    "",
+
+                    category.batchId ||
+                    "",
+
+                    category.createdBy ||
+                    "",
+
+                    category.updatedBy ||
+                    "",
 
                     category.createdDate
                         ? new Date(
@@ -1034,7 +1529,7 @@ const CategoryList = () => {
 
                 {/* =================================================
                     STATUS FILTER
-                ================================================= */}
+                ================================================== */}
 
                 <Grid
                     item
@@ -1058,7 +1553,7 @@ const CategoryList = () => {
 
                 {/* =================================================
                     TABLE
-                ================================================= */}
+                ================================================== */}
 
                 <Grid
                     item
@@ -1201,7 +1696,7 @@ const CategoryList = () => {
 
             {/* =================================================
                 ERROR SNACKBAR
-            ================================================= */}
+            ================================================== */}
 
             <Snackbar
 
