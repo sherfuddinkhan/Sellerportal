@@ -144,24 +144,11 @@ const BrandList = () => {
     // EDIT BRAND
     // =========================================================
 
-    const handleEdit = (brand) => {
-
-        console.log("Edit Brand:", brand);
-        const brandId = brand?.brandId ?? brand?.BrandId;
-        console.log("Brand ID:", brandId);
-        if (
-            brandId === undefined ||
-            brandId === null ||
-            brandId === ""
-        ) {
-            setError("Brand ID is missing.");
-            return;
-        }
-        navigate(
-            `/brands/${brandId}/edit`
-        );
-
-    };
+const handleEdit = (brand) => {
+  const brandId = brand?.brandId?? brand?.BrandId;
+  if (!brandId) { setError("Brand ID is missing."); return; }
+  navigate(`/brands/${brandId}/edit`, { state: { brand } }); // <-- PASS BRAND
+};;
 
 
     // =========================================================

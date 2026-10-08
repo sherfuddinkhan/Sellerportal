@@ -55,7 +55,7 @@ const BrandModelView = () => {
             }
 
             const url =
-                `${API_URL}/BrandModel/${modelId}`;
+                `${API_URL}/Brand/${brandId}/models/${modelId} `;
 
             console.log(
                 "Loading Brand Model:",
