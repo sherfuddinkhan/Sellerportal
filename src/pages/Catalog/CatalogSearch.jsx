@@ -127,7 +127,7 @@ const CatalogSearch = ({
                 <Grid
                     item
                     xs={12}
-                    md={8}
+                    md={300}
                 >
 
                     <TextField

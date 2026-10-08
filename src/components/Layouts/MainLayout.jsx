@@ -313,26 +313,6 @@ const MainLayout = () => {
                             label: "Create Catalog",
                             path: "/catalog/create",
                         },
-                        {
-                            label: "Search",
-                            path: "/catalog/search",
-                        },
-                        {
-                            label: "Latest Products",
-                            path: "/catalog/latest",
-                        },
-                        {
-                            label: "Featured Products",
-                            path: "/catalog/featured",
-                        },
-                        {
-                            label: "Top Rated",
-                            path: "/catalog/toprated",
-                        },
-                        {
-                            label: "Best Sellers",
-                            path: "/catalog/bestsellers",
-                        },
                     ],
                 },
 

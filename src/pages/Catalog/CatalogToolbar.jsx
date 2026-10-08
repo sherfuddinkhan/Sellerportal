@@ -1,15 +1,5 @@
 import React from "react";
-
-import {
-    Toolbar,
-    Typography,
-    Box,
-    Button,
-    IconButton,
-    Tooltip,
-    Divider,
-} from "@mui/material";
-
+import { Box, Button, IconButton, Tooltip, Divider, Badge } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -22,299 +12,70 @@ import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-
 const CatalogToolbar = ({
-    selectedCount = 0,
-
-    viewMode = "table",
-
-    onAdd,
-    onRefresh,
-    onFilter,
-    onImport,
-    onExportExcel,
-    onExportPDF,
-    onPrint,
-    onPublish,
-    onUnpublish,
-    onDeleteSelected,
-    onToggleView,
-
+  selectedCount = 0,
+  viewMode = "table",
+  onAdd, onRefresh, onFilter, onImport, onExportExcel, onExportPDF, onPrint,
+  onPublish, onUnpublish, onDeleteSelected, onToggleView, loading
 }) => {
-
-    return (
-
-        <Toolbar
-            sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 2,
-                flexWrap: "wrap",
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                mb: 2,
-                px: 2,
-                py: 1,
-            }}
-        >
-
-            {/* =================================================
-                LEFT SECTION
-            ================================================= */}
-
-            <Box
-                display="flex"
-                alignItems="center"
-                gap={1}
-            >
-
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                >
-                    Product Catalog
-                </Typography>
-
-
-                {selectedCount > 0 && (
-
-                    <Typography
-                        color="primary"
-                    >
-                        {selectedCount} Selected
-                    </Typography>
-
-                )}
-
-            </Box>
-
-
-            {/* =================================================
-                RIGHT SECTION
-            ================================================= */}
-
-            <Box
-                display="flex"
-                alignItems="center"
-                gap={1}
-                flexWrap="wrap"
-            >
-
-                {/* =================================================
-                    ADD CATALOG
-                ================================================= */}
-
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={onAdd}
-                >
-                    Add Catalog
-                </Button>
-
-
-                {/* =================================================
-                    REFRESH
-                ================================================= */}
-
-                <Tooltip
-                    title="Refresh"
-                >
-
-                    <IconButton
-                        onClick={onRefresh}
-                    >
-                        <RefreshIcon />
-                    </IconButton>
-
-                </Tooltip>
-
-
-                {/* =================================================
-                    FILTER
-                ================================================= */}
-
-                <Tooltip
-                    title="Filter"
-                >
-
-                    <IconButton
-                        onClick={onFilter}
-                    >
-                        <FilterListIcon />
-                    </IconButton>
-
-                </Tooltip>
-
-
-                <Divider
-                    orientation="vertical"
-                    flexItem
-                />
-
-
-                {/* =================================================
-                    IMPORT
-                ================================================= */}
-
-                <Button
-                    variant="outlined"
-                    startIcon={<CloudUploadIcon />}
-                    onClick={onImport}
-                >
-                    Import
-                </Button>
-
-
-                {/* =================================================
-                    EXCEL
-                ================================================= */}
-
-                <Button
-                    variant="outlined"
-                    startIcon={<FileDownloadIcon />}
-                    onClick={onExportExcel}
-                >
-                    Excel
-                </Button>
-
-
-                {/* =================================================
-                    PDF
-                ================================================= */}
-
-                <Button
-                    variant="outlined"
-                    startIcon={<FileDownloadIcon />}
-                    onClick={onExportPDF}
-                >
-                    PDF
-                </Button>
-
-
-                {/* =================================================
-                    PRINT
-                ================================================= */}
-
-                <Tooltip
-                    title="Print"
-                >
-
-                    <IconButton
-                        onClick={onPrint}
-                    >
-                        <PrintIcon />
-                    </IconButton>
-
-                </Tooltip>
-
-
-                <Divider
-                    orientation="vertical"
-                    flexItem
-                />
-
-
-                {/* =================================================
-                    PUBLISH
-                ================================================= */}
-
-                <Button
-                    color="success"
-                    variant="outlined"
-                    startIcon={<PublishIcon />}
-                    onClick={onPublish}
-                >
-                    Publish
-                </Button>
-
-
-                {/* =================================================
-                    UNPUBLISH
-                ================================================= */}
-
-                <Button
-                    color="warning"
-                    variant="outlined"
-                    startIcon={<UnpublishedIcon />}
-                    onClick={onUnpublish}
-                >
-                    Unpublish
-                </Button>
-
-
-                {/* =================================================
-                    DELETE SELECTED
-                ================================================= */}
-
-                <Tooltip
-                    title="Delete Selected"
-                >
-
-                    <span>
-
-                        <IconButton
-                            color="error"
-                            disabled={
-                                selectedCount === 0
-                            }
-                            onClick={
-                                onDeleteSelected
-                            }
-                        >
-
-                            <DeleteIcon />
-
-                        </IconButton>
-
-                    </span>
-
-                </Tooltip>
-
-
-                <Divider
-                    orientation="vertical"
-                    flexItem
-                />
-
-
-                {/* =================================================
-                    VIEW TOGGLE
-                ================================================= */}
-
-                <Tooltip
-                    title={
-                        viewMode === "table"
-                            ? "Card View"
-                            : "Table View"
-                    }
-                >
-
-                    <IconButton
-                        onClick={
-                            onToggleView
-                        }
-                    >
-
-                        {viewMode === "table" ? (
-
-                            <ViewModuleIcon />
-
-                        ) : (
-
-                            <TableRowsIcon />
-
-                        )}
-
-                    </IconButton>
-
-                </Tooltip>
-
-            </Box>
-
-        </Toolbar>
-    );
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: 1,
+        bgcolor: "background.paper",
+        borderRadius: 2,
+        p: 1,
+        width: "100%",
+        border: "1px solid",
+        borderColor: "divider"
+      }}
+    >
+      {/* GROUP 1: ADD */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={onAdd} disabled={loading}
+          sx={{ bgcolor: "#1976d2", textTransform: "none", fontWeight: 700, borderRadius: 1.5, px: 2.5 }}>
+          ADD CATALOG
+        </Button>
+        <Tooltip title="Refresh"><IconButton onClick={onRefresh} size="small" disabled={loading}><RefreshIcon /></IconButton></Tooltip>
+        <Tooltip title="Filter"><IconButton onClick={onFilter} size="small"><FilterListIcon /></IconButton></Tooltip>
+      </Box>
+
+      <Divider orientation="vertical" flexItem sx={{ mx: 0.5, display: { xs: "none", md: "block" } }} />
+
+      {/* GROUP 2: IMPORT/EXPORT */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Button variant="outlined" startIcon={<CloudUploadIcon />} onClick={onImport} sx={{ textTransform: "none", borderRadius: 1.5 }}>IMPORT</Button>
+        <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={onExportExcel} sx={{ textTransform: "none", borderRadius: 1.5 }}>EXCEL</Button>
+        <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={onExportPDF} sx={{ textTransform: "none", borderRadius: 1.5 }}>PDF</Button>
+        <IconButton onClick={onPrint} size="small"><PrintIcon /></IconButton>
+      </Box>
+
+      <Divider orientation="vertical" flexItem sx={{ mx: 0.5, display: { xs: "none", md: "block" } }} />
+
+      {/* GROUP 3: PUBLISH */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Button color="success" variant="outlined" startIcon={<PublishIcon />} onClick={onPublish} sx={{ textTransform: "none", borderRadius: 1.5 }}>PUBLISH</Button>
+        <Button color="warning" variant="outlined" startIcon={<UnpublishedIcon />} onClick={onUnpublish} sx={{ textTransform: "none", borderRadius: 1.5 }}>UNPUBLISH</Button>
+        <Tooltip title={selectedCount ? `Delete ${selectedCount}` : "Delete"}>
+          <span><Badge badgeContent={selectedCount} color="error"><IconButton color="error" disabled={selectedCount === 0} onClick={onDeleteSelected}><DeleteIcon /></IconButton></Badge></span>
+        </Tooltip>
+      </Box>
+
+      {/* GROUP 4: VIEW - RIGHT ALIGNED */}
+      <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
+        <Divider orientation="vertical" flexItem sx={{ mr: 1, display: { xs: "none", md: "block" } }} />
+        <Tooltip title={viewMode === "table" ? "Card View" : "Table View"}>
+          <IconButton onClick={onToggleView} size="small">
+            {viewMode === "table" ? <ViewModuleIcon /> : <TableRowsIcon />}
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+  );
 };
-
 
 export default CatalogToolbar;

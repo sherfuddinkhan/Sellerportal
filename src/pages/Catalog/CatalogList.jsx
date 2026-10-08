@@ -536,16 +536,13 @@ const CatalogList = () => {
             // ----------------------------------------------------
 
             const rawData =
-                extractCatalogData(
-                    response.data
-                );
+                extractCatalogData(response.data);
 
             // ----------------------------------------------------
             // NORMALIZE RESULT
             // ----------------------------------------------------
 
-            const normalizedData =
-                rawData.map(normalizeCatalog);
+            const normalizedData = rawData.map(normalizeCatalog);
 
             // ----------------------------------------------------
             // UPDATE TABLE
@@ -1064,333 +1061,198 @@ const CatalogList = () => {
     // RENDER
     // ============================================================
 
-    return (
-
-        <Box sx={{ p: 2 }}>
-
-            {/* =====================================================
-                ERROR
-            ====================================================== */}
-
-            {error && (
-
-                <Alert
-                    severity={
-                        error.startsWith("No products")
-                            ? "info"
-                            : "error"
-                    }
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
-                >
-                    {error}
-                </Alert>
-
-            )}
-
-            {/* =====================================================
-                SELLER / CUSTOMER CONTEXT
-            ====================================================== */}
-
-            {sellerCustomerContexts.length > 0 && (
-
-                <Grid
-                    container
-                    spacing={2}
-                    sx={{ mb: 2 }}
-                >
-
-                    {sellerCustomerContexts.map(
-                        (context) => {
-
-                            const active =
-                                selectedContext?.sellerId ===
-                                    context.sellerId &&
-                                selectedContext?.customerId ===
-                                    context.customerId;
-
-                            return (
-
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sm={6}
-                                    md={4}
-                                    key={
-                                        `${context.sellerId}-${context.customerId}`
-                                    }
-                                >
-
-                                    <Paper
-                                        sx={{
-                                            p: 2,
-                                            cursor: "pointer",
-                                            border:
-                                                active
-                                                    ? "2px solid"
-                                                    : "1px solid",
-                                            borderColor:
-                                                active
-                                                    ? "primary.main"
-                                                    : "divider"
-                                        }}
-                                        onClick={() =>
-                                            handleContextSelect(
-                                                context.sellerId,
-                                                context.customerId
-                                            )
-                                        }
-                                    >
-
-                                        <Typography
-                                            variant="subtitle2"
-                                        >
-                                            Seller ID
-                                        </Typography>
-
-                                        <Chip
-                                            label={
-                                                context.sellerId
-                                            }
-                                            size="small"
-                                            sx={{ mr: 1 }}
-                                        />
-
-                                        <Typography
-                                            variant="subtitle2"
-                                            sx={{ mt: 1 }}
-                                        >
-                                            Customer ID
-                                        </Typography>
-
-                                        <Chip
-                                            label={
-                                                context.customerId
-                                            }
-                                            size="small"
-                                        />
-
-                                    </Paper>
-
-                                </Grid>
-
-                            );
-
-                        }
-                    )}
-
-                </Grid>
-
-            )}
-
-            {/* =====================================================
-                TOOLBAR
-            ====================================================== */}
-
-            <CatalogToolbar
-
-                selectedCount={
-                    selectedIds.length
+   return (
+    <Box 
+        sx={{ 
+            p: { xs: 2, sm: 3 }, 
+            display: "flex", 
+            flexDirection: "column", 
+            gap: { xs: 2, sm: 3 },
+            width: "100%",
+            maxWidth: "1600px",
+            mx: "auto"
+        }}
+    >
+        {/* =====================================================
+            ERROR
+        ====================================================== */}
+        {error && (
+            <Alert
+                severity={
+                    error.startsWith("No products")
+                        ? "info"
+                        : "error"
                 }
+                onClose={() => setError("")}
+                sx={{ width: "100%" }}
+            >
+                {error}
+            </Alert>
+        )}
 
-                onAdd={
-                    handleAdd
-                }
+        {/* =====================================================
+            SELLER / CUSTOMER CONTEXT
+        ====================================================== */}
+        {sellerCustomerContexts.length > 0 && (
+            <Grid container spacing={2}>
+                {sellerCustomerContexts.map((context) => {
+                    const active =
+                        selectedContext?.sellerId === context.sellerId &&
+                        selectedContext?.customerId === context.customerId;
 
-                onRefresh={
-                    handleRefresh
-                }
-
-                loading={
-                    loading ||
-                    searchLoading
-                }
-
-            />
-
-            {/* =====================================================
-                SEARCH
-            ====================================================== */}
-
-            <CatalogSearch
-
-                sellerId={
-                    selectedContext?.sellerId
-                }
-
-                customerId={
-                    selectedContext?.customerId
-                }
-
-                loading={
-                    searchLoading
-                }
-
-                onSearch={
-                    handleSearch
-                }
-
-                onClear={
-                    handleClearSearch
-                }
-
-            />
-
-            {/* =====================================================
-                STATISTICS
-            ====================================================== */}
-
-            <CatalogStatistics
-                catalogs={
-                    catalogs
-                }
-                loading={
-                    loading ||
-                    searchLoading
-                }
-            />
-
-            {/* =====================================================
-                LOADING
-            ====================================================== */}
-
-            {(loading || searchLoading) && (
-
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        p: 4
-                    }}
-                >
-
-                    <CircularProgress />
-
-                </Box>
-
-            )}
-
-            {/* =====================================================
-                EMPTY
-            ====================================================== */}
-
-            {!loading &&
-                !searchLoading &&
-                catalogs.length === 0 && (
-
-                    <Paper
-                        sx={{
-                            p: 4,
-                            textAlign: "center"
-                        }}
-                    >
-
-                        <Typography
-                            variant="h6"
-                        >
-                            No catalog products found
-                        </Typography>
-
-                    </Paper>
-
-                )}
-
-            {/* =====================================================
-                TABLE
-            ====================================================== */}
-
-            {!loading &&
-                !searchLoading &&
-                catalogs.length > 0 && (
-
-                    <CatalogTable
-
-                        catalogs={
-                            paginatedCatalogs
-                        }
-
-                        loading={
-                            loading ||
-                            searchLoading
-                        }
-
-                        sellerId={
-                            selectedContext?.sellerId ??
-                            null
-                        }
-
-                        customerId={
-                            selectedContext?.customerId ??
-                            null
-                        }
-
-                        selectedIds={
-                            selectedIds
-                        }
-
-                        onSelectionChange={
-                            handleSelectionChange
-                        }
-
-                        onView={
-                            handleView
-                        }
-
-                        onEdit={
-                            handleEdit
-                        }
-
-                        onImages={
-                            handleProductImages
-                        }
-
-                        onAttributes={
-                            handleProductAttributes
-                        }
-
-                        onReviews={
-                            handleProductReviews
-                        }
-
-                        onRelated={
-                            handleRelatedProducts
-                        }
-
-                        onMarketplace={
-                            handleMarketplace
-                        }
-
-                        onDelete={
-                            handleDelete
-                        }
-
-                        page={
-                            page
-                        }
-
-                        rowsPerPage={
-                            rowsPerPage
-                        }
-
-                        totalCount={
-                            catalogs.length
-                        }
-
-                        onPageChange={
-                            handlePageChange
-                        }
-
-                        onRowsPerPageChange={
-                            handleRowsPerPageChange
-                        }
-
-                    />
-
-                )}
-
+                 return (
+  <Grid
+    item
+    xs={12}
+    sm={6}
+    md={4}
+    lg={3}
+    key={`${context.sellerId}-${context.customerId}`}
+  >
+    <Paper
+      elevation={active ? 3 : 1}
+      onClick={() => handleContextSelect(context.sellerId, context.customerId)}
+      sx={{
+        p: 1.5,
+        cursor: "pointer",
+        height: "100%",
+        border: active ? "2px solid" : "1px solid",
+        borderColor: active ? "primary.main" : "divider",
+        borderRadius: 2,
+        transition: "all 0.2s",
+        "&:hover": { borderColor: "primary.light", boxShadow: 2 }
+      }}
+    >
+      {/* SINGLE ROW - SIDE BY SIDE */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
+          width: "100%"
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="subtitle2" color="text.secondary" noWrap>
+            Seller ID
+          </Typography>
+          <Chip label={context.sellerId} size="small" color={active ? "primary" : "default"} />
         </Box>
 
-    );
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="subtitle2" color="text.secondary" noWrap>
+            Customer ID
+          </Typography>
+          <Chip label={context.customerId} size="small" variant="outlined" />
+        </Box>
+      </Box>
+    </Paper>
+  </Grid>
+);
+                })}
+            </Grid>
+        )}
+
+        {/* =====================================================
+            TOOLBAR & SEARCH WRAPPER (Flexible Stack)
+        ====================================================== */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <CatalogToolbar
+                selectedCount={selectedIds.length}
+                onAdd={handleAdd}
+                onRefresh={handleRefresh}
+                loading={loading || searchLoading}
+            />
+
+            <CatalogSearch
+                sellerId={selectedContext?.sellerId ?? null}
+                customerId={selectedContext?.customerId ?? null}
+                loading={searchLoading}
+                onSearch={handleSearch}
+                onClear={handleClearSearch}
+            />
+        </Box>
+
+        {/* =====================================================
+            STATISTICS
+        ====================================================== */}
+        <CatalogStatistics
+            catalogs={catalogs}
+            loading={loading || searchLoading}
+        />
+
+        {/* =====================================================
+            LOADING STATE
+        ====================================================== */}
+        {(loading || searchLoading) && (
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    p: 6,
+                    width: "100%"
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        )}
+
+        {/* =====================================================
+            EMPTY STATE
+        ====================================================== */}
+        {!loading &&
+            !searchLoading &&
+            catalogs.length === 0 && (
+                <Paper
+                    sx={{
+                        p: 6,
+                        textAlign: "center",
+                        backgroundColor: "background.default",
+                        border: "1px dashed",
+                        borderColor: "divider"
+                    }}
+                >
+                    <Typography variant="h6" color="text.secondary">
+                        No catalog products found
+                    </Typography>
+                </Paper>
+            )}
+
+        {/* =====================================================
+            TABLE
+        ====================================================== */}
+        {!loading &&
+            !searchLoading &&
+            catalogs.length > 0 && (
+                <Box sx={{ width: "100%", overflowX: "auto" }}>
+                    <CatalogTable
+                        catalogs={paginatedCatalogs}
+                        loading={loading || searchLoading}
+                        sellerId={selectedContext?.sellerId ?? null}
+                        customerId={selectedContext?.customerId ?? null}
+                        selectedIds={selectedIds}
+                        onSelectionChange={handleSelectionChange}
+                        onView={handleView}
+                        onEdit={handleEdit}
+                        onImages={handleProductImages}
+                        onAttributes={handleProductAttributes}
+                        onReviews={handleProductReviews}
+                        onRelated={handleRelatedProducts}
+                        onMarketplace={handleMarketplace}
+                        onDelete={handleDelete}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        totalCount={catalogs.length}
+                        onPageChange={handlePageChange}
+                        onRowsPerPageChange={handleRowsPerPageChange}
+                    />
+                </Box>
+            )}
+    </Box>
+);
 
 };
 

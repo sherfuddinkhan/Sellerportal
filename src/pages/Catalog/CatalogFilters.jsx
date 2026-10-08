@@ -113,7 +113,7 @@ const CatalogFilters = ({
             <FormControl
                 size="small"
                 sx={{
-                    minWidth: 180
+                    minWidth: 250
                 }}
             >
 
@@ -168,7 +168,7 @@ const CatalogFilters = ({
             <FormControl
                 size="small"
                 sx={{
-                    minWidth: 180
+                    minWidth: 250
                 }}
             >
 
@@ -225,7 +225,7 @@ const CatalogFilters = ({
             <FormControl
                 size="small"
                 sx={{
-                    minWidth: 180
+                    minWidth: 250
                 }}
             >
 

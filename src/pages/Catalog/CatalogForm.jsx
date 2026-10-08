@@ -1,29 +1,4 @@
-// =========================================================
-// CatalogForm.jsx
-// =========================================================
-// Create + Edit Catalog Product
-//
-// Flow:
-//
-// React
-//   ↓
-// Axios
-//   ↓
-// Node server.js - http://localhost:5000
-//   ↓
-// ASP.NET Core - https://localhost:7203/api
-//
-// IMPORTANT:
-// Seller ID and Customer ID are entered directly in this form.
-// They are NOT taken from URL query parameters.
-//
-// POST
-// /api/catalog/products
-//
-// PUT
-// /api/catalog/{id}
-// ?sellerId=6&customerId=3
-//
+
 // =========================================================
 
 import React, {
