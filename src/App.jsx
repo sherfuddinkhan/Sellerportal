@@ -1086,10 +1086,10 @@ function App() {
                     element={<CategoryView />}
                 />
 
-                <Route
-                    path="categories/products/:id"
-                    element={<CategoryProducts />}
-                />
+              <Route
+    path="categories/:id/products"
+    element={<CategoryProducts />}
+/>
 
 
                 {/* =================================================
@@ -1185,20 +1185,13 @@ function App() {
                     element={<CatalogList />}
                 />
 
-                <Route
-                    path="catalog/featured"
-                    element={<CatalogList />}
-                />
+             
 
                 <Route
                     path="catalog/toprated"
                     element={<CatalogList />}
                 />
 
-                <Route
-                    path="catalog/bestsellers"
-                    element={<CatalogList />}
-                />
 
                 <Route
                     path="catalog/brand/:brandId"
