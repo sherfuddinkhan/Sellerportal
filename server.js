@@ -34005,6 +34005,296 @@ app.delete("/api/FacilityChannel/:id", async (req, res) => {
         });
     }
 });
+//////////////////SUPPLIER ADDRESSES///////////////////////////
+/* =========================================================
+   GET ALL SUPPLIER ADDRESSES
+   GET /api/SupplierAddress
+========================================================= */
+
+app.get("/api/SupplierAddress", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT *
+            FROM SupplierAddresses
+            ORDER BY SupplierAddressId DESC
+        `);
+
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("GET SUPPLIER ADDRESSES ERROR:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve supplier addresses"
+        });
+    }
+});
+
+/* =========================================================
+   GET SUPPLIER ADDRESS BY ID
+   GET /api/SupplierAddress/:id
+========================================================= */
+
+app.get("/api/SupplierAddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [rows] = await pool.query(
+            `SELECT * FROM SupplierAddresses
+             WHERE SupplierAddressId = ?`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Supplier address not found"
+            });
+        }
+
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error("GET SUPPLIER ADDRESS ERROR:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve supplier address"
+        });
+    }
+});
+
+/* =========================================================
+   CREATE SUPPLIER ADDRESS
+   POST /api/SupplierAddress
+========================================================= */
+
+app.post("/api/SupplierAddress", async (req, res) => {
+    try {
+        const {
+            supplierId,
+            addressType,
+            addressLine1,
+            addressLine2,
+            city,
+            state,
+            postalCode,
+            country,
+            contactPerson,
+            phoneNumber,
+            email,
+            website,
+            gstNumber,
+            isActive
+        } = req.body;
+
+        if (
+            !supplierId ||
+            !addressLine1 ||
+            !city ||
+            !state ||
+            !postalCode ||
+            !country
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Supplier, address line 1, city, state, postal code, and country are required"
+            });
+        }
+
+        const [result] = await pool.query(
+            `INSERT INTO SupplierAddresses (
+                SupplierId,
+                AddressType,
+                AddressLine1,
+                AddressLine2,
+                City,
+                State,
+                PostalCode,
+                Country,
+                ContactPerson,
+                PhoneNumber,
+                Email,
+                Website,
+                GSTNumber,
+                IsActive
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                supplierId,
+                addressType || null,
+                addressLine1,
+                addressLine2 || null,
+                city,
+                state,
+                postalCode,
+                country,
+                contactPerson || null,
+                phoneNumber || null,
+                email || null,
+                website || null,
+                gstNumber || null,
+                isActive ?? true
+            ]
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "Supplier address created successfully",
+            supplierAddressId: result.insertId
+        });
+    } catch (error) {
+        console.error("CREATE SUPPLIER ADDRESS ERROR:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to create supplier address"
+        });
+    }
+});
+
+/* =========================================================
+   UPDATE SUPPLIER ADDRESS
+   PUT /api/SupplierAddress/:id
+========================================================= */
+
+app.put("/api/SupplierAddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const {
+            supplierId,
+            addressType,
+            addressLine1,
+            addressLine2,
+            city,
+            state,
+            postalCode,
+            country,
+            contactPerson,
+            phoneNumber,
+            email,
+            website,
+            gstNumber,
+            isActive
+        } = req.body;
+
+        const [result] = await pool.query(
+            `UPDATE SupplierAddresses SET
+                SupplierId = ?,
+                AddressType = ?,
+                AddressLine1 = ?,
+                AddressLine2 = ?,
+                City = ?,
+                State = ?,
+                PostalCode = ?,
+                Country = ?,
+                ContactPerson = ?,
+                PhoneNumber = ?,
+                Email = ?,
+                Website = ?,
+                GSTNumber = ?,
+                IsActive = ?
+             WHERE SupplierAddressId = ?`,
+            [
+                supplierId,
+                addressType || null,
+                addressLine1,
+                addressLine2 || null,
+                city,
+                state,
+                postalCode,
+                country,
+                contactPerson || null,
+                phoneNumber || null,
+                email || null,
+                website || null,
+                gstNumber || null,
+                isActive ?? true,
+                id
+            ]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Supplier address not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Supplier address updated successfully"
+        });
+    } catch (error) {
+        console.error("UPDATE SUPPLIER ADDRESS ERROR:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update supplier address"
+        });
+    }
+});
+
+/* =========================================================
+   DELETE SUPPLIER ADDRESS
+   DELETE /api/SupplierAddress/:id
+========================================================= */
+
+app.delete("/api/SupplierAddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [result] = await pool.query(
+            `DELETE FROM SupplierAddresses
+             WHERE SupplierAddressId = ?`,
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Supplier address not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Supplier address deleted successfully"
+        });
+    } catch (error) {
+        console.error("DELETE SUPPLIER ADDRESS ERROR:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete supplier address"
+        });
+    }
+});
+
+/* =========================================================
+   GET ALL SUPPLIERS
+   GET /api/Supplier
+========================================================= */
+
+app.get("/api/Supplier", async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM Suppliers ORDER BY SupplierId DESC"
+        );
+
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("GET SUPPLIERS ERROR:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve suppliers"
+        });
+    }
+});
+
+
+
+
 
 
 // =========================================================
