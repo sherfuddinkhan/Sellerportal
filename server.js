@@ -34593,7 +34593,139 @@ app.get("/api/Supplier/:id", async (req, res) => {
     }
 });
 
+/* =========================================================
+   VENDOR ITEM CUSTOM FIELD API
+========================================================= */
 
+const VENDOR_ITEM_CUSTOM_FIELD_API =
+    `${API_BASE_URL}/VendorItemCustomField`;
+
+
+/* =========================================================
+   GET ALL VENDOR ITEM CUSTOM FIELDS
+========================================================= */
+
+app.get("/api/VendorItemCustomField", async (req, res) => {
+    try {
+        const response = await axios.get(
+            VENDOR_ITEM_CUSTOM_FIELD_API,
+            {
+                params: req.query
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET ALL VENDOR ITEM CUSTOM FIELDS ERROR:",
+            error.response?.data || error.message
+        );
+
+        return handleProxyError(res, error);
+    }
+});
+
+
+/* =========================================================
+   GET VENDOR ITEM CUSTOM FIELD BY ID
+========================================================= */
+
+app.get("/api/VendorItemCustomField/:id", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${VENDOR_ITEM_CUSTOM_FIELD_API}/${req.params.id}`,
+            {
+                params: req.query
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET VENDOR ITEM CUSTOM FIELD BY ID ERROR:",
+            error.response?.data || error.message
+        );
+
+        return handleProxyError(res, error);
+    }
+});
+
+
+/* =========================================================
+   CREATE VENDOR ITEM CUSTOM FIELD
+========================================================= */
+
+app.post("/api/VendorItemCustomField", async (req, res) => {
+    try {
+        const response = await axios.post(
+            VENDOR_ITEM_CUSTOM_FIELD_API,
+            req.body,
+            {
+                params: req.query
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "CREATE VENDOR ITEM CUSTOM FIELD ERROR:",
+            error.response?.data || error.message
+        );
+
+        return handleProxyError(res, error);
+    }
+});
+
+
+/* =========================================================
+   UPDATE VENDOR ITEM CUSTOM FIELD
+========================================================= */
+
+app.put("/api/VendorItemCustomField/:id", async (req, res) => {
+    try {
+        const response = await axios.put(
+            `${VENDOR_ITEM_CUSTOM_FIELD_API}/${req.params.id}`,
+            req.body,
+            {
+                params: req.query
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "UPDATE VENDOR ITEM CUSTOM FIELD ERROR:",
+            error.response?.data || error.message
+        );
+
+        return handleProxyError(res, error);
+    }
+});
+
+
+/* =========================================================
+   DELETE VENDOR ITEM CUSTOM FIELD
+========================================================= */
+
+app.delete("/api/VendorItemCustomField/:id", async (req, res) => {
+    try {
+        const response = await axios.delete(
+            `${VENDOR_ITEM_CUSTOM_FIELD_API}/${req.params.id}`,
+            {
+                params: req.query
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "DELETE VENDOR ITEM CUSTOM FIELD ERROR:",
+            error.response?.data || error.message
+        );
+
+        return handleProxyError(res, error);
+    }
+});
 
 
 
