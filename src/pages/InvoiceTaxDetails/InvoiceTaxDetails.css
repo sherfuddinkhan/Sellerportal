@@ -1,0 +1,771 @@
+/* =========================================================
+   INVOICE TAX DETAILS - GLOBAL CONTAINER
+========================================================= */
+
+.invoice-tax-details {
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px;
+    box-sizing: border-box;
+    background-color: #f5f7fb;
+    color: #1f2937;
+}
+
+.invoice-tax-details *,
+.invoice-tax-details *::before,
+.invoice-tax-details *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.invoice-tax-details__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.invoice-tax-details__title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #111827;
+}
+
+.invoice-tax-details__subtitle {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #6b7280;
+}
+
+.invoice-tax-details__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.invoice-tax-details__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+}
+
+.invoice-tax-details__toolbar-left,
+.invoice-tax-details__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.invoice-tax-details__search {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+}
+
+.invoice-tax-details__search input {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #1f2937;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.invoice-tax-details__search input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.invoice-tax-details__search input::placeholder {
+    color: #9ca3af;
+}
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.invoice-tax-details__statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.invoice-tax-details__stat-card {
+    min-width: 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.invoice-tax-details__stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgb(15 23 42 / 8%);
+}
+
+.invoice-tax-details__stat-label {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.invoice-tax-details__stat-value {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    color: #111827;
+}
+
+.invoice-tax-details__stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 14px;
+    color: #2563eb;
+    background-color: #eff6ff;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.invoice-tax-details__table-container {
+    width: 100%;
+    overflow-x: auto;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+}
+
+.invoice-tax-details__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.invoice-tax-details__table thead {
+    background-color: #f9fafb;
+}
+
+.invoice-tax-details__table th {
+    padding: 15px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.invoice-tax-details__table td {
+    padding: 15px 18px;
+    font-size: 14px;
+    vertical-align: middle;
+    color: #374151;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.invoice-tax-details__table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.invoice-tax-details__table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.invoice-tax-details__table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.invoice-tax-details__table th:first-child,
+.invoice-tax-details__table td:first-child {
+    padding-left: 22px;
+}
+
+.invoice-tax-details__table th:last-child,
+.invoice-tax-details__table td:last-child {
+    padding-right: 22px;
+}
+
+/* =========================================================
+   TABLE CELL HELPERS
+========================================================= */
+
+.invoice-tax-details__id {
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.invoice-tax-details__tax-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.invoice-tax-details__amount {
+    font-weight: 600;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.invoice-tax-details__rate {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.invoice-tax-details__status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+    border-radius: 999px;
+}
+
+.invoice-tax-details__status--active {
+    color: #166534;
+    background-color: #dcfce7;
+}
+
+.invoice-tax-details__status--inactive {
+    color: #4b5563;
+    background-color: #f3f4f6;
+}
+
+.invoice-tax-details__status--pending {
+    color: #92400e;
+    background-color: #fef3c7;
+}
+
+.invoice-tax-details__status--default {
+    color: #1d4ed8;
+    background-color: #dbeafe;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.invoice-tax-details__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.invoice-tax-details__action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 7px;
+    color: #4b5563;
+    background-color: transparent;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.invoice-tax-details__action-button:hover {
+    color: #1d4ed8;
+    background-color: #eff6ff;
+}
+
+.invoice-tax-details__action-button--edit:hover {
+    color: #92400e;
+    background-color: #fef3c7;
+}
+
+.invoice-tax-details__action-button--delete:hover {
+    color: #b91c1c;
+    background-color: #fee2e2;
+}
+
+.invoice-tax-details__action-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   CARD GRID
+========================================================= */
+
+.invoice-tax-details__card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.invoice-tax-details__card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.invoice-tax-details__card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgb(15 23 42 / 8%);
+}
+
+.invoice-tax-details__card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.invoice-tax-details__card-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    color: #111827;
+}
+
+.invoice-tax-details__card-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    flex: 1;
+}
+
+.invoice-tax-details__card-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.invoice-tax-details__card-value {
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    color: #1f2937;
+}
+
+.invoice-tax-details__card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.invoice-tax-details__filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.invoice-tax-details__filter-field {
+    min-width: 150px;
+    flex: 1;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.invoice-tax-details__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+}
+
+.invoice-tax-details__pagination-info {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.invoice-tax-details__pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================================
+   LOADING STATE
+========================================================= */
+
+.invoice-tax-details__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: 260px;
+    padding: 32px;
+    color: #6b7280;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.invoice-tax-details__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 220px;
+    padding: 32px 20px;
+    text-align: center;
+    background-color: #ffffff;
+    border: 1px dashed #d1d5db;
+    border-radius: 12px;
+}
+
+.invoice-tax-details__empty-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.invoice-tax-details__empty-description {
+    max-width: 420px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #6b7280;
+}
+
+/* =========================================================
+   ERROR MESSAGE
+========================================================= */
+
+.invoice-tax-details__error {
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    color: #991b1b;
+    font-size: 14px;
+    line-height: 1.6;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.invoice-tax-details__form {
+    padding: 24px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+}
+
+.invoice-tax-details__form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.invoice-tax-details__form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.invoice-tax-details__form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.invoice-tax-details__form-input,
+.invoice-tax-details__form-select {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #1f2937;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.invoice-tax-details__form-input:focus,
+.invoice-tax-details__form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.invoice-tax-details__form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.invoice-tax-details__modal {
+    width: 100%;
+    max-width: 560px;
+    padding: 24px;
+    background-color: #ffffff;
+    border-radius: 14px;
+}
+
+.invoice-tax-details__modal-title {
+    margin: 0 0 12px;
+    font-size: 21px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.invoice-tax-details__modal-description {
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #6b7280;
+}
+
+.invoice-tax-details__modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+/* =========================================================
+   RESPONSIVE - TABLETS
+========================================================= */
+
+@media (max-width: 1024px) {
+    .invoice-tax-details__statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .invoice-tax-details__card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .invoice-tax-details__title {
+        font-size: 24px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+    .invoice-tax-details {
+        padding: 16px;
+    }
+
+    .invoice-tax-details__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .invoice-tax-details__title {
+        font-size: 22px;
+    }
+
+    .invoice-tax-details__toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 14px;
+    }
+
+    .invoice-tax-details__toolbar-left,
+    .invoice-tax-details__toolbar-right {
+        width: 100%;
+    }
+
+    .invoice-tax-details__search {
+        max-width: none;
+    }
+
+    .invoice-tax-details__card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .invoice-tax-details__form {
+        padding: 18px;
+    }
+
+    .invoice-tax-details__form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .invoice-tax-details__pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .invoice-tax-details__table th,
+    .invoice-tax-details__table td {
+        padding: 12px 14px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+    .invoice-tax-details {
+        padding: 12px;
+    }
+
+    .invoice-tax-details__statistics {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .invoice-tax-details__stat-card {
+        padding: 16px;
+    }
+
+    .invoice-tax-details__stat-value {
+        font-size: 22px;
+    }
+
+    .invoice-tax-details__card {
+        padding: 16px;
+    }
+
+    .invoice-tax-details__card-body {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .invoice-tax-details__form-actions,
+    .invoice-tax-details__modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .invoice-tax-details__form-actions button,
+    .invoice-tax-details__modal-actions button {
+        width: 100%;
+    }
+
+    .invoice-tax-details__header-actions {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.invoice-tax-details button:focus-visible,
+.invoice-tax-details a:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .invoice-tax-details *,
+    .invoice-tax-details *::before,
+    .invoice-tax-details *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
