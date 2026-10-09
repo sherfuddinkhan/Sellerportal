@@ -1,0 +1,1499 @@
+/* =========================================================
+   PICKLISTS MODULE - MAIN STYLESHEET
+   File: Picklists.css
+========================================================= */
+
+/* =========================================================
+   ROOT VARIABLES
+========================================================= */
+
+:root {
+    --picklist-primary: #1976d2;
+    --picklist-primary-dark: #115293;
+    --picklist-primary-light: #e3f2fd;
+
+    --picklist-success: #2e7d32;
+    --picklist-success-light: #e8f5e9;
+
+    --picklist-warning: #ed6c02;
+    --picklist-warning-light: #fff3e0;
+
+    --picklist-error: #d32f2f;
+    --picklist-error-light: #ffebee;
+
+    --picklist-info: #0288d1;
+    --picklist-info-light: #e1f5fe;
+
+    --picklist-text: #212121;
+    --picklist-text-secondary: #616161;
+
+    --picklist-border: #e0e0e0;
+    --picklist-background: #f5f7fb;
+    --picklist-surface: #ffffff;
+
+    --picklist-radius: 12px;
+    --picklist-radius-sm: 8px;
+
+    --picklist-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.06);
+
+    --picklist-shadow-hover:
+        0 6px 20px rgba(0, 0, 0, 0.10);
+
+    --picklist-transition:
+        all 0.2s ease-in-out;
+}
+
+/* =========================================================
+   GLOBAL CONTAINER
+========================================================= */
+
+.picklists-container {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    box-sizing: border-box;
+    background-color: var(--picklist-background);
+    color: var(--picklist-text);
+}
+
+.picklists-container *,
+.picklist-page *,
+.picklist-dialog *,
+.picklist-card * {
+    box-sizing: border-box;
+}
+
+.picklist-page {
+    width: 100%;
+    min-width: 0;
+}
+
+.picklist-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.picklist-section {
+    width: 100%;
+    min-width: 0;
+    padding: 20px;
+    background-color: var(--picklist-surface);
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius);
+    box-shadow: var(--picklist-shadow);
+}
+
+.picklist-section-title {
+    margin: 0 0 16px;
+    color: var(--picklist-text);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.picklist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.picklist-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.picklist-title {
+    margin: 0;
+    color: var(--picklist-text);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.picklist-subtitle {
+    margin: 0;
+    color: var(--picklist-text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.picklist-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.picklist-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 18px 20px;
+    background-color: var(--picklist-surface);
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius);
+    box-shadow: var(--picklist-shadow);
+}
+
+.picklist-toolbar-left,
+.picklist-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.picklist-toolbar-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--picklist-text);
+}
+
+.picklist-toolbar-description {
+    margin: 4px 0 0;
+    color: var(--picklist-text-secondary);
+    font-size: 13px;
+}
+
+.picklist-toolbar .MuiButton-root {
+    min-height: 38px;
+    border-radius: var(--picklist-radius-sm);
+    text-transform: none;
+    font-weight: 600;
+}
+
+.picklist-toolbar .MuiButton-contained {
+    box-shadow: none;
+}
+
+.picklist-toolbar .MuiButton-contained:hover {
+    box-shadow: 0 3px 8px rgba(25, 118, 210, 0.2);
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.picklist-search {
+    width: 100%;
+    max-width: 420px;
+}
+
+.picklist-search .MuiOutlinedInput-root {
+    min-height: 44px;
+    border-radius: var(--picklist-radius-sm);
+    background-color: var(--picklist-surface);
+}
+
+.picklist-search .MuiOutlinedInput-notchedOutline {
+    border-color: var(--picklist-border);
+}
+
+.picklist-search .MuiOutlinedInput-root:hover
+.MuiOutlinedInput-notchedOutline {
+    border-color: #bdbdbd;
+}
+
+.picklist-search .MuiOutlinedInput-root.Mui-focused
+.MuiOutlinedInput-notchedOutline {
+    border-color: var(--picklist-primary);
+}
+
+.picklist-search .MuiInputBase-input {
+    font-size: 14px;
+}
+
+.picklist-search-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.picklist-search-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.picklist-statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    width: 100%;
+}
+
+.picklist-stat-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding: 20px;
+    overflow: hidden;
+    background-color: var(--picklist-surface);
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius);
+    box-shadow: var(--picklist-shadow);
+    transition: var(--picklist-transition);
+}
+
+.picklist-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--picklist-shadow-hover);
+}
+
+.picklist-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background-color: var(--picklist-primary-light);
+    color: var(--picklist-primary);
+}
+
+.picklist-stat-icon .MuiSvgIcon-root {
+    font-size: 27px;
+}
+
+.picklist-stat-icon.success {
+    color: var(--picklist-success);
+    background-color: var(--picklist-success-light);
+}
+
+.picklist-stat-icon.warning {
+    color: var(--picklist-warning);
+    background-color: var(--picklist-warning-light);
+}
+
+.picklist-stat-icon.error {
+    color: var(--picklist-error);
+    background-color: var(--picklist-error-light);
+}
+
+.picklist-stat-icon.info {
+    color: var(--picklist-info);
+    background-color: var(--picklist-info-light);
+}
+
+.picklist-stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.picklist-stat-label {
+    color: var(--picklist-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.picklist-stat-value {
+    color: var(--picklist-text);
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.picklist-stat-description {
+    color: var(--picklist-text-secondary);
+    font-size: 12px;
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.picklist-filters {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 18px;
+    background-color: var(--picklist-surface);
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius);
+}
+
+.picklist-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1;
+    min-width: 170px;
+}
+
+.picklist-filter-label {
+    color: var(--picklist-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.picklist-filter-field .MuiFormControl-root {
+    width: 100%;
+}
+
+.picklist-filter-field .MuiOutlinedInput-root {
+    border-radius: var(--picklist-radius-sm);
+    background-color: var(--picklist-surface);
+}
+
+.picklist-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.picklist-filter-actions .MuiButton-root {
+    text-transform: none;
+    border-radius: var(--picklist-radius-sm);
+}
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.picklist-table-container {
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--picklist-surface);
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius);
+    box-shadow: var(--picklist-shadow);
+}
+
+.picklist-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--picklist-border);
+}
+
+.picklist-table-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.picklist-table-subtitle {
+    margin: 4px 0 0;
+    color: var(--picklist-text-secondary);
+    font-size: 13px;
+}
+
+.picklist-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.picklist-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    white-space: nowrap;
+}
+
+.picklist-table .MuiTableCell-head {
+    padding: 15px 16px;
+    color: #424242;
+    background-color: #f8fafc;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.35px;
+    border-bottom: 1px solid var(--picklist-border);
+}
+
+.picklist-table .MuiTableCell-body {
+    padding: 14px 16px;
+    color: var(--picklist-text);
+    font-size: 13px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.picklist-table .MuiTableRow-root:last-child .MuiTableCell-body {
+    border-bottom: none;
+}
+
+.picklist-table .MuiTableRow-hover:hover {
+    background-color: #f5f9ff;
+}
+
+.picklist-table .MuiTableRow-root {
+    transition: background-color 0.15s ease-in-out;
+}
+
+.picklist-table .MuiIconButton-root {
+    transition: var(--picklist-transition);
+}
+
+.picklist-table .MuiIconButton-root:hover {
+    background-color: var(--picklist-primary-light);
+}
+
+.picklist-table .MuiTableCell-root:first-child {
+    padding-left: 20px;
+}
+
+.picklist-table .MuiTableCell-root:last-child {
+    padding-right: 20px;
+}
+
+.picklist-number {
+    color: var(--picklist-primary);
+    font-weight: 600;
+}
+
+.picklist-primary-text {
+    color: var(--picklist-text);
+    font-weight: 600;
+}
+
+.picklist-secondary-text {
+    color: var(--picklist-text-secondary);
+    font-size: 12px;
+}
+
+.picklist-table-empty {
+    padding: 44px 20px !important;
+    color: var(--picklist-text-secondary) !important;
+    text-align: center;
+    white-space: normal;
+}
+
+/* =========================================================
+   STATUS CHIPS
+========================================================= */
+
+.picklist-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.picklist-status::before {
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+    background-color: currentColor;
+    border-radius: 50%;
+    content: "";
+}
+
+.picklist-status.pending,
+.picklist-status.created,
+.picklist-status.new {
+    color: #9a6700;
+    background-color: #fff4cc;
+}
+
+.picklist-status.in-progress,
+.picklist-status.processing,
+.picklist-status.assigned {
+    color: #075985;
+    background-color: #e0f2fe;
+}
+
+.picklist-status.completed,
+.picklist-status.complete,
+.picklist-status.picked,
+.picklist-status.closed {
+    color: #166534;
+    background-color: #dcfce7;
+}
+
+.picklist-status.cancelled,
+.picklist-status.canceled {
+    color: #991b1b;
+    background-color: #fee2e2;
+}
+
+.picklist-status.default {
+    color: #424242;
+    background-color: #eeeeee;
+}
+
+/* =========================================================
+   TABLE ACTIONS
+========================================================= */
+
+.picklist-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.picklist-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: var(--picklist-transition);
+}
+
+.picklist-action-button.view {
+    color: var(--picklist-primary);
+}
+
+.picklist-action-button.edit {
+    color: var(--picklist-warning);
+}
+
+.picklist-action-button.delete {
+    color: var(--picklist-error);
+}
+
+.picklist-action-button.view:hover {
+    background-color: var(--picklist-primary-light);
+}
+
+.picklist-action-button.edit:hover {
+    background-color: var(--picklist-warning-light);
+}
+
+.picklist-action-button.delete:hover {
+    background-color: var(--picklist-error-light);
+}
+
+.picklist-action-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.picklist-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--picklist-border);
+    background-color: var(--picklist-surface);
+}
+
+.picklist-pagination-info {
+    color: var(--picklist-text-secondary);
+    font-size: 13px;
+}
+
+.picklist-pagination .MuiPagination-root {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.picklist-pagination .MuiPaginationItem-root {
+    border-radius: 8px;
+}
+
+.picklist-pagination .MuiPaginationItem-root.Mui-selected {
+    color: #ffffff;
+    background-color: var(--picklist-primary);
+}
+
+.picklist-pagination .MuiPaginationItem-root.Mui-selected:hover {
+    background-color: var(--picklist-primary-dark);
+}
+
+.picklist-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.picklist-pagination .MuiSelect-select {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+/* =========================================================
+   PICKLIST CARDS
+========================================================= */
+
+.picklist-card {
+    height: 100%;
+    padding: 20px;
+    overflow: hidden;
+    background-color: var(--picklist-surface);
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius);
+    box-shadow: var(--picklist-shadow);
+    transition: var(--picklist-transition);
+}
+
+.picklist-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--picklist-shadow-hover);
+}
+
+.picklist-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.picklist-card-title {
+    margin: 0;
+    color: var(--picklist-text);
+    font-size: 17px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.picklist-card-subtitle {
+    margin-top: 5px;
+    color: var(--picklist-text-secondary);
+    font-size: 13px;
+}
+
+.picklist-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.picklist-card-field {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.picklist-card-field-label {
+    color: var(--picklist-text-secondary);
+    font-size: 13px;
+}
+
+.picklist-card-field-value {
+    color: var(--picklist-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.picklist-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--picklist-border);
+}
+
+.picklist-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.picklist-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+}
+
+.picklist-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background-color: var(--picklist-surface);
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius);
+}
+
+.picklist-form-section-title {
+    margin: 0;
+    padding-bottom: 12px;
+    color: var(--picklist-text);
+    font-size: 16px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--picklist-border);
+}
+
+.picklist-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.picklist-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.picklist-form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.picklist-form-label {
+    color: #424242;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.picklist-form-field .MuiFormControl-root {
+    width: 100%;
+}
+
+.picklist-form-field .MuiOutlinedInput-root {
+    border-radius: var(--picklist-radius-sm);
+}
+
+.picklist-form-field .MuiInputBase-input {
+    font-size: 14px;
+}
+
+.picklist-form-field .MuiFormHelperText-root {
+    margin-left: 2px;
+}
+
+.picklist-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 18px;
+    border-top: 1px solid var(--picklist-border);
+}
+
+.picklist-form-actions .MuiButton-root {
+    min-width: 110px;
+    min-height: 40px;
+    border-radius: var(--picklist-radius-sm);
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* =========================================================
+   PICKLIST ITEM EDITOR
+========================================================= */
+
+.picklist-items-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.picklist-items-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.picklist-items-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.picklist-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.picklist-item-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(110px, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background-color: #fafafa;
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius-sm);
+}
+
+.picklist-item-row .MuiFormControl-root {
+    width: 100%;
+}
+
+.picklist-item-remove {
+    color: var(--picklist-error);
+}
+
+.picklist-item-remove:hover {
+    background-color: var(--picklist-error-light);
+}
+
+.picklist-items-empty {
+    padding: 28px 16px;
+    color: var(--picklist-text-secondary);
+    text-align: center;
+    background-color: #fafafa;
+    border: 1px dashed #bdbdbd;
+    border-radius: var(--picklist-radius-sm);
+}
+
+/* =========================================================
+   DETAILS VIEW
+========================================================= */
+
+.picklist-details {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.picklist-details-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.picklist-details-title {
+    margin: 0;
+    color: var(--picklist-text);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.picklist-details-subtitle {
+    margin: 6px 0 0;
+    color: var(--picklist-text-secondary);
+    font-size: 14px;
+}
+
+.picklist-details-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.picklist-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.picklist-detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+    padding: 16px;
+    background-color: #fafafa;
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius-sm);
+}
+
+.picklist-detail-label {
+    color: var(--picklist-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.picklist-detail-value {
+    color: var(--picklist-text);
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.picklist-notes {
+    padding: 16px;
+    background-color: #fafafa;
+    border: 1px solid var(--picklist-border);
+    border-radius: var(--picklist-radius-sm);
+}
+
+.picklist-notes-title {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.picklist-notes-content {
+    margin: 0;
+    color: var(--picklist-text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   LOADING STATE
+========================================================= */
+
+.picklist-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 220px;
+    padding: 24px;
+    color: var(--picklist-text-secondary);
+}
+
+.picklist-loading .MuiCircularProgress-root {
+    color: var(--picklist-primary);
+}
+
+.picklist-loading-text {
+    font-size: 14px;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.picklist-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 240px;
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.picklist-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    color: #757575;
+    background-color: #eeeeee;
+    border-radius: 50%;
+}
+
+.picklist-empty-icon .MuiSvgIcon-root {
+    font-size: 32px;
+}
+
+.picklist-empty-title {
+    margin: 0;
+    color: var(--picklist-text);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.picklist-empty-description {
+    max-width: 420px;
+    margin: 0;
+    color: var(--picklist-text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   ERROR STATE
+========================================================= */
+
+.picklist-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    color: var(--picklist-error);
+    background-color: var(--picklist-error-light);
+    border: 1px solid #ffcdd2;
+    border-radius: var(--picklist-radius-sm);
+}
+
+.picklist-error-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.picklist-error-message {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   DELETE CONFIRMATION DIALOG
+========================================================= */
+
+.picklist-delete-dialog .MuiDialog-paper {
+    width: 100%;
+    max-width: 460px;
+    margin: 20px;
+    border-radius: 14px;
+}
+
+.picklist-delete-dialog .MuiDialogTitle-root {
+    padding: 22px 24px 12px;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.picklist-delete-dialog .MuiDialogContent-root {
+    padding: 12px 24px 20px;
+}
+
+.picklist-delete-dialog .MuiDialogActions-root {
+    gap: 8px;
+    padding: 16px 24px 22px;
+}
+
+.picklist-delete-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    color: #8a2424;
+    background-color: var(--picklist-error-light);
+    border-radius: var(--picklist-radius-sm);
+}
+
+.picklist-delete-warning .MuiSvgIcon-root {
+    flex-shrink: 0;
+}
+
+.picklist-delete-warning-text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.picklist-delete-dialog .MuiButton-root {
+    min-width: 90px;
+    border-radius: var(--picklist-radius-sm);
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* =========================================================
+   GENERAL BUTTONS
+========================================================= */
+
+.picklist-button {
+    min-height: 38px;
+    padding: 8px 16px;
+    border-radius: var(--picklist-radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: none;
+    transition: var(--picklist-transition);
+}
+
+.picklist-button-primary {
+    color: #ffffff;
+    background-color: var(--picklist-primary);
+    border: 1px solid var(--picklist-primary);
+}
+
+.picklist-button-primary:hover {
+    background-color: var(--picklist-primary-dark);
+}
+
+.picklist-button-secondary {
+    color: #424242;
+    background-color: #ffffff;
+    border: 1px solid var(--picklist-border);
+}
+
+.picklist-button-secondary:hover {
+    background-color: #f5f5f5;
+}
+
+.picklist-button-danger {
+    color: #ffffff;
+    background-color: var(--picklist-error);
+    border: 1px solid var(--picklist-error);
+}
+
+.picklist-button-danger:hover {
+    background-color: #b71c1c;
+}
+
+/* =========================================================
+   SNACKBARS / ALERTS
+========================================================= */
+
+.picklist-alert {
+    width: 100%;
+    border-radius: var(--picklist-radius-sm);
+}
+
+.picklist-alert .MuiAlert-message {
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.picklists-container button:focus-visible,
+.picklists-container a:focus-visible,
+.picklists-container input:focus-visible,
+.picklists-container select:focus-visible,
+.picklists-container textarea:focus-visible {
+    outline: 2px solid var(--picklist-primary);
+    outline-offset: 2px;
+}
+
+.picklists-container button:disabled {
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE: TABLETS
+========================================================= */
+
+@media (max-width: 1200px) {
+    .picklist-statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .picklist-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .picklist-details-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .picklist-container,
+    .picklists-container {
+        padding: 20px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE: SMALL TABLETS
+========================================================= */
+
+@media (max-width: 768px) {
+    .picklists-container {
+        padding: 16px;
+    }
+
+    .picklist-content {
+        gap: 18px;
+    }
+
+    .picklist-header {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    .picklist-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .picklist-title {
+        font-size: 24px;
+    }
+
+    .picklist-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .picklist-toolbar-left,
+    .picklist-toolbar-right {
+        width: 100%;
+    }
+
+    .picklist-toolbar-right {
+        justify-content: flex-start;
+    }
+
+    .picklist-search {
+        max-width: none;
+    }
+
+    .picklist-statistics {
+        gap: 12px;
+    }
+
+    .picklist-stat-card {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .picklist-stat-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .picklist-stat-icon .MuiSvgIcon-root {
+        font-size: 23px;
+    }
+
+    .picklist-stat-value {
+        font-size: 23px;
+    }
+
+    .picklist-section {
+        padding: 16px;
+    }
+
+    .picklist-filters {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .picklist-filter-field {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .picklist-filter-actions {
+        justify-content: flex-start;
+    }
+
+    .picklist-table-header {
+        padding: 16px;
+    }
+
+    .picklist-table .MuiTableCell-head,
+    .picklist-table .MuiTableCell-body {
+        padding: 12px;
+    }
+
+    .picklist-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 16px;
+    }
+
+    .picklist-pagination .MuiPagination-root {
+        justify-content: flex-start;
+        max-width: 100%;
+    }
+
+    .picklist-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .picklist-form-field.full-width {
+        grid-column: auto;
+    }
+
+    .picklist-form-section {
+        padding: 16px;
+    }
+
+    .picklist-item-row {
+        grid-template-columns: minmax(0, 1fr) minmax(90px, 0.6fr) auto;
+        padding: 12px;
+    }
+
+    .picklist-details-header {
+        flex-direction: column;
+    }
+
+    .picklist-details-title {
+        font-size: 21px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE: MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+    .picklists-container {
+        padding: 12px;
+    }
+
+    .picklist-content {
+        gap: 14px;
+    }
+
+    .picklist-title {
+        font-size: 21px;
+    }
+
+    .picklist-subtitle {
+        font-size: 13px;
+    }
+
+    .picklist-header-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .picklist-header-actions .MuiButton-root {
+        width: 100%;
+    }
+
+    .picklist-toolbar-left,
+    .picklist-toolbar-right {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .picklist-toolbar .MuiButton-root {
+        width: 100%;
+    }
+
+    .picklist-statistics {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .picklist-stat-card {
+        padding: 15px;
+    }
+
+    .picklist-stat-value {
+        font-size: 22px;
+    }
+
+    .picklist-card-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .picklist-details-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .picklist-card {
+        padding: 16px;
+    }
+
+    .picklist-table-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .picklist-pagination-controls {
+        align-items: flex-start;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .picklist-form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .picklist-form-actions .MuiButton-root {
+        width: 100%;
+    }
+
+    .picklist-item-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .picklist-item-row .picklist-item-product {
+        grid-column: 1 / -1;
+    }
+
+    .picklist-details-actions {
+        width: 100%;
+    }
+
+    .picklist-details-actions .MuiButton-root {
+        flex: 1;
+    }
+
+    .picklist-delete-dialog .MuiDialog-paper {
+        margin: 12px;
+    }
+
+    .picklist-delete-dialog .MuiDialogTitle-root {
+        padding: 18px 18px 10px;
+    }
+
+    .picklist-delete-dialog .MuiDialogContent-root {
+        padding: 10px 18px 16px;
+    }
+
+    .picklist-delete-dialog .MuiDialogActions-root {
+        flex-wrap: wrap;
+        padding: 12px 18px 18px;
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .picklist-stat-card,
+    .picklist-card,
+    .picklist-action-button,
+    .picklist-table .MuiTableRow-root,
+    .picklists-container * {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
