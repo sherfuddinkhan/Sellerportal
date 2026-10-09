@@ -34877,6 +34877,188 @@ app.delete("/api/ShelfwiseInventory/:id", async (req, res) => {
     }
 });
 
+///////////////////// SHIPPING MANIFEST API///////////////
+/* =========================================================
+   SHIPPING MANIFEST API
+========================================================= */
+
+const shippingManifestRouter = express.Router();
+
+const SHIPPING_MANIFEST_URL =
+    `${API_BASE_URL}/ShippingManifest`;
+
+/* =========================================================
+   GET ALL SHIPPING MANIFESTS
+   GET /api/ShippingManifest
+========================================================= */
+
+shippingManifestRouter.get("/", async (req, res) => {
+    try {
+        console.log("\nGET ALL SHIPPING MANIFESTS");
+
+        const response = await axios.get(
+            SHIPPING_MANIFEST_URL,
+            {
+                params: req.query,
+                headers: {
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleProxyError(
+            res,
+            error,
+            "GET ALL SHIPPING MANIFESTS"
+        );
+    }
+});
+
+/* =========================================================
+   GET SHIPPING MANIFEST BY ID
+   GET /api/ShippingManifest/:id
+========================================================= */
+
+shippingManifestRouter.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        console.log("GET SHIPPING MANIFEST BY ID:", id);
+
+        const response = await axios.get(
+            `${SHIPPING_MANIFEST_URL}/${encodeURIComponent(id)}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleProxyError(
+            res,
+            error,
+            "GET SHIPPING MANIFEST BY ID"
+        );
+    }
+});
+
+/* =========================================================
+   CREATE SHIPPING MANIFEST
+   POST /api/ShippingManifest
+========================================================= */
+
+shippingManifestRouter.post("/", async (req, res) => {
+    try {
+        console.log("\nCREATE SHIPPING MANIFEST");
+        console.log("Request body:", req.body);
+
+        const response = await axios.post(
+            SHIPPING_MANIFEST_URL,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleProxyError(
+            res,
+            error,
+            "CREATE SHIPPING MANIFEST"
+        );
+    }
+});
+
+/* =========================================================
+   UPDATE SHIPPING MANIFEST
+   PUT /api/ShippingManifest/:id
+========================================================= */
+
+shippingManifestRouter.put("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        console.log("\nUPDATE SHIPPING MANIFEST:", id);
+        console.log("Request body:", req.body);
+
+        const response = await axios.put(
+            `${SHIPPING_MANIFEST_URL}/${encodeURIComponent(id)}`,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleProxyError(
+            res,
+            error,
+            "UPDATE SHIPPING MANIFEST"
+        );
+    }
+});
+
+/* =========================================================
+   DELETE SHIPPING MANIFEST
+   DELETE /api/ShippingManifest/:id
+========================================================= */
+
+shippingManifestRouter.delete("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        console.log("\nDELETE SHIPPING MANIFEST:", id);
+
+        const response = await axios.delete(
+            `${SHIPPING_MANIFEST_URL}/${encodeURIComponent(id)}`,
+            {
+                timeout: 30000
+            }
+        );
+
+        if (
+            response.status === 204 ||
+            response.data === undefined ||
+            response.data === null ||
+            response.data === ""
+        ) {
+            return res.status(204).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleProxyError(
+            res,
+            error,
+            "DELETE SHIPPING MANIFEST"
+        );
+    }
+});
+
+
+
+
+
+
+
+
+
 
 
 
