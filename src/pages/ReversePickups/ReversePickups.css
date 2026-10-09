@@ -1,0 +1,41 @@
+/* =========================================================
+   REVERSE PICKUPS - MAIN STYLESHEET
+========================================================= */
+
+.reverse-pickups-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px;
+    box-sizing: border-box;
+    background-color: #f5f7fb;
+    color: #1f2937;
+}
+
+.reverse-pickups-container {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.reverse-pickups-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.reverse-pickups-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reverse-pickups-heading-icon {
+    display:flex;
+}

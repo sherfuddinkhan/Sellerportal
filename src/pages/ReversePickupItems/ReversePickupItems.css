@@ -1,0 +1,890 @@
+
+/* =========================================================
+   REVERSE PICKUP ITEMS - MAIN STYLESHEET
+========================================================= */
+
+/* ROOT CONTAINER */
+.reverse-pickup-items,
+.reverse-pickup-items-container {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    box-sizing: border-box;
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.reverse-pickup-items-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.reverse-pickup-items-title {
+    margin: 0;
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #0f172a;
+}
+
+.reverse-pickup-items-subtitle {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.reverse-pickup-items-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.reverse-pickup-items-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.reverse-pickup-items-toolbar-left,
+.reverse-pickup-items-toolbar-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.reverse-pickup-item-search {
+    width: 100%;
+    max-width: 380px;
+}
+
+.reverse-pickup-item-search .MuiOutlinedInput-root {
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+.reverse-pickup-item-search .MuiOutlinedInput-root:hover
+.MuiOutlinedInput-notchedOutline {
+    border-color: #94a3b8;
+}
+
+.reverse-pickup-item-search .Mui-focused
+.MuiOutlinedInput-notchedOutline {
+    border-width: 1px;
+    border-color: #2563eb;
+}
+
+/* =========================================================
+   STATISTICS CARDS
+========================================================= */
+
+.reverse-pickup-item-statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.reverse-pickup-item-stat-card {
+    min-width: 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.reverse-pickup-item-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.reverse-pickup-item-stat-label {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.reverse-pickup-item-stat-value {
+    margin-top: 10px;
+    color: #0f172a;
+    font-size: 1.7rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-item-stat-description {
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.reverse-pickup-item-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.reverse-pickup-item-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.reverse-pickup-item-filter {
+    min-width: 160px;
+}
+
+.reverse-pickup-item-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.reverse-pickup-items-table-container {
+    width: 100%;
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.reverse-pickup-items-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.reverse-pickup-items-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.reverse-pickup-items-table .MuiTableHead-root {
+    background-color: #f1f5f9;
+}
+
+.reverse-pickup-items-table .MuiTableCell-head {
+    padding: 14px 16px;
+    color: #334155;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.reverse-pickup-items-table .MuiTableCell-body {
+    padding: 14px 16px;
+    color: #475569;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.reverse-pickup-items-table .MuiTableBody-root .MuiTableRow-root {
+    transition: background-color 0.15s ease;
+}
+
+.reverse-pickup-items-table .MuiTableBody-root .MuiTableRow-root:hover {
+    background-color: #f8fafc;
+}
+
+.reverse-pickup-items-table .MuiTableBody-root .MuiTableRow-root:last-child
+.MuiTableCell-body {
+    border-bottom: none;
+}
+
+/* =========================================================
+   TABLE CELL CONTENT
+========================================================= */
+
+.reverse-pickup-item-name {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.reverse-pickup-item-secondary-text {
+    display: block;
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+.reverse-pickup-item-id,
+.reverse-pickup-item-number {
+    color: #2563eb;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.reverse-pickup-item-quantity {
+    font-weight: 600;
+    color: #334155;
+    text-align: center;
+}
+
+.reverse-pickup-item-cost {
+    font-weight: 600;
+    color: #0f766e;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS CHIPS
+========================================================= */
+
+.reverse-pickup-item-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.reverse-pickup-item-status-pending {
+    color: #92400e;
+    background-color: #fef3c7;
+}
+
+.reverse-pickup-item-status-approved {
+    color: #1d4ed8;
+    background-color: #dbeafe;
+}
+
+.reverse-pickup-item-status-processing {
+    color: #6d28d9;
+    background-color: #ede9fe;
+}
+
+.reverse-pickup-item-status-picked-up,
+.reverse-pickup-item-status-completed {
+    color: #166534;
+    background-color: #dcfce7;
+}
+
+.reverse-pickup-item-status-rejected,
+.reverse-pickup-item-status-cancelled {
+    color: #991b1b;
+    background-color: #fee2e2;
+}
+
+.reverse-pickup-item-status-default {
+    color: #475569;
+    background-color: #e2e8f0;
+}
+
+/* =========================================================
+   TABLE ACTIONS
+========================================================= */
+
+.reverse-pickup-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.reverse-pickup-item-actions .MuiIconButton-root {
+    width: 34px;
+    height: 34px;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.reverse-pickup-item-actions .MuiIconButton-root:hover {
+    transform: translateY(-1px);
+}
+
+.reverse-pickup-item-view-action {
+    color: #2563eb;
+}
+
+.reverse-pickup-item-edit-action {
+    color: #d97706;
+}
+
+.reverse-pickup-item-delete-action {
+    color: #dc2626;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.reverse-pickup-item-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 220px;
+    padding: 32px 20px;
+    color: #64748b;
+    text-align: center;
+}
+
+.reverse-pickup-item-empty-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    color: #94a3b8;
+    background-color: #f1f5f9;
+    border-radius: 50%;
+}
+
+.reverse-pickup-item-empty-state-title {
+    color: #334155;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.reverse-pickup-item-empty-state-description {
+    max-width: 420px;
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.reverse-pickup-item-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 16px;
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+}
+
+.reverse-pickup-item-pagination-info {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.reverse-pickup-item-pagination .MuiPagination-root {
+    margin-left: auto;
+}
+
+.reverse-pickup-item-pagination .MuiPaginationItem-root {
+    border-radius: 8px;
+}
+
+/* =========================================================
+   ITEM CARDS
+========================================================= */
+
+.reverse-pickup-item-card {
+    height: 100%;
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.reverse-pickup-item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.reverse-pickup-item-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.reverse-pickup-item-card-title {
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-item-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+}
+
+.reverse-pickup-item-card-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.reverse-pickup-item-card-label {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.reverse-pickup-item-card-value {
+    color: #334155;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-item-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 18px;
+    background-color: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* =========================================================
+   MODALS AND DIALOGS
+========================================================= */
+
+.reverse-pickup-item-modal .MuiDialog-paper {
+    width: 100%;
+    max-width: 720px;
+    margin: 20px;
+    border-radius: 14px;
+}
+
+.reverse-pickup-item-modal-title {
+    padding: 22px 24px;
+    color: #0f172a;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.reverse-pickup-item-modal-content {
+    padding: 24px;
+}
+
+.reverse-pickup-item-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.reverse-pickup-item-delete-dialog .MuiDialog-paper {
+    width: 100%;
+    max-width: 460px;
+    border-radius: 14px;
+}
+
+.reverse-pickup-item-delete-warning {
+    color: #b91c1c;
+    background-color: #fef2f2;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.reverse-pickup-item-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.reverse-pickup-item-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reverse-pickup-item-form-section-title {
+    margin-bottom: 4px;
+    color: #334155;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.reverse-pickup-item-form .MuiTextField-root,
+.reverse-pickup-item-form .MuiFormControl-root {
+    width: 100%;
+}
+
+.reverse-pickup-item-form .MuiOutlinedInput-root {
+    border-radius: 8px;
+}
+
+.reverse-pickup-item-form .MuiFormHelperText-root {
+    margin-left: 2px;
+}
+
+.reverse-pickup-item-form-error {
+    padding: 12px 14px;
+    color: #991b1b;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+/* =========================================================
+   DETAILS VIEW
+========================================================= */
+
+.reverse-pickup-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.reverse-pickup-item-details-section {
+    padding: 18px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.reverse-pickup-item-details-section-title {
+    margin-bottom: 16px;
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.reverse-pickup-item-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.reverse-pickup-item-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.reverse-pickup-item-detail-label {
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.reverse-pickup-item-detail-value {
+    color: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   LOADING STATE
+========================================================= */
+
+.reverse-pickup-items-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 240px;
+    padding: 32px;
+    color: #64748b;
+}
+
+.reverse-pickup-items-loading .MuiCircularProgress-root {
+    color: #2563eb;
+}
+
+/* =========================================================
+   ERROR STATE
+========================================================= */
+
+.reverse-pickup-items-error {
+    margin: 16px 0;
+    padding: 16px;
+    color: #991b1b;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.reverse-pickup-items .MuiButton-root,
+.reverse-pickup-items-container .MuiButton-root {
+    min-height: 38px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: none;
+    box-shadow: none;
+}
+
+.reverse-pickup-items .MuiButton-containedPrimary,
+.reverse-pickup-items-container .MuiButton-containedPrimary {
+    background-color: #2563eb;
+}
+
+.reverse-pickup-items .MuiButton-containedPrimary:hover,
+.reverse-pickup-items-container .MuiButton-containedPrimary:hover {
+    background-color: #1d4ed8;
+    box-shadow: none;
+}
+
+/* =========================================================
+   RESPONSIVE: TABLETS
+========================================================= */
+
+@media (max-width: 1024px) {
+    .reverse-pickup-items,
+    .reverse-pickup-items-container {
+        padding: 20px;
+    }
+
+    .reverse-pickup-item-statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .reverse-pickup-items-toolbar {
+        align-items: stretch;
+    }
+
+    .reverse-pickup-items-toolbar-left,
+    .reverse-pickup-items-toolbar-right {
+        width: 100%;
+    }
+
+    .reverse-pickup-item-search {
+        max-width: 100%;
+        flex: 1 1 240px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE: MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+    .reverse-pickup-items,
+    .reverse-pickup-items-container {
+        padding: 12px;
+    }
+
+    .reverse-pickup-items-header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .reverse-pickup-items-title {
+        font-size: 1.35rem;
+    }
+
+    .reverse-pickup-items-header-actions {
+        width: 100%;
+    }
+
+    .reverse-pickup-items-header-actions .MuiButton-root {
+        flex: 1 1 auto;
+    }
+
+    .reverse-pickup-items-toolbar {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .reverse-pickup-items-toolbar-left,
+    .reverse-pickup-items-toolbar-right {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .reverse-pickup-item-search {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .reverse-pickup-item-statistics {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .reverse-pickup-item-stat-card {
+        padding: 16px;
+    }
+
+    .reverse-pickup-item-stat-value {
+        font-size: 1.45rem;
+    }
+
+    .reverse-pickup-item-filters {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .reverse-pickup-item-filter {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .reverse-pickup-item-filter-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .reverse-pickup-item-filter-actions .MuiButton-root {
+        flex: 1;
+    }
+
+    .reverse-pickup-items-table-container {
+        border-radius: 8px;
+    }
+
+    .reverse-pickup-items-table .MuiTableCell-head,
+    .reverse-pickup-items-table .MuiTableCell-body {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+
+    .reverse-pickup-item-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .reverse-pickup-item-pagination .MuiPagination-root {
+        margin-left: 0;
+    }
+
+    .reverse-pickup-item-card-header,
+    .reverse-pickup-item-card-content {
+        padding: 14px;
+    }
+
+    .reverse-pickup-item-card-footer {
+        padding: 12px 14px;
+    }
+
+    .reverse-pickup-item-details-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .reverse-pickup-item-modal .MuiDialog-paper {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+        border-radius: 10px;
+    }
+
+    .reverse-pickup-item-modal-content {
+        padding: 16px;
+    }
+
+    .reverse-pickup-item-modal-title {
+        padding: 16px;
+        font-size: 1.1rem;
+    }
+
+    .reverse-pickup-item-modal-actions {
+        flex-wrap: wrap;
+        padding: 12px 16px;
+    }
+
+    .reverse-pickup-item-modal-actions .MuiButton-root {
+        flex: 1 1 auto;
+    }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .reverse-pickup-item-stat-card,
+    .reverse-pickup-item-card,
+    .reverse-pickup-items-table .MuiTableRow-root,
+    .reverse-pickup-item-actions .MuiIconButton-root {
+        transition: none;
+    }
+
+    .reverse-pickup-item-stat-card:hover,
+    .reverse-pickup-item-card:hover,
+    .reverse-pickup-item-actions .MuiIconButton-root:hover {
+        transform: none;
+    }
+}
+
