@@ -33448,7 +33448,563 @@ app.post('/api/marketplace/customers', async (req, res) => {
   }
 });
 
+////////////////////////new node server.js//////////////////////////////////////
+// ============================================================
+// EXPORT JOBS - GET ALL
+// ============================================================
 
+app.get("/api/ExportJobs", async (req, res) => {
+    try {
+        console.log("GET ALL EXPORT JOBS");
+
+        const response = await axios.get(
+            `${process.env.DOTNET_API_URL}/ExportJobs`,
+            { params: req.query }
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("GET ALL EXPORT JOBS ERROR:", error.message);
+
+        if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to fetch export jobs",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// EXPORT JOBS - GET BY ID
+// ============================================================
+
+app.get("/api/ExportJobs/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid export job ID"
+            });
+        }
+
+        const response = await axios.get(
+            `${process.env.DOTNET_API_URL}/ExportJobs/${id}`
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("GET EXPORT JOB ERROR:", error.message);
+
+        if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to fetch export job",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// EXPORT JOBS - CREATE
+// ============================================================
+
+app.post("/api/ExportJobs", async (req, res) => {
+    try {
+        const {
+            jobName,
+            exportType,
+            fileFormat,
+            status,
+            fileName,
+            filePath,
+            requestedBy,
+            recordsCount,
+            startedAt,
+            completedAt,
+            errorMessage
+        } = req.body || {};
+
+        if (typeof jobName !== "string" || !jobName.trim()) {
+            return res.status(400).json({
+                message: "Job name is required"
+            });
+        }
+
+        if (typeof exportType !== "string" || !exportType.trim()) {
+            return res.status(400).json({
+                message: "Export type is required"
+            });
+        }
+
+        const requestBody = {
+            jobName: jobName.trim(),
+            exportType: exportType.trim()
+        };
+
+        if (fileFormat !== undefined) requestBody.fileFormat = fileFormat;
+        if (status !== undefined) requestBody.status = status;
+        if (fileName !== undefined) requestBody.fileName = fileName;
+        if (filePath !== undefined) requestBody.filePath = filePath;
+        if (requestedBy !== undefined) requestBody.requestedBy = requestedBy;
+        if (recordsCount !== undefined) requestBody.recordsCount = recordsCount;
+        if (startedAt !== undefined) requestBody.startedAt = startedAt;
+        if (completedAt !== undefined) requestBody.completedAt = completedAt;
+        if (errorMessage !== undefined) requestBody.errorMessage = errorMessage;
+
+        const response = await axios.post(
+            `${process.env.DOTNET_API_URL}/ExportJobs`,
+            requestBody
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("CREATE EXPORT JOB ERROR:", error.message);
+
+        if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to create export job",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// EXPORT JOBS - UPDATE
+// ============================================================
+
+app.put("/api/ExportJobs/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid export job ID"
+            });
+        }
+
+        if (
+            !req.body ||
+            typeof req.body !== "object" ||
+            Array.isArray(req.body)
+        ) {
+            return res.status(400).json({
+                message: "A valid request body is required"
+            });
+        }
+
+        const allowedFields = [
+            "jobName",
+            "exportType",
+            "fileFormat",
+            "status",
+            "fileName",
+            "filePath",
+            "requestedBy",
+            "recordsCount",
+            "startedAt",
+            "completedAt",
+            "errorMessage"
+        ];
+
+        const requestBody = {};
+
+        allowedFields.forEach((field) => {
+            if (req.body[field] !== undefined) {
+                requestBody[field] = req.body[field];
+            }
+        });
+
+        if (Object.keys(requestBody).length === 0) {
+            return res.status(400).json({
+                message: "At least one valid field is required for update"
+            });
+        }
+
+        const response = await axios.put(
+            `${process.env.DOTNET_API_URL}/ExportJobs/${id}`,
+            requestBody
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("UPDATE EXPORT JOB ERROR:", error.message);
+
+        if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to update export job",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// EXPORT JOBS - DELETE
+// ============================================================
+
+app.delete("/api/ExportJobs/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid export job ID"
+            });
+        }
+
+        const response = await axios.delete(
+            `${process.env.DOTNET_API_URL}/ExportJobs/${id}`
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("DELETE EXPORT JOB ERROR:", error.message);
+
+        if (error.response) {
+            return res.status(error.response.status).json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to delete export job",
+            error: error.message
+        });
+    }
+});
+
+// ============================================================
+// FACILITY CHANNEL - GET ALL
+// ============================================================
+
+app.get("/api/FacilityChannel", async (req, res) => {
+    try {
+        console.log("================================================");
+        console.log("GET ALL FACILITY CHANNELS");
+        console.log("QUERY:", req.query);
+        console.log("================================================");
+
+        const response = await axios.get(
+            `${process.env.DOTNET_API_URL}/FacilityChannel`,
+            {
+                params: req.query
+            }
+        );
+
+        console.log("GET ALL FACILITY CHANNELS SUCCESS");
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("GET ALL FACILITY CHANNELS ERROR:", error.message);
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to fetch facility channels",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// FACILITY CHANNEL - GET BY ID
+// ============================================================
+
+app.get("/api/FacilityChannel/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        console.log("GET FACILITY CHANNEL BY ID:", id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid facility channel ID"
+            });
+        }
+
+        const response = await axios.get(
+            `${process.env.DOTNET_API_URL}/FacilityChannel/${id}`
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("GET FACILITY CHANNEL ERROR:", error.message);
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to fetch facility channel",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// FACILITY CHANNEL - CREATE
+// ============================================================
+
+app.post("/api/FacilityChannel", async (req, res) => {
+    try {
+        console.log("================================================");
+        console.log("CREATE FACILITY CHANNEL");
+        console.log("REQUEST BODY:", req.body);
+        console.log("================================================");
+
+        const {
+            facilityName,
+            channelName,
+            channelCode,
+            description,
+            status
+        } = req.body || {};
+
+        // ----------------------------------------------------
+        // VALIDATION
+        // ----------------------------------------------------
+
+        if (
+            typeof facilityName !== "string" ||
+            !facilityName.trim()
+        ) {
+            return res.status(400).json({
+                message: "Facility name is required"
+            });
+        }
+
+        if (
+            typeof channelName !== "string" ||
+            !channelName.trim()
+        ) {
+            return res.status(400).json({
+                message: "Channel name is required"
+            });
+        }
+
+        if (
+            typeof channelCode !== "string" ||
+            !channelCode.trim()
+        ) {
+            return res.status(400).json({
+                message: "Channel code is required"
+            });
+        }
+
+        // ----------------------------------------------------
+        // REQUEST BODY
+        // ----------------------------------------------------
+
+        const requestBody = {
+            facilityName: facilityName.trim(),
+            channelName: channelName.trim(),
+            channelCode: channelCode.trim()
+        };
+
+        if (description !== undefined) {
+            requestBody.description = description;
+        }
+
+        if (status !== undefined) {
+            requestBody.status = status;
+        }
+
+        // ----------------------------------------------------
+        // CALL ASP.NET CORE API
+        // ----------------------------------------------------
+
+        const response = await axios.post(
+            `${process.env.DOTNET_API_URL}/FacilityChannel`,
+            requestBody
+        );
+
+        console.log("CREATE FACILITY CHANNEL SUCCESS");
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("CREATE FACILITY CHANNEL ERROR:", error.message);
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to create facility channel",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// FACILITY CHANNEL - UPDATE
+// ============================================================
+
+app.put("/api/FacilityChannel/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        console.log("================================================");
+        console.log("UPDATE FACILITY CHANNEL:", id);
+        console.log("REQUEST BODY:", req.body);
+        console.log("================================================");
+
+        // ----------------------------------------------------
+        // VALIDATION
+        // ----------------------------------------------------
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid facility channel ID"
+            });
+        }
+
+        if (
+            !req.body ||
+            typeof req.body !== "object" ||
+            Array.isArray(req.body)
+        ) {
+            return res.status(400).json({
+                message: "A valid request body is required"
+            });
+        }
+
+        // ----------------------------------------------------
+        // ALLOWED FIELDS
+        // ----------------------------------------------------
+
+        const allowedFields = [
+            "facilityName",
+            "channelName",
+            "channelCode",
+            "description",
+            "status"
+        ];
+
+        const requestBody = {};
+
+        allowedFields.forEach((field) => {
+            if (req.body[field] !== undefined) {
+                requestBody[field] = req.body[field];
+            }
+        });
+
+        if (Object.keys(requestBody).length === 0) {
+            return res.status(400).json({
+                message: "At least one valid field is required for update"
+            });
+        }
+
+        // ----------------------------------------------------
+        // CALL ASP.NET CORE API
+        // ----------------------------------------------------
+
+        const response = await axios.put(
+            `${process.env.DOTNET_API_URL}/FacilityChannel/${id}`,
+            requestBody
+        );
+
+        console.log("UPDATE FACILITY CHANNEL SUCCESS:", id);
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("UPDATE FACILITY CHANNEL ERROR:", error.message);
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to update facility channel",
+            error: error.message
+        });
+    }
+});
+
+
+// ============================================================
+// FACILITY CHANNEL - DELETE
+// ============================================================
+
+app.delete("/api/FacilityChannel/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        console.log("================================================");
+        console.log("DELETE FACILITY CHANNEL:", id);
+        console.log("================================================");
+
+        // ----------------------------------------------------
+        // VALIDATION
+        // ----------------------------------------------------
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid facility channel ID"
+            });
+        }
+
+        // ----------------------------------------------------
+        // CALL ASP.NET CORE API
+        // ----------------------------------------------------
+
+        const response = await axios.delete(
+            `${process.env.DOTNET_API_URL}/FacilityChannel/${id}`
+        );
+
+        console.log("DELETE FACILITY CHANNEL SUCCESS:", id);
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error("DELETE FACILITY CHANNEL ERROR:", error.message);
+
+        if (error.response) {
+            return res
+                .status(error.response.status)
+                .json(error.response.data);
+        }
+
+        return res.status(500).json({
+            message: "Failed to delete facility channel",
+            error: error.message
+        });
+    }
+});
 
 
 // =========================================================
