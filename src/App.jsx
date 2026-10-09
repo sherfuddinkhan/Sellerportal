@@ -316,6 +316,102 @@ import SellerEdit from "./pages/Seller/SellerEdit";
 import SellerCreate from "./pages/Seller/SellerCreate";
 import SellerDetails from "./pages/Seller/SellerDetails";
 
+//////////////////////////////////////////////////////
+import ExportJobsList from "./components/ExportJobs/ExportJobsList";
+import ExportJobsSearch from "./components/ExportJobs/ExportJobsSearch";
+import ExportJobsTable from "./components/ExportJobs/ExportJobsTable";
+import ExportJobsToolbar from "./components/ExportJobs/ExportJobsToolbar";
+
+import ShelfwiseInventoriesList from "./components/ShelfwiseInventories/ShelfwiseInventoriesList";
+import ShelfwiseInventoryView from "./components/ShelfwiseInventories/ShelfwiseInventoryView";
+import ShelfwiseInventoriesSearch from "./components/ShelfwiseInventories/ShelfwiseInventoriesSearch";
+import ShelfwiseInventoriesFilters from "./components/ShelfwiseInventories/ShelfwiseInventoriesFilters";
+import ShelfwiseInventoriesStatistics from "./components/ShelfwiseInventories/ShelfwiseInventoriesStatistics";
+import ShelfwiseInventoriesDetails from "./components/ShelfwiseInventories/ShelfwiseInventoriesDetails";
+import ShelfwiseInventoriesEdit from "./components/ShelfwiseInventories/ShelfwiseInventoriesEdit";
+
+import ShippingManifestsList from "./components/ShippingManifests/ShippingManifestsList";
+import ShippingManifestsCreate from "./components/ShippingManifests/ShippingManifestsCreate";
+import ShippingManifestsSearch from "./components/ShippingManifests/ShippingManifestsSearch";
+import ShippingManifestsFilters from "./components/ShippingManifests/ShippingManifestsFilters";
+import ShippingManifestsStatistics from "./components/ShippingManifests/ShippingManifestsStatistics";
+import ShippingManifestsDetails from "./components/ShippingManifests/ShippingManifestsDetails";
+import ShippingManifestsView from "./components/ShippingManifests/ShippingManifestsView";
+import ShippingManifestsEdit from "./components/ShippingManifests/ShippingManifestsEdit";
+
+import FacilityChannelList from "./components/FacilityChannel/FacilityChannelList";
+import FacilityChannelCreate from "./components/FacilityChannel/FacilityChannelCreate";
+import FacilityChannelSearch from "./components/FacilityChannel/FacilityChannelSearch";
+import FacilityChannelFilters from "./components/FacilityChannel/FacilityChannelFilters";
+import FacilityChannelStatistics from "./components/FacilityChannel/FacilityChannelStatistics";
+import FacilityChannelDetails from "./components/FacilityChannel/FacilityChannelDetails";
+import FacilityChannelView from "./components/FacilityChannel/FacilityChannelView";
+import FacilityChannelEdit from "./components/FacilityChannel/FacilityChannelEdit";
+
+import ReversePickupAddressesList from "./components/ReversePickupAddresses/ReversePickupAddressesList";
+import ReversePickupAddressesCreate from "./components/ReversePickupAddresses/ReversePickupAddressesCreate";
+import ReversePickupAddressesSearch from "./components/ReversePickupAddresses/ReversePickupAddressesSearch";
+import ReversePickupAddressesFilters from "./components/ReversePickupAddresses/ReversePickupAddressesFilters";
+import ReversePickupAddressesStatistics from "./components/ReversePickupAddresses/ReversePickupAddressesStatistics";
+import ReversePickupAddressesDetails from "./components/ReversePickupAddresses/ReversePickupAddressesDetails";
+import ReversePickupAddressesView from "./components/ReversePickupAddresses/ReversePickupAddressesView";
+import ReversePickupAddressesEdit from "./components/ReversePickupAddresses/ReversePickupAddressesEdit";
+
+import ReversePickupItemsList from "./components/ReversePickupItems/ReversePickupItemsList";
+import ReversePickupItemsCreate from "./components/ReversePickupItems/ReversePickupItemsCreate";
+import ReversePickupItemsSearch from "./components/ReversePickupItems/ReversePickupItemsSearch";
+import ReversePickupItemsFilters from "./components/ReversePickupItems/ReversePickupItemsFilters";
+import ReversePickupItemsStatistics from "./components/ReversePickupItems/ReversePickupItemsStatistics";
+import ReversePickupItemsDetails from "./components/ReversePickupItems/ReversePickupItemsDetails";
+import ReversePickupItemsView from "./components/ReversePickupItems/ReversePickupItemsView";
+import ReversePickupItemsEdit from "./components/ReversePickupItems/ReversePickupItemsEdit";
+
+import ReversePickupsList from "./components/ReversePickups/ReversePickupsList";
+import ReversePickupsCreate from "./components/ReversePickups/ReversePickupsCreate";
+import ReversePickupsSearch from "./components/ReversePickups/ReversePickupsSearch";
+import ReversePickupsFilters from "./components/ReversePickups/ReversePickupsFilters";
+import ReversePickupsStatistics from "./components/ReversePickups/ReversePickupsStatistics";
+import ReversePickupsDetails from "./components/ReversePickups/ReversePickupsDetails";
+import ReversePickupsView from "./components/ReversePickups/ReversePickupsView";
+import ReversePickupsEdit from "./components/ReversePickups/ReversePickupsEdit";
+
+import SupplierAddressesList from "./components/SupplierAddresses/SupplierAddressesList";
+import SupplierAddressesCreate from "./components/SupplierAddresses/SupplierAddressesCreate";
+import SupplierAddressesSearch from "./components/SupplierAddresses/SupplierAddressesSearch";
+import SupplierAddressesFilters from "./components/SupplierAddresses/SupplierAddressesFilters";
+import SupplierAddressesStatistics from "./components/SupplierAddresses/SupplierAddressesStatistics";
+import SupplierAddressesDetails from "./components/SupplierAddresses/SupplierAddressesDetails";
+import SupplierAddressesView from "./components/SupplierAddresses/SupplierAddressesView";
+import SupplierAddressesEdit from "./components/SupplierAddresses/SupplierAddressesEdit";
+
+import SupplierContactsList from "./components/SupplierContacts/SupplierContactsList";
+import SupplierContactsCreate from "./components/SupplierContacts/SupplierContactsCreate";
+import SupplierContactsSearch from "./components/SupplierContacts/SupplierContactsSearch";
+import SupplierContactsFilters from "./components/SupplierContacts/SupplierContactsFilters";
+import SupplierContactsStatistics from "./components/SupplierContacts/SupplierContactsStatistics";
+import SupplierContactsDetails from "./components/SupplierContacts/SupplierContactsDetails";
+import SupplierContactsView from "./components/SupplierContacts/SupplierContactsView";
+import SupplierContactsEdit from "./components/SupplierContacts/SupplierContactsEdit";
+
+import VendorItemCustomFieldsList from "./components/VendorItemCustomFields/VendorItemCustomFieldsList";
+import VendorItemCustomFieldsCreate from "./components/VendorItemCustomFields/VendorItemCustomFieldsCreate";
+import VendorItemCustomFieldsSearch from "./components/VendorItemCustomFields/VendorItemCustomFieldsSearch";
+import VendorItemCustomFieldsFilters from "./components/VendorItemCustomFields/VendorItemCustomFieldsFilters";
+import VendorItemCustomFieldsStatistics from "./components/VendorItemCustomFields/VendorItemCustomFieldsStatistics";
+import VendorItemCustomFieldsDetails from "./components/VendorItemCustomFields/VendorItemCustomFieldsDetails";
+import VendorItemCustomFieldsView from "./components/VendorItemCustomFields/VendorItemCustomFieldsView";
+import VendorItemCustomFieldsEdit from "./components/VendorItemCustomFields/VendorItemCustomFieldsEdit";
+
+import VendorItemMastersList from "./components/VendorItemMasters/VendorItemMastersList";
+import VendorItemMastersCreate from "./components/VendorItemMasters/VendorItemMastersCreate";
+import VendorItemMastersSearch from "./components/VendorItemMasters/VendorItemMastersSearch";
+import VendorItemMastersFilters from "./components/VendorItemMasters/VendorItemMastersFilters";
+import VendorItemMastersStatistics from "./components/VendorItemMasters/VendorItemMastersStatistics";
+import VendorItemMastersDetails from "./components/VendorItemMasters/VendorItemMastersDetails";
+import VendorItemMastersView from "./components/VendorItemMasters/VendorItemMastersView";
+import VendorItemMastersEdit from "./components/VendorItemMasters/VendorItemMastersEdit";
+
+
 //////////////// supplier ////////////////////////////
 import SupplierList from "./pages/Supplier/SupplierList";
 import SupplierEdit from "./pages/Supplier/SupplierEdit";
@@ -329,6 +425,17 @@ import SupplierSearch from "./pages/Supplier/SupplierSearch";
 import SupplierToolbar from "./pages/Supplier/SupplierToolbar";
 import SupplierTable from "./pages/Supplier/SupplierTable";
 import SupplierCard from "./pages/Supplier/SupplierCard";
+
+///////////////////////////Picklists////////////////////////
+
+import PicklistsList from "./components/Picklist/PicklistsList";
+import PicklistCreate from "./components/Picklist/PicklistCreate";
+import PicklistSearch from "./components/Picklist/PicklistSearch";
+import PicklistFilters from "./components/Picklist/PicklistFilters";
+import PicklistStatistics from "./components/Picklist/PicklistStatistics";
+import PicklistDetails from "./components/Picklist/PicklistDetails";
+import PicklistView from "./components/Picklist/PicklistView";
+import PicklistEdit from "./components/Picklist/PicklistEdit";
 /* =========================================================
    ORDER STATUS HISTORY IMPORTS
 ========================================================= */
@@ -1091,6 +1198,51 @@ function App() {
     element={<CategoryProducts />}
 />
 
+{/* =================================================
+PICKLIST ROUTES
+================================================= */}
+
+<Route
+path="picklists"
+element={<PicklistsList />}
+/>
+
+<Route
+path="picklists/create"
+element={<PicklistCreate />}
+/>
+
+<Route
+path="picklists/search"
+element={<PicklistSearch />}
+/>
+
+<Route
+path="picklists/filters"
+element={<PicklistFilters />}
+/>
+
+<Route
+path="picklists/statistics"
+element={<PicklistStatistics />}
+/>
+
+<Route
+path="picklists/details/:id"
+element={<PicklistDetails />}
+/>
+
+<Route
+path="picklists/view/:id"
+element={<PicklistView />}
+/>
+
+<Route
+path="picklists/:id/edit"
+element={<PicklistEdit />}
+/>
+
+
 
                 {/* =================================================
                     WAREHOUSES
@@ -1382,6 +1534,145 @@ function App() {
                     path="product-types/view/:id"
                     element={<ProductTypeView />}
                 />
+
+                {/* =================================================
+EXPORT JOBS ROUTES
+================================================= */}
+
+<Route path="export-jobs" element={<ExportJobsList />} />
+<Route path="export-jobs/search" element={<ExportJobsSearch />} />
+<Route path="export-jobs/table" element={<ExportJobsTable />} />
+<Route path="export-jobs/toolbar" element={<ExportJobsToolbar />} />
+
+{/* =================================================
+SHELFWISE INVENTORIES ROUTES
+================================================= */}
+
+<Route path="shelfwise-inventories" element={<ShelfwiseInventoriesList />} />
+<Route path="shelfwise-inventories/search" element={<ShelfwiseInventoriesSearch />} />
+<Route path="shelfwise-inventories/filters" element={<ShelfwiseInventoriesFilters />} />
+<Route path="shelfwise-inventories/statistics" element={<ShelfwiseInventoriesStatistics />} />
+<Route path="shelfwise-inventories/details/:id" element={<ShelfwiseInventoriesDetails />} />
+<Route path="shelfwise-inventories/view/:id" element={<ShelfwiseInventoryView />} />
+<Route path="shelfwise-inventories/:id/edit" element={<ShelfwiseInventoriesEdit />} />
+
+
+{/* =================================================
+SHIPPING MANIFESTS ROUTES
+================================================= */}
+
+<Route path="shipping-manifests" element={<ShippingManifestsList />} />
+<Route path="shipping-manifests/create" element={<ShippingManifestsCreate />} />
+<Route path="shipping-manifests/search" element={<ShippingManifestsSearch />} />
+<Route path="shipping-manifests/filters" element={<ShippingManifestsFilters />} />
+<Route path="shipping-manifests/statistics" element={<ShippingManifestsStatistics />} />
+<Route path="shipping-manifests/details/:id" element={<ShippingManifestsDetails />} />
+<Route path="shipping-manifests/view/:id" element={<ShippingManifestsView />} />
+<Route path="shipping-manifests/:id/edit" element={<ShippingManifestsEdit />} />
+
+{/* =================================================
+FACILITY CHANNEL ROUTES
+================================================= */}
+
+<Route path="facility-channels" element={<FacilityChannelList />} />
+<Route path="facility-channels/create" element={<FacilityChannelCreate />} />
+<Route path="facility-channels/search" element={<FacilityChannelSearch />} />
+<Route path="facility-channels/filters" element={<FacilityChannelFilters />} />
+<Route path="facility-channels/statistics" element={<FacilityChannelStatistics />} />
+<Route path="facility-channels/details/:id" element={<FacilityChannelDetails />} />
+<Route path="facility-channels/view/:id" element={<FacilityChannelView />} />
+<Route path="facility-channels/:id/edit" element={<FacilityChannelEdit />} />
+
+{/* =================================================
+REVERSE PICKUP ADDRESSES ROUTES
+================================================= */}
+
+<Route path="reverse-pickup-addresses" element={<ReversePickupAddressesList />} />
+<Route path="reverse-pickup-addresses/create" element={<ReversePickupAddressesCreate />} />
+<Route path="reverse-pickup-addresses/search" element={<ReversePickupAddressesSearch />} />
+<Route path="reverse-pickup-addresses/filters" element={<ReversePickupAddressesFilters />} />
+<Route path="reverse-pickup-addresses/statistics" element={<ReversePickupAddressesStatistics />} />
+<Route path="reverse-pickup-addresses/details/:id" element={<ReversePickupAddressesDetails />} />
+<Route path="reverse-pickup-addresses/view/:id" element={<ReversePickupAddressesView />} />
+<Route path="reverse-pickup-addresses/:id/edit" element={<ReversePickupAddressesEdit />} />
+
+{/* =================================================
+REVERSE PICKUP ITEMS ROUTES
+================================================= */}
+
+<Route path="reverse-pickup-items" element={<ReversePickupItemsList />} />
+<Route path="reverse-pickup-items/create" element={<ReversePickupItemsCreate />} />
+<Route path="reverse-pickup-items/search" element={<ReversePickupItemsSearch />} />
+<Route path="reverse-pickup-items/filters" element={<ReversePickupItemsFilters />} />
+<Route path="reverse-pickup-items/statistics" element={<ReversePickupItemsStatistics />} />
+<Route path="reverse-pickup-items/details/:id" element={<ReversePickupItemsDetails />} />
+<Route path="reverse-pickup-items/view/:id" element={<ReversePickupItemsView />} />
+<Route path="reverse-pickup-items/:id/edit" element={<ReversePickupItemsEdit />} />
+
+{/* =================================================
+REVERSE PICKUPS ROUTES
+================================================= */}
+
+<Route path="reverse-pickups" element={<ReversePickupsList />} />
+<Route path="reverse-pickups/create" element={<ReversePickupsCreate />} />
+<Route path="reverse-pickups/search" element={<ReversePickupsSearch />} />
+<Route path="reverse-pickups/filters" element={<ReversePickupsFilters />} />
+<Route path="reverse-pickups/statistics" element={<ReversePickupsStatistics />} />
+<Route path="reverse-pickups/details/:id" element={<ReversePickupsDetails />} />
+<Route path="reverse-pickups/view/:id" element={<ReversePickupsView />} />
+<Route path="reverse-pickups/:id/edit" element={<ReversePickupsEdit />} />
+{/* =================================================
+SUPPLIER ADDRESSES ROUTES
+================================================= */}
+
+<Route path="supplier-addresses" element={<SupplierAddressesList />} />
+<Route path="supplier-addresses/create" element={<SupplierAddressesCreate />} />
+<Route path="supplier-addresses/search" element={<SupplierAddressesSearch />} />
+<Route path="supplier-addresses/filters" element={<SupplierAddressesFilters />} />
+<Route path="supplier-addresses/statistics" element={<SupplierAddressesStatistics />} />
+<Route path="supplier-addresses/details/:id" element={<SupplierAddressesDetails />} />
+<Route path="supplier-addresses/view/:id" element={<SupplierAddressesView />} />
+<Route path="supplier-addresses/:id/edit" element={<SupplierAddressesEdit />} />
+
+{/* =================================================
+SUPPLIER CONTACTS ROUTES
+================================================= */}
+
+<Route path="supplier-contacts" element={<SupplierContactsList />} />
+<Route path="supplier-contacts/create" element={<SupplierContactsCreate />} />
+<Route path="supplier-contacts/search" element={<SupplierContactsSearch />} />
+<Route path="supplier-contacts/filters" element={<SupplierContactsFilters />} />
+<Route path="supplier-contacts/statistics" element={<SupplierContactsStatistics />} />
+<Route path="supplier-contacts/details/:id" element={<SupplierContactsDetails />} />
+<Route path="supplier-contacts/view/:id" element={<SupplierContactsView />} />
+<Route path="supplier-contacts/:id/edit" element={<SupplierContactsEdit />} />
+
+{/* =================================================
+VENDOR ITEM CUSTOM FIELDS ROUTES
+================================================= */}
+
+<Route path="vendor-item-custom-fields" element={<VendorItemCustomFieldsList />} />
+<Route path="vendor-item-custom-fields/create" element={<VendorItemCustomFieldsCreate />} />
+<Route path="vendor-item-custom-fields/search" element={<VendorItemCustomFieldsSearch />} />
+<Route path="vendor-item-custom-fields/filters" element={<VendorItemCustomFieldsFilters />} />
+<Route path="vendor-item-custom-fields/statistics" element={<VendorItemCustomFieldsStatistics />} />
+<Route path="vendor-item-custom-fields/details/:id" element={<VendorItemCustomFieldsDetails />} />
+<Route path="vendor-item-custom-fields/view/:id" element={<VendorItemCustomFieldsView />} />
+<Route path="vendor-item-custom-fields/:id/edit" element={<VendorItemCustomFieldsEdit />} />
+
+{/* =================================================
+VENDOR ITEM MASTERS ROUTES
+================================================= */}
+
+<Route path="vendor-item-masters" element={<VendorItemMastersList />} />
+<Route path="vendor-item-masters/create" element={<VendorItemMastersCreate />} />
+<Route path="vendor-item-masters/search" element={<VendorItemMastersSearch />} />
+<Route path="vendor-item-masters/filters" element={<VendorItemMastersFilters />} />
+<Route path="vendor-item-masters/statistics" element={<VendorItemMastersStatistics />} />
+<Route path="vendor-item-masters/details/:id" element={<VendorItemMastersDetails />} />
+<Route path="vendor-item-masters/view/:id" element={<VendorItemMastersView />} />
+<Route path="vendor-item-masters/:id/edit" element={<VendorItemMastersEdit />} />
+
 
 
                 {/* =================================================
