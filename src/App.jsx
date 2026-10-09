@@ -884,7 +884,23 @@ import MarketplaceOrderEdit from "./pages/MarketplaceOrder/MarketplaceOrderEdit"
 import MarketplaceOrderCardPage from "./pages/MarketplaceOrder/MarketplaceOrderCardPage";
 
 
+import InvoiceTaxDetailsList from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsList";
+import InvoiceTaxDetailsCreate from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsCreate";
+import InvoiceTaxDetailsSearch from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsSearch";
+import InvoiceTaxDetailsFilters from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsFilters";
+import InvoiceTaxDetailsStatistics from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsStatistics";
+import InvoiceTaxDetailsDetails from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsDetails";
+import InvoiceTaxDetailsView from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsView";
+import InvoiceTaxDetailsEdit from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsEdit";
 
+import ManifestPackagesPutawayList from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayList";
+import ManifestPackagesPutawayCreate from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayCreate";
+import ManifestPackagesPutawaySearch from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawaySearch";
+import ManifestPackagesPutawayFilters from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayFilters";
+import ManifestPackagesPutawayStatistics from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayStatistics";
+import ManifestPackagesPutawayDetails from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayDetails";
+import ManifestPackagesPutawayView from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayView";
+import ManifestPackagesPutawayEdit from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayEdit";
 
 // =========================================================
 // NOT FOUND
@@ -1197,6 +1213,94 @@ function App() {
     path="categories/:id/products"
     element={<CategoryProducts />}
 />
+{/* =================================================
+MANIFEST PACKAGES PUTAWAY ROUTES
+================================================= */}
+
+<Route
+    path="manifest-packages-putaway"
+    element={<ManifestPackagesPutawayList />}
+/>
+
+<Route
+    path="manifest-packages-putaway/create"
+    element={<ManifestPackagesPutawayCreate />}
+/>
+
+<Route
+    path="manifest-packages-putaway/search"
+    element={<ManifestPackagesPutawaySearch />}
+/>
+
+<Route
+    path="manifest-packages-putaway/filters"
+    element={<ManifestPackagesPutawayFilters />}
+/>
+
+<Route
+    path="manifest-packages-putaway/statistics"
+    element={<ManifestPackagesPutawayStatistics />}
+/>
+
+<Route
+    path="manifest-packages-putaway/details/:id"
+    element={<ManifestPackagesPutawayDetails />}
+/>
+
+<Route
+    path="manifest-packages-putaway/view/:id"
+    element={<ManifestPackagesPutawayView />}
+/>
+
+<Route
+    path="manifest-packages-putaway/:id/edit"
+    element={<ManifestPackagesPutawayEdit />}
+/>
+
+{/* =================================================
+INVOICE TAX DETAILS ROUTES
+================================================= */}
+
+<Route
+    path="invoice-tax-details"
+    element={<InvoiceTaxDetailsList />}
+/>
+
+<Route
+    path="invoice-tax-details/create"
+    element={<InvoiceTaxDetailsCreate />}
+/>
+
+<Route
+    path="invoice-tax-details/search"
+    element={<InvoiceTaxDetailsSearch />}
+/>
+
+<Route
+    path="invoice-tax-details/filters"
+    element={<InvoiceTaxDetailsFilters />}
+/>
+
+<Route
+    path="invoice-tax-details/statistics"
+    element={<InvoiceTaxDetailsStatistics />}
+/>
+
+<Route
+    path="invoice-tax-details/details/:id"
+    element={<InvoiceTaxDetailsDetails />}
+/>
+
+<Route
+    path="invoice-tax-details/view/:id"
+    element={<InvoiceTaxDetailsView />}
+/>
+
+<Route
+    path="invoice-tax-details/:id/edit"
+    element={<InvoiceTaxDetailsEdit />}
+/>
+
 
 {/* =================================================
 PICKLIST ROUTES
