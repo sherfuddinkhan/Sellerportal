@@ -23,6 +23,8 @@ const PORT = 5000;
 
 const DOTNET_API = "https://localhost:7203/api";
 const BASE_URL = "https://localhost:7203/api";
+const API_BASE_URL = "https://localhost:7203/api";
+
 // =========================================================
 // HTTPS AGENT
 // Development only
@@ -35056,7 +35058,6 @@ shippingManifestRouter.delete("/:id", async (req, res) => {
 
 //////////////////////////////
 
-import axios from "axios";
 
 const API_URL = "http://localhost:5001/api/ReversePickup";
 
