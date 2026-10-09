@@ -35169,6 +35169,190 @@ app.delete("/api/ReversePickupItems/:id", async (req, res) => {
     }
 });
 
+/////////////////ReversePickupAddress///////////////
+
+
+const REVERSE_PICKUP_ADDRESS_API =
+    `${DOTNET_API_URL}/api/ReversePickupAddress`;
+/* =========================================================
+   GET ALL REVERSE PICKUP ADDRESSES
+   GET /api/ReversePickupAddress
+========================================================= */
+
+app.get("/api/ReversePickupAddress", async (req, res) => {
+    try {
+        const response = await axios.get(
+            REVERSE_PICKUP_ADDRESS_API,
+            {
+                params: req.query,
+                headers: {
+                    Accept: "application/json"
+                },
+                timeout: 15000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
+    }
+});
+
+/* =========================================================
+   GET REVERSE PICKUP ADDRESS BY ID
+   GET /api/ReversePickupAddress/:id
+========================================================= */
+
+app.get("/api/ReversePickupAddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Address ID is required."
+            });
+        }
+
+        const response = await axios.get(
+            `${REVERSE_PICKUP_ADDRESS_API}/${encodeURIComponent(id)}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                },
+                timeout: 15000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
+    }
+});
+
+/* =========================================================
+   CREATE REVERSE PICKUP ADDRESS
+   POST /api/ReversePickupAddress
+========================================================= */
+
+app.post("/api/ReversePickupAddress", async (req, res) => {
+    try {
+        if (
+            !req.body ||
+            typeof req.body !== "object" ||
+            Array.isArray(req.body)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid address information is required."
+            });
+        }
+
+        const response = await axios.post(
+            REVERSE_PICKUP_ADDRESS_API,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 15000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
+    }
+});
+
+/* =========================================================
+   UPDATE REVERSE PICKUP ADDRESS
+   PUT /api/ReversePickupAddress/:id
+========================================================= */
+
+app.put("/api/ReversePickupAddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Address ID is required."
+            });
+        }
+
+        if (
+            !req.body ||
+            typeof req.body !== "object" ||
+            Array.isArray(req.body)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid address information is required."
+            });
+        }
+
+        const response = await axios.put(
+            `${REVERSE_PICKUP_ADDRESS_API}/${encodeURIComponent(id)}`,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 15000
+            }
+        );
+
+        if (response.data === undefined || response.data === null) {
+            return res.status(response.status).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
+    }
+});
+
+/* =========================================================
+   DELETE REVERSE PICKUP ADDRESS
+   DELETE /api/ReversePickupAddress/:id
+========================================================= */
+
+app.delete("/api/ReversePickupAddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Address ID is required."
+            });
+        }
+
+        const response = await axios.delete(
+            `${REVERSE_PICKUP_ADDRESS_API}/${encodeURIComponent(id)}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                },
+                timeout: 15000
+            }
+        );
+
+        if (response.data === undefined || response.data === null) {
+            return res.status(response.status).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
+    }
+});
+
+
+
 
 
 

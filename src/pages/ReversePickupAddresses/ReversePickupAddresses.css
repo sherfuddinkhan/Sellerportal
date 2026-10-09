@@ -1,0 +1,1201 @@
+
+/* =========================================================
+   REVERSE PICKUP ADDRESSES - GLOBAL STYLES
+========================================================= */
+
+.reverse-pickup-addresses {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    box-sizing: border-box;
+    color: #1f2937;
+    background-color: #f8fafc;
+}
+
+.reverse-pickup-addresses *,
+.reverse-pickup-addresses *::before,
+.reverse-pickup-addresses *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.reverse-pickup-addresses__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.reverse-pickup-addresses__header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.reverse-pickup-addresses__title {
+    margin: 0;
+    color: #111827;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-addresses__subtitle {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.reverse-pickup-addresses__header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.reverse-pickup-addresses__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.reverse-pickup-addresses__toolbar-left,
+.reverse-pickup-addresses__toolbar-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.reverse-pickup-addresses__toolbar-right {
+    margin-left: auto;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.reverse-pickup-addresses__search {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+}
+
+.reverse-pickup-addresses__search-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px 10px 42px;
+    color: #111827;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.reverse-pickup-addresses__search-input::placeholder {
+    color: #9ca3af;
+}
+
+.reverse-pickup-addresses__search-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.reverse-pickup-addresses__search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    display: flex;
+    align-items: center;
+    color: #6b7280;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.reverse-pickup-addresses__filters {
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.reverse-pickup-addresses__filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.reverse-pickup-addresses__filters-title {
+    margin: 0;
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.reverse-pickup-addresses__filters-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.reverse-pickup-addresses__filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.reverse-pickup-addresses__filter-label {
+    color: #374151;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.reverse-pickup-addresses__filter-input {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    color: #374151;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    outline: none;
+}
+
+.reverse-pickup-addresses__filter-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
+}
+
+.reverse-pickup-addresses__filter-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.reverse-pickup-addresses__statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.reverse-pickup-addresses__stat-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.reverse-pickup-addresses__stat-card:hover {
+    box-shadow: 0 6px 18px rgb(15 23 42 / 6%);
+    transform: translateY(-2px);
+}
+
+.reverse-pickup-addresses__stat-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    color: #2563eb;
+    background: #eff6ff;
+    border-radius: 10px;
+}
+
+.reverse-pickup-addresses__stat-icon--success {
+    color: #15803d;
+    background: #f0fdf4;
+}
+
+.reverse-pickup-addresses__stat-icon--warning {
+    color: #b45309;
+    background: #fffbeb;
+}
+
+.reverse-pickup-addresses__stat-icon--danger {
+    color: #b91c1c;
+    background: #fef2f2;
+}
+
+.reverse-pickup-addresses__stat-content {
+    min-width: 0;
+}
+
+.reverse-pickup-addresses__stat-label {
+    margin: 0 0 6px;
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.reverse-pickup-addresses__stat-value {
+    margin: 0;
+    color: #111827;
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-addresses__stat-description {
+    margin-top: 5px;
+    color: #9ca3af;
+    font-size: 0.78rem;
+}
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.reverse-pickup-addresses__table-container {
+    width: 100%;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.reverse-pickup-addresses__table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.reverse-pickup-addresses__table-title {
+    margin: 0;
+    color: #111827;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.reverse-pickup-addresses__table-description {
+    margin-top: 5px;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.reverse-pickup-addresses__table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.reverse-pickup-addresses__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.reverse-pickup-addresses__table thead {
+    background: #f9fafb;
+}
+
+.reverse-pickup-addresses__table th {
+    padding: 14px 16px;
+    color: #4b5563;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.reverse-pickup-addresses__table td {
+    padding: 15px 16px;
+    color: #374151;
+    font-size: 0.875rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.reverse-pickup-addresses__table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.reverse-pickup-addresses__table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.reverse-pickup-addresses__table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.reverse-pickup-addresses__table-cell-primary {
+    color: #111827;
+    font-weight: 600;
+}
+
+.reverse-pickup-addresses__table-cell-secondary {
+    display: block;
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-addresses__table-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.reverse-pickup-addresses__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+    border-radius: 999px;
+}
+
+.reverse-pickup-addresses__badge--active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.reverse-pickup-addresses__badge--inactive {
+    color: #4b5563;
+    background: #f3f4f6;
+}
+
+.reverse-pickup-addresses__badge--default {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.reverse-pickup-addresses__badge--warning {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+/* =========================================================
+   ADDRESS CARDS
+========================================================= */
+
+.reverse-pickup-addresses__cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.reverse-pickup-addresses__card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.reverse-pickup-addresses__card:hover {
+    box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+    transform: translateY(-3px);
+}
+
+.reverse-pickup-addresses__card-header {
+    padding: 20px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.reverse-pickup-addresses__card-header-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.reverse-pickup-addresses__card-contact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.reverse-pickup-addresses__card-avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: #ffffff;
+    background: #2563eb;
+    border-radius: 10px;
+}
+
+.reverse-pickup-addresses__card-name {
+    margin: 0;
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-addresses__card-id {
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 0.78rem;
+}
+
+.reverse-pickup-addresses__card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+}
+
+.reverse-pickup-addresses__card-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.reverse-pickup-addresses__card-detail-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+}
+
+.reverse-pickup-addresses__card-detail-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.reverse-pickup-addresses__card-detail-label {
+    margin-bottom: 4px;
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
+.reverse-pickup-addresses__card-detail-value {
+    color: #374151;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.reverse-pickup-addresses__card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.reverse-pickup-addresses__form-container {
+    width: 100%;
+    padding: 28px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.reverse-pickup-addresses__form-header {
+    margin-bottom: 24px;
+}
+
+.reverse-pickup-addresses__form-title {
+    margin: 0;
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.reverse-pickup-addresses__form-description {
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.reverse-pickup-addresses__form-section {
+    margin-bottom: 28px;
+}
+
+.reverse-pickup-addresses__form-section-title {
+    margin: 0 0 18px;
+    padding-bottom: 12px;
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 700;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.reverse-pickup-addresses__form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.reverse-pickup-addresses__form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.reverse-pickup-addresses__form-field--full {
+    grid-column: 1 / -1;
+}
+
+.reverse-pickup-addresses__form-label {
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.reverse-pickup-addresses__form-input,
+.reverse-pickup-addresses__form-select,
+.reverse-pickup-addresses__form-textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 13px;
+    color: #111827;
+    font: inherit;
+    font-size: 0.9rem;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.reverse-pickup-addresses__form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.reverse-pickup-addresses__form-input:focus,
+.reverse-pickup-addresses__form-select:focus,
+.reverse-pickup-addresses__form-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
+}
+
+.reverse-pickup-addresses__form-input:disabled,
+.reverse-pickup-addresses__form-select:disabled,
+.reverse-pickup-addresses__form-textarea:disabled {
+    color: #9ca3af;
+    background: #f3f4f6;
+    cursor: not-allowed;
+}
+
+.reverse-pickup-addresses__form-error {
+    color: #dc2626;
+    font-size: 0.8rem;
+}
+
+.reverse-pickup-addresses__form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 20px;
+    margin-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* =========================================================
+   DETAIL VIEW
+========================================================= */
+
+.reverse-pickup-addresses__details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.reverse-pickup-addresses__details-card {
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.reverse-pickup-addresses__details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.reverse-pickup-addresses__details-title {
+    margin: 0;
+    color: #111827;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.reverse-pickup-addresses__details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.reverse-pickup-addresses__details-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 0;
+}
+
+.reverse-pickup-addresses__details-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #2563eb;
+    background: #eff6ff;
+    border-radius: 10px;
+}
+
+.reverse-pickup-addresses__details-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.reverse-pickup-addresses__details-label {
+    margin-bottom: 5px;
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.reverse-pickup-addresses__details-value {
+    color: #111827;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.reverse-pickup-addresses__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+}
+
+.reverse-pickup-addresses__pagination-info {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.reverse-pickup-addresses__pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.reverse-pickup-addresses__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 9px 16px;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.reverse-pickup-addresses__button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.reverse-pickup-addresses__button:focus-visible {
+    outline: 3px solid rgb(37 99 235 / 25%);
+    outline-offset: 2px;
+}
+
+.reverse-pickup-addresses__button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.reverse-pickup-addresses__button--primary {
+    color: #ffffff;
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.reverse-pickup-addresses__button--primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.reverse-pickup-addresses__button--danger {
+    color: #ffffff;
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.reverse-pickup-addresses__button--danger:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.reverse-pickup-addresses__button--text {
+    color: #2563eb;
+    background: transparent;
+    border-color: transparent;
+}
+
+.reverse-pickup-addresses__button--text:hover {
+    background: #eff6ff;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.reverse-pickup-addresses__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: 240px;
+    padding: 32px;
+    color: #6b7280;
+    text-align: center;
+}
+
+.reverse-pickup-addresses__loading-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid #dbeafe;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: reverse-pickup-addresses-spin 0.8s linear infinite;
+}
+
+@keyframes reverse-pickup-addresses-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.reverse-pickup-addresses__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    padding: 40px 24px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px dashed #d1d5db;
+    border-radius: 12px;
+}
+
+.reverse-pickup-addresses__empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 18px;
+    color: #6b7280;
+    background: #f3f4f6;
+    border-radius: 50%;
+}
+
+.reverse-pickup-addresses__empty-title {
+    margin: 0 0 8px;
+    color: #111827;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.reverse-pickup-addresses__empty-description {
+    max-width: 420px;
+    margin: 0 0 20px;
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.reverse-pickup-addresses__alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    border: 1px solid transparent;
+    border-radius: 8px;
+}
+
+.reverse-pickup-addresses__alert--success {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.reverse-pickup-addresses__alert--error {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.reverse-pickup-addresses__alert--warning {
+    color: #92400e;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+.reverse-pickup-addresses__alert--info {
+    color: #1e40af;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+/* =========================================================
+   DELETE DIALOG
+========================================================= */
+
+.reverse-pickup-addresses__dialog-content {
+    padding: 24px;
+}
+
+.reverse-pickup-addresses__dialog-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+    color: #92400e;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+}
+
+.reverse-pickup-addresses__dialog-warning-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.reverse-pickup-addresses__dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* =========================================================
+   UTILITY CLASSES
+========================================================= */
+
+.reverse-pickup-addresses__text-muted {
+    color: #6b7280;
+}
+
+.reverse-pickup-addresses__text-primary {
+    color: #2563eb;
+}
+
+.reverse-pickup-addresses__text-danger {
+    color: #dc2626;
+}
+
+.reverse-pickup-addresses__text-success {
+    color: #15803d;
+}
+
+.reverse-pickup-addresses__text-right {
+    text-align: right;
+}
+
+.reverse-pickup-addresses__text-center {
+    text-align: center;
+}
+
+.reverse-pickup-addresses__w-full {
+    width: 100%;
+}
+
+.reverse-pickup-addresses__mt-1 {
+    margin-top: 8px;
+}
+
+.reverse-pickup-addresses__mt-2 {
+    margin-top: 16px;
+}
+
+.reverse-pickup-addresses__mb-1 {
+    margin-bottom: 8px;
+}
+
+.reverse-pickup-addresses__mb-2 {
+    margin-bottom: 16px;
+}
+
+/* =========================================================
+   RESPONSIVE - TABLETS
+========================================================= */
+
+@media (max-width: 1024px) {
+    .reverse-pickup-addresses {
+        padding: 20px;
+    }
+
+    .reverse-pickup-addresses__statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .reverse-pickup-addresses__cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .reverse-pickup-addresses__filters-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+    .reverse-pickup-addresses {
+        padding: 12px;
+    }
+
+    .reverse-pickup-addresses__header {
+        align-items: stretch;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    .reverse-pickup-addresses__title {
+        font-size: 1.4rem;
+    }
+
+    .reverse-pickup-addresses__header-actions {
+        justify-content: flex-start;
+    }
+
+    .reverse-pickup-addresses__toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .reverse-pickup-addresses__toolbar-left,
+    .reverse-pickup-addresses__toolbar-right {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .reverse-pickup-addresses__search {
+        max-width: none;
+    }
+
+    .reverse-pickup-addresses__statistics {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .reverse-pickup-addresses__stat-card {
+        padding: 16px;
+    }
+
+    .reverse-pickup-addresses__stat-value {
+        font-size: 1.4rem;
+    }
+
+    .reverse-pickup-addresses__filters {
+        padding: 16px;
+    }
+
+    .reverse-pickup-addresses__filters-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .reverse-pickup-addresses__cards {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .reverse-pickup-addresses__form-container {
+        padding: 18px;
+    }
+
+    .reverse-pickup-addresses__form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .reverse-pickup-addresses__form-field--full {
+        grid-column: auto;
+    }
+
+    .reverse-pickup-addresses__details-card {
+        padding: 18px;
+    }
+
+    .reverse-pickup-addresses__details-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+    }
+
+    .reverse-pickup-addresses__table-header {
+        padding: 16px;
+    }
+
+    .reverse-pickup-addresses__pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px;
+    }
+
+    .reverse-pickup-addresses__pagination-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .reverse-pickup-addresses__dialog-content {
+        padding: 18px;
+    }
+
+    .reverse-pickup-addresses__dialog-actions {
+        padding: 14px 18px;
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .reverse-pickup-addresses *,
+    .reverse-pickup-addresses *::before,
+    .reverse-pickup-addresses *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
