@@ -35663,6 +35663,211 @@ app.delete(
     }
 );
 
+/////////////////////manifest-packages-putaway/////////////////////
+// =====================================================
+// MANIFEST PACKAGES PUTAWAY
+// =====================================================
+
+// GET ALL
+app.get("/api/manifest-packages-putaway", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/ManifestPackagesPutaway`,
+            { params: req.query }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// GET BY ID
+app.get("/api/manifest-packages-putaway/:id", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// CREATE
+app.post("/api/manifest-packages-putaway", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/ManifestPackagesPutaway`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// UPDATE
+app.put("/api/manifest-packages-putaway/:id", async (req, res) => {
+    try {
+        const response = await axios.put(
+            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// PARTIAL UPDATE
+app.patch("/api/manifest-packages-putaway/:id", async (req, res) => {
+    try {
+        const response = await axios.patch(
+            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// DELETE
+app.delete("/api/manifest-packages-putaway/:id", async (req, res) => {
+    try {
+        const response = await axios.delete(
+            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`
+        );
+
+        res.status(response.status).json(
+            response.data ?? { message: "Record deleted successfully." }
+        );
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// =====================================================
+// INVOICE TAX DETAILS
+// =====================================================
+
+// GET ALL
+app.get("/api/invoice-tax-details", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/InvoiceTaxDetails`,
+            { params: req.query }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// GET BY ID
+app.get("/api/invoice-tax-details/:id", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// CREATE
+app.post("/api/invoice-tax-details", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/InvoiceTaxDetails`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// UPDATE
+app.put("/api/invoice-tax-details/:id", async (req, res) => {
+    try {
+        const response = await axios.put(
+            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// PARTIAL UPDATE
+app.patch("/api/invoice-tax-details/:id", async (req, res) => {
+    try {
+        const response = await axios.patch(
+            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`,
+            req.body
+        );
+
+        res.status(response.status).json(
+            response.data
+        );
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+// DELETE
+app.delete("/api/invoice-tax-details/:id", async (req, res) => {
+    try {
+        const response = await axios.delete(
+            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`
+        );
+
+        res.status(response.status).json(
+            response.data ?? { message: "Record deleted successfully." }
+        );
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+
+
+
 
 
 
