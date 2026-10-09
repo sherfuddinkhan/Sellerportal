@@ -222,6 +222,7 @@ const MainLayout = () => {
                 { label: "Invoice Tax Details", path: "/invoice-tax-details", icon: "💸", children: [{ label: "Tax Detail List", path: "/invoice-tax-details" }, { label: "Create Tax Detail", path: "/invoice-tax-details/create" }, { label: "Search", path: "/invoice-tax-details/search" }, { label: "Statistics", path: "/invoice-tax-details/statistics" }] },
             ],
         },
+        
         {
             section: "Fulfillment & Warehousing",
             items: [
