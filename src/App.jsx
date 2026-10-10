@@ -1363,37 +1363,37 @@ INVOICE TAX DETAILS ROUTES
 
 <Route
     path="invoice-tax-details/create"
-    element={<InvoiceTaxDetailsCreate />}
+    element={<InvoiceTaxDetailCreate />}
 />
 
 <Route
     path="invoice-tax-details/search"
-    element={<InvoiceTaxDetailsSearch />}
+    element={<InvoiceTaxDetailSearch />}
 />
 
 <Route
     path="invoice-tax-details/filters"
-    element={<InvoiceTaxDetailsFilters />}
+    element={<InvoiceTaxDetailFilters />}
 />
 
 <Route
     path="invoice-tax-details/statistics"
-    element={<InvoiceTaxDetailsStatistics />}
+    element={<InvoiceTaxDetailStatistics />}
 />
 
 <Route
     path="invoice-tax-details/details/:id"
-    element={<InvoiceTaxDetailsDetails />}
+    element={<InvoiceTaxDetailDetails />}
 />
 
 <Route
     path="invoice-tax-details/view/:id"
-    element={<InvoiceTaxDetailsView />}
+    element={<InvoiceTaxDetailView />}
 />
 
 <Route
     path="invoice-tax-details/:id/edit"
-    element={<InvoiceTaxDetailsEdit />}
+    element={<InvoiceTaxDetailEdit />}
 />
 
 
@@ -1739,21 +1739,22 @@ EXPORT JOBS ROUTES
 ================================================= */}
 
 <Route path="export-jobs" element={<ExportJobsList />} />
-<Route path="export-jobs/search" element={<ExportJobsSearch />} />
+<Route path="export-jobs/search" element={<ExportJobSearch />} /> {/* singular */}
 <Route path="export-jobs/table" element={<ExportJobsTable />} />
 <Route path="export-jobs/toolbar" element={<ExportJobsToolbar />} />
+
 
 {/* =================================================
 SHELFWISE INVENTORIES ROUTES
 ================================================= */}
 
 <Route path="shelfwise-inventories" element={<ShelfwiseInventoriesList />} />
-<Route path="shelfwise-inventories/search" element={<ShelfwiseInventoriesSearch />} />
-<Route path="shelfwise-inventories/filters" element={<ShelfwiseInventoriesFilters />} />
-<Route path="shelfwise-inventories/statistics" element={<ShelfwiseInventoriesStatistics />} />
-<Route path="shelfwise-inventories/details/:id" element={<ShelfwiseInventoriesDetails />} />
+<Route path="shelfwise-inventories/search" element={<ShelfwiseInventorySearch/>} />
+<Route path="shelfwise-inventories/filters" element={<ShelfwiseInventoryFilters />} />
+<Route path="shelfwise-inventories/statistics" element={<ShelfwiseInventoryStatistics/>} />
+<Route path="shelfwise-inventories/details/:id" element={<ShelfwiseInventoryDetails />} />
 <Route path="shelfwise-inventories/view/:id" element={<ShelfwiseInventoryView />} />
-<Route path="shelfwise-inventories/:id/edit" element={<ShelfwiseInventoriesEdit />} />
+<Route path="shelfwise-inventories/:id/edit" element={<ShelfwiseInventoryEdit />} />
 
 
 {/* =================================================
@@ -1761,19 +1762,18 @@ SHIPPING MANIFESTS ROUTES
 ================================================= */}
 
 <Route path="shipping-manifests" element={<ShippingManifestsList />} />
-<Route path="shipping-manifests/create" element={<ShippingManifestsCreate />} />
-<Route path="shipping-manifests/search" element={<ShippingManifestsSearch />} />
-<Route path="shipping-manifests/filters" element={<ShippingManifestsFilters />} />
-<Route path="shipping-manifests/statistics" element={<ShippingManifestsStatistics />} />
-<Route path="shipping-manifests/details/:id" element={<ShippingManifestsDetails />} />
-<Route path="shipping-manifests/view/:id" element={<ShippingManifestsView />} />
-<Route path="shipping-manifests/:id/edit" element={<ShippingManifestsEdit />} />
+<Route path="shipping-manifests/create" element={<ShippingManifestCreate />} />
+<Route path="shipping-manifests/search" element={<ShippingManifestSearch />} />
+<Route path="shipping-manifests/filters" element={<ShippingManifestFilters />} />
+<Route path="shipping-manifests/statistics" element={<ShippingManifestStatistics />} />
+<Route path="shipping-manifests/details/:id" element={<ShippingManifestDetails />} />
+<Route path="shipping-manifests/view/:id" element={<ShippingManifestView />} />
+<Route path="shipping-manifests/:id/edit" element={<ShippingManifestEdit />} />
 
 {/* =================================================
 FACILITY CHANNEL ROUTES
 ================================================= */}
-
-<Route path="facility-channels" element={<FacilityChannelList />} />
+<Route path="facility-channels" element={<FacilityChannelsList />} />
 <Route path="facility-channels/create" element={<FacilityChannelCreate />} />
 <Route path="facility-channels/search" element={<FacilityChannelSearch />} />
 <Route path="facility-channels/filters" element={<FacilityChannelFilters />} />
@@ -1785,93 +1785,89 @@ FACILITY CHANNEL ROUTES
 {/* =================================================
 REVERSE PICKUP ADDRESSES ROUTES
 ================================================= */}
-
 <Route path="reverse-pickup-addresses" element={<ReversePickupAddressesList />} />
-<Route path="reverse-pickup-addresses/create" element={<ReversePickupAddressesCreate />} />
-<Route path="reverse-pickup-addresses/search" element={<ReversePickupAddressesSearch />} />
-<Route path="reverse-pickup-addresses/filters" element={<ReversePickupAddressesFilters />} />
-<Route path="reverse-pickup-addresses/statistics" element={<ReversePickupAddressesStatistics />} />
-<Route path="reverse-pickup-addresses/details/:id" element={<ReversePickupAddressesDetails />} />
-<Route path="reverse-pickup-addresses/view/:id" element={<ReversePickupAddressesView />} />
-<Route path="reverse-pickup-addresses/:id/edit" element={<ReversePickupAddressesEdit />} />
+<Route path="reverse-pickup-addresses/create" element={<ReversePickupAddressCreate />} />
+<Route path="reverse-pickup-addresses/search" element={<ReversePickupAddressSearch />} />
+<Route path="reverse-pickup-addresses/filters" element={<ReversePickupAddressFilters />} />
+<Route path="reverse-pickup-addresses/statistics" element={<ReversePickupAddressStatistics />} />
+<Route path="reverse-pickup-addresses/details/:id" element={<ReversePickupAddressDetails />} />
+<Route path="reverse-pickup-addresses/view/:id" element={<ReversePickupAddressView />} />
+<Route path="reverse-pickup-addresses/:id/edit" element={<ReversePickupAddressEdit />} />
 
 {/* =================================================
 REVERSE PICKUP ITEMS ROUTES
 ================================================= */}
 
 <Route path="reverse-pickup-items" element={<ReversePickupItemsList />} />
-<Route path="reverse-pickup-items/create" element={<ReversePickupItemsCreate />} />
-<Route path="reverse-pickup-items/search" element={<ReversePickupItemsSearch />} />
-<Route path="reverse-pickup-items/filters" element={<ReversePickupItemsFilters />} />
-<Route path="reverse-pickup-items/statistics" element={<ReversePickupItemsStatistics />} />
-<Route path="reverse-pickup-items/details/:id" element={<ReversePickupItemsDetails />} />
-<Route path="reverse-pickup-items/view/:id" element={<ReversePickupItemsView />} />
-<Route path="reverse-pickup-items/:id/edit" element={<ReversePickupItemsEdit />} />
+<Route path="reverse-pickup-items/create" element={<ReversePickupItemCreate />} />
+<Route path="reverse-pickup-items/search" element={<ReversePickupItemSearch />} />
+<Route path="reverse-pickup-items/filters" element={<ReversePickupItemFilters />} />
+<Route path="reverse-pickup-items/statistics" element={<ReversePickupItemStatistics />} />
+<Route path="reverse-pickup-items/details/:id" element={<ReversePickupItemDetails />} />
+<Route path="reverse-pickup-items/view/:id" element={<ReversePickupItemView />} />
+<Route path="reverse-pickup-items/:id/edit" element={<ReversePickupItemEdit />} />
 
 {/* =================================================
 REVERSE PICKUPS ROUTES
 ================================================= */}
 
 <Route path="reverse-pickups" element={<ReversePickupsList />} />
-<Route path="reverse-pickups/create" element={<ReversePickupsCreate />} />
-<Route path="reverse-pickups/search" element={<ReversePickupsSearch />} />
-<Route path="reverse-pickups/filters" element={<ReversePickupsFilters />} />
-<Route path="reverse-pickups/statistics" element={<ReversePickupsStatistics />} />
-<Route path="reverse-pickups/details/:id" element={<ReversePickupsDetails />} />
-<Route path="reverse-pickups/view/:id" element={<ReversePickupsView />} />
-<Route path="reverse-pickups/:id/edit" element={<ReversePickupsEdit />} />
+<Route path="reverse-pickups/create" element={<ReversePickupCreate />} />
+<Route path="reverse-pickups/search" element={<ReversePickupSearch />} />
+<Route path="reverse-pickups/filters" element={<ReversePickupFilters />} />
+<Route path="reverse-pickups/statistics" element={<ReversePickupStatistics />} />
+<Route path="reverse-pickups/details/:id" element={<ReversePickupDetails />} />
+<Route path="reverse-pickups/view/:id" element={<ReversePickupView />} />
+<Route path="reverse-pickups/:id/edit" element={<ReversePickupEdit />} />
 {/* =================================================
 SUPPLIER ADDRESSES ROUTES
 ================================================= */}
-
 <Route path="supplier-addresses" element={<SupplierAddressesList />} />
-<Route path="supplier-addresses/create" element={<SupplierAddressesCreate />} />
-<Route path="supplier-addresses/search" element={<SupplierAddressesSearch />} />
-<Route path="supplier-addresses/filters" element={<SupplierAddressesFilters />} />
-<Route path="supplier-addresses/statistics" element={<SupplierAddressesStatistics />} />
-<Route path="supplier-addresses/details/:id" element={<SupplierAddressesDetails />} />
-<Route path="supplier-addresses/view/:id" element={<SupplierAddressesView />} />
-<Route path="supplier-addresses/:id/edit" element={<SupplierAddressesEdit />} />
+<Route path="supplier-addresses/create" element={<SupplierAddressCreate />} />
+<Route path="supplier-addresses/search" element={<SupplierAddressSearch />} />
+<Route path="supplier-addresses/filters" element={<SupplierAddressFilters />} />
+<Route path="supplier-addresses/statistics" element={<SupplierAddressStatistics />} />
+<Route path="supplier-addresses/details/:id" element={<SupplierAddressDetails />} />
+<Route path="supplier-addresses/view/:id" element={<SupplierAddressView />} />
+<Route path="supplier-addresses/:id/edit" element={<SupplierAddressEdit />} />
 
 {/* =================================================
 SUPPLIER CONTACTS ROUTES
 ================================================= */}
 
 <Route path="supplier-contacts" element={<SupplierContactsList />} />
-<Route path="supplier-contacts/create" element={<SupplierContactsCreate />} />
-<Route path="supplier-contacts/search" element={<SupplierContactsSearch />} />
-<Route path="supplier-contacts/filters" element={<SupplierContactsFilters />} />
-<Route path="supplier-contacts/statistics" element={<SupplierContactsStatistics />} />
-<Route path="supplier-contacts/details/:id" element={<SupplierContactsDetails />} />
-<Route path="supplier-contacts/view/:id" element={<SupplierContactsView />} />
-<Route path="supplier-contacts/:id/edit" element={<SupplierContactsEdit />} />
+<Route path="supplier-contacts/create" element={<SupplierContactCreate />} />
+<Route path="supplier-contacts/search" element={<SupplierContactSearch />} />
+<Route path="supplier-contacts/filters" element={<SupplierContactFilters />} />
+<Route path="supplier-contacts/statistics" element={<SupplierContactStatistics />} />
+<Route path="supplier-contacts/details/:id" element={<SupplierContactDetails />} />
+<Route path="supplier-contacts/view/:id" element={<SupplierContactView />} />
+<Route path="supplier-contacts/:id/edit" element={<SupplierContactEdit />} />
 
 {/* =================================================
 VENDOR ITEM CUSTOM FIELDS ROUTES
 ================================================= */}
-
 <Route path="vendor-item-custom-fields" element={<VendorItemCustomFieldsList />} />
-<Route path="vendor-item-custom-fields/create" element={<VendorItemCustomFieldsCreate />} />
-<Route path="vendor-item-custom-fields/search" element={<VendorItemCustomFieldsSearch />} />
-<Route path="vendor-item-custom-fields/filters" element={<VendorItemCustomFieldsFilters />} />
-<Route path="vendor-item-custom-fields/statistics" element={<VendorItemCustomFieldsStatistics />} />
-<Route path="vendor-item-custom-fields/details/:id" element={<VendorItemCustomFieldsDetails />} />
-<Route path="vendor-item-custom-fields/view/:id" element={<VendorItemCustomFieldsView />} />
-<Route path="vendor-item-custom-fields/:id/edit" element={<VendorItemCustomFieldsEdit />} />
+<Route path="vendor-item-custom-fields/create" element={<VendorItemCustomFieldCreate />} />
+<Route path="vendor-item-custom-fields/search" element={<VendorItemCustomFieldSearch />} />
+<Route path="vendor-item-custom-fields/filters" element={<VendorItemCustomFieldFilters />} />
+<Route path="vendor-item-custom-fields/statistics" element={<VendorItemCustomFieldStatistics />} />
+<Route path="vendor-item-custom-fields/details/:id" element={<VendorItemCustomFieldDetails />} />
+<Route path="vendor-item-custom-fields/view/:id" element={<VendorItemCustomFieldView />} />
+<Route path="vendor-item-custom-fields/:id/edit" element={<VendorItemCustomFieldEdit />} />
 
 {/* =================================================
 VENDOR ITEM MASTERS ROUTES
 ================================================= */}
 
 <Route path="vendor-item-masters" element={<VendorItemMastersList />} />
-<Route path="vendor-item-masters/create" element={<VendorItemMastersCreate />} />
-<Route path="vendor-item-masters/search" element={<VendorItemMastersSearch />} />
-<Route path="vendor-item-masters/filters" element={<VendorItemMastersFilters />} />
-<Route path="vendor-item-masters/statistics" element={<VendorItemMastersStatistics />} />
-<Route path="vendor-item-masters/details/:id" element={<VendorItemMastersDetails />} />
-<Route path="vendor-item-masters/view/:id" element={<VendorItemMastersView />} />
-<Route path="vendor-item-masters/:id/edit" element={<VendorItemMastersEdit />} />
-
+<Route path="vendor-item-masters/create" element={<VendorItemMasterCreate />} />
+<Route path="vendor-item-masters/search" element={<VendorItemMasterSearch />} />
+<Route path="vendor-item-masters/filters" element={<VendorItemMasterFilters />} />
+<Route path="vendor-item-masters/statistics" element={<VendorItemMasterStatistics />} />
+<Route path="vendor-item-masters/details/:id" element={<VendorItemMasterDetails />} />
+<Route path="vendor-item-masters/view/:id" element={<VendorItemMasterView />} />
+<Route path="vendor-item-masters/:id/edit" element={<VendorItemMasterEdit />} />
 
 
                 {/* =================================================

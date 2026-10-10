@@ -37,8 +37,9 @@ import { useNavigate } from "react-router-dom";
    API CONFIGURATION
 ========================================================= */
 
-const API_BASE_URL =
-    process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_BASE_URL = (
+    import.meta.env.VITE_API_URL || ""
+).replace(/\/+$/, "");
 
 const MANIFEST_PACKAGES_PUTAWAY_API =
     `${API_BASE_URL}/api/ManifestPackagesPutaway`;
