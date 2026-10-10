@@ -15,7 +15,6 @@ import {
 
 import {
     WarningAmber,
-    DeleteOutline,
     Close
 } from "@mui/icons-material";
 

@@ -317,99 +317,181 @@ import SellerCreate from "./pages/Seller/SellerCreate";
 import SellerDetails from "./pages/Seller/SellerDetails";
 
 //////////////////////////////////////////////////////
-import ExportJobsList from "./components/ExportJobs/ExportJobsList";
-import ExportJobsSearch from "./components/ExportJobs/ExportJobsSearch";
-import ExportJobsTable from "./components/ExportJobs/ExportJobsTable";
-import ExportJobsToolbar from "./components/ExportJobs/ExportJobsToolbar";
+// CORRECT - matches your actual folder structure
+import DeleteExportJobsDialog from "./pages/ExportJobs/DeleteExportJobsDialog";
+import ExportJobModal from "./pages/ExportJobs/ExportJobModal";
+import ExportJobPagination from "./pages/ExportJobs/ExportJobPagination";
+import ExportJobsCard from "./pages/ExportJobs/ExportJobsCard";
+import ExportJobsCreate from "./pages/ExportJobs/ExportJobsCreate";
+import ExportJobsDetails from "./pages/ExportJobs/ExportJobsDetails";
+import ExportJobSearch from "./pages/ExportJobs/ExportJobSearch"; // <-- singular Job, not Jobs
+import ExportJobsEdit from "./pages/ExportJobs/ExportJobsEdit";
+import ExportJobsFilters from "./pages/ExportJobs/ExportJobsFilters";
+import ExportJobsForm from "./pages/ExportJobs/ExportJobsForm";
+import ExportJobsList from "./pages/ExportJobs/ExportJobsList";
+import ExportJobsTable from "./pages/ExportJobs/ExportJobsTable";
+//import ExportJobsStatistics from "./pages/ExportJobs/ExportJobsStatistics";
+import ExportJobsToolbar from "./pages/ExportJobs/ExportJobsToolbar";
+import ExportJobView from "./pages/ExportJobs/ExportJobView"; // <-- singular Job
 
-import ShelfwiseInventoriesList from "./components/ShelfwiseInventories/ShelfwiseInventoriesList";
-import ShelfwiseInventoryView from "./components/ShelfwiseInventories/ShelfwiseInventoryView";
-import ShelfwiseInventoriesSearch from "./components/ShelfwiseInventories/ShelfwiseInventoriesSearch";
-import ShelfwiseInventoriesFilters from "./components/ShelfwiseInventories/ShelfwiseInventoriesFilters";
-import ShelfwiseInventoriesStatistics from "./components/ShelfwiseInventories/ShelfwiseInventoriesStatistics";
-import ShelfwiseInventoriesDetails from "./components/ShelfwiseInventories/ShelfwiseInventoriesDetails";
-import ShelfwiseInventoriesEdit from "./components/ShelfwiseInventories/ShelfwiseInventoriesEdit";
+import ShelfwiseInventoriesList from "./pages/ShelfwiseInventories/ShelfwiseInventoriesList";
+import ShelfwiseInventoryCard from "./pages/ShelfwiseInventories/ShelfwiseInventoryCard";
+import ShelfwiseInventoryCreate from "./pages/ShelfwiseInventories/ShelfwiseInventoryCreate";
+import ShelfwiseInventoryDetails from "./pages/ShelfwiseInventories/ShelfwiseInventoryDetails";
+import ShelfwiseInventoryEdit from "./pages/ShelfwiseInventories/ShelfwiseInventoryEdit";
+import ShelfwiseInventoryFilters from "./pages/ShelfwiseInventories/ShelfwiseInventoryFilters";
+import ShelfwiseInventoryForm from "./pages/ShelfwiseInventories/ShelfwiseInventoryForm";
+import ShelfwiseInventoryModal from "./pages/ShelfwiseInventories/ShelfwiseInventoryModal";
+import ShelfwiseInventoryPagination from "./pages/ShelfwiseInventories/ShelfwiseInventoryPagination";
+import ShelfwiseInventorySearch from "./pages/ShelfwiseInventories/ShelfwiseInventorySearch";
+import ShelfwiseInventoryStatistics from "./pages/ShelfwiseInventories/ShelfwiseInventoryStatistics";
+import ShelfwiseInventoryTable from "./pages/ShelfwiseInventories/ShelfwiseInventoryTable";
+import ShelfwiseInventoryToolbar from "./pages/ShelfwiseInventories/ShelfwiseInventoryToolbar";
+import ShelfwiseInventoryView from "./pages/ShelfwiseInventories/ShelfwiseInventoryView";
 
-import ShippingManifestsList from "./components/ShippingManifests/ShippingManifestsList";
-import ShippingManifestsCreate from "./components/ShippingManifests/ShippingManifestsCreate";
-import ShippingManifestsSearch from "./components/ShippingManifests/ShippingManifestsSearch";
-import ShippingManifestsFilters from "./components/ShippingManifests/ShippingManifestsFilters";
-import ShippingManifestsStatistics from "./components/ShippingManifests/ShippingManifestsStatistics";
-import ShippingManifestsDetails from "./components/ShippingManifests/ShippingManifestsDetails";
-import ShippingManifestsView from "./components/ShippingManifests/ShippingManifestsView";
-import ShippingManifestsEdit from "./components/ShippingManifests/ShippingManifestsEdit";
+import DeleteShippingManifestDialog from "./pages/ShippingManifests/DeleteShippingManifestDialog";
+import ShippingManifestCard from "./pages/ShippingManifests/ShippingManifestCard";
+import ShippingManifestCreate from "./pages/ShippingManifests/ShippingManifestCreate";
+import ShippingManifestDetails from "./pages/ShippingManifests/ShippingManifestDetails";
+import ShippingManifestEdit from "./pages/ShippingManifests/ShippingManifestEdit";
+import ShippingManifestFilters from "./pages/ShippingManifests/ShippingManifestFilters";
+import ShippingManifestForm from "./pages/ShippingManifests/ShippingManifestForm";
+import ShippingManifestModal from "./pages/ShippingManifests/ShippingManifestModal";
+import ShippingManifestPagination from "./pages/ShippingManifests/ShippingManifestPagination";
+import ShippingManifestSearch from "./pages/ShippingManifests/ShippingManifestSearch";
+import ShippingManifestsList from "./pages/ShippingManifests/ShippingManifestsList"; // this one IS plural List
+import ShippingManifestStatistics from "./pages/ShippingManifests/ShippingManifestStatistics";
+import ShippingManifestTable from "./pages/ShippingManifests/ShippingManifestTable";
+import ShippingManifestToolbar from "./pages/ShippingManifests/ShippingManifestToolbar";
+import ShippingManifestView from "./pages/ShippingManifests/ShippingManifestView";
 
-import FacilityChannelList from "./components/FacilityChannel/FacilityChannelList";
-import FacilityChannelCreate from "./components/FacilityChannel/FacilityChannelCreate";
-import FacilityChannelSearch from "./components/FacilityChannel/FacilityChannelSearch";
-import FacilityChannelFilters from "./components/FacilityChannel/FacilityChannelFilters";
-import FacilityChannelStatistics from "./components/FacilityChannel/FacilityChannelStatistics";
-import FacilityChannelDetails from "./components/FacilityChannel/FacilityChannelDetails";
-import FacilityChannelView from "./components/FacilityChannel/FacilityChannelView";
-import FacilityChannelEdit from "./components/FacilityChannel/FacilityChannelEdit";
+import DeleteFacilityChannelDialog from "./pages/FacilityChannels/DeleteFacilityChannelDialog";
+import FacilityChannelCard from "./pages/FacilityChannels/FacilityChannelCard";
+import FacilityChannelCreate from "./pages/FacilityChannels/FacilityChannelCreate";
+import FacilityChannelDetails from "./pages/FacilityChannels/FacilityChannelDetails";
+import FacilityChannelEdit from "./pages/FacilityChannels/FacilityChannelEdit";
+import FacilityChannelFilters from "./pages/FacilityChannels/FacilityChannelFilters";
+import FacilityChannelForm from "./pages/FacilityChannels/FacilityChannelForm";
+import FacilityChannelModal from "./pages/FacilityChannels/FacilityChannelModal";
+import FacilityChannelPagination from "./pages/FacilityChannels/FacilityChannelPagination";
+import FacilityChannelSearch from "./pages/FacilityChannels/FacilityChannelSearch";
+import FacilityChannelsList from "./pages/FacilityChannels/FacilityChannelsList"; // <-- note Channels with S
+import FacilityChannelStatistics from "./pages/FacilityChannels/FacilityChannelStatistics";
+import FacilityChannelTable from "./pages/FacilityChannels/FacilityChannelTable";
+import FacilityChannelToolbar from "./pages/FacilityChannels/FacilityChannelToolbar";
+import FacilityChannelView from "./pages/FacilityChannels/FacilityChannelView";
 
-import ReversePickupAddressesList from "./components/ReversePickupAddresses/ReversePickupAddressesList";
-import ReversePickupAddressesCreate from "./components/ReversePickupAddresses/ReversePickupAddressesCreate";
-import ReversePickupAddressesSearch from "./components/ReversePickupAddresses/ReversePickupAddressesSearch";
-import ReversePickupAddressesFilters from "./components/ReversePickupAddresses/ReversePickupAddressesFilters";
-import ReversePickupAddressesStatistics from "./components/ReversePickupAddresses/ReversePickupAddressesStatistics";
-import ReversePickupAddressesDetails from "./components/ReversePickupAddresses/ReversePickupAddressesDetails";
-import ReversePickupAddressesView from "./components/ReversePickupAddresses/ReversePickupAddressesView";
-import ReversePickupAddressesEdit from "./components/ReversePickupAddresses/ReversePickupAddressesEdit";
+import DeleteReversePickupAddressDialog from "./pages/ReversePickupAddresses/DeleteReversePickupAddressDialog";
+import ReversePickupAddressCard from "./pages/ReversePickupAddresses/ReversePickupAddressCard";
+import ReversePickupAddressCreate from "./pages/ReversePickupAddresses/ReversePickupAddressCreate";
+import ReversePickupAddressDetails from "./pages/ReversePickupAddresses/ReversePickupAddressDetails";
+import ReversePickupAddressEdit from "./pages/ReversePickupAddresses/ReversePickupAddressEdit";
+import ReversePickupAddressFilters from "./pages/ReversePickupAddresses/ReversePickupAddressFilters";
+import ReversePickupAddressForm from "./pages/ReversePickupAddresses/ReversePickupAddressForm";
+import ReversePickupAddressModal from "./pages/ReversePickupAddresses/ReversePickupAddressModal";
+import ReversePickupAddressPagination from "./pages/ReversePickupAddresses/ReversePickupAddressPagination";
+import ReversePickupAddressSearch from "./pages/ReversePickupAddresses/ReversePickupAddressSearch";
+import ReversePickupAddressesList from "./pages/ReversePickupAddresses/ReversePickupAddressesList"; // <-- only this one is plural
+import ReversePickupAddressStatistics from "./pages/ReversePickupAddresses/ReversePickupAddressStatistics";
+import ReversePickupAddressTable from "./pages/ReversePickupAddresses/ReversePickupAddressTable";
+import ReversePickupAddressToolbar from "./pages/ReversePickupAddresses/ReversePickupAddressToolbar";
+import ReversePickupAddressView from "./pages/ReversePickupAddresses/ReversePickupAddressView";
 
-import ReversePickupItemsList from "./components/ReversePickupItems/ReversePickupItemsList";
-import ReversePickupItemsCreate from "./components/ReversePickupItems/ReversePickupItemsCreate";
-import ReversePickupItemsSearch from "./components/ReversePickupItems/ReversePickupItemsSearch";
-import ReversePickupItemsFilters from "./components/ReversePickupItems/ReversePickupItemsFilters";
-import ReversePickupItemsStatistics from "./components/ReversePickupItems/ReversePickupItemsStatistics";
-import ReversePickupItemsDetails from "./components/ReversePickupItems/ReversePickupItemsDetails";
-import ReversePickupItemsView from "./components/ReversePickupItems/ReversePickupItemsView";
-import ReversePickupItemsEdit from "./components/ReversePickupItems/ReversePickupItemsEdit";
+import DeleteReversePickupItemDialog from "./pages/ReversePickupItems/DeleteReversePickupItemDialog";
+import ReversePickupItemCard from "./pages/ReversePickupItems/ReversePickupItemCard";
+import ReversePickupItemCreate from "./pages/ReversePickupItems/ReversePickupItemCreate";
+import ReversePickupItemDetails from "./pages/ReversePickupItems/ReversePickupItemDetails";
+import ReversePickupItemEdit from "./pages/ReversePickupItems/ReversePickupItemEdit";
+import ReversePickupItemFilters from "./pages/ReversePickupItems/ReversePickupItemFilters";
+import ReversePickupItemForm from "./pages/ReversePickupItems/ReversePickupItemForm";
+import ReversePickupItemModal from "./pages/ReversePickupItems/ReversePickupItemModal";
+import ReversePickupItemPagination from "./pages/ReversePickupItems/ReversePickupItemPagination";
+import ReversePickupItemSearch from "./pages/ReversePickupItems/ReversePickupItemSearch";
+import ReversePickupItemsList from "./pages/ReversePickupItems/ReversePickupItemsList"; // plural List is correct
+import ReversePickupItemStatistics from "./pages/ReversePickupItems/ReversePickupItemStatistics";
+import ReversePickupItemTable from "./pages/ReversePickupItems/ReversePickupItemTable";
+import ReversePickupItemToolbar from "./pages/ReversePickupItems/ReversePickupItemToolbar";
+import ReversePickupItemView from "./pages/ReversePickupItems/ReversePickupItemView";
 
-import ReversePickupsList from "./components/ReversePickups/ReversePickupsList";
-import ReversePickupsCreate from "./components/ReversePickups/ReversePickupsCreate";
-import ReversePickupsSearch from "./components/ReversePickups/ReversePickupsSearch";
-import ReversePickupsFilters from "./components/ReversePickups/ReversePickupsFilters";
-import ReversePickupsStatistics from "./components/ReversePickups/ReversePickupsStatistics";
-import ReversePickupsDetails from "./components/ReversePickups/ReversePickupsDetails";
-import ReversePickupsView from "./components/ReversePickups/ReversePickupsView";
-import ReversePickupsEdit from "./components/ReversePickups/ReversePickupsEdit";
+import DeleteReversePickupDialog from "./pages/ReversePickups/DeleteReversePickupDialog";
+import ReversePickupCard from "./pages/ReversePickups/ReversePickupCard";
+import ReversePickupCreate from "./pages/ReversePickups/ReversePickupCreate";
+import ReversePickupDetails from "./pages/ReversePickups/ReversePickupDetails";
+import ReversePickupEdit from "./pages/ReversePickups/ReversePickupEdit";
+import ReversePickupFilters from "./pages/ReversePickups/ReversePickupFilters";
+import ReversePickupForm from "./pages/ReversePickups/ReversePickupForm";
+import ReversePickupModal from "./pages/ReversePickups/ReversePickupModal";
+import ReversePickupPagination from "./pages/ReversePickups/ReversePickupPagination";
+import ReversePickupSearch from "./pages/ReversePickups/ReversePickupSearch";
+import ReversePickupsList from "./pages/ReversePickups/ReversePickupsList"; // only List + css are plural
+import ReversePickupStatistics from "./pages/ReversePickups/ReversePickupStatistics";
+import ReversePickupTable from "./pages/ReversePickups/ReversePickupTable";
+import ReversePickupToolbar from "./pages/ReversePickups/ReversePickupToolbar";
+import ReversePickupView from "./pages/ReversePickups/ReversePickupView";
 
-import SupplierAddressesList from "./components/SupplierAddresses/SupplierAddressesList";
-import SupplierAddressesCreate from "./components/SupplierAddresses/SupplierAddressesCreate";
-import SupplierAddressesSearch from "./components/SupplierAddresses/SupplierAddressesSearch";
-import SupplierAddressesFilters from "./components/SupplierAddresses/SupplierAddressesFilters";
-import SupplierAddressesStatistics from "./components/SupplierAddresses/SupplierAddressesStatistics";
-import SupplierAddressesDetails from "./components/SupplierAddresses/SupplierAddressesDetails";
-import SupplierAddressesView from "./components/SupplierAddresses/SupplierAddressesView";
-import SupplierAddressesEdit from "./components/SupplierAddresses/SupplierAddressesEdit";
+import DeleteSupplierAddressDialog from "./pages/SupplierAddresses/DeleteSupplierAddressDialog";
+import SupplierAddressCard from "./pages/SupplierAddresses/SupplierAddressCard";
+import SupplierAddressCreate from "./pages/SupplierAddresses/SupplierAddressCreate";
+import SupplierAddressDetails from "./pages/SupplierAddresses/SupplierAddressDetails";
+import SupplierAddressEdit from "./pages/SupplierAddresses/SupplierAddressEdit";
+import SupplierAddressFilters from "./pages/SupplierAddresses/SupplierAddressFilters";
+import SupplierAddressForm from "./pages/SupplierAddresses/SupplierAddressForm";
+import SupplierAddressModal from "./pages/SupplierAddresses/SupplierAddressModal";
+import SupplierAddressPagination from "./pages/SupplierAddresses/SupplierAddressPagination";
+import SupplierAddressSearch from "./pages/SupplierAddresses/SupplierAddressSearch";
+import SupplierAddressesList from "./pages/SupplierAddresses/SupplierAddressesList"; // only this + css are plural
+import SupplierAddressStatistics from "./pages/SupplierAddresses/SupplierAddressStatistics";
+import SupplierAddressTable from "./pages/SupplierAddresses/SupplierAddressTable";
+import SupplierAddressToolbar from "./pages/SupplierAddresses/SupplierAddressToolbar";
+import SupplierAddressView from "./pages/SupplierAddresses/SupplierAddressView";
 
-import SupplierContactsList from "./components/SupplierContacts/SupplierContactsList";
-import SupplierContactsCreate from "./components/SupplierContacts/SupplierContactsCreate";
-import SupplierContactsSearch from "./components/SupplierContacts/SupplierContactsSearch";
-import SupplierContactsFilters from "./components/SupplierContacts/SupplierContactsFilters";
-import SupplierContactsStatistics from "./components/SupplierContacts/SupplierContactsStatistics";
-import SupplierContactsDetails from "./components/SupplierContacts/SupplierContactsDetails";
-import SupplierContactsView from "./components/SupplierContacts/SupplierContactsView";
-import SupplierContactsEdit from "./components/SupplierContacts/SupplierContactsEdit";
+import DeleteSupplierContactDialog from "./pages/SupplierContacts/DeleteSupplierContactDialog";
+import SupplierContactCard from "./pages/SupplierContacts/SupplierContactCard";
+import SupplierContactCreate from "./pages/SupplierContacts/SupplierContactCreate";
+import SupplierContactDetails from "./pages/SupplierContacts/SupplierContactDetails";
+import SupplierContactEdit from "./pages/SupplierContacts/SupplierContactEdit";
+import SupplierContactFilters from "./pages/SupplierContacts/SupplierContactFilters";
+import SupplierContactForm from "./pages/SupplierContacts/SupplierContactForm";
+import SupplierContactModal from "./pages/SupplierContacts/SupplierContactModal";
+import SupplierContactPagination from "./pages/SupplierContacts/SupplierContactPagination";
+import SupplierContactSearch from "./pages/SupplierContacts/SupplierContactSearch";
+import SupplierContactsList from "./pages/SupplierContacts/SupplierContactsList"; // plural
+import SupplierContactStatistics from "./pages/SupplierContacts/SupplierContactStatistics";
+import SupplierContactTable from "./pages/SupplierContacts/SupplierContactTable";
+import SupplierContactToolbar from "./pages/SupplierContacts/SupplierContactToolbar";
+import SupplierContactView from "./pages/SupplierContacts/SupplierContactView";
+import DeleteVendorItemCustomFieldDialog from "./pages/VendorItemCustomFields/DeleteVendorItemCustomFieldDialog";
 
-import VendorItemCustomFieldsList from "./components/VendorItemCustomFields/VendorItemCustomFieldsList";
-import VendorItemCustomFieldsCreate from "./components/VendorItemCustomFields/VendorItemCustomFieldsCreate";
-import VendorItemCustomFieldsSearch from "./components/VendorItemCustomFields/VendorItemCustomFieldsSearch";
-import VendorItemCustomFieldsFilters from "./components/VendorItemCustomFields/VendorItemCustomFieldsFilters";
-import VendorItemCustomFieldsStatistics from "./components/VendorItemCustomFields/VendorItemCustomFieldsStatistics";
-import VendorItemCustomFieldsDetails from "./components/VendorItemCustomFields/VendorItemCustomFieldsDetails";
-import VendorItemCustomFieldsView from "./components/VendorItemCustomFields/VendorItemCustomFieldsView";
-import VendorItemCustomFieldsEdit from "./components/VendorItemCustomFields/VendorItemCustomFieldsEdit";
+import VendorItemCustomFieldCard from "./pages/VendorItemCustomFields/VendorItemCustomFieldCard";
+import VendorItemCustomFieldCreate from "./pages/VendorItemCustomFields/VendorItemCustomFieldCreate";
+import VendorItemCustomFieldDetails from "./pages/VendorItemCustomFields/VendorItemCustomFieldDetails";
+import VendorItemCustomFieldEdit from "./pages/VendorItemCustomFields/VendorItemCustomFieldEdit";
+import VendorItemCustomFieldFilters from "./pages/VendorItemCustomFields/VendorItemCustomFieldFilters";
+import VendorItemCustomFieldForm from "./pages/VendorItemCustomFields/VendorItemCustomFieldForm";
+import VendorItemCustomFieldModal from "./pages/VendorItemCustomFields/VendorItemCustomFieldModal";
+import VendorItemCustomFieldPagination from "./pages/VendorItemCustomFields/VendorItemCustomFieldPagination";
+import VendorItemCustomFieldSearch from "./pages/VendorItemCustomFields/VendorItemCustomFieldSearch";
+import VendorItemCustomFieldsList from "./pages/VendorItemCustomFields/VendorItemCustomFieldsList"; // plural
+import VendorItemCustomFieldStatistics from "./pages/VendorItemCustomFields/VendorItemCustomFieldStatistics";
+import VendorItemCustomFieldTable from "./pages/VendorItemCustomFields/VendorItemCustomFieldTable";
+import VendorItemCustomFieldToolbar from "./pages/VendorItemCustomFields/VendorItemCustomFieldToolbar";
+import VendorItemCustomFieldView from "./pages/VendorItemCustomFields/VendorItemCustomFieldView";
 
-import VendorItemMastersList from "./components/VendorItemMasters/VendorItemMastersList";
-import VendorItemMastersCreate from "./components/VendorItemMasters/VendorItemMastersCreate";
-import VendorItemMastersSearch from "./components/VendorItemMasters/VendorItemMastersSearch";
-import VendorItemMastersFilters from "./components/VendorItemMasters/VendorItemMastersFilters";
-import VendorItemMastersStatistics from "./components/VendorItemMasters/VendorItemMastersStatistics";
-import VendorItemMastersDetails from "./components/VendorItemMasters/VendorItemMastersDetails";
-import VendorItemMastersView from "./components/VendorItemMasters/VendorItemMastersView";
-import VendorItemMastersEdit from "./components/VendorItemMasters/VendorItemMastersEdit";
+import DeleteVendorItemMasterDialog from "./pages/VendorItemMasters/DeleteVendorItemMasterDialog";
+import VendorItemMasterCard from "./pages/VendorItemMasters/VendorItemMasterCard";
+import VendorItemMasterCreate from "./pages/VendorItemMasters/VendorItemMasterCreate";
+import VendorItemMasterDetails from "./pages/VendorItemMasters/VendorItemMasterDetails";
+import VendorItemMasterEdit from "./pages/VendorItemMasters/VendorItemMasterEdit";
+import VendorItemMasterFilters from "./pages/VendorItemMasters/VendorItemMasterFilters";
+import VendorItemMasterForm from "./pages/VendorItemMasters/VendorItemMasterForm";
+import VendorItemMasterModal from "./pages/VendorItemMasters/VendorItemMasterModal";
+import VendorItemMasterPagination from "./pages/VendorItemMasters/VendorItemMasterPagination";
+import VendorItemMasterSearch from "./pages/VendorItemMasters/VendorItemMasterSearch";
+import VendorItemMastersList from "./pages/VendorItemMasters/VendorItemMastersList"; // plural
+import VendorItemMasterStatistics from "./pages/VendorItemMasters/VendorItemMasterStatistics";
+import VendorItemMasterTable from "./pages/VendorItemMasters/VendorItemMasterTable";
+import VendorItemMasterToolbar from "./pages/VendorItemMasters/VendorItemMasterToolbar";
+import VendorItemMasterView from "./pages/VendorItemMasters/VendorItemMasterView";
 
 
 //////////////// supplier ////////////////////////////
@@ -428,14 +510,21 @@ import SupplierCard from "./pages/Supplier/SupplierCard";
 
 ///////////////////////////Picklists////////////////////////
 
-import PicklistsList from "./components/Picklist/PicklistsList";
-import PicklistCreate from "./components/Picklist/PicklistCreate";
-import PicklistSearch from "./components/Picklist/PicklistSearch";
-import PicklistFilters from "./components/Picklist/PicklistFilters";
-import PicklistStatistics from "./components/Picklist/PicklistStatistics";
-import PicklistDetails from "./components/Picklist/PicklistDetails";
-import PicklistView from "./components/Picklist/PicklistView";
-import PicklistEdit from "./components/Picklist/PicklistEdit";
+import DeletePicklistDialog from "./pages/Picklists/DeletePicklistDialog";
+import PicklistCard from "./pages/Picklists/PicklistCard";
+import PicklistCreate from "./pages/Picklists/PicklistCreate";
+import PicklistDetails from "./pages/Picklists/PicklistDetails";
+import PicklistEdit from "./pages/Picklists/PicklistEdit";
+import PicklistFilters from "./pages/Picklists/PicklistFilters";
+import PicklistForm from "./pages/Picklists/PicklistForm";
+import PicklistModal from "./pages/Picklists/PicklistModal";
+import PicklistPagination from "./pages/Picklists/PicklistPagination";
+import PicklistSearch from "./pages/Picklists/PicklistSearch";
+import PicklistsList from "./pages/Picklists/PicklistsList"; // plural List
+import PicklistStatistics from "./pages/Picklists/PicklistStatistics";
+import PicklistTable from "./pages/Picklists/PicklistTable";
+import PicklistToolbar from "./pages/Picklists/PicklistToolbar";
+import PicklistView from "./pages/Picklists/PicklistView";
 /* =========================================================
    ORDER STATUS HISTORY IMPORTS
 ========================================================= */
@@ -883,15 +972,21 @@ import MarketplaceOrderDetails from "./pages/MarketplaceOrder/MarketplaceOrderDe
 import MarketplaceOrderEdit from "./pages/MarketplaceOrder/MarketplaceOrderEdit";
 import MarketplaceOrderCardPage from "./pages/MarketplaceOrder/MarketplaceOrderCardPage";
 
-
-import InvoiceTaxDetailsList from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsList";
-import InvoiceTaxDetailsCreate from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsCreate";
-import InvoiceTaxDetailsSearch from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsSearch";
-import InvoiceTaxDetailsFilters from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsFilters";
-import InvoiceTaxDetailsStatistics from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsStatistics";
-import InvoiceTaxDetailsDetails from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsDetails";
-import InvoiceTaxDetailsView from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsView";
-import InvoiceTaxDetailsEdit from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsEdit";
+import DeleteInvoiceTaxDetailDialog from "./pages/InvoiceTaxDetails/DeleteInvoiceTaxDetailDialog";
+import InvoiceTaxDetailCard from "./pages/InvoiceTaxDetails/InvoiceTaxDetailCard";
+import InvoiceTaxDetailCreate from "./pages/InvoiceTaxDetails/InvoiceTaxDetailCreate";
+import InvoiceTaxDetailDetails from "./pages/InvoiceTaxDetails/InvoiceTaxDetailDetails";
+import InvoiceTaxDetailEdit from "./pages/InvoiceTaxDetails/InvoiceTaxDetailEdit";
+import InvoiceTaxDetailFilters from "./pages/InvoiceTaxDetails/InvoiceTaxDetailFilters";
+import InvoiceTaxDetailForm from "./pages/InvoiceTaxDetails/InvoiceTaxDetailForm";
+import InvoiceTaxDetailModal from "./pages/InvoiceTaxDetails/InvoiceTaxDetailModal";
+import InvoiceTaxDetailPagination from "./pages/InvoiceTaxDetails/InvoiceTaxDetailPagination";
+import InvoiceTaxDetailSearch from "./pages/InvoiceTaxDetails/InvoiceTaxDetailSearch";
+import InvoiceTaxDetailsList from "./pages/InvoiceTaxDetails/InvoiceTaxDetailsList"; // plural - only this one
+import InvoiceTaxDetailStatistics from "./pages/InvoiceTaxDetails/InvoiceTaxDetailStatistics";
+import InvoiceTaxDetailTable from "./pages/InvoiceTaxDetails/InvoiceTaxDetailTable";
+import InvoiceTaxDetailToolbar from "./pages/InvoiceTaxDetails/InvoiceTaxDetailToolbar";
+import InvoiceTaxDetailView from "./pages/InvoiceTaxDetails/InvoiceTaxDetailView";
 
 import ManifestPackagesPutawayList from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayList";
 import ManifestPackagesPutawayCreate from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayCreate";

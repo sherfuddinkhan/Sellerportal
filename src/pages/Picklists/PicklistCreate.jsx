@@ -25,7 +25,6 @@ import {
     Add,
     Save,
     Inventory2,
-    DeleteOutline,
     RestartAlt
 } from "@mui/icons-material";
 

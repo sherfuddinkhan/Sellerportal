@@ -21,7 +21,6 @@ import {
 import {
     Add,
     ArrowBack,
-    DeleteOutline,
     Inventory2,
     Save
 } from "@mui/icons-material";

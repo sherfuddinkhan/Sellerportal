@@ -37,7 +37,6 @@ import {
     Refresh,
     Save,
     PersonAdd,
-    DeleteOutline,
     FilterAlt
 } from "@mui/icons-material";
 
