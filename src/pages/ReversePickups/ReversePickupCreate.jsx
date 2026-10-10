@@ -1,3 +1,7 @@
+// =========================================================
+// ReversePickupCreate.jsx
+// =========================================================
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -23,9 +27,9 @@ import {
     RestartAlt
 } from "@mui/icons-material";
 
-/* =========================================================
-   DEFAULT FORM VALUES
-========================================================= */
+// =========================================================
+// DEFAULT FORM VALUES
+// =========================================================
 
 const initialFormData = {
     reversePickupNumber: "",
@@ -44,23 +48,20 @@ const initialFormData = {
     notes: ""
 };
 
-/* =========================================================
-   API CONFIGURATION
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
-   Set REACT_APP_API_URL in your .env file if required.
-   Example:
-   REACT_APP_API_URL=http://localhost:5000
-========================================================= */
+const API_URL = process.env.REACT_APP_API_URL || "";
 
-const API_URL =
-    process.env.REACT_APP_API_URL || "";
-
-/* =========================================================
-   COMPONENT
-========================================================= */
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const ReversePickupCreate = ({
     apiUrl = "/api/ReversePickup",
+    sellerId,
+    customerId,
     onCreated,
     onCancel,
     embedded = false,
@@ -76,9 +77,9 @@ const ReversePickupCreate = ({
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    /* =====================================================
-       HANDLE INPUT CHANGE
-    ===================================================== */
+    // =====================================================
+    // HANDLE INPUT CHANGE
+    // =====================================================
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -92,22 +93,19 @@ const ReversePickupCreate = ({
         setSuccess("");
     };
 
-    /* =====================================================
-       RESET FORM
-    ===================================================== */
+    // =====================================================
+    // RESET FORM
+    // =====================================================
 
     const handleReset = () => {
-        setFormData({
-            ...initialFormData
-        });
-
+        setFormData({ ...initialFormData });
         setError("");
         setSuccess("");
     };
 
-    /* =====================================================
-       VALIDATE FORM
-    ===================================================== */
+    // =====================================================
+    // VALIDATE FORM
+    // =====================================================
 
     const validateForm = () => {
         if (!formData.orderNumber.trim()) {
@@ -141,10 +139,10 @@ const ReversePickupCreate = ({
         }
 
         if (
-            !Number.isFinite(Number(formData.quantity)) ||
+            !Number.isInteger(Number(formData.quantity)) ||
             Number(formData.quantity) < 1
         ) {
-            return "Quantity must be at least 1.";
+            return "Quantity must be a whole number greater than zero.";
         }
 
         if (
@@ -157,9 +155,9 @@ const ReversePickupCreate = ({
         return "";
     };
 
-    /* =====================================================
-       CREATE REVERSE PICKUP
-    ===================================================== */
+    // =====================================================
+    // CREATE REVERSE PICKUP
+    // =====================================================
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -179,31 +177,30 @@ const ReversePickupCreate = ({
                 formData.reversePickupNumber.trim() || null,
 
             orderNumber: formData.orderNumber.trim(),
-
             customerName: formData.customerName.trim(),
-
             customerEmail: formData.customerEmail.trim(),
-
             pickupDate: formData.pickupDate,
-
             pickupAddress: formData.pickupAddress.trim(),
-
             itemName: formData.itemName.trim(),
-
             sku: formData.sku.trim() || null,
-
             quantity: Number(formData.quantity),
-
             carrierName: formData.carrierName.trim() || null,
-
             trackingNumber: formData.trackingNumber.trim() || null,
-
             pickupCost: Number(formData.pickupCost),
-
             status: formData.status,
-
             notes: formData.notes.trim() || null
         };
+
+        // Include IDs in query parameters only when provided.
+        const params = {};
+
+        if (sellerId !== undefined && sellerId !== null) {
+            params.sellerId = sellerId;
+        }
+
+        if (customerId !== undefined && customerId !== null) {
+            params.customerId = customerId;
+        }
 
         try {
             setLoading(true);
@@ -214,6 +211,7 @@ const ReversePickupCreate = ({
                 endpoint,
                 payload,
                 {
+                    params,
                     headers: {
                         "Content-Type": "application/json"
                     }
@@ -248,8 +246,8 @@ const ReversePickupCreate = ({
                 responseData?.errors &&
                 typeof responseData.errors === "object"
                     ? Object.values(responseData.errors)
-                        .flat()
-                        .join(" ")
+                          .flat()
+                          .join(" ")
                     : "";
 
             setError(
@@ -263,9 +261,9 @@ const ReversePickupCreate = ({
         }
     };
 
-    /* =====================================================
-       FORM FIELD
-    ===================================================== */
+    // =====================================================
+    // REUSABLE FORM FIELD
+    // =====================================================
 
     const renderTextField = (
         name,
@@ -303,11 +301,15 @@ const ReversePickupCreate = ({
                 inputProps={
                     type === "number"
                         ? {
-                            min:
-                                name === "quantity"
-                                    ? 1
-                                    : 0
-                        }
+                              min:
+                                  name === "quantity"
+                                      ? 1
+                                      : 0,
+                              step:
+                                  name === "quantity"
+                                      ? 1
+                                      : 0.01
+                          }
                         : undefined
                 }
                 {...rest}
@@ -317,9 +319,9 @@ const ReversePickupCreate = ({
         );
     };
 
-    /* =====================================================
-       FORM CONTENT
-    ===================================================== */
+    // =====================================================
+    // FORM CONTENT
+    // =====================================================
 
     const content = (
         <Box
@@ -346,6 +348,8 @@ const ReversePickupCreate = ({
                     {success}
                 </Alert>
             )}
+
+            {/* PICKUP INFORMATION */}
 
             <Typography
                 variant="subtitle1"
@@ -412,6 +416,8 @@ const ReversePickupCreate = ({
 
             <Divider sx={{ my: 3 }} />
 
+            {/* CUSTOMER INFORMATION */}
+
             <Typography
                 variant="subtitle1"
                 fontWeight={700}
@@ -443,6 +449,8 @@ const ReversePickupCreate = ({
 
             <Divider sx={{ my: 3 }} />
 
+            {/* RETURN ITEM INFORMATION */}
+
             <Typography
                 variant="subtitle1"
                 fontWeight={700}
@@ -461,10 +469,7 @@ const ReversePickupCreate = ({
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "sku",
-                        "SKU"
-                    )}
+                    {renderTextField("sku", "SKU")}
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
@@ -480,6 +485,8 @@ const ReversePickupCreate = ({
             </Grid>
 
             <Divider sx={{ my: 3 }} />
+
+            {/* CARRIER AND COST INFORMATION */}
 
             <Typography
                 variant="subtitle1"
@@ -528,6 +535,8 @@ const ReversePickupCreate = ({
 
             <Divider sx={{ my: 3 }} />
 
+            {/* FORM ACTIONS */}
+
             <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={1.5}
@@ -561,14 +570,14 @@ const ReversePickupCreate = ({
                     type="submit"
                     variant="contained"
                     startIcon={
-                        loading
-                            ? (
-                                <CircularProgress
-                                    size={18}
-                                    color="inherit"
-                                />
-                            )
-                            : <Save />
+                        loading ? (
+                            <CircularProgress
+                                size={18}
+                                color="inherit"
+                            />
+                        ) : (
+                            <Save />
+                        )
                     }
                     disabled={loading}
                 >
@@ -580,13 +589,17 @@ const ReversePickupCreate = ({
         </Box>
     );
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // =====================================================
+    // EMBEDDED RENDER
+    // =====================================================
 
     if (embedded) {
         return content;
     }
+
+    // =====================================================
+    // STANDALONE RENDER
+    // =====================================================
 
     return (
         <Box sx={{ p: { xs: 1, sm: 3 } }}>
@@ -636,4 +649,3 @@ const ReversePickupCreate = ({
 };
 
 export default ReversePickupCreate;
-

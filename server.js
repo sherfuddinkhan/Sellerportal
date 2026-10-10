@@ -33204,13 +33204,13 @@ app.post('/api/e-invoice/generate/:invoiceId', async (req,res)=>{
     const invoiceId = req.params.invoiceId;
 
     // Fetch your invoice data from.NET backend
-    const invRes = await axios.get(`http://localhost:5001/api/sales-invoices/${invoiceId}`);
+    const invRes = await axios.get(`http://localhost:5000/api/sales-invoices/${invoiceId}`);
     const inv = invRes.data.$values?.[0] || invRes.data;
-    const soRes = await axios.get(`http://localhost:5001/api/SalesOrder/${inv.salesOrderId}`);
+    const soRes = await axios.get(`http://localhost:5000/api/SalesOrder/${inv.salesOrderId}`);
     const so = soRes.data;
-    const itemsRes = await axios.get(`http://localhost:5001/api/sales-order-items/${inv.salesOrderId}`);
+    const itemsRes = await axios.get(`http://localhost:5000/api/sales-order-items/${inv.salesOrderId}`);
     const items = itemsRes.data.$values || itemsRes.data;
-    const custRes = await axios.get(`http://localhost:5001/api/SellerCustomer/${inv.sellerId}/customers/${inv.customerId}`);
+    const custRes = await axios.get(`http://localhost:5000/api/SellerCustomer/${inv.sellerId}/customers/${inv.customerId}`);
     const cust = custRes.data;
 
     const payload = buildEInvoicePayload(inv, so, items, cust);
@@ -33227,7 +33227,7 @@ app.post('/api/e-invoice/generate/:invoiceId', async (req,res)=>{
     const data = nicRes.data.Data;
 
     // Save back to your DB
-    await axios.put(`http://localhost:5001/api/sales-invoices/${invoiceId}/irn`, {
+    await axios.put(`http://localhost:5000/api/sales-invoices/${invoiceId}/irn`, {
       irnNumber: data.Irn,
       ackNo: data.AckNo,
       ackDate: data.AckDt,
@@ -33341,7 +33341,7 @@ app.post('/api/eway-bill/generate/:invoiceId', async (req,res)=>{
     const invoiceId = req.params.invoiceId;
     const token = await getEinvToken(); // EWB uses same auth in sandbox
 
-    const invRes = await axios.get(`http://localhost:5001/api/sales-invoices/${invoiceId}`);
+    const invRes = await axios.get(`http://localhost:5000/api/sales-invoices/${invoiceId}`);
     const inv = invRes.data.$values?.[0] || invRes.data;
 
     const ewbPayload = {
@@ -33388,7 +33388,7 @@ app.post('/api/eway-bill/generate/:invoiceId', async (req,res)=>{
 // 4. SALES INVOICES LIST (Proxy to.NET)
 app.get('/api/sales-invoices/:id', async (req,res)=>{
   try{
-    const r = await axios.get(`http://localhost:5001/api/sales-invoices/${req.params.id}`);
+    const r = await axios.get(`http://localhost:5000/api/sales-invoices/${req.params.id}`);
     res.json(r.data);
   }catch(e){ res.status(500).json({error:e.message}); }
 });
@@ -35059,19 +35059,130 @@ shippingManifestRouter.delete("/:id", async (req, res) => {
 //////////////////////////////
 
 
-const API_URL = "http://localhost:5001/api/ReversePickup";
+const API_URL = "http://localhost:5000/api/ReversePickup";
 
-// Get all reverse pickups
-const response = await axios.get(API_URL);
+// =========================================================
+// GET ALL REVERSE PICKUPS
+// =========================================================
 
-// Create a reverse pickup
-await axios.post(API_URL, formData);
+app.get("/api/ReversePickup", async (req, res) => {
+    try {
 
-// Update a reverse pickup
-await axios.put(`${API_URL}/${id}`, formData);
+        const { sellerId, customerId } = req.query;
 
-// Delete a reverse pickup
-await axios.delete(`${API_URL}/${id}`);
+        const response = await axios.get(
+            `${API_BASE_URL}/api/ReversePickup/seller/${sellerId}/customer/${customerId}`
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "GET Reverse Pickup error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 502).json({
+            message: "Failed to retrieve reverse pickups",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+
+// =========================================================
+// CREATE REVERSE PICKUP
+// =========================================================
+
+app.post("/api/ReversePickup", async (req, res) => {
+    try {
+
+        const { sellerId, customerId } = req.query;
+
+        const response = await axios.post(
+            `${API_BASE_URL}/api/ReversePickup/seller/${sellerId}/customer/${customerId}`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "POST Reverse Pickup error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 502).json({
+            message: "Failed to create reverse pickup",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+
+// =========================================================
+// UPDATE REVERSE PICKUP
+// =========================================================
+
+app.put("/api/ReversePickup/:id", async (req, res) => {
+    try {
+
+        const { id } = req.params;
+        const { sellerId, customerId } = req.query;
+
+        const response = await axios.put(
+            `${API_BASE_URL}/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "PUT Reverse Pickup error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 502).json({
+            message: "Failed to update reverse pickup",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+
+// =========================================================
+// DELETE REVERSE PICKUP
+// =========================================================
+
+app.delete("/api/ReversePickup/:id", async (req, res) => {
+    try {
+
+        const { id } = req.params;
+        const { sellerId, customerId } = req.query;
+
+        const response = await axios.delete(
+            `${API_BASE_URL}/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`
+        );
+
+        res.status(response.status).json(response.data);
+
+    } catch (error) {
+
+        console.error(
+            "DELETE Reverse Pickup error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 502).json({
+            message: "Failed to delete reverse pickup",
+            error: error.response?.data || error.message
+        });
+    }
+});
 
 ///////////////////////////////////reverse pickup items//////////////////
 // Get all reverse pickup items
@@ -35173,14 +35284,11 @@ app.delete("/api/ReversePickupItems/:id", async (req, res) => {
 /////////////////ReversePickupAddress///////////////
 
 
-const REVERSE_PICKUP_ADDRESS_API =
-    `${DOTNET_API_URL}/api/ReversePickupAddress`;
-/* =========================================================
-   GET ALL REVERSE PICKUP ADDRESSES
-   GET /api/ReversePickupAddress
-========================================================= */
+const axios = require("axios");
 
-app.get("/api/ReversePickupAddress", async (req, res) => {
+const REVERSE_PICKUP_ADDRESS_API =
+    "http://localhost:5000/api/ReversePickupAddress";
+    app.get("/api/ReversePickupAddress", async (req, res) => {
     try {
         const response = await axios.get(
             REVERSE_PICKUP_ADDRESS_API,
@@ -35198,159 +35306,6 @@ app.get("/api/ReversePickupAddress", async (req, res) => {
         return handleApiError(error, res);
     }
 });
-
-/* =========================================================
-   GET REVERSE PICKUP ADDRESS BY ID
-   GET /api/ReversePickupAddress/:id
-========================================================= */
-
-app.get("/api/ReversePickupAddress/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: "Address ID is required."
-            });
-        }
-
-        const response = await axios.get(
-            `${REVERSE_PICKUP_ADDRESS_API}/${encodeURIComponent(id)}`,
-            {
-                headers: {
-                    Accept: "application/json"
-                },
-                timeout: 15000
-            }
-        );
-
-        return res.status(response.status).json(response.data);
-    } catch (error) {
-        return handleApiError(error, res);
-    }
-});
-
-/* =========================================================
-   CREATE REVERSE PICKUP ADDRESS
-   POST /api/ReversePickupAddress
-========================================================= */
-
-app.post("/api/ReversePickupAddress", async (req, res) => {
-    try {
-        if (
-            !req.body ||
-            typeof req.body !== "object" ||
-            Array.isArray(req.body)
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Valid address information is required."
-            });
-        }
-
-        const response = await axios.post(
-            REVERSE_PICKUP_ADDRESS_API,
-            req.body,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json"
-                },
-                timeout: 15000
-            }
-        );
-
-        return res.status(response.status).json(response.data);
-    } catch (error) {
-        return handleApiError(error, res);
-    }
-});
-
-/* =========================================================
-   UPDATE REVERSE PICKUP ADDRESS
-   PUT /api/ReversePickupAddress/:id
-========================================================= */
-
-app.put("/api/ReversePickupAddress/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: "Address ID is required."
-            });
-        }
-
-        if (
-            !req.body ||
-            typeof req.body !== "object" ||
-            Array.isArray(req.body)
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Valid address information is required."
-            });
-        }
-
-        const response = await axios.put(
-            `${REVERSE_PICKUP_ADDRESS_API}/${encodeURIComponent(id)}`,
-            req.body,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json"
-                },
-                timeout: 15000
-            }
-        );
-
-        if (response.data === undefined || response.data === null) {
-            return res.status(response.status).end();
-        }
-
-        return res.status(response.status).json(response.data);
-    } catch (error) {
-        return handleApiError(error, res);
-    }
-});
-
-/* =========================================================
-   DELETE REVERSE PICKUP ADDRESS
-   DELETE /api/ReversePickupAddress/:id
-========================================================= */
-
-app.delete("/api/ReversePickupAddress/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: "Address ID is required."
-            });
-        }
-
-        const response = await axios.delete(
-            `${REVERSE_PICKUP_ADDRESS_API}/${encodeURIComponent(id)}`,
-            {
-                headers: {
-                    Accept: "application/json"
-                },
-                timeout: 15000
-            }
-        );
-
-        if (response.data === undefined || response.data === null) {
-            return res.status(response.status).end();
-        }
-
-        return res.status(response.status).json(response.data);
-    } catch (error) {
-        return handleApiError(error, res);
-    }
-});
 ///////////////////////////////
 /* =========================================================
    API CONFIGURATION
@@ -35358,7 +35313,7 @@ app.delete("/api/ReversePickupAddress/:id", async (req, res) => {
 
 const PICKLIST_API =
     process.env.PICKLIST_API ||
-    "https://localhost:5001/api/Picklist";
+    "https://localhost:5000/api/Picklist";
 
 
 /* =========================================================
