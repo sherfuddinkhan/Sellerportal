@@ -30,9 +30,8 @@ import ReversePickupAddressForm from "./ReversePickupAddressForm";
 /* =========================================================
    API CONFIGURATION
 ========================================================= */
-
 const API_BASE_URL = (
-    process.env.REACT_APP_API_URL || ""
+    import.meta.env.VITE_API_URL || ""
 ).replace(/\/+$/, "");
 
 const DEFAULT_ENDPOINT = `${API_BASE_URL}/api/ReversePickupAddress`;

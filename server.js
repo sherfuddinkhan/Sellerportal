@@ -35821,6 +35821,153 @@ app.delete("/api/invoice-tax-details/:id", async (req, res) => {
     }
 });
 
+//////////////
+// =========================================================
+// server.js
+// =========================================================
+
+// =========================================================
+// GET ALL VENDOR ITEMS
+// =========================================================
+
+app.get("/api/VendorItemMaster", async (req, res) => {
+    try {
+        const response = await axios.get(
+            "http://localhost:5000/api/VendorItemMaster",
+            {
+                params: req.query
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "GET VENDOR ITEMS ERROR:",
+            error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve vendor items."
+        });
+    }
+});
+
+// =========================================================
+// GET VENDOR ITEM BY ID
+// =========================================================
+
+app.get("/api/VendorItemMaster/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const response = await axios.get(
+            `http://localhost:5000/api/VendorItemMaster/${id}`
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "GET VENDOR ITEM ERROR:",
+            error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve vendor item."
+        });
+    }
+});
+
+// =========================================================
+// CREATE VENDOR ITEM
+// =========================================================
+
+app.post("/api/VendorItemMaster", async (req, res) => {
+    try {
+        const response = await axios.post(
+            "http://localhost:5000/api/VendorItemMaster",
+            req.body
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "CREATE VENDOR ITEM ERROR:",
+            error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to create vendor item."
+        });
+    }
+});
+
+// =========================================================
+// UPDATE VENDOR ITEM
+// =========================================================
+
+app.put("/api/VendorItemMaster/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const response = await axios.put(
+            `http://localhost:5000/api/VendorItemMaster/${id}`,
+            req.body
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "UPDATE VENDOR ITEM ERROR:",
+            error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update vendor item."
+        });
+    }
+});
+
+// =========================================================
+// DELETE VENDOR ITEM
+// =========================================================
+
+app.delete("/api/VendorItemMaster/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const response = await axios.delete(
+            `http://localhost:5000/api/VendorItemMaster/${id}`
+        );
+
+        return res.status(response.status).json(
+            response.data ?? {
+                success: true,
+                message: "Vendor item deleted successfully."
+            }
+        );
+
+    } catch (error) {
+        console.error(
+            "DELETE VENDOR ITEM ERROR:",
+            error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete vendor item."
+        });
+    }
+});
+
+
 
 
 

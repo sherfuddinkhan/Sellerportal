@@ -28,8 +28,9 @@ import SupplierAddressView from "./SupplierAddressView";
    API CONFIGURATION
 ========================================================= */
 
-const API_BASE_URL =
-    process.env.REACT_APP_API_BASE_URL || "https://localhost:7000/api";
+const API_BASE_URL = (
+    import.meta.env.VITE_API_URL || ""
+).replace(/\/+$/, "");
 
 const SUPPLIER_ADDRESSES_API = `${API_BASE_URL}/SupplierAddress`;
 const SUPPLIERS_API = `${API_BASE_URL}/Supplier`;
