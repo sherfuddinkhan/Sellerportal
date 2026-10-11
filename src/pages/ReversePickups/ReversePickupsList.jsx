@@ -54,7 +54,7 @@ import ReversePickupView from "./ReversePickupView";
 // React requests go through the Node proxy.
 // =========================================================
 
-const API_URL = "/api/ReversePickup";
+const API_URL = "http://localhost:5000/api/ReversePickup";
 
 // =========================================================
 // INITIAL FORM
