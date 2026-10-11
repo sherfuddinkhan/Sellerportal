@@ -1,270 +1,114 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    IconButton,
-    Typography,
-    Box,
-    Divider,
-    CircularProgress,
-    Alert
+  Box,
+  Typography,
+  TextField,
+  Grid,
+  Button,
+  Paper,
+  Divider,
+  Alert
 } from "@mui/material";
 
-import {
-    Close,
-    Add,
-    Save
-} from "@mui/icons-material";
+const API_URL = "/api/ShelfwiseInventory";
 
-import ShelfwiseInventoryForm from "./ShelfwiseInventoryForm";
+const ShelfwiseInventoryCreatePage = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  
+  const [form, setForm] = useState({
+    itemName: "",
+    itemCode: "",
+    itemId: "",
+    categoryName: "",
+    warehouseName: "",
+    warehouseId: "",
+    shelfName: "",
+    shelfCode: "",
+    shelfId: "",
+    quantity: "",
+    availableQuantity: "",
+    minimumStock: "",
+    maximumStock: "",
+    unit: ""
+  });
 
-/* =========================================================
-   SHELFWISE INVENTORY CREATE
-========================================================= */
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-const ShelfwiseInventoryCreate = ({
-    open = false,
+  const handleSubmit = async () => {
+    if (!form.itemName || !form.itemCode || !form.warehouseName || !form.shelfName) {
+      setError("Please fill all required fields *");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      await axios.post(API_URL, form);
+      navigate("/shelfwise-inventories");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create inventory");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    onClose,
-    onSubmit,
-    onCreate,
+  return (
+    <Box sx={{ p: 3, maxWidth: 1100, mx: "auto" }}>
+      {/* Header */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" fontWeight={700} display="flex" alignItems="center" gap={1}>
+          <Box sx={{ bgcolor: "#0284c7", color: "#fff", width: 40, height: 40, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>+</Box>
+          Create Shelfwise Inventory
+        </Typography>
+        <Typography color="text.secondary">Enter item, warehouse, shelf, and stock details.</Typography>
+      </Box>
 
-    loading = false,
-    submitting = false,
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-    maxWidth = "md"
-}) => {
+      <Paper sx={{ p: 3, borderRadius: 3 }}>
+        <Typography fontWeight={600} sx={{ mb: 2 }}>Item Details</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Item Name *" name="itemName" value={form.itemName} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Item Code *" name="itemCode" value={form.itemCode} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Item ID" name="itemId" value={form.itemId} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Category" name="categoryName" value={form.categoryName} onChange={handleChange} /></Grid>
+        </Grid>
 
-    /* =====================================================
-       STATE
-    ===================================================== */
+        <Divider sx={{ my: 3 }} />
 
-    const [error, setError] = useState("");
+        <Typography fontWeight={600} sx={{ mb: 2 }}>Warehouse and Shelf Details</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Warehouse Name *" name="warehouseName" value={form.warehouseName} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Warehouse ID" name="warehouseId" value={form.warehouseId} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Shelf Name *" name="shelfName" value={form.shelfName} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Shelf Code" name="shelfCode" value={form.shelfCode} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={4}><TextField fullWidth label="Shelf ID" name="shelfId" value={form.shelfId} onChange={handleChange} /></Grid>
+        </Grid>
 
-    const isBusy = loading || submitting;
+        <Divider sx={{ my: 3 }} />
 
-    /* =====================================================
-       HANDLE CLOSE
-    ===================================================== */
+        <Typography fontWeight={600} sx={{ mb: 2 }}>Stock Details</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={3}><TextField fullWidth label="Quantity" type="number" name="quantity" value={form.quantity} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={3}><TextField fullWidth label="Available Quantity" type="number" name="availableQuantity" value={form.availableQuantity} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={3}><TextField fullWidth label="Minimum Stock" type="number" name="minimumStock" value={form.minimumStock} onChange={handleChange} /></Grid>
+          <Grid item xs={12} md={3}><TextField fullWidth label="Unit" name="unit" value={form.unit} onChange={handleChange} /></Grid>
+        </Grid>
 
-    const handleClose = () => {
-        if (isBusy) {
-            return;
-        }
-
-        setError("");
-
-        if (onClose) {
-            onClose();
-        }
-    };
-
-    /* =====================================================
-       HANDLE CREATE
-    ===================================================== */
-
-    const handleCreate = async (formData) => {
-        if (isBusy) {
-            return;
-        }
-
-        const submitHandler = onCreate || onSubmit;
-
-        if (typeof submitHandler !== "function") {
-            setError(
-                "Create handler is not configured. Please provide onCreate or onSubmit."
-            );
-            return;
-        }
-
-        setError("");
-
-        try {
-            await submitHandler(formData);
-        } catch (err) {
-            setError(
-                err?.response?.data?.message ||
-                err?.message ||
-                "Unable to create inventory. Please try again."
-            );
-        }
-    };
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
-
-    return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            maxWidth={maxWidth}
-            fullWidth
-            aria-labelledby="shelfwise-inventory-create-title"
-            PaperProps={{
-                sx: {
-                    borderRadius: 2,
-                    overflow: "hidden"
-                }
-            }}
-        >
-            {/* HEADER */}
-
-            <DialogTitle
-                id="shelfwise-inventory-create-title"
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 2,
-                    px: 3,
-                    py: 2
-                }}
-            >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5
-                    }}
-                >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: 42,
-                            height: 42,
-                            borderRadius: 2,
-                            bgcolor: "primary.main",
-                            color: "primary.contrastText"
-                        }}
-                    >
-                        <Add />
-                    </Box>
-
-                    <Box>
-                        <Typography
-                            variant="h6"
-                            fontWeight={700}
-                        >
-                            Create Shelfwise Inventory
-                        </Typography>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            Enter item, warehouse, shelf, and stock details.
-                        </Typography>
-                    </Box>
-                </Box>
-
-                <IconButton
-                    onClick={handleClose}
-                    disabled={isBusy}
-                    aria-label="Close create inventory dialog"
-                >
-                    <Close />
-                </IconButton>
-            </DialogTitle>
-
-            <Divider />
-
-            {/* FORM CONTENT */}
-
-            <DialogContent
-                dividers
-                sx={{ p: { xs: 2, sm: 3 } }}
-            >
-                {error && (
-                    <Alert
-                        severity="error"
-                        onClose={() => setError("")}
-                        sx={{ mb: 2 }}
-                    >
-                        {error}
-                    </Alert>
-                )}
-
-                {loading ? (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            py: 6
-                        }}
-                    >
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    <ShelfwiseInventoryForm
-                        mode="create"
-                        onSubmit={handleCreate}
-                        onCancel={handleClose}
-                        loading={loading}
-                        submitting={submitting}
-                        showActions={false}
-                    />
-                )}
-            </DialogContent>
-
-            {/* FOOTER ACTIONS */}
-
-            <DialogActions
-                sx={{
-                    px: 3,
-                    py: 2,
-                    gap: 1
-                }}
-            >
-                <Button
-                    variant="outlined"
-                    color="inherit"
-                    onClick={handleClose}
-                    disabled={isBusy}
-                >
-                    Cancel
-                </Button>
-
-                <Button
-                    variant="contained"
-                    startIcon={
-                        isBusy ? (
-                            <CircularProgress
-                                size={18}
-                                color="inherit"
-                            />
-                        ) : (
-                            <Save />
-                        )
-                    }
-                    onClick={() => {
-                        const title = document.getElementById(
-                            "shelfwise-inventory-create-title"
-                        );
-
-                        const form = title
-                            ?.closest(".MuiDialog-paper")
-                            ?.querySelector("form");
-
-                        if (form) {
-                            form.requestSubmit();
-                        }
-                    }}
-                    disabled={isBusy}
-                >
-                    {isBusy ? "Creating..." : "Create Inventory"}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
+        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}>
+          <Button variant="outlined" onClick={() => navigate("/shelfwise-inventories")}>CANCEL</Button>
+          <Button variant="contained" onClick={handleSubmit} disabled={loading} sx={{ bgcolor: "#0284c7" }}>
+            {loading ? "CREATING..." : "CREATE INVENTORY"}
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
+  );
 };
 
-export default ShelfwiseInventoryCreate;
-
+export default ShelfwiseInventoryCreatePage;

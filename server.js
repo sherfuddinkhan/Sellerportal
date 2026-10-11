@@ -36086,7 +36086,224 @@ app.post("/api/Gatepass/list", async (req, res) => {
 });
 
 
+///////////////////////////
 
+/* =========================================================
+   SHELFWISE INVENTORY API CONFIGURATION
+========================================================= */
+
+const SHELFWISE_INVENTORY_API =
+    `${API_BASE_URL}/ShelfwiseInventory`;
+
+
+/* =========================================================
+   GET ALL SHELFWISE INVENTORY
+   GET /api/ShelfwiseInventory/all
+========================================================= */
+
+app.get("/api/ShelfwiseInventory/all", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${SHELFWISE_INVENTORY_API}/all`
+        );
+
+        return res
+            .status(response.status)
+            .json(response.data);
+    } catch (error) {
+        console.error(
+            "GET ALL SHELFWISE INVENTORY ERROR:",
+            error.response?.data || error.message
+        );
+
+        return handleProxyError(res, error);
+    }
+});
+
+
+/* =========================================================
+   GET SHELFWISE INVENTORY BY SELLER AND CUSTOMER
+   GET /api/ShelfwiseInventory/seller/:sellerId/customer/:customerId
+========================================================= */
+
+app.get(
+    "/api/ShelfwiseInventory/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${SHELFWISE_INVENTORY_API}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
+                {
+                    params: req.query
+                }
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+        } catch (error) {
+            console.error(
+                "GET SHELFWISE INVENTORY BY SELLER/CUSTOMER ERROR:",
+                error.response?.data || error.message
+            );
+
+            return handleProxyError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   CREATE SHELFWISE INVENTORY
+   POST /api/ShelfwiseInventory/seller/:sellerId/customer/:customerId
+========================================================= */
+
+app.post(
+    "/api/ShelfwiseInventory/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.post(
+                `${SHELFWISE_INVENTORY_API}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
+                req.body
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+        } catch (error) {
+            console.error(
+                "CREATE SHELFWISE INVENTORY ERROR:",
+                error.response?.data || error.message
+            );
+
+            return handleProxyError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   GET SHELFWISE INVENTORY LIST
+   POST /api/ShelfwiseInventory/list
+========================================================= */
+
+app.post("/api/ShelfwiseInventory/list", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${SHELFWISE_INVENTORY_API}/list`,
+            req.body
+        );
+
+        return res
+            .status(response.status)
+            .json(response.data);
+    } catch (error) {
+        console.error(
+            "GET SHELFWISE INVENTORY LIST ERROR:",
+            error.response?.data || error.message
+        );
+
+        return handleProxyError(res, error);
+    }
+});
+
+
+/* =========================================================
+   GET SHELFWISE INVENTORY BY ID
+   GET /api/ShelfwiseInventory/:id/seller/:sellerId/customer/:customerId
+========================================================= */
+
+app.get(
+    "/api/ShelfwiseInventory/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${SHELFWISE_INVENTORY_API}/${encodeURIComponent(id)}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+        } catch (error) {
+            console.error(
+                "GET SHELFWISE INVENTORY BY ID ERROR:",
+                error.response?.data || error.message
+            );
+
+            return handleProxyError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   UPDATE SHELFWISE INVENTORY
+   PUT /api/ShelfwiseInventory/:id/seller/:sellerId/customer/:customerId
+========================================================= */
+
+app.put(
+    "/api/ShelfwiseInventory/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.put(
+                `${SHELFWISE_INVENTORY_API}/${encodeURIComponent(id)}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
+                req.body
+            );
+
+            return res
+                .status(response.status)
+                .json(response.data);
+        } catch (error) {
+            console.error(
+                "UPDATE SHELFWISE INVENTORY ERROR:",
+                error.response?.data || error.message
+            );
+
+            return handleProxyError(res, error);
+        }
+    }
+);
+
+
+/* =========================================================
+   DELETE SHELFWISE INVENTORY
+   DELETE /api/ShelfwiseInventory/:id/seller/:sellerId/customer/:customerId
+========================================================= */
+
+app.delete(
+    "/api/ShelfwiseInventory/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.delete(
+                `${SHELFWISE_INVENTORY_API}/${encodeURIComponent(id)}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`
+            );
+
+            if (response.status === 204 || response.data == null) {
+                return res.sendStatus(response.status);
+            }
+
+            return res
+                .status(response.status)
+                .json(response.data);
+        } catch (error) {
+            console.error(
+                "DELETE SHELFWISE INVENTORY ERROR:",
+                error.response?.data || error.message
+            );
+
+            return handleProxyError(res, error);
+        }
+    }
+);
 
 
 

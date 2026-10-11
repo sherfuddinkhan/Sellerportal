@@ -1,3 +1,4 @@
+
 import React, {
     useEffect,
     useMemo,
@@ -6,7 +7,7 @@ import React, {
 } from "react";
 
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 import {
     Box,
     Grid,
@@ -18,13 +19,23 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Chip,
+    Tooltip,
+    IconButton
 } from "@mui/material";
 
 import {
-    Refresh,
-    Add,
-    Inventory2
+    Visibility,
+    Edit,
+    Delete
 } from "@mui/icons-material";
 
 import ShelfwiseInventoryToolbar from "./ShelfwiseInventoryToolbar";
@@ -44,7 +55,7 @@ import ShelfwiseInventoryDetails from "./ShelfwiseInventoryDetails";
 const API_URL = "/api/ShelfwiseInventory";
 
 /* =========================================================
-   GET FIELD VALUE
+   GET FIELD VALUE - CAMELCASE / PASCALCASE
 ========================================================= */
 
 const getField = (record, ...keys) => {
@@ -61,7 +72,7 @@ const getField = (record, ...keys) => {
 };
 
 /* =========================================================
-   GET RECORD ID
+   GET INVENTORY ID
 ========================================================= */
 
 const getInventoryId = (record) =>
@@ -76,7 +87,7 @@ const getInventoryId = (record) =>
     );
 
 /* =========================================================
-   GET API ERROR MESSAGE
+   API ERROR MESSAGE
 ========================================================= */
 
 const getErrorMessage = (error, fallback) => {
@@ -105,47 +116,114 @@ const getErrorMessage = (error, fallback) => {
    NORMALIZE API RESPONSE
 ========================================================= */
 
-const normalizeInventoryResponse = (responseData) => {
-    if (Array.isArray(responseData)) {
-        return responseData;
-    }
+const normalizeInventoryResponse = (data) => {
+    if (Array.isArray(data)) return data;
 
-    if (Array.isArray(responseData?.data)) {
-        return responseData.data;
-    }
+    const possibleArrays = [
+        data?.data,
+        data?.Data,
+        data?.items,
+        data?.Items,
+        data?.records,
+        data?.Records,
+        data?.$values
+    ];
 
-    if (Array.isArray(responseData?.Data)) {
-        return responseData.Data;
-    }
-
-    if (Array.isArray(responseData?.items)) {
-        return responseData.items;
-    }
-
-    if (Array.isArray(responseData?.Items)) {
-        return responseData.Items;
-    }
-
-    if (Array.isArray(responseData?.records)) {
-        return responseData.records;
-    }
-
-    if (Array.isArray(responseData?.Records)) {
-        return responseData.Records;
-    }
-
-    if (Array.isArray(responseData?.$values)) {
-        return responseData.$values;
-    }
-
-    return [];
+    return possibleArrays.find(Array.isArray) || [];
 };
 
 /* =========================================================
-   COMPONENT
+   INVENTORY STATUS
+========================================================= */
+
+const getInventoryStatus = (record) => {
+    const available = Number(
+        getField(
+            record,
+            "availableQuantity",
+            "AvailableQuantity"
+        )
+    ) || 0;
+
+    const minimum = Number(
+        getField(record, "minimumStock", "MinimumStock")
+    ) || 0;
+
+    const rawStatus = String(
+        getField(record, "status", "Status")
+    ).trim().toLowerCase();
+
+    if (rawStatus) {
+        if (
+            rawStatus === "out of stock" ||
+            rawStatus === "outofstock"
+        ) {
+            return "Out of Stock";
+        }
+
+        if (
+            rawStatus === "low stock" ||
+            rawStatus === "lowstock"
+        ) {
+            return "Low Stock";
+        }
+
+        return rawStatus.replace(/\b\w/g, (letter) =>
+            letter.toUpperCase()
+        );
+    }
+
+    if (available <= 0) return "Out of Stock";
+
+    if (minimum > 0 && available <= minimum) {
+        return "Low Stock";
+    }
+
+    return "Available";
+};
+
+/* =========================================================
+   STATUS CHIP
+========================================================= */
+
+const InventoryStatusChip = ({ status }) => {
+    const normalized = String(status || "").toLowerCase();
+
+    let color = "success";
+
+    if (
+        normalized.includes("out of stock") ||
+        normalized.includes("outofstock")
+    ) {
+        color = "error";
+    } else if (
+        normalized.includes("low stock") ||
+        normalized.includes("lowstock")
+    ) {
+        color = "warning";
+    } else if (
+        normalized.includes("inactive") ||
+        normalized.includes("blocked")
+    ) {
+        color = "default";
+    }
+
+    return (
+        <Chip
+            label={status || "Available"}
+            color={color}
+            size="small"
+            variant="outlined"
+        />
+    );
+};
+
+/* =========================================================
+   MAIN COMPONENT
 ========================================================= */
 
 const ShelfwiseInventoriesList = () => {
+    const navigate = useNavigate();
     /* =====================================================
        STATE
     ===================================================== */
@@ -177,12 +255,12 @@ const ShelfwiseInventoriesList = () => {
 
     const [viewMode, setViewMode] = useState("card");
 
-    const [createOpen, setCreateOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
-    const [selectedInventory, setSelectedInventory] = useState(null);
+    const [selectedInventory, setSelectedInventory] =
+        useState(null);
 
     /* =====================================================
        FETCH ALL INVENTORY
@@ -202,7 +280,7 @@ const ShelfwiseInventoriesList = () => {
             setInventory(records);
         } catch (err) {
             console.error(
-                "GET ALL SHELFWISE INVENTORY ERROR:",
+                "GET SHELFWISE INVENTORY ERROR:",
                 err.response?.data || err.message
             );
 
@@ -222,7 +300,7 @@ const ShelfwiseInventoriesList = () => {
     }, [fetchInventory]);
 
     /* =====================================================
-       SEARCH AND FILTER
+       SEARCH AND FILTER INVENTORY
     ===================================================== */
 
     const filteredInventory = useMemo(() => {
@@ -246,11 +324,19 @@ const ShelfwiseInventoriesList = () => {
             ).toLowerCase();
 
             const warehouseName = String(
-                getField(record, "warehouseName", "WarehouseName")
+                getField(
+                    record,
+                    "warehouseName",
+                    "WarehouseName"
+                )
             ).toLowerCase();
 
             const categoryName = String(
-                getField(record, "categoryName", "CategoryName")
+                getField(
+                    record,
+                    "categoryName",
+                    "CategoryName"
+                )
             ).toLowerCase();
 
             const available = Number(
@@ -265,19 +351,9 @@ const ShelfwiseInventoriesList = () => {
                 getField(record, "minimumStock", "MinimumStock")
             ) || 0;
 
-            const rawStatus = String(
-                getField(record, "status", "Status")
-            ).trim();
+            const status = getInventoryStatus(record).toLowerCase();
 
-            const status = rawStatus
-                ? rawStatus.toLowerCase()
-                : available <= 0
-                    ? "out of stock"
-                    : minimum > 0 && available <= minimum
-                        ? "low stock"
-                        : "available";
-
-            /* Search field */
+            /* Search field matching */
 
             let matchesSearch = true;
 
@@ -300,7 +376,8 @@ const ShelfwiseInventoriesList = () => {
                         break;
 
                     case "warehouseName":
-                        matchesSearch = warehouseName.includes(term);
+                        matchesSearch =
+                            warehouseName.includes(term);
                         break;
 
                     case "categoryName":
@@ -321,7 +398,7 @@ const ShelfwiseInventoriesList = () => {
 
             /* Status filter */
 
-            const selectedStatus = (
+            const selectedStatus = String(
                 filters.status || statusFilter
             ).toLowerCase();
 
@@ -363,12 +440,14 @@ const ShelfwiseInventoriesList = () => {
 
             if (filters.stockLevel === "low") {
                 matchesStockLevel =
-                    minimum > 0 && available > 0 &&
+                    available > 0 &&
+                    minimum > 0 &&
                     available <= minimum;
             } else if (filters.stockLevel === "out") {
                 matchesStockLevel = available <= 0;
             } else if (filters.stockLevel === "available") {
-                matchesStockLevel = available > 0 &&
+                matchesStockLevel =
+                    available > 0 &&
                     !(minimum > 0 && available <= minimum);
             }
 
@@ -405,7 +484,9 @@ const ShelfwiseInventoriesList = () => {
     useEffect(() => {
         const lastPage = Math.max(
             0,
-            Math.ceil(filteredInventory.length / rowsPerPage) - 1
+            Math.ceil(
+                filteredInventory.length / rowsPerPage
+            ) - 1
         );
 
         if (page > lastPage) {
@@ -473,9 +554,11 @@ const ShelfwiseInventoriesList = () => {
                     )
                 ) || 0;
 
-                return available > 0 &&
+                return (
+                    available > 0 &&
                     minimum > 0 &&
-                    available <= minimum;
+                    available <= minimum
+                );
             }).length,
 
             outOfStock: inventory.filter((record) => {
@@ -493,7 +576,7 @@ const ShelfwiseInventoriesList = () => {
     }, [inventory]);
 
     /* =====================================================
-       FILTER OPTIONS
+       WAREHOUSE FILTER OPTIONS
     ===================================================== */
 
     const warehouses = useMemo(() => {
@@ -523,6 +606,10 @@ const ShelfwiseInventoriesList = () => {
         return Array.from(unique.values());
     }, [inventory]);
 
+    /* =====================================================
+       SHELF FILTER OPTIONS
+    ===================================================== */
+
     const shelves = useMemo(() => {
         const unique = new Map();
 
@@ -549,6 +636,10 @@ const ShelfwiseInventoriesList = () => {
 
         return Array.from(unique.values());
     }, [inventory]);
+
+    /* =====================================================
+       CATEGORY FILTER OPTIONS
+    ===================================================== */
 
     const categories = useMemo(() => {
         return [
@@ -605,38 +696,6 @@ const ShelfwiseInventoriesList = () => {
         setPage(0);
     };
 
-    /* =====================================================
-       CREATE INVENTORY
-    ===================================================== */
-
-    const handleCreate = async (payload) => {
-        setSubmitting(true);
-        setError("");
-
-        try {
-            await axios.post(API_URL, payload);
-
-            setCreateOpen(false);
-            setSuccess("Inventory record created successfully.");
-
-            await fetchInventory();
-        } catch (err) {
-            console.error(
-                "CREATE SHELFWISE INVENTORY ERROR:",
-                err.response?.data || err.message
-            );
-
-            const message = getErrorMessage(
-                err,
-                "Failed to create inventory record."
-            );
-
-            setError(message);
-            throw err;
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     /* =====================================================
        EDIT INVENTORY
@@ -646,7 +705,9 @@ const ShelfwiseInventoriesList = () => {
         const id = getInventoryId(selectedInventory);
 
         if (id === "" || id === null || id === undefined) {
-            setError("Cannot update inventory: record ID is missing.");
+            setError(
+                "Cannot update inventory: record ID is missing."
+            );
             return;
         }
 
@@ -661,21 +722,25 @@ const ShelfwiseInventoriesList = () => {
 
             setEditOpen(false);
             setSelectedInventory(null);
-            setSuccess("Inventory record updated successfully.");
+
+            setSuccess(
+                "Inventory record updated successfully."
+            );
 
             await fetchInventory();
         } catch (err) {
             console.error(
-                "UPDATE SHELFWISE INVENTORY ERROR:",
+                "UPDATE INVENTORY ERROR:",
                 err.response?.data || err.message
             );
 
-            const message = getErrorMessage(
-                err,
-                "Failed to update inventory record."
+            setError(
+                getErrorMessage(
+                    err,
+                    "Failed to update inventory record."
+                )
             );
 
-            setError(message);
             throw err;
         } finally {
             setSubmitting(false);
@@ -690,7 +755,9 @@ const ShelfwiseInventoriesList = () => {
         const id = getInventoryId(selectedInventory);
 
         if (id === "" || id === null || id === undefined) {
-            setError("Cannot delete inventory: record ID is missing.");
+            setError(
+                "Cannot delete inventory: record ID is missing."
+            );
             return;
         }
 
@@ -704,12 +771,15 @@ const ShelfwiseInventoriesList = () => {
 
             setDeleteOpen(false);
             setSelectedInventory(null);
-            setSuccess("Inventory record deleted successfully.");
+
+            setSuccess(
+                "Inventory record deleted successfully."
+            );
 
             await fetchInventory();
         } catch (err) {
             console.error(
-                "DELETE SHELFWISE INVENTORY ERROR:",
+                "DELETE INVENTORY ERROR:",
                 err.response?.data || err.message
             );
 
@@ -749,7 +819,9 @@ const ShelfwiseInventoriesList = () => {
 
     const handleExport = () => {
         if (!filteredInventory.length) {
-            setError("There are no inventory records to export.");
+            setError(
+                "There are no inventory records to export."
+            );
             return;
         }
 
@@ -758,8 +830,10 @@ const ShelfwiseInventoriesList = () => {
             ["Item Name", (r) => getField(r, "itemName", "ItemName")],
             ["Item Code", (r) => getField(r, "itemCode", "ItemCode")],
             ["Warehouse", (r) => getField(r, "warehouseName", "WarehouseName")],
+            ["Warehouse ID", (r) => getField(r, "warehouseId", "WarehouseId")],
             ["Shelf", (r) => getField(r, "shelfName", "ShelfName")],
             ["Shelf Code", (r) => getField(r, "shelfCode", "ShelfCode")],
+            ["Shelf ID", (r) => getField(r, "shelfId", "ShelfId")],
             ["Category", (r) => getField(r, "categoryName", "CategoryName")],
             ["Quantity", (r) => getField(r, "quantity", "Quantity")],
             ["Available Quantity", (r) => getField(r, "availableQuantity", "AvailableQuantity")],
@@ -767,17 +841,22 @@ const ShelfwiseInventoriesList = () => {
             ["Minimum Stock", (r) => getField(r, "minimumStock", "MinimumStock")],
             ["Maximum Stock", (r) => getField(r, "maximumStock", "MaximumStock")],
             ["Unit", (r) => getField(r, "unit", "Unit")],
-            ["Status", (r) => getField(r, "status", "Status")]
+            ["Status", (r) => getInventoryStatus(r)]
         ];
 
         const escapeCsv = (value) =>
             `"${String(value ?? "").replace(/"/g, '""')}"`;
 
         const csv = [
-            columns.map(([label]) => escapeCsv(label)).join(","),
+            columns
+                .map(([label]) => escapeCsv(label))
+                .join(","),
+
             ...filteredInventory.map((record) =>
                 columns
-                    .map(([, getter]) => escapeCsv(getter(record)))
+                    .map(([, getter]) =>
+                        escapeCsv(getter(record))
+                    )
                     .join(",")
             )
         ].join("\r\n");
@@ -806,80 +885,27 @@ const ShelfwiseInventoriesList = () => {
 
     return (
         <Box sx={{ p: { xs: 1.5, md: 3 } }}>
-            {/* Page heading */}
 
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: { xs: "flex-start", sm: "center" },
-                    flexWrap: "wrap",
-                    gap: 2,
-                    mb: 3
-                }}
-            >
-                <Box>
-                    <Typography
-                        variant="h5"
-                        fontWeight={700}
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                    >
-                        <Inventory2 color="primary" />
-                        Shelfwise Inventory
-                    </Typography>
+            {/* =================================================
+                TOOLBAR - ONLY PAGE HEADER
+            ================================================= */}
+<ShelfwiseInventoryToolbar
+    totalRecords={statistics.totalRecords}
+    totalQuantity={statistics.totalQuantity}
+    loading={loading}
+    onAdd={() => navigate("/shelfwise-inventories/create")}
+    onRefresh={fetchInventory}
+    onExport={handleExport}
+    onToggleFilters={() => setShowFilters((value) => !value)}
+    onToggleView={() => setViewMode((value) => value === "card" ? "table" : "card")}
+    showFilters={showFilters}
+    viewMode={viewMode}
+    addButtonLabel="ADD INVENTORY"
+/>
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 0.5 }}
-                    >
-                        Manage inventory quantities and warehouse shelf
-                        allocations.
-                    </Typography>
-                </Box>
-
-                <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button
-                        variant="outlined"
-                        startIcon={<Refresh />}
-                        onClick={fetchInventory}
-                        disabled={loading}
-                    >
-                        Refresh
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        startIcon={<Add />}
-                        onClick={() => setCreateOpen(true)}
-                    >
-                        Add Inventory
-                    </Button>
-                </Box>
-            </Box>
-
-            {/* Toolbar */}
-
-            <ShelfwiseInventoryToolbar
-                totalRecords={statistics.totalRecords}
-                totalQuantity={statistics.totalQuantity}
-                loading={loading}
-                onAdd={() => setCreateOpen(true)}
-                onRefresh={fetchInventory}
-                onExport={handleExport}
-                onToggleFilters={() => setShowFilters((value) => !value)}
-                onToggleView={() =>
-                    setViewMode((value) =>
-                        value === "card" ? "table" : "card"
-                    )
-                }
-                showFilters={showFilters}
-                viewMode={viewMode}
-            />
-
-            {/* Statistics */}
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
 
             <Box sx={{ mt: 3 }}>
                 <ShelfwiseInventoryStatistics
@@ -889,7 +915,9 @@ const ShelfwiseInventoriesList = () => {
                 />
             </Box>
 
-            {/* Search */}
+            {/* =================================================
+                SEARCH
+            ================================================= */}
 
             <Box sx={{ mt: 3 }}>
                 <ShelfwiseInventorySearch
@@ -917,7 +945,9 @@ const ShelfwiseInventoriesList = () => {
                 />
             </Box>
 
-            {/* Filters */}
+            {/* =================================================
+                FILTERS
+            ================================================= */}
 
             {showFilters && (
                 <Box sx={{ mt: 2 }}>
@@ -935,7 +965,9 @@ const ShelfwiseInventoriesList = () => {
                 </Box>
             )}
 
-            {/* Error */}
+            {/* =================================================
+                ERROR
+            ================================================= */}
 
             {error && (
                 <Alert
@@ -947,7 +979,9 @@ const ShelfwiseInventoriesList = () => {
                 </Alert>
             )}
 
-            {/* Results summary */}
+            {/* =================================================
+                RESULTS SUMMARY
+            ================================================= */}
 
             <Box
                 sx={{
@@ -960,8 +994,14 @@ const ShelfwiseInventoriesList = () => {
                     gap: 1
                 }}
             >
-                <Typography variant="body2" color="text.secondary">
-                    Showing {filteredInventory.length === 0 ? 0 : page * rowsPerPage + 1}
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                >
+                    Showing{" "}
+                    {filteredInventory.length === 0
+                        ? 0
+                        : page * rowsPerPage + 1}
                     {" - "}
                     {Math.min(
                         (page + 1) * rowsPerPage,
@@ -983,7 +1023,9 @@ const ShelfwiseInventoriesList = () => {
                 )}
             </Box>
 
-            {/* Loading */}
+            {/* =================================================
+                LOADING
+            ================================================= */}
 
             {loading && inventory.length === 0 ? (
                 <Box
@@ -1002,6 +1044,10 @@ const ShelfwiseInventoriesList = () => {
                     </Typography>
                 </Box>
             ) : filteredInventory.length === 0 ? (
+                /* =================================================
+                   EMPTY STATE
+                ================================================= */
+
                 <Box
                     sx={{
                         py: 8,
@@ -1011,15 +1057,10 @@ const ShelfwiseInventoriesList = () => {
                         borderRadius: 3
                     }}
                 >
-                    <Inventory2
-                        sx={{
-                            fontSize: 52,
-                            color: "text.disabled",
-                            mb: 1
-                        }}
-                    />
-
-                    <Typography variant="h6" fontWeight={600}>
+                    <Typography
+                        variant="h6"
+                        fontWeight={600}
+                    >
                         No inventory records found
                     </Typography>
 
@@ -1028,13 +1069,12 @@ const ShelfwiseInventoriesList = () => {
                         color="text.secondary"
                         sx={{ mt: 1, mb: 2 }}
                     >
-                        Try changing your search or filter criteria, or
-                        create a new inventory record.
+                        Try changing your search or filters,
+                        or create a new inventory record.
                     </Typography>
 
                     <Button
                         variant="contained"
-                        startIcon={<Add />}
                         onClick={() => setCreateOpen(true)}
                     >
                         Add Inventory
@@ -1042,43 +1082,266 @@ const ShelfwiseInventoriesList = () => {
                 </Box>
             ) : (
                 <>
-                    {/* Inventory cards */}
+                    {/* =============================================
+                        CARD VIEW
+                    ============================================= */}
 
                     {viewMode === "card" && (
                         <Grid container spacing={2}>
-                            {paginatedInventory.map((record, index) => {
-                                const id = getInventoryId(record);
+                            {paginatedInventory.map(
+                                (record, index) => {
+                                    const id =
+                                        getInventoryId(record);
 
-                                return (
-                                    <Grid
-                                        item
-                                        xs={12}
-                                        sm={6}
-                                        lg={4}
-                                        xl={3}
-                                        key={id !== "" ? id : index}
-                                    >
-                                        <ShelfwiseInventoryCard
-                                            inventory={record}
-                                            loading={loading}
-                                            onView={openView}
-                                            onEdit={openEdit}
-                                            onDelete={openDelete}
-                                        />
-                                    </Grid>
-                                );
-                            })}
+                                    return (
+                                        <Grid
+                                            item
+                                            xs={12}
+                                            sm={6}
+                                            lg={4}
+                                            xl={3}
+                                            key={
+                                                id !== ""
+                                                    ? id
+                                                    : index
+                                            }
+                                        >
+                                            <ShelfwiseInventoryCard
+                                                inventory={record}
+                                                loading={loading}
+                                                onView={openView}
+                                                onEdit={openEdit}
+                                                onDelete={openDelete}
+                                            />
+                                        </Grid>
+                                    );
+                                }
+                            )}
                         </Grid>
                     )}
 
-                    {/* Pagination */}
+                    {/* =============================================
+                        TABLE VIEW
+                    ============================================= */}
+
+                    {viewMode === "table" && (
+                        <TableContainer
+                            component={Paper}
+                            variant="outlined"
+                            sx={{ borderRadius: 2 }}
+                        >
+                            <Table
+                                size="small"
+                                sx={{ minWidth: 950 }}
+                            >
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>
+                                            <strong>Item Name</strong>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <strong>Item Code</strong>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <strong>Warehouse</strong>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <strong>Shelf</strong>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <strong>Category</strong>
+                                        </TableCell>
+
+                                        <TableCell align="right">
+                                            <strong>Quantity</strong>
+                                        </TableCell>
+
+                                        <TableCell align="right">
+                                            <strong>Available</strong>
+                                        </TableCell>
+
+                                        <TableCell align="right">
+                                            <strong>Reserved</strong>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <strong>Status</strong>
+                                        </TableCell>
+
+                                        <TableCell align="center">
+                                            <strong>Actions</strong>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {paginatedInventory.map(
+                                        (record, index) => {
+                                            const id =
+                                                getInventoryId(record);
+
+                                            return (
+                                                <TableRow
+                                                    hover
+                                                    key={
+                                                        id !== ""
+                                                            ? id
+                                                            : index
+                                                    }
+                                                >
+                                                    <TableCell>
+                                                        {getField(
+                                                            record,
+                                                            "itemName",
+                                                            "ItemName"
+                                                        ) || "-"}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        {getField(
+                                                            record,
+                                                            "itemCode",
+                                                            "ItemCode"
+                                                        ) || "-"}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        {getField(
+                                                            record,
+                                                            "warehouseName",
+                                                            "WarehouseName"
+                                                        ) || "-"}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        {getField(
+                                                            record,
+                                                            "shelfName",
+                                                            "ShelfName"
+                                                        ) || "-"}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        {getField(
+                                                            record,
+                                                            "categoryName",
+                                                            "CategoryName"
+                                                        ) || "-"}
+                                                    </TableCell>
+
+                                                    <TableCell align="right">
+                                                        {Number(
+                                                            getField(
+                                                                record,
+                                                                "quantity",
+                                                                "Quantity"
+                                                            )
+                                                        ) || 0}
+                                                    </TableCell>
+
+                                                    <TableCell align="right">
+                                                        {Number(
+                                                            getField(
+                                                                record,
+                                                                "availableQuantity",
+                                                                "AvailableQuantity"
+                                                            )
+                                                        ) || 0}
+                                                    </TableCell>
+
+                                                    <TableCell align="right">
+                                                        {Number(
+                                                            getField(
+                                                                record,
+                                                                "reservedQuantity",
+                                                                "ReservedQuantity"
+                                                            )
+                                                        ) || 0}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        <InventoryStatusChip
+                                                            status={getInventoryStatus(
+                                                                record
+                                                            )}
+                                                        />
+                                                    </TableCell>
+
+                                                    <TableCell align="center">
+                                                        <Box
+                                                            sx={{
+                                                                display: "flex",
+                                                                justifyContent: "center"
+                                                            }}
+                                                        >
+                                                            <Tooltip title="View details">
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="primary"
+                                                                    onClick={() =>
+                                                                        openView(
+                                                                            record
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Visibility fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+
+                                                            <Tooltip title="Edit inventory">
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="primary"
+                                                                    onClick={() =>
+                                                                        openEdit(
+                                                                            record
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Edit fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+
+                                                            <Tooltip title="Delete inventory">
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="error"
+                                                                    onClick={() =>
+                                                                        openDelete(
+                                                                            record
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Delete fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        }
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+
+                    {/* =============================================
+                        PAGINATION
+                    ============================================= */}
 
                     <Box sx={{ mt: 3 }}>
                         <ShelfwiseInventoryPagination
                             page={page}
                             rowsPerPage={rowsPerPage}
                             totalRecords={filteredInventory.length}
-                            onPageChange={(newPage) => setPage(newPage)}
+                            onPageChange={(newPage) =>
+                                setPage(newPage)
+                            }
                             onRowsPerPageChange={(value) => {
                                 setRowsPerPage(Number(value));
                                 setPage(0);
@@ -1089,20 +1352,15 @@ const ShelfwiseInventoriesList = () => {
                 </>
             )}
 
-            {/* Create dialog */}
+            {/* =================================================
+                CREATE DIALOG
+            ================================================= */}
 
-            <ShelfwiseInventoryCreate
-                open={createOpen}
-                onClose={() => {
-                    if (!submitting) {
-                        setCreateOpen(false);
-                    }
-                }}
-                onSubmit={handleCreate}
-                submitting={submitting}
-            />
+          
 
-            {/* Edit dialog */}
+            {/* =================================================
+                EDIT DIALOG
+            ================================================= */}
 
             <ShelfwiseInventoryEdit
                 open={editOpen}
@@ -1117,7 +1375,9 @@ const ShelfwiseInventoriesList = () => {
                 submitting={submitting}
             />
 
-            {/* Details dialog */}
+            {/* =================================================
+                DETAILS DIALOG
+            ================================================= */}
 
             <ShelfwiseInventoryDetails
                 open={detailsOpen}
@@ -1132,7 +1392,9 @@ const ShelfwiseInventoriesList = () => {
                 }}
             />
 
-            {/* Delete confirmation */}
+            {/* =================================================
+                DELETE CONFIRMATION
+            ================================================= */}
 
             <Dialog
                 open={deleteOpen}
@@ -1189,7 +1451,9 @@ const ShelfwiseInventoriesList = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Success message */}
+            {/* =================================================
+                SUCCESS NOTIFICATION
+            ================================================= */}
 
             <Snackbar
                 open={Boolean(success)}
@@ -1208,9 +1472,9 @@ const ShelfwiseInventoriesList = () => {
                     {success}
                 </Alert>
             </Snackbar>
+
         </Box>
     );
 };
 
 export default ShelfwiseInventoriesList;
-
