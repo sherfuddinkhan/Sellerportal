@@ -1,301 +1,583 @@
-import React, { useEffect, useState } from "react";
+// =========================================================
+// InvoiceTaxDetailEdit.jsx
+// =========================================================
+
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
 
 import axios from "axios";
 
 import {
-Box,
-Paper,
-Typography,
-CircularProgress,
-Alert,
-Snackbar
+    Box,
+    Paper,
+    Typography,
+    CircularProgress,
+    Alert,
+    Snackbar,
+    Button
 } from "@mui/material";
 
 import {
-ArrowBack,
-Edit,
-ReceiptLong
+    Edit,
+    ArrowBack
 } from "@mui/icons-material";
 
-import { useNavigate, useParams } from "react-router-dom";
+import {
+    useNavigate,
+    useParams
+} from "react-router-dom";
 
 import InvoiceTaxDetailForm from "./InvoiceTaxDetailForm";
 
-/* =========================================================
-API CONFIGURATION
-========================================================= */
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+const API_URL =
+    "http://localhost:5000/api/invoice-tax-details";
 
-const INVOICE_TAX_DETAIL_API =
-`${API_BASE_URL}/api/InvoiceTaxDetail`;
+// =========================================================
+// GET FIELD VALUE - CAMELCASE / PASCALCASE
+// =========================================================
 
-/* =========================================================
-INVOICE TAX DETAIL EDIT
-========================================================= */
+const getField = (data, camelCase, pascalCase, fallback = "") => {
+    return data?.[camelCase] ??
+        data?.[pascalCase] ??
+        fallback;
+};
+
+// =========================================================
+// NORMALIZE API RECORD
+// =========================================================
+
+const normalizeTaxDetail = (data) => ({
+    invoiceTaxDetailId: getField(
+        data,
+        "invoiceTaxDetailId",
+        "InvoiceTaxDetailId"
+    ),
+
+    salesInvoiceId: getField(
+        data,
+        "salesInvoiceId",
+        "SalesInvoiceId",
+        0
+    ),
+
+    channelProductId: getField(
+        data,
+        "channelProductId",
+        "ChannelProductId"
+    ),
+
+    taxPercentage: getField(
+        data,
+        "taxPercentage",
+        "TaxPercentage",
+        0
+    ),
+
+    centralGst: getField(
+        data,
+        "centralGst",
+        "CentralGst",
+        0
+    ),
+
+    stateGst: getField(
+        data,
+        "stateGst",
+        "StateGst",
+        0
+    ),
+
+    integratedGst: getField(
+        data,
+        "integratedGst",
+        "IntegratedGst",
+        0
+    ),
+
+    compensationCess: getField(
+        data,
+        "compensationCess",
+        "CompensationCess",
+        0
+    ),
+
+    sellerId: getField(
+        data,
+        "sellerId",
+        "SellerId",
+        0
+    ),
+
+    customerId: getField(
+        data,
+        "customerId",
+        "CustomerId",
+        0
+    )
+});
+
+// =========================================================
+// INVOICE TAX DETAIL EDIT
+// =========================================================
 
 const InvoiceTaxDetailEdit = ({
-invoiceTaxDetailId: propId,
-onCancel,
-onUpdated
+    invoiceTaxDetailId: propId,
+    onCancel,
+    onUpdated
 }) => {
-const params = useParams();
-const navigate = useNavigate();
-const invoiceTaxDetailId =
-    propId ??
-    params.invoiceTaxDetailId ??
-    params.id;
+    const navigate = useNavigate();
+    const params = useParams();
 
-const [taxDetail, setTaxDetail] = useState(null);
-const [loading, setLoading] = useState(true);
-const [saving, setSaving] = useState(false);
-const [error, setError] = useState("");
-const [success, setSuccess] = useState(false);
+    const invoiceTaxDetailId =
+        propId ??
+        params.id ??
+        params.invoiceTaxDetailId;
 
-/* =====================================================
-   GET INVOICE TAX DETAIL BY ID
-===================================================== */
+    const [taxDetail, setTaxDetail] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-const fetchTaxDetail = async () => {
-    if (
-        invoiceTaxDetailId === undefined ||
-        invoiceTaxDetailId === null ||
-        invoiceTaxDetailId === ""
-    ) {
-        setError("Invoice tax detail ID is missing.");
-        setLoading(false);
-        return;
-    }
+    // =====================================================
+    // GET INVOICE TAX DETAIL BY ID
+    // =====================================================
 
-    setLoading(true);
-    setError("");
-
-    try {
-        const response = await axios.get(
-            `${INVOICE_TAX_DETAIL_API}/${encodeURIComponent(
-                invoiceTaxDetailId
-            )}`
-        );
-
-        const responseData = response.data;
-
-        const record =
-            responseData?.data ??
-            responseData?.result ??
-            responseData;
-
+    const fetchTaxDetail = useCallback(async () => {
         if (
-            !record ||
-            typeof record !== "object" ||
-            Array.isArray(record)
+            invoiceTaxDetailId === undefined ||
+            invoiceTaxDetailId === null ||
+            String(invoiceTaxDetailId).trim() === ""
         ) {
-            throw new Error(
-                "Invoice tax detail was not found."
-            );
+            setTaxDetail(null);
+            setError("Invoice tax detail ID is missing.");
+            setLoading(false);
+            return;
         }
 
-        setTaxDetail(record);
-    } catch (err) {
-        console.error(
-            "GET INVOICE TAX DETAIL ERROR:",
-            err
-        );
+        setLoading(true);
+        setError("");
+        setTaxDetail(null);
 
-        setError(
-            err.response?.data?.message ||
-            err.response?.data?.title ||
-            err.message ||
-            "Failed to load invoice tax detail."
-        );
-    } finally {
-        setLoading(false);
-    }
-};
+        try {
+            const url =
+                `${API_URL}/${encodeURIComponent(
+                    invoiceTaxDetailId
+                )}`;
 
-/* =====================================================
-   INITIAL LOAD
-===================================================== */
+            console.log("Fetching invoice tax detail:", url);
 
-useEffect(() => {
-    fetchTaxDetail();
-}, [invoiceTaxDetailId]);
+            const response = await axios.get(url, {
+                headers: {
+                    Accept: "application/json"
+                },
+                timeout: 15000
+            });
 
-/* =====================================================
-   UPDATE INVOICE TAX DETAIL
-===================================================== */
+            const responseData = response.data;
 
-const handleUpdate = async (payload) => {
-    setSaving(true);
-    setError("");
+            const record =
+                responseData?.data ??
+                responseData?.result ??
+                responseData;
 
-    try {
-        const updatePayload = {
-            ...payload,
-            invoiceTaxDetailId:
-                taxDetail?.invoiceTaxDetailId ??
-                taxDetail?.InvoiceTaxDetailId ??
-                invoiceTaxDetailId
-        };
+            const recordId =
+                record?.invoiceTaxDetailId ??
+                record?.InvoiceTaxDetailId;
 
-        const response = await axios.put(
-            `${INVOICE_TAX_DETAIL_API}/${encodeURIComponent(
-                invoiceTaxDetailId
-            )}`,
-            updatePayload
-        );
+            if (
+                !record ||
+                typeof record !== "object" ||
+                Array.isArray(record) ||
+                recordId == null
+            ) {
+                throw new Error(
+                    "The API response does not contain a valid invoice tax detail record."
+                );
+            }
 
-        setSuccess(true);
+            setTaxDetail(normalizeTaxDetail(record));
+        } catch (err) {
+            console.error("GET INVOICE TAX DETAIL ERROR:", {
+                url: err.config?.url,
+                status: err.response?.status,
+                response: err.response?.data,
+                message: err.message
+            });
 
-        if (onUpdated) {
-            await onUpdated(
-                response.data ?? updatePayload
-            );
+            setTaxDetail(null);
+
+            if (err.response?.status === 404) {
+                setError(
+                    `Invoice tax detail ${invoiceTaxDetailId} was not found. Check the Node proxy URL and ASP.NET endpoint.`
+                );
+            } else {
+                setError(
+                    err.response?.data?.message ||
+                    err.response?.data?.title ||
+                    err.message ||
+                    "Failed to load invoice tax detail."
+                );
+            }
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        console.error(
-            "UPDATE INVOICE TAX DETAIL ERROR:",
-            err
-        );
+    }, [invoiceTaxDetailId]);
 
-        const message =
-            err.response?.data?.message ||
-            err.response?.data?.title ||
-            err.message ||
-            "Failed to update invoice tax detail.";
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
 
-        setError(message);
-        throw err;
-    } finally {
-        setSaving(false);
-    }
-};
+    useEffect(() => {
+        fetchTaxDetail();
+    }, [fetchTaxDetail]);
 
-/* =====================================================
-   CANCEL EDIT
-===================================================== */
+    // =====================================================
+    // UPDATE INVOICE TAX DETAIL
+    // =====================================================
 
-const handleCancel = () => {
-    if (onCancel) {
-        onCancel();
-    } else {
-        navigate(-1);
-    }
-};
+    const handleUpdate = async (formData) => {
+        if (
+            invoiceTaxDetailId === undefined ||
+            invoiceTaxDetailId === null ||
+            String(invoiceTaxDetailId).trim() === ""
+        ) {
+            setError("Invoice tax detail ID is missing.");
+            return;
+        }
 
-/* =====================================================
-   LOADING STATE
-===================================================== */
+        if (!taxDetail) {
+            setError("Load the invoice tax detail before updating.");
+            return;
+        }
 
-if (loading) {
-    return (
-        <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            gap={2}
-            sx={{ py: 8 }}
-        >
-            <CircularProgress />
+        setSaving(true);
+        setError("");
+        setSuccess("");
 
-            <Typography color="text.secondary">
-                Loading invoice tax detail...
-            </Typography>
-        </Box>
-    );
-}
+        try {
+            const submittedData =
+                formData?.data ??
+                formData?.result ??
+                formData ??
+                {};
 
-/* =====================================================
-   ERROR STATE
-===================================================== */
+            // Only send fields that exist in the actual database.
+            const updatePayload = {
+                invoiceTaxDetailId: Number(invoiceTaxDetailId),
 
-if (error && !taxDetail) {
-    return (
-        <Box sx={{ p: { xs: 2, md: 3 } }}>
-            <Alert
-                severity="error"
-                action={
-                    <Box
-                        component="span"
-                        onClick={fetchTaxDetail}
-                        sx={{
-                            cursor: "pointer",
-                            fontWeight: 600,
-                            mr: 1
-                        }}
-                    >
-                        Retry
-                    </Box>
+                salesInvoiceId: Number(
+                    getField(
+                        submittedData,
+                        "salesInvoiceId",
+                        "SalesInvoiceId",
+                        taxDetail.salesInvoiceId
+                    )
+                ),
+
+                channelProductId: String(
+                    getField(
+                        submittedData,
+                        "channelProductId",
+                        "ChannelProductId",
+                        taxDetail.channelProductId
+                    )
+                ),
+
+                taxPercentage: Number(
+                    getField(
+                        submittedData,
+                        "taxPercentage",
+                        "TaxPercentage",
+                        taxDetail.taxPercentage
+                    )
+                ),
+
+                centralGst: Number(
+                    getField(
+                        submittedData,
+                        "centralGst",
+                        "CentralGst",
+                        taxDetail.centralGst
+                    )
+                ),
+
+                stateGst: Number(
+                    getField(
+                        submittedData,
+                        "stateGst",
+                        "StateGst",
+                        taxDetail.stateGst
+                    )
+                ),
+
+                integratedGst: Number(
+                    getField(
+                        submittedData,
+                        "integratedGst",
+                        "IntegratedGst",
+                        taxDetail.integratedGst
+                    )
+                ),
+
+                compensationCess: Number(
+                    getField(
+                        submittedData,
+                        "compensationCess",
+                        "CompensationCess",
+                        taxDetail.compensationCess
+                    )
+                ),
+
+                sellerId: Number(
+                    getField(
+                        submittedData,
+                        "sellerId",
+                        "SellerId",
+                        taxDetail.sellerId
+                    )
+                ),
+
+                customerId: Number(
+                    getField(
+                        submittedData,
+                        "customerId",
+                        "CustomerId",
+                        taxDetail.customerId
+                    )
+                )
+            };
+
+            // Prevent accidental NaN values.
+            const numericFields = [
+                "salesInvoiceId",
+                "taxPercentage",
+                "centralGst",
+                "stateGst",
+                "integratedGst",
+                "compensationCess",
+                "sellerId",
+                "customerId"
+            ];
+
+            for (const field of numericFields) {
+                if (!Number.isFinite(updatePayload[field])) {
+                    throw new Error(
+                        `Invalid numeric value for ${field}.`
+                    );
                 }
-            >
-                {error}
-            </Alert>
-        </Box>
-    );
-}
+            }
 
-/* =====================================================
-   RENDER
-===================================================== */
+            const url =
+                `${API_URL}/${encodeURIComponent(
+                    invoiceTaxDetailId
+                )}`;
 
-return (
-    <Box sx={{ p: { xs: 1.5, md: 3 } }}>
-        <Paper
-            elevation={1}
-            sx={{
-                p: { xs: 2, md: 3 },
-                mb: 3,
-                borderRadius: 2
-            }}
-        >
+            console.log("Updating invoice tax detail:", {
+                url,
+                payload: updatePayload
+            });
+
+            const response = await axios.put(
+                url,
+                updatePayload,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
+                    },
+                    timeout: 15000
+                }
+            );
+
+            const responseRecord =
+                response.data?.data ??
+                response.data?.result ??
+                response.data;
+
+            const updatedRecord =
+                responseRecord &&
+                typeof responseRecord === "object" &&
+                !Array.isArray(responseRecord) &&
+                (
+                    responseRecord.invoiceTaxDetailId != null ||
+                    responseRecord.InvoiceTaxDetailId != null
+                )
+                    ? normalizeTaxDetail(responseRecord)
+                    : updatePayload;
+
+            setTaxDetail(updatedRecord);
+
+            setSuccess(
+                "Invoice tax detail updated successfully."
+            );
+
+            if (typeof onUpdated === "function") {
+                await onUpdated(updatedRecord);
+            }
+        } catch (err) {
+            console.error("UPDATE INVOICE TAX DETAIL ERROR:", {
+                url: err.config?.url,
+                status: err.response?.status,
+                response: err.response?.data,
+                message: err.message
+            });
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Failed to update invoice tax detail."
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    // =====================================================
+    // CANCEL
+    // =====================================================
+
+    const handleCancel = () => {
+        if (typeof onCancel === "function") {
+            onCancel();
+        } else {
+            navigate("/invoice-tax-details");
+        }
+    };
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+        return (
             <Box
                 display="flex"
+                flexDirection="column"
                 alignItems="center"
-                gap={1.5}
+                justifyContent="center"
+                gap={2}
+                sx={{ py: 8 }}
             >
-                <Edit color="primary" fontSize="large" />
+                <CircularProgress />
 
-                <Box>
-                    <Typography
-                        variant="h5"
-                        fontWeight={700}
-                    >
-                        Edit Invoice Tax Detail
-                    </Typography>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
-                        Update the invoice tax information.
-                    </Typography>
-                </Box>
+                <Typography color="text.secondary">
+                    Loading invoice tax detail...
+                </Typography>
             </Box>
-        </Paper>
+        );
+    }
 
-        {error && taxDetail && (
-            <Alert
-                severity="error"
-                sx={{ mb: 2 }}
-                onClose={() => setError("")}
+    // =====================================================
+    // ERROR - RECORD NOT LOADED
+    // =====================================================
+
+    if (!taxDetail) {
+        return (
+            <Box sx={{ p: { xs: 2, md: 3 } }}>
+                <Alert
+                    severity="error"
+                    action={
+                        <Button
+                            color="inherit"
+                            size="small"
+                            onClick={fetchTaxDetail}
+                        >
+                            Retry
+                        </Button>
+                    }
+                >
+                    {error || "Invoice tax detail could not be loaded."}
+                </Alert>
+
+                <Button
+                    sx={{ mt: 2 }}
+                    startIcon={<ArrowBack />}
+                    onClick={handleCancel}
+                >
+                    Back to Invoice Tax Details
+                </Button>
+            </Box>
+        );
+    }
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
+    return (
+        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
+            <Paper
+                elevation={1}
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    mb: 3,
+                    borderRadius: 2
+                }}
             >
-                {error}
-            </Alert>
-        )}
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    flexWrap="wrap"
+                    gap={2}
+                >
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        gap={1.5}
+                    >
+                        <Edit
+                            color="primary"
+                            fontSize="large"
+                        />
 
-        {success && (
-            <Alert
-                severity="success"
-                sx={{ mb: 2 }}
-                onClose={() => setSuccess(false)}
-            >
-                Invoice tax detail updated successfully.
-            </Alert>
-        )}
+                        <Box>
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                            >
+                                Edit Invoice Tax Detail
+                            </Typography>
 
-        {taxDetail && (
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                            >
+                                Record ID: {invoiceTaxDetailId}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={handleCancel}
+                        disabled={saving}
+                    >
+                        Back
+                    </Button>
+                </Box>
+            </Paper>
+
+            {error && (
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                    onClose={() => setError("")}
+                >
+                    {error}
+                </Alert>
+            )}
+
             <InvoiceTaxDetailForm
                 key={String(invoiceTaxDetailId)}
                 initialData={taxDetail}
@@ -304,27 +586,26 @@ return (
                 onSubmit={handleUpdate}
                 onCancel={handleCancel}
             />
-        )}
 
-        <Snackbar
-            open={success}
-            autoHideDuration={3000}
-            onClose={() => setSuccess(false)}
-            anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right"
-            }}
-        >
-            <Alert
-                severity="success"
-                variant="filled"
-                onClose={() => setSuccess(false)}
+            <Snackbar
+                open={Boolean(success)}
+                autoHideDuration={3000}
+                onClose={() => setSuccess("")}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right"
+                }}
             >
-                Invoice tax detail updated successfully.
-            </Alert>
-        </Snackbar>
-    </Box>
-);
+                <Alert
+                    severity="success"
+                    variant="filled"
+                    onClose={() => setSuccess("")}
+                >
+                    {success}
+                </Alert>
+            </Snackbar>
+        </Box>
+    );
 };
 
 export default InvoiceTaxDetailEdit;

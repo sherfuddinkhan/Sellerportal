@@ -1,703 +1,480 @@
-import React, { useEffect, useState } from "react";
 
+import React, { useState } from "react";
 import axios from "axios";
 
 import {
-Box,
-Paper,
-Grid,
-Typography,
-Divider,
-Chip,
-Button,
-CircularProgress,
-Alert,
-Stack
+    Alert,
+    Box,
+    Button,
+    CircularProgress,
+    Divider,
+    Grid,
+    Paper,
+    Stack,
+    TextField,
+    Typography
 } from "@mui/material";
 
 import {
-ArrowBack,
-Refresh,
-Edit,
-ReceiptLong,
-AccountBalance,
-Payments,
-Percent,
-ConfirmationNumber
+    ArrowBack,
+    Save,
+    ReceiptLong
 } from "@mui/icons-material";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-/* =========================================================
-API CONFIGURATION
-========================================================= */
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+const API_BASE_URL = "http://localhost:5000/api";
 
 const INVOICE_TAX_DETAIL_API =
-`${API_BASE_URL}/api/InvoiceTaxDetail`;
+    `${API_BASE_URL}/invoice-tax-details`;
 
-/* =========================================================
-FIELD VALUE HELPER
-========================================================= */
+// =========================================================
+// INITIAL FORM VALUES
+// =========================================================
 
-const getFieldValue = (
-data,
-fields,
-fallback = "N/A"
-) => {
-for (const field of fields) {
-if (
-data?.[field] !== undefined &&
-data?.[field] !== null &&
-data?.[field] !== ""
-) {
-return data[field];
-}
-}
-
-
-return fallback;
-
-
+const initialForm = {
+    salesInvoiceId: "",
+    channelProductId: "",
+    taxPercentage: "",
+    centralGst: "0",
+    stateGst: "0",
+    integratedGst: "0",
+    compensationCess: "0",
+    sellerId: "",
+    customerId: ""
 };
 
-/* =========================================================
-FORMAT CURRENCY
-========================================================= */
+// =========================================================
+// CREATE INVOICE TAX DETAIL
+// =========================================================
 
-const formatCurrency = (value) => {
-const amount = Number(value);
-if (
-    value === undefined ||
-    value === null ||
-    value === "" ||
-    !Number.isFinite(amount)
-) {
-    return "₹ 0.00";
-}
-
-return `₹ ${amount.toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-})}`;
-};
-
-/* =========================================================
-FORMAT NUMBER
-========================================================= */
-
-const formatNumber = (value) => {
-const number = Number(value);
-if (
-    value === undefined ||
-    value === null ||
-    value === "" ||
-    !Number.isFinite(number)
-) {
-    return "0";
-}
-
-return number.toLocaleString("en-IN", {
-    maximumFractionDigits: 2
-});
-};
-
-/* =========================================================
-FORMAT DATE
-========================================================= */
-
-const formatDate = (value) => {
-if (!value || value === "N/A") {
-return "N/A";
-}
-const date = new Date(value);
-
-if (Number.isNaN(date.getTime())) {
-    return String(value);
-}
-
-return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-});
-};
-
-/* =========================================================
-DETAIL ITEM
-========================================================= */
-
-const DetailItem = ({
-label,
-value,
-icon
-}) => (
-<Box sx={{ minWidth: 0 }}>
-<Typography
-variant="caption"
-color="text.secondary"
-display="block"
-sx={{ mb: 0.5 }}
->
-{label} </Typography>
-
-```
-    <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-    >
-        {icon}
-
-        <Typography
-            variant="body1"
-            fontWeight={600}
-            sx={{ overflowWrap: "anywhere" }}
-        >
-            {value}
-        </Typography>
-    </Stack>
-</Box>
-);
-
-/* =========================================================
-STATUS CHIP
-========================================================= */
-
-const StatusChip = ({ status }) => {
-const normalizedStatus = String(
-status ?? "Unknown"
-).toLowerCase();
-let color = "default";
-
-if (
-    normalizedStatus === "active" ||
-    normalizedStatus === "completed"
-) {
-    color = "success";
-} else if (
-    normalizedStatus === "pending"
-) {
-    color = "warning";
-} else if (
-    normalizedStatus === "inactive" ||
-    normalizedStatus === "cancelled"
-) {
-    color = "error";
-}
-
-return (
-    <Chip
-        label={status || "Unknown"}
-        color={color}
-        size="small"
-        variant="outlined"
-    />
-);
-};
-
-/* =========================================================
-INVOICE TAX DETAIL DETAILS
-========================================================= */
-
-const InvoiceTaxDetailDetails = ({
-invoiceTaxDetailId: propId,
-onBack,
-onEdit
+const InvoiceTaxDetailCreate = ({
+    onCreated,
+    onCancel
 }) => {
-const params = useParams();
-const navigate = useNavigate();
-const invoiceTaxDetailId =
-    propId ??
-    params.invoiceTaxDetailId ??
-    params.id;
+    const navigate = useNavigate();
 
-const [taxDetail, setTaxDetail] = useState(null);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState("");
+    const [form, setForm] = useState(initialForm);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-/* =====================================================
-   GET INVOICE TAX DETAIL
-===================================================== */
+    // =====================================================
+    // HANDLE INPUT CHANGE
+    // =====================================================
 
-const fetchTaxDetail = async () => {
-    if (
-        invoiceTaxDetailId === undefined ||
-        invoiceTaxDetailId === null ||
-        invoiceTaxDetailId === ""
-    ) {
-        setError("Invoice tax detail ID is missing.");
-        setLoading(false);
-        return;
-    }
+    const handleChange = (event) => {
+        const { name, value } = event.target;
 
-    setLoading(true);
-    setError("");
+        setForm((previous) => ({
+            ...previous,
+            [name]: value
+        }));
 
-    try {
-        const response = await axios.get(
-            `${INVOICE_TAX_DETAIL_API}/${encodeURIComponent(
-                invoiceTaxDetailId
-            )}`
-        );
+        setError("");
+        setSuccess("");
+    };
 
-        const responseData = response.data;
+    // =====================================================
+    // BACK / CANCEL
+    // =====================================================
 
-        const record =
-            responseData?.data ??
-            responseData?.result ??
-            responseData;
+    const handleCancel = () => {
+        if (typeof onCancel === "function") {
+            onCancel();
+        } else {
+            navigate("/invoice-tax-details");
+        }
+    };
 
-        if (
-            !record ||
-            typeof record !== "object" ||
-            Array.isArray(record)
-        ) {
-            throw new Error(
-                "Invoice tax detail was not found."
-            );
+    // =====================================================
+    // VALIDATE FORM
+    // =====================================================
+
+    const validateForm = () => {
+        if (!form.salesInvoiceId.trim()) {
+            return "Sales Invoice ID is required.";
         }
 
-        setTaxDetail(record);
-    } catch (err) {
-        console.error(
-            "GET INVOICE TAX DETAIL ERROR:",
-            err
-        );
+        if (!form.channelProductId.trim()) {
+            return "Channel Product ID is required.";
+        }
 
-        setError(
-            err.response?.data?.message ||
-            err.response?.data?.title ||
-            err.message ||
-            "Failed to load invoice tax detail."
-        );
+        if (!form.sellerId.trim()) {
+            return "Seller ID is required.";
+        }
 
-        setTaxDetail(null);
-    } finally {
-        setLoading(false);
-    }
-};
+        if (!form.customerId.trim()) {
+            return "Customer ID is required.";
+        }
 
-/* =====================================================
-   INITIAL LOAD
-===================================================== */
+        const numericFields = [
+            ["Sales Invoice ID", form.salesInvoiceId],
+            ["Tax Percentage", form.taxPercentage || "0"],
+            ["Central GST", form.centralGst || "0"],
+            ["State GST", form.stateGst || "0"],
+            ["Integrated GST", form.integratedGst || "0"],
+            ["Compensation Cess", form.compensationCess || "0"],
+            ["Seller ID", form.sellerId],
+            ["Customer ID", form.customerId]
+        ];
 
-useEffect(() => {
-    fetchTaxDetail();
-}, [invoiceTaxDetailId]);
+        for (const [label, value] of numericFields) {
+            const number = Number(value);
 
-/* =====================================================
-   BACK NAVIGATION
-===================================================== */
+            if (!Number.isFinite(number) || number < 0) {
+                return `${label} must be a valid non-negative number.`;
+            }
+        }
 
-const handleBack = () => {
-    if (onBack) {
-        onBack();
-    } else {
-        navigate(-1);
-    }
-};
+        return "";
+    };
 
-/* =====================================================
-   EDIT NAVIGATION
-===================================================== */
+    // =====================================================
+    // CREATE RECORD
+    // =====================================================
 
-const handleEdit = () => {
-    if (onEdit) {
-        onEdit(taxDetail);
-    } else {
-        navigate(
-            `/invoice-tax-details/${encodeURIComponent(
-                invoiceTaxDetailId
-            )}/edit`
-        );
-    }
-};
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
-/* =====================================================
-   LOADING STATE
-===================================================== */
+        setError("");
+        setSuccess("");
 
-if (loading) {
-    return (
-        <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            gap={2}
-            sx={{ py: 8 }}
-        >
-            <CircularProgress />
+        const validationError = validateForm();
 
-            <Typography color="text.secondary">
-                Loading invoice tax detail...
-            </Typography>
-        </Box>
-    );
-}
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
 
-/* =====================================================
-   ERROR STATE
-===================================================== */
+        const payload = {
+            salesInvoiceId: Number(form.salesInvoiceId),
+            channelProductId: form.channelProductId.trim(),
+            taxPercentage: Number(form.taxPercentage || 0),
+            centralGst: Number(form.centralGst || 0),
+            stateGst: Number(form.stateGst || 0),
+            integratedGst: Number(form.integratedGst || 0),
+            compensationCess: Number(form.compensationCess || 0),
+            sellerId: Number(form.sellerId),
+            customerId: Number(form.customerId)
+        };
 
-if (error && !taxDetail) {
-    return (
-        <Box sx={{ p: { xs: 2, md: 3 } }}>
-            <Button
-                startIcon={<ArrowBack />}
-                onClick={handleBack}
-                sx={{ mb: 2 }}
-            >
-                Back
-            </Button>
+        try {
+            setLoading(true);
 
-            <Alert
-                severity="error"
-                action={
-                    <Button
-                        color="inherit"
-                        size="small"
-                        onClick={fetchTaxDetail}
-                    >
-                        Retry
-                    </Button>
+            const response = await axios.post(
+                INVOICE_TAX_DETAIL_API,
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
                 }
-            >
-                {error}
-            </Alert>
-        </Box>
+            );
+
+            setSuccess(
+                "Invoice tax detail created successfully."
+            );
+
+            if (typeof onCreated === "function") {
+                onCreated(response.data);
+            } else {
+                navigate("/invoice-tax-details");
+            }
+        } catch (err) {
+            console.error(
+                "CREATE INVOICE TAX DETAIL ERROR:",
+                err.response?.data || err
+            );
+
+            const responseData = err.response?.data;
+
+            const validationErrors = responseData?.errors;
+
+            const validationMessage =
+                validationErrors &&
+                typeof validationErrors === "object"
+                    ? Object.values(validationErrors)
+                        .flat()
+                        .join(" ")
+                    : "";
+
+            setError(
+                validationMessage ||
+                responseData?.message ||
+                responseData?.title ||
+                err.message ||
+                "Failed to create invoice tax detail."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // =====================================================
+    // REUSABLE NUMERIC FIELD
+    // =====================================================
+
+    const renderNumberField = (
+        name,
+        label,
+        required = false
+    ) => (
+        <Grid item xs={12} sm={6} md={4} key={name}>
+            <TextField
+                fullWidth
+                name={name}
+                label={label}
+                type="number"
+                value={form[name]}
+                onChange={handleChange}
+                required={required}
+                disabled={loading}
+                inputProps={{
+                    min: 0,
+                    step: "any"
+                }}
+            />
+        </Grid>
     );
-}
 
-if (!taxDetail) {
-    return null;
-}
+    // =====================================================
+    // RENDER CREATE FORM
+    // =====================================================
 
-/* =====================================================
-   EXTRACT FIELDS
-===================================================== */
+    return (
+        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
 
-const detailId = getFieldValue(
-    taxDetail,
-    [
-        "invoiceTaxDetailId",
-        "InvoiceTaxDetailId"
-    ]
-);
+            {/* HEADER */}
 
-const invoiceId = getFieldValue(
-    taxDetail,
-    ["invoiceId", "InvoiceId"]
-);
-
-const taxName = getFieldValue(
-    taxDetail,
-    ["taxName", "TaxName"]
-);
-
-const taxCode = getFieldValue(
-    taxDetail,
-    ["taxCode", "TaxCode"]
-);
-
-const taxRate = getFieldValue(
-    taxDetail,
-    ["taxRate", "TaxRate"],
-    0
-);
-
-const taxableAmount = getFieldValue(
-    taxDetail,
-    ["taxableAmount", "TaxableAmount"],
-    0
-);
-
-const taxAmount = getFieldValue(
-    taxDetail,
-    ["taxAmount", "TaxAmount"],
-    0
-);
-
-const status = getFieldValue(
-    taxDetail,
-    ["status", "Status"],
-    "Unknown"
-);
-
-const createdAt = getFieldValue(
-    taxDetail,
-    [
-        "createdAt",
-        "CreatedAt",
-        "createdDate",
-        "CreatedDate"
-    ]
-);
-
-const updatedAt = getFieldValue(
-    taxDetail,
-    [
-        "updatedAt",
-        "UpdatedAt",
-        "modifiedAt",
-        "ModifiedAt"
-    ]
-);
-
-/* =====================================================
-   RENDER DETAILS
-===================================================== */
-
-return (
-    <Box sx={{ p: { xs: 1.5, md: 3 } }}>
-        {/* HEADER */}
-
-        <Paper
-            elevation={1}
-            sx={{
-                p: { xs: 2, md: 3 },
-                mb: 3,
-                borderRadius: 2
-            }}
-        >
-            <Stack
-                direction={{ xs: "column", sm: "row" }}
-                alignItems={{ xs: "stretch", sm: "center" }}
-                justifyContent="space-between"
-                spacing={2}
+            <Paper
+                elevation={1}
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    mb: 3,
+                    borderRadius: 2
+                }}
             >
                 <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={1.5}
+                    direction={{
+                        xs: "column",
+                        sm: "row"
+                    }}
+                    alignItems={{
+                        xs: "flex-start",
+                        sm: "center"
+                    }}
+                    justifyContent="space-between"
+                    spacing={2}
                 >
-                    <ReceiptLong
-                        color="primary"
-                        sx={{ fontSize: 38 }}
-                    />
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1.5}
+                    >
+                        <ReceiptLong
+                            color="primary"
+                            sx={{ fontSize: 38 }}
+                        />
 
-                    <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
-                            Invoice Tax Detail
-                        </Typography>
+                        <Box>
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                            >
+                                Create Invoice Tax Detail
+                            </Typography>
 
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            Record ID: {detailId}
-                        </Typography>
-                    </Box>
-                </Stack>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                            >
+                                Add invoice tax and GST information.
+                            </Typography>
+                        </Box>
+                    </Stack>
 
-                <Stack
-                    direction="row"
-                    spacing={1}
-                    flexWrap="wrap"
-                >
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
-                        onClick={handleBack}
+                        onClick={handleCancel}
+                        disabled={loading}
                     >
-                        Back
-                    </Button>
-
-                    <Button
-                        variant="outlined"
-                        startIcon={<Refresh />}
-                        onClick={fetchTaxDetail}
-                    >
-                        Refresh
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        startIcon={<Edit />}
-                        onClick={handleEdit}
-                    >
-                        Edit
+                        Back to List
                     </Button>
                 </Stack>
-            </Stack>
-        </Paper>
+            </Paper>
 
-        {/* GENERAL INFORMATION */}
+            {/* ERROR */}
 
-        <Paper
-            elevation={1}
-            sx={{
-                p: { xs: 2, md: 3 },
-                mb: 3,
-                borderRadius: 2
-            }}
-        >
-            <Typography
-                variant="h6"
-                fontWeight={700}
-                mb={2.5}
+            {error && (
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                    onClose={() => setError("")}
+                >
+                    {error}
+                </Alert>
+            )}
+
+            {/* SUCCESS */}
+
+            {success && (
+                <Alert
+                    severity="success"
+                    sx={{ mb: 2 }}
+                >
+                    {success}
+                </Alert>
+            )}
+
+            {/* FORM */}
+
+            <Paper
+                component="form"
+                onSubmit={handleSubmit}
+                elevation={1}
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    borderRadius: 2
+                }}
             >
-                General Information
-            </Typography>
+                {/* INVOICE INFORMATION */}
 
-            <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Invoice Tax Detail ID"
-                        value={detailId}
-                        icon={
-                            <ConfirmationNumber
-                                color="action"
-                                fontSize="small"
-                            />
+                <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{ mb: 2.5 }}
+                >
+                    Invoice Information
+                </Typography>
+
+                <Grid container spacing={3}>
+                    {renderNumberField(
+                        "salesInvoiceId",
+                        "Sales Invoice ID",
+                        true
+                    )}
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            name="channelProductId"
+                            label="Channel Product ID"
+                            value={form.channelProductId}
+                            onChange={handleChange}
+                            required
+                            disabled={loading}
+                        />
+                    </Grid>
+
+                    {renderNumberField(
+                        "sellerId",
+                        "Seller ID",
+                        true
+                    )}
+
+                    {renderNumberField(
+                        "customerId",
+                        "Customer ID",
+                        true
+                    )}
+                </Grid>
+
+                <Divider sx={{ my: 3 }} />
+
+                {/* TAX INFORMATION */}
+
+                <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{ mb: 2.5 }}
+                >
+                    Tax Information
+                </Typography>
+
+                <Grid container spacing={3}>
+                    {renderNumberField(
+                        "taxPercentage",
+                        "Tax Percentage (%)",
+                        true
+                    )}
+
+                    {renderNumberField(
+                        "centralGst",
+                        "Central GST (CGST) (%)"
+                    )}
+
+                    {renderNumberField(
+                        "stateGst",
+                        "State GST (SGST) (%)"
+                    )}
+
+                    {renderNumberField(
+                        "integratedGst",
+                        "Integrated GST (IGST) (%)"
+                    )}
+
+                    {renderNumberField(
+                        "compensationCess",
+                        "Compensation Cess (%)"
+                    )}
+                </Grid>
+
+                <Alert
+                    severity="info"
+                    sx={{ mt: 3 }}
+                >
+                    Enter the tax rates applicable to the invoice.
+                    CGST and SGST are generally used for intra-state
+                    transactions, while IGST is generally used for
+                    inter-state transactions.
+                </Alert>
+
+                {/* ACTIONS */}
+
+                <Stack
+                    direction={{
+                        xs: "column-reverse",
+                        sm: "row"
+                    }}
+                    justifyContent="flex-end"
+                    spacing={1.5}
+                    sx={{ mt: 3 }}
+                >
+                    <Button
+                        variant="outlined"
+                        onClick={handleCancel}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </Button>
+
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        startIcon={
+                            loading
+                                ? <CircularProgress
+                                    size={18}
+                                    color="inherit"
+                                  />
+                                : <Save />
                         }
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Invoice ID"
-                        value={invoiceId}
-                        icon={
-                            <ReceiptLong
-                                color="action"
-                                fontSize="small"
-                            />
-                        }
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Tax Name"
-                        value={taxName}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Tax Code"
-                        value={taxCode}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Status"
-                        value={<StatusChip status={status} />}
-                    />
-                </Grid>
-            </Grid>
-        </Paper>
-
-        {/* TAX INFORMATION */}
-
-        <Paper
-            elevation={1}
-            sx={{
-                p: { xs: 2, md: 3 },
-                mb: 3,
-                borderRadius: 2
-            }}
-        >
-            <Typography
-                variant="h6"
-                fontWeight={700}
-                mb={2.5}
-            >
-                Tax Information
-            </Typography>
-
-            <Divider sx={{ mb: 3 }} />
-
-            <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Tax Rate"
-                        value={`${formatNumber(taxRate)}%`}
-                        icon={
-                            <Percent
-                                color="action"
-                                fontSize="small"
-                            />
-                        }
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Taxable Amount"
-                        value={formatCurrency(taxableAmount)}
-                        icon={
-                            <AccountBalance
-                                color="action"
-                                fontSize="small"
-                            />
-                        }
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <DetailItem
-                        label="Tax Amount"
-                        value={formatCurrency(taxAmount)}
-                        icon={
-                            <Payments
-                                color="action"
-                                fontSize="small"
-                            />
-                        }
-                    />
-                </Grid>
-            </Grid>
-        </Paper>
-
-        {/* AUDIT INFORMATION */}
-
-        <Paper
-            elevation={1}
-            sx={{
-                p: { xs: 2, md: 3 },
-                borderRadius: 2
-            }}
-        >
-            <Typography
-                variant="h6"
-                fontWeight={700}
-                mb={2.5}
-            >
-                Record Information
-            </Typography>
-
-            <Divider sx={{ mb: 3 }} />
-
-            <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                    <DetailItem
-                        label="Created At"
-                        value={formatDate(createdAt)}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    <DetailItem
-                        label="Last Updated"
-                        value={formatDate(updatedAt)}
-                    />
-                </Grid>
-            </Grid>
-        </Paper>
-    </Box>
-);
+                        disabled={loading}
+                    >
+                        {loading
+                            ? "Saving..."
+                            : "Create Tax Detail"}
+                    </Button>
+                </Stack>
+            </Paper>
+        </Box>
+    );
 };
 
-export default InvoiceTaxDetailDetails;
+export default InvoiceTaxDetailCreate;

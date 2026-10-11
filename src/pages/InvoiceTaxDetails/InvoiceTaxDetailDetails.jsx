@@ -1,249 +1,231 @@
+// =========================================================
+// InvoiceTaxDetailDetails.jsx
+// =========================================================
+
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
 
 import {
-    Box,
-    Paper,
-    Typography,
-    Grid,
-    Chip,
-    Button,
-    Divider,
-    CircularProgress,
     Alert,
-    Snackbar
+    Box,
+    Breadcrumbs,
+    Button,
+    CircularProgress,
+    Divider,
+    Grid,
+    Link,
+    Paper,
+    Typography
 } from "@mui/material";
 
 import {
     ArrowBack,
-    Edit,
     ReceiptLong,
     Refresh
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
-const INVOICE_TAX_DETAIL_API =
-    `${API_BASE_URL}/api/InvoiceTaxDetail`;
+const API_URL = "http://localhost:5000/api/InvoiceTaxDetail";
 
-/* =========================================================
-   FORMAT HELPERS
-========================================================= */
+// =========================================================
+// GET VALUE - SUPPORT CAMELCASE AND PASCALCASE
+// =========================================================
+
+const getValue = (object, ...keys) => {
+    if (!object) {
+        return undefined;
+    }
+
+    for (const key of keys) {
+        if (
+            Object.prototype.hasOwnProperty.call(object, key) &&
+            object[key] !== null &&
+            object[key] !== undefined
+        ) {
+            return object[key];
+        }
+    }
+
+    return undefined;
+};
+
+// =========================================================
+// FORMAT NUMBER
+// =========================================================
 
 const formatNumber = (value) => {
     const number = Number(value);
 
     if (!Number.isFinite(number)) {
-        return "0.00";
+        return "0";
     }
 
     return number.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
 };
 
-const formatCurrency = (value) => {
-    const number = Number(value);
+// =========================================================
+// DETAIL FIELD
+// =========================================================
 
-    if (!Number.isFinite(number)) {
-        return "₹ 0.00";
-    }
+const DetailField = ({ label, value }) => {
+    const displayValue =
+        value === null || value === undefined || value === ""
+            ? "—"
+            : value;
 
-    return `₹ ${number.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
+    return (
+        <Grid item xs={12} sm={6} md={4}>
+            <Box>
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 0.75 }}
+                >
+                    {label}
+                </Typography>
+
+                <Typography
+                    variant="body1"
+                    fontWeight={600}
+                    sx={{
+                        overflowWrap: "anywhere",
+                        wordBreak: "break-word"
+                    }}
+                >
+                    {displayValue}
+                </Typography>
+            </Box>
+        </Grid>
+    );
 };
 
-const getValue = (data, ...keys) => {
-    for (const key of keys) {
-        const value = data?.[key];
+// =========================================================
+// INVOICE TAX DETAIL DETAILS
+// =========================================================
 
-        if (value !== undefined && value !== null) {
-            return value;
-        }
-    }
-
-    return null;
-};
-
-const formatDate = (value) => {
-    if (!value) return "—";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
-    }
-
-    return date.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
-};
-
-/* =========================================================
-   DETAIL FIELD
-========================================================= */
-
-const DetailField = ({ label, value }) => (
-    <Grid item xs={12} sm={6} md={4}>
-        <Typography
-            variant="caption"
-            color="text.secondary"
-            display="block"
-            sx={{ mb: 0.5 }}
-        >
-            {label}
-        </Typography>
-
-        <Typography
-            variant="body1"
-            fontWeight={600}
-            sx={{ overflowWrap: "anywhere" }}
-        >
-            {value === undefined || value === null || value === ""
-                ? "—"
-                : value}
-        </Typography>
-    </Grid>
-);
-
-/* =========================================================
-   INVOICE TAX DETAIL DETAILS
-========================================================= */
-
-const InvoiceTaxDetailDetails = ({
-    invoiceTaxDetailId: propId,
-    onEdit,
-    onBack
-}) => {
-    const params = useParams();
+const InvoiceTaxDetailDetails = ({ id: propId }) => {
+    const { id } = useParams();
     const navigate = useNavigate();
+    const params = useParams();
+
+    // =====================================================
+    // GET RECORD ID FROM PROPS OR ROUTE
+    // =====================================================
 
     const invoiceTaxDetailId =
-        propId ||
-        params.invoiceTaxDetailId ||
-        params.id;
+        propId ??
+        params.invoiceTaxDetailId ??
+        params.id ??
+        params.invoiceTaxDetailsId;
+
+    // =====================================================
+    // STATE
+    // =====================================================
 
     const [detail, setDetail] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [refreshKey, setRefreshKey] = useState(0);
-    const [success, setSuccess] = useState(false);
 
-    /* =====================================================
-       FETCH INVOICE TAX DETAIL
-    ===================================================== */
+    // =====================================================
+    // FETCH INVOICE TAX DETAIL
+    // =====================================================
 
-    const fetchDetail = async () => {
-        if (!invoiceTaxDetailId) {
-            setError("Invoice tax detail ID was not provided.");
+    const fetchInvoiceTaxDetail = async () => {
+        if (
+            invoiceTaxDetailId === undefined ||
+            invoiceTaxDetailId === null ||
+            String(invoiceTaxDetailId).trim() === ""
+        ) {
+            setError(
+                "Invoice tax detail ID was not provided. Please open this page from a valid record."
+            );
             setDetail(null);
             setLoading(false);
             return;
         }
 
-        setLoading(true);
-        setError("");
-
         try {
-            const response = await axios.get(
-                `${INVOICE_TAX_DETAIL_API}/${encodeURIComponent(
-                    invoiceTaxDetailId
-                )}`
-            );
+            setLoading(true);
+            setError("");
+            setDetail(null);
 
-            const result = response.data;
+           const response = await axios.get(
+    `http://localhost:5000/api/invoice-tax-details/${encodeURIComponent(id)}`
+);
 
-            if (
-                result === null ||
-                result === undefined ||
-                result.success === false
-            ) {
-                throw new Error(
-                    result?.message ||
-                    "Invoice tax detail was not found."
-                );
-            }
+            const responseData = response.data;
 
+            // Support either a single record or a wrapped API response.
             const record =
-                result.data ??
-                result.result ??
-                result;
+                responseData?.data ??
+                responseData?.result ??
+                responseData;
 
             if (
-                record === null ||
+                !record ||
                 typeof record !== "object" ||
                 Array.isArray(record)
             ) {
                 throw new Error(
-                    "The API returned an invalid invoice tax detail."
+                    "The API did not return a valid invoice tax detail record."
                 );
             }
 
             setDetail(record);
         } catch (err) {
             console.error(
-                "GET INVOICE TAX DETAIL BY ID ERROR:",
+                "Error fetching invoice tax detail:",
                 err
             );
 
-            setDetail(null);
+            const status = err.response?.status;
 
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                err.message ||
-                "Failed to load invoice tax detail."
-            );
+            if (status === 404) {
+                setError(
+                    `Invoice tax detail ${invoiceTaxDetailId} was not found.`
+                );
+            } else if (err.response) {
+                setError(
+                    err.response.data?.message ||
+                    err.response.data?.title ||
+                    `Unable to load invoice tax detail. HTTP ${status}.`
+                );
+            } else if (err.request) {
+                setError(
+                    "Unable to connect to the Node API at localhost:5000. Check that the Node server is running and the GET-by-ID proxy is configured."
+                );
+            } else {
+                setError(
+                    err.message ||
+                    "An unexpected error occurred while loading the record."
+                );
+            }
         } finally {
             setLoading(false);
         }
     };
 
+    // =====================================================
+    // LOAD RECORD WHEN ID CHANGES
+    // =====================================================
+
     useEffect(() => {
-        fetchDetail();
-        // Fetch again when the ID or refresh key changes.
+        fetchInvoiceTaxDetail();
+
+        // fetchInvoiceTaxDetail uses the current route ID.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [invoiceTaxDetailId, refreshKey]);
+    }, [invoiceTaxDetailId]);
 
-    /* =====================================================
-       NAVIGATION
-    ===================================================== */
-
-    const handleBack = () => {
-        if (onBack) {
-            onBack();
-        } else {
-            navigate(-1);
-        }
-    };
-
-    const handleEdit = () => {
-        if (onEdit) {
-            onEdit(detail);
-        } else {
-            navigate(
-                `/invoice-tax-details/${encodeURIComponent(
-                    invoiceTaxDetailId
-                )}/edit`
-            );
-        }
-    };
-
-    /* =====================================================
-       DERIVED VALUES
-    ===================================================== */
+    // =====================================================
+    // NORMALIZE API FIELDS
+    // =====================================================
 
     const detailId = getValue(
         detail,
@@ -251,114 +233,113 @@ const InvoiceTaxDetailDetails = ({
         "InvoiceTaxDetailId",
         "id",
         "Id"
-    );
+    ) ?? invoiceTaxDetailId;
 
-    const invoiceId = getValue(
+    const salesInvoiceId = getValue(
         detail,
-        "invoiceId",
-        "InvoiceId"
+        "salesInvoiceId",
+        "SalesInvoiceId"
     );
 
-    const taxName = getValue(
+    const channelProductId = getValue(
         detail,
-        "taxName",
-        "TaxName"
+        "channelProductId",
+        "ChannelProductId"
     );
 
-    const taxCode = getValue(
+    const taxPercentage = getValue(
         detail,
-        "taxCode",
-        "TaxCode"
+        "taxPercentage",
+        "TaxPercentage"
     );
 
-    const taxRate = getValue(
+    const centralGst = getValue(
         detail,
-        "taxRate",
-        "TaxRate"
+        "centralGst",
+        "CentralGst"
     );
 
-    const taxableAmount = getValue(
+    const stateGst = getValue(
         detail,
-        "taxableAmount",
-        "TaxableAmount"
+        "stateGst",
+        "StateGst"
     );
 
-    const taxAmount = getValue(
+    const integratedGst = getValue(
         detail,
-        "taxAmount",
-        "TaxAmount"
+        "integratedGst",
+        "IntegratedGst"
     );
 
-    const status = getValue(
+    const compensationCess = getValue(
         detail,
-        "status",
-        "Status"
+        "compensationCess",
+        "CompensationCess"
     );
 
-    const createdAt = getValue(
+    const sellerId = getValue(
         detail,
-        "createdAt",
-        "CreatedAt",
-        "createdDate",
-        "CreatedDate"
+        "sellerId",
+        "SellerId"
     );
 
-    const updatedAt = getValue(
+    const customerId = getValue(
         detail,
-        "updatedAt",
-        "UpdatedAt",
-        "modifiedDate",
-        "ModifiedDate"
+        "customerId",
+        "CustomerId"
     );
 
-    /* =====================================================
-       LOADING STATE
-    ===================================================== */
+    // =====================================================
+    // LOADING
+    // =====================================================
 
     if (loading) {
         return (
             <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                minHeight={300}
-                gap={2}
+                sx={{
+                    minHeight: "50vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2
+                }}
             >
                 <CircularProgress />
 
                 <Typography color="text.secondary">
-                    Loading invoice tax detail...
+                    Loading invoice tax details...
                 </Typography>
             </Box>
         );
     }
 
-    /* =====================================================
-       ERROR STATE
-    ===================================================== */
+    // =====================================================
+    // ERROR
+    // =====================================================
 
-    if (error && !detail) {
+    if (error) {
         return (
-            <Box sx={{ p: { xs: 1.5, md: 3 } }}>
+            <Box sx={{ p: { xs: 2, md: 3 } }}>
                 <Button
                     startIcon={<ArrowBack />}
-                    onClick={handleBack}
-                    sx={{ mb: 2 }}
+                    onClick={() =>
+                        navigate("/invoice-tax-details")
+                    }
+                    sx={{ mb: 3 }}
                 >
-                    Back
+                    Back to Invoice Tax Details
                 </Button>
 
                 <Alert
                     severity="error"
+                    sx={{ mb: 2 }}
                     action={
                         <Button
                             color="inherit"
                             size="small"
                             startIcon={<Refresh />}
-                            onClick={() =>
-                                setRefreshKey((value) => value + 1)
-                            }
+                            onClick={fetchInvoiceTaxDetail}
                         >
                             Retry
                         </Button>
@@ -370,13 +351,76 @@ const InvoiceTaxDetailDetails = ({
         );
     }
 
-    /* =====================================================
-       MAIN VIEW
-    ===================================================== */
+    // =====================================================
+    // NO RECORD
+    // =====================================================
+
+    if (!detail) {
+        return (
+            <Box sx={{ p: { xs: 2, md: 3 } }}>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    No invoice tax detail record is available.
+                </Alert>
+
+                <Button
+                    startIcon={<ArrowBack />}
+                    onClick={() =>
+                        navigate("/invoice-tax-details")
+                    }
+                >
+                    Back to Invoice Tax Details
+                </Button>
+            </Box>
+        );
+    }
+
+    // =====================================================
+    // MAIN UI
+    // =====================================================
 
     return (
-        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
-            {/* HEADER */}
+        <Box
+            sx={{
+                p: { xs: 2, md: 3 },
+                maxWidth: 1400,
+                mx: "auto"
+            }}
+        >
+            {/* ============================================= */}
+            {/* BREADCRUMBS */}
+            {/* ============================================= */}
+
+            <Breadcrumbs sx={{ mb: 2 }}>
+                <Link
+                    component="button"
+                    underline="hover"
+                    color="inherit"
+                    onClick={() =>
+                        navigate("/dashboard")
+                    }
+                >
+                    Dashboard
+                </Link>
+
+                <Link
+                    component="button"
+                    underline="hover"
+                    color="inherit"
+                    onClick={() =>
+                        navigate("/invoice-tax-details")
+                    }
+                >
+                    Invoice Tax Details
+                </Link>
+
+                <Typography color="text.primary">
+                    Details
+                </Typography>
+            </Breadcrumbs>
+
+            {/* ============================================= */}
+            {/* PAGE HEADER */}
+            {/* ============================================= */}
 
             <Paper
                 elevation={1}
@@ -387,148 +431,90 @@ const InvoiceTaxDetailDetails = ({
                 }}
             >
                 <Box
-                    display="flex"
-                    alignItems={{ xs: "flex-start", sm: "center" }}
-                    justifyContent="space-between"
-                    flexDirection={{ xs: "column", sm: "row" }}
-                    gap={2}
+                    sx={{
+                        display: "flex",
+                        alignItems: {
+                            xs: "flex-start",
+                            sm: "center"
+                        },
+                        justifyContent: "space-between",
+                        flexDirection: {
+                            xs: "column",
+                            sm: "row"
+                        },
+                        gap: 2
+                    }}
                 >
-                    <Box display="flex" alignItems="center" gap={1.5}>
-                        <ReceiptLong
-                            color="primary"
-                            sx={{ fontSize: 40 }}
-                        />
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                width: 52,
+                                height: 52,
+                                borderRadius: 2,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                bgcolor: "primary.light",
+                                color: "primary.dark"
+                            }}
+                        >
+                            <ReceiptLong fontSize="large" />
+                        </Box>
 
                         <Box>
                             <Typography
                                 variant="h5"
                                 fontWeight={700}
                             >
-                                Invoice Tax Detail
+                                Invoice Tax Details
                             </Typography>
 
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
                             >
-                                View invoice tax information and amounts.
+                                Record ID: {detailId ?? "—"}
                             </Typography>
                         </Box>
                     </Box>
 
                     <Box
-                        display="flex"
-                        gap={1}
-                        flexWrap="wrap"
+                        sx={{
+                            display: "flex",
+                            gap: 1,
+                            flexWrap: "wrap"
+                        }}
                     >
                         <Button
                             variant="outlined"
-                            startIcon={<ArrowBack />}
-                            onClick={handleBack}
+                            startIcon={<Refresh />}
+                            onClick={fetchInvoiceTaxDetail}
                         >
-                            Back
+                            Refresh
                         </Button>
 
                         <Button
                             variant="contained"
-                            startIcon={<Edit />}
-                            onClick={handleEdit}
+                            startIcon={<ArrowBack />}
+                            onClick={() =>
+                                navigate("/invoice-tax-details")
+                            }
                         >
-                            Edit
+                            Back to List
                         </Button>
                     </Box>
                 </Box>
             </Paper>
 
-            {error && (
-                <Alert
-                    severity="warning"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
-                >
-                    {error}
-                </Alert>
-            )}
-
+            {/* ============================================= */}
             {/* RECORD SUMMARY */}
-
-            <Paper
-                elevation={1}
-                sx={{
-                    p: { xs: 2, md: 3 },
-                    mb: 3,
-                    borderRadius: 2
-                }}
-            >
-                <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    flexWrap="wrap"
-                    gap={2}
-                    mb={2}
-                >
-                    <Typography variant="h6" fontWeight={700}>
-                        Record Summary
-                    </Typography>
-
-                    <Chip
-                        label={
-                            status === null
-                                ? "Status unavailable"
-                                : String(status)
-                        }
-                        color={
-                            String(status ?? "").toLowerCase() === "active"
-                                ? "success"
-                                : String(status ?? "").toLowerCase() === "inactive"
-                                ? "default"
-                                : "primary"
-                        }
-                        variant="outlined"
-                    />
-                </Box>
-
-                <Divider sx={{ mb: 3 }} />
-
-                <Grid container spacing={3}>
-                    <DetailField
-                        label="Invoice Tax Detail ID"
-                        value={detailId ?? invoiceTaxDetailId}
-                    />
-
-                    <DetailField
-                        label="Invoice ID"
-                        value={invoiceId}
-                    />
-
-                    <DetailField
-                        label="Tax Name"
-                        value={taxName}
-                    />
-
-                    <DetailField
-                        label="Tax Code"
-                        value={taxCode}
-                    />
-
-                    <DetailField
-                        label="Tax Rate"
-                        value={
-                            taxRate === null
-                                ? "—"
-                                : `${formatNumber(taxRate)}%`
-                        }
-                    />
-
-                    <DetailField
-                        label="Status"
-                        value={status}
-                    />
-                </Grid>
-            </Paper>
-
-            {/* TAX AMOUNTS */}
+            {/* ============================================= */}
 
             <Paper
                 elevation={1}
@@ -543,90 +529,113 @@ const InvoiceTaxDetailDetails = ({
                     fontWeight={700}
                     sx={{ mb: 2 }}
                 >
-                    Tax Amounts
+                    Record Summary
                 </Typography>
 
                 <Divider sx={{ mb: 3 }} />
 
                 <Grid container spacing={3}>
                     <DetailField
-                        label="Taxable Amount"
-                        value={
-                            taxableAmount === null
-                                ? "—"
-                                : formatCurrency(taxableAmount)
-                        }
+                        label="Invoice Tax Detail ID"
+                        value={detailId}
                     />
 
                     <DetailField
-                        label="Tax Amount"
-                        value={
-                            taxAmount === null
-                                ? "—"
-                                : formatCurrency(taxAmount)
-                        }
+                        label="Sales Invoice ID"
+                        value={salesInvoiceId}
+                    />
+
+                    <DetailField
+                        label="Channel Product ID"
+                        value={channelProductId}
+                    />
+
+                    <DetailField
+                        label="Seller ID"
+                        value={sellerId}
+                    />
+
+                    <DetailField
+                        label="Customer ID"
+                        value={customerId}
                     />
                 </Grid>
             </Paper>
 
-            {/* AUDIT INFORMATION */}
+            {/* ============================================= */}
+            {/* GST INFORMATION */}
+            {/* ============================================= */}
 
-            {(createdAt || updatedAt) && (
-                <Paper
-                    elevation={1}
-                    sx={{
-                        p: { xs: 2, md: 3 },
-                        borderRadius: 2
-                    }}
-                >
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        sx={{ mb: 2 }}
-                    >
-                        Audit Information
-                    </Typography>
-
-                    <Divider sx={{ mb: 3 }} />
-
-                    <Grid container spacing={3}>
-                        {createdAt && (
-                            <DetailField
-                                label="Created At"
-                                value={formatDate(createdAt)}
-                            />
-                        )}
-
-                        {updatedAt && (
-                            <DetailField
-                                label="Updated At"
-                                value={formatDate(updatedAt)}
-                            />
-                        )}
-                    </Grid>
-                </Paper>
-            )}
-
-            <Snackbar
-                open={success}
-                autoHideDuration={3000}
-                onClose={() => setSuccess(false)}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right"
+            <Paper
+                elevation={1}
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    mb: 3,
+                    borderRadius: 2
                 }}
             >
-                <Alert
-                    severity="success"
-                    variant="filled"
-                    onClose={() => setSuccess(false)}
+                <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{ mb: 2 }}
                 >
-                    Operation completed successfully.
-                </Alert>
-            </Snackbar>
+                    GST Information
+                </Typography>
+
+                <Divider sx={{ mb: 3 }} />
+
+                <Grid container spacing={3}>
+                    <DetailField
+                        label="Tax Percentage"
+                        value={`${formatNumber(taxPercentage)}%`}
+                    />
+
+                    <DetailField
+                        label="Central GST (CGST)"
+                        value={`${formatNumber(centralGst)}%`}
+                    />
+
+                    <DetailField
+                        label="State GST (SGST)"
+                        value={`${formatNumber(stateGst)}%`}
+                    />
+
+                    <DetailField
+                        label="Integrated GST (IGST)"
+                        value={`${formatNumber(integratedGst)}%`}
+                    />
+
+                    <DetailField
+                        label="Compensation Cess"
+                        value={`${formatNumber(compensationCess)}%`}
+                    />
+                </Grid>
+            </Paper>
+
+            {/* ============================================= */}
+            {/* FOOTER ACTIONS */}
+            {/* ============================================= */}
+
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    gap: 2,
+                    flexWrap: "wrap"
+                }}
+            >
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={() =>
+                        navigate("/invoice-tax-details")
+                    }
+                >
+                    Back to Invoice Tax Details
+                </Button>
+            </Box>
         </Box>
     );
 };
 
 export default InvoiceTaxDetailDetails;
-

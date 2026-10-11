@@ -1,590 +1,552 @@
+// =========================================================
+// InvoiceTaxDetailForm.jsx
+// =========================================================
+
 import React, { useEffect, useState } from "react";
 
 import {
-Box,
-Grid,
-TextField,
-Button,
-Typography,
-Paper,
-Divider,
-MenuItem,
-CircularProgress,
-Alert
+    Box,
+    Grid,
+    TextField,
+    Button,
+    Typography,
+    Paper,
+    Divider,
+    CircularProgress,
+    Alert
 } from "@mui/material";
 
 import {
-Save,
-ArrowBack,
-ReceiptLong,
-RestartAlt
+    Save,
+    ArrowBack,
+    ReceiptLong,
+    RestartAlt
 } from "@mui/icons-material";
 
-/* =========================================================
-INITIAL FORM DATA
-========================================================= */
+// =========================================================
+// INITIAL FORM DATA
+// =========================================================
 
 const INITIAL_FORM_DATA = {
-invoiceId: "",
-taxName: "",
-taxCode: "",
-taxRate: "",
-taxableAmount: "",
-taxAmount: "",
-status: "Active"
+    salesInvoiceId: "",
+    channelProductId: "",
+    taxPercentage: "",
+    centralGst: "",
+    stateGst: "",
+    integratedGst: "",
+    compensationCess: "",
+    sellerId: "",
+    customerId: ""
 };
 
-/* =========================================================
-FIELD VALUE HELPER
-========================================================= */
+// =========================================================
+// GET FIELD VALUE
+// =========================================================
 
-const getFieldValue = (data, fields, fallback = "") => {
-for (const field of fields) {
-if (
-data?.[field] !== undefined &&
-data?.[field] !== null
-) {
-return data[field];
-}
-}
+const getFieldValue = (
+    data,
+    fields,
+    fallback = ""
+) => {
+    for (const field of fields) {
+        const value = data?.[field];
 
-```
-return fallback;
-```
+        if (value !== undefined && value !== null) {
+            return value;
+        }
+    }
 
+    return fallback;
 };
 
-/* =========================================================
-INVOICE TAX DETAIL FORM
-========================================================= */
+// =========================================================
+// NORMALIZE FORM DATA
+// =========================================================
+
+const normalizeFormData = (data) => ({
+    salesInvoiceId: getFieldValue(
+        data,
+        ["salesInvoiceId", "SalesInvoiceId"]
+    ),
+
+    channelProductId: getFieldValue(
+        data,
+        ["channelProductId", "ChannelProductId"]
+    ),
+
+    taxPercentage: getFieldValue(
+        data,
+        ["taxPercentage", "TaxPercentage"]
+    ),
+
+    centralGst: getFieldValue(
+        data,
+        ["centralGst", "CentralGst"]
+    ),
+
+    stateGst: getFieldValue(
+        data,
+        ["stateGst", "StateGst"]
+    ),
+
+    integratedGst: getFieldValue(
+        data,
+        ["integratedGst", "IntegratedGst"]
+    ),
+
+    compensationCess: getFieldValue(
+        data,
+        ["compensationCess", "CompensationCess"]
+    ),
+
+    sellerId: getFieldValue(
+        data,
+        ["sellerId", "SellerId"]
+    ),
+
+    customerId: getFieldValue(
+        data,
+        ["customerId", "CustomerId"]
+    )
+});
+
+// =========================================================
+// FORM COMPONENT
+// =========================================================
 
 const InvoiceTaxDetailForm = ({
-initialData = null,
-onSubmit,
-onCancel,
-loading = false,
-mode = "create"
+    initialData = null,
+    onSubmit,
+    onCancel,
+    loading = false,
+    mode = "create"
 }) => {
-const isEditMode =
-mode === "edit" || Boolean(initialData);
-const [formData, setFormData] = useState(
-    INITIAL_FORM_DATA
-);
+    const isEditMode =
+        mode === "edit" || Boolean(initialData);
 
-const [errors, setErrors] = useState({});
-const [submitError, setSubmitError] = useState("");
-const [successMessage, setSuccessMessage] = useState("");
+    const [formData, setFormData] = useState(
+        INITIAL_FORM_DATA
+    );
 
-/* =====================================================
-   INITIALIZE FORM
-===================================================== */
+    const [errors, setErrors] = useState({});
+    const [submitError, setSubmitError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
-useEffect(() => {
-    if (initialData) {
-        setFormData({
-            invoiceId: getFieldValue(
-                initialData,
-                ["invoiceId", "InvoiceId"]
-            ),
-            taxName: getFieldValue(
-                initialData,
-                ["taxName", "TaxName"]
-            ),
-            taxCode: getFieldValue(
-                initialData,
-                ["taxCode", "TaxCode"]
-            ),
-            taxRate: getFieldValue(
-                initialData,
-                ["taxRate", "TaxRate"]
-            ),
-            taxableAmount: getFieldValue(
-                initialData,
-                [
-                    "taxableAmount",
-                    "TaxableAmount"
-                ]
-            ),
-            taxAmount: getFieldValue(
-                initialData,
-                ["taxAmount", "TaxAmount"]
-            ),
-            status: getFieldValue(
-                initialData,
-                ["status", "Status"],
-                "Active"
-            )
-        });
-    } else {
-        setFormData(INITIAL_FORM_DATA);
-    }
+    // =====================================================
+    // INITIALIZE FORM
+    // =====================================================
 
-    setErrors({});
-    setSubmitError("");
-    setSuccessMessage("");
-}, [initialData]);
-
-/* =====================================================
-   HANDLE INPUT CHANGE
-===================================================== */
-
-const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((previous) => ({
-        ...previous,
-        [name]: value
-    }));
-
-    setErrors((previous) => ({
-        ...previous,
-        [name]: ""
-    }));
-
-    setSubmitError("");
-    setSuccessMessage("");
-};
-
-/* =====================================================
-   VALIDATE FORM
-===================================================== */
-
-const validateForm = () => {
-    const newErrors = {};
-
-    if (
-        formData.invoiceId === "" ||
-        !Number.isFinite(Number(formData.invoiceId)) ||
-        Number(formData.invoiceId) <= 0
-    ) {
-        newErrors.invoiceId =
-            "Enter a valid invoice ID.";
-    }
-
-    if (!String(formData.taxName).trim()) {
-        newErrors.taxName =
-            "Tax name is required.";
-    }
-
-    if (
-        formData.taxRate === "" ||
-        !Number.isFinite(Number(formData.taxRate)) ||
-        Number(formData.taxRate) < 0
-    ) {
-        newErrors.taxRate =
-            "Enter a valid non-negative tax rate.";
-    }
-
-    if (
-        formData.taxableAmount === "" ||
-        !Number.isFinite(
-            Number(formData.taxableAmount)
-        ) ||
-        Number(formData.taxableAmount) < 0
-    ) {
-        newErrors.taxableAmount =
-            "Enter a valid non-negative taxable amount.";
-    }
-
-    if (
-        formData.taxAmount !== "" &&
-        (
-            !Number.isFinite(
-                Number(formData.taxAmount)
-            ) ||
-            Number(formData.taxAmount) < 0
-        )
-    ) {
-        newErrors.taxAmount =
-            "Enter a valid non-negative tax amount.";
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-};
-
-/* =====================================================
-   SUBMIT FORM
-===================================================== */
-
-const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    setSubmitError("");
-    setSuccessMessage("");
-
-    if (!validateForm()) {
-        return;
-    }
-
-    if (typeof onSubmit !== "function") {
-        setSubmitError(
-            "Submit handler is not configured."
+    useEffect(() => {
+        setFormData(
+            initialData
+                ? normalizeFormData(initialData)
+                : { ...INITIAL_FORM_DATA }
         );
-        return;
-    }
 
-    const payload = {
-        invoiceId: Number(formData.invoiceId),
-        taxName: String(formData.taxName).trim(),
-        taxCode: String(formData.taxCode).trim(),
-        taxRate: Number(formData.taxRate),
-        taxableAmount: Number(
-            formData.taxableAmount
-        ),
-        taxAmount:
-            formData.taxAmount === ""
-                ? null
-                : Number(formData.taxAmount),
-        status: formData.status
+        setErrors({});
+        setSubmitError("");
+        setSuccessMessage("");
+    }, [initialData]);
+
+    // =====================================================
+    // HANDLE CHANGE
+    // =====================================================
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
+
+        setErrors((previous) => ({
+            ...previous,
+            [name]: ""
+        }));
+
+        setSubmitError("");
+        setSuccessMessage("");
     };
 
-    try {
-        await onSubmit(payload);
-        setSuccessMessage(
-            isEditMode
-                ? "Invoice tax detail updated successfully."
-                : "Invoice tax detail saved successfully."
-        );
-    } catch (error) {
-        console.error(
-            "SAVE INVOICE TAX DETAIL ERROR:",
-            error
-        );
+    // =====================================================
+    // VALIDATE
+    // =====================================================
 
-        setSubmitError(
-            error?.response?.data?.message ||
-            error?.response?.data?.title ||
-            error?.message ||
-            "Failed to save invoice tax detail."
-        );
-    }
-};
+    const validateForm = () => {
+        const nextErrors = {};
 
-/* =====================================================
-   RESET FORM
-===================================================== */
+        const requiredPositiveIds = [
+            "salesInvoiceId",
+            "sellerId",
+            "customerId"
+        ];
 
-const handleReset = () => {
-    if (loading) {
-        return;
-    }
+        for (const field of requiredPositiveIds) {
+            const value = formData[field];
 
-    if (initialData) {
-        setFormData({
-            invoiceId: getFieldValue(
-                initialData,
-                ["invoiceId", "InvoiceId"]
+            if (
+                value === "" ||
+                !Number.isFinite(Number(value)) ||
+                Number(value) <= 0
+            ) {
+                nextErrors[field] =
+                    "Enter a valid positive ID.";
+            }
+        }
+
+        if (!String(formData.channelProductId).trim()) {
+            nextErrors.channelProductId =
+                "Channel product ID is required.";
+        }
+
+        const numericFields = [
+            "taxPercentage",
+            "centralGst",
+            "stateGst",
+            "integratedGst",
+            "compensationCess"
+        ];
+
+        for (const field of numericFields) {
+            const value = formData[field];
+
+            if (
+                value === "" ||
+                !Number.isFinite(Number(value)) ||
+                Number(value) < 0
+            ) {
+                nextErrors[field] =
+                    "Enter a valid non-negative number.";
+            }
+        }
+
+        setErrors(nextErrors);
+
+        return Object.keys(nextErrors).length === 0;
+    };
+
+    // =====================================================
+    // SUBMIT
+    // =====================================================
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        setSubmitError("");
+        setSuccessMessage("");
+
+        if (!validateForm()) {
+            return;
+        }
+
+        if (typeof onSubmit !== "function") {
+            setSubmitError(
+                "Submit handler is not configured."
+            );
+            return;
+        }
+
+        const payload = {
+            salesInvoiceId: Number(
+                formData.salesInvoiceId
             ),
-            taxName: getFieldValue(
-                initialData,
-                ["taxName", "TaxName"]
+
+            channelProductId: String(
+                formData.channelProductId
+            ).trim(),
+
+            taxPercentage: Number(
+                formData.taxPercentage
             ),
-            taxCode: getFieldValue(
-                initialData,
-                ["taxCode", "TaxCode"]
+
+            centralGst: Number(
+                formData.centralGst
             ),
-            taxRate: getFieldValue(
-                initialData,
-                ["taxRate", "TaxRate"]
+
+            stateGst: Number(
+                formData.stateGst
             ),
-            taxableAmount: getFieldValue(
-                initialData,
-                [
-                    "taxableAmount",
-                    "TaxableAmount"
-                ]
+
+            integratedGst: Number(
+                formData.integratedGst
             ),
-            taxAmount: getFieldValue(
-                initialData,
-                ["taxAmount", "TaxAmount"]
+
+            compensationCess: Number(
+                formData.compensationCess
             ),
-            status: getFieldValue(
-                initialData,
-                ["status", "Status"],
-                "Active"
+
+            sellerId: Number(
+                formData.sellerId
+            ),
+
+            customerId: Number(
+                formData.customerId
             )
-        });
-    } else {
-        setFormData(INITIAL_FORM_DATA);
-    }
+        };
 
-    setErrors({});
-    setSubmitError("");
-    setSuccessMessage("");
-};
+        try {
+            await onSubmit(payload);
 
-/* =====================================================
-   RENDER FORM
-===================================================== */
+            setSuccessMessage(
+                isEditMode
+                    ? "Invoice tax detail updated successfully."
+                    : "Invoice tax detail saved successfully."
+            );
+        } catch (error) {
+            console.error(
+                "SAVE INVOICE TAX DETAIL ERROR:",
+                error.response?.data || error
+            );
 
-return (
-    <Paper
-        elevation={2}
-        sx={{
-            p: { xs: 2, sm: 3 },
-            borderRadius: 2
-        }}
-    >
-        {/* HEADER */}
+            setSubmitError(
+                error.response?.data?.message ||
+                error.response?.data?.title ||
+                error.message ||
+                "Failed to save invoice tax detail."
+            );
+        }
+    };
 
-        <Box
-            display="flex"
-            alignItems="center"
-            gap={1.5}
-            mb={2}
+    // =====================================================
+    // RESET
+    // =====================================================
+
+    const handleReset = () => {
+        if (loading) return;
+
+        setFormData(
+            initialData
+                ? normalizeFormData(initialData)
+                : { ...INITIAL_FORM_DATA }
+        );
+
+        setErrors({});
+        setSubmitError("");
+        setSuccessMessage("");
+    };
+
+    // =====================================================
+    // FIELD CONFIGURATION
+    // =====================================================
+
+    const fields = [
+        {
+            name: "salesInvoiceId",
+            label: "Sales Invoice ID",
+            type: "number",
+            required: true
+        },
+        {
+            name: "channelProductId",
+            label: "Channel Product ID",
+            type: "text",
+            required: true
+        },
+        {
+            name: "taxPercentage",
+            label: "Tax Percentage (%)",
+            type: "number",
+            required: true
+        },
+        {
+            name: "centralGst",
+            label: "Central GST",
+            type: "number",
+            required: true
+        },
+        {
+            name: "stateGst",
+            label: "State GST",
+            type: "number",
+            required: true
+        },
+        {
+            name: "integratedGst",
+            label: "Integrated GST",
+            type: "number",
+            required: true
+        },
+        {
+            name: "compensationCess",
+            label: "Compensation Cess",
+            type: "number",
+            required: true
+        },
+        {
+            name: "sellerId",
+            label: "Seller ID",
+            type: "number",
+            required: true
+        },
+        {
+            name: "customerId",
+            label: "Customer ID",
+            type: "number",
+            required: true
+        }
+    ];
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
+    return (
+        <Paper
+            elevation={2}
+            sx={{
+                p: { xs: 2, sm: 3 },
+                borderRadius: 2
+            }}
         >
-            <ReceiptLong color="primary" fontSize="large" />
-
-            <Box>
-                <Typography
-                    variant="h6"
-                    fontWeight={700}
-                >
-                    {isEditMode
-                        ? "Edit Invoice Tax Detail"
-                        : "Create Invoice Tax Detail"}
-                </Typography>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    Enter the invoice and tax information.
-                </Typography>
-            </Box>
-        </Box>
-
-        <Divider sx={{ mb: 3 }} />
-
-        {/* ALERTS */}
-
-        {submitError && (
-            <Alert
-                severity="error"
-                sx={{ mb: 2 }}
-                onClose={() => setSubmitError("")}
-            >
-                {submitError}
-            </Alert>
-        )}
-
-        {successMessage && (
-            <Alert
-                severity="success"
-                sx={{ mb: 2 }}
-                onClose={() => setSuccessMessage("")}
-            >
-                {successMessage}
-            </Alert>
-        )}
-
-        {/* FORM */}
-
-        <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-        >
-            <Grid container spacing={2.5}>
-                {/* INVOICE ID */}
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        required
-                        label="Invoice ID"
-                        name="invoiceId"
-                        type="number"
-                        value={formData.invoiceId}
-                        onChange={handleChange}
-                        error={Boolean(errors.invoiceId)}
-                        helperText={errors.invoiceId}
-                        disabled={loading}
-                        inputProps={{ min: 1 }}
-                    />
-                </Grid>
-
-                {/* TAX NAME */}
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        required
-                        label="Tax Name"
-                        name="taxName"
-                        value={formData.taxName}
-                        onChange={handleChange}
-                        error={Boolean(errors.taxName)}
-                        helperText={errors.taxName}
-                        disabled={loading}
-                        placeholder="e.g. GST"
-                    />
-                </Grid>
-
-                {/* TAX CODE */}
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        label="Tax Code"
-                        name="taxCode"
-                        value={formData.taxCode}
-                        onChange={handleChange}
-                        disabled={loading}
-                        placeholder="e.g. GST18"
-                    />
-                </Grid>
-
-                {/* TAX RATE */}
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        required
-                        label="Tax Rate (%)"
-                        name="taxRate"
-                        type="number"
-                        value={formData.taxRate}
-                        onChange={handleChange}
-                        error={Boolean(errors.taxRate)}
-                        helperText={errors.taxRate}
-                        disabled={loading}
-                        inputProps={{
-                            min: 0,
-                            step: "0.01"
-                        }}
-                    />
-                </Grid>
-
-                {/* TAXABLE AMOUNT */}
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        required
-                        label="Taxable Amount (₹)"
-                        name="taxableAmount"
-                        type="number"
-                        value={formData.taxableAmount}
-                        onChange={handleChange}
-                        error={Boolean(
-                            errors.taxableAmount
-                        )}
-                        helperText={errors.taxableAmount}
-                        disabled={loading}
-                        inputProps={{
-                            min: 0,
-                            step: "0.01"
-                        }}
-                    />
-                </Grid>
-
-                {/* TAX AMOUNT */}
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        fullWidth
-                        label="Tax Amount (₹)"
-                        name="taxAmount"
-                        type="number"
-                        value={formData.taxAmount}
-                        onChange={handleChange}
-                        error={Boolean(errors.taxAmount)}
-                        helperText={
-                            errors.taxAmount ||
-                            "Optional if calculated by the backend."
-                        }
-                        disabled={loading}
-                        inputProps={{
-                            min: 0,
-                            step: "0.01"
-                        }}
-                    />
-                </Grid>
-
-                {/* STATUS */}
-
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        select
-                        fullWidth
-                        label="Status"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        disabled={loading}
-                    >
-                        <MenuItem value="Active">
-                            Active
-                        </MenuItem>
-
-                        <MenuItem value="Inactive">
-                            Inactive
-                        </MenuItem>
-
-                        <MenuItem value="Pending">
-                            Pending
-                        </MenuItem>
-                    </TextField>
-                </Grid>
-            </Grid>
-
-            <Divider sx={{ my: 3 }} />
-
-            {/* ACTION BUTTONS */}
-
             <Box
                 display="flex"
-                justifyContent="flex-end"
-                flexWrap="wrap"
+                alignItems="center"
                 gap={1.5}
+                mb={2}
             >
-                <Button
-                    variant="outlined"
-                    color="inherit"
-                    startIcon={<ArrowBack />}
-                    onClick={onCancel}
-                    disabled={loading}
-                >
-                    Cancel
-                </Button>
+                <ReceiptLong
+                    color="primary"
+                    fontSize="large"
+                />
 
-                <Button
-                    variant="outlined"
-                    startIcon={<RestartAlt />}
-                    onClick={handleReset}
-                    disabled={loading}
-                >
-                    Reset
-                </Button>
+                <Box>
+                    <Typography
+                        variant="h6"
+                        fontWeight={700}
+                    >
+                        {isEditMode
+                            ? "Edit Invoice Tax Detail"
+                            : "Create Invoice Tax Detail"}
+                    </Typography>
 
-                <Button
-                    type="submit"
-                    variant="contained"
-                    startIcon={
-                        loading
-                            ? (
-                                <CircularProgress
-                                    size={18}
-                                    color="inherit"
-                                />
-                            )
-                            : <Save />
-                    }
-                    disabled={loading}
-                >
-                    {loading
-                        ? "Saving..."
-                        : isEditMode
-                            ? "Update Tax Detail"
-                            : "Save Tax Detail"}
-                </Button>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        Enter the invoice, product, GST,
+                        seller, and customer information.
+                    </Typography>
+                </Box>
             </Box>
-        </Box>
-    </Paper>
-);
+
+            <Divider sx={{ mb: 3 }} />
+
+            {submitError && (
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                    onClose={() => setSubmitError("")}
+                >
+                    {submitError}
+                </Alert>
+            )}
+
+            {successMessage && (
+                <Alert
+                    severity="success"
+                    sx={{ mb: 2 }}
+                    onClose={() => setSuccessMessage("")}
+                >
+                    {successMessage}
+                </Alert>
+            )}
+
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                noValidate
+            >
+                <Grid container spacing={2.5}>
+                    {fields.map((field) => (
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            key={field.name}
+                        >
+                            <TextField
+                                fullWidth
+                                required={field.required}
+                                label={field.label}
+                                name={field.name}
+                                type={field.type}
+                                value={
+                                    formData[field.name] ?? ""
+                                }
+                                onChange={handleChange}
+                                error={Boolean(
+                                    errors[field.name]
+                                )}
+                                helperText={
+                                    errors[field.name] || ""
+                                }
+                                disabled={loading}
+                                inputProps={
+                                    field.type === "number"
+                                        ? {
+                                            min: 0,
+                                            step: "0.01"
+                                        }
+                                        : undefined
+                                }
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
+
+                <Divider sx={{ my: 3 }} />
+
+                <Box
+                    display="flex"
+                    justifyContent="flex-end"
+                    flexWrap="wrap"
+                    gap={1.5}
+                >
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        startIcon={<ArrowBack />}
+                        onClick={onCancel}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<RestartAlt />}
+                        onClick={handleReset}
+                        disabled={loading}
+                    >
+                        Reset
+                    </Button>
+
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        startIcon={
+                            loading
+                                ? (
+                                    <CircularProgress
+                                        size={18}
+                                        color="inherit"
+                                    />
+                                )
+                                : <Save />
+                        }
+                        disabled={loading}
+                    >
+                        {loading
+                            ? "Saving..."
+                            : isEditMode
+                                ? "Update Tax Detail"
+                                : "Save Tax Detail"}
+                    </Button>
+                </Box>
+            </Box>
+        </Paper>
+    );
 };
 
 export default InvoiceTaxDetailForm;

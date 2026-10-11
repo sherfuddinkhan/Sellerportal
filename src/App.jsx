@@ -1352,49 +1352,60 @@ MANIFEST PACKAGES PUTAWAY ROUTES
     element={<ManifestPackagesPutawayEdit />}
 />
 
-{/* =================================================
-INVOICE TAX DETAILS ROUTES
-================================================= */}
 
+{/* =================================================
+    INVOICE TAX DETAILS ROUTES
+================================================= */}
+{/* =====================================================
+    INVOICE TAX DETAILS ROUTES
+===================================================== */}
+
+{/* Redirect root */}
 <Route
-    path="invoice-tax-details"
+    path="/"
+    element={<Navigate to="/invoice-tax-details" replace />}
+/>
+
+{/* MAIN LIST */}
+<Route
+    path="/invoice-tax-details"
     element={<InvoiceTaxDetailsList />}
 />
 
+{/* CREATE */}
 <Route
-    path="invoice-tax-details/create"
+    path="/invoice-tax-details/create"
     element={<InvoiceTaxDetailCreate />}
 />
 
+{/* VIEW / DETAILS */}
 <Route
-    path="invoice-tax-details/search"
-    element={<InvoiceTaxDetailSearch />}
-/>
-
-<Route
-    path="invoice-tax-details/filters"
-    element={<InvoiceTaxDetailFilters />}
-/>
-
-<Route
-    path="invoice-tax-details/statistics"
-    element={<InvoiceTaxDetailStatistics />}
-/>
-
-<Route
-    path="invoice-tax-details/details/:id"
+    path="/invoice-tax-details/details/:id"
     element={<InvoiceTaxDetailDetails />}
 />
 
 <Route
-    path="invoice-tax-details/view/:id"
-    element={<InvoiceTaxDetailView />}
+    path="/invoice-tax-details/view/:id"
+    element={<InvoiceTaxDetailDetails />}
+/>
+
+{/* EDIT */}
+<Route
+    path="/invoice-tax-details/:id/edit"
+    element={<InvoiceTaxDetailEdit />}
 />
 
 <Route
-    path="invoice-tax-details/:id/edit"
+    path="/invoice-tax-details/edit/:id"
     element={<InvoiceTaxDetailEdit />}
 />
+
+{/* DIRECT ID - KEEP AFTER SPECIFIC ROUTES */}
+<Route
+    path="/invoice-tax-details/:id"
+    element={<InvoiceTaxDetailDetails />}
+/>
+
 
 
 {/* =================================================

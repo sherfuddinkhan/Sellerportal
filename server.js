@@ -35,6 +35,7 @@ const httpsAgent = new https.Agent({
     rejectUnauthorized: false
 });
 
+app.use(express.json());
 // =========================================================
 // MIDDLEWARE
 // =========================================================
@@ -63,7 +64,7 @@ app.use(
     })
 );
 
-app.use(express.json());
+
 
 app.use(
     express.urlencoded({
@@ -226,6 +227,7 @@ app.get(
         });
     }
 );
+
 
 // =========================================================
 // =========================================================
@@ -23787,39 +23789,6 @@ app.get(
         }
     }
 );
-
-// =========================================================
-// 404 HANDLER
-// =========================================================
-
-
-
-// =========================================================
-// GLOBAL ERROR HANDLER
-// =========================================================
-
-app.use(
-    (error, req, res, next) => {
-
-        console.error(
-            "GLOBAL SERVER ERROR:",
-            error
-        );
-
-        if (res.headersSent) {
-
-            return next(error);
-        }
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Internal server error."
-        });
-    }
-);
 ///////////////////marketplace-order-items/////////
 app.get(
     "/api/marketplace-order-items",
@@ -32401,23 +32370,7 @@ app.delete(
 
     }
 );
-app.use(
-    (req, res) => {
-
-        console.log(
-            `ROUTE NOT FOUND: ${req.method} ${req.originalUrl}`
-        );
-
-        res.status(404).json({
-
-            success: false,
-
-            message:
-                `Cannot ${req.method} ${req.originalUrl}`
-        });
-    }
-);
-// ============================================================
+//============================================================
 // SELLER CUSTOMER APIs
 // ============================================================
 
@@ -35724,80 +35677,106 @@ app.delete("/api/manifest-packages-putaway/:id", async (req, res) => {
 // =====================================================
 
 // GET ALL
-app.get("/api/invoice-tax-details", async (req, res) => {
+
+// =========================================================
+// INVOICE TAX DETAILS - GET ALL
+
+app.get("/api/InvoiceTaxDetail", async (req, res) => {
+    console.log("================================================");
+    console.log("GET /api/InvoiceTaxDetail - FETCHING DATA");
+    console.log("================================================");
+
     try {
         const response = await axios.get(
-            `${API_BASE_URL}/InvoiceTaxDetails`,
-            { params: req.query }
+            `${API_BASE_URL}/invoice-tax-details/all`,
+            {
+                params: req.query,
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
+            }
         );
-
-        res.status(response.status).json(response.data);
+        console.log("Invoice tax details fetched successfully.");
+        console.log("Records:", response.data?.length ?? "Response received");
+        return res.status(response.status).json(response.data);
     } catch (error) {
-        res.status(error.response?.status || 500).json(
-            error.response?.data || { message: error.message }
+        console.error("INVOICE TAX DETAILS ERROR");
+        console.error("Message:", error.message);
+        console.error("Status:", error.response?.status);
+        console.error("Response:",error.response?.data);
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {message: error.message}
         );
     }
 });
 
-// GET BY ID
-app.get("/api/invoice-tax-details/:id", async (req, res) => {
-    try {
-        const response = await axios.get(
-            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`
-        );
-
-        res.status(response.status).json(response.data);
-    } catch (error) {
-        res.status(error.response?.status || 500).json(
-            error.response?.data || { message: error.message }
-        );
-    }
-});
 
 // CREATE
 app.post("/api/invoice-tax-details", async (req, res) => {
     try {
         const response = await axios.post(
-            `${API_BASE_URL}/InvoiceTaxDetails`,
-            req.body
+            `${API_BASE_URL}/invoice-tax-details`,
+            req.body,
+            { httpsAgent }
         );
 
         res.status(response.status).json(response.data);
     } catch (error) {
+        console.error(
+            "POST InvoiceTaxDetails:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || { message: error.message }
+        );
+    }
+});
+// =========================================================
+// GET INVOICE TAX DETAIL BY ID
+// =========================================================
+
+app.get("/api/invoice-tax-details/:id", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/invoice-tax-details/${encodeURIComponent(req.params.id)}`,
+            { httpsAgent }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET InvoiceTaxDetails:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
         res.status(error.response?.status || 500).json(
             error.response?.data || { message: error.message }
         );
     }
 });
 
-// UPDATE
+// =========================================================
+// UPDATE INVOICE TAX DETAIL
+// =========================================================
+
 app.put("/api/invoice-tax-details/:id", async (req, res) => {
     try {
         const response = await axios.put(
-            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`,
-            req.body
+            `${API_BASE_URL}/invoice-tax-details/${encodeURIComponent(req.params.id)}`,
+            req.body,
+            { httpsAgent }
         );
 
         res.status(response.status).json(response.data);
     } catch (error) {
-        res.status(error.response?.status || 500).json(
-            error.response?.data || { message: error.message }
-        );
-    }
-});
-
-// PARTIAL UPDATE
-app.patch("/api/invoice-tax-details/:id", async (req, res) => {
-    try {
-        const response = await axios.patch(
-            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`,
-            req.body
+        console.error(
+            "PUT InvoiceTaxDetails:",
+            error.response?.status,
+            error.response?.data || error.message
         );
 
-        res.status(response.status).json(
-            response.data
-        );
-    } catch (error) {
         res.status(error.response?.status || 500).json(
             error.response?.data || { message: error.message }
         );
@@ -35808,18 +35787,28 @@ app.patch("/api/invoice-tax-details/:id", async (req, res) => {
 app.delete("/api/invoice-tax-details/:id", async (req, res) => {
     try {
         const response = await axios.delete(
-            `${API_BASE_URL}/InvoiceTaxDetails/${req.params.id}`
+            `${API_BASE_URL}/invoice-tax-details/${encodeURIComponent(req.params.id)}`,
+            { httpsAgent }
         );
 
         res.status(response.status).json(
-            response.data ?? { message: "Record deleted successfully." }
+            response.data ?? {
+                message: "Record deleted successfully."
+            }
         );
     } catch (error) {
+        console.error(
+            "DELETE InvoiceTaxDetails:",
+            error.response?.data || error.message
+        );
+
         res.status(error.response?.status || 500).json(
             error.response?.data || { message: error.message }
         );
     }
 });
+
+
 
 //////////////
 // =========================================================
