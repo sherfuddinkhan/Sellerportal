@@ -35782,31 +35782,288 @@ app.put("/api/invoice-tax-details/:id", async (req, res) => {
         );
     }
 });
+// =========================================================
+// DELETE INVOICE TAX DETAIL
+// DELETE /api/InvoiceTaxDetail/:id
+// =========================================================
+// DELETE INVOICE TAX DETAIL
+// =========================================================
 
-// DELETE
-app.delete("/api/invoice-tax-details/:id", async (req, res) => {
+app.delete("/api/InvoiceTaxDetail/:id", async (req, res) => {
+    const { id } = req.params;
+
+    console.log("DELETE InvoiceTaxDetail ID:", id);
+
     try {
         const response = await axios.delete(
-            `${API_BASE_URL}/invoice-tax-details/${encodeURIComponent(req.params.id)}`,
+            `${API_BASE_URL}/InvoiceTaxDetail/${encodeURIComponent(id)}`,
             { httpsAgent }
         );
 
-        res.status(response.status).json(
-            response.data ?? {
-                message: "Record deleted successfully."
-            }
-        );
+        return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "DELETE InvoiceTaxDetails:",
+            "DELETE InvoiceTaxDetail Error:",
+            error.response?.status,
             error.response?.data || error.message
         );
 
-        res.status(error.response?.status || 500).json(
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: error.message
+            }
+        );
+    }
+});
+
+////////////////
+// =========================================================
+// GATEPASS API PROXY
+// =========================================================
+
+const GATEPASS_API = `${API_BASE_URL}/Gatepass`;
+
+// ---------------------------------------------------------
+// GET ALL GATEPASSES FOR SELLER AND CUSTOMER
+// GET /api/Gatepass/seller/:sellerId/customer/:customerId
+// ---------------------------------------------------------
+
+app.get(
+    "/api/Gatepass/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${GATEPASS_API}/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`,
+                { httpsAgent }
+            );
+
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET Gatepasses Error:",
+                error.response?.status,
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json(
+                error.response?.data || { message: error.message }
+            );
+        }
+    }
+);
+
+// ---------------------------------------------------------
+// POST CREATE GATEPASS
+// POST /api/Gatepass/seller/:sellerId/customer/:customerId
+// ---------------------------------------------------------
+
+app.post(
+    "/api/Gatepass/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.post(
+                `${GATEPASS_API}/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: { "Content-Type": "application/json" }
+                }
+            );
+
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "POST Gatepass Error:",
+                error.response?.status,
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json(
+                error.response?.data || { message: error.message }
+            );
+        }
+    }
+);
+
+// ---------------------------------------------------------
+// GET GATEPASS BY ID
+// GET /api/Gatepass/:id/seller/:sellerId/customer/:customerId
+// ---------------------------------------------------------
+
+app.get(
+    "/api/Gatepass/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${GATEPASS_API}/${encodeURIComponent(id)}` +
+                `/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`,
+                { httpsAgent }
+            );
+
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET Gatepass By ID Error:",
+                error.response?.status,
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json(
+                error.response?.data || { message: error.message }
+            );
+        }
+    }
+);
+
+// ---------------------------------------------------------
+// PUT UPDATE GATEPASS
+// PUT /api/Gatepass/:id/seller/:sellerId/customer/:customerId
+// ---------------------------------------------------------
+
+app.put(
+    "/api/Gatepass/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.put(
+                `${GATEPASS_API}/${encodeURIComponent(id)}` +
+                `/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`,
+                req.body,
+                {
+                    httpsAgent,
+                    headers: { "Content-Type": "application/json" }
+                }
+            );
+
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "PUT Gatepass Error:",
+                error.response?.status,
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json(
+                error.response?.data || { message: error.message }
+            );
+        }
+    }
+);
+
+// ---------------------------------------------------------
+// DELETE GATEPASS
+// DELETE /api/Gatepass/:id/seller/:sellerId/customer/:customerId
+// ---------------------------------------------------------
+
+app.delete(
+    "/api/Gatepass/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.delete(
+                `${GATEPASS_API}/${encodeURIComponent(id)}` +
+                `/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`,
+                { httpsAgent }
+            );
+
+            return res.status(response.status).json(
+                response.data ?? {
+                    message: "Gatepass deleted successfully."
+                }
+            );
+        } catch (error) {
+            console.error(
+                "DELETE Gatepass Error:",
+                error.response?.status,
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json(
+                error.response?.data || { message: error.message }
+            );
+        }
+    }
+);
+
+// ---------------------------------------------------------
+// GET GATEPASS BY CODE
+// GET /api/Gatepass/code/:code/seller/:sellerId/customer/:customerId
+// ---------------------------------------------------------
+
+app.get(
+    "/api/Gatepass/code/:code/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { code, sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${GATEPASS_API}/code/${encodeURIComponent(code)}` +
+                `/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`,
+                { httpsAgent }
+            );
+
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET Gatepass By Code Error:",
+                error.response?.status,
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json(
+                error.response?.data || { message: error.message }
+            );
+        }
+    }
+);
+
+// ---------------------------------------------------------
+// POST GATEPASS LIST
+// POST /api/Gatepass/list
+// ---------------------------------------------------------
+
+app.post("/api/Gatepass/list", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${GATEPASS_API}/list`,
+            req.body,
+            {
+                httpsAgent,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "POST Gatepass List Error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json(
             error.response?.data || { message: error.message }
         );
     }
 });
+
+
+
+
 
 
 

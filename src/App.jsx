@@ -997,6 +997,11 @@ import ManifestPackagesPutawayDetails from "./pages/ManifestPackagesPutaway/Mani
 import ManifestPackagesPutawayView from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayView";
 import ManifestPackagesPutawayEdit from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayEdit";
 
+
+
+import Gatepasses from "./pages/Gatepasses/Gatepasses";
+import GatepassDetail from "./pages/Gatepasses/GatepassDetail";
+import GatepassCreate from "./pages/Gatepasses/GatepassCreate";
 // =========================================================
 // NOT FOUND
 // =========================================================
@@ -1353,9 +1358,11 @@ MANIFEST PACKAGES PUTAWAY ROUTES
 />
 
 
-{/* =================================================
-    INVOICE TAX DETAILS ROUTES
-================================================= */}
+    {/* ADD THESE */}
+        <Route path="/gatepasses" element={<Gatepasses />} />
+        <Route path="/gatepasses/new" element={<GatepassCreate />} />
+        <Route path="/gatepasses/:id" element={<GatepassDetail />} />
+        <Route path="/gatepasses/code/:code" element={<GatepassDetail />} />
 {/* =====================================================
     INVOICE TAX DETAILS ROUTES
 ===================================================== */}

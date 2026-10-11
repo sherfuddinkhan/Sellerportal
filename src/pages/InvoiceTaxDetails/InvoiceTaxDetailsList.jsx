@@ -227,102 +227,140 @@ const handleEdit = (row) => {
 
     navigate(`/invoice-tax-details/${id}/edit`);
 };
+// =====================================================
+// DELETE INVOICE TAX DETAIL
+// =====================================================
 
+const handleDelete = async (item) => {
+    const id = getRecordId(item);
 
+    // Validate record ID
+    if (id == null || id === "") {
+        setError(
+            "Cannot delete invoice tax detail: record ID is missing."
+        );
+        return;
+    }
 
-    // =====================================================
-    // DELETE
-    // =====================================================
+    // Confirm deletion
+    const confirmed = window.confirm(
+        `Are you sure you want to delete invoice tax detail ${id}?`
+    );
 
-    const handleDelete = async (item) => {
-        const id = getRecordId(item);
+    if (!confirmed) {
+        return;
+    }
 
-        if (id == null) {
-            setError(
-                "Cannot delete invoice tax detail: record ID is missing."
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+        // ---------------------------------------------
+        // DELETE RECORD
+        // ---------------------------------------------
+        if (typeof onDelete === "function") {
+            await onDelete(item);
+        } else {
+            const deleteUrl =
+                `${API_URL}/${encodeURIComponent(id)}`;
+
+            console.log(
+                "Deleting Invoice Tax Detail:",
+                deleteUrl
             );
-            return;
+
+            await axios.delete(deleteUrl, {
+                headers: {
+                    Accept: "application/json"
+                }
+            });
         }
 
-        const confirmed = window.confirm(
-            `Are you sure you want to delete invoice tax detail ${id}?`
+        // ---------------------------------------------
+        // REFRESH RECORDS
+        // ---------------------------------------------
+        const response = await axios.get(API_URL);
+        const records = normalizeResponse(response.data);
+
+        setTaxDetails(records);
+
+        setSuccess(
+            `Invoice tax detail ${id} deleted successfully.`
         );
 
-        if (!confirmed) {
-            return;
-        }
+        // ---------------------------------------------
+        // FILTER RECORDS FOR PAGINATION
+        // ---------------------------------------------
+        const term = searchTerm.trim().toLowerCase();
 
-        setLoading(true);
-        setError("");
-        setSuccess("");
-
-        try {
-            if (typeof onDelete === "function") {
-                // Use the parent's configured delete operation.
-                await onDelete(item);
-            } else {
-                // Use the Node.js proxy DELETE endpoint.
-                await axios.delete(`${API_URL}/${id}`);
+        const filteredRecords = records.filter((record) => {
+            if (!term) {
+                return true;
             }
 
-            // Refresh records after successful deletion.
-            const response = await axios.get(API_URL);
-            const records = normalizeResponse(response.data);
+            const searchableValues = [
+                record.invoiceTaxDetailId ?? record.InvoiceTaxDetailId,
+                record.salesInvoiceId ?? record.SalesInvoiceId,
+                record.channelProductId ?? record.ChannelProductId,
+                record.taxPercentage ?? record.TaxPercentage,
+                record.centralGst ?? record.CentralGst,
+                record.stateGst ?? record.StateGst,
+                record.integratedGst ?? record.IntegratedGst,
+                record.compensationCess ?? record.CompensationCess,
+                record.sellerId ?? record.SellerId,
+                record.customerId ?? record.CustomerId
+            ];
 
-            setTaxDetails(records);
-
-            setSuccess(
-                "Invoice tax detail deleted successfully."
+            return searchableValues.some((value) =>
+                String(value ?? "")
+                    .toLowerCase()
+                    .includes(term)
             );
+        });
 
-            // Keep the selected page within the valid range.
-            const lastPage = Math.max(
-                0,
-                Math.ceil(
-                    records.filter((record) => {
-                        const term = searchTerm.trim().toLowerCase();
+        // ---------------------------------------------
+        // KEEP CURRENT PAGE VALID
+        // ---------------------------------------------
+        const lastPage = Math.max(
+            0,
+            Math.ceil(filteredRecords.length / rowsPerPage) - 1
+        );
 
-                        if (!term) return true;
+        setPage((currentPage) =>
+            Math.min(currentPage, lastPage)
+        );
+    } catch (err) {
+        // ---------------------------------------------
+        // LOG DELETE ERROR DETAILS
+        // ---------------------------------------------
+        console.error(
+            "DELETE INVOICE TAX DETAIL FAILED"
+        );
 
-                        return [
-                            record.invoiceTaxDetailId ?? record.InvoiceTaxDetailId,
-                            record.salesInvoiceId ?? record.SalesInvoiceId,
-                            record.channelProductId ?? record.ChannelProductId,
-                            record.taxPercentage ?? record.TaxPercentage,
-                            record.centralGst ?? record.CentralGst,
-                            record.stateGst ?? record.StateGst,
-                            record.integratedGst ?? record.IntegratedGst,
-                            record.compensationCess ?? record.CompensationCess,
-                            record.sellerId ?? record.SellerId,
-                            record.customerId ?? record.CustomerId
-                        ].some((value) =>
-                            String(value ?? "")
-                                .toLowerCase()
-                                .includes(term)
-                        );
-                    }).length / rowsPerPage
-                ) - 1
-            );
+        console.error("Request URL:", err.config?.url);
+        console.error("HTTP Status:", err.response?.status);
+        console.error("Response Body:", err.response?.data);
+        console.error("Error Message:", err.message);
 
-            setPage((currentPage) =>
-                Math.min(currentPage, lastPage)
-            );
-        } catch (err) {
-            console.error(
-                "DELETE INVOICE TAX DETAIL ERROR:",
-                err.response?.data || err.message
-            );
+        // ---------------------------------------------
+        // DISPLAY ERROR
+        // ---------------------------------------------
+        const responseData = err.response?.data;
 
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                err.message ||
-                "Failed to delete invoice tax detail."
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+        const errorMessage =
+            typeof responseData === "string"
+                ? responseData
+                : responseData?.message ||
+                  responseData?.title ||
+                  err.message ||
+                  "Failed to delete invoice tax detail.";
+
+        setError(errorMessage);
+    } finally {
+        setLoading(false);
+    }
+};
 
     // =====================================================
     // CLOSE NOTIFICATIONS

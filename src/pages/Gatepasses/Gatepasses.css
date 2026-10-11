@@ -1,0 +1,1149 @@
+/* =========================================================
+   Gatepasses.css
+   Gatepass Module - Seller Portal
+========================================================= */
+
+/* =========================================================
+   CSS VARIABLES
+========================================================= */
+
+:root {
+    --gatepass-primary: #1976d2;
+    --gatepass-primary-dark: #115293;
+    --gatepass-primary-light: #e3f2fd;
+
+    --gatepass-success: #2e7d32;
+    --gatepass-warning: #ed6c02;
+    --gatepass-error: #d32f2f;
+    --gatepass-info: #0288d1;
+
+    --gatepass-background: #f5f7fb;
+    --gatepass-surface: #ffffff;
+    --gatepass-border: #e0e5ec;
+
+    --gatepass-text: #263238;
+    --gatepass-muted: #64748b;
+
+    --gatepass-radius: 10px;
+    --gatepass-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+    --gatepass-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+/* =========================================================
+   GLOBAL MODULE CONTAINER
+========================================================= */
+
+.gatepasses-container {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    box-sizing: border-box;
+    color: var(--gatepass-text);
+}
+
+.gatepasses-container *,
+.gatepass-page *,
+.gatepass-card * {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.gatepasses-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.gatepasses-header-content {
+    flex: 1;
+    min-width: 220px;
+}
+
+.gatepasses-title {
+    margin: 0;
+    color: var(--gatepass-text);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.gatepasses-subtitle {
+    margin-top: 6px;
+    color: var(--gatepass-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.gatepasses-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.gatepass-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+    box-shadow: var(--gatepass-shadow);
+}
+
+.gatepass-toolbar-left,
+.gatepass-toolbar-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.gatepass-toolbar-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.gatepass-toolbar-description {
+    margin-top: 4px;
+    color: var(--gatepass-muted);
+    font-size: 13px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.gatepass-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 9px 16px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.gatepass-btn:focus-visible {
+    outline: 3px solid rgba(25, 118, 210, 0.25);
+    outline-offset: 2px;
+}
+
+.gatepass-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.gatepass-btn-primary {
+    color: #ffffff;
+    background: var(--gatepass-primary);
+}
+
+.gatepass-btn-primary:hover {
+    background: var(--gatepass-primary-dark);
+}
+
+.gatepass-btn-secondary {
+    color: var(--gatepass-text);
+    background: #ffffff;
+    border-color: var(--gatepass-border);
+}
+
+.gatepass-btn-secondary:hover {
+    background: #f1f5f9;
+}
+
+.gatepass-btn-danger {
+    color: #ffffff;
+    background: var(--gatepass-error);
+}
+
+.gatepass-btn-danger:hover {
+    background: #b71c1c;
+}
+
+.gatepass-btn-success {
+    color: #ffffff;
+    background: var(--gatepass-success);
+}
+
+.gatepass-btn-success:hover {
+    background: #1b5e20;
+}
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.gatepass-statistics {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.gatepass-stat-card {
+    position: relative;
+    min-width: 0;
+    padding: 20px;
+    overflow: hidden;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+    box-shadow: var(--gatepass-shadow);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.gatepass-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--gatepass-shadow-hover);
+}
+
+.gatepass-stat-label {
+    margin: 0 0 10px;
+    color: var(--gatepass-muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.gatepass-stat-value {
+    margin: 0;
+    color: var(--gatepass-text);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.gatepass-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    background: var(--gatepass-primary-light);
+    color: var(--gatepass-primary);
+}
+
+.gatepass-stat-card.pending .gatepass-stat-icon {
+    color: var(--gatepass-warning);
+    background: #fff3e0;
+}
+
+.gatepass-stat-card.approved .gatepass-stat-icon {
+    color: var(--gatepass-success);
+    background: #e8f5e9;
+}
+
+.gatepass-stat-card.completed .gatepass-stat-icon {
+    color: var(--gatepass-info);
+    background: #e1f5fe;
+}
+
+.gatepass-stat-card.rejected .gatepass-stat-icon {
+    color: var(--gatepass-error);
+    background: #ffebee;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.gatepass-search {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 18px;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+}
+
+.gatepass-search-input {
+    flex: 1;
+    min-width: 220px;
+}
+
+.gatepass-search-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.gatepass-filters {
+    padding: 20px;
+    margin-bottom: 20px;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+    box-shadow: var(--gatepass-shadow);
+}
+
+.gatepass-filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.gatepass-filters-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.gatepass-filters-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.gatepass-filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.gatepass-table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+    box-shadow: var(--gatepass-shadow);
+}
+
+.gatepass-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.gatepass-table thead {
+    background: #f8fafc;
+}
+
+.gatepass-table th {
+    padding: 15px 16px;
+    color: #475569;
+    border-bottom: 1px solid var(--gatepass-border);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.gatepass-table td {
+    padding: 14px 16px;
+    color: var(--gatepass-text);
+    border-bottom: 1px solid #edf0f4;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.gatepass-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.gatepass-table tbody tr:hover {
+    background: #f8fbff;
+}
+
+.gatepass-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.gatepass-table-code {
+    color: var(--gatepass-primary);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.gatepass-table-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS CHIPS
+========================================================= */
+
+.gatepass-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.gatepass-status-pending {
+    color: #9a4d00;
+    background: #fff3e0;
+}
+
+.gatepass-status-approved {
+    color: #1b5e20;
+    background: #e8f5e9;
+}
+
+.gatepass-status-completed {
+    color: #01579b;
+    background: #e1f5fe;
+}
+
+.gatepass-status-rejected,
+.gatepass-status-cancelled {
+    color: #b71c1c;
+    background: #ffebee;
+}
+
+.gatepass-status-default {
+    color: #475569;
+    background: #f1f5f9;
+}
+
+/* =========================================================
+   GATEPASS CARDS
+========================================================= */
+
+.gatepass-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.gatepass-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+    box-shadow: var(--gatepass-shadow);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.gatepass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--gatepass-shadow-hover);
+}
+
+.gatepass-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px;
+}
+
+.gatepass-card-code {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.gatepass-card-id {
+    margin-top: 4px;
+    color: var(--gatepass-muted);
+    font-size: 12px;
+}
+
+.gatepass-card-body {
+    flex: 1;
+    padding: 18px;
+}
+
+.gatepass-card-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.gatepass-card-field:last-child {
+    margin-bottom: 0;
+}
+
+.gatepass-card-field-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    color: var(--gatepass-primary);
+    background: var(--gatepass-primary-light);
+    border-radius: 8px;
+}
+
+.gatepass-card-field-label {
+    margin-bottom: 4px;
+    color: var(--gatepass-muted);
+    font-size: 12px;
+}
+
+.gatepass-card-field-value {
+    color: var(--gatepass-text);
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.gatepass-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--gatepass-border);
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.gatepass-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 14px 18px;
+    background: var(--gatepass-surface);
+    border-top: 1px solid var(--gatepass-border);
+}
+
+.gatepass-pagination-info {
+    color: var(--gatepass-muted);
+    font-size: 13px;
+}
+
+.gatepass-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================================
+   CREATE / EDIT / DETAILS PAGE
+========================================================= */
+
+.gatepass-page {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    background: var(--gatepass-background);
+}
+
+.gatepass-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.gatepass-page-title {
+    margin: 0;
+    color: var(--gatepass-text);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.gatepass-page-subtitle {
+    margin-top: 6px;
+    color: var(--gatepass-muted);
+    font-size: 14px;
+}
+
+.gatepass-form-card,
+.gatepass-details-card {
+    width: 100%;
+    margin-bottom: 24px;
+    padding: 24px;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+    box-shadow: var(--gatepass-shadow);
+}
+
+.gatepass-section-title {
+    margin: 0 0 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gatepass-border);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.gatepass-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.gatepass-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.gatepass-form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.gatepass-form-label {
+    color: var(--gatepass-text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.gatepass-form-input,
+.gatepass-form-select,
+.gatepass-form-textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    color: var(--gatepass-text);
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gatepass-form-input:focus,
+.gatepass-form-select:focus,
+.gatepass-form-textarea:focus {
+    border-color: var(--gatepass-primary);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+}
+
+.gatepass-form-input:disabled,
+.gatepass-form-select:disabled,
+.gatepass-form-textarea:disabled {
+    color: #94a3b8;
+    background: #f1f5f9;
+    cursor: not-allowed;
+}
+
+.gatepass-form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.gatepass-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gatepass-border);
+}
+
+/* =========================================================
+   DETAILS VIEW
+========================================================= */
+
+.gatepass-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    background: var(--gatepass-surface);
+    border: 1px solid var(--gatepass-border);
+    border-radius: var(--gatepass-radius);
+    box-shadow: var(--gatepass-shadow);
+}
+
+.gatepass-details-identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.gatepass-details-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    color: var(--gatepass-primary);
+    background: var(--gatepass-primary-light);
+    border-radius: 12px;
+}
+
+.gatepass-details-code {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.gatepass-details-id {
+    margin-top: 5px;
+    color: var(--gatepass-muted);
+    font-size: 13px;
+}
+
+.gatepass-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.gatepass-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.gatepass-detail-label {
+    margin-bottom: 5px;
+    color: var(--gatepass-muted);
+    font-size: 12px;
+}
+
+.gatepass-detail-value {
+    color: var(--gatepass-text);
+    font-size: 15px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.gatepass-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 260px;
+    padding: 30px;
+    color: var(--gatepass-muted);
+    text-align: center;
+}
+
+.gatepass-spinner {
+    width: 38px;
+    height: 38px;
+    border: 4px solid #dbeafe;
+    border-top-color: var(--gatepass-primary);
+    border-radius: 50%;
+    animation: gatepass-spin 0.8s linear infinite;
+}
+
+@keyframes gatepass-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.gatepass-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    padding: 32px 20px;
+    color: var(--gatepass-muted);
+    text-align: center;
+    background: var(--gatepass-surface);
+    border: 1px dashed #cbd5e1;
+    border-radius: var(--gatepass-radius);
+}
+
+.gatepass-empty-state-icon {
+    margin-bottom: 14px;
+    color: #94a3b8;
+    font-size: 42px;
+}
+
+.gatepass-empty-state-title {
+    margin: 0 0 8px;
+    color: var(--gatepass-text);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.gatepass-empty-state-description {
+    max-width: 420px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.gatepass-alert {
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.gatepass-alert-success {
+    color: #1b5e20;
+    background: #e8f5e9;
+    border-color: #c8e6c9;
+}
+
+.gatepass-alert-error {
+    color: #b71c1c;
+    background: #ffebee;
+    border-color: #ffcdd2;
+}
+
+.gatepass-alert-warning {
+    color: #8a4b08;
+    background: #fff8e1;
+    border-color: #ffecb3;
+}
+
+.gatepass-alert-info {
+    color: #01579b;
+    background: #e1f5fe;
+    border-color: #b3e5fc;
+}
+
+/* =========================================================
+   DELETE DIALOG
+========================================================= */
+
+.gatepass-delete-content {
+    padding: 24px;
+}
+
+.gatepass-delete-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 18px;
+    color: #8a4b08;
+    background: #fff8e1;
+    border: 1px solid #ffecb3;
+    border-radius: 8px;
+}
+
+.gatepass-delete-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--gatepass-border);
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.gatepasses-container button:focus-visible,
+.gatepass-page button:focus-visible,
+.gatepass-card button:focus-visible,
+.gatepasses-container a:focus-visible,
+.gatepass-page a:focus-visible {
+    outline: 3px solid rgba(25, 118, 210, 0.4);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gatepass-card,
+    .gatepass-stat-card,
+    .gatepass-btn,
+    .gatepass-spinner {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE: TABLETS
+========================================================= */
+
+@media (max-width: 1200px) {
+    .gatepass-statistics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .gatepass-cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gatepass-filters-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================================
+   RESPONSIVE: SMALL TABLETS
+========================================================= */
+
+@media (max-width: 768px) {
+    .gatepasses-container,
+    .gatepass-page {
+        padding: 16px;
+    }
+
+    .gatepasses-title,
+    .gatepass-page-title {
+        font-size: 23px;
+    }
+
+    .gatepass-statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .gatepass-stat-card {
+        padding: 16px;
+    }
+
+    .gatepass-stat-value {
+        font-size: 24px;
+    }
+
+    .gatepass-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gatepass-form-grid,
+    .gatepass-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gatepass-form-field.full-width {
+        grid-column: auto;
+    }
+
+    .gatepass-form-card,
+    .gatepass-details-card {
+        padding: 18px;
+    }
+
+    .gatepass-toolbar {
+        align-items: stretch;
+    }
+
+    .gatepass-toolbar-left,
+    .gatepass-toolbar-right {
+        width: 100%;
+    }
+
+    .gatepass-search-input {
+        min-width: 100%;
+    }
+
+    .gatepass-details-header {
+        padding: 18px;
+    }
+
+    .gatepass-pagination {
+        align-items: flex-start;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE: MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+    .gatepasses-container,
+    .gatepass-page {
+        padding: 12px;
+    }
+
+    .gatepasses-header,
+    .gatepass-page-header {
+        align-items: stretch;
+    }
+
+    .gatepasses-header-actions {
+        width: 100%;
+    }
+
+    .gatepasses-header-actions .gatepass-btn {
+        flex: 1;
+    }
+
+    .gatepasses-title,
+    .gatepass-page-title {
+        font-size: 21px;
+    }
+
+    .gatepass-statistics {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .gatepass-stat-card {
+        padding: 12px;
+    }
+
+    .gatepass-stat-value {
+        font-size: 21px;
+    }
+
+    .gatepass-stat-label {
+        font-size: 12px;
+    }
+
+    .gatepass-filters-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gatepass-form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .gatepass-form-actions .gatepass-btn {
+        width: 100%;
+    }
+
+    .gatepass-card-header,
+    .gatepass-card-body {
+        padding: 14px;
+    }
+
+    .gatepass-card-footer {
+        align-items: stretch;
+    }
+
+    .gatepass-card-footer .gatepass-btn {
+        flex: 1;
+    }
+
+    .gatepass-details-identity {
+        align-items: flex-start;
+    }
+
+    .gatepass-details-code {
+        font-size: 19px;
+    }
+
+    .gatepass-pagination {
+        padding: 12px;
+    }
+
+    .gatepass-delete-actions {
+        flex-direction: column-reverse;
+        padding: 16px;
+    }
+
+    .gatepass-delete-actions button {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+    .gatepasses-header-actions,
+    .gatepass-toolbar,
+    .gatepass-search,
+    .gatepass-filters,
+    .gatepass-card-footer,
+    .gatepass-form-actions,
+    .gatepass-pagination,
+    .gatepass-no-print {
+        display: none !important;
+    }
+
+    .gatepasses-container,
+    .gatepass-page {
+        padding: 0;
+        background: #ffffff;
+    }
+
+    .gatepass-card,
+    .gatepass-form-card,
+    .gatepass-details-card {
+        box-shadow: none;
+        break-inside: avoid;
+    }
+
+    .gatepass-cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+

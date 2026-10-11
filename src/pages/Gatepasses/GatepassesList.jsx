@@ -1,0 +1,682 @@
+// =========================================================
+// GatepassesList.jsx
+// =========================================================
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import {
+    Alert,
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    IconButton,
+    InputAdornment,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
+    TextField,
+    Tooltip,
+    Typography
+} from "@mui/material";
+
+import {
+    Add,
+    Delete,
+    Edit,
+    Refresh,
+    Search,
+    Visibility
+} from "@mui/icons-material";
+
+import { useNavigate } from "react-router-dom";
+
+// =========================================================
+// API CONFIGURATION
+// =========================================================
+
+const API_BASE_URL = "http://localhost:5000/api";
+const API_URL = `${API_BASE_URL}/Gatepass`;
+
+// =========================================================
+// NORMALIZE RESPONSE
+// =========================================================
+
+const normalizeResponse = (data) => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.items)) return data.items;
+    if (Array.isArray(data?.gatepasses)) return data.gatepasses;
+    if (Array.isArray(data?.Gatepasses)) return data.Gatepasses;
+
+    return [];
+};
+
+// =========================================================
+// GET FIELD VALUE (CAMELCASE / PASCALCASE)
+// =========================================================
+
+const getValue = (item, camelCase, pascalCase) =>
+    item?.[camelCase] ?? item?.[pascalCase] ?? "";
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
+const GatepassesList = ({
+    sellerId: sellerIdProp,
+    customerId: customerIdProp,
+    onCreate,
+    onView,
+    onEdit,
+    onDelete
+}) => {
+    const navigate = useNavigate();
+
+    // -----------------------------------------------------
+    // STATE
+    // -----------------------------------------------------
+
+    const [gatepasses, setGatepasses] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    // -----------------------------------------------------
+    // SELLER / CUSTOMER CONTEXT
+    // -----------------------------------------------------
+
+    const sellerId =
+        sellerIdProp ??
+        localStorage.getItem("sellerId") ??
+        localStorage.getItem("SellerId");
+
+    const customerId =
+        customerIdProp ??
+        localStorage.getItem("customerId") ??
+        localStorage.getItem("CustomerId");
+
+    // -----------------------------------------------------
+    // VALIDATE SCOPE
+    // -----------------------------------------------------
+
+    const hasValidScope =
+        sellerId !== null &&
+        sellerId !== undefined &&
+        String(sellerId).trim() !== "" &&
+        customerId !== null &&
+        customerId !== undefined &&
+        String(customerId).trim() !== "";
+
+    // -----------------------------------------------------
+    // FETCH GATEPASSES
+    // -----------------------------------------------------
+
+    const fetchGatepasses = useCallback(async () => {
+        if (!hasValidScope) {
+            setGatepasses([]);
+            setError(
+                "Seller ID or Customer ID is missing. Select a seller and customer first."
+            );
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError("");
+            setSuccess("");
+
+            const response = await axios.get(
+                `${API_URL}/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`
+            );
+
+            setGatepasses(normalizeResponse(response.data));
+            setPage(0);
+        } catch (err) {
+            console.error(
+                "FETCH GATEPASSES ERROR:",
+                err.response?.status,
+                err.response?.data || err.message
+            );
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Failed to load Gatepasses."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [sellerId, customerId, hasValidScope]);
+
+    useEffect(() => {
+        fetchGatepasses();
+    }, [fetchGatepasses]);
+
+    // -----------------------------------------------------
+    // GET GATEPASS ID
+    // -----------------------------------------------------
+
+    const getRecordId = (item) =>
+        item?.gatepassId ??
+        item?.GatepassId ??
+        item?.gatePassId ??
+        item?.GatePassId ??
+        item?.id ??
+        item?.Id;
+
+    // -----------------------------------------------------
+    // SEARCH
+    // -----------------------------------------------------
+
+    const filteredGatepasses = useMemo(() => {
+        const term = searchTerm.trim().toLowerCase();
+
+        if (!term) return gatepasses;
+
+        return gatepasses.filter((item) => {
+            const searchableValues = [
+                getRecordId(item),
+                getValue(item, "gatepassCode", "GatepassCode"),
+                getValue(item, "gatepassNumber", "GatepassNumber"),
+                getValue(item, "code", "Code"),
+                getValue(item, "status", "Status"),
+                getValue(item, "sellerId", "SellerId"),
+                getValue(item, "customerId", "CustomerId"),
+                getValue(item, "remarks", "Remarks"),
+                getValue(item, "vehicleNumber", "VehicleNumber"),
+                getValue(item, "driverName", "DriverName")
+            ];
+
+            return searchableValues.some((value) =>
+                String(value ?? "")
+                    .toLowerCase()
+                    .includes(term)
+            );
+        });
+    }, [gatepasses, searchTerm]);
+
+    // -----------------------------------------------------
+    // PAGINATION
+    // -----------------------------------------------------
+
+    const visibleGatepasses = useMemo(() => {
+        const start = page * rowsPerPage;
+
+        return filteredGatepasses.slice(
+            start,
+            start + rowsPerPage
+        );
+    }, [filteredGatepasses, page, rowsPerPage]);
+
+    // -----------------------------------------------------
+    // CREATE
+    // -----------------------------------------------------
+
+    const handleCreate = () => {
+        if (typeof onCreate === "function") {
+            onCreate();
+        } else {
+            navigate("/gatepasses/create");
+        }
+    };
+
+    // -----------------------------------------------------
+    // VIEW
+    // -----------------------------------------------------
+
+    const handleView = (item) => {
+        const id = getRecordId(item);
+
+        if (id == null || id === "") {
+            setError("Cannot view Gatepass: record ID is missing.");
+            return;
+        }
+
+        if (typeof onView === "function") {
+            onView(item);
+        } else {
+            navigate(`/gatepasses/details/${encodeURIComponent(id)}`);
+        }
+    };
+
+    // -----------------------------------------------------
+    // EDIT
+    // -----------------------------------------------------
+
+    const handleEdit = (item) => {
+        const id = getRecordId(item);
+
+        if (id == null || id === "") {
+            setError("Cannot edit Gatepass: record ID is missing.");
+            return;
+        }
+
+        if (typeof onEdit === "function") {
+            onEdit(item);
+        } else {
+            navigate(`/gatepasses/${encodeURIComponent(id)}/edit`);
+        }
+    };
+
+    // -----------------------------------------------------
+    // DELETE
+    // -----------------------------------------------------
+
+    const handleDelete = async (item) => {
+        const id = getRecordId(item);
+
+        if (id == null || id === "") {
+            setError("Cannot delete Gatepass: record ID is missing.");
+            return;
+        }
+
+        if (!hasValidScope) {
+            setError("Seller ID or Customer ID is missing.");
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Are you sure you want to delete Gatepass ${id}?`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            setLoading(true);
+            setError("");
+            setSuccess("");
+
+            if (typeof onDelete === "function") {
+                await onDelete(item);
+            } else {
+                await axios.delete(
+                    `${API_URL}/${encodeURIComponent(id)}` +
+                    `/seller/${encodeURIComponent(sellerId)}` +
+                    `/customer/${encodeURIComponent(customerId)}`
+                );
+            }
+
+            const response = await axios.get(
+                `${API_URL}/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`
+            );
+
+            const updatedRecords = normalizeResponse(response.data);
+
+            setGatepasses(updatedRecords);
+
+            const term = searchTerm.trim().toLowerCase();
+
+            const filteredCount = updatedRecords.filter((record) => {
+                if (!term) return true;
+
+                return [
+                    getRecordId(record),
+                    getValue(record, "gatepassCode", "GatepassCode"),
+                    getValue(record, "gatepassNumber", "GatepassNumber"),
+                    getValue(record, "code", "Code"),
+                    getValue(record, "status", "Status"),
+                    getValue(record, "sellerId", "SellerId"),
+                    getValue(record, "customerId", "CustomerId"),
+                    getValue(record, "remarks", "Remarks"),
+                    getValue(record, "vehicleNumber", "VehicleNumber"),
+                    getValue(record, "driverName", "DriverName")
+                ].some((value) =>
+                    String(value ?? "").toLowerCase().includes(term)
+                );
+            }).length;
+
+            const lastPage = Math.max(
+                0,
+                Math.ceil(filteredCount / rowsPerPage) - 1
+            );
+
+            setPage((currentPage) => Math.min(currentPage, lastPage));
+            setSuccess("Gatepass deleted successfully.");
+        } catch (err) {
+            console.error(
+                "DELETE GATEPASS ERROR:",
+                err.response?.status,
+                err.response?.data || err.message
+            );
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Failed to delete Gatepass."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // -----------------------------------------------------
+    // STATUS CHIP
+    // -----------------------------------------------------
+
+    const renderStatus = (status) => {
+        const value = String(status || "Unknown");
+        const normalized = value.toLowerCase();
+
+        let color = "default";
+
+        if (
+            normalized === "approved" ||
+            normalized === "completed" ||
+            normalized === "closed"
+        ) {
+            color = "success";
+        } else if (
+            normalized === "pending" ||
+            normalized === "draft"
+        ) {
+            color = "warning";
+        } else if (
+            normalized === "rejected" ||
+            normalized === "cancelled"
+        ) {
+            color = "error";
+        }
+
+        return <Chip label={value} color={color} size="small" />;
+    };
+
+    // -----------------------------------------------------
+    // RENDER
+    // -----------------------------------------------------
+
+    return (
+        <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+            {/* HEADER */}
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 2,
+                    mb: 3
+                }}
+            >
+                <Box>
+                    <Typography variant="h5" fontWeight={700}>
+                        Gatepasses
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary">
+                        Manage seller and customer Gatepass records.
+                    </Typography>
+                </Box>
+
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<Refresh />}
+                        onClick={fetchGatepasses}
+                        disabled={loading}
+                    >
+                        Refresh
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={handleCreate}
+                    >
+                        Create Gatepass
+                    </Button>
+                </Box>
+            </Box>
+
+            {/* MESSAGES */}
+            {error && (
+                <Alert
+                    severity="error"
+                    onClose={() => setError("")}
+                    sx={{ mb: 2, whiteSpace: "pre-wrap" }}
+                >
+                    {error}
+                </Alert>
+            )}
+
+            {success && (
+                <Alert
+                    severity="success"
+                    onClose={() => setSuccess("")}
+                    sx={{ mb: 2 }}
+                >
+                    {success}
+                </Alert>
+            )}
+
+            {/* SEARCH */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+                <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Search by ID, Gatepass code, status, vehicle, or driver..."
+                    value={searchTerm}
+                    onChange={(event) => {
+                        setSearchTerm(event.target.value);
+                        setPage(0);
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search />
+                            </InputAdornment>
+                        )
+                    }}
+                />
+            </Paper>
+
+            {/* TABLE */}
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>
+                                <strong>ID</strong>
+                            </TableCell>
+
+                            <TableCell>
+                                <strong>Gatepass Code</strong>
+                            </TableCell>
+
+                            <TableCell>
+                                <strong>Vehicle Number</strong>
+                            </TableCell>
+
+                            <TableCell>
+                                <strong>Driver Name</strong>
+                            </TableCell>
+
+                            <TableCell>
+                                <strong>Status</strong>
+                            </TableCell>
+
+                            <TableCell>
+                                <strong>Seller ID</strong>
+                            </TableCell>
+
+                            <TableCell>
+                                <strong>Customer ID</strong>
+                            </TableCell>
+
+                            <TableCell align="center">
+                                <strong>Actions</strong>
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                        {loading && (
+                            <TableRow>
+                                <TableCell colSpan={8} align="center">
+                                    <CircularProgress size={28} sx={{ my: 2 }} />
+                                    <Typography variant="body2">
+                                        Loading Gatepasses...
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {!loading && visibleGatepasses.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={8} align="center">
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 4 }}
+                                    >
+                                        {hasValidScope
+                                            ? "No Gatepasses found."
+                                            : "Select a seller and customer to load Gatepasses."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {!loading &&
+                            visibleGatepasses.map((item, index) => {
+                                const id = getRecordId(item);
+
+                                const code =
+                                    getValue(item, "gatepassCode", "GatepassCode") ||
+                                    getValue(item, "gatepassNumber", "GatepassNumber") ||
+                                    getValue(item, "code", "Code") ||
+                                    "—";
+
+                                return (
+                                    <TableRow
+                                        hover
+                                        key={id ?? index}
+                                    >
+                                        <TableCell>{id ?? "—"}</TableCell>
+
+                                        <TableCell>{code}</TableCell>
+
+                                        <TableCell>
+                                            {getValue(
+                                                item,
+                                                "vehicleNumber",
+                                                "VehicleNumber"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getValue(
+                                                item,
+                                                "driverName",
+                                                "DriverName"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {renderStatus(
+                                                getValue(
+                                                    item,
+                                                    "status",
+                                                    "Status"
+                                                )
+                                            )}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getValue(
+                                                item,
+                                                "sellerId",
+                                                "SellerId"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getValue(
+                                                item,
+                                                "customerId",
+                                                "CustomerId"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell align="center">
+                                            <Tooltip title="View">
+                                                <IconButton
+                                                    color="info"
+                                                    onClick={() =>
+                                                        handleView(item)
+                                                    }
+                                                    size="small"
+                                                >
+                                                    <Visibility />
+                                                </IconButton>
+                                            </Tooltip>
+
+                                            <Tooltip title="Edit">
+                                                <IconButton
+                                                    color="primary"
+                                                    onClick={() =>
+                                                        handleEdit(item)
+                                                    }
+                                                    size="small"
+                                                >
+                                                    <Edit />
+                                                </IconButton>
+                                            </Tooltip>
+
+                                            <Tooltip title="Delete">
+                                                <IconButton
+                                                    color="error"
+                                                    onClick={() =>
+                                                        handleDelete(item)
+                                                    }
+                                                    size="small"
+                                                    disabled={loading}
+                                                >
+                                                    <Delete />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                    </TableBody>
+                </Table>
+
+                <TablePagination
+                    component="div"
+                    count={filteredGatepasses.length}
+                    page={Math.min(
+                        page,
+                        Math.max(
+                            0,
+                            Math.ceil(
+                                filteredGatepasses.length / rowsPerPage
+                            ) - 1
+                        )
+                    )}
+                    onPageChange={(_, newPage) => setPage(newPage)}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={(event) => {
+                        setRowsPerPage(Number(event.target.value));
+                        setPage(0);
+                    }}
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                />
+            </TableContainer>
+        </Box>
+    );
+};
+
+export default GatepassesList;
+
