@@ -35098,132 +35098,208 @@ shippingManifestRouter.delete("/:id", async (req, res) => {
 
 
 //////////////////////////////
-
-
 const API_URL = "http://localhost:5000/api/ReversePickup";
 
 // =========================================================
 // GET ALL REVERSE PICKUPS
+// GET /api/ReversePickup/all
 // =========================================================
-
-app.get("/api/ReversePickup", async (req, res) => {
+app.get("/api/ReversePickup/all", async (req, res) => {
     try {
-
-        const { sellerId, customerId } = req.query;
-
         const response = await axios.get(
-            `${API_BASE_URL}/api/ReversePickup/seller/${sellerId}/customer/${customerId}`
+            `${API_BASE_URL}/api/ReversePickup/all`
         );
 
         res.status(response.status).json(response.data);
-
     } catch (error) {
-
         console.error(
-            "GET Reverse Pickup error:",
+            "GET ALL Reverse Pickup error:",
             error.response?.data || error.message
         );
 
         res.status(error.response?.status || 502).json({
-            message: "Failed to retrieve reverse pickups",
+            message: "Failed to retrieve all reverse pickups",
             error: error.response?.data || error.message
         });
     }
 });
 
+// =========================================================
+// GET REVERSE PICKUPS BY SELLER AND CUSTOMER
+// GET /api/ReversePickup/seller/:sellerId/customer/:customerId
+// =========================================================
+app.get(
+    "/api/ReversePickup/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+            const { page = 1, size = 20 } = req.query;
+
+            const response = await axios.get(
+                `${API_BASE_URL}/api/ReversePickup/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: { page, size }
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET Reverse Pickup by seller/customer error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 502).json({
+                message: "Failed to retrieve reverse pickups",
+                error: error.response?.data || error.message
+            });
+        }
+    }
+);
+
+// =========================================================
+// GET REVERSE PICKUP BY ID
+// GET /api/ReversePickup/:id/seller/:sellerId/customer/:customerId
+// =========================================================
+app.get(
+    "/api/ReversePickup/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${API_BASE_URL}/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET Reverse Pickup by ID error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 502).json({
+                message: "Failed to retrieve reverse pickup",
+                error: error.response?.data || error.message
+            });
+        }
+    }
+);
+
+// =========================================================
+// GET REVERSE PICKUP LIST USING POST
+// POST /api/ReversePickup/list
+// =========================================================
+app.post("/api/ReversePickup/list", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/api/ReversePickup/list`,
+            req.body
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "POST Reverse Pickup list error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 502).json({
+            message: "Failed to retrieve reverse pickup list",
+            error: error.response?.data || error.message
+        });
+    }
+});
 
 // =========================================================
 // CREATE REVERSE PICKUP
+// POST /api/ReversePickup/seller/:sellerId/customer/:customerId
 // =========================================================
+app.post(
+    "/api/ReversePickup/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
 
-app.post("/api/ReversePickup", async (req, res) => {
-    try {
+            const response = await axios.post(
+                `${API_BASE_URL}/api/ReversePickup/seller/${sellerId}/customer/${customerId}`,
+                req.body
+            );
 
-        const { sellerId, customerId } = req.query;
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "POST Reverse Pickup error:",
+                error.response?.data || error.message
+            );
 
-        const response = await axios.post(
-            `${API_BASE_URL}/api/ReversePickup/seller/${sellerId}/customer/${customerId}`,
-            req.body
-        );
-
-        res.status(response.status).json(response.data);
-
-    } catch (error) {
-
-        console.error(
-            "POST Reverse Pickup error:",
-            error.response?.data || error.message
-        );
-
-        res.status(error.response?.status || 502).json({
-            message: "Failed to create reverse pickup",
-            error: error.response?.data || error.message
-        });
+            res.status(error.response?.status || 502).json({
+                message: "Failed to create reverse pickup",
+                error: error.response?.data || error.message
+            });
+        }
     }
-});
-
+);
 
 // =========================================================
 // UPDATE REVERSE PICKUP
+// PUT /api/ReversePickup/:id/seller/:sellerId/customer/:customerId
 // =========================================================
+app.put(
+    "/api/ReversePickup/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
 
-app.put("/api/ReversePickup/:id", async (req, res) => {
-    try {
+            const response = await axios.put(
+                `${API_BASE_URL}/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`,
+                req.body
+            );
 
-        const { id } = req.params;
-        const { sellerId, customerId } = req.query;
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "PUT Reverse Pickup error:",
+                error.response?.data || error.message
+            );
 
-        const response = await axios.put(
-            `${API_BASE_URL}/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`,
-            req.body
-        );
-
-        res.status(response.status).json(response.data);
-
-    } catch (error) {
-
-        console.error(
-            "PUT Reverse Pickup error:",
-            error.response?.data || error.message
-        );
-
-        res.status(error.response?.status || 502).json({
-            message: "Failed to update reverse pickup",
-            error: error.response?.data || error.message
-        });
+            res.status(error.response?.status || 502).json({
+                message: "Failed to update reverse pickup",
+                error: error.response?.data || error.message
+            });
+        }
     }
-});
-
+);
 
 // =========================================================
 // DELETE REVERSE PICKUP
+// DELETE /api/ReversePickup/:id/seller/:sellerId/customer/:customerId
 // =========================================================
+app.delete(
+    "/api/ReversePickup/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
 
-app.delete("/api/ReversePickup/:id", async (req, res) => {
-    try {
+            const response = await axios.delete(
+                `${API_BASE_URL}/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`
+            );
 
-        const { id } = req.params;
-        const { sellerId, customerId } = req.query;
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "DELETE Reverse Pickup error:",
+                error.response?.data || error.message
+            );
 
-        const response = await axios.delete(
-            `${API_BASE_URL}/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`
-        );
-
-        res.status(response.status).json(response.data);
-
-    } catch (error) {
-
-        console.error(
-            "DELETE Reverse Pickup error:",
-            error.response?.data || error.message
-        );
-
-        res.status(error.response?.status || 502).json({
-            message: "Failed to delete reverse pickup",
-            error: error.response?.data || error.message
-        });
+            res.status(error.response?.status || 502).json({
+                message: "Failed to delete reverse pickup",
+                error: error.response?.data || error.message
+            });
+        }
     }
-});
+);
+
 
 ///////////////////////////////////reverse pickup items//////////////////
 // Get all reverse pickup items
