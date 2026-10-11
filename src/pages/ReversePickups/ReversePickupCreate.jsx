@@ -1,6 +1,8 @@
 // =========================================================
 // ReversePickupCreate.jsx
+// Standalone Create Page - No Popup
 // =========================================================
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -27,7 +29,14 @@ import {
 } from "@mui/icons-material";
 
 // =========================================================
-// DEFAULT FORM VALUES
+// API CONFIGURATION
+// Axios calls go through the Node proxy.
+// =========================================================
+
+const API_URL = "/api/ReversePickup";
+
+// =========================================================
+// INITIAL FORM VALUES
 // =========================================================
 
 const initialFormData = {
@@ -48,27 +57,53 @@ const initialFormData = {
 };
 
 // =========================================================
-// API CONFIGURATION
+// GET SELLER / CUSTOMER IDS
 // =========================================================
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+const getStoredIds = () => {
+    let storedUser = {};
+
+    try {
+        storedUser = JSON.parse(
+            localStorage.getItem("user") || "{}"
+        );
+    } catch {
+        storedUser = {};
+    }
+
+    return {
+        sellerId:
+            localStorage.getItem("sellerId") ||
+            storedUser.sellerId ||
+            storedUser.SellerId ||
+            "",
+
+        customerId:
+            localStorage.getItem("customerId") ||
+            storedUser.customerId ||
+            storedUser.CustomerId ||
+            ""
+    };
+};
 
 // =========================================================
 // COMPONENT
 // =========================================================
 
 const ReversePickupCreate = ({
-    apiUrl = "/api/ReversePickup",
-    sellerId,
-    customerId,
-    onCreated,
-    onCancel,
-    embedded = false,
+    sellerId: sellerIdProp,
+    customerId: customerIdProp,
     title = "Create Reverse Pickup"
 }) => {
     const navigate = useNavigate();
+
+    const storedIds = getStoredIds();
+
+    const sellerId =
+        sellerIdProp ?? storedIds.sellerId;
+
+    const customerId =
+        customerIdProp ?? storedIds.customerId;
 
     const [formData, setFormData] = useState({
         ...initialFormData
@@ -79,7 +114,7 @@ const ReversePickupCreate = ({
     const [success, setSuccess] = useState("");
 
     // =====================================================
-    // HANDLE INPUT CHANGE
+    // INPUT CHANGE
     // =====================================================
 
     const handleChange = (event) => {
@@ -109,6 +144,13 @@ const ReversePickupCreate = ({
     // =====================================================
 
     const validateForm = () => {
+        if (!sellerId || !customerId) {
+            return (
+                "Seller ID or Customer ID is missing. " +
+                "Please select the correct seller and customer."
+            );
+        }
+
         if (!formData.orderNumber.trim()) {
             return "Order number is required.";
         }
@@ -123,7 +165,11 @@ const ReversePickupCreate = ({
 
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!emailPattern.test(formData.customerEmail.trim())) {
+        if (
+            !emailPattern.test(
+                formData.customerEmail.trim()
+            )
+        ) {
             return "Please enter a valid customer email.";
         }
 
@@ -137,6 +183,10 @@ const ReversePickupCreate = ({
 
         if (!formData.itemName.trim()) {
             return "Item name is required.";
+        }
+
+        if (!formData.sku.trim()) {
+            return "Item SKU is required.";
         }
 
         if (
@@ -173,61 +223,70 @@ const ReversePickupCreate = ({
             return;
         }
 
+        // Map the form to the backend model fields discussed
+        // for ReversePickupModel.
         const payload = {
-            reversePickupNumber:
+            reversePickupNo:
                 formData.reversePickupNumber.trim() || null,
 
-            orderNumber: formData.orderNumber.trim(),
-            customerName: formData.customerName.trim(),
-            customerEmail: formData.customerEmail.trim(),
-            pickupDate: formData.pickupDate,
-            pickupAddress: formData.pickupAddress.trim(),
-            itemName: formData.itemName.trim(),
-            sku: formData.sku.trim() || null,
-            quantity: Number(formData.quantity),
-            carrierName: formData.carrierName.trim() || null,
-            trackingNumber: formData.trackingNumber.trim() || null,
-            pickupCost: Number(formData.pickupCost),
-            status: formData.status,
-            notes: formData.notes.trim() || null
+            saleOrderCode:
+                formData.orderNumber.trim(),
+
+            saleOrderItemCode: null,
+
+            itemSkuCode:
+                formData.sku.trim(),
+
+            trackingNo:
+                formData.trackingNumber.trim() || null,
+
+            returnReason:
+                formData.notes.trim() || null,
+
+            qcComment: null,
+
+            reversePickupStatus:
+                formData.status,
+
+            courierProviderName:
+                formData.carrierName.trim() || null,
+
+            facilityCode: null,
+
+            channelName: null,
+
+            putawayCode: null,
+
+            sellerId: Number(sellerId),
+
+            customerId: Number(customerId)
         };
-
-        // Include IDs in query parameters only when provided.
-        const params = {};
-
-        if (sellerId !== undefined && sellerId !== null) {
-            params.sellerId = sellerId;
-        }
-
-        if (customerId !== undefined && customerId !== null) {
-            params.customerId = customerId;
-        }
 
         try {
             setLoading(true);
 
-            const endpoint = `${API_URL}${apiUrl}`;
+            const endpoint =
+                `${API_URL}/seller/${encodeURIComponent(sellerId)}` +
+                `/customer/${encodeURIComponent(customerId)}`;
 
-            const response = await axios.post(
+            await axios.post(
                 endpoint,
                 payload,
                 {
-                    params,
                     headers: {
                         "Content-Type": "application/json"
                     }
                 }
             );
 
-            const createdPickup = response.data;
-
-            setSuccess("Reverse pickup created successfully.");
-
-            if (typeof onCreated === "function") {
-                onCreated(createdPickup);
-            } else {
-                navigate("/reverse-pickups");
-            }
+            // Redirect to the list page after successful creation.
+            navigate("/reverse-pickups", {
+                replace: true,
+                state: {
+                    successMessage:
+                        "Reverse pickup created successfully."
+                }
+            });
         } catch (err) {
             console.error(
                 "CREATE REVERSE PICKUP ERROR:",
@@ -263,7 +322,7 @@ const ReversePickupCreate = ({
     };
 
     // =====================================================
-    // REUSABLE FORM FIELD
+    // REUSABLE TEXT FIELD
     // =====================================================
 
     const renderTextField = (
@@ -278,6 +337,7 @@ const ReversePickupCreate = ({
             rows = 1,
             select = false,
             children,
+            helperText,
             ...rest
         } = options;
 
@@ -294,6 +354,7 @@ const ReversePickupCreate = ({
                 rows={rows}
                 select={select}
                 disabled={loading}
+                helperText={helperText}
                 InputLabelProps={
                     type === "date"
                         ? { shrink: true }
@@ -324,286 +385,13 @@ const ReversePickupCreate = ({
     // FORM CONTENT
     // =====================================================
 
-    const content = (
-        <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-        >
-            {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
-                >
-                    {error}
-                </Alert>
-            )}
-
-            {success && (
-                <Alert
-                    severity="success"
-                    sx={{ mb: 2 }}
-                    onClose={() => setSuccess("")}
-                >
-                    {success}
-                </Alert>
-            )}
-
-            {/* PICKUP INFORMATION */}
-
-            <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                sx={{ mb: 2 }}
-            >
-                Pickup Information
-            </Typography>
-
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "reversePickupNumber",
-                        "Reverse Pickup Number",
-                        {
-                            helperText:
-                                "Leave blank if generated by the backend."
-                        }
-                    )}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "orderNumber",
-                        "Order Number",
-                        { required: true }
-                    )}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "pickupDate",
-                        "Pickup Date",
-                        {
-                            required: true,
-                            type: "date"
-                        }
-                    )}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "status",
-                        "Pickup Status",
-                        {
-                            required: true,
-                            select: true
-                        }
-                    )}
-                </Grid>
-
-                <Grid item xs={12}>
-                    {renderTextField(
-                        "pickupAddress",
-                        "Pickup Address",
-                        {
-                            required: true,
-                            multiline: true,
-                            rows: 2
-                        }
-                    )}
-                </Grid>
-            </Grid>
-
-            <Divider sx={{ my: 3 }} />
-
-            {/* CUSTOMER INFORMATION */}
-
-            <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                sx={{ mb: 2 }}
-            >
-                Customer Information
-            </Typography>
-
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "customerName",
-                        "Customer Name",
-                        { required: true }
-                    )}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "customerEmail",
-                        "Customer Email",
-                        {
-                            required: true,
-                            type: "email"
-                        }
-                    )}
-                </Grid>
-            </Grid>
-
-            <Divider sx={{ my: 3 }} />
-
-            {/* RETURN ITEM INFORMATION */}
-
-            <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                sx={{ mb: 2 }}
-            >
-                Return Item Information
-            </Typography>
-
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "itemName",
-                        "Item Name",
-                        { required: true }
-                    )}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField("sku", "SKU")}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "quantity",
-                        "Quantity",
-                        {
-                            required: true,
-                            type: "number"
-                        }
-                    )}
-                </Grid>
-            </Grid>
-
-            <Divider sx={{ my: 3 }} />
-
-            {/* CARRIER AND COST INFORMATION */}
-
-            <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                sx={{ mb: 2 }}
-            >
-                Carrier and Cost Information
-            </Typography>
-
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "carrierName",
-                        "Carrier Name"
-                    )}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "trackingNumber",
-                        "Tracking Number"
-                    )}
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    {renderTextField(
-                        "pickupCost",
-                        "Pickup Cost (₹)",
-                        {
-                            type: "number"
-                        }
-                    )}
-                </Grid>
-
-                <Grid item xs={12}>
-                    {renderTextField(
-                        "notes",
-                        "Additional Notes",
-                        {
-                            multiline: true,
-                            rows: 3
-                        }
-                    )}
-                </Grid>
-            </Grid>
-
-            <Divider sx={{ my: 3 }} />
-
-            {/* FORM ACTIONS */}
-
-            <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={1.5}
-                justifyContent="flex-end"
-            >
-                <Button
-                    type="button"
-                    variant="outlined"
-                    color="inherit"
-                    startIcon={<RestartAlt />}
-                    onClick={handleReset}
-                    disabled={loading}
-                >
-                    Reset
-                </Button>
-
-                <Button
-                    type="button"
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={
-                        onCancel ||
-                        (() => navigate(-1))
-                    }
-                    disabled={loading}
-                >
-                    Cancel
-                </Button>
-
-                <Button
-                    type="submit"
-                    variant="contained"
-                    startIcon={
-                        loading ? (
-                            <CircularProgress
-                                size={18}
-                                color="inherit"
-                            />
-                        ) : (
-                            <Save />
-                        )
-                    }
-                    disabled={loading}
-                >
-                    {loading
-                        ? "Creating..."
-                        : "Create Reverse Pickup"}
-                </Button>
-            </Stack>
-        </Box>
-    );
-
-    // =====================================================
-    // EMBEDDED RENDER
-    // =====================================================
-
-    if (embedded) {
-        return content;
-    }
-
-    // =====================================================
-    // STANDALONE RENDER
-    // =====================================================
-
     return (
-        <Box sx={{ p: { xs: 1, sm: 3 } }}>
+        <Box
+            sx={{
+                width: "100%",
+                p: { xs: 1, sm: 3 }
+            }}
+        >
             <Paper
                 elevation={3}
                 sx={{
@@ -613,15 +401,17 @@ const ReversePickupCreate = ({
                     borderRadius: 2
                 }}
             >
+                {/* PAGE HEADER */}
+
                 <Stack
                     direction="row"
                     alignItems="center"
                     spacing={1.5}
-                    sx={{ mb: 1 }}
+                    sx={{ mb: 2 }}
                 >
                     <Inventory2
                         color="primary"
-                        sx={{ fontSize: 32 }}
+                        sx={{ fontSize: 34 }}
                     />
 
                     <Box>
@@ -641,9 +431,279 @@ const ReversePickupCreate = ({
                     </Box>
                 </Stack>
 
-                <Divider sx={{ my: 3 }} />
+                <Divider sx={{ mb: 3 }} />
 
-                {content}
+                {/* ALERTS */}
+
+                {error && (
+                    <Alert
+                        severity="error"
+                        sx={{ mb: 2 }}
+                        onClose={() => setError("")}
+                    >
+                        {error}
+                    </Alert>
+                )}
+
+                {success && (
+                    <Alert
+                        severity="success"
+                        sx={{ mb: 2 }}
+                    >
+                        {success}
+                    </Alert>
+                )}
+
+                {/* FORM */}
+
+                <Box
+                    component="form"
+                    onSubmit={handleSubmit}
+                    noValidate
+                >
+                    {/* PICKUP INFORMATION */}
+
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
+                    >
+                        Pickup Information
+                    </Typography>
+
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "reversePickupNumber",
+                                "Reverse Pickup Number",
+                                {
+                                    helperText:
+                                        "Leave blank if generated by the backend."
+                                }
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "orderNumber",
+                                "Sales Order Code",
+                                { required: true }
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "pickupDate",
+                                "Pickup Date",
+                                {
+                                    required: true,
+                                    type: "date"
+                                }
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "status",
+                                "Pickup Status",
+                                {
+                                    required: true,
+                                    select: true
+                                }
+                            )}
+                            <Box />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            {renderTextField(
+                                "pickupAddress",
+                                "Pickup Address",
+                                {
+                                    required: true,
+                                    multiline: true,
+                                    rows: 2
+                                }
+                            )}
+                        </Grid>
+                    </Grid>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    {/* CUSTOMER INFORMATION */}
+
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
+                    >
+                        Customer Information
+                    </Typography>
+
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "customerName",
+                                "Customer Name",
+                                { required: true }
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "customerEmail",
+                                "Customer Email",
+                                {
+                                    required: true,
+                                    type: "email"
+                                }
+                            )}
+                        </Grid>
+                    </Grid>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    {/* RETURN ITEM INFORMATION */}
+
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
+                    >
+                        Return Item Information
+                    </Typography>
+
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "itemName",
+                                "Item Name",
+                                { required: true }
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "sku",
+                                "Item SKU",
+                                { required: true }
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "quantity",
+                                "Quantity",
+                                {
+                                    required: true,
+                                    type: "number"
+                                }
+                            )}
+                        </Grid>
+                    </Grid>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    {/* CARRIER INFORMATION */}
+
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
+                    >
+                        Carrier and Cost Information
+                    </Typography>
+
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "carrierName",
+                                "Courier Provider"
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "trackingNumber",
+                                "Tracking Number"
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            {renderTextField(
+                                "pickupCost",
+                                "Pickup Cost (₹)",
+                                { type: "number" }
+                            )}
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            {renderTextField(
+                                "notes",
+                                "Return Reason / Notes",
+                                {
+                                    multiline: true,
+                                    rows: 3
+                                }
+                            )}
+                        </Grid>
+                    </Grid>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    {/* FORM ACTIONS */}
+
+                    <Stack
+                        direction={{
+                            xs: "column",
+                            sm: "row"
+                        }}
+                        spacing={1.5}
+                        justifyContent="flex-end"
+                    >
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            color="inherit"
+                            startIcon={<RestartAlt />}
+                            onClick={handleReset}
+                            disabled={loading}
+                        >
+                            Reset
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={() =>
+                                navigate("/reverse-pickups")
+                            }
+                            disabled={loading}
+                        >
+                            Back to List
+                        </Button>
+
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            startIcon={
+                                loading ? (
+                                    <CircularProgress
+                                        size={18}
+                                        color="inherit"
+                                    />
+                                ) : (
+                                    <Save />
+                                )
+                            }
+                            disabled={loading}
+                        >
+                            {loading
+                                ? "Creating..."
+                                : "Create Reverse Pickup"}
+                        </Button>
+                    </Stack>
+                </Box>
             </Paper>
         </Box>
     );
