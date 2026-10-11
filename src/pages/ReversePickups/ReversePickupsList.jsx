@@ -1,3 +1,5 @@
+// ReversePickupsList.jsx
+
 import React, {
     useCallback,
     useEffect,
@@ -8,36 +10,36 @@ import React, {
 import axios from "axios";
 
 import {
-    Box,
-    Grid,
-    Paper,
-    TextField,
-    MenuItem,
-    Button,
-    Typography,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    IconButton,
-    Snackbar,
     Alert,
+    Box,
+    Button,
     CircularProgress,
-    Tooltip,
-    InputAdornment,
-    TablePagination,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Divider,
-    Stack
+    Grid,
+    IconButton,
+    InputAdornment,
+    MenuItem,
+    Paper,
+    Snackbar,
+    Stack,
+    TablePagination,
+    TextField,
+    Tooltip,
+    Typography
 } from "@mui/material";
 
 import {
-    Search,
-    Clear,
-    Refresh,
     Add,
+    Clear,
     Close,
-    Save,
     Delete,
+    Refresh,
+    Save,
+    Search,
     Warning
 } from "@mui/icons-material";
 
@@ -46,32 +48,36 @@ import ReversePickupStatistics from "./ReversePickupStatistics";
 import ReversePickupTable from "./ReversePickupTable";
 import ReversePickupView from "./ReversePickupView";
 
-/* =========================================================
-   CONFIGURATION
-========================================================= */
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
 const API_URL = "/api/ReversePickup";
+const API_ALL_URL = `${API_URL}/all`;
+
+// =========================================================
+// INITIAL FORM
+// Fields are mapped to ReversePickupModel.
+// =========================================================
 
 const INITIAL_FORM = {
-    reversePickupNumber: "",
-    orderNumber: "",
-    customerName: "",
-    customerEmail: "",
-    pickupDate: "",
-    pickupAddress: "",
-    itemName: "",
-    sku: "",
-    quantity: "1",
-    carrierName: "",
-    trackingNumber: "",
-    pickupCost: "0",
-    status: "Pending",
-    notes: ""
+    reversePickupNo: "",
+    saleOrderCode: "",
+    saleOrderItemCode: "",
+    itemSkuCode: "",
+    trackingNo: "",
+    returnReason: "",
+    qcComment: "",
+    reversePickupStatus: "Pending",
+    courierProviderName: "",
+    facilityCode: "",
+    channelName: "",
+    putawayCode: ""
 };
 
-/* =========================================================
-   FIELD HELPER
-========================================================= */
+// =========================================================
+// FIELD HELPER
+// =========================================================
 
 const getField = (record, ...keys) => {
     if (!record) return undefined;
@@ -79,7 +85,11 @@ const getField = (record, ...keys) => {
     for (const key of keys) {
         const value = record[key];
 
-        if (value !== undefined && value !== null && value !== "") {
+        if (
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ) {
             return value;
         }
     }
@@ -87,26 +97,36 @@ const getField = (record, ...keys) => {
     return undefined;
 };
 
-/* =========================================================
-   EXTRACT API RESPONSE
-========================================================= */
+// =========================================================
+// EXTRACT API RECORDS
+// Supports arrays and common API response envelopes.
+// =========================================================
 
 const extractRecords = (response) => {
-    const body = response?.data ?? response;
+    let body = response?.data ?? response;
+
+    if (typeof body === "string") {
+        try {
+            body = JSON.parse(body);
+        } catch {
+            return [];
+        }
+    }
 
     if (Array.isArray(body)) return body;
+    if (!body || typeof body !== "object") return [];
 
     const candidates = [
-        body?.data,
-        body?.Data,
-        body?.items,
-        body?.Items,
-        body?.records,
-        body?.Records,
-        body?.reversePickups,
-        body?.ReversePickups,
-        body?.result,
-        body?.Result
+        body.data,
+        body.Data,
+        body.items,
+        body.Items,
+        body.records,
+        body.Records,
+        body.reversePickups,
+        body.ReversePickups,
+        body.result,
+        body.Result
     ];
 
     for (const candidate of candidates) {
@@ -131,9 +151,9 @@ const extractRecords = (response) => {
     return [];
 };
 
-/* =========================================================
-   EXTRACT SINGLE RECORD
-========================================================= */
+// =========================================================
+// EXTRACT SINGLE RECORD
+// =========================================================
 
 const extractRecord = (response) => {
     const body = response?.data ?? response;
@@ -162,9 +182,9 @@ const extractRecord = (response) => {
     return body;
 };
 
-/* =========================================================
-   GET PICKUP ID
-========================================================= */
+// =========================================================
+// GET ID
+// =========================================================
 
 const getPickupId = (pickup) =>
     getField(
@@ -173,218 +193,167 @@ const getPickupId = (pickup) =>
         "ReversePickupId",
         "reversePickupID",
         "ReversePickupID",
-        "pickupId",
-        "PickupId",
         "id",
         "Id"
     );
 
-/* =========================================================
-   GET PICKUP NUMBER
-========================================================= */
+// =========================================================
+// GET SELLER / CUSTOMER IDS
+//
+// First use the selected record. Otherwise check common
+// localStorage keys and the stored user object.
+// =========================================================
+
+const getSellerCustomerIds = (pickup = null) => {
+    let storedUser = {};
+
+    try {
+        storedUser = JSON.parse(
+            localStorage.getItem("user") || "{}"
+        );
+    } catch {
+        storedUser = {};
+    }
+
+    const sellerId =
+        getField(pickup, "sellerId", "SellerId") ??
+        localStorage.getItem("sellerId") ??
+        getField(
+            storedUser,
+            "sellerId",
+            "SellerId"
+        );
+
+    const customerId =
+        getField(pickup, "customerId", "CustomerId") ??
+        localStorage.getItem("customerId") ??
+        getField(
+            storedUser,
+            "customerId",
+            "CustomerId"
+        );
+
+    return {
+        sellerId,
+        customerId
+    };
+};
+
+// =========================================================
+// GET PICKUP NUMBER
+// =========================================================
 
 const getPickupNumber = (pickup) =>
     getField(
         pickup,
-        "reversePickupNumber",
-        "ReversePickupNumber",
-        "pickupNumber",
-        "PickupNumber",
         "reversePickupNo",
-        "ReversePickupNo"
+        "ReversePickupNo",
+        "reversePickupNumber",
+        "ReversePickupNumber"
     ) || getPickupId(pickup) || "—";
 
-/* =========================================================
-   GET STATUS
-========================================================= */
+// =========================================================
+// GET STATUS
+// =========================================================
 
 const getPickupStatus = (pickup) =>
     String(
         getField(
             pickup,
-            "status",
-            "Status",
-            "pickupStatus",
-            "PickupStatus",
             "reversePickupStatus",
             "ReversePickupStatus",
-            "returnStatus",
-            "ReturnStatus"
+            "status",
+            "Status"
         ) || "Pending"
     ).trim();
 
-/* =========================================================
-   GET ORDER NUMBER
-========================================================= */
-
-const getOrderNumber = (pickup) =>
-    getField(
-        pickup,
-        "orderNumber",
-        "OrderNumber",
-        "salesOrderNumber",
-        "SalesOrderNumber",
-        "originalOrderNumber",
-        "OriginalOrderNumber",
-        "returnOrderNumber",
-        "ReturnOrderNumber",
-        "rmaNumber",
-        "RMANumber"
-    );
-
-/* =========================================================
-   MAP RECORD TO FORM
-========================================================= */
+// =========================================================
+// MAP API RECORD TO FORM
+// =========================================================
 
 const mapPickupToForm = (pickup = {}) => ({
-    reversePickupNumber: getField(
+    reversePickupNo: getField(
         pickup,
-        "reversePickupNumber",
-        "ReversePickupNumber",
-        "pickupNumber",
-        "PickupNumber",
         "reversePickupNo",
-        "ReversePickupNo"
+        "ReversePickupNo",
+        "reversePickupNumber",
+        "ReversePickupNumber"
     ) || "",
 
-    orderNumber: getOrderNumber(pickup) || "",
-
-    customerName: getField(
+    saleOrderCode: getField(
         pickup,
-        "customerName",
-        "CustomerName",
-        "customerFullName",
-        "CustomerFullName",
-        "buyerName",
-        "BuyerName"
+        "saleOrderCode",
+        "SaleOrderCode",
+        "orderNumber",
+        "OrderNumber"
     ) || "",
 
-    customerEmail: getField(
+    saleOrderItemCode: getField(
         pickup,
-        "customerEmail",
-        "CustomerEmail",
-        "email",
-        "Email"
+        "saleOrderItemCode",
+        "SaleOrderItemCode"
     ) || "",
 
-    pickupDate: (() => {
-        const value = getField(
-            pickup,
-            "pickupDate",
-            "PickupDate",
-            "scheduledPickupDate",
-            "ScheduledPickupDate",
-            "requestedPickupDate",
-            "RequestedPickupDate"
-        );
-
-        if (!value) return "";
-
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) return "";
-
-        return date.toISOString().slice(0, 10);
-    })(),
-
-    pickupAddress: getField(
+    itemSkuCode: getField(
         pickup,
-        "pickupAddress",
-        "PickupAddress",
-        "pickupLocation",
-        "PickupLocation",
-        "returnAddress",
-        "ReturnAddress",
-        "address",
-        "Address"
-    ) || "",
-
-    itemName: getField(
-        pickup,
-        "itemName",
-        "ItemName",
-        "productName",
-        "ProductName",
-        "returnItemName",
-        "ReturnItemName"
-    ) || "",
-
-    sku: getField(
-        pickup,
+        "itemSkuCode",
+        "ItemSkuCode",
         "sku",
-        "SKU",
-        "productSku",
-        "ProductSku",
-        "productCode",
-        "ProductCode"
+        "SKU"
     ) || "",
 
-    quantity: String(
-        getField(
-            pickup,
-            "quantity",
-            "Quantity",
-            "returnQuantity",
-            "ReturnQuantity",
-            "itemQuantity",
-            "ItemQuantity",
-            "totalQuantity",
-            "TotalQuantity"
-        ) ?? 1
-    ),
-
-    carrierName: getField(
+    trackingNo: getField(
         pickup,
-        "carrierName",
-        "CarrierName",
-        "carrier",
-        "Carrier",
-        "logisticsProvider",
-        "LogisticsProvider",
-        "shippingProvider",
-        "ShippingProvider"
-    ) || "",
-
-    trackingNumber: getField(
-        pickup,
+        "trackingNo",
+        "TrackingNo",
         "trackingNumber",
-        "TrackingNumber",
-        "returnTrackingNumber",
-        "ReturnTrackingNumber",
-        "reverseTrackingNumber",
-        "ReverseTrackingNumber"
+        "TrackingNumber"
     ) || "",
 
-    pickupCost: String(
-        getField(
-            pickup,
-            "pickupCost",
-            "PickupCost",
-            "returnShippingCost",
-            "ReturnShippingCost",
-            "shippingCost",
-            "ShippingCost",
-            "collectionCost",
-            "CollectionCost"
-        ) ?? 0
-    ),
-
-    status: getPickupStatus(pickup),
-
-    notes: getField(
+    returnReason: getField(
         pickup,
-        "notes",
-        "Notes",
-        "remarks",
-        "Remarks",
-        "description",
-        "Description"
+        "returnReason",
+        "ReturnReason"
+    ) || "",
+
+    qcComment: getField(
+        pickup,
+        "qcComment",
+        "QCComment"
+    ) || "",
+
+    reversePickupStatus: getPickupStatus(pickup),
+
+    courierProviderName: getField(
+        pickup,
+        "courierProviderName",
+        "CourierProviderName",
+        "carrierName",
+        "CarrierName"
+    ) || "",
+
+    facilityCode: getField(
+        pickup,
+        "facilityCode",
+        "FacilityCode"
+    ) || "",
+
+    channelName: getField(
+        pickup,
+        "channelName",
+        "ChannelName"
+    ) || "",
+
+    putawayCode: getField(
+        pickup,
+        "putawayCode",
+        "PutawayCode"
     ) || ""
 });
 
-/* =========================================================
-   PARENT COMPONENT
-========================================================= */
+// =========================================================
+// PARENT COMPONENT
+// =========================================================
 
 const ReversePickupsList = ({
     apiUrl = API_URL,
@@ -392,18 +361,17 @@ const ReversePickupsList = ({
     showStatistics = true,
     showToolbar = true
 }) => {
-    /* =====================================================
-       STATE
-    ===================================================== */
+    // =====================================================
+    // STATE
+    // =====================================================
 
     const [reversePickups, setReversePickups] = useState([]);
-
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [exporting, setExporting] = useState(false);
 
-    const [error, setError] = useState(null);
+    const [error, setError] = useState("");
 
     const [searchTerm, setSearchTerm] = useState("");
     const [searchField, setSearchField] = useState("all");
@@ -411,16 +379,20 @@ const ReversePickupsList = ({
     const [showFilters, setShowFilters] = useState(false);
 
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(initialPageSize);
+    const [rowsPerPage, setRowsPerPage] = useState(
+        initialPageSize
+    );
 
     const [formOpen, setFormOpen] = useState(false);
     const [formMode, setFormMode] = useState("create");
     const [selectedReversePickup, setSelectedReversePickup] =
         useState(null);
 
-    const [formData, setFormData] = useState(INITIAL_FORM);
-    const [formErrors, setFormErrors] = useState({});
+    const [formData, setFormData] = useState({
+        ...INITIAL_FORM
+    });
 
+    const [formErrors, setFormErrors] = useState({});
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -430,17 +402,20 @@ const ReversePickupsList = ({
         severity: "success"
     });
 
-    /* =====================================================
-       NOTIFICATION
-    ===================================================== */
+    // =====================================================
+    // NOTIFICATION
+    // =====================================================
 
-    const notify = useCallback((message, severity = "success") => {
-        setNotification({
-            open: true,
-            message,
-            severity
-        });
-    }, []);
+    const notify = useCallback(
+        (message, severity = "success") => {
+            setNotification({
+                open: true,
+                message,
+                severity
+            });
+        },
+        []
+    );
 
     const closeNotification = (_, reason) => {
         if (reason === "clickaway") return;
@@ -451,18 +426,26 @@ const ReversePickupsList = ({
         }));
     };
 
-    /* =====================================================
-       FETCH REVERSE PICKUPS
-    ===================================================== */
+    // =====================================================
+    // FETCH ALL REVERSE PICKUPS
+    // GET /api/ReversePickup/all
+    // =====================================================
 
     const fetchReversePickups = useCallback(async () => {
         setLoading(true);
-        setError(null);
+        setError("");
 
         try {
-            const response = await axios.get(apiUrl);
+            const response = await axios.get(
+                `${apiUrl}/all`
+            );
 
             const records = extractRecords(response);
+
+            console.log(
+                "All Reverse Pickups:",
+                records
+            );
 
             setReversePickups(records);
         } catch (err) {
@@ -478,8 +461,8 @@ const ReversePickupsList = ({
                 err.message ||
                 "Failed to load reverse pickups.";
 
+            setReversePickups([]);
             setError(message);
-
             notify(message, "error");
         } finally {
             setLoading(false);
@@ -490,117 +473,91 @@ const ReversePickupsList = ({
         fetchReversePickups();
     }, [fetchReversePickups]);
 
-    /* =====================================================
-       SEARCH FIELD VALUE
-    ===================================================== */
+    // =====================================================
+    // SEARCH VALUE
+    // =====================================================
 
-    const getSearchValue = useCallback((pickup, field) => {
-        if (field === "pickupNumber") {
-            return getPickupNumber(pickup);
-        }
+    const getSearchValue = useCallback(
+        (pickup, field) => {
+            const fields = {
+                pickupNumber: [
+                    "reversePickupNo",
+                    "ReversePickupNo",
+                    "reversePickupNumber",
+                    "ReversePickupNumber"
+                ],
+                orderNumber: [
+                    "saleOrderCode",
+                    "SaleOrderCode"
+                ],
+                itemSkuCode: [
+                    "itemSkuCode",
+                    "ItemSkuCode"
+                ],
+                trackingNumber: [
+                    "trackingNo",
+                    "TrackingNo"
+                ],
+                carrierName: [
+                    "courierProviderName",
+                    "CourierProviderName"
+                ],
+                facilityCode: [
+                    "facilityCode",
+                    "FacilityCode"
+                ],
+                channelName: [
+                    "channelName",
+                    "ChannelName"
+                ]
+            };
 
-        if (field === "orderNumber") {
-            return getOrderNumber(pickup);
-        }
+            if (field !== "all" && fields[field]) {
+                return getField(pickup, ...fields[field]);
+            }
 
-        if (field === "customerName") {
-            return getField(
-                pickup,
-                "customerName",
-                "CustomerName",
-                "customerFullName",
-                "CustomerFullName",
-                "buyerName",
-                "BuyerName"
-            );
-        }
+            return [
+                getPickupNumber(pickup),
+                getField(pickup, "saleOrderCode", "SaleOrderCode"),
+                getField(
+                    pickup,
+                    "saleOrderItemCode",
+                    "SaleOrderItemCode"
+                ),
+                getField(pickup, "itemSkuCode", "ItemSkuCode"),
+                getField(pickup, "trackingNo", "TrackingNo"),
+                getField(
+                    pickup,
+                    "courierProviderName",
+                    "CourierProviderName"
+                ),
+                getField(pickup, "facilityCode", "FacilityCode"),
+                getField(pickup, "channelName", "ChannelName"),
+                getPickupStatus(pickup)
+            ]
+                .filter(
+                    (value) =>
+                        value !== undefined && value !== null
+                )
+                .join(" ");
+        },
+        []
+    );
 
-        if (field === "trackingNumber") {
-            return getField(
-                pickup,
-                "trackingNumber",
-                "TrackingNumber",
-                "returnTrackingNumber",
-                "ReturnTrackingNumber",
-                "reverseTrackingNumber",
-                "ReverseTrackingNumber"
-            );
-        }
-
-        if (field === "carrierName") {
-            return getField(
-                pickup,
-                "carrierName",
-                "CarrierName",
-                "carrier",
-                "Carrier",
-                "logisticsProvider",
-                "LogisticsProvider"
-            );
-        }
-
-        if (field === "itemName") {
-            return getField(
-                pickup,
-                "itemName",
-                "ItemName",
-                "productName",
-                "ProductName",
-                "returnItemName",
-                "ReturnItemName"
-            );
-        }
-
-        return [
-            getPickupNumber(pickup),
-            getOrderNumber(pickup),
-            getField(
-                pickup,
-                "customerName",
-                "CustomerName",
-                "customerFullName",
-                "CustomerFullName"
-            ),
-            getField(
-                pickup,
-                "trackingNumber",
-                "TrackingNumber",
-                "returnTrackingNumber",
-                "ReturnTrackingNumber"
-            ),
-            getField(
-                pickup,
-                "carrierName",
-                "CarrierName",
-                "carrier",
-                "Carrier"
-            ),
-            getField(
-                pickup,
-                "itemName",
-                "ItemName",
-                "productName",
-                "ProductName"
-            ),
-            getField(pickup, "sku", "SKU", "productSku", "ProductSku")
-        ]
-            .filter((value) => value !== undefined && value !== null)
-            .join(" ");
-    }, []);
-
-    /* =====================================================
-       FILTER RECORDS
-    ===================================================== */
+    // =====================================================
+    // FILTER RECORDS
+    // =====================================================
 
     const filteredReversePickups = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
 
         return reversePickups.filter((pickup) => {
+            const value = String(
+                getSearchValue(pickup, searchField) || ""
+            ).toLowerCase();
+
             const matchesSearch =
-                !term ||
-                String(getSearchValue(pickup, searchField) || "")
-                    .toLowerCase()
-                    .includes(term);
+                !term || value.includes(term);
 
             const status = getPickupStatus(pickup)
                 .toLowerCase()
@@ -613,24 +570,34 @@ const ReversePickupsList = ({
             const matchesStatus =
                 statusFilter === "all" ||
                 status === normalizedFilter ||
-                (normalizedFilter === "in progress" &&
+                (
+                    normalizedFilter === "in progress" &&
                     [
                         "in transit",
                         "picked up",
                         "pickup in progress",
                         "processing",
                         "collected"
-                    ].includes(status)) ||
-                (normalizedFilter === "completed" &&
+                    ].includes(status)
+                ) ||
+                (
+                    normalizedFilter === "completed" &&
                     [
                         "complete",
                         "delivered",
                         "received",
                         "closed",
                         "success"
-                    ].includes(status)) ||
-                (normalizedFilter === "cancelled" &&
-                    ["canceled", "rejected", "void"].includes(status));
+                    ].includes(status)
+                ) ||
+                (
+                    normalizedFilter === "cancelled" &&
+                    [
+                        "canceled",
+                        "rejected",
+                        "void"
+                    ].includes(status)
+                );
 
             return matchesSearch && matchesStatus;
         });
@@ -642,9 +609,9 @@ const ReversePickupsList = ({
         getSearchValue
     ]);
 
-    /* =====================================================
-       PAGINATION
-    ===================================================== */
+    // =====================================================
+    // PAGINATION
+    // =====================================================
 
     const paginatedReversePickups = useMemo(() => {
         const start = page * rowsPerPage;
@@ -653,22 +620,32 @@ const ReversePickupsList = ({
             start,
             start + rowsPerPage
         );
-    }, [filteredReversePickups, page, rowsPerPage]);
+    }, [
+        filteredReversePickups,
+        page,
+        rowsPerPage
+    ]);
 
     useEffect(() => {
         const maxPage = Math.max(
             0,
-            Math.ceil(filteredReversePickups.length / rowsPerPage) - 1
+            Math.ceil(
+                filteredReversePickups.length / rowsPerPage
+            ) - 1
         );
 
         if (page > maxPage) {
             setPage(maxPage);
         }
-    }, [filteredReversePickups.length, rowsPerPage, page]);
+    }, [
+        filteredReversePickups.length,
+        rowsPerPage,
+        page
+    ]);
 
-    /* =====================================================
-       STATISTICS
-    ===================================================== */
+    // =====================================================
+    // STATISTICS
+    // =====================================================
 
     const statistics = useMemo(() => {
         const result = {
@@ -695,11 +672,16 @@ const ReversePickupsList = ({
                     "success"
                 ].includes(status)
             ) {
-                result.completed += 1;
+                result.completed++;
             } else if (
-                ["cancelled", "canceled", "rejected", "void"].includes(status)
+                [
+                    "cancelled",
+                    "canceled",
+                    "rejected",
+                    "void"
+                ].includes(status)
             ) {
-                result.cancelled += 1;
+                result.cancelled++;
             } else if (
                 [
                     "scheduled",
@@ -709,7 +691,7 @@ const ReversePickupsList = ({
                     "ready for pickup"
                 ].includes(status)
             ) {
-                result.scheduled += 1;
+                result.scheduled++;
             } else if (
                 [
                     "in progress",
@@ -720,18 +702,18 @@ const ReversePickupsList = ({
                     "collected"
                 ].includes(status)
             ) {
-                result.inProgress += 1;
+                result.inProgress++;
             } else {
-                result.pending += 1;
+                result.pending++;
             }
         });
 
         return result;
     }, [reversePickups]);
 
-    /* =====================================================
-       RESET FILTERS
-    ===================================================== */
+    // =====================================================
+    // CLEAR FILTERS
+    // =====================================================
 
     const clearFilters = () => {
         setSearchTerm("");
@@ -740,9 +722,9 @@ const ReversePickupsList = ({
         setPage(0);
     };
 
-    /* =====================================================
-       OPEN CREATE FORM
-    ===================================================== */
+    // =====================================================
+    // CREATE
+    // =====================================================
 
     const handleCreate = () => {
         setSelectedReversePickup(null);
@@ -752,9 +734,9 @@ const ReversePickupsList = ({
         setFormOpen(true);
     };
 
-    /* =====================================================
-       OPEN EDIT FORM
-    ===================================================== */
+    // =====================================================
+    // EDIT
+    // =====================================================
 
     const handleEdit = (pickup) => {
         setSelectedReversePickup(pickup);
@@ -764,9 +746,9 @@ const ReversePickupsList = ({
         setFormOpen(true);
     };
 
-    /* =====================================================
-       FORM FIELD CHANGE
-    ===================================================== */
+    // =====================================================
+    // FORM CHANGE
+    // =====================================================
 
     const handleFormChange = (event) => {
         const { name, value } = event.target;
@@ -782,55 +764,26 @@ const ReversePickupsList = ({
         }));
     };
 
-    /* =====================================================
-       VALIDATE FORM
-    ===================================================== */
+    // =====================================================
+    // VALIDATION
+    // =====================================================
 
     const validateForm = () => {
         const errors = {};
 
-        if (!formData.orderNumber.trim()) {
-            errors.orderNumber = "Order number is required.";
+        if (!formData.saleOrderCode.trim()) {
+            errors.saleOrderCode =
+                "Sales order code is required.";
         }
 
-        if (!formData.customerName.trim()) {
-            errors.customerName = "Customer name is required.";
+        if (!formData.itemSkuCode.trim()) {
+            errors.itemSkuCode =
+                "Item SKU code is required.";
         }
 
-        if (!formData.pickupDate) {
-            errors.pickupDate = "Pickup date is required.";
-        }
-
-        if (!formData.pickupAddress.trim()) {
-            errors.pickupAddress = "Pickup address is required.";
-        }
-
-        if (!formData.itemName.trim()) {
-            errors.itemName = "Return item name is required.";
-        }
-
-        const quantity = Number(formData.quantity);
-
-        if (
-            formData.quantity === "" ||
-            !Number.isFinite(quantity) ||
-            quantity <= 0
-        ) {
-            errors.quantity = "Quantity must be greater than zero.";
-        }
-
-        const pickupCost = Number(formData.pickupCost);
-
-        if (
-            formData.pickupCost === "" ||
-            !Number.isFinite(pickupCost) ||
-            pickupCost < 0
-        ) {
-            errors.pickupCost = "Enter a valid non-negative pickup cost.";
-        }
-
-        if (!formData.status) {
-            errors.status = "Status is required.";
+        if (!formData.reversePickupStatus.trim()) {
+            errors.reversePickupStatus =
+                "Status is required.";
         }
 
         setFormErrors(errors);
@@ -838,57 +791,93 @@ const ReversePickupsList = ({
         return Object.keys(errors).length === 0;
     };
 
-    /* =====================================================
-       BUILD REQUEST PAYLOAD
-    ===================================================== */
+    // =====================================================
+    // BUILD BACKEND DTO PAYLOAD
+    // Matches ReversePickupModel properties.
+    // =====================================================
 
-    const buildPayload = () => ({
-        reversePickupNumber: formData.reversePickupNumber.trim(),
-        orderNumber: formData.orderNumber.trim(),
-        customerName: formData.customerName.trim(),
-        customerEmail: formData.customerEmail.trim(),
-        pickupDate: formData.pickupDate,
-        pickupAddress: formData.pickupAddress.trim(),
-        itemName: formData.itemName.trim(),
-        sku: formData.sku.trim(),
-        quantity: Number(formData.quantity),
-        carrierName: formData.carrierName.trim(),
-        trackingNumber: formData.trackingNumber.trim(),
-        pickupCost: Number(formData.pickupCost),
-        status: formData.status,
-        notes: formData.notes.trim()
+    const buildPayload = (sellerId, customerId) => ({
+        reversePickupNo: formData.reversePickupNo.trim(),
+        saleOrderCode: formData.saleOrderCode.trim(),
+        saleOrderItemCode: formData.saleOrderItemCode.trim(),
+        itemSkuCode: formData.itemSkuCode.trim(),
+        trackingNo: formData.trackingNo.trim(),
+        returnReason: formData.returnReason.trim(),
+        qcComment: formData.qcComment.trim(),
+        reversePickupStatus:
+            formData.reversePickupStatus.trim(),
+        courierProviderName:
+            formData.courierProviderName.trim(),
+        facilityCode: formData.facilityCode.trim(),
+        channelName: formData.channelName.trim(),
+        putawayCode: formData.putawayCode.trim(),
+        sellerId: Number(sellerId),
+        customerId: Number(customerId)
     });
 
-    /* =====================================================
-       CREATE / UPDATE REVERSE PICKUP
-    ===================================================== */
+    // =====================================================
+    // CREATE / UPDATE
+    // =====================================================
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (!validateForm()) return;
 
+        const existingRecord =
+            selectedReversePickup || null;
+
+        const { sellerId, customerId } =
+            getSellerCustomerIds(existingRecord);
+
+        if (
+            sellerId === undefined ||
+            sellerId === null ||
+            sellerId === "" ||
+            customerId === undefined ||
+            customerId === null ||
+            customerId === ""
+        ) {
+            notify(
+                "Seller ID and Customer ID are required. Set them in localStorage or provide them through the selected record.",
+                "error"
+            );
+            return;
+        }
+
+        const id = getPickupId(existingRecord);
+
+        if (
+            formMode === "edit" &&
+            (id === undefined || id === null || id === "")
+        ) {
+            notify(
+                "Cannot update this pickup because its ID is missing.",
+                "error"
+            );
+            return;
+        }
+
         setSaving(true);
 
-        const payload = buildPayload();
-        const id = getPickupId(selectedReversePickup);
-
         try {
-            if (formMode === "edit") {
-                if (id === undefined || id === null || id === "") {
-                    throw new Error(
-                        "Cannot update this pickup because its ID is missing."
-                    );
-                }
+            const payload = buildPayload(
+                sellerId,
+                customerId
+            );
 
+            if (formMode === "edit") {
                 await axios.put(
-                    `${apiUrl}/${encodeURIComponent(id)}`,
+                    `${apiUrl}/${encodeURIComponent(id)}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
                     payload
                 );
 
                 notify("Reverse pickup updated successfully.");
             } else {
-                await axios.post(apiUrl, payload);
+                await axios.post(
+                    `${apiUrl}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
+                    payload
+                );
 
                 notify("Reverse pickup created successfully.");
             }
@@ -901,41 +890,62 @@ const ReversePickupsList = ({
             await fetchReversePickups();
         } catch (err) {
             console.error(
-                `${formMode === "edit" ? "UPDATE" : "CREATE"} REVERSE PICKUP ERROR:`,
+                "SAVE REVERSE PICKUP ERROR:",
                 err.response?.data || err.message
             );
 
-            const message =
+            notify(
                 err.response?.data?.message ||
                 err.response?.data?.Message ||
                 err.response?.data?.title ||
                 err.message ||
-                `Failed to ${formMode === "edit" ? "update" : "create"} reverse pickup.`;
-
-            notify(message, "error");
+                "Failed to save reverse pickup.",
+                "error"
+            );
         } finally {
             setSaving(false);
         }
     };
 
-    /* =====================================================
-       OPEN DELETE CONFIRMATION
-    ===================================================== */
+    // =====================================================
+    // DELETE DIALOG
+    // =====================================================
 
     const handleDeleteRequest = (pickup) => {
         setSelectedReversePickup(pickup);
         setDeleteOpen(true);
     };
 
-    /* =====================================================
-       DELETE REVERSE PICKUP
-    ===================================================== */
+    // =====================================================
+    // DELETE
+    // =====================================================
 
     const handleDelete = async () => {
-        const id = getPickupId(selectedReversePickup);
+        const pickup = selectedReversePickup;
+        const id = getPickupId(pickup);
+        const { sellerId, customerId } =
+            getSellerCustomerIds(pickup);
 
         if (id === undefined || id === null || id === "") {
-            notify("Cannot delete this pickup because its ID is missing.", "error");
+            notify(
+                "Cannot delete this pickup because its ID is missing.",
+                "error"
+            );
+            return;
+        }
+
+        if (
+            sellerId === undefined ||
+            sellerId === null ||
+            sellerId === "" ||
+            customerId === undefined ||
+            customerId === null ||
+            customerId === ""
+        ) {
+            notify(
+                "Seller ID and Customer ID are required to delete this pickup.",
+                "error"
+            );
             return;
         }
 
@@ -943,7 +953,7 @@ const ReversePickupsList = ({
 
         try {
             await axios.delete(
-                `${apiUrl}/${encodeURIComponent(id)}`
+                `${apiUrl}/${encodeURIComponent(id)}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`
             );
 
             setDeleteOpen(false);
@@ -958,138 +968,113 @@ const ReversePickupsList = ({
                 err.response?.data || err.message
             );
 
-            const message =
+            notify(
                 err.response?.data?.message ||
                 err.response?.data?.Message ||
                 err.response?.data?.title ||
                 err.message ||
-                "Failed to delete reverse pickup.";
-
-            notify(message, "error");
+                "Failed to delete reverse pickup.",
+                "error"
+            );
         } finally {
             setDeleting(false);
         }
     };
 
-    /* =====================================================
-       EXPORT CSV
-    ===================================================== */
+    // =====================================================
+    // EXPORT CSV
+    // =====================================================
 
-    const handleExport = async () => {
+    const handleExport = () => {
         setExporting(true);
 
         try {
-            const escapeCsv = (value) => {
-                const text = String(value ?? "");
-
-                return `"${text.replace(/"/g, '""')}"`;
-            };
+            const escapeCsv = (value) =>
+                `"${String(value ?? "").replace(/"/g, '""')}"`;
 
             const headers = [
                 "Pickup ID",
                 "Pickup Number",
-                "Order Number",
-                "Customer Name",
-                "Customer Email",
-                "Pickup Date",
-                "Pickup Address",
-                "Return Item",
-                "SKU",
-                "Quantity",
-                "Carrier",
+                "Sales Order Code",
+                "Sales Order Item Code",
+                "Item SKU",
                 "Tracking Number",
-                "Pickup Cost",
+                "Return Reason",
+                "QC Comment",
                 "Status",
-                "Notes"
+                "Courier Provider",
+                "Facility Code",
+                "Channel Name",
+                "Putaway Code",
+                "Seller ID",
+                "Customer ID"
             ];
 
-            const rows = filteredReversePickups.map((pickup) => [
-                getPickupId(pickup) ?? "",
-                getPickupNumber(pickup),
-                getOrderNumber(pickup) ?? "",
-                getField(
-                    pickup,
-                    "customerName",
-                    "CustomerName",
-                    "customerFullName",
-                    "CustomerFullName"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "customerEmail",
-                    "CustomerEmail",
-                    "email",
-                    "Email"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "pickupDate",
-                    "PickupDate",
-                    "scheduledPickupDate",
-                    "ScheduledPickupDate"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "pickupAddress",
-                    "PickupAddress",
-                    "pickupLocation",
-                    "PickupLocation",
-                    "address",
-                    "Address"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "itemName",
-                    "ItemName",
-                    "productName",
-                    "ProductName",
-                    "returnItemName",
-                    "ReturnItemName"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "sku",
-                    "SKU",
-                    "productSku",
-                    "ProductSku"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "quantity",
-                    "Quantity",
-                    "returnQuantity",
-                    "ReturnQuantity"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "carrierName",
-                    "CarrierName",
-                    "carrier",
-                    "Carrier"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "trackingNumber",
-                    "TrackingNumber",
-                    "returnTrackingNumber",
-                    "ReturnTrackingNumber"
-                ) ?? "",
-                getField(
-                    pickup,
-                    "pickupCost",
-                    "PickupCost",
-                    "returnShippingCost",
-                    "ReturnShippingCost",
-                    "shippingCost",
-                    "ShippingCost"
-                ) ?? "",
-                getPickupStatus(pickup),
-                getField(pickup, "notes", "Notes", "remarks", "Remarks") ?? ""
-            ]);
+            const rows = filteredReversePickups.map(
+                (pickup) => [
+                    getPickupId(pickup) ?? "",
+                    getPickupNumber(pickup),
+                    getField(
+                        pickup,
+                        "saleOrderCode",
+                        "SaleOrderCode"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "saleOrderItemCode",
+                        "SaleOrderItemCode"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "itemSkuCode",
+                        "ItemSkuCode"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "trackingNo",
+                        "TrackingNo"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "returnReason",
+                        "ReturnReason"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "qcComment",
+                        "QCComment"
+                    ) ?? "",
+                    getPickupStatus(pickup),
+                    getField(
+                        pickup,
+                        "courierProviderName",
+                        "CourierProviderName"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "facilityCode",
+                        "FacilityCode"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "channelName",
+                        "ChannelName"
+                    ) ?? "",
+                    getField(
+                        pickup,
+                        "putawayCode",
+                        "PutawayCode"
+                    ) ?? "",
+                    getField(pickup, "sellerId", "SellerId") ?? "",
+                    getField(pickup, "customerId", "CustomerId") ?? ""
+                ]
+            );
 
             const csv = [
                 headers.map(escapeCsv).join(","),
-                ...rows.map((row) => row.map(escapeCsv).join(","))
+                ...rows.map((row) =>
+                    row.map(escapeCsv).join(",")
+                )
             ].join("\r\n");
 
             const blob = new Blob(
@@ -1101,9 +1086,10 @@ const ReversePickupsList = ({
             const link = document.createElement("a");
 
             link.href = url;
-            link.download = `reverse-pickups-${new Date()
-                .toISOString()
-                .slice(0, 10)}.csv`;
+            link.download =
+                `reverse-pickups-${new Date()
+                    .toISOString()
+                    .slice(0, 10)}.csv`;
 
             document.body.appendChild(link);
             link.click();
@@ -1114,25 +1100,24 @@ const ReversePickupsList = ({
             notify("Reverse pickups exported successfully.");
         } catch (err) {
             console.error("EXPORT REVERSE PICKUPS ERROR:", err);
-
             notify("Failed to export reverse pickups.", "error");
         } finally {
             setExporting(false);
         }
     };
 
-    /* =====================================================
-       OPEN VIEW
-    ===================================================== */
+    // =====================================================
+    // VIEW
+    // =====================================================
 
     const handleView = (pickup) => {
         setSelectedReversePickup(pickup);
         setViewOpen(true);
     };
 
-    /* =====================================================
-       CLOSE FORM
-    ===================================================== */
+    // =====================================================
+    // CLOSE FORM
+    // =====================================================
 
     const handleCloseForm = () => {
         if (saving) return;
@@ -1141,12 +1126,17 @@ const ReversePickupsList = ({
         setFormErrors({});
     };
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
-        <Box sx={{ width: "100%", p: { xs: 1, sm: 2, md: 3 } }}>
+        <Box
+            sx={{
+                width: "100%",
+                p: { xs: 1, sm: 2, md: 3 }
+            }}
+        >
             {/* TOOLBAR */}
 
             {showToolbar && (
@@ -1182,15 +1172,11 @@ const ReversePickupsList = ({
                 />
             )}
 
-            {/* SEARCH AND FILTERS */}
+            {/* SEARCH / FILTERS */}
 
             <Paper
                 variant="outlined"
-                sx={{
-                    p: 2,
-                    mb: 2,
-                    borderRadius: 2
-                }}
+                sx={{ p: 2, mb: 2, borderRadius: 2 }}
             >
                 <Stack
                     direction={{ xs: "column", md: "row" }}
@@ -1283,19 +1269,22 @@ const ReversePickupsList = ({
                                         Pickup Number
                                     </MenuItem>
                                     <MenuItem value="orderNumber">
-                                        Order Number
+                                        Sales Order Code
                                     </MenuItem>
-                                    <MenuItem value="customerName">
-                                        Customer Name
-                                    </MenuItem>
-                                    <MenuItem value="itemName">
-                                        Return Item
-                                    </MenuItem>
-                                    <MenuItem value="carrierName">
-                                        Carrier
+                                    <MenuItem value="itemSkuCode">
+                                        Item SKU
                                     </MenuItem>
                                     <MenuItem value="trackingNumber">
                                         Tracking Number
+                                    </MenuItem>
+                                    <MenuItem value="carrierName">
+                                        Courier Provider
+                                    </MenuItem>
+                                    <MenuItem value="facilityCode">
+                                        Facility Code
+                                    </MenuItem>
+                                    <MenuItem value="channelName">
+                                        Channel Name
                                     </MenuItem>
                                 </TextField>
                             </Grid>
@@ -1354,9 +1343,9 @@ const ReversePickupsList = ({
                 )}
             </Paper>
 
-            {/* ERROR MESSAGE */}
+            {/* ERROR */}
 
-            {error && reversePickups.length > 0 && (
+            {error && (
                 <Alert
                     severity="warning"
                     sx={{ mb: 2 }}
@@ -1374,7 +1363,7 @@ const ReversePickupsList = ({
                 </Alert>
             )}
 
-            {/* REVERSE PICKUP TABLE */}
+            {/* TABLE */}
 
             <ReversePickupTable
                 reversePickups={paginatedReversePickups}
@@ -1454,16 +1443,16 @@ const ReversePickupsList = ({
                             fontWeight={700}
                             sx={{ mb: 2 }}
                         >
-                            Pickup Information
+                            Reverse Pickup Information
                         </Typography>
 
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     fullWidth
-                                    label="Pickup Number"
-                                    name="reversePickupNumber"
-                                    value={formData.reversePickupNumber}
+                                    label="Reverse Pickup Number"
+                                    name="reversePickupNo"
+                                    value={formData.reversePickupNo}
                                     onChange={handleFormChange}
                                     disabled={saving}
                                     helperText={
@@ -1478,37 +1467,22 @@ const ReversePickupsList = ({
                                 <TextField
                                     fullWidth
                                     required
-                                    label="Order Number"
-                                    name="orderNumber"
-                                    value={formData.orderNumber}
+                                    label="Sales Order Code"
+                                    name="saleOrderCode"
+                                    value={formData.saleOrderCode}
                                     onChange={handleFormChange}
                                     disabled={saving}
-                                    error={Boolean(formErrors.orderNumber)}
-                                    helperText={formErrors.orderNumber}
+                                    error={Boolean(formErrors.saleOrderCode)}
+                                    helperText={formErrors.saleOrderCode}
                                 />
                             </Grid>
 
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     fullWidth
-                                    required
-                                    label="Customer Name"
-                                    name="customerName"
-                                    value={formData.customerName}
-                                    onChange={handleFormChange}
-                                    disabled={saving}
-                                    error={Boolean(formErrors.customerName)}
-                                    helperText={formErrors.customerName}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    type="email"
-                                    label="Customer Email"
-                                    name="customerEmail"
-                                    value={formData.customerEmail}
+                                    label="Sales Order Item Code"
+                                    name="saleOrderItemCode"
+                                    value={formData.saleOrderItemCode}
                                     onChange={handleFormChange}
                                     disabled={saving}
                                 />
@@ -1518,120 +1492,13 @@ const ReversePickupsList = ({
                                 <TextField
                                     fullWidth
                                     required
-                                    type="date"
-                                    label="Pickup Date"
-                                    name="pickupDate"
-                                    value={formData.pickupDate}
+                                    label="Item SKU Code"
+                                    name="itemSkuCode"
+                                    value={formData.itemSkuCode}
                                     onChange={handleFormChange}
                                     disabled={saving}
-                                    error={Boolean(formErrors.pickupDate)}
-                                    helperText={formErrors.pickupDate}
-                                    InputLabelProps={{ shrink: true }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    required
-                                    label="Pickup Address"
-                                    name="pickupAddress"
-                                    value={formData.pickupAddress}
-                                    onChange={handleFormChange}
-                                    disabled={saving}
-                                    error={Boolean(formErrors.pickupAddress)}
-                                    helperText={formErrors.pickupAddress}
-                                />
-                            </Grid>
-                        </Grid>
-
-                        <Divider sx={{ my: 3 }} />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 2 }}
-                        >
-                            Return Item Details
-                        </Typography>
-
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    required
-                                    label="Return Item Name"
-                                    name="itemName"
-                                    value={formData.itemName}
-                                    onChange={handleFormChange}
-                                    disabled={saving}
-                                    error={Boolean(formErrors.itemName)}
-                                    helperText={formErrors.itemName}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    label="SKU / Product Code"
-                                    name="sku"
-                                    value={formData.sku}
-                                    onChange={handleFormChange}
-                                    disabled={saving}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    required
-                                    type="number"
-                                    label="Quantity"
-                                    name="quantity"
-                                    value={formData.quantity}
-                                    onChange={handleFormChange}
-                                    disabled={saving}
-                                    error={Boolean(formErrors.quantity)}
-                                    helperText={formErrors.quantity}
-                                    inputProps={{ min: 1, step: 1 }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Pickup Cost (₹)"
-                                    name="pickupCost"
-                                    type="number"
-                                    value={formData.pickupCost}
-                                    onChange={handleFormChange}
-                                    disabled={saving}
-                                    error={Boolean(formErrors.pickupCost)}
-                                    helperText={formErrors.pickupCost}
-                                    inputProps={{ min: 0, step: "0.01" }}
-                                />
-                            </Grid>
-                        </Grid>
-
-                        <Divider sx={{ my: 3 }} />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 2 }}
-                        >
-                            Carrier and Status
-                        </Typography>
-
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Carrier Name"
-                                    name="carrierName"
-                                    value={formData.carrierName}
-                                    onChange={handleFormChange}
-                                    disabled={saving}
+                                    error={Boolean(formErrors.itemSkuCode)}
+                                    helperText={formErrors.itemSkuCode}
                                 />
                             </Grid>
 
@@ -1639,8 +1506,52 @@ const ReversePickupsList = ({
                                 <TextField
                                     fullWidth
                                     label="Tracking Number"
-                                    name="trackingNumber"
-                                    value={formData.trackingNumber}
+                                    name="trackingNo"
+                                    value={formData.trackingNo}
+                                    onChange={handleFormChange}
+                                    disabled={saving}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Courier Provider"
+                                    name="courierProviderName"
+                                    value={formData.courierProviderName}
+                                    onChange={handleFormChange}
+                                    disabled={saving}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Facility Code"
+                                    name="facilityCode"
+                                    value={formData.facilityCode}
+                                    onChange={handleFormChange}
+                                    disabled={saving}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Channel Name"
+                                    name="channelName"
+                                    value={formData.channelName}
+                                    onChange={handleFormChange}
+                                    disabled={saving}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Putaway Code"
+                                    name="putawayCode"
+                                    value={formData.putawayCode}
                                     onChange={handleFormChange}
                                     disabled={saving}
                                 />
@@ -1652,15 +1563,21 @@ const ReversePickupsList = ({
                                     select
                                     required
                                     label="Status"
-                                    name="status"
-                                    value={formData.status}
+                                    name="reversePickupStatus"
+                                    value={formData.reversePickupStatus}
                                     onChange={handleFormChange}
                                     disabled={saving}
-                                    error={Boolean(formErrors.status)}
-                                    helperText={formErrors.status}
+                                    error={Boolean(
+                                        formErrors.reversePickupStatus
+                                    )}
+                                    helperText={
+                                        formErrors.reversePickupStatus
+                                    }
                                 >
                                     <MenuItem value="Pending">Pending</MenuItem>
-                                    <MenuItem value="Scheduled">Scheduled</MenuItem>
+                                    <MenuItem value="Scheduled">
+                                        Scheduled
+                                    </MenuItem>
                                     <MenuItem value="In Progress">
                                         In Progress
                                     </MenuItem>
@@ -1677,10 +1594,23 @@ const ReversePickupsList = ({
                                 <TextField
                                     fullWidth
                                     multiline
+                                    minRows={2}
+                                    label="Return Reason"
+                                    name="returnReason"
+                                    value={formData.returnReason}
+                                    onChange={handleFormChange}
+                                    disabled={saving}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    multiline
                                     minRows={3}
-                                    label="Notes"
-                                    name="notes"
-                                    value={formData.notes}
+                                    label="QC Comment"
+                                    name="qcComment"
+                                    value={formData.qcComment}
                                     onChange={handleFormChange}
                                     disabled={saving}
                                 />
@@ -1703,9 +1633,14 @@ const ReversePickupsList = ({
                             type="submit"
                             variant="contained"
                             startIcon={
-                                saving
-                                    ? <CircularProgress size={18} color="inherit" />
-                                    : <Save />
+                                saving ? (
+                                    <CircularProgress
+                                        size={18}
+                                        color="inherit"
+                                    />
+                                ) : (
+                                    <Save />
+                                )
                             }
                             disabled={saving}
                         >
@@ -1743,7 +1678,11 @@ const ReversePickupsList = ({
                 maxWidth="xs"
             >
                 <DialogTitle>
-                    <Stack direction="row" spacing={1} alignItems="center">
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                    >
                         <Warning color="error" />
 
                         <Typography variant="h6" fontWeight={700}>
@@ -1783,9 +1722,14 @@ const ReversePickupsList = ({
                         variant="contained"
                         color="error"
                         startIcon={
-                            deleting
-                                ? <CircularProgress size={18} color="inherit" />
-                                : <Delete />
+                            deleting ? (
+                                <CircularProgress
+                                    size={18}
+                                    color="inherit"
+                                />
+                            ) : (
+                                <Delete />
+                            )
                         }
                         onClick={handleDelete}
                         disabled={deleting}
@@ -1820,4 +1764,3 @@ const ReversePickupsList = ({
 };
 
 export default ReversePickupsList;
-

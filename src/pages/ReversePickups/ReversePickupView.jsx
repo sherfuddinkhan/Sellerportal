@@ -33,16 +33,19 @@ import {
     PendingActions,
     Cancel,
     Schedule,
-    InfoOutlined
+    InfoOutlined,
+    Numbers
 } from "@mui/icons-material";
 
-/* =========================================================
-   FIELD HELPER
-========================================================= */
+// =========================================================
+// GET FIELD VALUE - CAMEL CASE / PASCAL CASE
+// =========================================================
 
 const getField = (object, ...keys) => {
+    if (!object) return null;
+
     for (const key of keys) {
-        const value = object?.[key];
+        const value = object[key];
 
         if (
             value !== undefined &&
@@ -56,19 +59,33 @@ const getField = (object, ...keys) => {
     return null;
 };
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+// =========================================================
+// FORMAT TEXT
+// =========================================================
+
+const formatText = (value, fallback = "—") => {
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+        return fallback;
+    }
+
+    return String(value);
+};
+
+// =========================================================
+// FORMAT DATE
+// =========================================================
 
 const formatDate = (value, includeTime = false) => {
-    if (!value) {
-        return "—";
-    }
+    if (!value) return "—";
 
     const date = new Date(value);
 
     if (Number.isNaN(date.getTime())) {
-        return "—";
+        return String(value);
     }
 
     return date.toLocaleString(
@@ -89,32 +106,36 @@ const formatDate = (value, includeTime = false) => {
     );
 };
 
-/* =========================================================
-   FORMAT NUMBER
-========================================================= */
+// =========================================================
+// FORMAT NUMBER
+// =========================================================
 
 const formatNumber = (value) => {
     const number = Number(value);
 
-    if (!Number.isFinite(number)) {
-        return "0";
-    }
+    if (!Number.isFinite(number)) return "—";
 
     return number.toLocaleString("en-IN", {
         maximumFractionDigits: 2
     });
 };
 
-/* =========================================================
-   FORMAT CURRENCY
-========================================================= */
+// =========================================================
+// FORMAT CURRENCY
+// =========================================================
 
 const formatCurrency = (value) => {
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+        return "—";
+    }
+
     const amount = Number(value);
 
-    if (!Number.isFinite(amount)) {
-        return "₹ 0.00";
-    }
+    if (!Number.isFinite(amount)) return "—";
 
     return `₹ ${amount.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
@@ -122,9 +143,9 @@ const formatCurrency = (value) => {
     })}`;
 };
 
-/* =========================================================
-   STATUS CONFIGURATION
-========================================================= */
+// =========================================================
+// STATUS CONFIGURATION
+// =========================================================
 
 const getStatusConfig = (status) => {
     const normalized = String(status ?? "Pending")
@@ -168,6 +189,16 @@ const getStatusConfig = (status) => {
             color: "primary",
             icon: <LocalShipping fontSize="small" />
         },
+        "in progress": {
+            label: "In Progress",
+            color: "primary",
+            icon: <LocalShipping fontSize="small" />
+        },
+        "in transit": {
+            label: "In Transit",
+            color: "primary",
+            icon: <LocalShipping fontSize="small" />
+        },
         "picked up": {
             label: "Picked Up",
             color: "primary",
@@ -188,6 +219,11 @@ const getStatusConfig = (status) => {
             color: "error",
             icon: <Cancel fontSize="small" />
         },
+        canceled: {
+            label: "Cancelled",
+            color: "error",
+            icon: <Cancel fontSize="small" />
+        },
         rejected: {
             label: "Rejected",
             color: "error",
@@ -201,7 +237,7 @@ const getStatusConfig = (status) => {
     };
 
     return (
-        statusMap[normalized] ?? {
+        statusMap[normalized] || {
             label: status || "Pending",
             color: "default",
             icon: <InfoOutlined fontSize="small" />
@@ -209,9 +245,9 @@ const getStatusConfig = (status) => {
     );
 };
 
-/* =========================================================
-   SECTION HEADER
-========================================================= */
+// =========================================================
+// SECTION HEADER
+// =========================================================
 
 const SectionHeader = ({ icon, title }) => (
     <Box
@@ -241,15 +277,14 @@ const SectionHeader = ({ icon, title }) => (
     </Box>
 );
 
-/* =========================================================
-   DETAIL FIELD
-========================================================= */
+// =========================================================
+// DETAIL FIELD
+// =========================================================
 
 const DetailField = ({
     label,
     value,
-    fullWidth = false,
-    valueColor = "text.primary"
+    fullWidth = false
 }) => (
     <Grid item xs={12} sm={fullWidth ? 12 : 6}>
         <Typography
@@ -264,34 +299,29 @@ const DetailField = ({
         <Typography
             variant="body2"
             fontWeight={600}
-            color={valueColor}
             sx={{
                 overflowWrap: "anywhere",
                 whiteSpace: "pre-wrap"
             }}
         >
-            {value !== undefined &&
-            value !== null &&
-            value !== ""
-                ? value
-                : "—"}
+            {formatText(value)}
         </Typography>
     </Grid>
 );
 
-/* =========================================================
-   REVERSE PICKUP VIEW
-========================================================= */
+// =========================================================
+// REVERSE PICKUP VIEW
+// =========================================================
 
 const ReversePickupView = ({
     open = true,
     onClose,
     onEdit,
 
-    reversePickup,
-    pickup,
-    record,
-    data,
+    reversePickup = null,
+    pickup = null,
+    record = null,
+    data = null,
 
     loading = false,
     error = null,
@@ -299,16 +329,20 @@ const ReversePickupView = ({
     embedded = false,
     title = "Reverse Pickup Details"
 }) => {
+    // =====================================================
+    // SELECT RECORD
+    // =====================================================
+
     const item =
         reversePickup ??
         pickup ??
         record ??
         data ??
-        {};
+        null;
 
-    /* =====================================================
-       IDENTIFICATION
-    ===================================================== */
+    // =====================================================
+    // IDENTIFICATION
+    // =====================================================
 
     const pickupId = getField(
         item,
@@ -320,52 +354,54 @@ const ReversePickupView = ({
         "Id"
     );
 
-    const pickupNumber = getField(
-        item,
-        "reversePickupNumber",
-        "ReversePickupNumber",
-        "pickupNumber",
-        "PickupNumber",
-        "returnNumber",
-        "ReturnNumber"
-    ) ?? (pickupId != null ? `RP-${pickupId}` : "—");
+    const pickupNumber =
+        getField(
+            item,
+            "reversePickupNo",
+            "ReversePickupNo",
+            "reversePickupNumber",
+            "ReversePickupNumber",
+            "pickupNumber",
+            "PickupNumber"
+        ) ??
+        (pickupId != null ? `RP-${pickupId}` : "—");
 
     const orderNumber = getField(
         item,
+        "saleOrderCode",
+        "SaleOrderCode",
         "orderNumber",
         "OrderNumber",
         "salesOrderNumber",
-        "SalesOrderNumber",
-        "originalOrderNumber",
-        "OriginalOrderNumber"
+        "SalesOrderNumber"
     );
 
-    const returnOrderNumber = getField(
+    const orderItemCode = getField(
         item,
-        "returnOrderNumber",
-        "ReturnOrderNumber",
-        "rmaNumber",
-        "RMANumber"
+        "saleOrderItemCode",
+        "SaleOrderItemCode"
     );
 
-    /* =====================================================
-       CUSTOMER DETAILS
-    ===================================================== */
-
-    const customerName = getField(
+    const sellerId = getField(
         item,
-        "customerName",
-        "CustomerName",
-        "customer",
-        "Customer",
-        "recipientName",
-        "RecipientName"
+        "sellerId",
+        "SellerId"
     );
 
     const customerId = getField(
         item,
         "customerId",
         "CustomerId"
+    );
+
+    // =====================================================
+    // CUSTOMER INFORMATION
+    // =====================================================
+
+    const customerName = getField(
+        item,
+        "customerName",
+        "CustomerName"
     );
 
     const customerEmail = getField(
@@ -381,14 +417,58 @@ const ReversePickupView = ({
         "customerPhone",
         "CustomerPhone",
         "phoneNumber",
-        "PhoneNumber",
-        "mobileNumber",
-        "MobileNumber"
+        "PhoneNumber"
     );
 
-    /* =====================================================
-       PICKUP DETAILS
-    ===================================================== */
+    // =====================================================
+    // RETURN ITEM INFORMATION
+    // =====================================================
+
+    const itemSkuCode = getField(
+        item,
+        "itemSkuCode",
+        "ItemSkuCode",
+        "sku",
+        "SKU",
+        "productCode",
+        "ProductCode"
+    );
+
+    const itemName = getField(
+        item,
+        "itemName",
+        "ItemName",
+        "productName",
+        "ProductName"
+    );
+
+    const quantity = getField(
+        item,
+        "quantity",
+        "Quantity",
+        "returnQuantity",
+        "ReturnQuantity"
+    );
+
+    const returnReason = getField(
+        item,
+        "returnReason",
+        "ReturnReason",
+        "reason",
+        "Reason"
+    );
+
+    const itemCondition = getField(
+        item,
+        "itemCondition",
+        "ItemCondition",
+        "condition",
+        "Condition"
+    );
+
+    // =====================================================
+    // PICKUP INFORMATION
+    // =====================================================
 
     const pickupDate = getField(
         item,
@@ -411,9 +491,7 @@ const ReversePickupView = ({
         "pickupAddress",
         "PickupAddress",
         "returnAddress",
-        "ReturnAddress",
-        "address",
-        "Address"
+        "ReturnAddress"
     );
 
     const pickupCity = getField(
@@ -448,88 +526,24 @@ const ReversePickupView = ({
         pickupPostalCode
     ].filter(Boolean).join(", ");
 
-    /* =====================================================
-       RETURN DETAILS
-    ===================================================== */
-
-    const returnReason = getField(
-        item,
-        "returnReason",
-        "ReturnReason",
-        "reason",
-        "Reason",
-        "reasonForReturn",
-        "ReasonForReturn"
-    );
-
-    const returnType = getField(
-        item,
-        "returnType",
-        "ReturnType",
-        "pickupType",
-        "PickupType"
-    );
-
-    const returnMethod = getField(
-        item,
-        "returnMethod",
-        "ReturnMethod",
-        "pickupMethod",
-        "PickupMethod"
-    );
-
-    const itemName = getField(
-        item,
-        "itemName",
-        "ItemName",
-        "productName",
-        "ProductName"
-    );
-
-    const productCode = getField(
-        item,
-        "productCode",
-        "ProductCode",
-        "sku",
-        "SKU"
-    );
-
-    const quantity = getField(
-        item,
-        "quantity",
-        "Quantity",
-        "returnQuantity",
-        "ReturnQuantity"
-    );
-
-    const condition = getField(
-        item,
-        "itemCondition",
-        "ItemCondition",
-        "condition",
-        "Condition"
-    );
-
-    /* =====================================================
-       SHIPPING DETAILS
-    ===================================================== */
+    // =====================================================
+    // CARRIER INFORMATION
+    // =====================================================
 
     const carrierName = getField(
         item,
+        "courierProviderName",
+        "CourierProviderName",
         "carrierName",
-        "CarrierName",
-        "shippingCarrier",
-        "ShippingCarrier",
-        "carrier",
-        "Carrier"
+        "CarrierName"
     );
 
     const trackingNumber = getField(
         item,
+        "trackingNo",
+        "TrackingNo",
         "trackingNumber",
-        "TrackingNumber",
-        "returnTrackingNumber",
-        "ReturnTrackingNumber"
+        "TrackingNumber"
     );
 
     const driverName = getField(
@@ -544,39 +558,60 @@ const ReversePickupView = ({
         "VehicleNumber"
     );
 
-    /* =====================================================
-       FINANCIAL DETAILS
-    ===================================================== */
+    // =====================================================
+    // ADDITIONAL BACKEND FIELDS
+    // =====================================================
+
+    const facilityCode = getField(
+        item,
+        "facilityCode",
+        "FacilityCode"
+    );
+
+    const channelName = getField(
+        item,
+        "channelName",
+        "ChannelName"
+    );
+
+    const putawayCode = getField(
+        item,
+        "putawayCode",
+        "PutawayCode"
+    );
+
+    // =====================================================
+    // FINANCIAL INFORMATION
+    // =====================================================
 
     const pickupCost = getField(
         item,
         "pickupCost",
         "PickupCost",
         "shippingCost",
-        "ShippingCost",
-        "returnShippingCost",
-        "ReturnShippingCost"
+        "ShippingCost"
     );
 
     const refundAmount = getField(
         item,
         "refundAmount",
-        "RefundAmount",
-        "totalRefundAmount",
-        "TotalRefundAmount"
+        "RefundAmount"
     );
 
-    /* =====================================================
-       STATUS AND AUDIT
-    ===================================================== */
+    // =====================================================
+    // STATUS / NOTES / AUDIT
+    // =====================================================
 
-    const status = getField(
-        item,
-        "status",
-        "Status",
-        "pickupStatus",
-        "PickupStatus"
-    ) ?? "Pending";
+    const status =
+        getField(
+            item,
+            "reversePickupStatus",
+            "ReversePickupStatus",
+            "status",
+            "Status",
+            "pickupStatus",
+            "PickupStatus"
+        ) ?? "Pending";
 
     const statusConfig = getStatusConfig(status);
 
@@ -587,15 +622,15 @@ const ReversePickupView = ({
         "remarks",
         "Remarks",
         "comments",
-        "Comments"
+        "Comments",
+        "qcComment",
+        "QCComment"
     );
 
     const createdBy = getField(
         item,
         "createdBy",
-        "CreatedBy",
-        "createdByName",
-        "CreatedByName"
+        "CreatedBy"
     );
 
     const createdAt = getField(
@@ -620,13 +655,13 @@ const ReversePickupView = ({
         "UpdatedAt",
         "modifiedAt",
         "ModifiedAt",
-        "modifiedDate",
-        "ModifiedDate"
+        "updatedDate",
+        "UpdatedDate"
     );
 
-    /* =====================================================
-       CONTENT
-    ===================================================== */
+    // =====================================================
+    // DETAIL CONTENT
+    // =====================================================
 
     const content = (
         <Box>
@@ -635,10 +670,20 @@ const ReversePickupView = ({
                     sx={{
                         display: "flex",
                         justifyContent: "center",
-                        py: 5
+                        alignItems: "center",
+                        flexDirection: "column",
+                        gap: 2,
+                        py: 6
                     }}
                 >
                     <CircularProgress />
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        Loading reverse pickup details...
+                    </Typography>
                 </Box>
             )}
 
@@ -650,7 +695,13 @@ const ReversePickupView = ({
                 </Alert>
             )}
 
-            {!loading && !error && (
+            {!loading && !error && !item && (
+                <Alert severity="info">
+                    No reverse pickup record is available.
+                </Alert>
+            )}
+
+            {!loading && !error && item && (
                 <Stack spacing={2.5}>
                     {/* SUMMARY */}
 
@@ -691,18 +742,14 @@ const ReversePickupView = ({
                                         color: "primary.contrastText"
                                     }}
                                 >
-                                    <AssignmentReturn
-                                        fontSize="large"
-                                    />
+                                    <AssignmentReturn fontSize="large" />
                                 </Box>
 
-                                <Box>
+                                <Box sx={{ minWidth: 0 }}>
                                     <Typography
                                         variant="h6"
                                         fontWeight={800}
-                                        sx={{
-                                            overflowWrap: "anywhere"
-                                        }}
+                                        sx={{ overflowWrap: "anywhere" }}
                                     >
                                         {pickupNumber}
                                     </Typography>
@@ -711,8 +758,7 @@ const ReversePickupView = ({
                                         variant="body2"
                                         color="text.secondary"
                                     >
-                                        Reverse Pickup ID:{" "}
-                                        {pickupId ?? "—"}
+                                        Order: {formatText(orderNumber)}
                                     </Typography>
                                 </Box>
                             </Stack>
@@ -726,40 +772,61 @@ const ReversePickupView = ({
                         </Stack>
                     </Paper>
 
-                    {/* ORDER INFORMATION */}
+                    {/* PICKUP IDENTIFICATION */}
 
                     <Box>
                         <SectionHeader
-                            icon={<ReceiptLong />}
-                            title="Order Information"
+                            icon={<AssignmentReturn />}
+                            title="Reverse Pickup Information"
                         />
 
                         <Grid container spacing={2}>
                             <DetailField
-                                label="Original Order Number"
+                                label="Reverse Pickup ID"
+                                value={pickupId}
+                            />
+
+                            <DetailField
+                                label="Reverse Pickup Number"
+                                value={pickupNumber}
+                            />
+
+                            <DetailField
+                                label="Sales Order Code"
                                 value={orderNumber}
                             />
 
                             <DetailField
-                                label="Return Order / RMA Number"
-                                value={returnOrderNumber}
+                                label="Sales Order Item Code"
+                                value={orderItemCode}
                             />
 
                             <DetailField
-                                label="Return Type"
-                                value={returnType}
+                                label="Status"
+                                value={statusConfig.label}
                             />
 
                             <DetailField
-                                label="Return Method"
-                                value={returnMethod}
+                                label="Pickup Date"
+                                value={formatDate(pickupDate)}
+                            />
+
+                            <DetailField
+                                label="Actual Pickup Date"
+                                value={formatDate(actualPickupDate)}
+                            />
+
+                            <DetailField
+                                label="Return Reason"
+                                value={returnReason}
+                                fullWidth
                             />
                         </Grid>
                     </Box>
 
                     <Divider />
 
-                    {/* CUSTOMER INFORMATION */}
+                    {/* CUSTOMER */}
 
                     <Box>
                         <SectionHeader
@@ -769,65 +836,35 @@ const ReversePickupView = ({
 
                         <Grid container spacing={2}>
                             <DetailField
-                                label="Customer Name"
-                                value={customerName}
-                            />
-
-                            <DetailField
                                 label="Customer ID"
                                 value={customerId}
                             />
 
                             <DetailField
-                                label="Email Address"
+                                label="Customer Name"
+                                value={customerName}
+                            />
+
+                            <DetailField
+                                label="Customer Email"
                                 value={customerEmail}
                             />
 
                             <DetailField
-                                label="Phone Number"
+                                label="Customer Phone"
                                 value={customerPhone}
                             />
-                        </Grid>
-                    </Box>
-
-                    <Divider />
-
-                    {/* PICKUP INFORMATION */}
-
-                    <Box>
-                        <SectionHeader
-                            icon={<LocationOn />}
-                            title="Pickup Information"
-                        />
-
-                        <Grid container spacing={2}>
-                            <DetailField
-                                label="Pickup Address"
-                                value={pickupAddress}
-                                fullWidth
-                            />
 
                             <DetailField
-                                label="City / State / Postal Code"
-                                value={pickupLocation}
-                                fullWidth
-                            />
-
-                            <DetailField
-                                label="Scheduled Pickup Date"
-                                value={formatDate(pickupDate)}
-                            />
-
-                            <DetailField
-                                label="Actual Pickup Date"
-                                value={formatDate(actualPickupDate)}
+                                label="Seller ID"
+                                value={sellerId}
                             />
                         </Grid>
                     </Box>
 
                     <Divider />
 
-                    {/* RETURN ITEM INFORMATION */}
+                    {/* RETURN ITEM */}
 
                     <Box>
                         <SectionHeader
@@ -837,32 +874,51 @@ const ReversePickupView = ({
 
                         <Grid container spacing={2}>
                             <DetailField
-                                label="Product Name"
+                                label="Item Name"
                                 value={itemName}
                             />
 
                             <DetailField
-                                label="Product Code / SKU"
-                                value={productCode}
+                                label="Item SKU Code"
+                                value={itemSkuCode}
                             />
 
                             <DetailField
-                                label="Return Quantity"
+                                label="Quantity"
                                 value={
                                     quantity != null
                                         ? formatNumber(quantity)
-                                        : "—"
+                                        : null
                                 }
                             />
 
                             <DetailField
                                 label="Item Condition"
-                                value={condition}
+                                value={itemCondition}
+                            />
+                        </Grid>
+                    </Box>
+
+                    <Divider />
+
+                    {/* PICKUP ADDRESS */}
+
+                    <Box>
+                        <SectionHeader
+                            icon={<LocationOn />}
+                            title="Pickup Address"
+                        />
+
+                        <Grid container spacing={2}>
+                            <DetailField
+                                label="Address"
+                                value={pickupAddress}
+                                fullWidth
                             />
 
                             <DetailField
-                                label="Reason for Return"
-                                value={returnReason}
+                                label="City / State / Postal Code"
+                                value={pickupLocation || null}
                                 fullWidth
                             />
                         </Grid>
@@ -870,17 +926,17 @@ const ReversePickupView = ({
 
                     <Divider />
 
-                    {/* CARRIER INFORMATION */}
+                    {/* CARRIER */}
 
                     <Box>
                         <SectionHeader
                             icon={<LocalShipping />}
-                            title="Carrier and Transport Information"
+                            title="Carrier Information"
                         />
 
                         <Grid container spacing={2}>
                             <DetailField
-                                label="Carrier Name"
+                                label="Courier Provider"
                                 value={carrierName}
                             />
 
@@ -903,7 +959,35 @@ const ReversePickupView = ({
 
                     <Divider />
 
-                    {/* FINANCIAL INFORMATION */}
+                    {/* FACILITY / CHANNEL */}
+
+                    <Box>
+                        <SectionHeader
+                            icon={<ReceiptLong />}
+                            title="Facility and Channel Information"
+                        />
+
+                        <Grid container spacing={2}>
+                            <DetailField
+                                label="Facility Code"
+                                value={facilityCode}
+                            />
+
+                            <DetailField
+                                label="Channel Name"
+                                value={channelName}
+                            />
+
+                            <DetailField
+                                label="Putaway Code"
+                                value={putawayCode}
+                            />
+                        </Grid>
+                    </Box>
+
+                    <Divider />
+
+                    {/* FINANCIAL */}
 
                     <Box>
                         <SectionHeader
@@ -913,21 +997,13 @@ const ReversePickupView = ({
 
                         <Grid container spacing={2}>
                             <DetailField
-                                label="Pickup / Return Shipping Cost"
-                                value={
-                                    pickupCost != null
-                                        ? formatCurrency(pickupCost)
-                                        : "—"
-                                }
+                                label="Pickup Cost"
+                                value={formatCurrency(pickupCost)}
                             />
 
                             <DetailField
                                 label="Refund Amount"
-                                value={
-                                    refundAmount != null
-                                        ? formatCurrency(refundAmount)
-                                        : "—"
-                                }
+                                value={formatCurrency(refundAmount)}
                             />
                         </Grid>
                     </Box>
@@ -941,7 +1017,7 @@ const ReversePickupView = ({
                             <Box>
                                 <SectionHeader
                                     icon={<InfoOutlined />}
-                                    title="Notes and Remarks"
+                                    title="Notes / QC Comments"
                                 />
 
                                 <Paper
@@ -963,7 +1039,7 @@ const ReversePickupView = ({
                         </>
                     )}
 
-                    {/* AUDIT INFORMATION */}
+                    {/* AUDIT */}
 
                     {(createdBy ||
                         createdAt ||
@@ -974,7 +1050,7 @@ const ReversePickupView = ({
 
                             <Box>
                                 <SectionHeader
-                                    icon={<InfoOutlined />}
+                                    icon={<CalendarMonth />}
                                     title="Audit Information"
                                 />
 
@@ -986,23 +1062,17 @@ const ReversePickupView = ({
 
                                     <DetailField
                                         label="Created At"
-                                        value={formatDate(
-                                            createdAt,
-                                            true
-                                        )}
+                                        value={formatDate(createdAt, true)}
                                     />
 
                                     <DetailField
-                                        label="Last Updated By"
+                                        label="Updated By"
                                         value={updatedBy}
                                     />
 
                                     <DetailField
-                                        label="Last Updated At"
-                                        value={formatDate(
-                                            updatedAt,
-                                            true
-                                        )}
+                                        label="Updated At"
+                                        value={formatDate(updatedAt, true)}
                                     />
                                 </Grid>
                             </Box>
@@ -1013,16 +1083,24 @@ const ReversePickupView = ({
         </Box>
     );
 
-    /* =====================================================
-       EMBEDDED MODE
-    ===================================================== */
+    // =====================================================
+    // EMBEDDED MODE
+    // =====================================================
 
     if (embedded) {
         return (
             <Box sx={{ width: "100%" }}>
+                <Typography
+                    variant="h5"
+                    fontWeight={700}
+                    sx={{ mb: 3 }}
+                >
+                    {title}
+                </Typography>
+
                 {content}
 
-                {!loading && !error && onEdit && (
+                {!loading && !error && item && onEdit && (
                     <Box
                         sx={{
                             display: "flex",
@@ -1039,13 +1117,31 @@ const ReversePickupView = ({
                         </Button>
                     </Box>
                 )}
+
+                {onClose && (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            mt: 2
+                        }}
+                    >
+                        <Button
+                            variant="outlined"
+                            startIcon={<Close />}
+                            onClick={onClose}
+                        >
+                            Back
+                        </Button>
+                    </Box>
+                )}
             </Box>
         );
     }
 
-    /* =====================================================
-       DIALOG MODE
-    ===================================================== */
+    // =====================================================
+    // DIALOG MODE
+    // =====================================================
 
     return (
         <Dialog
@@ -1075,15 +1171,15 @@ const ReversePickupView = ({
                         variant="caption"
                         color="text.secondary"
                     >
-                        View reverse pickup information
+                        Reverse logistics record
                     </Typography>
                 </Box>
 
                 <Button
                     color="inherit"
+                    startIcon={<Close />}
                     onClick={onClose}
                     disabled={loading}
-                    startIcon={<Close />}
                 >
                     Close
                 </Button>
@@ -1100,14 +1196,14 @@ const ReversePickupView = ({
             <DialogActions sx={{ px: 3, py: 2 }}>
                 <Button
                     variant="outlined"
+                    startIcon={<Close />}
                     onClick={onClose}
                     disabled={loading}
-                    startIcon={<Close />}
                 >
                     Close
                 </Button>
 
-                {onEdit && !loading && !error && (
+                {item && onEdit && !loading && !error && (
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
@@ -1122,4 +1218,3 @@ const ReversePickupView = ({
 };
 
 export default ReversePickupView;
-
