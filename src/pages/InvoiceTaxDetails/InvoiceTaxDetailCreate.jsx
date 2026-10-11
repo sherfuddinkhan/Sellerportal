@@ -6,13 +6,12 @@ import {
     Alert,
     Box,
     Button,
-    CircularProgress,
-    Divider,
     Grid,
     Paper,
     Stack,
     TextField,
-    Typography
+    Typography,
+    CircularProgress
 } from "@mui/material";
 
 import {
@@ -23,18 +22,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-// =========================================================
-// API CONFIGURATION
-// =========================================================
-
-const API_BASE_URL = "http://localhost:5000/api";
-
-const INVOICE_TAX_DETAIL_API =
-    `${API_BASE_URL}/invoice-tax-details`;
-
-// =========================================================
-// INITIAL FORM VALUES
-// =========================================================
+const API_URL = "http://localhost:5000/api/invoice-tax-details";
 
 const initialForm = {
     salesInvoiceId: "",
@@ -48,24 +36,13 @@ const initialForm = {
     customerId: ""
 };
 
-// =========================================================
-// CREATE INVOICE TAX DETAIL
-// =========================================================
-
-const InvoiceTaxDetailCreate = ({
-    onCreated,
-    onCancel
-}) => {
+const InvoiceTaxDetailCreate = ({ onCreated, onCancel }) => {
     const navigate = useNavigate();
 
     const [form, setForm] = useState(initialForm);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-
-    // =====================================================
-    // HANDLE INPUT CHANGE
-    // =====================================================
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -74,87 +51,38 @@ const InvoiceTaxDetailCreate = ({
             ...previous,
             [name]: value
         }));
-
-        setError("");
-        setSuccess("");
     };
 
-    // =====================================================
-    // BACK / CANCEL
-    // =====================================================
-
     const handleCancel = () => {
-        if (typeof onCancel === "function") {
+        if (onCancel) {
             onCancel();
         } else {
             navigate("/invoice-tax-details");
         }
     };
 
-    // =====================================================
-    // VALIDATE FORM
-    // =====================================================
-
-    const validateForm = () => {
-        if (!form.salesInvoiceId.trim()) {
-            return "Sales Invoice ID is required.";
-        }
-
-        if (!form.channelProductId.trim()) {
-            return "Channel Product ID is required.";
-        }
-
-        if (!form.sellerId.trim()) {
-            return "Seller ID is required.";
-        }
-
-        if (!form.customerId.trim()) {
-            return "Customer ID is required.";
-        }
-
-        const numericFields = [
-            ["Sales Invoice ID", form.salesInvoiceId],
-            ["Tax Percentage", form.taxPercentage || "0"],
-            ["Central GST", form.centralGst || "0"],
-            ["State GST", form.stateGst || "0"],
-            ["Integrated GST", form.integratedGst || "0"],
-            ["Compensation Cess", form.compensationCess || "0"],
-            ["Seller ID", form.sellerId],
-            ["Customer ID", form.customerId]
-        ];
-
-        for (const [label, value] of numericFields) {
-            const number = Number(value);
-
-            if (!Number.isFinite(number) || number < 0) {
-                return `${label} must be a valid non-negative number.`;
-            }
-        }
-
-        return "";
-    };
-
-    // =====================================================
-    // CREATE RECORD
-    // =====================================================
-
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         setError("");
         setSuccess("");
 
-        const validationError = validateForm();
-
-        if (validationError) {
-            setError(validationError);
+        if (
+            !form.salesInvoiceId.trim() ||
+            !form.channelProductId.trim() ||
+            !form.sellerId.trim() ||
+            !form.customerId.trim() ||
+            form.taxPercentage === ""
+        ) {
+            setError(
+                "Please enter Sales Invoice ID, Channel Product ID, Tax Percentage, Seller ID, and Customer ID."
+            );
             return;
         }
 
         const payload = {
             salesInvoiceId: Number(form.salesInvoiceId),
             channelProductId: form.channelProductId.trim(),
-            taxPercentage: Number(form.taxPercentage || 0),
+            taxPercentage: Number(form.taxPercentage),
             centralGst: Number(form.centralGst || 0),
             stateGst: Number(form.stateGst || 0),
             integratedGst: Number(form.integratedGst || 0),
@@ -163,22 +91,27 @@ const InvoiceTaxDetailCreate = ({
             customerId: Number(form.customerId)
         };
 
+        const invalid = Object.entries(payload).some(
+            ([key, value]) =>
+                key !== "channelProductId" &&
+                (!Number.isFinite(value) || value < 0)
+        );
+
+        if (invalid) {
+            setError("Please enter valid non-negative numeric values.");
+            return;
+        }
+
         try {
             setLoading(true);
 
-            const response = await axios.post(
-                INVOICE_TAX_DETAIL_API,
-                payload,
-                {
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
+            const response = await axios.post(API_URL, payload, {
+                headers: {
+                    "Content-Type": "application/json"
                 }
-            );
+            });
 
-            setSuccess(
-                "Invoice tax detail created successfully."
-            );
+            setSuccess("Invoice tax detail created successfully.");
 
             if (typeof onCreated === "function") {
                 onCreated(response.data);
@@ -191,39 +124,24 @@ const InvoiceTaxDetailCreate = ({
                 err.response?.data || err
             );
 
-            const responseData = err.response?.data;
-
-            const validationErrors = responseData?.errors;
-
-            const validationMessage =
-                validationErrors &&
-                typeof validationErrors === "object"
-                    ? Object.values(validationErrors)
-                        .flat()
-                        .join(" ")
-                    : "";
+            const data = err.response?.data;
+            const validationMessage = data?.errors
+                ? Object.values(data.errors).flat().join(" ")
+                : "";
 
             setError(
                 validationMessage ||
-                responseData?.message ||
-                responseData?.title ||
+                data?.message ||
+                data?.title ||
                 err.message ||
-                "Failed to create invoice tax detail."
+                "Unable to create invoice tax detail."
             );
         } finally {
             setLoading(false);
         }
     };
 
-    // =====================================================
-    // REUSABLE NUMERIC FIELD
-    // =====================================================
-
-    const renderNumberField = (
-        name,
-        label,
-        required = false
-    ) => (
+    const numberField = (name, label, required = false) => (
         <Grid item xs={12} sm={6} md={4} key={name}>
             <TextField
                 fullWidth
@@ -234,72 +152,33 @@ const InvoiceTaxDetailCreate = ({
                 onChange={handleChange}
                 required={required}
                 disabled={loading}
-                inputProps={{
-                    min: 0,
-                    step: "any"
-                }}
+                inputProps={{ min: 0, step: "any" }}
             />
         </Grid>
     );
 
-    // =====================================================
-    // RENDER CREATE FORM
-    // =====================================================
-
     return (
-        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
-
-            {/* HEADER */}
-
-            <Paper
-                elevation={1}
-                sx={{
-                    p: { xs: 2, md: 3 },
-                    mb: 3,
-                    borderRadius: 2
-                }}
-            >
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
+            <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
                 <Stack
-                    direction={{
-                        xs: "column",
-                        sm: "row"
-                    }}
-                    alignItems={{
-                        xs: "flex-start",
-                        sm: "center"
-                    }}
+                    direction={{ xs: "column", sm: "row" }}
+                    alignItems={{ xs: "flex-start", sm: "center" }}
                     justifyContent="space-between"
                     spacing={2}
                 >
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={1.5}
-                    >
-                        <ReceiptLong
-                            color="primary"
-                            sx={{ fontSize: 38 }}
-                        />
-
+                    <Stack direction="row" alignItems="center" spacing={1.5}>
+                        <ReceiptLong color="primary" sx={{ fontSize: 38 }} />
                         <Box>
-                            <Typography
-                                variant="h5"
-                                fontWeight={700}
-                            >
+                            <Typography variant="h5" fontWeight={700}>
                                 Create Invoice Tax Detail
                             </Typography>
-
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                            >
-                                Add invoice tax and GST information.
+                            <Typography color="text.secondary" variant="body2">
+                                Enter invoice and tax information.
                             </Typography>
                         </Box>
                     </Stack>
 
                     <Button
-                        variant="outlined"
                         startIcon={<ArrowBack />}
                         onClick={handleCancel}
                         disabled={loading}
@@ -309,56 +188,29 @@ const InvoiceTaxDetailCreate = ({
                 </Stack>
             </Paper>
 
-            {/* ERROR */}
-
             {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
-                >
+                <Alert severity="error" sx={{ mb: 2 }}>
                     {error}
                 </Alert>
             )}
 
-            {/* SUCCESS */}
-
             {success && (
-                <Alert
-                    severity="success"
-                    sx={{ mb: 2 }}
-                >
+                <Alert severity="success" sx={{ mb: 2 }}>
                     {success}
                 </Alert>
             )}
 
-            {/* FORM */}
-
             <Paper
                 component="form"
                 onSubmit={handleSubmit}
-                elevation={1}
-                sx={{
-                    p: { xs: 2, md: 3 },
-                    borderRadius: 2
-                }}
+                sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}
             >
-                {/* INVOICE INFORMATION */}
-
-                <Typography
-                    variant="h6"
-                    fontWeight={700}
-                    sx={{ mb: 2.5 }}
-                >
+                <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
                     Invoice Information
                 </Typography>
 
                 <Grid container spacing={3}>
-                    {renderNumberField(
-                        "salesInvoiceId",
-                        "Sales Invoice ID",
-                        true
-                    )}
+                    {numberField("salesInvoiceId", "Sales Invoice ID", true)}
 
                     <Grid item xs={12} sm={6} md={4}>
                         <TextField
@@ -372,79 +224,31 @@ const InvoiceTaxDetailCreate = ({
                         />
                     </Grid>
 
-                    {renderNumberField(
-                        "sellerId",
-                        "Seller ID",
-                        true
-                    )}
-
-                    {renderNumberField(
-                        "customerId",
-                        "Customer ID",
-                        true
-                    )}
+                    {numberField("sellerId", "Seller ID", true)}
+                    {numberField("customerId", "Customer ID", true)}
                 </Grid>
-
-                <Divider sx={{ my: 3 }} />
-
-                {/* TAX INFORMATION */}
 
                 <Typography
                     variant="h6"
                     fontWeight={700}
-                    sx={{ mb: 2.5 }}
+                    sx={{ mt: 4, mb: 2 }}
                 >
                     Tax Information
                 </Typography>
 
                 <Grid container spacing={3}>
-                    {renderNumberField(
-                        "taxPercentage",
-                        "Tax Percentage (%)",
-                        true
-                    )}
-
-                    {renderNumberField(
-                        "centralGst",
-                        "Central GST (CGST) (%)"
-                    )}
-
-                    {renderNumberField(
-                        "stateGst",
-                        "State GST (SGST) (%)"
-                    )}
-
-                    {renderNumberField(
-                        "integratedGst",
-                        "Integrated GST (IGST) (%)"
-                    )}
-
-                    {renderNumberField(
-                        "compensationCess",
-                        "Compensation Cess (%)"
-                    )}
+                    {numberField("taxPercentage", "Tax Percentage (%)", true)}
+                    {numberField("centralGst", "Central GST (CGST) (%)")}
+                    {numberField("stateGst", "State GST (SGST) (%)")}
+                    {numberField("integratedGst", "Integrated GST (IGST) (%)")}
+                    {numberField("compensationCess", "Compensation Cess (%)")}
                 </Grid>
 
-                <Alert
-                    severity="info"
-                    sx={{ mt: 3 }}
-                >
-                    Enter the tax rates applicable to the invoice.
-                    CGST and SGST are generally used for intra-state
-                    transactions, while IGST is generally used for
-                    inter-state transactions.
-                </Alert>
-
-                {/* ACTIONS */}
-
                 <Stack
-                    direction={{
-                        xs: "column-reverse",
-                        sm: "row"
-                    }}
+                    direction={{ xs: "column-reverse", sm: "row" }}
                     justifyContent="flex-end"
-                    spacing={1.5}
-                    sx={{ mt: 3 }}
+                    spacing={2}
+                    sx={{ mt: 4 }}
                 >
                     <Button
                         variant="outlined"
@@ -459,17 +263,12 @@ const InvoiceTaxDetailCreate = ({
                         variant="contained"
                         startIcon={
                             loading
-                                ? <CircularProgress
-                                    size={18}
-                                    color="inherit"
-                                  />
+                                ? <CircularProgress size={18} color="inherit" />
                                 : <Save />
                         }
                         disabled={loading}
                     >
-                        {loading
-                            ? "Saving..."
-                            : "Create Tax Detail"}
+                        {loading ? "Saving..." : "Create Tax Detail"}
                     </Button>
                 </Stack>
             </Paper>
