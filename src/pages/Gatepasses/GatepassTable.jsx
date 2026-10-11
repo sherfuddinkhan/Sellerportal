@@ -403,20 +403,30 @@ const GatepassTable = ({
                                                 gap: 0.5
                                             }}
                                         >
-                                            <Tooltip title="View gatepass">
-                                                <IconButton
-                                                    size="small"
-                                                    color="info"
-                                                    aria-label="View gatepass"
-                                                    onClick={() => {
-                                                        if (typeof onView === "function") {
-                                                            onView(gatepass);
-                                                        }
-                                                    }}
-                                                >
-                                                    <Visibility fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
+                                         
+<Tooltip title="Delete gatepass">
+    <IconButton
+        size="small"
+        color="error"
+        aria-label="Delete gatepass"
+        disabled={id === ""}
+        onClick={(event) => {
+            event.stopPropagation();
+
+            console.log("DELETE BUTTON CLICKED");
+            console.log("Selected Gatepass:", gatepass);
+            console.log("Gatepass ID:", id);
+
+            if (typeof onDelete === "function") {
+                onDelete(gatepass);
+            } else {
+                console.error("onDelete prop is not a function.");
+            }
+        }}
+    >
+        <Delete fontSize="small" />
+    </IconButton>
+</Tooltip>
 
                                             <Tooltip title="Edit gatepass">
                                                 <IconButton

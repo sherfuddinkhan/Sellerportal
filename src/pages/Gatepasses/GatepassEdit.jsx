@@ -1,11 +1,7 @@
-// =========================================================
-// GatepassEdit.jsx
-// =========================================================
 
-import React, { useCallback, useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import axios from "axios";
 import {
     Alert,
     Box,
@@ -13,794 +9,345 @@ import {
     Card,
     CardContent,
     CircularProgress,
-    Divider,
     Grid,
     MenuItem,
     TextField,
     Typography
 } from "@mui/material";
-
-import {
-    Save,
-    ArrowBack,
-    RestartAlt,
-    Edit
-} from "@mui/icons-material";
-
-// =========================================================
-// API CONFIGURATION
-// =========================================================
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SaveIcon from "@mui/icons-material/Save";
 
 const API_URL = "http://localhost:5000/api/Gatepass";
 
-// =========================================================
-// GET ID FROM LOCAL STORAGE
-// =========================================================
-
-const getStoredId = (...keys) => {
-    for (const key of keys) {
-        const value = localStorage.getItem(key);
-
-        if (value && value !== "null" && value !== "undefined") {
-            return value;
-        }
-    }
-
-    return "";
-};
-
-// =========================================================
-// GET VALUE SUPPORTING CAMELCASE / PASCALCASE
-// =========================================================
-
-const getValue = (record, keys, fallback = "") => {
-    for (const key of keys) {
-        const value = record?.[key];
-
-        if (
-            value !== undefined &&
-            value !== null &&
-            value !== ""
-        ) {
-            return value;
-        }
-    }
-
-    return fallback;
-};
-
-// =========================================================
-// UNWRAP API RESPONSE
-// =========================================================
-
-const unwrapGatepass = (responseData) => {
-    if (!responseData) return null;
-
-    if (Array.isArray(responseData)) {
-        return responseData[0] ?? null;
-    }
-
-    return (
-        responseData.gatepass ??
-        responseData.Gatepass ??
-        responseData.gatePass ??
-        responseData.GatePass ??
-        responseData.data?.gatepass ??
-        responseData.data?.Gatepass ??
-        responseData.data ??
-        responseData
-    );
-};
-
-// =========================================================
-// FORM INITIAL VALUES
-// =========================================================
-
-const initialFormData = {
-    gatepassCode: "",
-    gatepassDate: "",
-    vehicleNumber: "",
-    driverName: "",
-    driverPhone: "",
-    purpose: "",
-    status: "Pending",
-    remarks: ""
-};
-
-// =========================================================
-// NORMALIZE DATE FOR DATE INPUT
-// =========================================================
-
-const normalizeDate = (value) => {
-    if (!value) return "";
-
-    const text = String(value);
-
-    // Preserve the date portion of an ISO date/time.
-    if (/^\d{4}-\d{2}-\d{2}/.test(text)) {
-        return text.slice(0, 10);
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return "";
-    }
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-};
-
-// =========================================================
-// GATEPASS EDIT
-// =========================================================
-
-const GatepassEdit = ({
-    gatepassId: gatepassIdProp,
-    sellerId: sellerIdProp,
-    customerId: customerIdProp,
-    onUpdated,
-    onCancel
-}) => {
+const GatepassEdit = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
-    const params = useParams();
-
-    const gatepassId =
-        gatepassIdProp ||
-        params.id ||
-        params.gatepassId;
-
-    const sellerId =
-        sellerIdProp ||
-        getStoredId("sellerId", "SellerId");
-
-    const customerId =
-        customerIdProp ||
-        getStoredId("customerId", "CustomerId");
-
-    const [formData, setFormData] = useState(initialFormData);
-    const [originalData, setOriginalData] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    // -----------------------------------------------------
-    // LOAD EXISTING GATEPASS
-    // -----------------------------------------------------
-
-    const fetchGatepass = useCallback(async () => {
-        if (!gatepassId) {
-            setError(
-                "Gatepass ID is missing. Open this page using a valid gatepass record ID."
-            );
-            setLoading(false);
-            return;
-        }
-
-        if (!sellerId || !customerId) {
-            setError(
-                "Seller ID or Customer ID is missing. Please select the seller and customer first."
-            );
-            setLoading(false);
-            return;
-        }
-
-        try {
-            setLoading(true);
-            setError("");
-
-            const endpoint =
-                `${API_URL}/${encodeURIComponent(gatepassId)}` +
-                `/seller/${encodeURIComponent(sellerId)}` +
-                `/customer/${encodeURIComponent(customerId)}`;
-
-            const response = await axios.get(endpoint);
-            const gatepass = unwrapGatepass(response.data);
-
-            if (!gatepass) {
-                setError("Gatepass record was not found.");
-                setOriginalData(null);
-                return;
-            }
-
-            const loadedData = {
-                gatepassCode: getValue(gatepass, [
-                    "gatepassCode",
-                    "GatepassCode",
-                    "gatepassNumber",
-                    "GatepassNumber",
-                    "gatePassCode",
-                    "GatePassCode"
-                ]),
-
-                gatepassDate: normalizeDate(
-                    getValue(gatepass, [
-                        "gatepassDate",
-                        "GatepassDate",
-                        "gatePassDate",
-                        "GatePassDate",
-                        "date",
-                        "Date"
-                    ])
-                ),
-
-                vehicleNumber: getValue(gatepass, [
-                    "vehicleNumber",
-                    "VehicleNumber",
-                    "vehicleNo",
-                    "VehicleNo"
-                ]),
-
-                driverName: getValue(gatepass, [
-                    "driverName",
-                    "DriverName"
-                ]),
-
-                driverPhone: getValue(gatepass, [
-                    "driverPhone",
-                    "DriverPhone",
-                    "driverMobile",
-                    "DriverMobile"
-                ]),
-
-                purpose: getValue(gatepass, [
-                    "purpose",
-                    "Purpose"
-                ]),
-
-                status: getValue(gatepass, [
-                    "status",
-                    "Status",
-                    "gatepassStatus",
-                    "GatepassStatus"
-                ], "Pending"),
-
-                remarks: getValue(gatepass, [
-                    "remarks",
-                    "Remarks"
-                ])
-            };
-
-            setFormData(loadedData);
-            setOriginalData(loadedData);
-        } catch (err) {
-            console.error(
-                "Error loading gatepass:",
-                err.response?.data || err.message
-            );
-
-            const responseData = err.response?.data;
-
-            setError(
-                typeof responseData === "string"
-                    ? responseData
-                    : responseData?.message ||
-                      responseData?.title ||
-                      responseData?.detail ||
-                      err.message ||
-                      "Unable to load gatepass details."
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, [gatepassId, sellerId, customerId]);
-
-    // -----------------------------------------------------
-    // LOAD ON PAGE OPEN
-    // -----------------------------------------------------
+    const [form, setForm] = useState({
+        gatepassId: "",
+        gatepassCode: "",
+        facilityCode: "",
+        itemSkuCode: "",
+        quantity: 1,
+        reason: "",
+        status: "Created",
+        createdBy: "",
+        sellerId: "",
+        customerId: "",
+        createdDate: ""
+    });
 
     useEffect(() => {
-        fetchGatepass();
-    }, [fetchGatepass]);
+        const fetchGatepass = async () => {
+            try {
+                setLoading(true);
+                setError("");
 
-    // -----------------------------------------------------
-    // HANDLE FIELD CHANGES
-    // -----------------------------------------------------
+                const response = await axios.get(`${API_URL}/all`);
+                const result = response.data;
+
+                const items = Array.isArray(result)
+                    ? result
+                    : result?.data ??
+                      result?.Data ??
+                      result?.items ??
+                      result?.gatepasses ??
+                      result?.Gatepasses ??
+                      [];
+
+                const item = items.find(
+                    (record) =>
+                        String(
+                            record.gatepassId ??
+                            record.GatepassId ??
+                            record.id ??
+                            record.Id
+                        ) === String(id)
+                );
+
+                if (!item) {
+                    setError(`Gatepass ID ${id} was not found.`);
+                    return;
+                }
+
+                setForm({
+                    gatepassId: item.gatepassId ?? item.GatepassId ?? id,
+                    gatepassCode: item.gatepassCode ?? item.GatepassCode ?? "",
+                    facilityCode: item.facilityCode ?? item.FacilityCode ?? "",
+                    itemSkuCode: item.itemSkuCode ?? item.ItemSkuCode ?? "",
+                    quantity: item.quantity ?? item.Quantity ?? 1,
+                    reason: item.reason ?? item.Reason ?? "",
+                    status: item.status ?? item.Status ?? "Created",
+                    createdBy: item.createdBy ?? item.CreatedBy ?? "",
+                    sellerId: item.sellerId ?? item.SellerId ?? "",
+                    customerId: item.customerId ?? item.CustomerId ?? "",
+                    createdDate: item.createdDate ?? item.CreatedDate ?? ""
+                });
+            } catch (err) {
+                console.error("Fetch Gatepass Error:", err);
+
+                setError(
+                    err.response?.data?.message ||
+                    err.response?.data?.Message ||
+                    err.message ||
+                    "Failed to load gatepass."
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchGatepass();
+    }, [id]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
 
-        setFormData((previous) => ({
+        setForm((previous) => ({
             ...previous,
-            [name]: value
+            [name]: name === "quantity" ? value : value
         }));
-
-        setError("");
-        setSuccess("");
     };
-
-    // -----------------------------------------------------
-    // RESET TO LOADED VALUES
-    // -----------------------------------------------------
-
-    const handleReset = () => {
-        if (originalData) {
-            setFormData({ ...originalData });
-        }
-
-        setError("");
-        setSuccess("");
-    };
-
-    // -----------------------------------------------------
-    // CANCEL
-    // -----------------------------------------------------
-
-    const handleCancel = () => {
-        if (typeof onCancel === "function") {
-            onCancel();
-        } else {
-            navigate("/gatepasses");
-        }
-    };
-
-    // -----------------------------------------------------
-    // VALIDATE FORM
-    // -----------------------------------------------------
-
-    const validateForm = () => {
-        if (!gatepassId) {
-            return "Gatepass ID is missing.";
-        }
-
-        if (!sellerId || !customerId) {
-            return "Seller ID or Customer ID is missing.";
-        }
-
-        if (!formData.vehicleNumber.trim()) {
-            return "Please enter the vehicle number.";
-        }
-
-        if (!formData.driverName.trim()) {
-            return "Please enter the driver name.";
-        }
-
-        if (!formData.gatepassDate) {
-            return "Please select the gatepass date.";
-        }
-
-        if (
-            formData.driverPhone.trim() &&
-            !/^[+()\-\s\d]{7,20}$/.test(formData.driverPhone.trim())
-        ) {
-            return "Please enter a valid driver phone number.";
-        }
-
-        return "";
-    };
-
-    // -----------------------------------------------------
-    // UPDATE GATEPASS
-    // -----------------------------------------------------
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         setError("");
         setSuccess("");
 
-        const validationError = validateForm();
+        const sellerId = Number(form.sellerId);
+        const customerId = Number(form.customerId);
+        const quantity = Number(form.quantity);
 
-        if (validationError) {
-            setError(validationError);
+        if (
+            !Number.isInteger(sellerId) ||
+            sellerId <= 0 ||
+            !Number.isInteger(customerId) ||
+            customerId <= 0
+        ) {
+            setError("The gatepass does not contain valid Seller ID and Customer ID.");
+            return;
+        }
+
+        if (!form.gatepassCode.trim() || !form.facilityCode.trim() ||
+            !form.itemSkuCode.trim() || !Number.isFinite(quantity) || quantity <= 0) {
+            setError("Enter a gatepass code, facility code, SKU code, and valid quantity.");
             return;
         }
 
         const payload = {
-            gatepassCode: formData.gatepassCode.trim(),
-            gatepassDate: formData.gatepassDate,
-            vehicleNumber: formData.vehicleNumber.trim(),
-            driverName: formData.driverName.trim(),
-            driverPhone: formData.driverPhone.trim(),
-            purpose: formData.purpose.trim(),
-            status: formData.status,
-            remarks: formData.remarks.trim()
+            gatepassId: Number(id),
+            gatepassCode: form.gatepassCode.trim(),
+            facilityCode: form.facilityCode.trim(),
+            itemSkuCode: form.itemSkuCode.trim(),
+            quantity,
+            reason: form.reason,
+            status: form.status,
+            createdBy: form.createdBy,
+            sellerId,
+            customerId,
+            createdDate: form.createdDate || null
         };
-
-        // Remove optional empty fields.
-        Object.keys(payload).forEach((key) => {
-            if (payload[key] === "") {
-                delete payload[key];
-            }
-        });
 
         try {
             setSaving(true);
 
-            const endpoint =
-                `${API_URL}/${encodeURIComponent(gatepassId)}` +
-                `/seller/${encodeURIComponent(sellerId)}` +
-                `/customer/${encodeURIComponent(customerId)}`;
-
             const response = await axios.put(
-                endpoint,
+                `${API_URL}/${encodeURIComponent(id)}/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`,
                 payload,
                 {
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
+                    headers: { "Content-Type": "application/json" }
                 }
             );
 
+            const result = response.data;
+
+            if (result?.success === false || result?.Success === false) {
+                throw new Error(
+                    result.message || result.Message || "Gatepass update failed."
+                );
+            }
+
             setSuccess("Gatepass updated successfully.");
 
-            if (typeof onUpdated === "function") {
-                onUpdated(response.data);
-            } else {
-                navigate("/gatepasses", {
-                    state: {
-                        successMessage: "Gatepass updated successfully."
-                    }
-                });
-            }
+            setTimeout(() => {
+                navigate("/gatepasses");
+            }, 800);
         } catch (err) {
-            console.error(
-                "Error updating gatepass:",
-                err.response?.data || err.message
-            );
-
-            const responseData = err.response?.data;
+            console.error("Update Gatepass Error:", err);
 
             setError(
-                typeof responseData === "string"
-                    ? responseData
-                    : responseData?.message ||
-                      responseData?.title ||
-                      responseData?.detail ||
-                      err.message ||
-                      "Unable to update gatepass. Please try again."
+                err.response?.data?.message ||
+                err.response?.data?.Message ||
+                err.message ||
+                "Failed to update gatepass."
             );
         } finally {
             setSaving(false);
         }
     };
 
-    // -----------------------------------------------------
-    // LOADING STATE
-    // -----------------------------------------------------
-
     if (loading) {
         return (
-            <Box
-                sx={{
-                    minHeight: 300,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 2
-                }}
-            >
+            <Box display="flex" justifyContent="center" mt={5}>
                 <CircularProgress />
-
-                <Typography color="text.secondary">
-                    Loading gatepass information...
-                </Typography>
             </Box>
         );
     }
 
-    // -----------------------------------------------------
-    // PAGE UI
-    // -----------------------------------------------------
-
     return (
-        <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-            {/* HEADER */}
-
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 2,
-                    mb: 3
-                }}
-            >
-                <Box>
-                    <Typography variant="h4" fontWeight={700}>
-                        Edit Gatepass
-                    </Typography>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 0.5 }}
-                    >
-                        Update the gatepass information below.
-                    </Typography>
-                </Box>
-
+        <Box p={3}>
+            <Box display="flex" alignItems="center" gap={2} mb={3}>
                 <Button
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={handleCancel}
-                    disabled={saving}
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate("/gatepasses")}
                 >
-                    Back to Gatepasses
+                    Back
                 </Button>
+
+                <Typography variant="h5" fontWeight="bold">
+                    Edit Gatepass #{id}
+                </Typography>
             </Box>
 
-            {/* ERROR */}
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-            {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
-                >
-                    {error}
-                </Alert>
-            )}
-
-            {/* SUCCESS */}
-
-            {success && (
-                <Alert
-                    severity="success"
-                    sx={{ mb: 2 }}
-                    onClose={() => setSuccess("")}
-                >
-                    {success}
-                </Alert>
-            )}
-
-            {/* FORM */}
-
-            <Card elevation={2} sx={{ borderRadius: 2 }}>
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5,
-                        p: 2
-                    }}
-                >
-                    <Edit color="primary" />
-
-                    <Box>
-                        <Typography variant="h6" fontWeight={600}>
-                            Gatepass Information
-                        </Typography>
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Gatepass ID: {gatepassId}
-                        </Typography>
-                    </Box>
-                </Box>
-
-                <Divider />
-
-                <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-                    {originalData ? (
-                        <Box
-                            component="form"
-                            onSubmit={handleSubmit}
-                            noValidate
-                        >
-                            <Grid container spacing={2.5}>
-                                {/* GATEPASS CODE */}
-
-                                <Grid item xs={12} md={6}>
-                                    <TextField
-                                        fullWidth
-                                        label="Gatepass Code"
-                                        name="gatepassCode"
-                                        value={formData.gatepassCode}
-                                        onChange={handleChange}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* DATE */}
-
-                                <Grid item xs={12} md={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        type="date"
-                                        label="Gatepass Date"
-                                        name="gatepassDate"
-                                        value={formData.gatepassDate}
-                                        onChange={handleChange}
-                                        disabled={saving}
-                                        slotProps={{
-                                            inputLabel: {
-                                                shrink: true
-                                            }
-                                        }}
-                                    />
-                                </Grid>
-
-                                {/* VEHICLE */}
-
-                                <Grid item xs={12} md={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        label="Vehicle Number"
-                                        name="vehicleNumber"
-                                        value={formData.vehicleNumber}
-                                        onChange={handleChange}
-                                        inputProps={{
-                                            maxLength: 20
-                                        }}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* DRIVER */}
-
-                                <Grid item xs={12} md={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        label="Driver Name"
-                                        name="driverName"
-                                        value={formData.driverName}
-                                        onChange={handleChange}
-                                        inputProps={{
-                                            maxLength: 100
-                                        }}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* PHONE */}
-
-                                <Grid item xs={12} md={6}>
-                                    <TextField
-                                        fullWidth
-                                        label="Driver Phone"
-                                        name="driverPhone"
-                                        value={formData.driverPhone}
-                                        onChange={handleChange}
-                                        inputProps={{
-                                            maxLength: 20
-                                        }}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* STATUS */}
-
-                                <Grid item xs={12} md={6}>
-                                    <TextField
-                                        fullWidth
-                                        select
-                                        label="Status"
-                                        name="status"
-                                        value={formData.status}
-                                        onChange={handleChange}
-                                        disabled={saving}
-                                    >
-                                        <MenuItem value="Pending">
-                                            Pending
-                                        </MenuItem>
-
-                                        <MenuItem value="Approved">
-                                            Approved
-                                        </MenuItem>
-
-                                        <MenuItem value="Completed">
-                                            Completed
-                                        </MenuItem>
-
-                                        <MenuItem value="Rejected">
-                                            Rejected
-                                        </MenuItem>
-
-                                        <MenuItem value="Cancelled">
-                                            Cancelled
-                                        </MenuItem>
-                                    </TextField>
-                                </Grid>
-
-                                {/* PURPOSE */}
-
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        label="Purpose"
-                                        name="purpose"
-                                        value={formData.purpose}
-                                        onChange={handleChange}
-                                        multiline
-                                        minRows={2}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* REMARKS */}
-
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        label="Remarks"
-                                        name="remarks"
-                                        value={formData.remarks}
-                                        onChange={handleChange}
-                                        multiline
-                                        minRows={3}
-                                        disabled={saving}
-                                    />
-                                </Grid>
+            <Card>
+                <CardContent>
+                    <Box component="form" onSubmit={handleSubmit}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Gatepass Code"
+                                    name="gatepassCode"
+                                    value={form.gatepassCode}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </Grid>
 
-                            <Divider sx={{ my: 3 }} />
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Facility Code"
+                                    name="facilityCode"
+                                    value={form.facilityCode}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Grid>
 
-                            {/* ACTIONS */}
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Item SKU Code"
+                                    name="itemSkuCode"
+                                    value={form.itemSkuCode}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Grid>
 
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                    gap: 1.5,
-                                    flexWrap: "wrap"
-                                }}
-                            >
-                                <Button
-                                    variant="outlined"
-                                    color="inherit"
-                                    startIcon={<RestartAlt />}
-                                    onClick={handleReset}
-                                    disabled={saving}
-                                >
-                                    Reset Changes
-                                </Button>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Quantity"
+                                    name="quantity"
+                                    value={form.quantity}
+                                    onChange={handleChange}
+                                    inputProps={{ min: 1 }}
+                                    required
+                                />
+                            </Grid>
 
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<ArrowBack />}
-                                    onClick={handleCancel}
-                                    disabled={saving}
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Status"
+                                    name="status"
+                                    value={form.status}
+                                    onChange={handleChange}
                                 >
-                                    Cancel
-                                </Button>
+                                    {["Created", "Pending", "Approved", "Completed", "Cancelled"].map(
+                                        (status) => (
+                                            <MenuItem key={status} value={status}>
+                                                {status}
+                                            </MenuItem>
+                                        )
+                                    )}
+                                </TextField>
+                            </Grid>
 
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    startIcon={
-                                        saving
-                                            ? (
-                                                <CircularProgress
-                                                    size={18}
-                                                    color="inherit"
-                                                />
-                                            )
-                                            : <Save />
-                                    }
-                                    disabled={saving}
-                                >
-                                    {saving ? "Saving..." : "Save Changes"}
-                                </Button>
-                            </Box>
-                        </Box>
-                    ) : (
-                        <Alert severity="warning">
-                            Gatepass details could not be loaded. Check the
-                            error message above and try again.
-                            <Box sx={{ mt: 2 }}>
-                                <Button
-                                    variant="outlined"
-                                    onClick={fetchGatepass}
-                                >
-                                    Retry
-                                </Button>
-                            </Box>
-                        </Alert>
-                    )}
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Created By"
+                                    name="createdBy"
+                                    value={form.createdBy}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    rows={3}
+                                    label="Reason"
+                                    name="reason"
+                                    value={form.reason}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Seller ID"
+                                    value={form.sellerId}
+                                    InputProps={{ readOnly: true }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Customer ID"
+                                    value={form.customerId}
+                                    InputProps={{ readOnly: true }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                <Box display="flex" justifyContent="flex-end" gap={2}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => navigate("/gatepasses")}
+                                        disabled={saving}
+                                    >
+                                        Cancel
+                                    </Button>
+
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        startIcon={<SaveIcon />}
+                                        disabled={saving}
+                                    >
+                                        {saving ? "Saving..." : "Save Changes"}
+                                    </Button>
+                                </Box>
+                            </Grid>
+                        </Grid>
+                    </Box>
                 </CardContent>
             </Card>
         </Box>
@@ -808,4 +355,3 @@ const GatepassEdit = ({
 };
 
 export default GatepassEdit;
-

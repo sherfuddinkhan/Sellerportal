@@ -998,10 +998,27 @@ import ManifestPackagesPutawayView from "./pages/ManifestPackagesPutaway/Manifes
 import ManifestPackagesPutawayEdit from "./pages/ManifestPackagesPutaway/ManifestPackagesPutawayEdit";
 
 
+// =========================================================
+// GATEPASS COMPONENT IMPORTS
+// =========================================================
 
-import Gatepasses from "./pages/Gatepasses/Gatepasses";
-import GatepassDetail from "./pages/Gatepasses/GatepassDetail";
+import GatepassesList from "./pages/Gatepasses/GatepassesList";
+import GatepassForm from "./pages/Gatepasses/GatepassForm";
+import GatepassModal from "./pages/Gatepasses/GatepassModal";
+import GatepassSearch from "./pages/Gatepasses/GatepassSearch";
+import GatepassStatistics from "./pages/Gatepasses/GatepassStatistics";
+import GatepassPagination from "./pages/Gatepasses/GatepassPagination";
+import GatepassFilters from "./pages/Gatepasses/GatepassFilters";
+import GatepassTable from "./pages/Gatepasses/GatepassTable";
+import GatepassToolbar from "./pages/Gatepasses/GatepassToolbar";
+import GatepassView from "./pages/Gatepasses/GatepassView";
+import DeleteGatepassDialog from "./pages/Gatepasses/DeleteGatepassDialog";
+import GatepassCard from "./pages/Gatepasses/GatepassCard";
 import GatepassCreate from "./pages/Gatepasses/GatepassCreate";
+import GatepassDetails from "./pages/Gatepasses/GatepassDetails";
+import GatepassEdit from "./pages/Gatepasses/GatepassEdit";
+
+import "./pages/Gatepasses/Gatepasses.css";
 // =========================================================
 // NOT FOUND
 // =========================================================
@@ -1357,12 +1374,34 @@ MANIFEST PACKAGES PUTAWAY ROUTES
     element={<ManifestPackagesPutawayEdit />}
 />
 
+// =========================================================
+// GATEPASS ROUTES
+// =========================================================
 
-    {/* ADD THESE */}
-        <Route path="/gatepasses" element={<Gatepasses />} />
-        <Route path="/gatepasses/new" element={<GatepassCreate />} />
-        <Route path="/gatepasses/:id" element={<GatepassDetail />} />
-        <Route path="/gatepasses/code/:code" element={<GatepassDetail />} />
+<Route
+    path="/gatepasses"
+    element={<GatepassesList />}
+/>
+
+<Route
+    path="/gatepasses/create"
+    element={<GatepassCreate />}
+/>
+
+<Route
+    path="/gatepasses/details/:id"
+    element={<GatepassDetails />}
+/>
+
+<Route
+    path="/gatepasses/:id/edit"
+    element={<GatepassEdit />}
+/>
+
+<Route
+    path="/gatepasses/view/:id"
+    element={<GatepassView />}
+/>
 {/* =====================================================
     INVOICE TAX DETAILS ROUTES
 ===================================================== */}

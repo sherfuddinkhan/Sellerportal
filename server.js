@@ -35828,32 +35828,29 @@ const GATEPASS_API = `${API_BASE_URL}/Gatepass`;
 // GET /api/Gatepass/seller/:sellerId/customer/:customerId
 // ---------------------------------------------------------
 
-app.get(
-    "/api/Gatepass/seller/:sellerId/customer/:customerId",
-    async (req, res) => {
-        try {
-            const { sellerId, customerId } = req.params;
 
-            const response = await axios.get(
-                `${GATEPASS_API}/seller/${encodeURIComponent(sellerId)}` +
-                `/customer/${encodeURIComponent(customerId)}`,
-                { httpsAgent }
-            );
+app.get("/api/Gatepass/all", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${GATEPASS_API}/all`,
+            { httpsAgent }
+        );
 
-            return res.status(response.status).json(response.data);
-        } catch (error) {
-            console.error(
-                "GET Gatepasses Error:",
-                error.response?.status,
-                error.response?.data || error.message
-            );
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET ALL Gatepasses Error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
 
-            return res.status(error.response?.status || 500).json(
-                error.response?.data || { message: error.message }
-            );
-        }
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: error.message || "Failed to retrieve gatepasses."
+            }
+        );
     }
-);
+});
 
 // ---------------------------------------------------------
 // POST CREATE GATEPASS
@@ -35966,34 +35963,61 @@ app.put(
 // DELETE /api/Gatepass/:id/seller/:sellerId/customer/:customerId
 // ---------------------------------------------------------
 
+
+// =========================================================
+// DELETE GATEPASS
+// DELETE /api/Gatepass/:id/seller/:sellerId/customer/:customerId
+// =========================================================
+
 app.delete(
     "/api/Gatepass/:id/seller/:sellerId/customer/:customerId",
     async (req, res) => {
-        try {
-            const { id, sellerId, customerId } = req.params;
+        const { id, sellerId, customerId } = req.params;
 
-            const response = await axios.delete(
-                `${GATEPASS_API}/${encodeURIComponent(id)}` +
-                `/seller/${encodeURIComponent(sellerId)}` +
-                `/customer/${encodeURIComponent(customerId)}`,
-                { httpsAgent }
-            );
+        const backendUrl =
+            `${GATEPASS_API}/${encodeURIComponent(id)}` +
+            `/seller/${encodeURIComponent(sellerId)}` +
+            `/customer/${encodeURIComponent(customerId)}`;
+
+        try {
+            console.log("DELETE Gatepass - Request received");
+            console.log("Gatepass ID:", id);
+            console.log("Seller ID:", sellerId);
+            console.log("Customer ID:", customerId);
+            console.log("Backend URL:", backendUrl);
+
+            const response = await axios.delete(backendUrl, {
+                httpsAgent
+            });
+
+            console.log("DELETE Backend Status:", response.status);
+            console.log("DELETE Backend Response:", response.data);
 
             return res.status(response.status).json(
                 response.data ?? {
+                    success: true,
                     message: "Gatepass deleted successfully."
                 }
             );
         } catch (error) {
+            console.error("DELETE Gatepass failed");
+            console.error("Backend URL:", backendUrl);
+            console.error("Status:", error.response?.status);
             console.error(
-                "DELETE Gatepass Error:",
-                error.response?.status,
+                "Backend response:",
                 error.response?.data || error.message
             );
 
-            return res.status(error.response?.status || 500).json(
-                error.response?.data || { message: error.message }
-            );
+            return res.status(error.response?.status || 500).json({
+                success: false,
+                message:
+                    error.response?.data?.message ||
+                    error.response?.data?.Message ||
+                    error.message ||
+                    "Failed to delete gatepass.",
+                status: error.response?.status || 500,
+                backendResponse: error.response?.data ?? null
+            });
         }
     }
 );

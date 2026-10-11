@@ -1,6 +1,7 @@
-// =========================================================
-// GatepassesList.jsx
-// =========================================================
+
+ // =========================================================
+ // GatepassesList.jsx
+ // =========================================================
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
@@ -65,6 +66,47 @@ const getValue = (item, camelCase, pascalCase) =>
     item?.[camelCase] ?? item?.[pascalCase] ?? "";
 
 // =========================================================
+// GET RECORD ID
+// =========================================================
+
+const getRecordId = (item) =>
+    item?.gatepassId ??
+    item?.GatepassId ??
+    item?.gatePassId ??
+    item?.GatePassId ??
+    item?.id ??
+    item?.Id;
+
+// =========================================================
+// GET SELLER / CUSTOMER ID
+// =========================================================
+
+const getStoredId = (propValue, keys) => {
+    if (
+        propValue !== undefined &&
+        propValue !== null &&
+        String(propValue).trim() !== ""
+    ) {
+        return propValue;
+    }
+
+    for (const key of keys) {
+        const value = localStorage.getItem(key);
+
+        if (
+            value &&
+            value !== "null" &&
+            value !== "undefined" &&
+            value.trim() !== ""
+        ) {
+            return value;
+        }
+    }
+
+    return "";
+};
+
+// =========================================================
 // COMPONENT
 // =========================================================
 
@@ -92,55 +134,52 @@ const GatepassesList = ({
 
     // -----------------------------------------------------
     // SELLER / CUSTOMER CONTEXT
+    // Required for scoped mutations, NOT for fetching all.
     // -----------------------------------------------------
 
-    const sellerId =
-        sellerIdProp ??
-        localStorage.getItem("sellerId") ??
-        localStorage.getItem("SellerId");
+    const sellerId = getStoredId(sellerIdProp, [
+        "sellerId",
+        "SellerId",
+        "selectedSellerId",
+        "SelectedSellerId"
+    ]);
 
-    const customerId =
-        customerIdProp ??
-        localStorage.getItem("customerId") ??
-        localStorage.getItem("CustomerId");
-
-    // -----------------------------------------------------
-    // VALIDATE SCOPE
-    // -----------------------------------------------------
+    const customerId = getStoredId(customerIdProp, [
+        "customerId",
+        "CustomerId",
+        "selectedCustomerId",
+        "SelectedCustomerId"
+    ]);
 
     const hasValidScope =
-        sellerId !== null &&
-        sellerId !== undefined &&
         String(sellerId).trim() !== "" &&
-        customerId !== null &&
-        customerId !== undefined &&
         String(customerId).trim() !== "";
 
     // -----------------------------------------------------
-    // FETCH GATEPASSES
+    // FETCH ALL GATEPASSES
+    // GET: /api/Gatepass/all
     // -----------------------------------------------------
 
     const fetchGatepasses = useCallback(async () => {
-        if (!hasValidScope) {
-            setGatepasses([]);
-            setError(
-                "Seller ID or Customer ID is missing. Select a seller and customer first."
-            );
-            return;
-        }
-
         try {
             setLoading(true);
             setError("");
-            setSuccess("");
 
-            const response = await axios.get(
-                `${API_URL}/seller/${encodeURIComponent(sellerId)}` +
-                `/customer/${encodeURIComponent(customerId)}`
-            );
+            const response = await axios.get(`${API_URL}/all`);
 
-            setGatepasses(normalizeResponse(response.data));
-            setPage(0);
+            const records = normalizeResponse(response.data);
+
+            setGatepasses(records);
+
+            setPage((currentPage) => {
+                const filteredCount = records.length;
+                const lastPage = Math.max(
+                    0,
+                    Math.ceil(filteredCount / rowsPerPage) - 1
+                );
+
+                return Math.min(currentPage, lastPage);
+            });
         } catch (err) {
             console.error(
                 "FETCH GATEPASSES ERROR:",
@@ -157,23 +196,11 @@ const GatepassesList = ({
         } finally {
             setLoading(false);
         }
-    }, [sellerId, customerId, hasValidScope]);
+    }, [rowsPerPage]);
 
     useEffect(() => {
         fetchGatepasses();
     }, [fetchGatepasses]);
-
-    // -----------------------------------------------------
-    // GET GATEPASS ID
-    // -----------------------------------------------------
-
-    const getRecordId = (item) =>
-        item?.gatepassId ??
-        item?.GatepassId ??
-        item?.gatePassId ??
-        item?.GatePassId ??
-        item?.id ??
-        item?.Id;
 
     // -----------------------------------------------------
     // SEARCH
@@ -188,20 +215,19 @@ const GatepassesList = ({
             const searchableValues = [
                 getRecordId(item),
                 getValue(item, "gatepassCode", "GatepassCode"),
-                getValue(item, "gatepassNumber", "GatepassNumber"),
-                getValue(item, "code", "Code"),
+                getValue(item, "facilityCode", "FacilityCode"),
+                getValue(item, "itemSkuCode", "ItemSkuCode"),
+                getValue(item, "quantity", "Quantity"),
+                getValue(item, "reason", "Reason"),
                 getValue(item, "status", "Status"),
+                getValue(item, "createdBy", "CreatedBy"),
                 getValue(item, "sellerId", "SellerId"),
                 getValue(item, "customerId", "CustomerId"),
-                getValue(item, "remarks", "Remarks"),
-                getValue(item, "vehicleNumber", "VehicleNumber"),
-                getValue(item, "driverName", "DriverName")
+                getValue(item, "createdDate", "CreatedDate")
             ];
 
             return searchableValues.some((value) =>
-                String(value ?? "")
-                    .toLowerCase()
-                    .includes(term)
+                String(value ?? "").toLowerCase().includes(term)
             );
         });
     }, [gatepasses, searchTerm]);
@@ -271,97 +297,77 @@ const GatepassesList = ({
 
     // -----------------------------------------------------
     // DELETE
+    // Requires sellerId and customerId for scoped endpoint.
     // -----------------------------------------------------
 
-    const handleDelete = async (item) => {
-        const id = getRecordId(item);
 
-        if (id == null || id === "") {
-            setError("Cannot delete Gatepass: record ID is missing.");
-            return;
-        }
 
-        if (!hasValidScope) {
-            setError("Seller ID or Customer ID is missing.");
-            return;
-        }
+const handleDelete = async (item) => {
+    console.log("DELETE CLICKED:", item);
 
-        const confirmed = window.confirm(
-            `Are you sure you want to delete Gatepass ${id}?`
+    const id = getRecordId(item);
+
+    const sellerId =
+        item?.sellerId ?? item?.SellerId;
+
+    const customerId =
+        item?.customerId ?? item?.CustomerId;
+
+    if (id === undefined || id === null || id === "") {
+        setError("Cannot delete: Gatepass ID is missing.");
+        return;
+    }
+
+    if (
+        sellerId === undefined ||
+        sellerId === null ||
+        customerId === undefined ||
+        customerId === null
+    ) {
+        setError("Cannot delete: Seller ID or Customer ID is missing.");
+        return;
+    }
+
+    const confirmed = window.confirm(
+        `Are you sure you want to delete Gatepass ${id}?`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        setError("");
+        setSuccess("");
+
+        const deleteUrl =
+            `${API_URL}/${encodeURIComponent(id)}` +
+            `/seller/${encodeURIComponent(sellerId)}` +
+            `/customer/${encodeURIComponent(customerId)}`;
+
+        console.log("DELETE REQUEST URL:", deleteUrl);
+
+        const response = await axios.delete(deleteUrl);
+
+        console.log("DELETE RESPONSE:", response.data);
+
+        setSuccess("Gatepass deleted successfully.");
+
+        await fetchGatepasses();
+    } catch (err) {
+        console.error(
+            "DELETE GATEPASS ERROR:",
+            err.response?.status,
+            err.response?.data || err.message
         );
 
-        if (!confirmed) return;
-
-        try {
-            setLoading(true);
-            setError("");
-            setSuccess("");
-
-            if (typeof onDelete === "function") {
-                await onDelete(item);
-            } else {
-                await axios.delete(
-                    `${API_URL}/${encodeURIComponent(id)}` +
-                    `/seller/${encodeURIComponent(sellerId)}` +
-                    `/customer/${encodeURIComponent(customerId)}`
-                );
-            }
-
-            const response = await axios.get(
-                `${API_URL}/seller/${encodeURIComponent(sellerId)}` +
-                `/customer/${encodeURIComponent(customerId)}`
-            );
-
-            const updatedRecords = normalizeResponse(response.data);
-
-            setGatepasses(updatedRecords);
-
-            const term = searchTerm.trim().toLowerCase();
-
-            const filteredCount = updatedRecords.filter((record) => {
-                if (!term) return true;
-
-                return [
-                    getRecordId(record),
-                    getValue(record, "gatepassCode", "GatepassCode"),
-                    getValue(record, "gatepassNumber", "GatepassNumber"),
-                    getValue(record, "code", "Code"),
-                    getValue(record, "status", "Status"),
-                    getValue(record, "sellerId", "SellerId"),
-                    getValue(record, "customerId", "CustomerId"),
-                    getValue(record, "remarks", "Remarks"),
-                    getValue(record, "vehicleNumber", "VehicleNumber"),
-                    getValue(record, "driverName", "DriverName")
-                ].some((value) =>
-                    String(value ?? "").toLowerCase().includes(term)
-                );
-            }).length;
-
-            const lastPage = Math.max(
-                0,
-                Math.ceil(filteredCount / rowsPerPage) - 1
-            );
-
-            setPage((currentPage) => Math.min(currentPage, lastPage));
-            setSuccess("Gatepass deleted successfully.");
-        } catch (err) {
-            console.error(
-                "DELETE GATEPASS ERROR:",
-                err.response?.status,
-                err.response?.data || err.message
-            );
-
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                err.message ||
-                "Failed to delete Gatepass."
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
+        setError(
+            err.response?.data?.message ||
+            err.response?.data?.Message ||
+            `Gatepass deletion failed. HTTP ${err.response?.status || "network error"}.`
+        );
+    }
+};
     // -----------------------------------------------------
     // STATUS CHIP
     // -----------------------------------------------------
@@ -373,24 +379,34 @@ const GatepassesList = ({
         let color = "default";
 
         if (
-            normalized === "approved" ||
-            normalized === "completed" ||
-            normalized === "closed"
+            ["approved", "completed", "closed"].includes(normalized)
         ) {
             color = "success";
         } else if (
-            normalized === "pending" ||
-            normalized === "draft"
+            ["pending", "draft"].includes(normalized)
         ) {
             color = "warning";
         } else if (
-            normalized === "rejected" ||
-            normalized === "cancelled"
+            ["rejected", "cancelled"].includes(normalized)
         ) {
             color = "error";
         }
 
         return <Chip label={value} color={color} size="small" />;
+    };
+
+    // -----------------------------------------------------
+    // FORMAT DATE
+    // -----------------------------------------------------
+
+    const formatDate = (value) => {
+        if (!value) return "—";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return String(value);
+
+        return date.toLocaleString("en-IN");
     };
 
     // -----------------------------------------------------
@@ -416,7 +432,11 @@ const GatepassesList = ({
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary">
-                        Manage seller and customer Gatepass records.
+                        Manage gatepass records across sellers and customers.
+                    </Typography>
+
+                    <Typography variant="caption" color="text.secondary">
+                        Total records: {filteredGatepasses.length}
                     </Typography>
                 </Box>
 
@@ -466,7 +486,7 @@ const GatepassesList = ({
                 <TextField
                     fullWidth
                     size="small"
-                    placeholder="Search by ID, Gatepass code, status, vehicle, or driver..."
+                    placeholder="Search by ID, code, facility, SKU, status, seller, or customer..."
                     value={searchTerm}
                     onChange={(event) => {
                         setSearchTerm(event.target.value);
@@ -487,44 +507,24 @@ const GatepassesList = ({
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>
-                                <strong>ID</strong>
-                            </TableCell>
-
-                            <TableCell>
-                                <strong>Gatepass Code</strong>
-                            </TableCell>
-
-                            <TableCell>
-                                <strong>Vehicle Number</strong>
-                            </TableCell>
-
-                            <TableCell>
-                                <strong>Driver Name</strong>
-                            </TableCell>
-
-                            <TableCell>
-                                <strong>Status</strong>
-                            </TableCell>
-
-                            <TableCell>
-                                <strong>Seller ID</strong>
-                            </TableCell>
-
-                            <TableCell>
-                                <strong>Customer ID</strong>
-                            </TableCell>
-
-                            <TableCell align="center">
-                                <strong>Actions</strong>
-                            </TableCell>
+                            <TableCell><strong>ID</strong></TableCell>
+                            <TableCell><strong>Gatepass Code</strong></TableCell>
+                            <TableCell><strong>Facility Code</strong></TableCell>
+                            <TableCell><strong>Item SKU</strong></TableCell>
+                            <TableCell><strong>Quantity</strong></TableCell>
+                            <TableCell><strong>Reason</strong></TableCell>
+                            <TableCell><strong>Status</strong></TableCell>
+                            <TableCell><strong>Seller ID</strong></TableCell>
+                            <TableCell><strong>Customer ID</strong></TableCell>
+                            <TableCell><strong>Created Date</strong></TableCell>
+                            <TableCell align="center"><strong>Actions</strong></TableCell>
                         </TableRow>
                     </TableHead>
 
                     <TableBody>
                         {loading && (
                             <TableRow>
-                                <TableCell colSpan={8} align="center">
+                                <TableCell colSpan={11} align="center">
                                     <CircularProgress size={28} sx={{ my: 2 }} />
                                     <Typography variant="body2">
                                         Loading Gatepasses...
@@ -535,14 +535,14 @@ const GatepassesList = ({
 
                         {!loading && visibleGatepasses.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={8} align="center">
+                                <TableCell colSpan={11} align="center">
                                     <Typography
                                         color="text.secondary"
                                         sx={{ py: 4 }}
                                     >
-                                        {hasValidScope
+                                        {gatepasses.length === 0
                                             ? "No Gatepasses found."
-                                            : "Select a seller and customer to load Gatepasses."}
+                                            : "No matching Gatepasses found."}
                                     </Typography>
                                 </TableCell>
                             </TableRow>
@@ -552,34 +552,47 @@ const GatepassesList = ({
                             visibleGatepasses.map((item, index) => {
                                 const id = getRecordId(item);
 
-                                const code =
-                                    getValue(item, "gatepassCode", "GatepassCode") ||
-                                    getValue(item, "gatepassNumber", "GatepassNumber") ||
-                                    getValue(item, "code", "Code") ||
-                                    "—";
-
                                 return (
-                                    <TableRow
-                                        hover
-                                        key={id ?? index}
-                                    >
+                                    <TableRow hover key={id ?? index}>
                                         <TableCell>{id ?? "—"}</TableCell>
-
-                                        <TableCell>{code}</TableCell>
 
                                         <TableCell>
                                             {getValue(
                                                 item,
-                                                "vehicleNumber",
-                                                "VehicleNumber"
+                                                "gatepassCode",
+                                                "GatepassCode"
                                             ) || "—"}
                                         </TableCell>
 
                                         <TableCell>
                                             {getValue(
                                                 item,
-                                                "driverName",
-                                                "DriverName"
+                                                "facilityCode",
+                                                "FacilityCode"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getValue(
+                                                item,
+                                                "itemSkuCode",
+                                                "ItemSkuCode"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getValue(
+                                                item,
+                                                "quantity",
+                                                "Quantity"
+                                            ) ?? "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getValue(
+                                                item,
+                                                "reason",
+                                                "Reason"
                                             ) || "—"}
                                         </TableCell>
 
@@ -609,13 +622,21 @@ const GatepassesList = ({
                                             ) || "—"}
                                         </TableCell>
 
+                                        <TableCell>
+                                            {formatDate(
+                                                getValue(
+                                                    item,
+                                                    "createdDate",
+                                                    "CreatedDate"
+                                                )
+                                            )}
+                                        </TableCell>
+
                                         <TableCell align="center">
                                             <Tooltip title="View">
                                                 <IconButton
                                                     color="info"
-                                                    onClick={() =>
-                                                        handleView(item)
-                                                    }
+                                                    onClick={() => handleView(item)}
                                                     size="small"
                                                 >
                                                     <Visibility />
@@ -625,9 +646,7 @@ const GatepassesList = ({
                                             <Tooltip title="Edit">
                                                 <IconButton
                                                     color="primary"
-                                                    onClick={() =>
-                                                        handleEdit(item)
-                                                    }
+                                                    onClick={() => handleEdit(item)}
                                                     size="small"
                                                 >
                                                     <Edit />
@@ -637,9 +656,7 @@ const GatepassesList = ({
                                             <Tooltip title="Delete">
                                                 <IconButton
                                                     color="error"
-                                                    onClick={() =>
-                                                        handleDelete(item)
-                                                    }
+                                                    onClick={() => handleDelete(item)}
                                                     size="small"
                                                     disabled={loading}
                                                 >
@@ -660,9 +677,7 @@ const GatepassesList = ({
                         page,
                         Math.max(
                             0,
-                            Math.ceil(
-                                filteredGatepasses.length / rowsPerPage
-                            ) - 1
+                            Math.ceil(filteredGatepasses.length / rowsPerPage) - 1
                         )
                     )}
                     onPageChange={(_, newPage) => setPage(newPage)}
@@ -679,4 +694,3 @@ const GatepassesList = ({
 };
 
 export default GatepassesList;
-
