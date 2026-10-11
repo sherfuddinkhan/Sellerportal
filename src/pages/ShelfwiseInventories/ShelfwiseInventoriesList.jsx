@@ -791,7 +791,7 @@ const ShelfwiseInventoriesList = () => {
         const link = document.createElement("a");
 
         link.href = url;
-        link.download = "shelfwise-inventory.csv";
+        link.download = "shelfwise-inventories.csv";
 
         document.body.appendChild(link);
         link.click();

@@ -1804,14 +1804,13 @@ EXPORT JOBS ROUTES
 {/* =================================================
 SHELFWISE INVENTORIES ROUTES
 ================================================= */}
-
-<Route path="shelfwise-inventories" element={<ShelfwiseInventoriesList />} />
-<Route path="shelfwise-inventories/search" element={<ShelfwiseInventorySearch/>} />
-<Route path="shelfwise-inventories/filters" element={<ShelfwiseInventoryFilters />} />
-<Route path="shelfwise-inventories/statistics" element={<ShelfwiseInventoryStatistics/>} />
-<Route path="shelfwise-inventories/details/:id" element={<ShelfwiseInventoryDetails />} />
-<Route path="shelfwise-inventories/view/:id" element={<ShelfwiseInventoryView />} />
-<Route path="shelfwise-inventories/:id/edit" element={<ShelfwiseInventoryEdit />} />
+<Route path="/shelfwise-inventories" element={<ShelfwiseInventoriesList />} />
+<Route path="/shelfwise-inventories/create" element={<ShelfwiseInventoryCreate />} />
+<Route path="/shelfwise-inventories/search" element={<ShelfwiseInventorySearch/>} />
+<Route path="/shelfwise-inventories/filters" element={<ShelfwiseInventoryFilters />} />
+<Route path="/shelfwise-inventories/statistics" element={<ShelfwiseInventoryStatistics/>} />
+<Route path="/shelfwise-inventories/view/:id" element={<ShelfwiseInventoryView />} />
+<Route path="/shelfwise-inventories/:id/edit" element={<ShelfwiseInventoryEdit />} />
 
 
 {/* =================================================

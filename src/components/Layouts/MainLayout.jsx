@@ -1,18 +1,12 @@
 // =========================================================
-// MainLayout.jsx
+// MainLayout.jsx - FIXED
 // =========================================================
 import React, { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 
-// =========================================================
-// MAIN LAYOUT
-// =========================================================
 const MainLayout = () => {
     const navigate = useNavigate();
 
-    // =========================================================
-    // SECTION STATE
-    // =========================================================
     const [openSections, setOpenSections] = useState({
         Main: true,
         "Seller Management": true,
@@ -30,28 +24,25 @@ const MainLayout = () => {
         "Channel & Export": true,
     });
 
-    // =========================================================
-    // ITEM STATE
-    // =========================================================
     const [openItems, setOpenItems] = useState({});
 
     const toggleSection = (sectionName) => {
         setOpenSections((previous) => ({
-           ...previous,
+          ...previous,
             [sectionName]:!previous[sectionName],
         }));
     };
 
     const toggleItem = (itemLabel) => {
         setOpenItems((previous) => ({
-           ...previous,
+          ...previous,
             [itemLabel]:!previous[itemLabel],
         }));
     };
 
     const openItem = (itemLabel) => {
         setOpenItems((previous) => ({
-           ...previous,
+          ...previous,
             [itemLabel]: true,
         }));
     };
@@ -81,9 +72,6 @@ const MainLayout = () => {
         navigate("/login", { replace: true });
     };
 
-    // =========================================================
-    // MENU SECTIONS
-    // =========================================================
     const menuSections = [
         {
             section: "Main",
@@ -211,33 +199,35 @@ const MainLayout = () => {
                 { label: "Reports", path: "/reports", icon: "📈", children: [{ label: "Reports Dashboard", path: "/reports" }, { label: "Sales Report", path: "/reports/sales" }, { label: "Order Report", path: "/reports/orders" }, { label: "Inventory Report", path: "/reports/inventory" }, { label: "Product Report", path: "/reports/products" }, { label: "Customer Report", path: "/reports/customers" }, { label: "Purchase Report", path: "/reports/purchases" }, { label: "Stock Report", path: "/reports/stock" }] },
             ],
         },
-        // =====================================================
-        // NEW SECTIONS ADDED CORRECTLY
-        // =====================================================
         {
             section: "Invoices & Compliance",
             items: [
                 { label: "E-Invoices", path: "/einvoices", icon: "🧾", children: [{ label: "E-Invoice List", path: "/einvoices" }, { label: "Create E-Invoice", path: "/einvoices/create" }, { label: "Search", path: "/einvoices/search" }, { label: "Filters", path: "/einvoices/filters" }, { label: "Statistics", path: "/einvoices/statistics" }] },
-                { label: "E-Way Bills", path: "/ewaybills", icon: "🛣️", children: [{ label: "E-Way Bill List", path: "/ewaybills" }, { label: "Create E-Way Bill", path: "/ewaybills/create" }, { label: "Search", path: "/ewaybills/search" }, { label: "Filters", path: "/ewaybills/filters" }, { label: "Statistics", path: "/ewaybills/statistics" }] },
+                { label: "E-Way Bills", path: "/ewaybills", icon: "🛣", children: [{ label: "E-Way Bill List", path: "/ewaybills" }, { label: "Create E-Way Bill", path: "/ewaybills/create" }, { label: "Search", path: "/ewaybills/search" }, { label: "Filters", path: "/ewaybills/filters" }, { label: "Statistics", path: "/ewaybills/statistics" }] },
                 { label: "Invoice Tax Details", path: "/invoice-tax-details", icon: "💸", children: [{ label: "Tax Detail List", path: "/invoice-tax-details" }, { label: "Create Tax Detail", path: "/invoice-tax-details/create" }, { label: "Search", path: "/invoice-tax-details/search" }, { label: "Statistics", path: "/invoice-tax-details/statistics" }] },
             ],
         },
-        
         {
             section: "Fulfillment & Warehousing",
             items: [
-                { label: "Gatepass", path: "/gatepasses", icon: "🚪", children: [{ label: "Gatepass List", path: "/gatepasses" }, { label: "Create Gatepass", path: "/gatepasses/create" }, { label: "Search", path: "/gatepasses/search" }, { label: "Statistics", path: "/gatepasses/statistics" }] },
-                { label: "Picklists", path: "/picklists", icon: "📋", children: [{ label: "Picklist List", path: "/picklists" }, { label: "Create Picklist", path: "/picklists/create" }, { label: "Search", path: "/picklists/search" }, { label: "Filters", path: "/picklists/filters" }, { label: "Statistics", path: "/picklists/statistics" }] },
-                { label: "Manifest Packages Putaway", path: "/manifest-packages-putaway", icon: "📦", children: [{ label: "Putaway List", path: "/manifest-packages-putaway" }, { label: "Create Putaway", path: "/manifest-packages-putaway/create" }, { label: "Search", path: "/manifest-packages-putaway/search" }, { label: "Statistics", path: "/manifest-packages-putaway/statistics" }] },
-                { label: "Shelfwise Inventory", path: "/shelfwise-inventory", icon: "🗄️", children: [{ label: "Inventory List", path: "/shelfwise-inventory" }, { label: "Create Entry", path: "/shelfwise-inventory/create" }, { label: "Search", path: "/shelfwise-inventory/search" }, { label: "Filters", path: "/shelfwise-inventory/filters" }] },
-                { label: "Shipping Manifests", path: "/shipping-manifests", icon: "📃", children: [{ label: "Manifest List", path: "/shipping-manifests" }, { label: "Create Manifest", path: "/shipping-manifests/create" }, { label: "Search", path: "/shipping-manifests/search" }, { label: "Statistics", path: "/shipping-manifests/statistics" }] },
-                { label: "Shipment Extended", path: "/shipments-extended", icon: "🚚", children: [{ label: "Shipment List", path: "/shipments-extended" }, { label: "Create Shipment", path: "/shipments-extended/create" }, { label: "Search", path: "/shipments-extended/search" }] },
-            ],
+                {
+                    label: "Shelfwise Inventories",
+                    path: "/shelfwise-inventories",
+                    icon: "🗄",
+                    children: [
+                        { label: "Inventory List", path: "/shelfwise-inventories" },
+                        { label: "Create Entry", path: "/shelfwise-inventories/create" },
+                        { label: "Search", path: "/shelfwise-inventories/search" },
+                        { label: "Filters", path: "/shelfwise-inventories/filters" },
+                        { label: "Statistics", path: "/shelfwise-inventories/statistics" }
+                    ]
+                }
+            ]
         },
         {
             section: "Reverse Logistics",
             items: [
-                { label: "Reverse Pickups", path: "/reverse-pickups", icon: "↩️", children: [{ label: "Pickup List", path: "/reverse-pickups" }, { label: "Create Pickup", path: "/reverse-pickups/create" }, { label: "Search", path: "/reverse-pickups/search" }, { label: "Filters", path: "/reverse-pickups/filters" }, { label: "Statistics", path: "/reverse-pickups/statistics" }] },
+                { label: "Reverse Pickups", path: "/reverse-pickups", icon: "↩", children: [{ label: "Pickup List", path: "/reverse-pickups" }, { label: "Create Pickup", path: "/reverse-pickups/create" }, { label: "Search", path: "/reverse-pickups/search" }, { label: "Filters", path: "/reverse-pickups/filters" }, { label: "Statistics", path: "/reverse-pickups/statistics" }] },
                 { label: "Reverse Pickup Addresses", path: "/reverse-pickup-addresses", icon: "📍", children: [{ label: "Address List", path: "/reverse-pickup-addresses" }, { label: "Create Address", path: "/reverse-pickup-addresses/create" }, { label: "Search", path: "/reverse-pickup-addresses/search" }, { label: "Statistics", path: "/reverse-pickup-addresses/statistics" }] },
                 { label: "Reverse Pickup Items", path: "/reverse-pickup-items", icon: "📦", children: [{ label: "Item List", path: "/reverse-pickup-items" }, { label: "Create Item", path: "/reverse-pickup-items/create" }, { label: "Search", path: "/reverse-pickup-items/search" }, { label: "Filters", path: "/reverse-pickup-items/filters" }] },
             ],
@@ -247,7 +237,7 @@ const MainLayout = () => {
             items: [
                 { label: "Supplier Addresses", path: "/supplier-addresses", icon: "🏠", children: [{ label: "Address List", path: "/supplier-addresses" }, { label: "Create Address", path: "/supplier-addresses/create" }, { label: "Search", path: "/supplier-addresses/search" }, { label: "Statistics", path: "/supplier-addresses/statistics" }] },
                 { label: "Supplier Contacts", path: "/supplier-contacts", icon: "📞", children: [{ label: "Contact List", path: "/supplier-contacts" }, { label: "Create Contact", path: "/supplier-contacts/create" }, { label: "Search", path: "/supplier-contacts/search" }, { label: "Filters", path: "/supplier-contacts/filters" }] },
-                { label: "Vendor Item Masters", path: "/vendor-item-masters", icon: "🏷️", children: [{ label: "Master List", path: "/vendor-item-masters" }, { label: "Create Master", path: "/vendor-item-masters/create" }, { label: "Search", path: "/vendor-item-masters/search" }, { label: "Statistics", path: "/vendor-item-masters/statistics" }] },
+                { label: "Vendor Item Masters", path: "/vendor-item-masters", icon: "🏷", children: [{ label: "Master List", path: "/vendor-item-masters" }, { label: "Create Master", path: "/vendor-item-masters/create" }, { label: "Search", path: "/vendor-item-masters/search" }, { label: "Statistics", path: "/vendor-item-masters/statistics" }] },
             ],
         },
         {
