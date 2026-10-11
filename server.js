@@ -36092,8 +36092,7 @@ app.post("/api/Gatepass/list", async (req, res) => {
    SHELFWISE INVENTORY API CONFIGURATION
 ========================================================= */
 
-const SHELFWISE_INVENTORY_API =
-    `${API_BASE_URL}/ShelfwiseInventory`;
+
 
 
 /* =========================================================

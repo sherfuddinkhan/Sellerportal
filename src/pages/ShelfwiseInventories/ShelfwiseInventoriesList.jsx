@@ -1,216 +1,253 @@
 
-import React, {
-    useEffect,
-    useMemo,
-    useState,
-    useCallback
-} from "react";
-
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 import {
-    Box,
-    Grid,
-    Typography,
-    CircularProgress,
     Alert,
-    Snackbar,
+    Box,
     Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    Card,
+    CardContent,
+    Chip,
+    CircularProgress,
+    Container,
+    FormControl,
+    Grid,
+    IconButton,
+    InputLabel,
+    MenuItem,
     Paper,
+    Select,
+    Stack,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
+    TablePagination,
     TableRow,
-    Chip,
+    TextField,
     Tooltip,
-    IconButton
+    Typography
 } from "@mui/material";
 
 import {
-    Visibility,
+    Add,
+    Delete,
+    Download,
     Edit,
-    Delete
+    Refresh,
+    Search,
+    Visibility
 } from "@mui/icons-material";
 
-import ShelfwiseInventoryToolbar from "./ShelfwiseInventoryToolbar";
-import ShelfwiseInventoryStatistics from "./ShelfwiseInventoryStatistics";
-import ShelfwiseInventorySearch from "./ShelfwiseInventorySearch";
-import ShelfwiseInventoryFilters from "./ShelfwiseInventoryFilters";
-import ShelfwiseInventoryCard from "./ShelfwiseInventoryCard";
-import ShelfwiseInventoryPagination from "./ShelfwiseInventoryPagination";
-import ShelfwiseInventoryCreate from "./ShelfwiseInventoryCreate";
-import ShelfwiseInventoryEdit from "./ShelfwiseInventoryEdit";
-import ShelfwiseInventoryDetails from "./ShelfwiseInventoryDetails";
-
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
 const API_URL = "/api/ShelfwiseInventory";
 
-/* =========================================================
-   GET FIELD VALUE - CAMELCASE / PASCALCASE
-========================================================= */
+// =========================================================
+// FIELD HELPERS
+// =========================================================
 
-const getField = (record, ...keys) => {
-    for (const key of keys) {
+const getField = (item, ...names) => {
+    if (!item) return "";
+
+    for (const name of names) {
         if (
-            record?.[key] !== undefined &&
-            record?.[key] !== null
+            item[name] !== undefined &&
+            item[name] !== null
         ) {
-            return record[key];
+            return item[name];
         }
     }
 
     return "";
 };
 
-/* =========================================================
-   GET INVENTORY ID
-========================================================= */
-
-const getInventoryId = (record) =>
+const getInventoryId = (item) =>
     getField(
-        record,
+        item,
         "shelfwiseInventoryId",
         "ShelfwiseInventoryId",
-        "inventoryId",
-        "InventoryId",
         "id",
         "Id"
     );
 
-/* =========================================================
-   API ERROR MESSAGE
-========================================================= */
+const getInventoryStatus = (item) => {
+    const quantity = Number(
+        getField(item, "quantity", "Quantity") || 0
+    );
 
-const getErrorMessage = (error, fallback) => {
-    const data = error?.response?.data;
-
-    if (typeof data === "string" && data.trim()) {
-        return data;
-    }
-
-    if (data && typeof data === "object") {
-        return (
-            data.message ||
-            data.Message ||
-            data.title ||
-            data.Title ||
-            data.error ||
-            data.Error ||
-            fallback
-        );
-    }
-
-    return error?.message || fallback;
-};
-
-/* =========================================================
-   NORMALIZE API RESPONSE
-========================================================= */
-
-const normalizeInventoryResponse = (data) => {
-    if (Array.isArray(data)) return data;
-
-    const possibleArrays = [
-        data?.data,
-        data?.Data,
-        data?.items,
-        data?.Items,
-        data?.records,
-        data?.Records,
-        data?.$values
-    ];
-
-    return possibleArrays.find(Array.isArray) || [];
-};
-
-/* =========================================================
-   INVENTORY STATUS
-========================================================= */
-
-const getInventoryStatus = (record) => {
-    const available = Number(
+    const availableQuantity = Number(
         getField(
-            record,
+            item,
             "availableQuantity",
             "AvailableQuantity"
-        )
-    ) || 0;
+        ) || 0
+    );
 
-    const minimum = Number(
-        getField(record, "minimumStock", "MinimumStock")
-    ) || 0;
+    const minimumStock = Number(
+        getField(item, "minimumStock", "MinimumStock") || 0
+    );
 
-    const rawStatus = String(
-        getField(record, "status", "Status")
-    ).trim().toLowerCase();
+    const status = getField(item, "status", "Status");
 
-    if (rawStatus) {
-        if (
-            rawStatus === "out of stock" ||
-            rawStatus === "outofstock"
-        ) {
-            return "Out of Stock";
-        }
+    if (status) return String(status);
 
-        if (
-            rawStatus === "low stock" ||
-            rawStatus === "lowstock"
-        ) {
-            return "Low Stock";
-        }
-
-        return rawStatus.replace(/\b\w/g, (letter) =>
-            letter.toUpperCase()
-        );
+    if (availableQuantity <= 0 || quantity <= 0) {
+        return "Out of Stock";
     }
 
-    if (available <= 0) return "Out of Stock";
-
-    if (minimum > 0 && available <= minimum) {
+    if (minimumStock > 0 && availableQuantity <= minimumStock) {
         return "Low Stock";
     }
 
-    return "Available";
+    return "In Stock";
 };
 
-/* =========================================================
-   STATUS CHIP
-========================================================= */
+const normalizeInventoryResponse = (response) => {
+    if (Array.isArray(response)) {
+        return response;
+    }
+
+    if (Array.isArray(response?.data)) {
+        return response.data;
+    }
+
+    if (Array.isArray(response?.items)) {
+        return response.items;
+    }
+
+    if (Array.isArray(response?.Items)) {
+        return response.Items;
+    }
+
+    if (Array.isArray(response?.records)) {
+        return response.records;
+    }
+
+    if (Array.isArray(response?.Records)) {
+        return response.Records;
+    }
+
+    if (Array.isArray(response?.data?.items)) {
+        return response.data.items;
+    }
+
+    if (Array.isArray(response?.data?.Items)) {
+        return response.data.Items;
+    }
+
+    if (Array.isArray(response?.data?.records)) {
+        return response.data.records;
+    }
+
+    return [];
+};
+
+// =========================================================
+// AUTHENTICATION / SELLER / CUSTOMER IDS
+// =========================================================
+
+const getStoredObject = (...keys) => {
+    for (const key of keys) {
+        try {
+            const value = localStorage.getItem(key);
+
+            if (!value) continue;
+
+            const parsed = JSON.parse(value);
+
+            if (parsed && typeof parsed === "object") {
+                return parsed;
+            }
+        } catch {
+            // The value may be a plain string rather than JSON.
+        }
+    }
+
+    return {};
+};
+
+const getStoredId = (...keys) => {
+    for (const key of keys) {
+        const value = localStorage.getItem(key);
+
+        if (value && value !== "null" && value !== "undefined") {
+            const number = Number(value);
+
+            if (Number.isInteger(number) && number > 0) {
+                return number;
+            }
+        }
+    }
+
+    return null;
+};
+
+const getSellerCustomerIds = () => {
+    const user = getStoredObject(
+        "user",
+        "currentUser",
+        "authUser",
+        "loginResponse"
+    );
+
+    const seller = user?.seller || user?.Seller || {};
+    const customer = user?.customer || user?.Customer || {};
+
+    const sellerId =
+        getStoredId("sellerId", "SellerId") ??
+        Number(
+            user?.sellerId ??
+            user?.SellerId ??
+            seller?.sellerId ??
+            seller?.SellerId ??
+            0
+        );
+
+    const customerId =
+        getStoredId("customerId", "CustomerId") ??
+        Number(
+            user?.customerId ??
+            user?.CustomerId ??
+            customer?.customerId ??
+            customer?.CustomerId ??
+            0
+        );
+
+    return {
+        sellerId: sellerId > 0 ? sellerId : null,
+        customerId: customerId > 0 ? customerId : null
+    };
+};
+
+// =========================================================
+// STATUS CHIP
+// =========================================================
 
 const InventoryStatusChip = ({ status }) => {
     const normalized = String(status || "").toLowerCase();
 
-    let color = "success";
+    let color = "default";
 
-    if (
-        normalized.includes("out of stock") ||
-        normalized.includes("outofstock")
-    ) {
+    if (normalized.includes("out")) {
         color = "error";
-    } else if (
-        normalized.includes("low stock") ||
-        normalized.includes("lowstock")
-    ) {
+    } else if (normalized.includes("low")) {
         color = "warning";
     } else if (
-        normalized.includes("inactive") ||
-        normalized.includes("blocked")
+        normalized.includes("in stock") ||
+        normalized === "available"
     ) {
-        color = "default";
+        color = "success";
     }
 
     return (
         <Chip
-            label={status || "Available"}
+            label={status || "Unknown"}
             color={color}
             size="small"
             variant="outlined"
@@ -218,60 +255,37 @@ const InventoryStatusChip = ({ status }) => {
     );
 };
 
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
+// =========================================================
+// MAIN COMPONENT
+// =========================================================
 
 const ShelfwiseInventoriesList = () => {
     const navigate = useNavigate();
-    /* =====================================================
-       STATE
-    ===================================================== */
 
     const [inventory, setInventory] = useState([]);
-
     const [loading, setLoading] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
 
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [searchField, setSearchField] = useState("all");
-    const [statusFilter, setStatusFilter] = useState("");
-
-    const [showFilters, setShowFilters] = useState(false);
-
-    const [filters, setFilters] = useState({
-        warehouseId: "",
-        shelfId: "",
-        categoryName: "",
-        status: "",
-        stockLevel: ""
-    });
+    const [searchText, setSearchText] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
 
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(12);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const [viewMode, setViewMode] = useState("card");
-
-    const [editOpen, setEditOpen] = useState(false);
-    const [detailsOpen, setDetailsOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
-
-    const [selectedInventory, setSelectedInventory] =
-        useState(null);
-
-    /* =====================================================
-       FETCH ALL INVENTORY
-    ===================================================== */
+    // =====================================================
+    // FETCH ALL INVENTORY
+    // GET /api/ShelfwiseInventory/all
+    // =====================================================
 
     const fetchInventory = useCallback(async () => {
         setLoading(true);
         setError("");
 
         try {
-            const response = await axios.get(API_URL);
+            const response = await axios.get(`${API_URL}/all`);
 
             const records = normalizeInventoryResponse(
                 response.data
@@ -280,15 +294,17 @@ const ShelfwiseInventoriesList = () => {
             setInventory(records);
         } catch (err) {
             console.error(
-                "GET SHELFWISE INVENTORY ERROR:",
-                err.response?.data || err.message
+                "Error fetching shelfwise inventory:",
+                err
             );
 
+            setInventory([]);
+
             setError(
-                getErrorMessage(
-                    err,
-                    "Failed to load shelfwise inventory."
-                )
+                err.response?.data?.message ||
+                err.response?.data?.Message ||
+                err.message ||
+                "Failed to load shelfwise inventory."
             );
         } finally {
             setLoading(false);
@@ -299,178 +315,266 @@ const ShelfwiseInventoriesList = () => {
         fetchInventory();
     }, [fetchInventory]);
 
-    /* =====================================================
-       SEARCH AND FILTER INVENTORY
-    ===================================================== */
+    // =====================================================
+    // SEARCH AND FILTER
+    // =====================================================
 
     const filteredInventory = useMemo(() => {
-        const term = searchTerm.trim().toLowerCase();
+        const search = searchText.trim().toLowerCase();
 
-        return inventory.filter((record) => {
+        return inventory.filter((item) => {
             const itemName = String(
-                getField(record, "itemName", "ItemName")
+                getField(item, "itemName", "ItemName")
             ).toLowerCase();
 
             const itemCode = String(
-                getField(record, "itemCode", "ItemCode")
-            ).toLowerCase();
-
-            const shelfName = String(
-                getField(record, "shelfName", "ShelfName")
-            ).toLowerCase();
-
-            const shelfCode = String(
-                getField(record, "shelfCode", "ShelfCode")
-            ).toLowerCase();
-
-            const warehouseName = String(
-                getField(
-                    record,
-                    "warehouseName",
-                    "WarehouseName"
-                )
+                getField(item, "itemCode", "ItemCode")
             ).toLowerCase();
 
             const categoryName = String(
-                getField(
-                    record,
-                    "categoryName",
-                    "CategoryName"
-                )
+                getField(item, "categoryName", "CategoryName")
             ).toLowerCase();
 
-            const available = Number(
-                getField(
-                    record,
-                    "availableQuantity",
-                    "AvailableQuantity"
-                )
-            ) || 0;
-
-            const minimum = Number(
-                getField(record, "minimumStock", "MinimumStock")
-            ) || 0;
-
-            const status = getInventoryStatus(record).toLowerCase();
-
-            /* Search field matching */
-
-            let matchesSearch = true;
-
-            if (term) {
-                switch (searchField) {
-                    case "itemName":
-                        matchesSearch = itemName.includes(term);
-                        break;
-
-                    case "itemCode":
-                        matchesSearch = itemCode.includes(term);
-                        break;
-
-                    case "shelfName":
-                        matchesSearch = shelfName.includes(term);
-                        break;
-
-                    case "shelfCode":
-                        matchesSearch = shelfCode.includes(term);
-                        break;
-
-                    case "warehouseName":
-                        matchesSearch =
-                            warehouseName.includes(term);
-                        break;
-
-                    case "categoryName":
-                        matchesSearch = categoryName.includes(term);
-                        break;
-
-                    default:
-                        matchesSearch = [
-                            itemName,
-                            itemCode,
-                            shelfName,
-                            shelfCode,
-                            warehouseName,
-                            categoryName
-                        ].some((value) => value.includes(term));
-                }
-            }
-
-            /* Status filter */
-
-            const selectedStatus = String(
-                filters.status || statusFilter
+            const warehouseName = String(
+                getField(item, "warehouseName", "WarehouseName")
             ).toLowerCase();
+
+            const shelfName = String(
+                getField(item, "shelfName", "ShelfName")
+            ).toLowerCase();
+
+            const shelfCode = String(
+                getField(item, "shelfCode", "ShelfCode")
+            ).toLowerCase();
+
+            const status = getInventoryStatus(item);
+
+            const matchesSearch =
+                !search ||
+                itemName.includes(search) ||
+                itemCode.includes(search) ||
+                categoryName.includes(search) ||
+                warehouseName.includes(search) ||
+                shelfName.includes(search) ||
+                shelfCode.includes(search);
 
             const matchesStatus =
-                !selectedStatus ||
-                status === selectedStatus;
+                statusFilter === "All" ||
+                status.toLowerCase() === statusFilter.toLowerCase();
 
-            /* Warehouse filter */
+            return matchesSearch && matchesStatus;
+        });
+    }, [inventory, searchText, statusFilter]);
 
-            const warehouseId = String(
-                getField(record, "warehouseId", "WarehouseId")
+    useEffect(() => {
+        setPage(0);
+    }, [searchText, statusFilter]);
+
+    // =====================================================
+    // STATISTICS
+    // =====================================================
+
+    const statistics = useMemo(() => {
+        let totalQuantity = 0;
+        let totalAvailable = 0;
+        let lowStock = 0;
+        let outOfStock = 0;
+
+        inventory.forEach((item) => {
+            totalQuantity += Number(
+                getField(item, "quantity", "Quantity") || 0
             );
 
-            const matchesWarehouse =
-                !filters.warehouseId ||
-                warehouseId === String(filters.warehouseId);
-
-            /* Shelf filter */
-
-            const shelfId = String(
-                getField(record, "shelfId", "ShelfId")
+            totalAvailable += Number(
+                getField(
+                    item,
+                    "availableQuantity",
+                    "AvailableQuantity"
+                ) || 0
             );
 
-            const matchesShelf =
-                !filters.shelfId ||
-                shelfId === String(filters.shelfId);
+            const status = getInventoryStatus(item).toLowerCase();
 
-            /* Category filter */
-
-            const matchesCategory =
-                !filters.categoryName ||
-                categoryName === String(
-                    filters.categoryName
-                ).toLowerCase();
-
-            /* Stock level filter */
-
-            let matchesStockLevel = true;
-
-            if (filters.stockLevel === "low") {
-                matchesStockLevel =
-                    available > 0 &&
-                    minimum > 0 &&
-                    available <= minimum;
-            } else if (filters.stockLevel === "out") {
-                matchesStockLevel = available <= 0;
-            } else if (filters.stockLevel === "available") {
-                matchesStockLevel =
-                    available > 0 &&
-                    !(minimum > 0 && available <= minimum);
+            if (status.includes("low")) {
+                lowStock++;
             }
 
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesWarehouse &&
-                matchesShelf &&
-                matchesCategory &&
-                matchesStockLevel
-            );
+            if (status.includes("out")) {
+                outOfStock++;
+            }
         });
-    }, [
-        inventory,
-        searchTerm,
-        searchField,
-        statusFilter,
-        filters
-    ]);
 
-    /* =====================================================
-       PAGINATION
-    ===================================================== */
+        return {
+            totalRecords: inventory.length,
+            totalQuantity,
+            totalAvailable,
+            lowStock,
+            outOfStock
+        };
+    }, [inventory]);
+
+    // =====================================================
+    // VIEW DETAILS
+    // =====================================================
+
+    const handleView = (id) => {
+        if (!id) {
+            setError("Inventory ID is missing.");
+            return;
+        }
+
+        navigate(
+            `/shelfwise-inventories/details/${encodeURIComponent(id)}`
+        );
+    };
+
+    // =====================================================
+    // EDIT INVENTORY
+    // =====================================================
+
+    const handleEdit = (id) => {
+        if (!id) {
+            setError("Inventory ID is missing.");
+            return;
+        }
+
+        navigate(
+            `/shelfwise-inventories/${encodeURIComponent(id)}/edit`
+        );
+    };
+
+    // =====================================================
+    // DELETE INVENTORY
+    // DELETE /api/ShelfwiseInventory/{id}/seller/{sellerId}/customer/{customerId}
+    // =====================================================
+
+    const handleDelete = async (item) => {
+        const id = getInventoryId(item);
+
+        if (!id) {
+            setError("Cannot delete: inventory ID is missing.");
+            return;
+        }
+
+        const { sellerId, customerId } = getSellerCustomerIds();
+
+        if (!sellerId || !customerId) {
+            setError(
+                "Seller ID or Customer ID is missing from localStorage. " +
+                "Please check how your login code stores these IDs."
+            );
+            return;
+        }
+
+        const itemName = getField(
+            item,
+            "itemName",
+            "ItemName"
+        ) || `Inventory #${id}`;
+
+        const confirmed = window.confirm(
+            `Are you sure you want to delete "${itemName}"?`
+        );
+
+        if (!confirmed) return;
+
+        setDeletingId(id);
+        setError("");
+        setSuccess("");
+
+        try {
+            await axios.delete(
+                `${API_URL}/${encodeURIComponent(id)}` +
+                `/seller/${sellerId}/customer/${customerId}`
+            );
+
+            setSuccess("Inventory deleted successfully.");
+
+            await fetchInventory();
+        } catch (err) {
+            console.error("Error deleting inventory:", err);
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.Message ||
+                err.message ||
+                "Failed to delete inventory."
+            );
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    // =====================================================
+    // EXPORT CSV
+    // =====================================================
+
+    const handleExport = () => {
+        const headers = [
+            "Inventory ID",
+            "Item Name",
+            "Item Code",
+            "Category",
+            "Warehouse",
+            "Shelf Name",
+            "Shelf Code",
+            "Quantity",
+            "Available Quantity",
+            "Minimum Stock",
+            "Maximum Stock",
+            "Unit",
+            "Status"
+        ];
+
+        const escapeCsv = (value) =>
+            `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+        const rows = filteredInventory.map((item) => [
+            getInventoryId(item),
+            getField(item, "itemName", "ItemName"),
+            getField(item, "itemCode", "ItemCode"),
+            getField(item, "categoryName", "CategoryName"),
+            getField(item, "warehouseName", "WarehouseName"),
+            getField(item, "shelfName", "ShelfName"),
+            getField(item, "shelfCode", "ShelfCode"),
+            getField(item, "quantity", "Quantity"),
+            getField(
+                item,
+                "availableQuantity",
+                "AvailableQuantity"
+            ),
+            getField(item, "minimumStock", "MinimumStock"),
+            getField(item, "maximumStock", "MaximumStock"),
+            getField(item, "unit", "Unit"),
+            getInventoryStatus(item)
+        ]);
+
+        const csv = [
+            headers.map(escapeCsv).join(","),
+            ...rows.map((row) => row.map(escapeCsv).join(","))
+        ].join("\r\n");
+
+        const blob = new Blob(
+            ["\uFEFF" + csv],
+            { type: "text/csv;charset=utf-8;" }
+        );
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "shelfwise-inventory.csv";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+    };
+
+    // =====================================================
+    // PAGINATION
+    // =====================================================
 
     const paginatedInventory = useMemo(() => {
         const start = page * rowsPerPage;
@@ -481,999 +585,443 @@ const ShelfwiseInventoriesList = () => {
         );
     }, [filteredInventory, page, rowsPerPage]);
 
-    useEffect(() => {
-        const lastPage = Math.max(
-            0,
-            Math.ceil(
-                filteredInventory.length / rowsPerPage
-            ) - 1
-        );
-
-        if (page > lastPage) {
-            setPage(lastPage);
-        }
-    }, [filteredInventory.length, rowsPerPage, page]);
-
-    /* =====================================================
-       STATISTICS
-    ===================================================== */
-
-    const statistics = useMemo(() => {
-        return {
-            totalRecords: inventory.length,
-
-            totalQuantity: inventory.reduce(
-                (sum, record) =>
-                    sum +
-                    (Number(
-                        getField(record, "quantity", "Quantity")
-                    ) || 0),
-                0
-            ),
-
-            availableQuantity: inventory.reduce(
-                (sum, record) =>
-                    sum +
-                    (Number(
-                        getField(
-                            record,
-                            "availableQuantity",
-                            "AvailableQuantity"
-                        )
-                    ) || 0),
-                0
-            ),
-
-            reservedQuantity: inventory.reduce(
-                (sum, record) =>
-                    sum +
-                    (Number(
-                        getField(
-                            record,
-                            "reservedQuantity",
-                            "ReservedQuantity"
-                        )
-                    ) || 0),
-                0
-            ),
-
-            lowStock: inventory.filter((record) => {
-                const available = Number(
-                    getField(
-                        record,
-                        "availableQuantity",
-                        "AvailableQuantity"
-                    )
-                ) || 0;
-
-                const minimum = Number(
-                    getField(
-                        record,
-                        "minimumStock",
-                        "MinimumStock"
-                    )
-                ) || 0;
-
-                return (
-                    available > 0 &&
-                    minimum > 0 &&
-                    available <= minimum
-                );
-            }).length,
-
-            outOfStock: inventory.filter((record) => {
-                const available = Number(
-                    getField(
-                        record,
-                        "availableQuantity",
-                        "AvailableQuantity"
-                    )
-                ) || 0;
-
-                return available <= 0;
-            }).length
-        };
-    }, [inventory]);
-
-    /* =====================================================
-       WAREHOUSE FILTER OPTIONS
-    ===================================================== */
-
-    const warehouses = useMemo(() => {
-        const unique = new Map();
-
-        inventory.forEach((record) => {
-            const id = getField(
-                record,
-                "warehouseId",
-                "WarehouseId"
-            );
-
-            const name = getField(
-                record,
-                "warehouseName",
-                "WarehouseName"
-            );
-
-            if (id !== "" && name) {
-                unique.set(String(id), {
-                    warehouseId: id,
-                    warehouseName: name
-                });
-            }
-        });
-
-        return Array.from(unique.values());
-    }, [inventory]);
-
-    /* =====================================================
-       SHELF FILTER OPTIONS
-    ===================================================== */
-
-    const shelves = useMemo(() => {
-        const unique = new Map();
-
-        inventory.forEach((record) => {
-            const id = getField(
-                record,
-                "shelfId",
-                "ShelfId"
-            );
-
-            const name = getField(
-                record,
-                "shelfName",
-                "ShelfName"
-            );
-
-            if (id !== "" && name) {
-                unique.set(String(id), {
-                    shelfId: id,
-                    shelfName: name
-                });
-            }
-        });
-
-        return Array.from(unique.values());
-    }, [inventory]);
-
-    /* =====================================================
-       CATEGORY FILTER OPTIONS
-    ===================================================== */
-
-    const categories = useMemo(() => {
-        return [
-            ...new Set(
-                inventory
-                    .map((record) =>
-                        getField(
-                            record,
-                            "categoryName",
-                            "CategoryName"
-                        )
-                    )
-                    .filter(Boolean)
-            )
-        ];
-    }, [inventory]);
-
-    /* =====================================================
-       FILTER HANDLERS
-    ===================================================== */
-
-    const handleFilterChange = (name, value) => {
-        setFilters((previous) => ({
-            ...previous,
-            [name]: value
-        }));
-
-        setPage(0);
-    };
-
-    const handleApplyFilters = () => {
-        setPage(0);
-    };
-
-    const handleResetFilters = () => {
-        setFilters({
-            warehouseId: "",
-            shelfId: "",
-            categoryName: "",
-            status: "",
-            stockLevel: ""
-        });
-
-        setStatusFilter("");
-        setSearchTerm("");
-        setSearchField("all");
-        setPage(0);
-    };
-
-    const handleClearSearch = () => {
-        setSearchTerm("");
-        setSearchField("all");
-        setStatusFilter("");
-        setPage(0);
-    };
-
-
-    /* =====================================================
-       EDIT INVENTORY
-    ===================================================== */
-
-    const handleEdit = async (payload) => {
-        const id = getInventoryId(selectedInventory);
-
-        if (id === "" || id === null || id === undefined) {
-            setError(
-                "Cannot update inventory: record ID is missing."
-            );
-            return;
-        }
-
-        setSubmitting(true);
-        setError("");
-
-        try {
-            await axios.put(
-                `${API_URL}/${encodeURIComponent(id)}`,
-                payload
-            );
-
-            setEditOpen(false);
-            setSelectedInventory(null);
-
-            setSuccess(
-                "Inventory record updated successfully."
-            );
-
-            await fetchInventory();
-        } catch (err) {
-            console.error(
-                "UPDATE INVENTORY ERROR:",
-                err.response?.data || err.message
-            );
-
-            setError(
-                getErrorMessage(
-                    err,
-                    "Failed to update inventory record."
-                )
-            );
-
-            throw err;
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    /* =====================================================
-       DELETE INVENTORY
-    ===================================================== */
-
-    const handleDelete = async () => {
-        const id = getInventoryId(selectedInventory);
-
-        if (id === "" || id === null || id === undefined) {
-            setError(
-                "Cannot delete inventory: record ID is missing."
-            );
-            return;
-        }
-
-        setSubmitting(true);
-        setError("");
-
-        try {
-            await axios.delete(
-                `${API_URL}/${encodeURIComponent(id)}`
-            );
-
-            setDeleteOpen(false);
-            setSelectedInventory(null);
-
-            setSuccess(
-                "Inventory record deleted successfully."
-            );
-
-            await fetchInventory();
-        } catch (err) {
-            console.error(
-                "DELETE INVENTORY ERROR:",
-                err.response?.data || err.message
-            );
-
-            setError(
-                getErrorMessage(
-                    err,
-                    "Failed to delete inventory record."
-                )
-            );
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    /* =====================================================
-       OPEN ACTIONS
-    ===================================================== */
-
-    const openView = (record) => {
-        setSelectedInventory(record);
-        setDetailsOpen(true);
-    };
-
-    const openEdit = (record) => {
-        setSelectedInventory(record);
-        setEditOpen(true);
-    };
-
-    const openDelete = (record) => {
-        setSelectedInventory(record);
-        setDeleteOpen(true);
-    };
-
-    /* =====================================================
-       EXPORT CSV
-    ===================================================== */
-
-    const handleExport = () => {
-        if (!filteredInventory.length) {
-            setError(
-                "There are no inventory records to export."
-            );
-            return;
-        }
-
-        const columns = [
-            ["Inventory ID", (r) => getInventoryId(r)],
-            ["Item Name", (r) => getField(r, "itemName", "ItemName")],
-            ["Item Code", (r) => getField(r, "itemCode", "ItemCode")],
-            ["Warehouse", (r) => getField(r, "warehouseName", "WarehouseName")],
-            ["Warehouse ID", (r) => getField(r, "warehouseId", "WarehouseId")],
-            ["Shelf", (r) => getField(r, "shelfName", "ShelfName")],
-            ["Shelf Code", (r) => getField(r, "shelfCode", "ShelfCode")],
-            ["Shelf ID", (r) => getField(r, "shelfId", "ShelfId")],
-            ["Category", (r) => getField(r, "categoryName", "CategoryName")],
-            ["Quantity", (r) => getField(r, "quantity", "Quantity")],
-            ["Available Quantity", (r) => getField(r, "availableQuantity", "AvailableQuantity")],
-            ["Reserved Quantity", (r) => getField(r, "reservedQuantity", "ReservedQuantity")],
-            ["Minimum Stock", (r) => getField(r, "minimumStock", "MinimumStock")],
-            ["Maximum Stock", (r) => getField(r, "maximumStock", "MaximumStock")],
-            ["Unit", (r) => getField(r, "unit", "Unit")],
-            ["Status", (r) => getInventoryStatus(r)]
-        ];
-
-        const escapeCsv = (value) =>
-            `"${String(value ?? "").replace(/"/g, '""')}"`;
-
-        const csv = [
-            columns
-                .map(([label]) => escapeCsv(label))
-                .join(","),
-
-            ...filteredInventory.map((record) =>
-                columns
-                    .map(([, getter]) =>
-                        escapeCsv(getter(record))
-                    )
-                    .join(",")
-            )
-        ].join("\r\n");
-
-        const blob = new Blob(
-            ["\uFEFF", csv],
-            { type: "text/csv;charset=utf-8;" }
-        );
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download = "shelfwise-inventories.csv";
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        URL.revokeObjectURL(url);
-    };
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
-        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
+        <Container maxWidth="xl" sx={{ py: 3 }}>
+            {/* PAGE HEADER */}
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                justifyContent="space-between"
+                alignItems={{ xs: "stretch", sm: "center" }}
+                spacing={2}
+                sx={{ mb: 3 }}
+            >
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                        Shelfwise Inventory
+                    </Typography>
 
-            {/* =================================================
-                TOOLBAR - ONLY PAGE HEADER
-            ================================================= */}
-<ShelfwiseInventoryToolbar
-    totalRecords={statistics.totalRecords}
-    totalQuantity={statistics.totalQuantity}
-    loading={loading}
-    onAdd={() => navigate("/shelfwise-inventories/create")}
-    onRefresh={fetchInventory}
-    onExport={handleExport}
-    onToggleFilters={() => setShowFilters((value) => !value)}
-    onToggleView={() => setViewMode((value) => value === "card" ? "table" : "card")}
-    showFilters={showFilters}
-    viewMode={viewMode}
-    addButtonLabel="ADD INVENTORY"
-/>
-
-            {/* =================================================
-                STATISTICS
-            ================================================= */}
-
-            <Box sx={{ mt: 3 }}>
-                <ShelfwiseInventoryStatistics
-                    inventory={inventory}
-                    statistics={statistics}
-                    loading={loading}
-                />
-            </Box>
-
-            {/* =================================================
-                SEARCH
-            ================================================= */}
-
-            <Box sx={{ mt: 3 }}>
-                <ShelfwiseInventorySearch
-                    searchTerm={searchTerm}
-                    searchField={searchField}
-                    status={statusFilter}
-                    onSearchChange={(value) => {
-                        setSearchTerm(value);
-                        setPage(0);
-                    }}
-                    onSearchFieldChange={(value) => {
-                        setSearchField(value);
-                        setPage(0);
-                    }}
-                    onStatusChange={(value) => {
-                        setStatusFilter(value);
-                        setPage(0);
-                    }}
-                    onClear={handleClearSearch}
-                    onToggleFilters={() =>
-                        setShowFilters((value) => !value)
-                    }
-                    showFilters={showFilters}
-                    loading={loading}
-                />
-            </Box>
-
-            {/* =================================================
-                FILTERS
-            ================================================= */}
-
-            {showFilters && (
-                <Box sx={{ mt: 2 }}>
-                    <ShelfwiseInventoryFilters
-                        filters={filters}
-                        onFilterChange={handleFilterChange}
-                        onApplyFilters={handleApplyFilters}
-                        onResetFilters={handleResetFilters}
-                        warehouses={warehouses}
-                        shelves={shelves}
-                        categories={categories}
-                        loading={loading}
-                        showFilters={showFilters}
-                    />
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Manage item quantities, warehouses, and shelf locations.
+                    </Typography>
                 </Box>
-            )}
 
-            {/* =================================================
-                ERROR
-            ================================================= */}
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    flexWrap="wrap"
+                    useFlexGap
+                >
+                    <Button
+                        variant="outlined"
+                        startIcon={<Download />}
+                        onClick={handleExport}
+                        disabled={filteredInventory.length === 0}
+                    >
+                        Export CSV
+                    </Button>
 
+                    <Button
+                        variant="outlined"
+                        startIcon={<Refresh />}
+                        onClick={fetchInventory}
+                        disabled={loading}
+                    >
+                        Refresh
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={() =>
+                            navigate("/shelfwise-inventories/create")
+                        }
+                    >
+                        Add Inventory
+                    </Button>
+                </Stack>
+            </Stack>
+
+            {/* ALERTS */}
             {error && (
                 <Alert
                     severity="error"
-                    sx={{ mt: 2 }}
                     onClose={() => setError("")}
+                    sx={{ mb: 2 }}
                 >
                     {error}
                 </Alert>
             )}
 
-            {/* =================================================
-                RESULTS SUMMARY
-            ================================================= */}
-
-            <Box
-                sx={{
-                    mt: 3,
-                    mb: 2,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 1
-                }}
-            >
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
+            {success && (
+                <Alert
+                    severity="success"
+                    onClose={() => setSuccess("")}
+                    sx={{ mb: 2 }}
                 >
-                    Showing{" "}
-                    {filteredInventory.length === 0
-                        ? 0
-                        : page * rowsPerPage + 1}
-                    {" - "}
-                    {Math.min(
-                        (page + 1) * rowsPerPage,
-                        filteredInventory.length
-                    )}
-                    {" of "}
-                    {filteredInventory.length} records
-                </Typography>
+                    {success}
+                </Alert>
+            )}
 
-                {(searchTerm ||
-                    statusFilter ||
-                    Object.values(filters).some(Boolean)) && (
-                    <Button
-                        size="small"
-                        onClick={handleResetFilters}
-                    >
-                        Clear all filters
-                    </Button>
-                )}
-            </Box>
+            {/* STATISTICS */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+                {[
+                    {
+                        label: "Inventory Records",
+                        value: statistics.totalRecords
+                    },
+                    {
+                        label: "Total Quantity",
+                        value: statistics.totalQuantity
+                    },
+                    {
+                        label: "Available Quantity",
+                        value: statistics.totalAvailable
+                    },
+                    {
+                        label: "Low Stock Items",
+                        value: statistics.lowStock
+                    },
+                    {
+                        label: "Out of Stock",
+                        value: statistics.outOfStock
+                    }
+                ].map((stat) => (
+                    <Grid item xs={12} sm={6} md={4} lg={2.4} key={stat.label}>
+                        <Card variant="outlined" sx={{ height: "100%" }}>
+                            <CardContent>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    {stat.label}
+                                </Typography>
 
-            {/* =================================================
-                LOADING
-            ================================================= */}
+                                <Typography
+                                    variant="h5"
+                                    fontWeight={700}
+                                    sx={{ mt: 1 }}
+                                >
+                                    {stat.value}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
 
-            {loading && inventory.length === 0 ? (
+            {/* SEARCH AND FILTERS */}
+            <Paper
+                variant="outlined"
+                sx={{ p: 2, mb: 3 }}
+            >
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} md={8}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            label="Search inventory"
+                            placeholder="Item name, item code, category, warehouse, or shelf..."
+                            value={searchText}
+                            onChange={(event) =>
+                                setSearchText(event.target.value)
+                            }
+                            InputProps={{
+                                startAdornment: (
+                                    <Search
+                                        sx={{
+                                            mr: 1,
+                                            color: "text.secondary"
+                                        }}
+                                    />
+                                )
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={4}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="inventory-status-label">
+                                Status
+                            </InputLabel>
+
+                            <Select
+                                labelId="inventory-status-label"
+                                value={statusFilter}
+                                label="Status"
+                                onChange={(event) =>
+                                    setStatusFilter(event.target.value)
+                                }
+                            >
+                                <MenuItem value="All">All Statuses</MenuItem>
+                                <MenuItem value="In Stock">In Stock</MenuItem>
+                                <MenuItem value="Low Stock">Low Stock</MenuItem>
+                                <MenuItem value="Out of Stock">
+                                    Out of Stock
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
+            </Paper>
+
+            {/* INVENTORY TABLE */}
+            <TableContainer
+                component={Paper}
+                variant="outlined"
+            >
                 <Box
                     sx={{
-                        py: 8,
+                        p: 2,
                         display: "flex",
-                        flexDirection: "column",
+                        justifyContent: "space-between",
                         alignItems: "center",
                         gap: 2
                     }}
                 >
-                    <CircularProgress />
+                    <Typography variant="h6" fontWeight={600}>
+                        Inventory List
+                    </Typography>
 
-                    <Typography color="text.secondary">
-                        Loading shelfwise inventory...
+                    <Typography variant="body2" color="text.secondary">
+                        {filteredInventory.length} record(s)
                     </Typography>
                 </Box>
-            ) : filteredInventory.length === 0 ? (
-                /* =================================================
-                   EMPTY STATE
-                ================================================= */
 
-                <Box
-                    sx={{
-                        py: 8,
-                        textAlign: "center",
-                        border: "1px dashed",
-                        borderColor: "divider",
-                        borderRadius: 3
-                    }}
-                >
-                    <Typography
-                        variant="h6"
-                        fontWeight={600}
+                {loading ? (
+                    <Box
+                        sx={{
+                            py: 8,
+                            display: "flex",
+                            justifyContent: "center"
+                        }}
                     >
-                        No inventory records found
-                    </Typography>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>ID</TableCell>
+                                <TableCell>Item Name</TableCell>
+                                <TableCell>Item Code</TableCell>
+                                <TableCell>Category</TableCell>
+                                <TableCell>Warehouse</TableCell>
+                                <TableCell>Shelf</TableCell>
+                                <TableCell align="right">Quantity</TableCell>
+                                <TableCell align="right">Available</TableCell>
+                                <TableCell>Status</TableCell>
+                                <TableCell align="center">Actions</TableCell>
+                            </TableRow>
+                        </TableHead>
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 1, mb: 2 }}
-                    >
-                        Try changing your search or filters,
-                        or create a new inventory record.
-                    </Typography>
+                        <TableBody>
+                            {paginatedInventory.length === 0 ? (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={10}
+                                        align="center"
+                                        sx={{ py: 6 }}
+                                    >
+                                        <Typography
+                                            variant="body1"
+                                            color="text.secondary"
+                                        >
+                                            {inventory.length === 0
+                                                ? "No shelfwise inventory records found."
+                                                : "No records match your search or filter."}
+                                        </Typography>
 
-                    <Button
-                        variant="contained"
-                        onClick={() => setCreateOpen(true)}
-                    >
-                        Add Inventory
-                    </Button>
-                </Box>
-            ) : (
-                <>
-                    {/* =============================================
-                        CARD VIEW
-                    ============================================= */}
-
-                    {viewMode === "card" && (
-                        <Grid container spacing={2}>
-                            {paginatedInventory.map(
-                                (record, index) => {
-                                    const id =
-                                        getInventoryId(record);
+                                        {inventory.length === 0 && (
+                                            <Button
+                                                sx={{ mt: 2 }}
+                                                variant="contained"
+                                                startIcon={<Add />}
+                                                onClick={() =>
+                                                    navigate(
+                                                        "/shelfwise-inventories/create"
+                                                    )
+                                                }
+                                            >
+                                                Add Inventory
+                                            </Button>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                paginatedInventory.map((item, index) => {
+                                    const id = getInventoryId(item);
 
                                     return (
-                                        <Grid
-                                            item
-                                            xs={12}
-                                            sm={6}
-                                            lg={4}
-                                            xl={3}
-                                            key={
-                                                id !== ""
-                                                    ? id
-                                                    : index
-                                            }
+                                        <TableRow
+                                            hover
+                                            key={id || index}
                                         >
-                                            <ShelfwiseInventoryCard
-                                                inventory={record}
-                                                loading={loading}
-                                                onView={openView}
-                                                onEdit={openEdit}
-                                                onDelete={openDelete}
-                                            />
-                                        </Grid>
-                                    );
-                                }
-                            )}
-                        </Grid>
-                    )}
+                                            <TableCell>
+                                                {id || "—"}
+                                            </TableCell>
 
-                    {/* =============================================
-                        TABLE VIEW
-                    ============================================= */}
+                                            <TableCell>
+                                                {getField(
+                                                    item,
+                                                    "itemName",
+                                                    "ItemName"
+                                                ) || "—"}
+                                            </TableCell>
 
-                    {viewMode === "table" && (
-                        <TableContainer
-                            component={Paper}
-                            variant="outlined"
-                            sx={{ borderRadius: 2 }}
-                        >
-                            <Table
-                                size="small"
-                                sx={{ minWidth: 950 }}
-                            >
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>
-                                            <strong>Item Name</strong>
-                                        </TableCell>
+                                            <TableCell>
+                                                {getField(
+                                                    item,
+                                                    "itemCode",
+                                                    "ItemCode"
+                                                ) || "—"}
+                                            </TableCell>
 
-                                        <TableCell>
-                                            <strong>Item Code</strong>
-                                        </TableCell>
+                                            <TableCell>
+                                                {getField(
+                                                    item,
+                                                    "categoryName",
+                                                    "CategoryName"
+                                                ) || "—"}
+                                            </TableCell>
 
-                                        <TableCell>
-                                            <strong>Warehouse</strong>
-                                        </TableCell>
+                                            <TableCell>
+                                                {getField(
+                                                    item,
+                                                    "warehouseName",
+                                                    "WarehouseName"
+                                                ) || "—"}
+                                            </TableCell>
 
-                                        <TableCell>
-                                            <strong>Shelf</strong>
-                                        </TableCell>
+                                            <TableCell>
+                                                {[
+                                                    getField(
+                                                        item,
+                                                        "shelfName",
+                                                        "ShelfName"
+                                                    ),
+                                                    getField(
+                                                        item,
+                                                        "shelfCode",
+                                                        "ShelfCode"
+                                                    )
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(" / ") || "—"}
+                                            </TableCell>
 
-                                        <TableCell>
-                                            <strong>Category</strong>
-                                        </TableCell>
+                                            <TableCell align="right">
+                                                {getField(
+                                                    item,
+                                                    "quantity",
+                                                    "Quantity"
+                                                ) || 0}
+                                            </TableCell>
 
-                                        <TableCell align="right">
-                                            <strong>Quantity</strong>
-                                        </TableCell>
+                                            <TableCell align="right">
+                                                {getField(
+                                                    item,
+                                                    "availableQuantity",
+                                                    "AvailableQuantity"
+                                                ) || 0}
+                                            </TableCell>
 
-                                        <TableCell align="right">
-                                            <strong>Available</strong>
-                                        </TableCell>
+                                            <TableCell>
+                                                <InventoryStatusChip
+                                                    status={getInventoryStatus(item)}
+                                                />
+                                            </TableCell>
 
-                                        <TableCell align="right">
-                                            <strong>Reserved</strong>
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <strong>Status</strong>
-                                        </TableCell>
-
-                                        <TableCell align="center">
-                                            <strong>Actions</strong>
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHead>
-
-                                <TableBody>
-                                    {paginatedInventory.map(
-                                        (record, index) => {
-                                            const id =
-                                                getInventoryId(record);
-
-                                            return (
-                                                <TableRow
-                                                    hover
-                                                    key={
-                                                        id !== ""
-                                                            ? id
-                                                            : index
-                                                    }
+                                            <TableCell align="center">
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={0}
+                                                    justifyContent="center"
                                                 >
-                                                    <TableCell>
-                                                        {getField(
-                                                            record,
-                                                            "itemName",
-                                                            "ItemName"
-                                                        ) || "-"}
-                                                    </TableCell>
+                                                    <Tooltip title="View details">
+                                                        <span>
+                                                            <IconButton
+                                                                color="primary"
+                                                                size="small"
+                                                                disabled={!id}
+                                                                onClick={() =>
+                                                                    handleView(id)
+                                                                }
+                                                            >
+                                                                <Visibility fontSize="small" />
+                                                            </IconButton>
+                                                        </span>
+                                                    </Tooltip>
 
-                                                    <TableCell>
-                                                        {getField(
-                                                            record,
-                                                            "itemCode",
-                                                            "ItemCode"
-                                                        ) || "-"}
-                                                    </TableCell>
+                                                    <Tooltip title="Edit inventory">
+                                                        <span>
+                                                            <IconButton
+                                                                color="secondary"
+                                                                size="small"
+                                                                disabled={!id}
+                                                                onClick={() =>
+                                                                    handleEdit(id)
+                                                                }
+                                                            >
+                                                                <Edit fontSize="small" />
+                                                            </IconButton>
+                                                        </span>
+                                                    </Tooltip>
 
-                                                    <TableCell>
-                                                        {getField(
-                                                            record,
-                                                            "warehouseName",
-                                                            "WarehouseName"
-                                                        ) || "-"}
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        {getField(
-                                                            record,
-                                                            "shelfName",
-                                                            "ShelfName"
-                                                        ) || "-"}
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        {getField(
-                                                            record,
-                                                            "categoryName",
-                                                            "CategoryName"
-                                                        ) || "-"}
-                                                    </TableCell>
-
-                                                    <TableCell align="right">
-                                                        {Number(
-                                                            getField(
-                                                                record,
-                                                                "quantity",
-                                                                "Quantity"
-                                                            )
-                                                        ) || 0}
-                                                    </TableCell>
-
-                                                    <TableCell align="right">
-                                                        {Number(
-                                                            getField(
-                                                                record,
-                                                                "availableQuantity",
-                                                                "AvailableQuantity"
-                                                            )
-                                                        ) || 0}
-                                                    </TableCell>
-
-                                                    <TableCell align="right">
-                                                        {Number(
-                                                            getField(
-                                                                record,
-                                                                "reservedQuantity",
-                                                                "ReservedQuantity"
-                                                            )
-                                                        ) || 0}
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        <InventoryStatusChip
-                                                            status={getInventoryStatus(
-                                                                record
-                                                            )}
-                                                        />
-                                                    </TableCell>
-
-                                                    <TableCell align="center">
-                                                        <Box
-                                                            sx={{
-                                                                display: "flex",
-                                                                justifyContent: "center"
-                                                            }}
-                                                        >
-                                                            <Tooltip title="View details">
-                                                                <IconButton
-                                                                    size="small"
-                                                                    color="primary"
-                                                                    onClick={() =>
-                                                                        openView(
-                                                                            record
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Visibility fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-
-                                                            <Tooltip title="Edit inventory">
-                                                                <IconButton
-                                                                    size="small"
-                                                                    color="primary"
-                                                                    onClick={() =>
-                                                                        openEdit(
-                                                                            record
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Edit fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-
-                                                            <Tooltip title="Delete inventory">
-                                                                <IconButton
-                                                                    size="small"
-                                                                    color="error"
-                                                                    onClick={() =>
-                                                                        openDelete(
-                                                                            record
-                                                                        )
-                                                                    }
-                                                                >
+                                                    <Tooltip title="Delete inventory">
+                                                        <span>
+                                                            <IconButton
+                                                                color="error"
+                                                                size="small"
+                                                                disabled={
+                                                                    !id ||
+                                                                    deletingId === id
+                                                                }
+                                                                onClick={() =>
+                                                                    handleDelete(item)
+                                                                }
+                                                            >
+                                                                {deletingId === id ? (
+                                                                    <CircularProgress
+                                                                        size={18}
+                                                                    />
+                                                                ) : (
                                                                     <Delete fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Box>
-                                                    </TableCell>
-                                                </TableRow>
-                                            );
-                                        }
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
+                                                                )}
+                                                            </IconButton>
+                                                        </span>
+                                                    </Tooltip>
+                                                </Stack>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
+                            )}
+                        </TableBody>
+                    </Table>
+                )}
 
-                    {/* =============================================
-                        PAGINATION
-                    ============================================= */}
-
-                    <Box sx={{ mt: 3 }}>
-                        <ShelfwiseInventoryPagination
-                            page={page}
-                            rowsPerPage={rowsPerPage}
-                            totalRecords={filteredInventory.length}
-                            onPageChange={(newPage) =>
-                                setPage(newPage)
-                            }
-                            onRowsPerPageChange={(value) => {
-                                setRowsPerPage(Number(value));
-                                setPage(0);
-                            }}
-                            loading={loading}
-                        />
-                    </Box>
-                </>
-            )}
-
-            {/* =================================================
-                CREATE DIALOG
-            ================================================= */}
-
-          
-
-            {/* =================================================
-                EDIT DIALOG
-            ================================================= */}
-
-            <ShelfwiseInventoryEdit
-                open={editOpen}
-                inventory={selectedInventory}
-                onClose={() => {
-                    if (!submitting) {
-                        setEditOpen(false);
-                        setSelectedInventory(null);
-                    }
-                }}
-                onSubmit={handleEdit}
-                submitting={submitting}
-            />
-
-            {/* =================================================
-                DETAILS DIALOG
-            ================================================= */}
-
-            <ShelfwiseInventoryDetails
-                open={detailsOpen}
-                inventory={selectedInventory}
-                onClose={() => {
-                    setDetailsOpen(false);
-                    setSelectedInventory(null);
-                }}
-                onEdit={(record) => {
-                    setDetailsOpen(false);
-                    openEdit(record);
-                }}
-            />
-
-            {/* =================================================
-                DELETE CONFIRMATION
-            ================================================= */}
-
-            <Dialog
-                open={deleteOpen}
-                onClose={() => {
-                    if (!submitting) {
-                        setDeleteOpen(false);
-                    }
-                }}
-                fullWidth
-                maxWidth="xs"
-            >
-                <DialogTitle>
-                    Delete Inventory
-                </DialogTitle>
-
-                <DialogContent>
-                    <Typography>
-                        Are you sure you want to delete{" "}
-                        <strong>
-                            {getField(
-                                selectedInventory,
-                                "itemName",
-                                "ItemName"
-                            ) || "this inventory record"}
-                        </strong>
-                        ?
-                    </Typography>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 1 }}
-                    >
-                        This action cannot be undone.
-                    </Typography>
-                </DialogContent>
-
-                <DialogActions sx={{ p: 2 }}>
-                    <Button
-                        onClick={() => setDeleteOpen(false)}
-                        disabled={submitting}
-                    >
-                        Cancel
-                    </Button>
-
-                    <Button
-                        color="error"
-                        variant="contained"
-                        onClick={handleDelete}
-                        disabled={submitting}
-                    >
-                        {submitting ? "Deleting..." : "Delete"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* =================================================
-                SUCCESS NOTIFICATION
-            ================================================= */}
-
-            <Snackbar
-                open={Boolean(success)}
-                autoHideDuration={4000}
-                onClose={() => setSuccess("")}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right"
-                }}
-            >
-                <Alert
-                    severity="success"
-                    variant="filled"
-                    onClose={() => setSuccess("")}
-                >
-                    {success}
-                </Alert>
-            </Snackbar>
-
-        </Box>
+                <TablePagination
+                    component="div"
+                    count={filteredInventory.length}
+                    page={page}
+                    onPageChange={(_, newPage) => setPage(newPage)}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={(event) => {
+                        setRowsPerPage(Number(event.target.value));
+                        setPage(0);
+                    }}
+                    rowsPerPageOptions={[5, 10, 25, 50, 100]}
+                />
+            </TableContainer>
+        </Container>
     );
 };
 
