@@ -35313,6 +35313,19 @@ app.put(
         }
     }
 );
+const agent = new https.Agent({ rejectUnauthorized: false });
+app.delete('/api/ReversePickup/:id/seller/:sellerId/customer/:customerId', async (req, res) => {
+  const { id, sellerId, customerId } = req.params;
+  try {
+    console.log(`DELETE ${id}/seller/${sellerId}/customer/${customerId}`);
+    const r = await axios.delete(`https://localhost:7203/api/ReversePickup/${id}/seller/${sellerId}/customer/${customerId}`, { httpsAgent: agent });
+    console.log(`DELETE SUCCESS ->`, r.data);
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    console.log(`DELETE FAILED ${id}/${sellerId}/${customerId} ->`, e.response?.data || e.message);
+    res.status(e.response?.status || 500).json(e.response?.data || { success: false, message: e.message });
+  }
+});
 
 
 ///////////////////////////////////reverse pickup items//////////////////
