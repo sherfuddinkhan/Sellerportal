@@ -33522,317 +33522,393 @@ app.delete("/api/export-jobs/:id", async (req, res) => {
 // ============================================================
 // FACILITY CHANNEL - GET ALL
 // ============================================================
+const FACILITY_CHANNEL_API = "https://localhost:7203/api/FacilityChannel";
 
-app.get("/api/FacilityChannel", async (req, res) => {
+// ============================================================
+// FACILITY CHANNEL - GET ALL
+// GET /api/FacilityChannel/all
+// ============================================================
+
+app.get("/api/FacilityChannel/all", async (req, res) => {
     try {
-        console.log("================================================");
-        console.log("GET ALL FACILITY CHANNELS");
-        console.log("QUERY:", req.query);
-        console.log("================================================");
-
         const response = await axios.get(
-            `${process.env.DOTNET_API_URL}/FacilityChannel`,
-            {
-                params: req.query
-            }
+            `${FACILITY_CHANNEL_API}/all`,
+            { httpsAgent }
         );
 
-        console.log("GET ALL FACILITY CHANNELS SUCCESS");
-
-        return res.status(response.status).json(response.data);
-
+        res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("GET ALL FACILITY CHANNELS ERROR:", error.message);
+        console.error(
+            "FacilityChannel GET /all failed:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
 
-        if (error.response) {
-            return res
-                .status(error.response.status)
-                .json(error.response.data);
-        }
-
-        return res.status(500).json({
-            message: "Failed to fetch facility channels",
-            error: error.message
+        res.status(error.response?.status || 500).json({
+            message: "Failed to fetch facility channel inventory.",
+            details:
+                error.response?.data?.message ||
+                error.response?.data?.title ||
+                error.message
         });
     }
 });
 
+// ============================================================
+// FACILITY CHANNEL - GET BY SELLER AND CUSTOMER
+// GET /api/FacilityChannel/:sellerId/:customerId
+// ============================================================
+
+app.get("/api/FacilityChannel/:sellerId/:customerId", async (req, res) => {
+try {
+const sellerId = Number(req.params.sellerId);
+const customerId = Number(req.params.customerId);
+    if (
+        !Number.isInteger(sellerId) || sellerId <= 0 ||
+        !Number.isInteger(customerId) || customerId <= 0
+    ) {
+        return res.status(400).json({
+            message: "Valid sellerId and customerId are required"
+        });
+    }
+    const response = await axios.get(
+        `${FACILITY_CHANNEL_API}/${sellerId}/${customerId}`
+    );
+    return res.status(response.status).json(response.data);
+} catch (error) {
+    console.error("GET FACILITY CHANNEL BY SELLER/CUSTOMER ERROR:", error.message);
+    if (error.response) {
+        return res.status(error.response.status).json(error.response.data);
+    }
+    return res.status(500).json({
+        message: "Failed to fetch facility channel inventory",
+        error: error.message
+    });
+}
+});
+
+// ============================================================
+// FACILITY CHANNEL - FILTER
+// GET /api/FacilityChannel/filter
+// ============================================================
+
+app.get("/api/FacilityChannel/filter", async (req, res) => {
+try {
+const response = await axios.get(
+`${FACILITY_CHANNEL_API}/filter`,
+{ params: req.query }
+);
+    return res.status(response.status).json(response.data);
+} catch (error) {
+    console.error("FILTER FACILITY CHANNEL ERROR:", error.message);
+
+    if (error.response) {
+        return res.status(error.response.status).json(error.response.data);
+    }
+    return res.status(500).json({
+        message: "Failed to filter facility channel inventory",
+        error: error.message
+    });
+}
+});
 
 // ============================================================
 // FACILITY CHANNEL - GET BY ID
+// GET /api/FacilityChannel/details/:id
 // ============================================================
 
-app.get("/api/FacilityChannel/:id", async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        console.log("GET FACILITY CHANNEL BY ID:", id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({
-                message: "Invalid facility channel ID"
-            });
-        }
-
-        const response = await axios.get(
-            `${process.env.DOTNET_API_URL}/FacilityChannel/${id}`
-        );
-
-        return res.status(response.status).json(response.data);
-
-    } catch (error) {
-        console.error("GET FACILITY CHANNEL ERROR:", error.message);
-
-        if (error.response) {
-            return res
-                .status(error.response.status)
-                .json(error.response.data);
-        }
-
-        return res.status(500).json({
-            message: "Failed to fetch facility channel",
-            error: error.message
+app.get("/api/FacilityChannel/details/:id", async (req, res) => {
+try {
+const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({
+            message: "Invalid facility channel inventory ID"
         });
     }
-});
+    const response = await axios.get(
+        `${FACILITY_CHANNEL_API}/details/${id}`
+    );
 
+    return res.status(response.status).json(response.data);
+} catch (error) {
+    console.error("GET FACILITY CHANNEL BY ID ERROR:", error.message);
+
+    if (error.response) {
+        return res.status(error.response.status).json(error.response.data);
+    }
+
+    return res.status(500).json({
+        message: "Failed to fetch facility channel inventory record",
+        error: error.message
+    });
+}
+});
 
 // ============================================================
 // FACILITY CHANNEL - CREATE
+// POST /api/FacilityChannel
 // ============================================================
-
 app.post("/api/FacilityChannel", async (req, res) => {
     try {
-        console.log("================================================");
-        console.log("CREATE FACILITY CHANNEL");
-        console.log("REQUEST BODY:", req.body);
-        console.log("================================================");
-
         const {
-            facilityName,
-            channelName,
+            sellerId,
+            customerId,
+            productId,
+            skuCode,
+            facilityCode,
             channelCode,
-            description,
-            status
+            sellableQuantity
         } = req.body || {};
 
-        // ----------------------------------------------------
-        // VALIDATION
-        // ----------------------------------------------------
+        // Validate positive integer IDs
+        const validPositiveInteger = (value) =>
+            value !== undefined &&
+            value !== null &&
+            value !== "" &&
+            Number.isInteger(Number(value)) &&
+            Number(value) > 0;
 
         if (
-            typeof facilityName !== "string" ||
-            !facilityName.trim()
+            !validPositiveInteger(sellerId) ||
+            !validPositiveInteger(customerId) ||
+            !validPositiveInteger(productId)
         ) {
             return res.status(400).json({
-                message: "Facility name is required"
+                message:
+                    "Valid sellerId, customerId, and productId are required."
             });
         }
 
+        // Validate required text fields
         if (
-            typeof channelName !== "string" ||
-            !channelName.trim()
-        ) {
-            return res.status(400).json({
-                message: "Channel name is required"
-            });
-        }
-
-        if (
+            typeof skuCode !== "string" ||
+            !skuCode.trim() ||
+            typeof facilityCode !== "string" ||
+            !facilityCode.trim() ||
             typeof channelCode !== "string" ||
             !channelCode.trim()
         ) {
             return res.status(400).json({
-                message: "Channel code is required"
+                message:
+                    "skuCode, facilityCode, and channelCode are required."
             });
         }
 
-        // ----------------------------------------------------
-        // REQUEST BODY
-        // ----------------------------------------------------
+        // Validate sellable quantity
+        if (
+            sellableQuantity === undefined ||
+            sellableQuantity === null ||
+            sellableQuantity === "" ||
+            !Number.isInteger(Number(sellableQuantity)) ||
+            Number(sellableQuantity) < 0
+        ) {
+            return res.status(400).json({
+                message:
+                    "sellableQuantity must be a non-negative integer."
+            });
+        }
 
+        // Prepare request payload
         const requestBody = {
-            facilityName: facilityName.trim(),
-            channelName: channelName.trim(),
-            channelCode: channelCode.trim()
+            sellerId: Number(sellerId),
+            customerId: Number(customerId),
+            productId: Number(productId),
+            skuCode: skuCode.trim(),
+            facilityCode: facilityCode.trim(),
+            channelCode: channelCode.trim(),
+            sellableQuantity: Number(sellableQuantity)
         };
 
-        if (description !== undefined) {
-            requestBody.description = description;
-        }
-
-        if (status !== undefined) {
-            requestBody.status = status;
-        }
-
-        // ----------------------------------------------------
-        // CALL ASP.NET CORE API
-        // ----------------------------------------------------
-
-        const response = await axios.post(
-            `${process.env.DOTNET_API_URL}/FacilityChannel`,
-            requestBody
+        console.log(
+            "Creating FacilityChannel:",
+            JSON.stringify(requestBody, null, 2)
         );
 
-        console.log("CREATE FACILITY CHANNEL SUCCESS");
+        // Send request to ASP.NET Core API
+        const response = await axios.post(
+            FACILITY_CHANNEL_API,
+            requestBody,
+            {
+                httpsAgent: httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "*/*"
+                },
+                timeout: 15000
+            }
+        );
 
-        return res.status(response.status).json(response.data);
+        console.log(
+            "FacilityChannel created successfully:",
+            response.status,
+            response.data
+        );
+
+        // Return backend status and response
+        return res
+            .status(response.status)
+            .json(response.data);
 
     } catch (error) {
-        console.error("CREATE FACILITY CHANNEL ERROR:", error.message);
+        console.error("CREATE FACILITY CHANNEL ERROR:", {
+            message: error.message,
+            code: error.code,
+            status: error.response?.status,
+            response: error.response?.data
+        });
 
+        // Return backend errors when available
         if (error.response) {
             return res
                 .status(error.response.status)
                 .json(error.response.data);
         }
 
+        // Handle network and certificate errors
         return res.status(500).json({
-            message: "Failed to create facility channel",
-            error: error.message
+            message:
+                "Failed to connect to the FacilityChannel API.",
+            error: error.message,
+            code: error.code || null
         });
     }
 });
-
 
 // ============================================================
 // FACILITY CHANNEL - UPDATE
+// PUT /api/FacilityChannel/:id
 // ============================================================
 
 app.put("/api/FacilityChannel/:id", async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        console.log("================================================");
-        console.log("UPDATE FACILITY CHANNEL:", id);
-        console.log("REQUEST BODY:", req.body);
-        console.log("================================================");
-
-        // ----------------------------------------------------
-        // VALIDATION
-        // ----------------------------------------------------
-
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({
-                message: "Invalid facility channel ID"
-            });
-        }
-
-        if (
-            !req.body ||
-            typeof req.body !== "object" ||
-            Array.isArray(req.body)
-        ) {
-            return res.status(400).json({
-                message: "A valid request body is required"
-            });
-        }
-
-        // ----------------------------------------------------
-        // ALLOWED FIELDS
-        // ----------------------------------------------------
-
-        const allowedFields = [
-            "facilityName",
-            "channelName",
-            "channelCode",
-            "description",
-            "status"
-        ];
-
-        const requestBody = {};
-
-        allowedFields.forEach((field) => {
-            if (req.body[field] !== undefined) {
-                requestBody[field] = req.body[field];
-            }
-        });
-
-        if (Object.keys(requestBody).length === 0) {
-            return res.status(400).json({
-                message: "At least one valid field is required for update"
-            });
-        }
-
-        // ----------------------------------------------------
-        // CALL ASP.NET CORE API
-        // ----------------------------------------------------
-
-        const response = await axios.put(
-            `${process.env.DOTNET_API_URL}/FacilityChannel/${id}`,
-            requestBody
-        );
-
-        console.log("UPDATE FACILITY CHANNEL SUCCESS:", id);
-
-        return res.status(response.status).json(response.data);
-
-    } catch (error) {
-        console.error("UPDATE FACILITY CHANNEL ERROR:", error.message);
-
-        if (error.response) {
-            return res
-                .status(error.response.status)
-                .json(error.response.data);
-        }
-
-        return res.status(500).json({
-            message: "Failed to update facility channel",
-            error: error.message
+try {
+const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({
+            message: "Invalid facility channel inventory ID"
         });
     }
-});
 
+    const {
+        sellerId,
+        customerId,
+        productId,
+        skuCode,
+        facilityCode,
+        channelCode,
+        sellableQuantity
+    } = req.body || {};
+
+    if (
+        !Number.isInteger(Number(sellerId)) || Number(sellerId) <= 0 ||
+        !Number.isInteger(Number(customerId)) || Number(customerId) <= 0 ||
+        !Number.isInteger(Number(productId)) || Number(productId) <= 0
+    ) {
+        return res.status(400).json({
+            message: "Valid sellerId, customerId, and productId are required"
+        });
+    }
+
+    if (
+        typeof skuCode !== "string" || !skuCode.trim() ||
+        typeof facilityCode !== "string" || !facilityCode.trim() ||
+        typeof channelCode !== "string" || !channelCode.trim()
+    ) {
+        return res.status(400).json({
+            message: "skuCode, facilityCode, and channelCode are required"
+        });
+    }
+
+    if (
+        sellableQuantity === undefined ||
+        sellableQuantity === null ||
+        !Number.isInteger(Number(sellableQuantity)) ||
+        Number(sellableQuantity) < 0
+    ) {
+        return res.status(400).json({
+            message: "sellableQuantity must be a non-negative integer"
+        });
+    }
+
+    const requestBody = {
+        sellerId: Number(sellerId),
+        customerId: Number(customerId),
+        productId: Number(productId),
+        skuCode: skuCode.trim(),
+        facilityCode: facilityCode.trim(),
+        channelCode: channelCode.trim(),
+        sellableQuantity: Number(sellableQuantity)
+    };
+
+    const response = await axios.put(
+        `${FACILITY_CHANNEL_API}/${id}`,
+        requestBody
+    );
+
+    return res.status(response.status).json(response.data);
+} catch (error) {
+    console.error("UPDATE FACILITY CHANNEL ERROR:", error.message);
+
+    if (error.response) {
+        return res.status(error.response.status).json(error.response.data);
+    }
+
+    return res.status(500).json({
+        message: "Failed to update facility channel inventory record",
+        error: error.message
+    });
+}
+
+});
 
 // ============================================================
 // FACILITY CHANNEL - DELETE
+// DELETE /api/FacilityChannel/:id
 // ============================================================
-
 app.delete("/api/FacilityChannel/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        console.log("================================================");
-        console.log("DELETE FACILITY CHANNEL:", id);
-        console.log("================================================");
-
-        // ----------------------------------------------------
-        // VALIDATION
-        // ----------------------------------------------------
-
         if (!Number.isInteger(id) || id <= 0) {
             return res.status(400).json({
-                message: "Invalid facility channel ID"
+                message: "Invalid facility channel inventory ID"
             });
         }
 
-        // ----------------------------------------------------
-        // CALL ASP.NET CORE API
-        // ----------------------------------------------------
+        console.log("Deleting FacilityChannel ID:", id);
 
         const response = await axios.delete(
-            `${process.env.DOTNET_API_URL}/FacilityChannel/${id}`
+            `${FACILITY_CHANNEL_API}/${id}`,
+            {
+                httpsAgent,
+                timeout: 15000
+            }
         );
 
-        console.log("DELETE FACILITY CHANNEL SUCCESS:", id);
+        console.log("DELETE API SUCCESS:", response.status);
 
         return res.status(response.status).json(response.data);
 
     } catch (error) {
-        console.error("DELETE FACILITY CHANNEL ERROR:", error.message);
+        console.error(
+            "DELETE FACILITY CHANNEL ERROR:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
 
         if (error.response) {
-            return res
-                .status(error.response.status)
-                .json(error.response.data);
+            return res.status(error.response.status).json({
+                message: "ASP.NET Core rejected the delete request",
+                details: error.response.data
+            });
         }
 
         return res.status(500).json({
-            message: "Failed to delete facility channel",
+            message: "Failed to delete facility channel inventory record",
             error: error.message
         });
     }
 });
+
 //////////////////SUPPLIER ADDRESSES///////////////////////////
 // Real .NET API is on 7203
 const SUPPLIER_ADDRESS_API = process.env.SUPPLIER_ADDRESS_API || "https://localhost:7203/api/supplier-addresses";

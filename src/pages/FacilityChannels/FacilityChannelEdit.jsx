@@ -1,763 +1,517 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import {
-    Box,
-    Paper,
-    Grid,
-    Typography,
-    TextField,
-    MenuItem,
-    Button,
-    Divider,
     Alert,
+    Box,
+    Button,
     CircularProgress,
+    Grid,
+    Paper,
     Stack,
-    IconButton
+    TextField,
+    Typography
 } from "@mui/material";
 
 import {
-    Save,
     ArrowBack,
-    Refresh,
-    Edit as EditIcon
+    Save
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+const API_URL = "http://localhost:5000/api/FacilityChannel";
 
-const DEFAULT_API_BASE_URL =
-    "https://localhost:7000/api/FacilityChannel";
-
-/* =========================================================
-   INITIAL FORM DATA
-========================================================= */
-
-const initialFormData = {
-    facilityName: "",
-    channelName: "",
+const INITIAL_FORM = {
+    sellerId: "",
+    customerId: "",
+    productId: "",
+    skuCode: "",
+    facilityCode: "",
     channelCode: "",
-    description: "",
-    status: "active"
+    sellableQuantity: 0
 };
 
-/* =========================================================
-   EXTRACT ERROR MESSAGE
-========================================================= */
+/* Extract a record from common API response formats */
+const extractRecord = (response) => {
+    let data = response?.data ?? response;
 
-const getErrorMessage = (error) => {
+    for (let i = 0; i < 4; i++) {
+        if (!data || typeof data !== "object" || Array.isArray(data)) {
+            return null;
+        }
 
-    const responseData = error?.response?.data;
+        const hasId = data.id != null || data.Id != null;
 
-    if (typeof responseData === "string") {
-        return responseData;
+        if (hasId) {
+            return data;
+        }
+
+        const nested =
+            data.data ??
+            data.item ??
+            data.result ??
+            data.record;
+
+        if (nested == null) {
+            return data;
+        }
+
+        data = nested;
     }
 
-    if (responseData?.message) {
-        return responseData.message;
-    }
-
-    if (responseData?.title) {
-        return responseData.title;
-    }
-
-    if (responseData?.errors) {
-        return Object.values(responseData.errors)
-            .flat()
-            .join(" ");
-    }
-
-    if (error?.message) {
-        return error.message;
-    }
-
-    return "An unexpected error occurred.";
-
+    return data;
 };
 
-/* =========================================================
-   NORMALIZE API RESPONSE
-========================================================= */
+const read = (item, camel, pascal) =>
+    item?.[camel] ?? item?.[pascal];
 
-const normalizeFacilityChannel = (responseData) => {
+const getErrorMessage = (error, fallback) => {
+    const data = error?.response?.data;
 
-    const record =
-        responseData?.data ??
-        responseData?.result ??
-        responseData;
+    if (typeof data === "string" && data.trim()) {
+        return data;
+    }
 
-    return {
-        facilityName: record?.facilityName ?? "",
-        channelName: record?.channelName ?? "",
-        channelCode: record?.channelCode ?? "",
-        description: record?.description ?? "",
-        status: String(
-            record?.status ?? "active"
-        ).toLowerCase()
-    };
+    if (data?.errors && typeof data.errors === "object") {
+        return Object.values(data.errors).flat().join(", ");
+    }
 
+    return data?.message || data?.title || error?.message || fallback;
 };
 
-/* =========================================================
-   FACILITY CHANNEL EDIT
-========================================================= */
+const FacilityChannelEdit = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { id } = useParams();
 
-const FacilityChannelEdit = ({
-    facilityChannelId,
-    facilityChannel: initialFacilityChannel = null,
-    apiBaseUrl = DEFAULT_API_BASE_URL,
-    onCancel,
-    onUpdated,
-    onError
-}) => {
-
-    /* =====================================================
-       COMPONENT STATE
-    ===================================================== */
-
-    const [formData, setFormData] = useState({
-        ...initialFormData
-    });
-
-    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState(INITIAL_FORM);
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    const [formErrors, setFormErrors] = useState({});
+    /* =========================================
+       LOAD RECORD
+    ========================================= */
 
-    /* =====================================================
-       LOAD FACILITY CHANNEL
-    ===================================================== */
+    useEffect(() => {
+        let cancelled = false;
 
-    const loadFacilityChannel = async () => {
-
-        if (
-            facilityChannelId === null ||
-            facilityChannelId === undefined ||
-            facilityChannelId === ""
-        ) {
-
-            if (initialFacilityChannel) {
-
-                setFormData(
-                    normalizeFacilityChannel(
-                        initialFacilityChannel
-                    )
-                );
-
-                setError("");
-
-            } else {
-
-                setError(
-                    "A facility channel ID is required."
-                );
-
+        const loadRecord = async () => {
+            if (!id || !Number.isInteger(Number(id)) || Number(id) <= 0) {
+                setError("A valid facility channel ID is required.");
+                setLoading(false);
+                return;
             }
-
-            return;
-        }
-
-        try {
 
             setLoading(true);
             setError("");
-            setSuccess("");
 
-            const response = await axios.get(
-                `${apiBaseUrl}/${encodeURIComponent(
-                    facilityChannelId
-                )}`
-            );
+            try {
+                const response = await axios.get(
+                    `${API_URL}/details/${encodeURIComponent(id)}`
+                );
 
-            setFormData(
-                normalizeFacilityChannel(response.data)
-            );
+                const record = extractRecord(response);
 
-            setFormErrors({});
+                if (!record || read(record, "id", "Id") == null) {
+                    throw new Error(
+                        "The API response did not contain the requested inventory record."
+                    );
+                }
 
-        } catch (requestError) {
+                const sellerId = read(record, "sellerId", "SellerId");
+                const customerId = read(record, "customerId", "CustomerId");
 
-            const message = getErrorMessage(requestError);
+                if (!cancelled) {
+                    setFormData({
+                        sellerId: sellerId ?? "",
+                        customerId: customerId ?? "",
+                        productId: read(record, "productId", "ProductId") ?? "",
+                        skuCode: read(record, "skuCode", "SkuCode") ?? "",
+                        facilityCode: read(record, "facilityCode", "FacilityCode") ?? "",
+                        channelCode: read(record, "channelCode", "ChannelCode") ?? "",
+                        sellableQuantity:
+                            read(record, "sellableQuantity", "SellableQuantity") ?? 0
+                    });
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    /*
+                     * Use navigation state only as a fallback if the API
+                     * request fails and the list supplied the record.
+                     */
+                    const fallbackRecord =
+                        location.state?.facilityChannel;
 
-            setError(message);
-
-            if (typeof onError === "function") {
-                onError(requestError);
+                    if (
+                        fallbackRecord &&
+                        String(read(fallbackRecord, "id", "Id")) === String(id)
+                    ) {
+                        setFormData({
+                            sellerId:
+                                read(fallbackRecord, "sellerId", "SellerId") ?? "",
+                            customerId:
+                                read(fallbackRecord, "customerId", "CustomerId") ?? "",
+                            productId:
+                                read(fallbackRecord, "productId", "ProductId") ?? "",
+                            skuCode:
+                                read(fallbackRecord, "skuCode", "SkuCode") ?? "",
+                            facilityCode:
+                                read(fallbackRecord, "facilityCode", "FacilityCode") ?? "",
+                            channelCode:
+                                read(fallbackRecord, "channelCode", "ChannelCode") ?? "",
+                            sellableQuantity:
+                                read(
+                                    fallbackRecord,
+                                    "sellableQuantity",
+                                    "SellableQuantity"
+                                ) ?? 0
+                        });
+                    } else {
+                        setError(
+                            getErrorMessage(
+                                err,
+                                "Failed to load facility channel inventory."
+                            )
+                        );
+                    }
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
+        };
 
-        } finally {
+        loadRecord();
 
-            setLoading(false);
+        return () => {
+            cancelled = true;
+        };
+    }, [id, location.state]);
 
-        }
-
-    };
-
-    /* =====================================================
-       INITIALIZE FORM
-    ===================================================== */
-
-    useEffect(() => {
-
-        loadFacilityChannel();
-
-        // Reload when the selected record or API URL changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        facilityChannelId,
-        apiBaseUrl
-    ]);
-
-    /* =====================================================
-       HANDLE INPUT CHANGE
-    ===================================================== */
+    /* =========================================
+       INPUT CHANGE
+    ========================================= */
 
     const handleChange = (event) => {
-
-        const {
-            name,
-            value
-        } = event.target;
+        const { name, value } = event.target;
 
         setFormData((previous) => ({
             ...previous,
             [name]: value
         }));
+    };
 
-        setFormErrors((previous) => ({
-            ...previous,
-            [name]: ""
-        }));
+    /* =========================================
+       UPDATE RECORD
+    ========================================= */
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
         setError("");
         setSuccess("");
 
-    };
+        const sellerId = Number(formData.sellerId);
+        const customerId = Number(formData.customerId);
+        const productId = Number(formData.productId);
+        const sellableQuantity = Number(formData.sellableQuantity);
 
-    /* =====================================================
-       VALIDATE FORM
-    ===================================================== */
-
-    const validateForm = () => {
-
-        const errors = {};
-
-        if (!formData.facilityName.trim()) {
-            errors.facilityName =
-                "Facility name is required.";
-        } else if (
-            formData.facilityName.trim().length > 150
+        if (
+            formData.sellerId === "" ||
+            !Number.isInteger(sellerId) ||
+            sellerId <= 0
         ) {
-            errors.facilityName =
-                "Facility name cannot exceed 150 characters.";
+            setError("Enter a valid Seller ID.");
+            return;
         }
 
-        if (!formData.channelName.trim()) {
-            errors.channelName =
-                "Channel name is required.";
-        } else if (
-            formData.channelName.trim().length > 150
+        if (
+            formData.customerId === "" ||
+            !Number.isInteger(customerId) ||
+            customerId <= 0
         ) {
-            errors.channelName =
-                "Channel name cannot exceed 150 characters.";
+            setError("Enter a valid Customer ID.");
+            return;
+        }
+
+        if (
+            formData.productId === "" ||
+            !Number.isInteger(productId) ||
+            productId <= 0
+        ) {
+            setError("Enter a valid Product ID.");
+            return;
+        }
+
+        if (!formData.skuCode.trim()) {
+            setError("SKU Code is required.");
+            return;
+        }
+
+        if (!formData.facilityCode.trim()) {
+            setError("Facility Code is required.");
+            return;
         }
 
         if (!formData.channelCode.trim()) {
-            errors.channelCode =
-                "Channel code is required.";
-        } else if (
-            formData.channelCode.trim().length > 50
-        ) {
-            errors.channelCode =
-                "Channel code cannot exceed 50 characters.";
-        }
-
-        if (formData.description.length > 500) {
-            errors.description =
-                "Description cannot exceed 500 characters.";
-        }
-
-        if (
-            !["active", "inactive", "pending"].includes(
-                formData.status
-            )
-        ) {
-            errors.status = "Select a valid status.";
-        }
-
-        setFormErrors(errors);
-
-        return Object.keys(errors).length === 0;
-
-    };
-
-    /* =====================================================
-       UPDATE FACILITY CHANNEL
-    ===================================================== */
-
-    const handleSubmit = async (event) => {
-
-        event.preventDefault();
-
-        if (saving || loading) {
-            return;
-        }
-
-        setError("");
-        setSuccess("");
-
-        if (!validateForm()) {
+            setError("Channel Code is required.");
             return;
         }
 
         if (
-            facilityChannelId === null ||
-            facilityChannelId === undefined ||
-            facilityChannelId === ""
+            formData.sellableQuantity === "" ||
+            !Number.isInteger(sellableQuantity) ||
+            sellableQuantity < 0
         ) {
-
-            const message =
-                "Cannot update the facility channel because its ID is missing.";
-
-            setError(message);
-
-            if (typeof onError === "function") {
-                onError(new Error(message));
-            }
-
+            setError("Sellable Quantity must be a non-negative integer.");
             return;
         }
 
         const payload = {
-            facilityName: formData.facilityName.trim(),
-            channelName: formData.channelName.trim(),
+            sellerId,
+            customerId,
+            productId,
+            skuCode: formData.skuCode.trim(),
+            facilityCode: formData.facilityCode.trim(),
             channelCode: formData.channelCode.trim(),
-            description: formData.description.trim(),
-            status: formData.status
+            sellableQuantity
         };
 
+        setSaving(true);
+
         try {
-
-            setSaving(true);
-
-            const response = await axios.put(
-                `${apiBaseUrl}/${encodeURIComponent(
-                    facilityChannelId
-                )}`,
+            await axios.put(
+                `${API_URL}/${encodeURIComponent(id)}`,
                 payload
             );
 
-            setSuccess(
-                "Facility channel updated successfully."
+            setSuccess("Facility channel inventory updated successfully.");
+
+            navigate("/facility-channels", {
+                replace: true,
+                state: {
+                    message: "Facility channel inventory updated successfully."
+                }
+            });
+        } catch (err) {
+            setError(
+                getErrorMessage(
+                    err,
+                    "Failed to update facility channel inventory."
+                )
             );
-
-            if (typeof onUpdated === "function") {
-                onUpdated(
-                    response.data,
-                    facilityChannelId
-                );
-            }
-
-        } catch (requestError) {
-
-            const message = getErrorMessage(requestError);
-
-            setError(message);
-
-            if (typeof onError === "function") {
-                onError(requestError);
-            }
-
         } finally {
-
             setSaving(false);
-
         }
-
     };
 
-    /* =====================================================
-       RENDER LOADING STATE
-    ===================================================== */
+    /* =========================================
+       LOADING
+    ========================================= */
 
     if (loading) {
-
         return (
+            <Box sx={{ p: 4, textAlign: "center" }}>
+                <CircularProgress />
+                <Typography sx={{ mt: 2 }}>
+                    Loading facility channel inventory...
+                </Typography>
+            </Box>
+        );
+    }
+
+    /* =========================================
+       FULL-PAGE EDIT FORM
+    ========================================= */
+
+    return (
+        <Box
+            sx={{
+                width: "100%",
+                maxWidth: 1100,
+                mx: "auto",
+                p: { xs: 2, md: 4 }
+            }}
+        >
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                justifyContent="space-between"
+                alignItems={{ xs: "flex-start", sm: "center" }}
+                spacing={2}
+                sx={{ mb: 3 }}
+            >
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                        Edit Facility Channel Inventory
+                    </Typography>
+
+                    <Typography color="text.secondary" sx={{ mt: 1 }}>
+                        Update inventory record ID: {id}
+                    </Typography>
+                </Box>
+
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={() => navigate("/facility-channels")}
+                    disabled={saving}
+                >
+                    Back to List
+                </Button>
+            </Stack>
+
+            {error && (
+                <Alert
+                    severity="error"
+                    onClose={() => setError("")}
+                    sx={{ mb: 2 }}
+                >
+                    {error}
+                </Alert>
+            )}
+
+            {success && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                    {success}
+                </Alert>
+            )}
+
             <Paper
-                elevation={0}
+                component="form"
+                onSubmit={handleSubmit}
+                elevation={2}
                 sx={{
-                    p: 5,
-                    border: "1px solid",
-                    borderColor: "divider",
+                    p: { xs: 2, md: 4 },
                     borderRadius: 3
                 }}
             >
-
-                <Stack
-                    alignItems="center"
-                    spacing={2}
-                >
-
-                    <CircularProgress />
-
-                    <Typography color="text.secondary">
-                        Loading facility channel details...
-                    </Typography>
-
-                </Stack>
-
-            </Paper>
-        );
-
-    }
-
-    /* =====================================================
-       RENDER EDIT FORM
-    ===================================================== */
-
-    return (
-        <Paper
-            elevation={0}
-            sx={{
-                width: "100%",
-                maxWidth: 1000,
-                mx: "auto",
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 3,
-                overflow: "hidden"
-            }}
-        >
-
-            {/* =================================================
-                HEADER
-            ================================================= */}
-
-            <Box
-                sx={{
-                    p: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 2
-                }}
-            >
-
-                <Stack
-                    direction="row"
-                    spacing={1.5}
-                    alignItems="center"
-                >
-
-                    <EditIcon
-                        color="primary"
-                        fontSize="large"
-                    />
-
-                    <Box>
-
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
-                            Edit Facility Channel
-                        </Typography>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            Update the selected facility channel.
-                        </Typography>
-
-                    </Box>
-
-                </Stack>
-
-                <Stack
-                    direction="row"
-                    spacing={1}
-                >
-
-                    <IconButton
-                        onClick={loadFacilityChannel}
-                        disabled={loading || saving}
-                        aria-label="Reload facility channel"
-                    >
-                        <Refresh />
-                    </IconButton>
-
-                    {typeof onCancel === "function" && (
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            startIcon={<ArrowBack />}
-                            onClick={onCancel}
+                <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            fullWidth
+                            required
+                            type="number"
+                            name="sellerId"
+                            label="Seller ID"
+                            value={formData.sellerId}
+                            onChange={handleChange}
+                            inputProps={{ min: 1, step: 1 }}
                             disabled={saving}
-                        >
-                            Back
-                        </Button>
-                    )}
-
-                </Stack>
-
-            </Box>
-
-            <Divider />
-
-            {/* =================================================
-                FORM CONTENT
-            ================================================= */}
-
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                noValidate
-            >
-
-                <Box sx={{ p: 3 }}>
-
-                    {error && (
-                        <Alert
-                            severity="error"
-                            sx={{ mb: 2 }}
-                        >
-                            {error}
-                        </Alert>
-                    )}
-
-                    {success && (
-                        <Alert
-                            severity="success"
-                            sx={{ mb: 2 }}
-                        >
-                            {success}
-                        </Alert>
-                    )}
-
-                    <Grid
-                        container
-                        spacing={3}
-                    >
-
-                        {/* =====================================
-                            FACILITY NAME
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
-                            <TextField
-                                fullWidth
-                                required
-                                name="facilityName"
-                                label="Facility Name"
-                                value={formData.facilityName}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.facilityName
-                                )}
-                                helperText={
-                                    formErrors.facilityName ||
-                                    "Maximum 150 characters"
-                                }
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 150
-                                }}
-                            />
-
-                        </Grid>
-
-                        {/* =====================================
-                            CHANNEL NAME
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
-                            <TextField
-                                fullWidth
-                                required
-                                name="channelName"
-                                label="Channel Name"
-                                value={formData.channelName}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.channelName
-                                )}
-                                helperText={
-                                    formErrors.channelName ||
-                                    "Maximum 150 characters"
-                                }
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 150
-                                }}
-                            />
-
-                        </Grid>
-
-                        {/* =====================================
-                            CHANNEL CODE
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
-                            <TextField
-                                fullWidth
-                                required
-                                name="channelCode"
-                                label="Channel Code"
-                                value={formData.channelCode}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.channelCode
-                                )}
-                                helperText={
-                                    formErrors.channelCode ||
-                                    "Maximum 50 characters"
-                                }
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 50
-                                }}
-                            />
-
-                        </Grid>
-
-                        {/* =====================================
-                            STATUS
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
-                            <TextField
-                                select
-                                fullWidth
-                                required
-                                name="status"
-                                label="Status"
-                                value={formData.status}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.status
-                                )}
-                                helperText={formErrors.status || " "}
-                                disabled={saving}
-                            >
-
-                                <MenuItem value="active">
-                                    Active
-                                </MenuItem>
-
-                                <MenuItem value="inactive">
-                                    Inactive
-                                </MenuItem>
-
-                                <MenuItem value="pending">
-                                    Pending
-                                </MenuItem>
-
-                            </TextField>
-
-                        </Grid>
-
-                        {/* =====================================
-                            DESCRIPTION
-                        ===================================== */}
-
-                        <Grid item xs={12}>
-
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={4}
-                                name="description"
-                                label="Description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.description
-                                )}
-                                helperText={
-                                    formErrors.description ||
-                                    `${formData.description.length}/500 characters`
-                                }
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 500
-                                }}
-                            />
-
-                        </Grid>
-
+                        />
                     </Grid>
 
-                </Box>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            fullWidth
+                            required
+                            type="number"
+                            name="customerId"
+                            label="Customer ID"
+                            value={formData.customerId}
+                            onChange={handleChange}
+                            inputProps={{ min: 1, step: 1 }}
+                            disabled={saving}
+                        />
+                    </Grid>
 
-                <Divider />
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            fullWidth
+                            required
+                            type="number"
+                            name="productId"
+                            label="Product ID"
+                            value={formData.productId}
+                            onChange={handleChange}
+                            inputProps={{ min: 1, step: 1 }}
+                            disabled={saving}
+                        />
+                    </Grid>
 
-                {/* =================================================
-                    FORM ACTIONS
-                ================================================= */}
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            fullWidth
+                            required
+                            name="skuCode"
+                            label="SKU Code"
+                            value={formData.skuCode}
+                            onChange={handleChange}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            fullWidth
+                            required
+                            name="facilityCode"
+                            label="Facility Code"
+                            value={formData.facilityCode}
+                            onChange={handleChange}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            fullWidth
+                            required
+                            name="channelCode"
+                            label="Channel Code"
+                            value={formData.channelCode}
+                            onChange={handleChange}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            fullWidth
+                            required
+                            type="number"
+                            name="sellableQuantity"
+                            label="Sellable Quantity"
+                            value={formData.sellableQuantity}
+                            onChange={handleChange}
+                            inputProps={{ min: 0, step: 1 }}
+                            disabled={saving}
+                        />
+                    </Grid>
+                </Grid>
 
                 <Stack
-                    direction={{
-                        xs: "column",
-                        sm: "row"
-                    }}
-                    spacing={1.5}
+                    direction={{ xs: "column-reverse", sm: "row" }}
                     justifyContent="flex-end"
-                    sx={{ p: 3 }}
+                    spacing={2}
+                    sx={{ mt: 4 }}
                 >
-
-                    {typeof onCancel === "function" && (
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            onClick={onCancel}
-                            disabled={saving}
-                        >
-                            Cancel
-                        </Button>
-                    )}
+                    <Button
+                        variant="outlined"
+                        onClick={() => navigate("/facility-channels")}
+                        disabled={saving}
+                    >
+                        Cancel
+                    </Button>
 
                     <Button
                         type="submit"
                         variant="contained"
                         startIcon={
                             saving
-                                ? (
-                                    <CircularProgress
-                                        size={18}
-                                        color="inherit"
-                                    />
-                                )
+                                ? <CircularProgress size={18} color="inherit" />
                                 : <Save />
                         }
                         disabled={saving}
                     >
-                        {saving
-                            ? "Updating..."
-                            : "Update Facility Channel"}
+                        {saving ? "Saving..." : "Save Changes"}
                     </Button>
-
                 </Stack>
-
-            </Box>
-
-        </Paper>
+            </Paper>
+        </Box>
     );
-
 };
 
 export default FacilityChannelEdit;
-

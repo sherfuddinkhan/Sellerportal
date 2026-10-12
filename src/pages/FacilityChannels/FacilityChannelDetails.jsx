@@ -1,9 +1,6 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import {
     Box,
@@ -28,400 +25,283 @@ import {
     Hub,
     Tag,
     InfoOutlined,
-    CalendarMonth
+    Inventory2,
+    Person,
+    ShoppingBag
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
-
-const DEFAULT_API_BASE_URL =
-    "https://localhost:7000/api/FacilityChannel";
-
-/* =========================================================
-   EXTRACT ERROR MESSAGE
-========================================================= */
+const API_URL = "http://localhost:5000/api/FacilityChannel";
 
 const getErrorMessage = (error) => {
+    const data = error?.response?.data;
 
-    const responseData = error?.response?.data;
+    if (typeof data === "string") return data;
+    if (data?.message) return data.message;
+    if (data?.title) return data.title;
 
-    if (typeof responseData === "string") {
-        return responseData;
+    if (data?.errors) {
+        return Object.values(data.errors).flat().join(" ");
     }
 
-    if (responseData?.message) {
-        return responseData.message;
+    if (error?.code === "ECONNABORTED") {
+        return "The API request timed out after 10 seconds. Check the Node.js proxy and .NET API.";
     }
 
-    if (responseData?.title) {
-        return responseData.title;
+    if (error?.code === "ERR_NETWORK") {
+        return "Cannot connect to the API. Make sure the Node.js server is running on port 5000.";
     }
 
-    if (responseData?.errors) {
-        return Object.values(responseData.errors)
-            .flat()
-            .join(" ");
-    }
-
-    return (
-        error?.message ||
-        "Unable to load facility channel details."
-    );
-
+    return error?.message || "Unable to load facility channel details.";
 };
 
-/* =========================================================
-   NORMALIZE API RESPONSE
-========================================================= */
-
 const normalizeFacilityChannel = (responseData) => {
+    let record = responseData;
 
-    const record =
-        responseData?.data ??
-        responseData?.result ??
-        responseData;
+    for (let i = 0; i < 5 && record && typeof record === "object"; i++) {
+        if (Array.isArray(record)) {
+            record = record[0];
+            continue;
+        }
 
-    if (
-        !record ||
-        typeof record !== "object" ||
-        Array.isArray(record)
-    ) {
+        const nested =
+            record.facilityChannel ??
+            record.FacilityChannel ??
+            record.data ??
+            record.result ??
+            record.item ??
+            record.record;
+
+        if (!nested || nested === record) break;
+        record = nested;
+    }
+
+    if (!record || typeof record !== "object" || Array.isArray(record)) {
         return null;
     }
 
-    return record;
+    const id =
+        record.id ??
+        record.Id ??
+        record.facilityChannelId ??
+        record.FacilityChannelId;
 
-};
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
-
-const formatDate = (value) => {
-
-    if (!value) {
-        return "—";
+    if (id === null || id === undefined || id === "") {
+        return null;
     }
 
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
-    }
-
-    return date.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-
+    return {
+        id,
+        sellerId: record.sellerId ?? record.SellerId ?? "",
+        customerId: record.customerId ?? record.CustomerId ?? "",
+        productId: record.productId ?? record.ProductId ?? "",
+        skuCode: record.skuCode ?? record.SkuCode ?? "",
+        facilityCode: record.facilityCode ?? record.FacilityCode ?? "",
+        channelCode: record.channelCode ?? record.ChannelCode ?? "",
+        sellableQuantity:
+            record.sellableQuantity ?? record.SellableQuantity ?? 0
+    };
 };
 
-/* =========================================================
-   GET STATUS CONFIGURATION
-========================================================= */
-
-const getStatusConfig = (status) => {
-
-    const normalizedStatus = String(
-        status ?? "unknown"
-    ).toLowerCase();
-
-    switch (normalizedStatus) {
-
-        case "active":
-            return {
-                label: "Active",
-                color: "success"
-            };
-
-        case "inactive":
-            return {
-                label: "Inactive",
-                color: "default"
-            };
-
-        case "pending":
-            return {
-                label: "Pending",
-                color: "warning"
-            };
-
-        default:
-            return {
-                label: status || "Unknown",
-                color: "default"
-            };
-
-    }
-
-};
-
-/* =========================================================
-   DETAIL ITEM
-========================================================= */
-
-const DetailItem = ({
-    icon,
-    label,
-    value
-}) => {
-
-    return (
+const DetailItem = ({ icon, label, value }) => (
+    <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, minWidth: 0 }}>
         <Box
             sx={{
                 display: "flex",
-                alignItems: "flex-start",
-                gap: 1.5,
-                minWidth: 0
+                alignItems: "center",
+                justifyContent: "center",
+                width: 42,
+                height: 42,
+                flexShrink: 0,
+                borderRadius: 2,
+                bgcolor: "action.hover",
+                color: "text.secondary"
             }}
         >
-
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 40,
-                    height: 40,
-                    flexShrink: 0,
-                    borderRadius: 2,
-                    backgroundColor: "action.hover",
-                    color: "text.secondary"
-                }}
-            >
-                {icon}
-            </Box>
-
-            <Box sx={{ minWidth: 0, flex: 1 }}>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 0.5 }}
-                >
-                    {label}
-                </Typography>
-
-                <Typography
-                    variant="body1"
-                    fontWeight={500}
-                    sx={{
-                        overflowWrap: "anywhere",
-                        whiteSpace: "pre-wrap"
-                    }}
-                >
-                    {value === null ||
-                    value === undefined ||
-                    value === ""
-                        ? "—"
-                        : String(value)}
-                </Typography>
-
-            </Box>
-
+            {icon}
         </Box>
-    );
 
-};
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                {label}
+            </Typography>
 
-/* =========================================================
-   FACILITY CHANNEL DETAILS
-========================================================= */
+            <Typography variant="body1" fontWeight={600} sx={{ overflowWrap: "anywhere" }}>
+                {value === null || value === undefined || value === ""
+                    ? "—"
+                    : String(value)}
+            </Typography>
+        </Box>
+    </Box>
+);
 
 const FacilityChannelDetails = ({
-    facilityChannelId,
-    facilityChannel: initialFacilityChannel = null,
-    apiBaseUrl = DEFAULT_API_BASE_URL,
+    facilityChannelId: suppliedId,
+    facilityChannel: suppliedRecord = null,
+    apiBaseUrl = API_URL,
     onClose,
     onEdit,
     onError
 }) => {
+    const { id: routeId } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    /* =====================================================
-       COMPONENT STATE
-    ===================================================== */
+    const routeRecord =
+        location.state?.facilityChannel ??
+        location.state?.record ??
+        suppliedRecord ??
+        null;
 
-    const [facilityChannel, setFacilityChannel] =
-        useState(initialFacilityChannel);
+    const facilityChannelId =
+        suppliedId ??
+        routeId ??
+        routeRecord?.id ??
+        routeRecord?.Id ??
+        routeRecord?.facilityChannelId ??
+        routeRecord?.FacilityChannelId;
 
-    const [loading, setLoading] = useState(false);
-
+    const [facilityChannel, setFacilityChannel] = useState(
+        () => normalizeFacilityChannel(routeRecord)
+    );
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    /* =====================================================
-       LOAD FACILITY CHANNEL DETAILS
-    ===================================================== */
+    const goBack = () => {
+        if (typeof onClose === "function") {
+            onClose();
+        } else {
+            navigate("/facility-channels");
+        }
+    };
 
-    const loadFacilityChannel = async () => {
+    const handleEdit = (record) => {
+        if (typeof onEdit === "function") {
+            onEdit(record);
+            return;
+        }
 
+        navigate(`/facility-channels/${record.id}/edit`, {
+            state: { facilityChannel: record }
+        });
+    };
+
+    // IMPORTANT: Hooks and this function must remain inside the component.
+    const loadFacilityChannel = useCallback(async () => {
         if (
             facilityChannelId === null ||
             facilityChannelId === undefined ||
-            facilityChannelId === ""
+            String(facilityChannelId).trim() === ""
         ) {
-
-            if (initialFacilityChannel) {
-
-                setFacilityChannel(initialFacilityChannel);
-                setError("");
-
-            } else {
-
-                setError(
-                    "A facility channel ID is required."
-                );
-
-            }
-
+            setError("Facility channel ID is missing from the URL.");
+            setLoading(false);
             return;
-
         }
 
         try {
-
             setLoading(true);
             setError("");
 
+            let sellerId =
+                routeRecord?.sellerId ??
+                routeRecord?.SellerId ??
+                "";
+
+            let customerId =
+                routeRecord?.customerId ??
+                routeRecord?.CustomerId ??
+                "";
+
+            // Use the known example IDs only when opening record 1
+            // without navigation state. Remove this fallback if IDs
+            // must always come from the logged-in user's selection.
+            if (
+                (sellerId === "" || customerId === "") &&
+                String(facilityChannelId) === "1"
+            ) {
+                sellerId = 6;
+                customerId = 3;
+            }
+
+            if (
+                sellerId === "" ||
+                sellerId === null ||
+                sellerId === undefined ||
+                customerId === "" ||
+                customerId === null ||
+                customerId === undefined
+            ) {
+                throw new Error(
+                    "Seller ID and Customer ID are required. Open this record from the Facility Channels list or supply the correct IDs."
+                );
+            }
+
+            console.log("Facility Channel ID:", facilityChannelId);
+            console.log("Seller ID:", sellerId);
+            console.log("Customer ID:", customerId);
+
             const response = await axios.get(
-                `${apiBaseUrl}/${encodeURIComponent(
-                    facilityChannelId
-                )}`
+                `${apiBaseUrl}/details/${encodeURIComponent(facilityChannelId)}`,
+                {
+                    params: { sellerId, customerId },
+                    timeout: 10000
+                }
             );
 
-            const record = normalizeFacilityChannel(
-                response.data
-            );
+            console.log("Facility Channel API response:", response.data);
+
+            const record = normalizeFacilityChannel(response.data);
 
             if (!record) {
                 throw new Error(
-                    "The API did not return valid facility channel details."
+                    "The API response did not contain a valid facility channel record."
                 );
             }
 
             setFacilityChannel(record);
-
         } catch (requestError) {
+            console.error(
+                "Facility Channel Details Error:",
+                requestError.response?.data || requestError.message
+            );
 
-            const message = getErrorMessage(requestError);
-
-            setError(message);
+            setError(getErrorMessage(requestError));
 
             if (typeof onError === "function") {
                 onError(requestError);
             }
-
         } finally {
-
             setLoading(false);
-
         }
-
-    };
-
-    /* =====================================================
-       LOAD DETAILS WHEN ID CHANGES
-    ===================================================== */
-
-    useEffect(() => {
-
-        if (
-            facilityChannelId !== null &&
-            facilityChannelId !== undefined &&
-            facilityChannelId !== ""
-        ) {
-
-            loadFacilityChannel();
-
-        } else {
-
-            setFacilityChannel(initialFacilityChannel);
-            setError("");
-
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         facilityChannelId,
         apiBaseUrl,
-        initialFacilityChannel
+        routeRecord,
+        onError
     ]);
 
-    /* =====================================================
-       STATUS
-    ===================================================== */
+    useEffect(() => {
+        loadFacilityChannel();
+    }, [loadFacilityChannel]);
 
-    const statusConfig = getStatusConfig(
-        facilityChannel?.status
-    );
-
-    /* =====================================================
-       RENDER LOADING STATE
-    ===================================================== */
-
-    if (loading && !facilityChannel) {
-
+    if (loading) {
         return (
-            <Paper
-                elevation={0}
-                sx={{
-                    p: 5,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 3
-                }}
-            >
-
-                <Stack
-                    alignItems="center"
-                    spacing={2}
-                >
-
-                    <CircularProgress />
-
-                    <Typography color="text.secondary">
-                        Loading facility channel details...
-                    </Typography>
-
-                </Stack>
-
+            <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3 }}>
+                <CircularProgress />
+                <Typography sx={{ mt: 2 }} color="text.secondary">
+                    Loading facility channel details...
+                </Typography>
             </Paper>
         );
-
     }
 
-    /* =====================================================
-       RENDER ERROR STATE
-    ===================================================== */
-
     if (error && !facilityChannel) {
-
         return (
-            <Paper
-                elevation={0}
-                sx={{
-                    p: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 3
-                }}
-            >
-
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                >
+            <Paper sx={{ p: 3, borderRadius: 3 }}>
+                <Alert severity="error" sx={{ mb: 2 }}>
                     {error}
                 </Alert>
 
-                <Stack
-                    direction="row"
-                    spacing={1}
-                >
-
+                <Stack direction="row" spacing={1}>
                     <Button
                         variant="contained"
                         startIcon={<Refresh />}
@@ -430,81 +310,29 @@ const FacilityChannelDetails = ({
                         Retry
                     </Button>
 
-                    {typeof onClose === "function" && (
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            onClick={onClose}
-                        >
-                            Close
-                        </Button>
-                    )}
-
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={goBack}
+                    >
+                        Back to List
+                    </Button>
                 </Stack>
-
             </Paper>
         );
-
     }
-
-    /* =====================================================
-       RENDER EMPTY STATE
-    ===================================================== */
 
     if (!facilityChannel) {
-
         return (
-            <Paper
-                elevation={0}
-                sx={{
-                    p: 4,
-                    textAlign: "center",
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 3
-                }}
-            >
-
-                <InfoOutlined
-                    sx={{
-                        fontSize: 42,
-                        color: "text.secondary",
-                        mb: 1
-                    }}
-                />
-
-                <Typography
-                    variant="h6"
-                    fontWeight={600}
-                >
-                    No Facility Channel Selected
-                </Typography>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                >
-                    Select a facility channel to view its details.
-                </Typography>
-
-                {typeof onClose === "function" && (
-                    <Button
-                        sx={{ mt: 2 }}
-                        onClick={onClose}
-                    >
-                        Back
-                    </Button>
-                )}
-
+            <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
+                <InfoOutlined sx={{ fontSize: 42, mb: 1 }} />
+                <Typography variant="h6">Facility channel not found</Typography>
+                <Button sx={{ mt: 2 }} onClick={goBack}>
+                    Back to List
+                </Button>
             </Paper>
         );
-
     }
-
-    /* =====================================================
-       RENDER DETAILS
-    ===================================================== */
 
     return (
         <Paper
@@ -519,11 +347,6 @@ const FacilityChannelDetails = ({
                 overflow: "hidden"
             }}
         >
-
-            {/* =================================================
-                HEADER
-            ================================================= */}
-
             <Box
                 sx={{
                     p: 3,
@@ -534,13 +357,7 @@ const FacilityChannelDetails = ({
                     gap: 2
                 }}
             >
-
-                <Stack
-                    direction="row"
-                    spacing={1.5}
-                    alignItems="center"
-                >
-
+                <Stack direction="row" spacing={1.5} alignItems="center">
                     <Box
                         sx={{
                             width: 48,
@@ -549,91 +366,51 @@ const FacilityChannelDetails = ({
                             alignItems: "center",
                             justifyContent: "center",
                             borderRadius: 2,
-                            backgroundColor: "action.hover"
+                            bgcolor: "action.hover"
                         }}
                     >
-                        <Hub
-                            color="primary"
-                            fontSize="large"
-                        />
+                        <Hub color="primary" fontSize="large" />
                     </Box>
 
                     <Box>
-
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
+                        <Typography variant="h5" fontWeight={700}>
                             Facility Channel Details
                         </Typography>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            View the selected facility channel information.
+                        <Typography variant="body2" color="text.secondary">
+                            Facility, channel and inventory information
                         </Typography>
-
                     </Box>
-
                 </Stack>
 
-                <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                >
-
+                <Stack direction="row" spacing={1} alignItems="center">
                     <Tooltip title="Refresh details">
-
                         <span>
-
-                            <IconButton
-                                onClick={loadFacilityChannel}
-                                disabled={loading}
-                                aria-label="Refresh facility channel details"
-                            >
-                                {loading
-                                    ? (
-                                        <CircularProgress size={20} />
-                                    )
-                                    : <Refresh />}
+                            <IconButton onClick={loadFacilityChannel}>
+                                <Refresh />
                             </IconButton>
-
                         </span>
-
                     </Tooltip>
 
-                    {typeof onEdit === "function" && (
-                        <Button
-                            variant="contained"
-                            startIcon={<Edit />}
-                            onClick={() => onEdit(facilityChannel)}
-                        >
-                            Edit
-                        </Button>
-                    )}
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={() => handleEdit(facilityChannel)}
+                    >
+                        Edit
+                    </Button>
 
-                    {typeof onClose === "function" && (
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            startIcon={<ArrowBack />}
-                            onClick={onClose}
-                        >
-                            Back
-                        </Button>
-                    )}
-
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        startIcon={<ArrowBack />}
+                        onClick={goBack}
+                    >
+                        Back
+                    </Button>
                 </Stack>
-
             </Box>
 
             <Divider />
-
-            {/* =================================================
-                STATUS AND IDENTIFIER
-            ================================================= */}
 
             <Box
                 sx={{
@@ -644,226 +421,76 @@ const FacilityChannelDetails = ({
                     justifyContent: "space-between",
                     flexWrap: "wrap",
                     gap: 2,
-                    backgroundColor: "action.hover"
+                    bgcolor: "action.hover"
                 }}
             >
-
                 <Box>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
+                    <Typography variant="body2" color="text.secondary">
                         Facility Channel ID
                     </Typography>
-
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                    >
-                        {facilityChannel.facilityChannelId ??
-                         facilityChannel.id ??
-                         facilityChannelId ??
-                         "—"}
+                    <Typography variant="h6" fontWeight={700}>
+                        {facilityChannel.id}
                     </Typography>
-
                 </Box>
 
-                <Chip
-                    label={statusConfig.label}
-                    color={statusConfig.color}
-                    variant="filled"
-                    sx={{ fontWeight: 600 }}
-                />
-
+                <Chip label="Inventory Record" color="primary" variant="outlined" />
             </Box>
 
             <Divider />
 
-            {/* =================================================
-                DETAIL CONTENT
-            ================================================= */}
-
             <Box sx={{ p: 3 }}>
-
-                {error && (
-                    <Alert
-                        severity="warning"
-                        sx={{ mb: 3 }}
-                    >
-                        {error}
-                    </Alert>
-                )}
-
-                {/* =============================================
-                    GENERAL INFORMATION
-                ============================================= */}
-
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                    sx={{ mb: 2 }}
-                >
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
                     General Information
                 </Typography>
 
-                <Grid
-                    container
-                    spacing={3}
-                >
-
+                <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
-
-                        <DetailItem
-                            icon={<Business />}
-                            label="Facility Name"
-                            value={facilityChannel.facilityName}
-                        />
-
+                        <DetailItem icon={<Person />} label="Seller ID" value={facilityChannel.sellerId} />
                     </Grid>
-
                     <Grid item xs={12} md={6}>
-
-                        <DetailItem
-                            icon={<Hub />}
-                            label="Channel Name"
-                            value={facilityChannel.channelName}
-                        />
-
+                        <DetailItem icon={<Person />} label="Customer ID" value={facilityChannel.customerId} />
                     </Grid>
-
                     <Grid item xs={12} md={6}>
-
-                        <DetailItem
-                            icon={<Tag />}
-                            label="Channel Code"
-                            value={facilityChannel.channelCode}
-                        />
-
+                        <DetailItem icon={<ShoppingBag />} label="Product ID" value={facilityChannel.productId} />
                     </Grid>
-
                     <Grid item xs={12} md={6}>
-
-                        <DetailItem
-                            icon={<InfoOutlined />}
-                            label="Status"
-                            value={statusConfig.label}
-                        />
-
+                        <DetailItem icon={<Tag />} label="SKU Code" value={facilityChannel.skuCode} />
                     </Grid>
-
                 </Grid>
 
                 <Divider sx={{ my: 3 }} />
 
-                {/* =============================================
-                    DESCRIPTION
-                ============================================= */}
-
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                    sx={{ mb: 2 }}
-                >
-                    Description
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+                    Facility and Channel
                 </Typography>
 
-                <Box
-                    sx={{
-                        p: 2,
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 2,
-                        backgroundColor: "background.default"
-                    }}
-                >
+                <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                        <DetailItem icon={<Business />} label="Facility Code" value={facilityChannel.facilityCode} />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <DetailItem icon={<Hub />} label="Channel Code" value={facilityChannel.channelCode} />
+                    </Grid>
+                </Grid>
 
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            whiteSpace: "pre-wrap",
-                            overflowWrap: "anywhere"
-                        }}
-                    >
-                        {facilityChannel.description || "No description provided."}
-                    </Typography>
+                <Divider sx={{ my: 3 }} />
 
-                </Box>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+                    Inventory Information
+                </Typography>
 
-                {/* =============================================
-                    AUDIT INFORMATION
-                ============================================= */}
-
-                {(facilityChannel.createdAt ||
-                  facilityChannel.createdDate ||
-                  facilityChannel.updatedAt ||
-                  facilityChannel.updatedDate) && (
-
-                    <>
-
-                        <Divider sx={{ my: 3 }} />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 2 }}
-                        >
-                            Audit Information
-                        </Typography>
-
-                        <Grid
-                            container
-                            spacing={3}
-                        >
-
-                            {(facilityChannel.createdAt ||
-                              facilityChannel.createdDate) && (
-
-                                <Grid item xs={12} md={6}>
-
-                                    <DetailItem
-                                        icon={<CalendarMonth />}
-                                        label="Created At"
-                                        value={formatDate(
-                                            facilityChannel.createdAt ??
-                                            facilityChannel.createdDate
-                                        )}
-                                    />
-
-                                </Grid>
-
-                            )}
-
-                            {(facilityChannel.updatedAt ||
-                              facilityChannel.updatedDate) && (
-
-                                <Grid item xs={12} md={6}>
-
-                                    <DetailItem
-                                        icon={<CalendarMonth />}
-                                        label="Last Updated"
-                                        value={formatDate(
-                                            facilityChannel.updatedAt ??
-                                            facilityChannel.updatedDate
-                                        )}
-                                    />
-
-                                </Grid>
-
-                            )}
-
-                        </Grid>
-
-                    </>
-
-                )}
-
+                <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                        <DetailItem
+                            icon={<Inventory2 />}
+                            label="Sellable Quantity"
+                            value={facilityChannel.sellableQuantity}
+                        />
+                    </Grid>
+                </Grid>
             </Box>
-
         </Paper>
     );
-
 };
 
 export default FacilityChannelDetails;
-

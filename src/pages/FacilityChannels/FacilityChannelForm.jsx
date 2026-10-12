@@ -1,13 +1,9 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, { useEffect, useState } from "react";
 
 import {
     Box,
     Grid,
     TextField,
-    MenuItem,
     Button,
     Paper,
     Typography,
@@ -28,12 +24,31 @@ import {
 ========================================================= */
 
 const initialFormData = {
-    facilityName: "",
-    channelName: "",
+    sellerId: 6,
+    customerId: 3,
+    productId: 6,
+    skuCode: "",
+    facilityCode: "",
     channelCode: "",
-    description: "",
-    status: "active"
+    sellableQuantity: 0
 };
+
+/* =========================================================
+   NORMALIZE API DATA
+========================================================= */
+
+const normalizeFacilityChannel = (record = {}) => ({
+    sellerId: record.sellerId ?? record.SellerId ?? 6,
+    customerId: record.customerId ?? record.CustomerId ?? 3,
+    productId: record.productId ?? record.ProductId ?? 6,
+    skuCode: record.skuCode ?? record.SkuCode ?? "",
+    facilityCode: record.facilityCode ?? record.FacilityCode ?? "",
+    channelCode: record.channelCode ?? record.ChannelCode ?? "",
+    sellableQuantity:
+        record.sellableQuantity ??
+        record.SellableQuantity ??
+        0
+});
 
 /* =========================================================
    FACILITY CHANNEL FORM
@@ -48,79 +63,39 @@ const FacilityChannelForm = ({
     onCancel,
     onReset
 }) => {
-
-    /* =====================================================
-       FORM STATE
-    ===================================================== */
-
     const [formData, setFormData] = useState({
         ...initialFormData
     });
 
     const [formErrors, setFormErrors] = useState({});
-
     const [submitError, setSubmitError] = useState("");
 
-    /* =====================================================
-       DETERMINE FORM MODE
-    ===================================================== */
-
     const isEditMode =
-        mode === "edit" ||
-        mode === "update";
+        mode === "edit" || mode === "update";
 
     /* =====================================================
-       POPULATE FORM DATA
+       POPULATE FORM
     ===================================================== */
 
     useEffect(() => {
-
         if (isEditMode && facilityChannel) {
-
-            setFormData({
-                facilityName:
-                    facilityChannel.facilityName ?? "",
-
-                channelName:
-                    facilityChannel.channelName ?? "",
-
-                channelCode:
-                    facilityChannel.channelCode ?? "",
-
-                description:
-                    facilityChannel.description ?? "",
-
-                status: String(
-                    facilityChannel.status ?? "active"
-                ).toLowerCase()
-            });
-
+            setFormData(
+                normalizeFacilityChannel(facilityChannel)
+            );
         } else {
-
-            setFormData({
-                ...initialFormData
-            });
-
+            setFormData({ ...initialFormData });
         }
 
         setFormErrors({});
         setSubmitError("");
-
-    }, [
-        isEditMode,
-        facilityChannel
-    ]);
+    }, [isEditMode, facilityChannel]);
 
     /* =====================================================
-       HANDLE INPUT CHANGE
+       HANDLE CHANGE
     ===================================================== */
 
     const handleChange = (event) => {
-
-        const {
-            name,
-            value
-        } = event.target;
+        const { name, value } = event.target;
 
         setFormData((previous) => ({
             ...previous,
@@ -133,7 +108,6 @@ const FacilityChannelForm = ({
         }));
 
         setSubmitError("");
-
     };
 
     /* =====================================================
@@ -141,83 +115,74 @@ const FacilityChannelForm = ({
     ===================================================== */
 
     const validateForm = () => {
-
         const errors = {};
 
-        if (!formData.facilityName.trim()) {
-            errors.facilityName =
-                "Facility name is required.";
-        } else if (
-            formData.facilityName.trim().length > 150
-        ) {
-            errors.facilityName =
-                "Facility name cannot exceed 150 characters.";
+        const sellerId = Number(formData.sellerId);
+        const customerId = Number(formData.customerId);
+        const productId = Number(formData.productId);
+        const quantity = Number(formData.sellableQuantity);
+
+        if (!Number.isInteger(sellerId) || sellerId <= 0) {
+            errors.sellerId = "Enter a valid Seller ID.";
         }
 
-        if (!formData.channelName.trim()) {
-            errors.channelName =
-                "Channel name is required.";
-        } else if (
-            formData.channelName.trim().length > 150
-        ) {
-            errors.channelName =
-                "Channel name cannot exceed 150 characters.";
+        if (!Number.isInteger(customerId) || customerId <= 0) {
+            errors.customerId = "Enter a valid Customer ID.";
         }
 
-        if (!formData.channelCode.trim()) {
+        if (!Number.isInteger(productId) || productId <= 0) {
+            errors.productId = "Enter a valid Product ID.";
+        }
+
+        if (!String(formData.skuCode).trim()) {
+            errors.skuCode = "SKU code is required.";
+        } else if (String(formData.skuCode).trim().length > 100) {
+            errors.skuCode = "SKU code cannot exceed 100 characters.";
+        }
+
+        if (!String(formData.facilityCode).trim()) {
+            errors.facilityCode = "Facility code is required.";
+        } else if (
+            String(formData.facilityCode).trim().length > 100
+        ) {
+            errors.facilityCode =
+                "Facility code cannot exceed 100 characters.";
+        }
+
+        if (!String(formData.channelCode).trim()) {
+            errors.channelCode = "Channel code is required.";
+        } else if (
+            String(formData.channelCode).trim().length > 100
+        ) {
             errors.channelCode =
-                "Channel code is required.";
-        } else if (
-            formData.channelCode.trim().length > 50
-        ) {
-            errors.channelCode =
-                "Channel code cannot exceed 50 characters.";
-        }
-
-        if (formData.description.length > 500) {
-            errors.description =
-                "Description cannot exceed 500 characters.";
+                "Channel code cannot exceed 100 characters.";
         }
 
         if (
-            !["active", "inactive", "pending"].includes(
-                formData.status
-            )
+            !Number.isInteger(quantity) ||
+            quantity < 0
         ) {
-            errors.status = "Select a valid status.";
+            errors.sellableQuantity =
+                "Sellable quantity must be a non-negative whole number.";
         }
 
         setFormErrors(errors);
 
         return Object.keys(errors).length === 0;
-
     };
 
     /* =====================================================
-       HANDLE FORM SUBMISSION
+       SUBMIT FORM
     ===================================================== */
 
     const handleSubmit = async (event) => {
-
         event.preventDefault();
 
-        if (loading) {
-            return;
-        }
+        if (loading) return;
 
         setSubmitError("");
 
-        if (!validateForm()) {
-            return;
-        }
-
-        const payload = {
-            facilityName: formData.facilityName.trim(),
-            channelName: formData.channelName.trim(),
-            channelCode: formData.channelCode.trim(),
-            description: formData.description.trim(),
-            status: formData.status
-        };
+        if (!validateForm()) return;
 
         if (typeof onSubmit !== "function") {
             setSubmitError(
@@ -226,20 +191,28 @@ const FacilityChannelForm = ({
             return;
         }
 
+        const payload = {
+            sellerId: Number(formData.sellerId),
+            customerId: Number(formData.customerId),
+            productId: Number(formData.productId),
+            skuCode: String(formData.skuCode).trim(),
+            facilityCode: String(formData.facilityCode).trim(),
+            channelCode: String(formData.channelCode).trim(),
+            sellableQuantity: Number(formData.sellableQuantity)
+        };
+
         try {
-
             await onSubmit(payload);
-
         } catch (submitException) {
+            const responseData = submitException?.response?.data;
 
             setSubmitError(
-                submitException?.response?.data?.message ||
+                responseData?.message ||
+                responseData?.title ||
                 submitException?.message ||
                 "Unable to save the facility channel."
             );
-
         }
-
     };
 
     /* =====================================================
@@ -247,37 +220,14 @@ const FacilityChannelForm = ({
     ===================================================== */
 
     const handleReset = () => {
-
-        if (loading) {
-            return;
-        }
+        if (loading) return;
 
         if (isEditMode && facilityChannel) {
-
-            setFormData({
-                facilityName:
-                    facilityChannel.facilityName ?? "",
-
-                channelName:
-                    facilityChannel.channelName ?? "",
-
-                channelCode:
-                    facilityChannel.channelCode ?? "",
-
-                description:
-                    facilityChannel.description ?? "",
-
-                status: String(
-                    facilityChannel.status ?? "active"
-                ).toLowerCase()
-            });
-
+            setFormData(
+                normalizeFacilityChannel(facilityChannel)
+            );
         } else {
-
-            setFormData({
-                ...initialFormData
-            });
-
+            setFormData({ ...initialFormData });
         }
 
         setFormErrors({});
@@ -286,27 +236,22 @@ const FacilityChannelForm = ({
         if (typeof onReset === "function") {
             onReset();
         }
-
     };
 
     /* =====================================================
-       HANDLE CANCEL
+       CANCEL
     ===================================================== */
 
     const handleCancel = () => {
-
-        if (loading) {
-            return;
-        }
+        if (loading) return;
 
         if (typeof onCancel === "function") {
             onCancel();
         }
-
     };
 
     /* =====================================================
-       RENDER FORM
+       RENDER
     ===================================================== */
 
     return (
@@ -322,10 +267,7 @@ const FacilityChannelForm = ({
                 overflow: "hidden"
             }}
         >
-
-            {/* =================================================
-                FORM HEADER
-            ================================================= */}
+            {/* HEADER */}
 
             <Box
                 sx={{
@@ -337,16 +279,11 @@ const FacilityChannelForm = ({
                     gap: 2
                 }}
             >
-
                 <Box>
-
-                    <Typography
-                        variant="h5"
-                        fontWeight={700}
-                    >
+                    <Typography variant="h5" fontWeight={700}>
                         {isEditMode
-                            ? "Edit Facility Channel"
-                            : "Create Facility Channel"}
+                            ? "Edit Facility Channel Inventory"
+                            : "Create Facility Channel Inventory"}
                     </Typography>
 
                     <Typography
@@ -355,10 +292,9 @@ const FacilityChannelForm = ({
                         sx={{ mt: 0.5 }}
                     >
                         {isEditMode
-                            ? "Update the facility channel information."
-                            : "Enter the details to register a new facility channel."}
+                            ? "Update the facility channel inventory information."
+                            : "Enter the seller, customer, product, facility and channel details."}
                     </Typography>
-
                 </Box>
 
                 {typeof onCancel === "function" && (
@@ -372,213 +308,186 @@ const FacilityChannelForm = ({
                         Back
                     </Button>
                 )}
-
             </Box>
 
             <Divider />
 
-            {/* =================================================
-                FORM BODY
-            ================================================= */}
+            {/* FORM */}
 
             <Box
                 component="form"
                 onSubmit={handleSubmit}
                 noValidate
             >
-
                 <Box sx={{ p: 3 }}>
-
                     {(error || submitError) && (
-                        <Alert
-                            severity="error"
-                            sx={{ mb: 3 }}
-                        >
+                        <Alert severity="error" sx={{ mb: 3 }}>
                             {submitError || error}
                         </Alert>
                     )}
 
-                    <Grid
-                        container
-                        spacing={3}
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
                     >
+                        Ownership and Product
+                    </Typography>
 
-                        {/* =====================================
-                            FACILITY NAME
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 required
-                                name="facilityName"
-                                label="Facility Name"
-                                placeholder="Enter facility name"
-                                value={formData.facilityName}
+                                type="number"
+                                name="sellerId"
+                                label="Seller ID"
+                                value={formData.sellerId}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.facilityName
-                                )}
+                                error={Boolean(formErrors.sellerId)}
                                 helperText={
-                                    formErrors.facilityName ||
-                                    "Maximum 150 characters"
+                                    formErrors.sellerId || "Enter a valid seller ID."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 150
-                                }}
+                                inputProps={{ min: 1, step: 1 }}
                             />
-
                         </Grid>
 
-                        {/* =====================================
-                            CHANNEL NAME
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
+                        <Grid item xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 required
-                                name="channelName"
-                                label="Channel Name"
-                                placeholder="Enter channel name"
-                                value={formData.channelName}
+                                type="number"
+                                name="customerId"
+                                label="Customer ID"
+                                value={formData.customerId}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.channelName
-                                )}
+                                error={Boolean(formErrors.customerId)}
                                 helperText={
-                                    formErrors.channelName ||
-                                    "Maximum 150 characters"
+                                    formErrors.customerId || "Enter a valid customer ID."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 150
-                                }}
+                                inputProps={{ min: 1, step: 1 }}
                             />
-
                         </Grid>
 
-                        {/* =====================================
-                            CHANNEL CODE
-                        ===================================== */}
+                        <Grid item xs={12} md={4}>
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                name="productId"
+                                label="Product ID"
+                                value={formData.productId}
+                                onChange={handleChange}
+                                error={Boolean(formErrors.productId)}
+                                helperText={
+                                    formErrors.productId || "Enter a valid product ID."
+                                }
+                                disabled={loading}
+                                inputProps={{ min: 1, step: 1 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                required
+                                name="skuCode"
+                                label="SKU Code"
+                                placeholder="e.g. TN-WBH-001"
+                                value={formData.skuCode}
+                                onChange={handleChange}
+                                error={Boolean(formErrors.skuCode)}
+                                helperText={
+                                    formErrors.skuCode || "Enter the product SKU."
+                                }
+                                disabled={loading}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
+                    >
+                        Facility and Channel
+                    </Typography>
+
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                required
+                                name="facilityCode"
+                                label="Facility Code"
+                                placeholder="e.g. WH-TN-001"
+                                value={formData.facilityCode}
+                                onChange={handleChange}
+                                error={Boolean(formErrors.facilityCode)}
+                                helperText={
+                                    formErrors.facilityCode ||
+                                    "Enter the warehouse or facility code."
+                                }
+                                disabled={loading}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
 
                         <Grid item xs={12} md={6}>
-
                             <TextField
                                 fullWidth
                                 required
                                 name="channelCode"
                                 label="Channel Code"
-                                placeholder="Enter channel code"
+                                placeholder="e.g. AMAZON"
                                 value={formData.channelCode}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.channelCode
-                                )}
+                                error={Boolean(formErrors.channelCode)}
                                 helperText={
                                     formErrors.channelCode ||
-                                    "Enter a unique channel code."
+                                    "Enter the marketplace or channel code."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 50
-                                }}
+                                inputProps={{ maxLength: 100 }}
                             />
-
                         </Grid>
-
-                        {/* =====================================
-                            STATUS
-                        ===================================== */}
 
                         <Grid item xs={12} md={6}>
-
                             <TextField
-                                select
                                 fullWidth
                                 required
-                                name="status"
-                                label="Status"
-                                value={formData.status}
+                                type="number"
+                                name="sellableQuantity"
+                                label="Sellable Quantity"
+                                value={formData.sellableQuantity}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.status
-                                )}
-                                helperText={formErrors.status || " "}
-                                disabled={loading}
-                            >
-
-                                <MenuItem value="active">
-                                    Active
-                                </MenuItem>
-
-                                <MenuItem value="inactive">
-                                    Inactive
-                                </MenuItem>
-
-                                <MenuItem value="pending">
-                                    Pending
-                                </MenuItem>
-
-                            </TextField>
-
-                        </Grid>
-
-                        {/* =====================================
-                            DESCRIPTION
-                        ===================================== */}
-
-                        <Grid item xs={12}>
-
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={4}
-                                name="description"
-                                label="Description"
-                                placeholder="Enter an optional description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.description
-                                )}
+                                error={Boolean(formErrors.sellableQuantity)}
                                 helperText={
-                                    formErrors.description ||
-                                    `${formData.description.length}/500 characters`
+                                    formErrors.sellableQuantity ||
+                                    "Enter a non-negative whole number."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 500
-                                }}
+                                inputProps={{ min: 0, step: 1 }}
                             />
-
                         </Grid>
-
                     </Grid>
-
                 </Box>
 
                 <Divider />
 
-                {/* =================================================
-                    FORM ACTIONS
-                ================================================= */}
+                {/* ACTIONS */}
 
                 <Stack
-                    direction={{
-                        xs: "column-reverse",
-                        sm: "row"
-                    }}
+                    direction={{ xs: "column-reverse", sm: "row" }}
                     spacing={1.5}
                     justifyContent="flex-end"
-                    sx={{
-                        p: 3
-                    }}
+                    sx={{ p: 3 }}
                 >
-
                     <Button
                         variant="outlined"
                         color="inherit"
@@ -605,12 +514,7 @@ const FacilityChannelForm = ({
                         variant="contained"
                         startIcon={
                             loading
-                                ? (
-                                    <CircularProgress
-                                        size={18}
-                                        color="inherit"
-                                    />
-                                )
+                                ? <CircularProgress size={18} color="inherit" />
                                 : <Save />
                         }
                         disabled={loading}
@@ -621,15 +525,10 @@ const FacilityChannelForm = ({
                                 ? "Update Facility Channel"
                                 : "Create Facility Channel"}
                     </Button>
-
                 </Stack>
-
             </Box>
-
         </Paper>
     );
-
 };
 
 export default FacilityChannelForm;
-

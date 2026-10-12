@@ -21,72 +21,9 @@ import {
     Visibility,
     Edit,
     Delete,
-    Apartment
+    Apartment,
+    Inventory2
 } from "@mui/icons-material";
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
-
-const formatDate = (value) => {
-    if (!value) {
-        return "N/A";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return "N/A";
-    }
-
-    return date.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
-};
-
-/* =========================================================
-   GET STATUS COLOR
-========================================================= */
-
-const getStatusColor = (value) => {
-    if (value === true) {
-        return "success";
-    }
-
-    if (value === false) {
-        return "default";
-    }
-
-    const status = String(value ?? "")
-        .trim()
-        .toLowerCase();
-
-    switch (status) {
-        case "active":
-        case "enabled":
-        case "available":
-        case "true":
-            return "success";
-
-        case "inactive":
-        case "disabled":
-        case "unavailable":
-        case "false":
-            return "default";
-
-        case "pending":
-            return "warning";
-
-        case "failed":
-        case "error":
-            return "error";
-
-        default:
-            return "info";
-    }
-};
 
 /* =========================================================
    FORMAT VALUE
@@ -94,15 +31,29 @@ const getStatusColor = (value) => {
 
 const formatValue = (value) => {
     if (value === null || value === undefined || value === "") {
-        return "N/A";
-    }
-
-    if (typeof value === "boolean") {
-        return value ? "Yes" : "No";
+        return "—";
     }
 
     return String(value);
 };
+
+/* =========================================================
+   NORMALIZE FACILITY CHANNEL
+========================================================= */
+
+const normalizeFacilityChannel = (item = {}) => ({
+    id: item.id ?? item.Id ?? item.facilityChannelId ?? item.FacilityChannelId,
+    sellerId: item.sellerId ?? item.SellerId,
+    customerId: item.customerId ?? item.CustomerId,
+    productId: item.productId ?? item.ProductId,
+    skuCode: item.skuCode ?? item.SkuCode ?? "",
+    facilityCode: item.facilityCode ?? item.FacilityCode ?? "",
+    channelCode: item.channelCode ?? item.ChannelCode ?? "",
+    sellableQuantity:
+        item.sellableQuantity ??
+        item.SellableQuantity ??
+        0
+});
 
 /* =========================================================
    FACILITY CHANNEL TABLE
@@ -112,26 +63,17 @@ const FacilityChannelTable = ({
     facilityChannels = [],
     loading = false,
     error = "",
-
     onView,
     onEdit,
     onDelete,
-
     showActions = true,
-    emptyMessage = "No facility channels found."
+    emptyMessage = "No facility channel inventory found."
 }) => {
-
-    /* =====================================================
-       NORMALIZE DATA
-    ===================================================== */
-
     const rows = Array.isArray(facilityChannels)
         ? facilityChannels
         : [];
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    const columnCount = showActions ? 8 : 7;
 
     return (
         <TableContainer
@@ -146,8 +88,8 @@ const FacilityChannelTable = ({
             }}
         >
             <Table
-                sx={{ minWidth: 850 }}
-                aria-label="Facility channels table"
+                sx={{ minWidth: 1050 }}
+                aria-label="Facility channel inventory table"
             >
                 {/* TABLE HEADER */}
 
@@ -162,12 +104,16 @@ const FacilityChannelTable = ({
                             }
                         }}
                     >
-                        <TableCell>Facility Channel ID</TableCell>
-                        <TableCell>Facility Name</TableCell>
-                        <TableCell>Channel Name</TableCell>
+                        <TableCell>ID</TableCell>
+                        <TableCell>Seller ID</TableCell>
+                        <TableCell>Customer ID</TableCell>
+                        <TableCell>Product ID</TableCell>
+                        <TableCell>SKU Code</TableCell>
+                        <TableCell>Facility Code</TableCell>
                         <TableCell>Channel Code</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell>Created At</TableCell>
+                        <TableCell align="right">
+                            Sellable Quantity
+                        </TableCell>
 
                         {showActions && (
                             <TableCell align="right">
@@ -180,12 +126,12 @@ const FacilityChannelTable = ({
                 {/* TABLE BODY */}
 
                 <TableBody>
-                    {/* LOADING STATE */}
+                    {/* LOADING */}
 
                     {loading && (
                         <TableRow>
                             <TableCell
-                                colSpan={showActions ? 7 : 6}
+                                colSpan={columnCount + 1}
                                 align="center"
                                 sx={{ py: 6 }}
                             >
@@ -199,19 +145,19 @@ const FacilityChannelTable = ({
                                         variant="body2"
                                         color="text.secondary"
                                     >
-                                        Loading facility channels...
+                                        Loading facility channel inventory...
                                     </Typography>
                                 </Stack>
                             </TableCell>
                         </TableRow>
                     )}
 
-                    {/* ERROR STATE */}
+                    {/* ERROR */}
 
                     {!loading && error && (
                         <TableRow>
                             <TableCell
-                                colSpan={showActions ? 7 : 6}
+                                colSpan={columnCount + 1}
                                 align="center"
                                 sx={{ py: 4 }}
                             >
@@ -225,14 +171,14 @@ const FacilityChannelTable = ({
                         </TableRow>
                     )}
 
-                    {/* EMPTY STATE */}
+                    {/* EMPTY */}
 
                     {!loading &&
                         !error &&
                         rows.length === 0 && (
                             <TableRow>
                                 <TableCell
-                                    colSpan={showActions ? 7 : 6}
+                                    colSpan={columnCount + 1}
                                     align="center"
                                     sx={{ py: 6 }}
                                 >
@@ -260,8 +206,7 @@ const FacilityChannelTable = ({
                                             variant="body2"
                                             color="text.secondary"
                                         >
-                                            Add a facility channel or
-                                            change your search filters.
+                                            Create an inventory record or change your search filters.
                                         </Typography>
                                     </Box>
                                 </TableCell>
@@ -272,40 +217,13 @@ const FacilityChannelTable = ({
 
                     {!loading &&
                         !error &&
-                        rows.map((item, index) => {
-                            const id =
-                                item.id ??
-                                item.facilityChannelId ??
-                                item.channelId;
-
-                            const facilityName =
-                                item.facilityName ??
-                                item.facility?.name ??
-                                item.name;
-
-                            const channelName =
-                                item.channelName ??
-                                item.channel?.name ??
-                                item.channel;
-
-                            const channelCode =
-                                item.channelCode ??
-                                item.code;
-
-                            const status =
-                                item.status ??
-                                item.channelStatus ??
-                                item.isActive ??
-                                item.active;
-
-                            const createdAt =
-                                item.createdAt ??
-                                item.createdDate ??
-                                item.createdOn;
+                        rows.map((rawItem, index) => {
+                            const item = normalizeFacilityChannel(rawItem);
+                            const id = item.id ?? index;
 
                             return (
                                 <TableRow
-                                    key={id ?? index}
+                                    key={id}
                                     hover
                                     sx={{
                                         "&:last-child td": {
@@ -318,54 +236,77 @@ const FacilityChannelTable = ({
                                     <TableCell>
                                         <Typography
                                             variant="body2"
-                                            fontWeight={600}
+                                            fontWeight={700}
                                         >
-                                            {formatValue(id)}
+                                            {formatValue(item.id)}
                                         </Typography>
                                     </TableCell>
 
-                                    {/* FACILITY NAME */}
+                                    {/* SELLER */}
+
+                                    <TableCell>
+                                        {formatValue(item.sellerId)}
+                                    </TableCell>
+
+                                    {/* CUSTOMER */}
+
+                                    <TableCell>
+                                        {formatValue(item.customerId)}
+                                    </TableCell>
+
+                                    {/* PRODUCT */}
+
+                                    <TableCell>
+                                        {formatValue(item.productId)}
+                                    </TableCell>
+
+                                    {/* SKU */}
 
                                     <TableCell>
                                         <Typography
                                             variant="body2"
                                             fontWeight={500}
                                         >
-                                            {formatValue(facilityName)}
+                                            {formatValue(item.skuCode)}
                                         </Typography>
                                     </TableCell>
 
-                                    {/* CHANNEL NAME */}
-
-                                    <TableCell>
-                                        {formatValue(channelName)}
-                                    </TableCell>
-
-                                    {/* CHANNEL CODE */}
+                                    {/* FACILITY */}
 
                                     <TableCell>
                                         <Chip
                                             size="small"
                                             variant="outlined"
-                                            label={formatValue(channelCode)}
+                                            icon={<Apartment />}
+                                            label={formatValue(item.facilityCode)}
                                         />
                                     </TableCell>
 
-                                    {/* STATUS */}
+                                    {/* CHANNEL */}
 
                                     <TableCell>
                                         <Chip
                                             size="small"
-                                            color={getStatusColor(status)}
-                                            label={formatValue(status)}
                                             variant="outlined"
+                                            color="primary"
+                                            label={formatValue(item.channelCode)}
                                         />
                                     </TableCell>
 
-                                    {/* CREATED DATE */}
+                                    {/* QUANTITY */}
 
-                                    <TableCell>
-                                        {formatDate(createdAt)}
+                                    <TableCell align="right">
+                                        <Chip
+                                            size="small"
+                                            color={
+                                                Number(item.sellableQuantity) > 0
+                                                    ? "success"
+                                                    : "default"
+                                            }
+                                            icon={<Inventory2 />}
+                                            label={formatValue(item.sellableQuantity)}
+                                            sx={{ fontWeight: 600 }}
+                                        />
                                     </TableCell>
 
                                     {/* ACTIONS */}
@@ -377,7 +318,7 @@ const FacilityChannelTable = ({
                                                 spacing={0.5}
                                                 justifyContent="flex-end"
                                             >
-                                                <Tooltip title="View">
+                                                <Tooltip title="View details">
                                                     <IconButton
                                                         size="small"
                                                         color="info"
@@ -428,4 +369,3 @@ const FacilityChannelTable = ({
 };
 
 export default FacilityChannelTable;
-

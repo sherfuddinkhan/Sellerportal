@@ -1,8 +1,6 @@
-import React, {
-    useState
-} from "react";
-
+import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
     Box,
@@ -10,7 +8,6 @@ import {
     Grid,
     Typography,
     TextField,
-    MenuItem,
     Button,
     Divider,
     Alert,
@@ -22,7 +19,10 @@ import {
     Save,
     RestartAlt,
     ArrowBack,
-    AddBusiness
+    AddBusiness,
+    Store,
+    Inventory2,
+    Apartment
 } from "@mui/icons-material";
 
 /* =========================================================
@@ -30,26 +30,27 @@ import {
 ========================================================= */
 
 const DEFAULT_API_BASE_URL =
-    "https://localhost:7000/api/FacilityChannel";
+    "http://localhost:5000/api/FacilityChannel";
 
 /* =========================================================
    INITIAL FORM DATA
 ========================================================= */
 
 const initialFormData = {
-    facilityName: "",
-    channelName: "",
+    sellerId: "6",
+    customerId: "3",
+    productId: "6",
+    skuCode: "",
+    facilityCode: "",
     channelCode: "",
-    description: "",
-    status: "active"
+    sellableQuantity: "0"
 };
 
 /* =========================================================
-   EXTRACT API ERROR MESSAGE
+   ERROR MESSAGE
 ========================================================= */
 
 const getErrorMessage = (error) => {
-
     const responseData = error?.response?.data;
 
     if (typeof responseData === "string") {
@@ -64,17 +65,24 @@ const getErrorMessage = (error) => {
         return responseData.title;
     }
 
+    if (responseData?.detail) {
+        return responseData.detail;
+    }
+
     if (responseData?.errors) {
         return Object.values(responseData.errors)
             .flat()
             .join(" ");
     }
 
+    if (error?.code === "ERR_NETWORK") {
+        return "Unable to connect to the API. Check that the Node.js server is running.";
+    }
+
     return (
         error?.message ||
-        "Unable to create the facility channel."
+        "Unable to create facility channel inventory."
     );
-
 };
 
 /* =========================================================
@@ -87,37 +95,37 @@ const FacilityChannelCreate = ({
     onCancel,
     onError
 }) => {
-
-    /* =====================================================
-       FORM STATE
-    ===================================================== */
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         ...initialFormData
     });
 
     const [formErrors, setFormErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     /* =====================================================
-       REQUEST STATE
+       BACK / CANCEL NAVIGATION
     ===================================================== */
 
-    const [loading, setLoading] = useState(false);
+    const handleBack = () => {
+        if (loading) return;
 
-    const [error, setError] = useState("");
-
-    const [success, setSuccess] = useState("");
+        if (typeof onCancel === "function") {
+            onCancel();
+        } else {
+            navigate("/facility-channels");
+        }
+    };
 
     /* =====================================================
        HANDLE INPUT CHANGE
     ===================================================== */
 
     const handleChange = (event) => {
-
-        const {
-            name,
-            value
-        } = event.target;
+        const { name, value } = event.target;
 
         setFormData((previous) => ({
             ...previous,
@@ -131,7 +139,6 @@ const FacilityChannelCreate = ({
 
         setError("");
         setSuccess("");
-
     };
 
     /* =====================================================
@@ -139,56 +146,69 @@ const FacilityChannelCreate = ({
     ===================================================== */
 
     const validateForm = () => {
-
         const errors = {};
 
-        if (!formData.facilityName.trim()) {
-            errors.facilityName =
-                "Facility name is required.";
-        } else if (
-            formData.facilityName.trim().length > 150
-        ) {
-            errors.facilityName =
-                "Facility name cannot exceed 150 characters.";
-        }
+        const sellerId = Number(formData.sellerId);
+        const customerId = Number(formData.customerId);
+        const productId = Number(formData.productId);
+        const sellableQuantity = Number(formData.sellableQuantity);
 
-        if (!formData.channelName.trim()) {
-            errors.channelName =
-                "Channel name is required.";
-        } else if (
-            formData.channelName.trim().length > 150
+        if (
+            !formData.sellerId.trim() ||
+            !Number.isInteger(sellerId) ||
+            sellerId <= 0
         ) {
-            errors.channelName =
-                "Channel name cannot exceed 150 characters.";
-        }
-
-        if (!formData.channelCode.trim()) {
-            errors.channelCode =
-                "Channel code is required.";
-        } else if (
-            formData.channelCode.trim().length > 50
-        ) {
-            errors.channelCode =
-                "Channel code cannot exceed 50 characters.";
-        }
-
-        if (formData.description.length > 500) {
-            errors.description =
-                "Description cannot exceed 500 characters.";
+            errors.sellerId = "Enter a valid positive Seller ID.";
         }
 
         if (
-            !["active", "inactive", "pending"].includes(
-                formData.status
-            )
+            !formData.customerId.trim() ||
+            !Number.isInteger(customerId) ||
+            customerId <= 0
         ) {
-            errors.status = "Select a valid status.";
+            errors.customerId = "Enter a valid positive Customer ID.";
+        }
+
+        if (
+            !formData.productId.trim() ||
+            !Number.isInteger(productId) ||
+            productId <= 0
+        ) {
+            errors.productId = "Enter a valid positive Product ID.";
+        }
+
+        if (!formData.skuCode.trim()) {
+            errors.skuCode = "SKU Code is required.";
+        } else if (formData.skuCode.trim().length > 100) {
+            errors.skuCode = "SKU Code cannot exceed 100 characters.";
+        }
+
+        if (!formData.facilityCode.trim()) {
+            errors.facilityCode = "Facility Code is required.";
+        } else if (formData.facilityCode.trim().length > 100) {
+            errors.facilityCode =
+                "Facility Code cannot exceed 100 characters.";
+        }
+
+        if (!formData.channelCode.trim()) {
+            errors.channelCode = "Channel Code is required.";
+        } else if (formData.channelCode.trim().length > 100) {
+            errors.channelCode =
+                "Channel Code cannot exceed 100 characters.";
+        }
+
+        if (
+            formData.sellableQuantity.trim() === "" ||
+            !Number.isInteger(sellableQuantity) ||
+            sellableQuantity < 0
+        ) {
+            errors.sellableQuantity =
+                "Sellable Quantity must be a non-negative whole number.";
         }
 
         setFormErrors(errors);
 
         return Object.keys(errors).length === 0;
-
     };
 
     /* =====================================================
@@ -196,91 +216,82 @@ const FacilityChannelCreate = ({
     ===================================================== */
 
     const handleReset = () => {
+        if (loading) return;
 
-        if (loading) {
-            return;
-        }
-
-        setFormData({
-            ...initialFormData
-        });
-
+        setFormData({ ...initialFormData });
         setFormErrors({});
         setError("");
         setSuccess("");
-
     };
 
     /* =====================================================
-       CREATE FACILITY CHANNEL
+       CREATE FACILITY CHANNEL INVENTORY
     ===================================================== */
 
     const handleSubmit = async (event) => {
-
         event.preventDefault();
 
-        if (loading) {
-            return;
-        }
+        if (loading) return;
 
         setError("");
         setSuccess("");
 
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
         const payload = {
-            facilityName: formData.facilityName.trim(),
-            channelName: formData.channelName.trim(),
+            sellerId: Number(formData.sellerId),
+            customerId: Number(formData.customerId),
+            productId: Number(formData.productId),
+            skuCode: formData.skuCode.trim(),
+            facilityCode: formData.facilityCode.trim(),
             channelCode: formData.channelCode.trim(),
-            description: formData.description.trim(),
-            status: formData.status
+            sellableQuantity: Number(formData.sellableQuantity)
         };
 
         try {
-
             setLoading(true);
 
             const response = await axios.post(
                 apiBaseUrl,
-                payload
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    timeout: 15000
+                }
             );
 
             setSuccess(
-                "Facility channel created successfully."
+                "Facility channel inventory created successfully."
             );
 
-            setFormData({
-                ...initialFormData
-            });
-
+            setFormData({ ...initialFormData });
             setFormErrors({});
 
             if (typeof onCreated === "function") {
                 onCreated(response.data);
             }
-
         } catch (requestError) {
-
             const message = getErrorMessage(requestError);
 
             setError(message);
 
+            console.error(
+                "CREATE FACILITY CHANNEL ERROR:",
+                requestError.response?.data || requestError.message
+            );
+
             if (typeof onError === "function") {
                 onError(requestError);
             }
-
         } finally {
-
             setLoading(false);
-
         }
-
     };
 
     /* =====================================================
-       RENDER FORM
+       RENDER
     ===================================================== */
 
     return (
@@ -296,10 +307,7 @@ const FacilityChannelCreate = ({
                 overflow: "hidden"
             }}
         >
-
-            {/* =================================================
-                HEADER
-            ================================================= */}
+            {/* HEADER */}
 
             <Box
                 sx={{
@@ -311,13 +319,11 @@ const FacilityChannelCreate = ({
                     gap: 2
                 }}
             >
-
                 <Stack
                     direction="row"
                     spacing={1.5}
                     alignItems="center"
                 >
-
                     <Box
                         sx={{
                             width: 48,
@@ -326,7 +332,7 @@ const FacilityChannelCreate = ({
                             alignItems: "center",
                             justifyContent: "center",
                             borderRadius: 2,
-                            backgroundColor: "action.hover"
+                            bgcolor: "action.hover"
                         }}
                     >
                         <AddBusiness
@@ -336,11 +342,7 @@ const FacilityChannelCreate = ({
                     </Box>
 
                     <Box>
-
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
+                        <Typography variant="h5" fontWeight={700}>
                             Create Facility Channel
                         </Typography>
 
@@ -348,237 +350,238 @@ const FacilityChannelCreate = ({
                             variant="body2"
                             color="text.secondary"
                         >
-                            Enter the details to register a new facility channel.
+                            Register product inventory for a facility and sales channel.
                         </Typography>
-
                     </Box>
-
                 </Stack>
 
-                {typeof onCancel === "function" && (
-                    <Button
-                        variant="outlined"
-                        color="inherit"
-                        startIcon={<ArrowBack />}
-                        onClick={onCancel}
-                        disabled={loading}
-                    >
-                        Back
-                    </Button>
-                )}
+                {/* BACK BUTTON - ALWAYS VISIBLE */}
 
+                <Button
+                    variant="outlined"
+                    color="inherit"
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
+                    disabled={loading}
+                >
+                    Back
+                </Button>
             </Box>
 
             <Divider />
 
-            {/* =================================================
-                FORM CONTENT
-            ================================================= */}
+            {/* FORM */}
 
             <Box
                 component="form"
                 onSubmit={handleSubmit}
                 noValidate
             >
-
                 <Box sx={{ p: 3 }}>
-
                     {error && (
-                        <Alert
-                            severity="error"
-                            sx={{ mb: 2 }}
-                        >
+                        <Alert severity="error" sx={{ mb: 2 }}>
                             {error}
                         </Alert>
                     )}
 
                     {success && (
-                        <Alert
-                            severity="success"
-                            sx={{ mb: 2 }}
-                        >
+                        <Alert severity="success" sx={{ mb: 2 }}>
                             {success}
                         </Alert>
                     )}
 
-                    <Grid
-                        container
-                        spacing={3}
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
                     >
+                        Account and Product Information
+                    </Typography>
 
-                        {/* =====================================
-                            FACILITY NAME
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 required
-                                name="facilityName"
-                                label="Facility Name"
-                                placeholder="Enter facility name"
-                                value={formData.facilityName}
+                                type="number"
+                                name="sellerId"
+                                label="Seller ID"
+                                value={formData.sellerId}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.facilityName
-                                )}
+                                error={Boolean(formErrors.sellerId)}
                                 helperText={
-                                    formErrors.facilityName ||
-                                    "Maximum 150 characters"
+                                    formErrors.sellerId ||
+                                    "Enter a positive integer."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 150
+                                inputProps={{ min: 1, step: 1 }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <Store
+                                            sx={{
+                                                mr: 1,
+                                                color: "action.active"
+                                            }}
+                                        />
+                                    )
                                 }}
                             />
-
                         </Grid>
 
-                        {/* =====================================
-                            CHANNEL NAME
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
+                        <Grid item xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 required
-                                name="channelName"
-                                label="Channel Name"
-                                placeholder="Enter channel name"
-                                value={formData.channelName}
+                                type="number"
+                                name="customerId"
+                                label="Customer ID"
+                                value={formData.customerId}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.channelName
-                                )}
+                                error={Boolean(formErrors.customerId)}
                                 helperText={
-                                    formErrors.channelName ||
-                                    "Maximum 150 characters"
+                                    formErrors.customerId ||
+                                    "Enter a positive integer."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 150
-                                }}
+                                inputProps={{ min: 1, step: 1 }}
                             />
-
                         </Grid>
 
-                        {/* =====================================
-                            CHANNEL CODE
-                        ===================================== */}
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                required
+                                type="number"
+                                name="productId"
+                                label="Product ID"
+                                value={formData.productId}
+                                onChange={handleChange}
+                                error={Boolean(formErrors.productId)}
+                                helperText={
+                                    formErrors.productId ||
+                                    "Enter a positive integer."
+                                }
+                                disabled={loading}
+                                inputProps={{ min: 1, step: 1 }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <Inventory2
+                                            sx={{
+                                                mr: 1,
+                                                color: "action.active"
+                                            }}
+                                        />
+                                    )
+                                }}
+                            />
+                        </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                required
+                                name="skuCode"
+                                label="SKU Code"
+                                placeholder="e.g. TN-WBH-001"
+                                value={formData.skuCode}
+                                onChange={handleChange}
+                                error={Boolean(formErrors.skuCode)}
+                                helperText={
+                                    formErrors.skuCode || "Product SKU"
+                                }
+                                disabled={loading}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
 
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                required
+                                name="facilityCode"
+                                label="Facility Code"
+                                placeholder="e.g. WH-TN-001"
+                                value={formData.facilityCode}
+                                onChange={handleChange}
+                                error={Boolean(formErrors.facilityCode)}
+                                helperText={
+                                    formErrors.facilityCode ||
+                                    "Warehouse or facility identifier."
+                                }
+                                disabled={loading}
+                                inputProps={{ maxLength: 100 }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <Apartment
+                                            sx={{
+                                                mr: 1,
+                                                color: "action.active"
+                                            }}
+                                        />
+                                    )
+                                }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
                                 name="channelCode"
                                 label="Channel Code"
-                                placeholder="Enter channel code"
+                                placeholder="e.g. AMAZON"
                                 value={formData.channelCode}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.channelCode
-                                )}
+                                error={Boolean(formErrors.channelCode)}
                                 helperText={
                                     formErrors.channelCode ||
-                                    "Enter a unique channel code."
+                                    "Marketplace or sales channel identifier."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 50
-                                }}
+                                inputProps={{ maxLength: 100 }}
                             />
-
                         </Grid>
 
-                        {/* =====================================
-                            STATUS
-                        ===================================== */}
-
-                        <Grid item xs={12} md={6}>
-
+                        <Grid item xs={12} sm={6}>
                             <TextField
-                                select
                                 fullWidth
                                 required
-                                name="status"
-                                label="Status"
-                                value={formData.status}
+                                type="number"
+                                name="sellableQuantity"
+                                label="Sellable Quantity"
+                                value={formData.sellableQuantity}
                                 onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.status
-                                )}
-                                helperText={formErrors.status || " "}
-                                disabled={loading}
-                            >
-
-                                <MenuItem value="active">
-                                    Active
-                                </MenuItem>
-
-                                <MenuItem value="inactive">
-                                    Inactive
-                                </MenuItem>
-
-                                <MenuItem value="pending">
-                                    Pending
-                                </MenuItem>
-
-                            </TextField>
-
-                        </Grid>
-
-                        {/* =====================================
-                            DESCRIPTION
-                        ===================================== */}
-
-                        <Grid item xs={12}>
-
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={4}
-                                name="description"
-                                label="Description"
-                                placeholder="Enter an optional description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    formErrors.description
-                                )}
+                                error={Boolean(formErrors.sellableQuantity)}
                                 helperText={
-                                    formErrors.description ||
-                                    `${formData.description.length}/500 characters`
+                                    formErrors.sellableQuantity ||
+                                    "Available quantity for sale."
                                 }
                                 disabled={loading}
-                                inputProps={{
-                                    maxLength: 500
-                                }}
+                                inputProps={{ min: 0, step: 1 }}
                             />
-
                         </Grid>
-
                     </Grid>
-
                 </Box>
 
                 <Divider />
 
-                {/* =================================================
-                    FORM ACTIONS
-                ================================================= */}
+                {/* ACTION BUTTONS */}
 
                 <Stack
-                    direction={{
-                        xs: "column-reverse",
-                        sm: "row"
-                    }}
+                    direction={{ xs: "column-reverse", sm: "row" }}
                     spacing={1.5}
                     justifyContent="flex-end"
                     sx={{ p: 3 }}
                 >
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </Button>
 
                     <Button
                         variant="outlined"
@@ -590,29 +593,18 @@ const FacilityChannelCreate = ({
                         Reset
                     </Button>
 
-                    {typeof onCancel === "function" && (
-                        <Button
-                            variant="outlined"
-                            color="inherit"
-                            onClick={onCancel}
-                            disabled={loading}
-                        >
-                            Cancel
-                        </Button>
-                    )}
-
                     <Button
                         type="submit"
                         variant="contained"
                         startIcon={
-                            loading
-                                ? (
-                                    <CircularProgress
-                                        size={18}
-                                        color="inherit"
-                                    />
-                                )
-                                : <Save />
+                            loading ? (
+                                <CircularProgress
+                                    size={18}
+                                    color="inherit"
+                                />
+                            ) : (
+                                <Save />
+                            )
                         }
                         disabled={loading}
                     >
@@ -620,15 +612,10 @@ const FacilityChannelCreate = ({
                             ? "Creating..."
                             : "Create Facility Channel"}
                     </Button>
-
                 </Stack>
-
             </Box>
-
         </Paper>
     );
-
 };
 
 export default FacilityChannelCreate;
-

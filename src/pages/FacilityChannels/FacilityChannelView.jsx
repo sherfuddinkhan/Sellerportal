@@ -1,242 +1,128 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Box,
-    Grid,
-    Typography,
-    Divider,
-    Chip,
-    CircularProgress,
     Alert,
-    IconButton,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Container,
+    Divider,
+    Grid,
+    Paper,
     Stack,
-    Tooltip
+    Typography
 } from "@mui/material";
 
 import {
-    Close,
+    ArrowBack,
+    Edit,
     Refresh,
-    Apartment,
-    Tag,
-    CalendarMonth,
-    Update,
-    CheckCircle,
-    Cancel,
-    InfoOutlined
+    Inventory2
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+const API_URL = "http://localhost:5000/api/FacilityChannel";
 
-const API_BASE_URL =
-    "https://localhost:7000/api/FacilityChannel";
+/* =========================================
+   NORMALIZE API RESPONSE
+========================================= */
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+function normalizeFacilityChannel(responseData) {
+    let data = responseData;
 
-const formatDate = (value) => {
-    if (!value) {
-        return "N/A";
+    // Unwrap common API response envelopes.
+    for (let i = 0; i < 5; i++) {
+        if (
+            !data ||
+            typeof data !== "object" ||
+            Array.isArray(data)
+        ) {
+            return null;
+        }
+
+        const id = data.id ?? data.Id;
+
+        if (id !== undefined && id !== null) {
+            return {
+                id,
+                sellerId: data.sellerId ?? data.SellerId ?? "",
+                customerId: data.customerId ?? data.CustomerId ?? "",
+                productId: data.productId ?? data.ProductId ?? "",
+                skuCode: data.skuCode ?? data.SkuCode ?? "",
+                facilityCode: data.facilityCode ?? data.FacilityCode ?? "",
+                channelCode: data.channelCode ?? data.ChannelCode ?? "",
+                sellableQuantity:
+                    data.sellableQuantity ??
+                    data.SellableQuantity ??
+                    0
+            };
+        }
+
+        data =
+            data.data ??
+            data.result ??
+            data.item ??
+            data.record ??
+            data.facilityChannel ??
+            data.FacilityChannel;
     }
 
-    const date = new Date(value);
+    return null;
+}
 
-    if (Number.isNaN(date.getTime())) {
-        return "N/A";
+/* =========================================
+   ERROR MESSAGE
+========================================= */
+
+function getErrorMessage(error) {
+    const data = error?.response?.data;
+
+    if (typeof data === "string" && data.trim()) {
+        return data;
     }
 
-    return date.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-};
-
-/* =========================================================
-   FORMAT VALUE
-========================================================= */
-
-const formatValue = (value) => {
-    if (value === null || value === undefined || value === "") {
-        return "N/A";
+    if (data?.errors && typeof data.errors === "object") {
+        return Object.values(data.errors).flat().join(", ");
     }
-
-    if (typeof value === "boolean") {
-        return value ? "Yes" : "No";
-    }
-
-    return String(value);
-};
-
-/* =========================================================
-   STATUS CONFIGURATION
-========================================================= */
-
-const getStatusColor = (value) => {
-    if (value === true) {
-        return "success";
-    }
-
-    if (value === false) {
-        return "default";
-    }
-
-    const status = String(value || "")
-        .trim()
-        .toLowerCase();
-
-    switch (status) {
-        case "active":
-        case "enabled":
-        case "available":
-        case "true":
-            return "success";
-
-        case "inactive":
-        case "disabled":
-        case "unavailable":
-        case "false":
-            return "default";
-
-        case "pending":
-            return "warning";
-
-        case "failed":
-        case "error":
-            return "error";
-
-        default:
-            return "info";
-    }
-};
-
-/* =========================================================
-   DETAIL ITEM
-========================================================= */
-
-const DetailItem = ({
-    label,
-    value,
-    icon,
-    status = false
-}) => {
-    const displayValue = formatValue(value);
 
     return (
-        <Grid item xs={12} sm={6}>
-            <Stack
-                direction="row"
-                spacing={1.5}
-                alignItems="flex-start"
-            >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: 36,
-                        height: 36,
-                        borderRadius: 1.5,
-                        bgcolor: "action.hover",
-                        color: "text.secondary",
-                        flexShrink: 0
-                    }}
-                >
-                    {icon || <InfoOutlined fontSize="small" />}
-                </Box>
-
-                <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                    >
-                        {label}
-                    </Typography>
-
-                    {status ? (
-                        <Box sx={{ mt: 0.5 }}>
-                            <Chip
-                                size="small"
-                                label={displayValue}
-                                color={getStatusColor(value)}
-                                variant="outlined"
-                            />
-                        </Box>
-                    ) : (
-                        <Typography
-                            variant="body2"
-                            fontWeight={600}
-                            sx={{
-                                mt: 0.5,
-                                overflowWrap: "anywhere",
-                                whiteSpace: "pre-wrap"
-                            }}
-                        >
-                            {displayValue}
-                        </Typography>
-                    )}
-                </Box>
-            </Stack>
-        </Grid>
+        data?.message ||
+        data?.title ||
+        error?.message ||
+        "Unable to load Facility Channel details."
     );
-};
+}
 
-/* =========================================================
-   FACILITY CHANNEL VIEW
-========================================================= */
+/* =========================================
+   MAIN COMPONENT
+========================================= */
 
-const FacilityChannelView = ({
-    open,
-    facilityChannelId,
-    facilityChannel,
-    apiBaseUrl = API_BASE_URL,
-    onClose,
-    onEdit
-}) => {
-    const [details, setDetails] = useState(
-        facilityChannel || null
-    );
+function FacilityChannelView({ id: suppliedId }) {
+    const { id: routeId } = useParams();
+    const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
+    const facilityChannelId = suppliedId ?? routeId;
+
+    const [facilityChannel, setFacilityChannel] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    /* =====================================================
-       RESOLVE ID
-    ===================================================== */
+    /* =========================================
+       FETCH DETAILS
+    ========================================= */
 
-    const resolvedId =
-        facilityChannelId ??
-        facilityChannel?.id ??
-        facilityChannel?.facilityChannelId ??
-        facilityChannel?.channelId;
-
-    /* =====================================================
-       FETCH FACILITY CHANNEL DETAILS
-    ===================================================== */
-
-    const fetchDetails = async () => {
-        if (resolvedId === null || resolvedId === undefined) {
-            if (facilityChannel) {
-                setDetails(facilityChannel);
-                setError("");
-                return;
-            }
-
-            setError("Facility channel ID was not provided.");
+    const fetchFacilityChannel = useCallback(async () => {
+        if (
+            !facilityChannelId ||
+            !Number.isInteger(Number(facilityChannelId)) ||
+            Number(facilityChannelId) <= 0
+        ) {
+            setFacilityChannel(null);
+            setError("A valid Facility Channel ID is required.");
+            setLoading(false);
             return;
         }
 
@@ -245,384 +131,363 @@ const FacilityChannelView = ({
 
         try {
             const response = await axios.get(
-                `${apiBaseUrl}/${encodeURIComponent(resolvedId)}`
+                `${API_URL}/details/${encodeURIComponent(facilityChannelId)}`
             );
 
-            const result = response.data;
+            const normalized = normalizeFacilityChannel(response.data);
 
-            const record =
-                result?.data ??
-                result?.facilityChannel ??
-                result;
+            if (!normalized) {
+                throw new Error(
+                    "The API did not return a valid Facility Channel record."
+                );
+            }
 
-            setDetails(record);
+            setFacilityChannel(normalized);
         } catch (err) {
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                err.message ||
-                "Failed to load facility channel details."
-            );
+            setFacilityChannel(null);
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
-    };
-
-    /* =====================================================
-       LOAD DETAILS WHEN OPENED
-    ===================================================== */
+    }, [facilityChannelId]);
 
     useEffect(() => {
-        if (!open) {
+        fetchFacilityChannel();
+    }, [fetchFacilityChannel]);
+
+    /* =========================================
+       NAVIGATION
+    ========================================= */
+
+    const handleBack = () => {
+        navigate("/facility-channels");
+    };
+
+    const handleEdit = () => {
+        if (!facilityChannel?.id) {
+            setError("Facility Channel ID was not found.");
             return;
         }
 
-        if (
-            facilityChannel &&
-            (
-                facilityChannelId === undefined ||
-                facilityChannelId === null
-            )
-        ) {
-            setDetails(facilityChannel);
-            setError("");
-            return;
-        }
+        // Do not block navigation just because the API returned
+        // missing seller/customer fields. The edit page can load
+        // the complete record directly from the API.
+        navigate(`/facility-channels/${facilityChannel.id}/edit`, {
+            state: {
+                facilityChannel: {
+                    ...facilityChannel,
+                    sellerId: facilityChannel.sellerId,
+                    customerId: facilityChannel.customerId
+                }
+            }
+        });
+    };
 
-        fetchDetails();
+    /* =========================================
+       LOADING
+    ========================================= */
 
-        // Load when the dialog opens or the selected ID changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open, resolvedId]);
-
-    /* =====================================================
-       GET FIELD VALUES
-    ===================================================== */
-
-    const record = details || {};
-
-    const id =
-        record.id ??
-        record.facilityChannelId ??
-        record.channelId;
-
-    const facilityName =
-        record.facilityName ??
-        record.facility?.name ??
-        record.name;
-
-    const channelName =
-        record.channelName ??
-        record.channel?.name ??
-        record.channel;
-
-    const channelCode =
-        record.channelCode ??
-        record.code;
-
-    const description =
-        record.description ??
-        record.remarks;
-
-    const status =
-        record.status ??
-        record.channelStatus;
-
-    const isActive =
-        record.isActive ??
-        record.active ??
-        record.enabled;
-
-    const createdAt =
-        record.createdAt ??
-        record.createdDate ??
-        record.createdOn;
-
-    const updatedAt =
-        record.updatedAt ??
-        record.updatedDate ??
-        record.updatedOn;
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
-
-    return (
-        <Dialog
-            open={Boolean(open)}
-            onClose={onClose}
-            fullWidth
-            maxWidth="md"
-            aria-labelledby="facility-channel-view-title"
-        >
-            {/* DIALOG HEADER */}
-
-            <DialogTitle
-                id="facility-channel-view-title"
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 2,
-                    pr: 2
-                }}
-            >
-                <Stack
-                    direction="row"
-                    spacing={1.5}
-                    alignItems="center"
+    if (loading) {
+        return (
+            <Container maxWidth="lg" sx={{ py: 6 }}>
+                <Box
+                    sx={{
+                        minHeight: 250,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 2
+                    }}
                 >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: 44,
-                            height: 44,
-                            borderRadius: 2,
-                            bgcolor: "primary.light",
-                            color: "primary.contrastText"
-                        }}
-                    >
-                        <Apartment />
-                    </Box>
+                    <CircularProgress />
+                    <Typography color="text.secondary">
+                        Loading Facility Channel details...
+                    </Typography>
+                </Box>
+            </Container>
+        );
+    }
 
-                    <Box>
-                        <Typography
-                            variant="h6"
-                            fontWeight={700}
-                        >
-                            Facility Channel Details
-                        </Typography>
+    /* =========================================
+       ERROR
+    ========================================= */
 
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            View facility channel information
-                        </Typography>
-                    </Box>
-                </Stack>
-
-                <Stack
-                    direction="row"
-                    spacing={0.5}
-                    alignItems="center"
-                >
-                    <Tooltip title="Refresh details">
-                        <span>
-                            <IconButton
-                                onClick={fetchDetails}
-                                disabled={loading}
-                                aria-label="Refresh facility channel details"
-                            >
-                                <Refresh />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-
-                    <IconButton
-                        onClick={onClose}
-                        aria-label="Close dialog"
-                    >
-                        <Close />
-                    </IconButton>
-                </Stack>
-            </DialogTitle>
-
-            <Divider />
-
-            {/* DIALOG CONTENT */}
-
-            <DialogContent sx={{ py: 3 }}>
-                {loading && (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            py: 6,
-                            gap: 2
-                        }}
-                    >
-                        <CircularProgress />
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            Loading facility channel details...
-                        </Typography>
-                    </Box>
-                )}
-
-                {!loading && error && (
-                    <Alert
-                        severity="error"
-                        action={
-                            <Button
-                                color="inherit"
-                                size="small"
-                                onClick={fetchDetails}
-                            >
-                                Retry
-                            </Button>
-                        }
-                    >
+    if (error && !facilityChannel) {
+        return (
+            <Container maxWidth="md" sx={{ py: 4 }}>
+                <Paper elevation={2} sx={{ p: 3 }}>
+                    <Alert severity="error" sx={{ mb: 3 }}>
                         {error}
                     </Alert>
-                )}
 
-                {!loading && !error && details && (
-                    <Stack spacing={3}>
-                        {/* GENERAL INFORMATION */}
+                    <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={2}
+                    >
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={handleBack}
+                        >
+                            Back to Facility Channels
+                        </Button>
 
-                        <Box>
-                            <Typography
-                                variant="subtitle1"
-                                fontWeight={700}
-                                sx={{ mb: 2 }}
-                            >
-                                General Information
-                            </Typography>
-
-                            <Grid container spacing={3}>
-                                <DetailItem
-                                    label="Facility Channel ID"
-                                    value={id}
-                                    icon={<Tag fontSize="small" />}
-                                />
-
-                                <DetailItem
-                                    label="Facility Name"
-                                    value={facilityName}
-                                    icon={<Apartment fontSize="small" />}
-                                />
-
-                                <DetailItem
-                                    label="Channel Name"
-                                    value={channelName}
-                                    icon={<Apartment fontSize="small" />}
-                                />
-
-                                <DetailItem
-                                    label="Channel Code"
-                                    value={channelCode}
-                                    icon={<Tag fontSize="small" />}
-                                />
-
-                                {status !== undefined && (
-                                    <DetailItem
-                                        label="Status"
-                                        value={status}
-                                        status
-                                        icon={<InfoOutlined fontSize="small" />}
-                                    />
-                                )}
-
-                                {isActive !== undefined && (
-                                    <DetailItem
-                                        label="Active"
-                                        value={isActive}
-                                        status
-                                        icon={
-                                            isActive === true
-                                                ? <CheckCircle fontSize="small" />
-                                                : <Cancel fontSize="small" />
-                                        }
-                                    />
-                                )}
-                            </Grid>
-                        </Box>
-
-                        <Divider />
-
-                        {/* DESCRIPTION */}
-
-                        <Box>
-                            <Typography
-                                variant="subtitle1"
-                                fontWeight={700}
-                                sx={{ mb: 1.5 }}
-                            >
-                                Description
-                            </Typography>
-
-                            <Box
-                                sx={{
-                                    p: 2,
-                                    borderRadius: 2,
-                                    bgcolor: "action.hover",
-                                    minHeight: 56
-                                }}
-                            >
-                                <Typography
-                                    variant="body2"
-                                    sx={{ whiteSpace: "pre-wrap" }}
-                                >
-                                    {formatValue(description)}
-                                </Typography>
-                            </Box>
-                        </Box>
-
-                        <Divider />
-
-                        {/* AUDIT INFORMATION */}
-
-                        <Box>
-                            <Typography
-                                variant="subtitle1"
-                                fontWeight={700}
-                                sx={{ mb: 2 }}
-                            >
-                                Audit Information
-                            </Typography>
-
-                            <Grid container spacing={3}>
-                                <DetailItem
-                                    label="Created At"
-                                    value={formatDate(createdAt)}
-                                    icon={<CalendarMonth fontSize="small" />}
-                                />
-
-                                <DetailItem
-                                    label="Updated At"
-                                    value={formatDate(updatedAt)}
-                                    icon={<Update fontSize="small" />}
-                                />
-                            </Grid>
-                        </Box>
+                        <Button
+                            variant="contained"
+                            startIcon={<Refresh />}
+                            onClick={fetchFacilityChannel}
+                        >
+                            Retry
+                        </Button>
                     </Stack>
-                )}
-            </DialogContent>
+                </Paper>
+            </Container>
+        );
+    }
 
-            <Divider />
+    if (!facilityChannel) {
+        return (
+            <Container maxWidth="md" sx={{ py: 4 }}>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Facility Channel record not found.
+                </Alert>
 
-            {/* DIALOG ACTIONS */}
-
-            <DialogActions sx={{ p: 2.5, gap: 1 }}>
                 <Button
                     variant="outlined"
-                    color="inherit"
-                    onClick={onClose}
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
                 >
-                    Close
+                    Back to List
                 </Button>
+            </Container>
+        );
+    }
 
-                {onEdit && details && (
+    /* =========================================
+       DETAIL FIELDS
+    ========================================= */
+
+    const detailFields = [
+        {
+            label: "Facility Channel ID",
+            value: facilityChannel.id
+        },
+        {
+            label: "Seller ID",
+            value: facilityChannel.sellerId
+        },
+        {
+            label: "Customer ID",
+            value: facilityChannel.customerId
+        },
+        {
+            label: "Product ID",
+            value: facilityChannel.productId
+        },
+        {
+            label: "SKU Code",
+            value: facilityChannel.skuCode
+        },
+        {
+            label: "Facility Code",
+            value: facilityChannel.facilityCode
+        },
+        {
+            label: "Channel Code",
+            value: facilityChannel.channelCode
+        },
+        {
+            label: "Sellable Quantity",
+            value: facilityChannel.sellableQuantity
+        }
+    ];
+
+    /* =========================================
+       FULL PAGE VIEW
+    ========================================= */
+
+    return (
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    flexDirection: { xs: "column", sm: "row" },
+                    gap: 2,
+                    mb: 3
+                }}
+            >
+                <Box>
+                    <Typography variant="h4" fontWeight={700} gutterBottom>
+                        Facility Channel Details
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary">
+                        View inventory availability for this facility and
+                        sales channel.
+                    </Typography>
+                </Box>
+
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
+                >
+                    Back to List
+                </Button>
+            </Box>
+
+            {error && (
+                <Alert
+                    severity="error"
+                    sx={{ mb: 3 }}
+                    onClose={() => setError("")}
+                >
+                    {error}
+                </Alert>
+            )}
+
+            <Card elevation={2} sx={{ mb: 3, borderRadius: 2 }}>
+                <CardContent sx={{ p: 3 }}>
+                    <Stack
+                        direction="row"
+                        spacing={2}
+                        alignItems="center"
+                        sx={{ mb: 2 }}
+                    >
+                        <Inventory2 color="primary" sx={{ fontSize: 36 }} />
+
+                        <Box>
+                            <Typography variant="h6" fontWeight={700}>
+                                {facilityChannel.skuCode || "Facility Channel"}
+                            </Typography>
+
+                            <Typography variant="body2" color="text.secondary">
+                                Record ID: {facilityChannel.id}
+                            </Typography>
+                        </Box>
+                    </Stack>
+
+                    <Divider sx={{ mb: 2 }} />
+
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Typography variant="body2" color="text.secondary">
+                                Seller ID
+                            </Typography>
+                            <Typography variant="h6">
+                                {facilityChannel.sellerId || "-"}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Typography variant="body2" color="text.secondary">
+                                Customer ID
+                            </Typography>
+                            <Typography variant="h6">
+                                {facilityChannel.customerId || "-"}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Typography variant="body2" color="text.secondary">
+                                Product ID
+                            </Typography>
+                            <Typography variant="h6">
+                                {facilityChannel.productId || "-"}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Typography variant="body2" color="text.secondary">
+                                Sellable Quantity
+                            </Typography>
+                            <Typography variant="h6" color="primary.main">
+                                {facilityChannel.sellableQuantity}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                </CardContent>
+            </Card>
+
+            <Paper
+                elevation={2}
+                sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}
+            >
+                <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                    General Information
+                </Typography>
+
+                <Divider sx={{ mb: 1 }} />
+
+                <Grid container>
+                    {detailFields.map((field) => (
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            key={field.label}
+                            sx={{
+                                p: 2,
+                                borderBottom: "1px solid",
+                                borderColor: "divider"
+                            }}
+                        >
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 0.75 }}
+                            >
+                                {field.label}
+                            </Typography>
+
+                            <Typography
+                                variant="body1"
+                                fontWeight={600}
+                                sx={{ overflowWrap: "anywhere" }}
+                            >
+                                {field.value === "" || field.value == null
+                                    ? "-"
+                                    : field.value}
+                            </Typography>
+                        </Grid>
+                    ))}
+                </Grid>
+
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    sx={{ mt: 4 }}
+                >
                     <Button
                         variant="contained"
-                        onClick={() => onEdit(details)}
-                        disabled={loading}
+                        startIcon={<Edit />}
+                        onClick={handleEdit}
                     >
                         Edit Facility Channel
                     </Button>
-                )}
-            </DialogActions>
-        </Dialog>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<Refresh />}
+                        onClick={fetchFacilityChannel}
+                    >
+                        Refresh
+                    </Button>
+
+                    <Button
+                        variant="text"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back to List
+                    </Button>
+                </Stack>
+            </Paper>
+        </Container>
     );
-};
+}
 
 export default FacilityChannelView;
-
