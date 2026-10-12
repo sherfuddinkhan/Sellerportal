@@ -1795,10 +1795,18 @@ element={<PicklistEdit />}
 EXPORT JOBS ROUTES
 ================================================= */}
 
+
 <Route path="export-jobs" element={<ExportJobsList />} />
-<Route path="export-jobs/search" element={<ExportJobSearch />} /> {/* singular */}
+
+<Route path="export-jobs/search" element={<ExportJobSearch />} />
+
 <Route path="export-jobs/table" element={<ExportJobsTable />} />
+
 <Route path="export-jobs/toolbar" element={<ExportJobsToolbar />} />
+
+<Route path="export-jobs/details/:id" element={<ExportJobView />} />
+
+<Route path="export-jobs/:id/edit" element={<ExportJobsEdit />} />
 
 
 {/* =================================================

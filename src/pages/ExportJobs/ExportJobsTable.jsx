@@ -1,733 +1,250 @@
 import React from "react";
-
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    IconButton,
-    Tooltip,
-    Typography,
-    Box,
-    Chip
+Table,
+TableBody,
+TableCell,
+TableContainer,
+TableHead,
+TableRow,
+Paper,
+IconButton,
+Tooltip,
+Typography,
+Box,
+Chip
 } from "@mui/material";
 
 import {
-    Visibility,
-    Edit,
-    Delete
+Visibility,
+Edit,
+Delete
 } from "@mui/icons-material";
 
+const getExportJobId = (job) =>
+job?.ExportJobId ??
+job?.exportJobId ??
+job?.Id ??
+job?.id;
 
-/* =========================================================
-   GET EXPORT JOB ID
-========================================================= */
+const getValue = (job, ...keys) => {
+for (const key of keys) {
+if (
+job?.[key] !== undefined &&
+job?.[key] !== null &&
+job?.[key] !== ""
+) {
+return job[key];
+}
+}
 
-const getExportJobId = (job) => {
-
-    return (
-        job?.ExportJobId ??
-        job?.exportJobId ??
-        job?.Id ??
-        job?.id ??
-        "-"
-    );
-
+return "";
 };
-
-
-/* =========================================================
-   GET FIELD VALUE
-========================================================= */
-
-const getValue = (
-    job,
-    ...keys
-) => {
-
-    for (const key of keys) {
-
-        if (
-            job?.[key] !== undefined &&
-            job?.[key] !== null
-        ) {
-            return job[key];
-        }
-
-    }
-
-    return "";
-
-};
-
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
 
 const formatDate = (value) => {
+if (!value) return "-";
 
-    if (!value) {
-        return "-";
-    }
+const date = new Date(value);
 
-    const date = new Date(value);
+if (Number.isNaN(date.getTime())) return String(value);
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-        return String(value);
-    }
-
-    return date.toLocaleString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
-
+return date.toLocaleString("en-IN", {
+day: "2-digit",
+month: "2-digit",
+year: "numeric",
+hour: "2-digit",
+minute: "2-digit"
+});
 };
 
+const getStatusColor = (status) => {
+switch (String(status || "").toLowerCase()) {
+case "active":
+case "completed":
+case "success":
+case "successful":
+case "done":
+return "success";
 
-/* =========================================================
-   STATUS COLOR
-========================================================= */
+case "pending":
+case "processing":
+case "in progress":
+case "running":
+  return "warning";
 
-const getStatusColor = (
-    status
-) => {
+case "failed":
+case "error":
+case "cancelled":
+case "canceled":
+  return "error";
 
-    switch (
-        String(status || "")
-            .toLowerCase()
-    ) {
+case "created":
+case "new":
+  return "info";
 
-        case "completed":
-        case "success":
-        case "successful":
-        case "active":
-
-            return "success";
-
-
-        case "pending":
-        case "processing":
-        case "in progress":
-
-            return "warning";
-
-
-        case "failed":
-        case "error":
-        case "cancelled":
-        case "canceled":
-
-            return "error";
+default:
+  return "default";
 
 
-        case "created":
-        case "new":
-
-            return "info";
-
-
-        default:
-
-            return "default";
-
-    }
-
+}
 };
-
-
-/* =========================================================
-   COMPONENT
-========================================================= */
 
 const ExportJobsTable = ({
-    exportJobs = [],
-    onView,
-    onEdit,
-    onDelete
+exportJobs = [],
+onView,
+onEdit,
+onDelete
 }) => {
-
-
-    /* =====================================================
-       VIEW
-    ===================================================== */
-
-    const handleView = (
-        job
-    ) => {
-
-        if (
-            typeof onView ===
-            "function"
-        ) {
-
-            onView(job);
-
-        }
-
-    };
-
-
-    /* =====================================================
-       EDIT
-    ===================================================== */
-
-    const handleEdit = (
-        job
-    ) => {
-
-        if (
-            typeof onEdit ===
-            "function"
-        ) {
-
-            onEdit(job);
-
-        }
-
-    };
-
-
-    /* =====================================================
-       DELETE
-    ===================================================== */
-
-    const handleDelete = (
-        job
-    ) => {
-
-        if (
-            typeof onDelete ===
-            "function"
-        ) {
-
-            onDelete(job);
-
-        }
-
-    };
-
-
-    /* =====================================================
-       EMPTY STATE
-    ===================================================== */
-
-    if (
-        !Array.isArray(exportJobs) ||
-        exportJobs.length === 0
-    ) {
-
-        return (
-
-            <TableContainer
-                component={Paper}
-                elevation={2}
-            >
-
-                <Table>
-
-                    <TableHead>
-
-                        <TableRow>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                ID
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Seller ID
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Customer ID
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Job Type
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Status
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Created Date
-                            </TableCell>
-
-                            <TableCell
-                                align="center"
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Actions
-                            </TableCell>
-
-                        </TableRow>
-
-                    </TableHead>
-
-
-                    <TableBody>
-
-                        <TableRow>
-
-                            <TableCell
-                                colSpan={7}
-                                align="center"
-                            >
-
-                                <Box
-                                    sx={{
-                                        py: 5
-                                    }}
-                                >
-
-                                    <Typography
-                                        color="text.secondary"
-                                    >
-                                        No Export Jobs
-                                        found.
-                                    </Typography>
-
-                                </Box>
-
-                            </TableCell>
-
-                        </TableRow>
-
-                    </TableBody>
-
-                </Table>
-
-            </TableContainer>
-
-        );
-
-    }
-
-
-    /* =====================================================
-       TABLE
-    ===================================================== */
-
-    return (
-
-        <TableContainer
-            component={Paper}
-            elevation={2}
-        >
-
-            <Table
-                size="small"
-                stickyHeader
-            >
-
-                {/* =================================================
-                   TABLE HEAD
-                ================================================= */}
-
-                <TableHead>
-
-                    <TableRow>
-
-                        <TableCell
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            ID
-                        </TableCell>
-
-
-                        <TableCell
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            Seller ID
-                        </TableCell>
-
-
-                        <TableCell
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            Customer ID
-                        </TableCell>
-
-
-                        <TableCell
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            Job Type
-                        </TableCell>
-
-
-                        <TableCell
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            Status
-                        </TableCell>
-
-
-                        <TableCell
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            Created Date
-                        </TableCell>
-
-
-                        <TableCell
-                            align="center"
-                            sx={{
-                                fontWeight: 700,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            Actions
-                        </TableCell>
-
-                    </TableRow>
-
-                </TableHead>
-
-
-                {/* =================================================
-                   TABLE BODY
-                ================================================= */}
-
-                <TableBody>
-
-                    {exportJobs.map(
-                        (
-                            job,
-                            index
-                        ) => {
-
-                            const id =
-                                getExportJobId(
-                                    job
-                                );
-
-
-                            const sellerId =
-                                getValue(
-                                    job,
-                                    "SellerId",
-                                    "sellerId"
-                                );
-
-
-                            const customerId =
-                                getValue(
-                                    job,
-                                    "CustomerId",
-                                    "customerId"
-                                );
-
-
-                            const jobType =
-                                getValue(
-                                    job,
-                                    "JobType",
-                                    "jobType",
-                                    "Type",
-                                    "type"
-                                );
-
-
-                            const status =
-                                getValue(
-                                    job,
-                                    "Status",
-                                    "status"
-                                );
-
-
-                            const createdDate =
-                                getValue(
-                                    job,
-                                    "CreatedDate",
-                                    "createdDate",
-                                    "CreatedAt",
-                                    "createdAt"
-                                );
-
-
-                            return (
-
-                                <TableRow
-                                    key={
-                                        id !== "-"
-                                            ? id
-                                            : index
-                                    }
-                                    hover
-                                >
-
-                                    {/* =================================
-                                       ID
-                                    ================================= */}
-
-                                    <TableCell>
-                                        <Typography
-                                            variant="body2"
-                                            fontWeight={600}
-                                        >
-                                            {id}
-                                        </Typography>
-                                    </TableCell>
-
-
-                                    {/* =================================
-                                       SELLER ID
-                                    ================================= */}
-
-                                    <TableCell>
-                                        {sellerId || "-"}
-                                    </TableCell>
-
-
-                                    {/* =================================
-                                       CUSTOMER ID
-                                    ================================= */}
-
-                                    <TableCell>
-                                        {customerId || "-"}
-                                    </TableCell>
-
-
-                                    {/* =================================
-                                       JOB TYPE
-                                    ================================= */}
-
-                                    <TableCell>
-                                        {jobType || "-"}
-                                    </TableCell>
-
-
-                                    {/* =================================
-                                       STATUS
-                                    ================================= */}
-
-                                    <TableCell>
-
-                                        {status ? (
-
-                                            <Chip
-                                                label={
-                                                    status
-                                                }
-                                                size="small"
-                                                color={
-                                                    getStatusColor(
-                                                        status
-                                                    )
-                                                }
-                                            />
-
-                                        ) : (
-
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                            >
-                                                -
-                                            </Typography>
-
-                                        )}
-
-                                    </TableCell>
-
-
-                                    {/* =================================
-                                       CREATED DATE
-                                    ================================= */}
-
-                                    <TableCell>
-                                        {
-                                            formatDate(
-                                                createdDate
-                                            )
-                                        }
-                                    </TableCell>
-
-
-                                    {/* =================================
-                                       ACTIONS
-                                    ================================= */}
-
-                                    <TableCell
-                                        align="center"
-                                    >
-
-                                        <Box
-                                            sx={{
-                                                display:
-                                                    "flex",
-                                                justifyContent:
-                                                    "center",
-                                                alignItems:
-                                                    "center",
-                                                gap: 0.5
-                                            }}
-                                        >
-
-                                            {/* =========================
-                                               VIEW
-                                            ========================= */}
-
-                                            <Tooltip
-                                                title="View"
-                                            >
-
-                                                <IconButton
-                                                    size="small"
-                                                    color="info"
-                                                    onClick={() =>
-                                                        handleView(
-                                                            job
-                                                        )
-                                                    }
-                                                >
-
-                                                    <Visibility
-                                                        fontSize="small"
-                                                    />
-
-                                                </IconButton>
-
-                                            </Tooltip>
-
-
-                                            {/* =========================
-                                               EDIT
-                                            ========================= */}
-
-                                            <Tooltip
-                                                title="Edit"
-                                            >
-
-                                                <IconButton
-                                                    size="small"
-                                                    color="warning"
-                                                    onClick={() =>
-                                                        handleEdit(
-                                                            job
-                                                        )
-                                                    }
-                                                >
-
-                                                    <Edit
-                                                        fontSize="small"
-                                                    />
-
-                                                </IconButton>
-
-                                            </Tooltip>
-
-
-                                            {/* =========================
-                                               DELETE
-                                            ========================= */}
-
-                                            <Tooltip
-                                                title="Delete"
-                                            >
-
-                                                <IconButton
-                                                    size="small"
-                                                    color="error"
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            job
-                                                        )
-                                                    }
-                                                >
-
-                                                    <Delete
-                                                        fontSize="small"
-                                                    />
-
-                                                </IconButton>
-
-                                            </Tooltip>
-
-                                        </Box>
-
-                                    </TableCell>
-
-                                </TableRow>
-
-                            );
-
-                        }
-                    )}
-
-                </TableBody>
-
-            </Table>
-
-        </TableContainer>
-
-    );
-
+const handleView = (job) => {
+console.log("View Export Job:", job);
+if (typeof onView === "function") {
+onView(job, getExportJobId(job));
+} else {
+console.error("onView handler was not passed by the parent component.");
+}
 };
 
+const handleEdit = (job) => {
+console.log("Edit Export Job:", job);
+if (typeof onEdit === "function") {
+onEdit(job, getExportJobId(job));
+} else {
+console.error("onEdit handler was not passed by the parent component.");
+}
+};
 
-/* =========================================================
-   EXPORT
-========================================================= */
+const handleDelete = (job) => {
+console.log("Delete Export Job:", job);
+if (typeof onDelete === "function") {
+onDelete(job, getExportJobId(job));
+} else {
+console.error("onDelete handler was not passed by the parent component.");
+}
+};
+
+return ( <TableContainer component={Paper} elevation={2}> <Table size="small" stickyHeader> <TableHead> <TableRow>
+<TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
+<TableCell sx={{ fontWeight: 700 }}>Job Code</TableCell>
+<TableCell sx={{ fontWeight: 700 }}>Export Type</TableCell>
+<TableCell sx={{ fontWeight: 700 }}>Report Name</TableCell>
+<TableCell sx={{ fontWeight: 700 }}>Frequency</TableCell>
+<TableCell sx={{ fontWeight: 700 }}>Schedule Time</TableCell>
+<TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+<TableCell align="center" sx={{ fontWeight: 700 }}>
+Actions </TableCell> </TableRow> </TableHead>
+
+
+    <TableBody>
+      {!Array.isArray(exportJobs) || exportJobs.length === 0 ? (
+        <TableRow>
+          <TableCell colSpan={8} align="center">
+            <Box sx={{ py: 5 }}>
+              <Typography color="text.secondary">
+                No Export Jobs found.
+              </Typography>
+            </Box>
+          </TableCell>
+        </TableRow>
+      ) : (
+        exportJobs.map((job, index) => {
+          const id = getExportJobId(job);
+
+          const jobCode = getValue(job, "JobCode", "jobCode");
+          const exportType = getValue(
+            job,
+            "ExportJobTypeName",
+            "exportJobTypeName"
+          );
+          const reportName = getValue(
+            job,
+            "ReportName",
+            "reportName"
+          );
+          const frequency = getValue(
+            job,
+            "Frequency",
+            "frequency"
+          );
+          const scheduleTime = getValue(
+            job,
+            "ScheduleTime",
+            "scheduleTime"
+          );
+          const status = getValue(job, "Status", "status");
+
+          return (
+            <TableRow key={id ?? index} hover>
+              <TableCell>{id ?? "-"}</TableCell>
+              <TableCell>{jobCode || "-"}</TableCell>
+              <TableCell>{exportType || "-"}</TableCell>
+              <TableCell>{reportName || "-"}</TableCell>
+              <TableCell>{frequency || "-"}</TableCell>
+              <TableCell>{formatDate(scheduleTime)}</TableCell>
+
+              <TableCell>
+                {status ? (
+                  <Chip
+                    label={status}
+                    size="small"
+                    color={getStatusColor(status)}
+                  />
+                ) : (
+                  "-"
+                )}
+              </TableCell>
+
+              <TableCell align="center">
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 0.5
+                  }}
+                >
+                  <Tooltip title="View">
+                    <IconButton
+                      size="small"
+                      color="info"
+                      aria-label="View Export Job"
+                      onClick={() => handleView(job)}
+                    >
+                      <Visibility fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Edit">
+                    <IconButton
+                      size="small"
+                      color="warning"
+                      aria-label="Edit Export Job"
+                      onClick={() => handleEdit(job)}
+                    >
+                      <Edit fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Delete">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      aria-label="Delete Export Job"
+                      onClick={() => handleDelete(job)}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </TableCell>
+            </TableRow>
+          );
+        })
+      )}
+    </TableBody>
+  </Table>
+</TableContainer>
+
+
+);
+};
 
 export default ExportJobsTable;

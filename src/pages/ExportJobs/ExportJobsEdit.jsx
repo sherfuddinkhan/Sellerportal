@@ -1,581 +1,560 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
-    Box,
-    Paper,
-    Grid,
-    Typography,
-    TextField,
-    MenuItem,
-    Button,
-    Divider,
-    CircularProgress,
-    Alert,
-    Snackbar
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  Grid,
+  MenuItem,
+  Paper,
+  Snackbar,
+  TextField,
+  Typography
 } from "@mui/material";
 
-import {
-    Save,
-    ArrowBack
-} from "@mui/icons-material";
+import { ArrowBack, Save } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
-
-// Replace with your actual backend API URL.
-const API_BASE_URL = "https://localhost:7000/api/ExportJobs";
-
-/* =========================================================
-   INITIAL FORM DATA
-========================================================= */
+const API_BASE_URL = "http://localhost:5000/api/export-jobs";
 
 const initialFormData = {
-    jobName: "",
-    exportType: "",
-    format: "CSV",
-    description: ""
+  jobCode: "",
+  exportJobTypeName: "",
+  exportColums: "",
+  exportFilters: "",
+  scheduleTime: "",
+  notificationEmail: "",
+  sellerId: "",
+  customerId: "",
+  frequency: "DAILY",
+  reportName: "",
+  status: "ACTIVE"
 };
 
-/* =========================================================
-   EXPORT JOBS EDIT
-========================================================= */
+const getValue = (obj, camel, pascal) =>
+  obj?.[camel] ?? obj?.[pascal] ?? "";
+
+const toDateTimeLocal = (value) => {
+  if (!value) return "";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const pad = (number) => String(number).padStart(2, "0");
+
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  );
+};
 
 const ExportJobsEdit = ({
-    exportJobId,
-    exportJob: initialExportJob = null,
-    onSuccess,
-    onCancel,
-    apiBaseUrl = API_BASE_URL
+  exportJobId: suppliedId,
+  exportJob: initialExportJob = null,
+  onSuccess,
+  onCancel,
+  apiBaseUrl = API_BASE_URL
 }) => {
+  const { id: routeId } = useParams();
+  const navigate = useNavigate();
 
-    /* =====================================================
-       STATE
-    ===================================================== */
+  const exportJobId = suppliedId ?? routeId;
 
-    const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(initialFormData);
+  const [fetching, setFetching] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-    const [loading, setLoading] = useState(false);
-    const [fetching, setFetching] = useState(false);
+  const getErrorMessage = (err) => {
+    const data = err?.response?.data;
 
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState(false);
+    if (typeof data === "string") return data;
+    if (data?.message) return data.message;
+    if (data?.title) return data.title;
 
-    const [formErrors, setFormErrors] = useState({});
-
-    /* =====================================================
-       GET API ERROR MESSAGE
-    ===================================================== */
-
-    const getApiErrorMessage = (err) => {
-
-        const data = err?.response?.data;
-
-        if (typeof data === "string" && data.trim()) {
-            return data;
-        }
-
-        if (data?.message) {
-            return data.message;
-        }
-
-        if (data?.title) {
-            return data.title;
-        }
-
-        if (data?.errors) {
-            return Object.values(data.errors)
-                .flat()
-                .join(" ");
-        }
-
-        if (err?.response?.status === 404) {
-            return "Export job not found.";
-        }
-
-        if (err?.response?.status === 400) {
-            return "Invalid export job details. Please check your inputs.";
-        }
-
-        if (err?.response?.status === 401) {
-            return "You are not authorized to perform this action.";
-        }
-
-        if (err?.response?.status === 403) {
-            return "You do not have permission to update this export job.";
-        }
-
-        if (!err?.response) {
-            return "Unable to connect to the server. Please check the API URL and network.";
-        }
-
-        return "Failed to process the export job request.";
-    };
-
-    /* =====================================================
-       MAP API RESPONSE
-    ===================================================== */
-
-    const mapExportJobToForm = (job) => ({
-        jobName: job?.jobName ?? "",
-        exportType: job?.exportType ?? "",
-        format: job?.format ?? "CSV",
-        description: job?.description ?? ""
-    });
-
-    /* =====================================================
-       FETCH EXPORT JOB
-    ===================================================== */
-
-    useEffect(() => {
-
-        let active = true;
-
-        const fetchExportJob = async () => {
-
-            if (!exportJobId) {
-
-                if (active) {
-                    setError("Export job ID is required.");
-                }
-
-                return;
-            }
-
-            if (initialExportJob) {
-
-                if (active) {
-                    setFormData(
-                        mapExportJobToForm(initialExportJob)
-                    );
-                    setError("");
-                }
-
-                return;
-            }
-
-            try {
-
-                setFetching(true);
-                setError("");
-
-                const response = await axios.get(
-                    `${apiBaseUrl}/${encodeURIComponent(exportJobId)}`
-                );
-
-                if (!active) {
-                    return;
-                }
-
-                const job = response.data?.data ?? response.data;
-
-                if (!job || typeof job !== "object") {
-                    throw new Error("Invalid export job response.");
-                }
-
-                setFormData(mapExportJobToForm(job));
-
-            } catch (err) {
-
-                if (active) {
-                    setError(getApiErrorMessage(err));
-                }
-
-            } finally {
-
-                if (active) {
-                    setFetching(false);
-                }
-            }
-        };
-
-        fetchExportJob();
-
-        return () => {
-            active = false;
-        };
-
-    }, [exportJobId, initialExportJob, apiBaseUrl]);
-
-    /* =====================================================
-       HANDLE INPUT CHANGE
-    ===================================================== */
-
-    const handleChange = (event) => {
-
-        const { name, value } = event.target;
-
-        setFormData((previous) => ({
-            ...previous,
-            [name]: value
-        }));
-
-        setFormErrors((previous) => ({
-            ...previous,
-            [name]: ""
-        }));
-
-        setError("");
-    };
-
-    /* =====================================================
-       VALIDATE FORM
-    ===================================================== */
-
-    const validateForm = () => {
-
-        const errors = {};
-
-        if (!String(formData.jobName || "").trim()) {
-            errors.jobName = "Job name is required.";
-        }
-
-        if (!String(formData.exportType || "").trim()) {
-            errors.exportType = "Export type is required.";
-        }
-
-        if (!String(formData.format || "").trim()) {
-            errors.format = "Export format is required.";
-        }
-
-        setFormErrors(errors);
-
-        return Object.keys(errors).length === 0;
-    };
-
-    /* =====================================================
-       UPDATE EXPORT JOB
-    ===================================================== */
-
-    const handleSubmit = async (event) => {
-
-        event.preventDefault();
-
-        if (loading || fetching) {
-            return;
-        }
-
-        if (!exportJobId) {
-            setError("Export job ID is required.");
-            return;
-        }
-
-        if (!validateForm()) {
-            return;
-        }
-
-        const payload = {
-            ...formData,
-            jobName: String(formData.jobName).trim(),
-            exportType: String(formData.exportType).trim(),
-            format: String(formData.format).trim(),
-            description: String(formData.description || "").trim()
-        };
-
-        try {
-
-            setLoading(true);
-            setError("");
-
-            const response = await axios.put(
-                `${apiBaseUrl}/${encodeURIComponent(exportJobId)}`,
-                payload
-            );
-
-            setSuccess(true);
-
-            if (typeof onSuccess === "function") {
-                onSuccess(response.data);
-            }
-
-        } catch (err) {
-
-            setError(getApiErrorMessage(err));
-
-        } finally {
-
-            setLoading(false);
-        }
-    };
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
-
-    if (fetching) {
-        return (
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: 250
-                }}
-            >
-                <CircularProgress />
-            </Box>
-        );
+    if (data?.errors) {
+      return Object.values(data.errors).flat().join(" ");
     }
 
+    if (err?.response?.status === 404) {
+      return "Export Job not found. Check the ID and API route.";
+    }
+
+    if (err?.response?.status === 400) {
+      return "Invalid Export Job data. Check the API request model.";
+    }
+
+    if (!err?.response) {
+      return "Cannot connect to the server at localhost:5000.";
+    }
+
+    return "Request failed. Please try again.";
+  };
+
+  const mapJobToForm = (job) => ({
+    jobCode: getValue(job, "jobCode", "JobCode"),
+    exportJobTypeName: getValue(
+      job,
+      "exportJobTypeName",
+      "ExportJobTypeName"
+    ),
+    exportColums: getValue(
+      job,
+      "exportColums",
+      "ExportColums"
+    ),
+    exportFilters: getValue(
+      job,
+      "exportFilters",
+      "ExportFilters"
+    ),
+    scheduleTime: toDateTimeLocal(
+      getValue(job, "scheduleTime", "ScheduleTime")
+    ),
+    notificationEmail: getValue(
+      job,
+      "notificationEmail",
+      "NotificationEmail"
+    ),
+    sellerId: getValue(job, "sellerId", "SellerId"),
+    customerId: getValue(job, "customerId", "CustomerId"),
+    frequency:
+      getValue(job, "frequency", "Frequency") || "DAILY",
+    reportName: getValue(job, "reportName", "ReportName"),
+    status: getValue(job, "status", "Status") || "ACTIVE"
+  });
+
+  useEffect(() => {
+    let active = true;
+
+    const loadJob = async () => {
+      if (!exportJobId) {
+        setError("Export Job ID is missing from the route.");
+        setFetching(false);
+        return;
+      }
+
+      try {
+        setFetching(true);
+        setError("");
+
+        let job = initialExportJob;
+
+        if (!job) {
+          const response = await axios.get(
+            `${apiBaseUrl}/${encodeURIComponent(exportJobId)}`
+          );
+
+          job = response.data?.data ?? response.data?.result ?? response.data;
+        }
+
+        if (!job || typeof job !== "object") {
+          throw new Error("Invalid Export Job response.");
+        }
+
+        if (active) {
+          setFormData(mapJobToForm(job));
+        }
+      } catch (err) {
+        if (active) {
+          setError(getErrorMessage(err));
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    };
+
+    loadJob();
+
+    return () => {
+      active = false;
+    };
+  }, [exportJobId, apiBaseUrl, initialExportJob]);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value
+    }));
+
+    setError("");
+  };
+
+  const handleCancel = () => {
+    if (typeof onCancel === "function") {
+      onCancel();
+    } else {
+      navigate("/export-jobs");
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (saving || fetching) return;
+
+    if (!exportJobId) {
+      setError("Export Job ID is required.");
+      return;
+    }
+
+    if (!String(formData.jobCode).trim()) {
+      setError("Job Code is required.");
+      return;
+    }
+
+    if (!String(formData.exportJobTypeName).trim()) {
+      setError("Export Type is required.");
+      return;
+    }
+
+    if (!String(formData.reportName).trim()) {
+      setError("Report Name is required.");
+      return;
+    }
+
+    if (
+      formData.notificationEmail &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        formData.notificationEmail
+      )
+    ) {
+      setError("Enter a valid notification email.");
+      return;
+    }
+
+    const payload = {
+      jobCode: String(formData.jobCode).trim(),
+      exportJobTypeName: String(
+        formData.exportJobTypeName
+      ).trim(),
+      exportColums: formData.exportColums,
+      exportFilters: formData.exportFilters,
+      scheduleTime: formData.scheduleTime
+        ? new Date(formData.scheduleTime).toISOString()
+        : null,
+      notificationEmail: formData.notificationEmail || null,
+      sellerId: Number(formData.sellerId),
+      customerId: Number(formData.customerId),
+      frequency: formData.frequency || null,
+      reportName: String(formData.reportName).trim(),
+      status: formData.status || null
+    };
+
+    try {
+      setSaving(true);
+      setError("");
+
+      const response = await axios.put(
+        `${apiBaseUrl}/${encodeURIComponent(exportJobId)}`,
+        payload
+      );
+
+      setSuccess(true);
+
+      if (typeof onSuccess === "function") {
+        onSuccess(response.data);
+      }
+    } catch (err) {
+      console.error(
+        "UPDATE EXPORT JOB ERROR:",
+        err.response?.data || err.message
+      );
+
+      setError(getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (fetching) {
     return (
-        <Paper
-            elevation={0}
-            variant="outlined"
-            sx={{
-                width: "100%",
-                p: { xs: 2, sm: 3 },
-                borderRadius: 2
-            }}
-        >
-
-            {/* HEADER */}
-
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 2,
-                    mb: 2
-                }}
-            >
-
-                <Box>
-                    <Typography
-                        variant="h5"
-                        fontWeight={600}
-                    >
-                        Edit Export Job
-                    </Typography>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 0.5 }}
-                    >
-                        Update the export job information.
-                    </Typography>
-                </Box>
-
-                {onCancel && (
-                    <Button
-                        variant="outlined"
-                        startIcon={<ArrowBack />}
-                        onClick={onCancel}
-                        disabled={loading}
-                    >
-                        Back
-                    </Button>
-                )}
-
-            </Box>
-
-            <Divider sx={{ mb: 3 }} />
-
-            {/* ERROR */}
-
-            {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 3 }}
-                >
-                    {error}
-                </Alert>
-            )}
-
-            {/* FORM */}
-
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                noValidate
-            >
-
-                <Grid container spacing={2.5}>
-
-                    {/* JOB NAME */}
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            required
-                            label="Job Name"
-                            name="jobName"
-                            value={formData.jobName}
-                            onChange={handleChange}
-                            disabled={loading}
-                            error={Boolean(formErrors.jobName)}
-                            helperText={formErrors.jobName}
-                        />
-                    </Grid>
-
-                    {/* EXPORT TYPE */}
-
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            fullWidth
-                            required
-                            select
-                            label="Export Type"
-                            name="exportType"
-                            value={formData.exportType}
-                            onChange={handleChange}
-                            disabled={loading}
-                            error={Boolean(formErrors.exportType)}
-                            helperText={formErrors.exportType}
-                        >
-
-                            <MenuItem value="Products">
-                                Products
-                            </MenuItem>
-
-                            <MenuItem value="Orders">
-                                Orders
-                            </MenuItem>
-
-                            <MenuItem value="Customers">
-                                Customers
-                            </MenuItem>
-
-                            <MenuItem value="Inventory">
-                                Inventory
-                            </MenuItem>
-
-                            <MenuItem value="Sales">
-                                Sales
-                            </MenuItem>
-
-                        </TextField>
-                    </Grid>
-
-                    {/* FORMAT */}
-
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            fullWidth
-                            required
-                            select
-                            label="Export Format"
-                            name="format"
-                            value={formData.format}
-                            onChange={handleChange}
-                            disabled={loading}
-                            error={Boolean(formErrors.format)}
-                            helperText={formErrors.format}
-                        >
-
-                            <MenuItem value="CSV">
-                                CSV
-                            </MenuItem>
-
-                            <MenuItem value="Excel">
-                                Excel
-                            </MenuItem>
-
-                            <MenuItem value="JSON">
-                                JSON
-                            </MenuItem>
-
-                            <MenuItem value="XML">
-                                XML
-                            </MenuItem>
-
-                            <MenuItem value="PDF">
-                                PDF
-                            </MenuItem>
-
-                        </TextField>
-                    </Grid>
-
-                    {/* DESCRIPTION */}
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            multiline
-                            minRows={3}
-                            label="Description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                    </Grid>
-
-                </Grid>
-
-                <Divider sx={{ mt: 3, mb: 2 }} />
-
-                {/* ACTIONS */}
-
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        gap: 1.5
-                    }}
-                >
-
-                    <Button
-                        variant="outlined"
-                        color="inherit"
-                        onClick={onCancel}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        startIcon={
-                            loading
-                                ? (
-                                    <CircularProgress
-                                        size={18}
-                                        color="inherit"
-                                    />
-                                )
-                                : <Save />
-                        }
-                        disabled={loading || fetching}
-                    >
-                        {loading ? "Updating..." : "Update Export Job"}
-                    </Button>
-
-                </Box>
-
-            </Box>
-
-            {/* SUCCESS MESSAGE */}
-
-            <Snackbar
-                open={success}
-                autoHideDuration={3000}
-                onClose={() => setSuccess(false)}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right"
-                }}
-            >
-                <Alert
-                    severity="success"
-                    variant="filled"
-                    onClose={() => setSuccess(false)}
-                >
-                    Export job updated successfully.
-                </Alert>
-            </Snackbar>
-
-        </Paper>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 300
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
+  }
+
+  return (
+    <Paper
+      elevation={0}
+      variant="outlined"
+      sx={{
+        width: "100%",
+        p: { xs: 2, sm: 3 },
+        borderRadius: 2
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 2,
+          mb: 2
+        }}
+      >
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Edit Export Job
+          </Typography>
+
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 0.5 }}
+          >
+            Export Job ID: {exportJobId}
+          </Typography>
+        </Box>
+
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={handleCancel}
+          disabled={saving}
+        >
+          Back
+        </Button>
+      </Box>
+
+      <Divider sx={{ mb: 3 }} />
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      <Box component="form" onSubmit={handleSubmit} noValidate>
+        <Grid container spacing={2.5}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              required
+              label="Job Code"
+              name="jobCode"
+              value={formData.jobCode}
+              onChange={handleChange}
+              disabled={saving}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              required
+              label="Export Type"
+              name="exportJobTypeName"
+              value={formData.exportJobTypeName}
+              onChange={handleChange}
+              disabled={saving}
+              placeholder="e.g. SALES_ORDER_EXPORT"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              required
+              label="Report Name"
+              name="reportName"
+              value={formData.reportName}
+              onChange={handleChange}
+              disabled={saving}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="Export Columns"
+              name="exportColums"
+              value={formData.exportColums}
+              onChange={handleChange}
+              disabled={saving}
+              helperText="Enter comma-separated column names."
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              minRows={2}
+              label="Export Filters"
+              name="exportFilters"
+              value={formData.exportFilters}
+              onChange={handleChange}
+              disabled={saving}
+              helperText="Enter filters in the format supported by your API."
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              type="datetime-local"
+              label="Schedule Time"
+              name="scheduleTime"
+              value={formData.scheduleTime}
+              onChange={handleChange}
+              disabled={saving}
+              slotProps={{
+                inputLabel: { shrink: true }
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Notification Email"
+              name="notificationEmail"
+              type="email"
+              value={formData.notificationEmail}
+              onChange={handleChange}
+              disabled={saving}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Seller ID"
+              name="sellerId"
+              type="number"
+              value={formData.sellerId}
+              onChange={handleChange}
+              disabled={saving}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Customer ID"
+              name="customerId"
+              type="number"
+              value={formData.customerId}
+              onChange={handleChange}
+              disabled={saving}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              select
+              label="Frequency"
+              name="frequency"
+              value={formData.frequency}
+              onChange={handleChange}
+              disabled={saving}
+            >
+              <MenuItem value="ONCE">Once</MenuItem>
+              <MenuItem value="HOURLY">Hourly</MenuItem>
+              <MenuItem value="DAILY">Daily</MenuItem>
+              <MenuItem value="WEEKLY">Weekly</MenuItem>
+              <MenuItem value="MONTHLY">Monthly</MenuItem>
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              select
+              label="Status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              disabled={saving}
+            >
+              <MenuItem value="ACTIVE">Active</MenuItem>
+              <MenuItem value="INACTIVE">Inactive</MenuItem>
+              <MenuItem value="PENDING">Pending</MenuItem>
+              <MenuItem value="COMPLETED">Completed</MenuItem>
+              <MenuItem value="FAILED">Failed</MenuItem>
+            </TextField>
+          </Grid>
+        </Grid>
+
+        <Divider sx={{ mt: 3, mb: 2 }} />
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 1.5,
+            flexWrap: "wrap"
+          }}
+        >
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={handleCancel}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            variant="contained"
+            startIcon={
+              saving ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : (
+                <Save />
+              )
+            }
+            disabled={saving}
+          >
+            {saving ? "Updating..." : "Update Export Job"}
+          </Button>
+        </Box>
+      </Box>
+
+      <Snackbar
+        open={success}
+        autoHideDuration={3000}
+        onClose={() => setSuccess(false)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right"
+        }}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setSuccess(false)}
+        >
+          Export Job updated successfully.
+        </Alert>
+      </Snackbar>
+    </Paper>
+  );
 };
 
 export default ExportJobsEdit;
-

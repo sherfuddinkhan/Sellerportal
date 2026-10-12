@@ -1,187 +1,70 @@
-// ============================================================
-// ExportJobsList.jsx
-// ============================================================
 
-import React, {
-    useEffect,
-    useMemo,
-    useState
-} from "react";
-
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
+    Alert,
     Box,
+    Button,
+    Card,
+    CardContent,
+    Chip,
+    CircularProgress,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    IconButton,
+    InputAdornment,
     Paper,
+    Snackbar,
+    Stack,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
+    TablePagination,
     TableRow,
-    Typography,
-    IconButton,
-    Tooltip,
-    CircularProgress,
-    Snackbar,
-    Alert,
     TextField,
-    InputAdornment,
-    Button,
-    Chip
+    Tooltip,
+    Typography
 } from "@mui/material";
 
 import {
-    Search,
-    Refresh,
-    Visibility,
-    Edit,
+    Add,
     Delete,
-    Add
+    Edit,
+    Visibility,
+    Refresh,
+    Search,
+    Download,
+    Close
 } from "@mui/icons-material";
 
+const API_BASE_URL = "http://localhost:5000/api/export-jobs";
+const API_URL = `${API_BASE_URL}/all`;
 
-// ============================================================
-// SERVER URL
-// ============================================================
+const getJobId = (job) =>
+    job?.exportJobId ?? job?.ExportJobId ?? job?.id ?? job?.Id;
 
-const SERVER_URL = "http://localhost:5000";
-
-
-// ============================================================
-// API URL
-// ============================================================
-
-const EXPORT_JOBS_URL =
-    `${SERVER_URL}/api/export-jobs/all`;
-
-
-// ============================================================
-// DEFAULT PAGE SIZE
-// ============================================================
-
-const DEFAULT_PAGE_SIZE = 10;
-
-
-// ============================================================
-// GET ID
-// ============================================================
-
-const getExportJobId = (job) => {
-
-    return (
-        job?.ExportJobId ??
-        job?.exportJobId ??
-        job?.Id ??
-        job?.id
-    );
-
-};
-
-
-// ============================================================
-// GET VALUE
-// ============================================================
-
-const getValue = (
-    object,
-    ...keys
-) => {
-
-    for (const key of keys) {
-
-        if (
-            object?.[key] !== undefined &&
-            object?.[key] !== null
-        ) {
-            return object[key];
-        }
-
-    }
-
-    return "";
-
-};
-
-
-// ============================================================
-// FORMAT DATE
-// ============================================================
+const getJobField = (job, camelCase, pascalCase) =>
+    job?.[camelCase] ?? job?.[pascalCase] ?? "";
 
 const formatDate = (value) => {
-
-    if (!value) {
-        return "-";
-    }
+    if (!value) return "Not scheduled";
 
     const date = new Date(value);
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
+    if (Number.isNaN(date.getTime())) {
         return String(value);
     }
 
-    return date.toLocaleString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
-
+    return date.toLocaleString();
 };
-
-
-// ============================================================
-// STATUS COLOR
-// ============================================================
-
-const getStatusColor = (
-    status
-) => {
-
-    switch (
-        String(status || "")
-            .toLowerCase()
-    ) {
-
-        case "completed":
-        case "success":
-        case "successful":
-        case "active":
-            return "success";
-
-        case "pending":
-        case "processing":
-        case "in progress":
-            return "warning";
-
-        case "failed":
-        case "error":
-        case "cancelled":
-        case "canceled":
-            return "error";
-
-        case "created":
-        case "new":
-            return "info";
-
-        default:
-            return "default";
-    }
-
-};
-
-
-// ============================================================
-// COMPONENT
-// ============================================================
 
 const ExportJobsList = ({
     onCreate,
@@ -190,1259 +73,684 @@ const ExportJobsList = ({
     onDelete,
     refreshTrigger = 0
 }) => {
+    const navigate = useNavigate();
 
+    const [jobs, setJobs] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searchText, setSearchText] = useState("");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    // ========================================================
-    // STATE
-    // ========================================================
+    const [selectedJob, setSelectedJob] = useState(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
-    const [
-        exportJobs,
-        setExportJobs
-    ] = useState([]);
-
-
-    const [
-        loading,
-        setLoading
-    ] = useState(true);
-
-
-    const [
-        searchText,
-        setSearchText
-    ] = useState("");
-
-
-    const [
-        page,
-        setPage
-    ] = useState(1);
-
-
-    const [
-        pageSize,
-        setPageSize
-    ] = useState(
-        DEFAULT_PAGE_SIZE
-    );
-
-
-    const [
-        snackbar,
-        setSnackbar
-    ] = useState({
+    const [snackbar, setSnackbar] = useState({
         open: false,
-        severity: "success",
-        message: ""
+        message: "",
+        severity: "success"
     });
 
-
-    // ========================================================
-    // SHOW MESSAGE
-    // ========================================================
-
-    const showMessage = (
-        message,
-        severity = "success"
-    ) => {
-
+    const showMessage = (message, severity = "success") => {
         setSnackbar({
             open: true,
-            severity,
-            message
+            message,
+            severity
         });
-
     };
 
-
-    // ========================================================
-    // CLOSE MESSAGE
-    // ========================================================
-
-    const closeSnackbar = () => {
-
-        setSnackbar(
-            previous => ({
-                ...previous,
-                open: false
-            })
-        );
-
-    };
-
-
-    // ========================================================
-    // LOAD EXPORT JOBS
-    // ========================================================
-
-    const loadExportJobs =
-        async () => {
-
-            try {
-
-                setLoading(true);
-
-
-                console.log(
-                    "================================================"
-                );
-
-                console.log(
-                    "GET ALL EXPORT JOBS"
-                );
-
-                console.log(
-                    "URL:",
-                    EXPORT_JOBS_URL
-                );
-
-                console.log(
-                    "================================================"
-                );
-
-
-                const response =
-                    await axios.get(
-                        EXPORT_JOBS_URL,
-                        {
-                            headers: {
-                                Accept:
-                                    "application/json"
-                            }
-                        }
-                    );
-
-
-                console.log(
-                    "EXPORT JOBS RESPONSE:",
-                    response.data
-                );
-
-
-                // =================================================
-                // NORMALIZE RESPONSE
-                // =================================================
-
-                let data = [];
-
-
-                if (
-                    Array.isArray(
-                        response.data
-                    )
-                ) {
-
-                    data =
-                        response.data;
-
-                }
-                else if (
-                    Array.isArray(
-                        response.data?.data
-                    )
-                ) {
-
-                    data =
-                        response.data.data;
-
-                }
-                else if (
-                    Array.isArray(
-                        response.data?.items
-                    )
-                ) {
-
-                    data =
-                        response.data.items;
-
-                }
-                else if (
-                    Array.isArray(
-                        response.data?.result
-                    )
-                ) {
-
-                    data =
-                        response.data.result;
-
-                }
-                else if (
-                    Array.isArray(
-                        response.data?.exportJobs
-                    )
-                ) {
-
-                    data =
-                        response.data.exportJobs;
-
-                }
-
-
-                setExportJobs(data);
-
-
-                setPage(1);
-
-
-            }
-            catch (error) {
-
-                console.error(
-                    "================================================"
-                );
-
-                console.error(
-                    "GET ALL EXPORT JOBS ERROR:",
-                    error
-                );
-
-                console.error(
-                    "RESPONSE:",
-                    error.response?.data
-                );
-
-                console.error(
-                    "================================================"
-                );
-
-
-                setExportJobs([]);
-
-
-                const responseData =
-                    error.response?.data;
-
-
-                let message =
-                    "Failed to load Export Jobs.";
-
-
-                if (
-                    typeof responseData ===
-                    "string"
-                ) {
-
-                    message =
-                        responseData;
-
-                }
-                else if (
-                    responseData?.message
-                ) {
-
-                    message =
-                        responseData.message;
-
-                }
-                else if (
-                    responseData?.title
-                ) {
-
-                    message =
-                        responseData.title;
-
-                }
-                else if (
-                    error.message
-                ) {
-
-                    message =
-                        error.message;
-
-                }
-
-
-                showMessage(
-                    message,
-                    "error"
-                );
-
-            }
-            finally {
-
-                setLoading(false);
-
+    const loadExportJobs = useCallback(async () => {
+        setLoading(true);
+
+        try {
+            const response = await axios.get(API_URL);
+
+            console.log("Export Jobs API response:", response.data);
+
+            let result = response.data;
+
+            if (!Array.isArray(result)) {
+                result =
+                    result?.data ??
+                    result?.items ??
+                    result?.results ??
+                    result?.exportJobs ??
+                    result?.ExportJobs ??
+                    [];
             }
 
-        };
+            if (!Array.isArray(result)) {
+                result = [];
+            }
 
+            setJobs(result);
+        } catch (error) {
+            console.error(
+                "Error loading Export Jobs:",
+                error.response?.data ?? error.message
+            );
 
-    // ========================================================
-    // INITIAL LOAD
-    // ========================================================
+            setJobs([]);
+
+            showMessage(
+                error.response?.data?.message ??
+                    "Unable to fetch Export Jobs. Check the API server.",
+                "error"
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-
         loadExportJobs();
+    }, [loadExportJobs, refreshTrigger]);
 
-    }, [
-        refreshTrigger
-    ]);
+    const filteredJobs = useMemo(() => {
+        const query = searchText.trim().toLowerCase();
 
+        if (!query) return jobs;
 
-    // ========================================================
-    // SEARCH
-    // ========================================================
+        return jobs.filter((job) => {
+            const searchableValues = [
+                getJobField(job, "jobCode", "JobCode"),
+                getJobField(
+                    job,
+                    "exportJobTypeName",
+                    "ExportJobTypeName"
+                ),
+                getJobField(job, "reportName", "ReportName"),
+                getJobField(job, "frequency", "Frequency"),
+                getJobField(job, "status", "Status"),
+                getJobId(job),
+                getJobField(job, "notificationEmail", "NotificationEmail")
+            ];
 
-    const filteredExportJobs =
-        useMemo(() => {
-
-            const searchValue =
-                searchText
-                    .toLowerCase()
-                    .trim();
-
-
-            if (!searchValue) {
-
-                return exportJobs;
-
-            }
-
-
-            return exportJobs.filter(
-                job => {
-
-                    const id =
-                        getExportJobId(job);
-
-
-                    const sellerId =
-                        getValue(
-                            job,
-                            "SellerId",
-                            "sellerId"
-                        );
-
-
-                    const customerId =
-                        getValue(
-                            job,
-                            "CustomerId",
-                            "customerId"
-                        );
-
-
-                    const status =
-                        getValue(
-                            job,
-                            "Status",
-                            "status"
-                        );
-
-
-                    const jobType =
-                        getValue(
-                            job,
-                            "JobType",
-                            "jobType",
-                            "Type",
-                            "type"
-                        );
-
-
-                    const description =
-                        getValue(
-                            job,
-                            "Description",
-                            "description"
-                        );
-
-
-                    const createdDate =
-                        getValue(
-                            job,
-                            "CreatedDate",
-                            "createdDate",
-                            "CreatedAt",
-                            "createdAt"
-                        );
-
-
-                    const searchableText =
-                        [
-                            id,
-                            sellerId,
-                            customerId,
-                            status,
-                            jobType,
-                            description,
-                            createdDate
-                        ]
-                            .join(" ")
-                            .toLowerCase();
-
-
-                    return searchableText
-                        .includes(
-                            searchValue
-                        );
-
-                }
+            return searchableValues.some((value) =>
+                String(value ?? "").toLowerCase().includes(query)
             );
+        });
+    }, [jobs, searchText]);
 
-        }, [
-            exportJobs,
-            searchText
-        ]);
-
-
-    // ========================================================
-    // PAGINATION
-    // ========================================================
-
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(
-                filteredExportJobs.length /
-                pageSize
-            )
-        );
-
-
-    const paginatedExportJobs =
-        useMemo(() => {
-
-            const startIndex =
-                (page - 1) *
-                pageSize;
-
-
-            return filteredExportJobs.slice(
-                startIndex,
-                startIndex + pageSize
-            );
-
-        }, [
-            filteredExportJobs,
-            page,
-            pageSize
-        ]);
-
-
-    // ========================================================
-    // RESET PAGE WHEN SEARCH CHANGES
-    // ========================================================
-
-    useEffect(() => {
-
-        setPage(1);
-
-    }, [
-        searchText,
-        pageSize
-    ]);
-
-
-    // ========================================================
-    // VIEW
-    // ========================================================
-
-    const handleView = (
-        job
-    ) => {
-
-        if (
-            typeof onView ===
-            "function"
-        ) {
-
-            onView(job);
-
-            return;
-        }
-
-
-        console.log(
-            "VIEW EXPORT JOB:",
-            job
-        );
-
-    };
-
-
-    // ========================================================
-    // EDIT
-    // ========================================================
-
-    const handleEdit = (
-        job
-    ) => {
-
-        if (
-            typeof onEdit ===
-            "function"
-        ) {
-
-            onEdit(job);
-
-            return;
-        }
-
-
-        console.log(
-            "EDIT EXPORT JOB:",
-            job
-        );
-
-    };
-
-
-    // ========================================================
-    // DELETE
-    // ========================================================
-
-    const handleDelete = (
-        job
-    ) => {
-
-        if (
-            typeof onDelete ===
-            "function"
-        ) {
-
-            onDelete(job);
-
-            return;
-        }
-
-
-        console.log(
-            "DELETE EXPORT JOB:",
-            job
-        );
-
-    };
-
-
-    // ========================================================
-    // CREATE
-    // ========================================================
+    const paginatedJobs = useMemo(() => {
+        const start = page * rowsPerPage;
+        return filteredJobs.slice(start, start + rowsPerPage);
+    }, [filteredJobs, page, rowsPerPage]);
 
     const handleCreate = () => {
-
-        if (
-            typeof onCreate ===
-            "function"
-        ) {
-
+        if (typeof onCreate === "function") {
             onCreate();
+        } else {
+            navigate("/export-jobs/create");
+        }
+    };
 
+    const handleView = (job) => {
+        console.log("View Export Job clicked:", {
+            id: getJobId(job),
+            job
+        });
+
+        if (typeof onView === "function") {
+            onView(job);
             return;
         }
 
+        const id = getJobId(job);
 
-        console.log(
-            "CREATE EXPORT JOB"
-        );
+        if (!id) {
+            showMessage("Export Job ID is missing.", "error");
+            return;
+        }
 
+        navigate(`/export-jobs/details/${id}`);
     };
 
+    const handleEdit = (job) => {
+        console.log("Edit Export Job clicked:", {
+            id: getJobId(job),
+            job
+        });
 
-    // ========================================================
-    // REFRESH
-    // ========================================================
+        if (typeof onEdit === "function") {
+            onEdit(job);
+            return;
+        }
 
-    const handleRefresh = () => {
+        const id = getJobId(job);
 
-        loadExportJobs();
+        if (!id) {
+            showMessage("Export Job ID is missing.", "error");
+            return;
+        }
 
+        navigate(`/export-jobs/${id}/edit`);
     };
 
+    const handleDeleteClick = (job) => {
+        if (typeof onDelete === "function") {
+            onDelete(job);
+            return;
+        }
 
-    // ========================================================
-    // LOADING
-    // ========================================================
+        setSelectedJob(job);
+        setDeleteDialogOpen(true);
+    };
 
-    if (loading) {
+    const handleDeleteConfirm = async () => {
+        const id = getJobId(selectedJob);
 
-        return (
-            <Box
-                sx={{
-                    width: "100%",
-                    py: 8,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center"
-                }}
-            >
+        if (!id) {
+            showMessage("Export Job ID is missing.", "error");
+            return;
+        }
 
-                <CircularProgress />
+        setDeleting(true);
 
-                <Typography
-                    sx={{
-                        mt: 2
-                    }}
-                    color="text.secondary"
-                >
-                    Loading Export Jobs...
-                </Typography>
+        try {
+            await axios.delete(`${API_BASE_URL}/${id}`);
 
-            </Box>
-        );
+            setJobs((previousJobs) =>
+                previousJobs.filter((job) => getJobId(job) !== id)
+            );
 
-    }
+            setDeleteDialogOpen(false);
+            setSelectedJob(null);
 
+            showMessage("Export Job deleted successfully.");
+        } catch (error) {
+            console.error(
+                "Error deleting Export Job:",
+                error.response?.data ?? error.message
+            );
 
-    // ========================================================
-    // RENDER
-    // ========================================================
+            showMessage(
+                error.response?.data?.message ??
+                    "Unable to delete Export Job. Verify the DELETE API endpoint.",
+                "error"
+            );
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    const handleExportCsv = () => {
+        if (filteredJobs.length === 0) {
+            showMessage("There are no Export Jobs to export.", "warning");
+            return;
+        }
+
+        const headers = [
+            "Export Job ID",
+            "Job Code",
+            "Export Type",
+            "Report Name",
+            "Frequency",
+            "Schedule Time",
+            "Notification Email",
+            "Seller ID",
+            "Customer ID",
+            "Status"
+        ];
+
+        const escapeCsv = (value) =>
+            `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+        const rows = filteredJobs.map((job) => [
+            getJobId(job),
+            getJobField(job, "jobCode", "JobCode"),
+            getJobField(
+                job,
+                "exportJobTypeName",
+                "ExportJobTypeName"
+            ),
+            getJobField(job, "reportName", "ReportName"),
+            getJobField(job, "frequency", "Frequency"),
+            getJobField(job, "scheduleTime", "ScheduleTime"),
+            getJobField(
+                job,
+                "notificationEmail",
+                "NotificationEmail"
+            ),
+            getJobField(job, "sellerId", "SellerId"),
+            getJobField(job, "customerId", "CustomerId"),
+            getJobField(job, "status", "Status")
+        ]);
+
+        const csvContent = [
+            headers.map(escapeCsv).join(","),
+            ...rows.map((row) => row.map(escapeCsv).join(","))
+        ].join("\r\n");
+
+        const blob = new Blob([csvContent], {
+            type: "text/csv;charset=utf-8;"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "export-jobs.csv";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+    };
+
+    const getStatusColor = (status) => {
+        const value = String(status ?? "").toUpperCase();
+
+        if (value === "ACTIVE" || value === "COMPLETED" || value === "SUCCESS") {
+            return "success";
+        }
+
+        if (value === "PENDING" || value === "SCHEDULED") {
+            return "warning";
+        }
+
+        if (value === "FAILED" || value === "INACTIVE" || value === "CANCELLED") {
+            return "error";
+        }
+
+        return "default";
+    };
 
     return (
-
-        <Box
-            sx={{
-                width: "100%"
-            }}
-        >
-
-            {/* ==================================================
-                HEADER
-            ================================================== */}
-
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: {
-                        xs: "stretch",
-                        sm: "center"
-                    },
-                    justifyContent:
-                        "space-between",
-                    gap: 2,
-                    mb: 2,
-                    flexDirection: {
-                        xs: "column",
-                        sm: "row"
-                    }
-                }}
+        <Container maxWidth="xl" sx={{ py: 3 }}>
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                justifyContent="space-between"
+                alignItems={{ xs: "stretch", sm: "center" }}
+                spacing={2}
+                sx={{ mb: 3 }}
             >
-
                 <Box>
-
-                    <Typography
-                        variant="h5"
-                        fontWeight={700}
-                    >
+                    <Typography variant="h4" fontWeight={700}>
                         Export Jobs
                     </Typography>
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
-                        Manage export jobs
+                    <Typography variant="body2" color="text.secondary">
+                        Manage scheduled reports and data export jobs.
                     </Typography>
-
                 </Box>
 
-
-                <Box
-                    sx={{
-                        display: "flex",
-                        gap: 1
-                    }}
-                >
-
-                    <Tooltip
-                        title="Refresh"
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                    <Button
+                        variant="outlined"
+                        startIcon={<Refresh />}
+                        onClick={loadExportJobs}
+                        disabled={loading}
                     >
+                        Refresh
+                    </Button>
 
-                        <IconButton
-                            onClick={
-                                handleRefresh
-                            }
-                        >
-
-                            <Refresh />
-
-                        </IconButton>
-
-                    </Tooltip>
-
+                    <Button
+                        variant="outlined"
+                        startIcon={<Download />}
+                        onClick={handleExportCsv}
+                    >
+                        Export CSV
+                    </Button>
 
                     <Button
                         variant="contained"
-                        startIcon={
-                            <Add />
-                        }
-                        onClick={
-                            handleCreate
-                        }
+                        startIcon={<Add />}
+                        onClick={handleCreate}
                     >
                         Create Export Job
                     </Button>
-
-                </Box>
-
-            </Box>
-
-
-            {/* ==================================================
-                SEARCH
-            ================================================== */}
-
-            <Paper
-                elevation={1}
-                sx={{
-                    p: 2,
-                    mb: 2
-                }}
-            >
-
-                <TextField
-                    fullWidth
-                    size="small"
-                    placeholder={
-                        "Search Export Jobs..."
-                    }
-                    value={
-                        searchText
-                    }
-                    onChange={
-                        event =>
-                            setSearchText(
-                                event.target.value
-                            )
-                    }
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment
-                                position="start"
-                            >
-                                <Search />
-                            </InputAdornment>
-                        )
-                    }}
-                />
-
-            </Paper>
-
-
-            {/* ==================================================
-                TABLE
-            ================================================== */}
-
-            <TableContainer
-                component={Paper}
-                elevation={2}
-            >
-
-                <Table
-                    size="small"
-                    stickyHeader
-                >
-
-                    <TableHead>
-
-                        <TableRow>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                ID
-                            </TableCell>
-
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Seller ID
-                            </TableCell>
-
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Customer ID
-                            </TableCell>
-
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Job Type
-                            </TableCell>
-
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Status
-                            </TableCell>
-
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Created Date
-                            </TableCell>
-
-
-                            <TableCell
-                                align="center"
-                                sx={{
-                                    fontWeight: 700
-                                }}
-                            >
-                                Actions
-                            </TableCell>
-
-                        </TableRow>
-
-                    </TableHead>
-
-
-                    <TableBody>
-
-                        {paginatedExportJobs.length ===
-                        0 ? (
-
-                            <TableRow>
-
-                                <TableCell
-                                    colSpan={7}
-                                    align="center"
-                                    sx={{
-                                        py: 6
-                                    }}
-                                >
-
-                                    <Typography
-                                        color="text.secondary"
-                                    >
-                                        No Export Jobs
-                                        found.
-                                    </Typography>
-
-                                </TableCell>
-
-                            </TableRow>
-
-                        ) : (
-
-                            paginatedExportJobs.map(
-                                (
-                                    job,
-                                    index
-                                ) => {
-
-                                    const id =
-                                        getExportJobId(
-                                            job
-                                        );
-
-
-                                    const sellerId =
-                                        getValue(
-                                            job,
-                                            "SellerId",
-                                            "sellerId"
-                                        );
-
-
-                                    const customerId =
-                                        getValue(
-                                            job,
-                                            "CustomerId",
-                                            "customerId"
-                                        );
-
-
-                                    const jobType =
-                                        getValue(
-                                            job,
-                                            "JobType",
-                                            "jobType",
-                                            "Type",
-                                            "type"
-                                        );
-
-
-                                    const status =
-                                        getValue(
-                                            job,
-                                            "Status",
-                                            "status"
-                                        );
-
-
-                                    const createdDate =
-                                        getValue(
-                                            job,
-                                            "CreatedDate",
-                                            "createdDate",
-                                            "CreatedAt",
-                                            "createdAt"
-                                        );
-
-
-                                    return (
-
-                                        <TableRow
-                                            key={
-                                                id ??
-                                                index
-                                            }
-                                            hover
-                                        >
-
-                                            <TableCell>
-                                                {id ??
-                                                    "-"}
-                                            </TableCell>
-
-
-                                            <TableCell>
-                                                {sellerId ||
-                                                    "-"}
-                                            </TableCell>
-
-
-                                            <TableCell>
-                                                {customerId ||
-                                                    "-"}
-                                            </TableCell>
-
-
-                                            <TableCell>
-                                                {jobType ||
-                                                    "-"}
-                                            </TableCell>
-
-
-                                            <TableCell>
-
-                                                {status ? (
-
-                                                    <Chip
-                                                        size="small"
-                                                        label={
-                                                            status
-                                                        }
-                                                        color={
-                                                            getStatusColor(
-                                                                status
-                                                            )
-                                                        }
-                                                    />
-
-                                                ) : (
-
-                                                    "-"
-                                                )}
-
-                                            </TableCell>
-
-
-                                            <TableCell>
-                                                {
-                                                    formatDate(
-                                                        createdDate
-                                                    )
-                                                }
-                                            </TableCell>
-
-
-                                            <TableCell
-                                                align="center"
-                                            >
-
-                                                <Tooltip
-                                                    title="View"
-                                                >
-
-                                                    <IconButton
-                                                        size="small"
-                                                        color="info"
-                                                        onClick={() =>
-                                                            handleView(
-                                                                job
-                                                            )
-                                                        }
-                                                    >
-
-                                                        <Visibility
-                                                            fontSize="small"
-                                                        />
-
-                                                    </IconButton>
-
-                                                </Tooltip>
-
-
-                                                <Tooltip
-                                                    title="Edit"
-                                                >
-
-                                                    <IconButton
-                                                        size="small"
-                                                        color="warning"
-                                                        onClick={() =>
-                                                            handleEdit(
-                                                                job
-                                                            )
-                                                        }
-                                                    >
-
-                                                        <Edit
-                                                            fontSize="small"
-                                                        />
-
-                                                    </IconButton>
-
-                                                </Tooltip>
-
-
-                                                <Tooltip
-                                                    title="Delete"
-                                                >
-
-                                                    <IconButton
-                                                        size="small"
-                                                        color="error"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                job
-                                                            )
-                                                        }
-                                                    >
-
-                                                        <Delete
-                                                            fontSize="small"
-                                                        />
-
-                                                    </IconButton>
-
-                                                </Tooltip>
-
-                                            </TableCell>
-
-                                        </TableRow>
-
-                                    );
-
-                                }
-                            )
-
-                        )}
-
-                    </TableBody>
-
-                </Table>
-
-            </TableContainer>
-
-
-            {/* ==================================================
-                PAGINATION
-            ================================================== */}
+                </Stack>
+            </Stack>
 
             <Box
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent:
-                        "space-between",
-                    flexWrap: "wrap",
+                    display: "grid",
+                    gridTemplateColumns: {
+                        xs: "1fr",
+                        sm: "repeat(3, 1fr)"
+                    },
                     gap: 2,
-                    mt: 2
+                    mb: 3
                 }}
             >
+                <Card variant="outlined">
+                    <CardContent>
+                        <Typography color="text.secondary" variant="body2">
+                            Total Export Jobs
+                        </Typography>
+                        <Typography variant="h4" fontWeight={700}>
+                            {jobs.length}
+                        </Typography>
+                    </CardContent>
+                </Card>
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    Showing{" "}
-                    {
-                        filteredExportJobs.length ===
-                        0
-                            ? 0
-                            : (
-                                (page - 1) *
-                                pageSize
-                            ) + 1
-                    }
-                    {" - "}
-                    {
-                        Math.min(
-                            page *
-                                pageSize,
-                            filteredExportJobs.length
-                        )
-                    }
-                    {" of "}
-                    {
-                        filteredExportJobs.length
-                    }
-                </Typography>
+                <Card variant="outlined">
+                    <CardContent>
+                        <Typography color="text.secondary" variant="body2">
+                            Active Jobs
+                        </Typography>
+                        <Typography variant="h4" fontWeight={700}>
+                            {
+                                jobs.filter(
+                                    (job) =>
+                                        String(
+                                            getJobField(job, "status", "Status")
+                                        ).toUpperCase() === "ACTIVE"
+                                ).length
+                            }
+                        </Typography>
+                    </CardContent>
+                </Card>
 
-
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1
-                    }}
-                >
-
-                    <Button
-                        size="small"
-                        variant="outlined"
-                        disabled={
-                            page <= 1
-                        }
-                        onClick={() =>
-                            setPage(
-                                previous =>
-                                    Math.max(
-                                        1,
-                                        previous -
-                                            1
-                                    )
-                            )
-                        }
-                    >
-                        Previous
-                    </Button>
-
-
-                    <Typography
-                        variant="body2"
-                    >
-                        Page {page} of{" "}
-                        {totalPages}
-                    </Typography>
-
-
-                    <Button
-                        size="small"
-                        variant="outlined"
-                        disabled={
-                            page >=
-                            totalPages
-                        }
-                        onClick={() =>
-                            setPage(
-                                previous =>
-                                    Math.min(
-                                        totalPages,
-                                        previous +
-                                            1
-                                    )
-                            )
-                        }
-                    >
-                        Next
-                    </Button>
-
-
-                    <TextField
-                        select
-                        size="small"
-                        value={
-                            pageSize
-                        }
-                        onChange={
-                            event =>
-                                setPageSize(
-                                    Number(
-                                        event
-                                            .target
-                                            .value
-                                    )
-                                )
-                        }
-                        SelectProps={{
-                            native: true
-                        }}
-                        sx={{
-                            width: 80
-                        }}
-                    >
-
-                        <option value={5}>
-                            5
-                        </option>
-
-                        <option value={10}>
-                            10
-                        </option>
-
-                        <option value={25}>
-                            25
-                        </option>
-
-                        <option value={50}>
-                            50
-                        </option>
-
-                    </TextField>
-
-                </Box>
-
+                <Card variant="outlined">
+                    <CardContent>
+                        <Typography color="text.secondary" variant="body2">
+                            Scheduled Jobs
+                        </Typography>
+                        <Typography variant="h4" fontWeight={700}>
+                            {
+                                jobs.filter(
+                                    (job) =>
+                                        !!getJobField(
+                                            job,
+                                            "scheduleTime",
+                                            "ScheduleTime"
+                                        )
+                                ).length
+                            }
+                        </Typography>
+                    </CardContent>
+                </Card>
             </Box>
 
+            <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+                <TextField
+                    fullWidth
+                    placeholder="Search by job code, report, type, status, email, or ID..."
+                    value={searchText}
+                    onChange={(event) => {
+                        setSearchText(event.target.value);
+                        setPage(0);
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search />
+                            </InputAdornment>
+                        ),
+                        endAdornment: searchText ? (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="Clear search"
+                                    onClick={() => setSearchText("")}
+                                    edge="end"
+                                >
+                                    <Close />
+                                </IconButton>
+                            </InputAdornment>
+                        ) : null
+                    }}
+                />
+            </Paper>
 
-            {/* ==================================================
-                SNACKBAR
-            ================================================== */}
+            <TableContainer component={Paper} variant="outlined">
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>Job Code</TableCell>
+                            <TableCell>Export Type</TableCell>
+                            <TableCell>Report Name</TableCell>
+                            <TableCell>Frequency</TableCell>
+                            <TableCell>Schedule Time</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell align="center">Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={8} align="center">
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            gap: 2,
+                                            py: 5
+                                        }}
+                                    >
+                                        <CircularProgress size={26} />
+                                        <Typography>
+                                            Loading Export Jobs...
+                                        </Typography>
+                                    </Box>
+                                </TableCell>
+                            </TableRow>
+                        ) : paginatedJobs.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={8} align="center">
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ py: 5 }}
+                                    >
+                                        {searchText
+                                            ? "No matching Export Jobs found."
+                                            : "No Export Jobs available."}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            paginatedJobs.map((job, index) => {
+                                const id = getJobId(job);
+                                const status = getJobField(
+                                    job,
+                                    "status",
+                                    "Status"
+                                );
+
+                                return (
+                                    <TableRow
+                                        hover
+                                        key={id ?? index}
+                                    >
+                                        <TableCell>{id ?? "—"}</TableCell>
+
+                                        <TableCell>
+                                            <Typography fontWeight={600}>
+                                                {getJobField(
+                                                    job,
+                                                    "jobCode",
+                                                    "JobCode"
+                                                ) || "—"}
+                                            </Typography>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getJobField(
+                                                job,
+                                                "exportJobTypeName",
+                                                "ExportJobTypeName"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getJobField(
+                                                job,
+                                                "reportName",
+                                                "ReportName"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {getJobField(
+                                                job,
+                                                "frequency",
+                                                "Frequency"
+                                            ) || "—"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {formatDate(
+                                                getJobField(
+                                                    job,
+                                                    "scheduleTime",
+                                                    "ScheduleTime"
+                                                )
+                                            )}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <Chip
+                                                size="small"
+                                                label={status || "Unknown"}
+                                                color={getStatusColor(status)}
+                                                variant="outlined"
+                                            />
+                                        </TableCell>
+
+                                        <TableCell align="center">
+                                            <Stack
+                                                direction="row"
+                                                spacing={0.5}
+                                                justifyContent="center"
+                                            >
+                                                <Tooltip title="View Export Job">
+                                                    <IconButton
+                                                        color="primary"
+                                                        onClick={() =>
+                                                            handleView(job)
+                                                        }
+                                                        aria-label={`View Export Job ${id}`}
+                                                    >
+                                                        <Visibility />
+                                                    </IconButton>
+                                                </Tooltip>
+
+                                                <Tooltip title="Edit Export Job">
+                                                    <IconButton
+                                                        color="success"
+                                                        onClick={() =>
+                                                            handleEdit(job)
+                                                        }
+                                                        aria-label={`Edit Export Job ${id}`}
+                                                    >
+                                                        <Edit />
+                                                    </IconButton>
+                                                </Tooltip>
+
+                                                <Tooltip title="Delete Export Job">
+                                                    <IconButton
+                                                        color="error"
+                                                        onClick={() =>
+                                                            handleDeleteClick(job)
+                                                        }
+                                                        aria-label={`Delete Export Job ${id}`}
+                                                    >
+                                                        <Delete />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Stack>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
+                        )}
+                    </TableBody>
+                </Table>
+
+                <TablePagination
+                    component="div"
+                    count={filteredJobs.length}
+                    page={page}
+                    onPageChange={(_, newPage) => setPage(newPage)}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={(event) => {
+                        setRowsPerPage(parseInt(event.target.value, 10));
+                        setPage(0);
+                    }}
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                />
+            </TableContainer>
+
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={() => {
+                    if (!deleting) {
+                        setDeleteDialogOpen(false);
+                        setSelectedJob(null);
+                    }
+                }}
+            >
+                <DialogTitle>Delete Export Job</DialogTitle>
+
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete Export Job{" "}
+                        <strong>
+                            {getJobField(
+                                selectedJob,
+                                "jobCode",
+                                "JobCode"
+                            ) || getJobId(selectedJob)}
+                        </strong>
+                        ? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+
+                <DialogActions>
+                    <Button
+                        onClick={() => {
+                            setDeleteDialogOpen(false);
+                            setSelectedJob(null);
+                        }}
+                        disabled={deleting}
+                    >
+                        Cancel
+                    </Button>
+
+                    <Button
+                        color="error"
+                        variant="contained"
+                        onClick={handleDeleteConfirm}
+                        disabled={deleting}
+                    >
+                        {deleting ? "Deleting..." : "Delete"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             <Snackbar
-                open={
-                    snackbar.open
-                }
-                autoHideDuration={4000}
-                onClose={
-                    closeSnackbar
+                open={snackbar.open}
+                autoHideDuration={5000}
+                onClose={() =>
+                    setSnackbar((previous) => ({
+                        ...previous,
+                        open: false
+                    }))
                 }
                 anchorOrigin={{
-                    vertical: "top",
+                    vertical: "bottom",
                     horizontal: "right"
                 }}
             >
-
                 <Alert
-                    severity={
-                        snackbar.severity
-                    }
+                    severity={snackbar.severity}
                     variant="filled"
-                    onClose={
-                        closeSnackbar
+                    onClose={() =>
+                        setSnackbar((previous) => ({
+                            ...previous,
+                            open: false
+                        }))
                     }
                 >
-                    {
-                        snackbar.message
-                    }
+                    {snackbar.message}
                 </Alert>
-
             </Snackbar>
-
-        </Box>
-
+        </Container>
     );
-
 };
-
-
-// ============================================================
-// EXPORT
-// ============================================================
 
 export default ExportJobsList;

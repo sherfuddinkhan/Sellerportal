@@ -33404,244 +33404,117 @@ app.post('/api/marketplace/customers', async (req, res) => {
 });
 
 ////////////////////////new node server.js//////////////////////////////////////
-// ============================================================
-// EXPORT JOBS - GET ALL
-// ============================================================
 
-app.get("/api/ExportJobs", async (req, res) => {
+
+// GET ALL EXPORT JOBS
+app.get("/api/export-jobs/all", async (req, res) => {
     try {
-        console.log("GET ALL EXPORT JOBS");
-
         const response = await axios.get(
-            `${process.env.DOTNET_API_URL}/ExportJobs`,
-            { params: req.query }
-        );
-
-        return res.status(response.status).json(response.data);
-
-    } catch (error) {
-        console.error("GET ALL EXPORT JOBS ERROR:", error.message);
-
-        if (error.response) {
-            return res.status(error.response.status).json(error.response.data);
-        }
-
-        return res.status(500).json({
-            message: "Failed to fetch export jobs",
-            error: error.message
-        });
-    }
-});
-
-
-// ============================================================
-// EXPORT JOBS - GET BY ID
-// ============================================================
-
-app.get("/api/ExportJobs/:id", async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({
-                message: "Invalid export job ID"
-            });
-        }
-
-        const response = await axios.get(
-            `${process.env.DOTNET_API_URL}/ExportJobs/${id}`
-        );
-
-        return res.status(response.status).json(response.data);
-
-    } catch (error) {
-        console.error("GET EXPORT JOB ERROR:", error.message);
-
-        if (error.response) {
-            return res.status(error.response.status).json(error.response.data);
-        }
-
-        return res.status(500).json({
-            message: "Failed to fetch export job",
-            error: error.message
-        });
-    }
-});
-
-
-// ============================================================
-// EXPORT JOBS - CREATE
-// ============================================================
-
-app.post("/api/ExportJobs", async (req, res) => {
-    try {
-        const {
-            jobName,
-            exportType,
-            fileFormat,
-            status,
-            fileName,
-            filePath,
-            requestedBy,
-            recordsCount,
-            startedAt,
-            completedAt,
-            errorMessage
-        } = req.body || {};
-
-        if (typeof jobName !== "string" || !jobName.trim()) {
-            return res.status(400).json({
-                message: "Job name is required"
-            });
-        }
-
-        if (typeof exportType !== "string" || !exportType.trim()) {
-            return res.status(400).json({
-                message: "Export type is required"
-            });
-        }
-
-        const requestBody = {
-            jobName: jobName.trim(),
-            exportType: exportType.trim()
-        };
-
-        if (fileFormat !== undefined) requestBody.fileFormat = fileFormat;
-        if (status !== undefined) requestBody.status = status;
-        if (fileName !== undefined) requestBody.fileName = fileName;
-        if (filePath !== undefined) requestBody.filePath = filePath;
-        if (requestedBy !== undefined) requestBody.requestedBy = requestedBy;
-        if (recordsCount !== undefined) requestBody.recordsCount = recordsCount;
-        if (startedAt !== undefined) requestBody.startedAt = startedAt;
-        if (completedAt !== undefined) requestBody.completedAt = completedAt;
-        if (errorMessage !== undefined) requestBody.errorMessage = errorMessage;
-
-        const response = await axios.post(
-            `${process.env.DOTNET_API_URL}/ExportJobs`,
-            requestBody
-        );
-
-        return res.status(response.status).json(response.data);
-
-    } catch (error) {
-        console.error("CREATE EXPORT JOB ERROR:", error.message);
-
-        if (error.response) {
-            return res.status(error.response.status).json(error.response.data);
-        }
-
-        return res.status(500).json({
-            message: "Failed to create export job",
-            error: error.message
-        });
-    }
-});
-
-
-// ============================================================
-// EXPORT JOBS - UPDATE
-// ============================================================
-
-app.put("/api/ExportJobs/:id", async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({
-                message: "Invalid export job ID"
-            });
-        }
-
-        if (
-            !req.body ||
-            typeof req.body !== "object" ||
-            Array.isArray(req.body)
-        ) {
-            return res.status(400).json({
-                message: "A valid request body is required"
-            });
-        }
-
-        const allowedFields = [
-            "jobName",
-            "exportType",
-            "fileFormat",
-            "status",
-            "fileName",
-            "filePath",
-            "requestedBy",
-            "recordsCount",
-            "startedAt",
-            "completedAt",
-            "errorMessage"
-        ];
-
-        const requestBody = {};
-
-        allowedFields.forEach((field) => {
-            if (req.body[field] !== undefined) {
-                requestBody[field] = req.body[field];
+            `${DOTNET_API}/export-jobs/all`,
+            {
+                params: req.query,
+                httpsAgent: new (await import("https")).Agent({
+                    rejectUnauthorized: false
+                })
             }
-        });
-
-        if (Object.keys(requestBody).length === 0) {
-            return res.status(400).json({
-                message: "At least one valid field is required for update"
-            });
-        }
-
-        const response = await axios.put(
-            `${process.env.DOTNET_API_URL}/ExportJobs/${id}`,
-            requestBody
         );
 
-        return res.status(response.status).json(response.data);
-
+        res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("UPDATE EXPORT JOB ERROR:", error.message);
+        console.error(
+            "GET ALL EXPORT JOBS PROXY ERROR:",
+            error.response?.data || error.message
+        );
 
-        if (error.response) {
-            return res.status(error.response.status).json(error.response.data);
-        }
-
-        return res.status(500).json({
-            message: "Failed to update export job",
-            error: error.message
+        res.status(error.response?.status || 500).json({
+            message: "Failed to fetch export jobs",
+            error: error.response?.data || error.message
         });
     }
 });
 
-
-// ============================================================
-// EXPORT JOBS - DELETE
-// ============================================================
-
-app.delete("/api/ExportJobs/:id", async (req, res) => {
+// GET EXPORT JOB BY ID
+app.get("/api/export-jobs/:id", async (req, res) => {
     try {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({
-                message: "Invalid export job ID"
-            });
-        }
-
-        const response = await axios.delete(
-            `${process.env.DOTNET_API_URL}/ExportJobs/${id}`
+        const response = await axios.get(
+            `${DOTNET_API}/export-jobs/${req.params.id}`,
+            {
+                httpsAgent: new (await import("https")).Agent({
+                    rejectUnauthorized: false
+                })
+            }
         );
 
-        return res.status(response.status).json(response.data);
-
+        res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("DELETE EXPORT JOB ERROR:", error.message);
+        res.status(error.response?.status || 500).json({
+            message: "Failed to fetch export job",
+            error: error.response?.data || error.message
+        });
+    }
+});
 
-        if (error.response) {
-            return res.status(error.response.status).json(error.response.data);
-        }
+// CREATE EXPORT JOB
+app.post("/api/export-jobs", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${DOTNET_API}/export-jobs`,
+            req.body,
+            {
+                httpsAgent: new (await import("https")).Agent({
+                    rejectUnauthorized: false
+                })
+            }
+        );
 
-        return res.status(500).json({
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json({
+            message: "Failed to create export job",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// UPDATE EXPORT JOB
+app.put("/api/export-jobs/:id", async (req, res) => {
+    try {
+        const response = await axios.put(
+            `${DOTNET_API}/export-jobs/${req.params.id}`,
+            req.body,
+            {
+                httpsAgent: new (await import("https")).Agent({
+                    rejectUnauthorized: false
+                })
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json({
+            message: "Failed to update export job",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// DELETE EXPORT JOB
+app.delete("/api/export-jobs/:id", async (req, res) => {
+    try {
+        const response = await axios.delete(
+            `${DOTNET_API}/export-jobs/${req.params.id}`,
+            {
+                httpsAgent: new (await import("https")).Agent({
+                    rejectUnauthorized: false
+                })
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(error.response?.status || 500).json({
             message: "Failed to delete export job",
-            error: error.message
+            error: error.response?.data || error.message
         });
     }
 });
