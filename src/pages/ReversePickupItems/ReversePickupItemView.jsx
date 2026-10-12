@@ -1,3 +1,4 @@
+
 import React from "react";
 
 import {
@@ -31,9 +32,9 @@ import {
     CheckCircle
 } from "@mui/icons-material";
 
-/* =========================================================
-   FORMAT TEXT
-========================================================= */
+// =====================================================
+// FORMAT TEXT
+// =====================================================
 
 const formatText = (value, fallback = "N/A") => {
     if (
@@ -47,9 +48,9 @@ const formatText = (value, fallback = "N/A") => {
     return String(value).trim();
 };
 
-/* =========================================================
-   FORMAT NUMBER
-========================================================= */
+// =====================================================
+// FORMAT NUMBER
+// =====================================================
 
 const formatNumber = (value) => {
     if (
@@ -71,9 +72,9 @@ const formatNumber = (value) => {
     });
 };
 
-/* =========================================================
-   FORMAT CURRENCY
-========================================================= */
+// =====================================================
+// FORMAT CURRENCY
+// =====================================================
 
 const formatCurrency = (value) => {
     if (
@@ -96,9 +97,9 @@ const formatCurrency = (value) => {
     })}`;
 };
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+// =====================================================
+// FORMAT DATE
+// =====================================================
 
 const formatDate = (value) => {
     if (!value) {
@@ -118,9 +119,9 @@ const formatDate = (value) => {
     });
 };
 
-/* =========================================================
-   FORMAT DATE AND TIME
-========================================================= */
+// =====================================================
+// FORMAT DATE AND TIME
+// =====================================================
 
 const formatDateTime = (value) => {
     if (!value) {
@@ -143,9 +144,9 @@ const formatDateTime = (value) => {
     });
 };
 
-/* =========================================================
-   FORMAT STATUS
-========================================================= */
+// =====================================================
+// STATUS COLOR
+// =====================================================
 
 const getStatusColor = (status) => {
     const normalizedStatus = String(status || "")
@@ -181,9 +182,26 @@ const getStatusColor = (status) => {
     }
 };
 
-/* =========================================================
-   DETAIL FIELD
-========================================================= */
+// =====================================================
+// GET FIELD - CAMELCASE AND PASCALCASE
+// =====================================================
+
+const getField = (object, ...keys) => {
+    for (const key of keys) {
+        if (
+            object?.[key] !== undefined &&
+            object?.[key] !== null
+        ) {
+            return object[key];
+        }
+    }
+
+    return undefined;
+};
+
+// =====================================================
+// DETAIL FIELD
+// =====================================================
 
 const DetailField = ({
     label,
@@ -237,9 +255,9 @@ const DetailField = ({
     </Box>
 );
 
-/* =========================================================
-   SECTION HEADER
-========================================================= */
+// =====================================================
+// SECTION HEADER
+// =====================================================
 
 const SectionHeader = ({ icon, title }) => (
     <Stack
@@ -264,20 +282,20 @@ const SectionHeader = ({ icon, title }) => (
     </Stack>
 );
 
-/* =========================================================
-   REVERSE PICKUP ITEM VIEW
-========================================================= */
+// =====================================================
+// REVERSE PICKUP ITEM VIEW
+// =====================================================
 
-const ReversePickupItemView = ({
-    open,
+ function ReversePickupItemView({
+    open = false,
     onClose,
     reversePickup,
     pickup,
     item,
     record,
     data,
-    title = "Reverse Pickup Details"
-}) => {
+    title = "Reverse Pickup Item Details"
+}) {
     const details =
         reversePickup ||
         pickup ||
@@ -286,83 +304,173 @@ const ReversePickupItemView = ({
         data ||
         {};
 
-    /* =====================================================
-       SUPPORT CAMELCASE AND PASCALCASE FIELDS
-    ===================================================== */
+    // =====================================================
+    // ACTUAL REVERSE PICKUP ITEM API FIELDS
+    // =====================================================
 
-    const pickupId =
-        details.id ??
-        details.reversePickupId ??
-        details.ReversePickupId ??
-        details.ID;
+    const itemId = getField(
+        details,
+        "id",
+        "Id",
+        "reversePickupItemId",
+        "ReversePickupItemId"
+    );
 
-    const pickupNumber =
-        details.reversePickupNumber ??
-        details.ReversePickupNumber;
+    const sellerId = getField(
+        details,
+        "sellerId",
+        "SellerId"
+    );
 
-    const orderNumber =
-        details.orderNumber ??
-        details.OrderNumber;
+    const customerId = getField(
+        details,
+        "customerId",
+        "CustomerId"
+    );
 
-    const customerName =
-        details.customerName ??
-        details.CustomerName;
+    const reversePickupId = getField(
+        details,
+        "reversePickupId",
+        "ReversePickupId"
+    );
 
-    const customerEmail =
-        details.customerEmail ??
-        details.CustomerEmail;
+    const saleOrderItemCode = getField(
+        details,
+        "saleOrderItemCode",
+        "SaleOrderItemCode"
+    );
 
-    const pickupDate =
-        details.pickupDate ??
-        details.PickupDate;
+    const reason = getField(
+        details,
+        "reason",
+        "Reason"
+    );
 
-    const pickupAddress =
-        details.pickupAddress ??
-        details.PickupAddress;
+    const itemSku = getField(
+        details,
+        "itemSku",
+        "ItemSku",
+        "sku",
+        "SKU"
+    );
 
-    const itemName =
-        details.itemName ??
-        details.ItemName;
+    const totalPrice = getField(
+        details,
+        "totalPrice",
+        "TotalPrice"
+    );
 
-    const sku =
-        details.sku ??
-        details.SKU;
+    const sellingPrice = getField(
+        details,
+        "sellingPrice",
+        "SellingPrice"
+    );
 
-    const quantity =
-        details.quantity ??
-        details.Quantity;
+    const discount = getField(
+        details,
+        "discount",
+        "Discount"
+    );
 
-    const carrierName =
-        details.carrierName ??
-        details.CarrierName;
+    // These additional fields are displayed only if supplied.
+    const status = getField(
+        details,
+        "status",
+        "Status"
+    );
 
-    const trackingNumber =
-        details.trackingNumber ??
-        details.TrackingNumber;
+    const notes = getField(
+        details,
+        "notes",
+        "Notes"
+    );
 
-    const pickupCost =
-        details.pickupCost ??
-        details.PickupCost;
+    const createdAt = getField(
+        details,
+        "createdAt",
+        "CreatedAt"
+    );
 
-    const status =
-        details.status ??
-        details.Status;
+    const updatedAt = getField(
+        details,
+        "updatedAt",
+        "UpdatedAt"
+    );
 
-    const notes =
-        details.notes ??
-        details.Notes;
+    // Optional fields from an expanded parent pickup response.
+    const pickupNumber = getField(
+        details,
+        "reversePickupNumber",
+        "ReversePickupNumber"
+    );
 
-    const createdAt =
-        details.createdAt ??
-        details.CreatedAt;
+    const orderNumber = getField(
+        details,
+        "orderNumber",
+        "OrderNumber"
+    );
 
-    const updatedAt =
-        details.updatedAt ??
-        details.UpdatedAt;
+    const customerName = getField(
+        details,
+        "customerName",
+        "CustomerName"
+    );
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    const customerEmail = getField(
+        details,
+        "customerEmail",
+        "CustomerEmail"
+    );
+
+    const pickupDate = getField(
+        details,
+        "pickupDate",
+        "PickupDate"
+    );
+
+    const pickupAddress = getField(
+        details,
+        "pickupAddress",
+        "PickupAddress"
+    );
+
+    const itemName = getField(
+        details,
+        "itemName",
+        "ItemName"
+    );
+
+    const quantity = getField(
+        details,
+        "quantity",
+        "Quantity"
+    );
+
+    const carrierName = getField(
+        details,
+        "carrierName",
+        "CarrierName"
+    );
+
+    const trackingNumber = getField(
+        details,
+        "trackingNumber",
+        "TrackingNumber"
+    );
+
+    const pickupCost = getField(
+        details,
+        "pickupCost",
+        "PickupCost"
+    );
+
+    // Use available pricing fields for the summary.
+    const summaryAmount =
+        pickupCost ?? totalPrice ?? sellingPrice;
+
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
         <Dialog
@@ -378,9 +486,7 @@ const ReversePickupItemView = ({
                 }
             }}
         >
-            {/* =================================================
-                DIALOG HEADER
-            ================================================= */}
+            {/* HEADER */}
 
             <DialogTitle
                 sx={{
@@ -408,10 +514,7 @@ const ReversePickupItemView = ({
                 </Box>
 
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                    >
+                    <Typography variant="h6" fontWeight={700}>
                         {title}
                     </Typography>
 
@@ -422,7 +525,7 @@ const ReversePickupItemView = ({
                     >
                         {formatText(
                             pickupNumber,
-                            "Reverse Pickup Record"
+                            `Reverse Pickup Item ID: ${formatText(itemId)}`
                         )}
                     </Typography>
                 </Box>
@@ -446,14 +549,10 @@ const ReversePickupItemView = ({
 
             <Divider />
 
-            {/* =================================================
-                DIALOG CONTENT
-            ================================================= */}
+            {/* CONTENT */}
 
             <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
-                {/* =============================================
-                    SUMMARY CARDS
-                ============================================= */}
+                {/* SUMMARY CARDS */}
 
                 <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={12} sm={4}>
@@ -480,7 +579,7 @@ const ReversePickupItemView = ({
                                     variant="caption"
                                     color="text.secondary"
                                 >
-                                    Pickup Number
+                                    Item ID
                                 </Typography>
                             </Stack>
 
@@ -489,7 +588,7 @@ const ReversePickupItemView = ({
                                 fontWeight={700}
                                 sx={{ overflowWrap: "anywhere" }}
                             >
-                                {formatText(pickupNumber)}
+                                {formatText(itemId)}
                             </Typography>
                         </Paper>
                     </Grid>
@@ -518,15 +617,12 @@ const ReversePickupItemView = ({
                                     variant="caption"
                                     color="text.secondary"
                                 >
-                                    Quantity
+                                    Reverse Pickup ID
                                 </Typography>
                             </Stack>
 
-                            <Typography
-                                variant="h6"
-                                fontWeight={700}
-                            >
-                                {formatNumber(quantity)}
+                            <Typography variant="h6" fontWeight={700}>
+                                {formatText(reversePickupId)}
                             </Typography>
                         </Paper>
                     </Grid>
@@ -555,7 +651,7 @@ const ReversePickupItemView = ({
                                     variant="caption"
                                     color="text.secondary"
                                 >
-                                    Pickup Cost
+                                    Item Total Price
                                 </Typography>
                             </Stack>
 
@@ -564,15 +660,13 @@ const ReversePickupItemView = ({
                                 fontWeight={700}
                                 color="primary.main"
                             >
-                                {formatCurrency(pickupCost)}
+                                {formatCurrency(summaryAmount)}
                             </Typography>
                         </Paper>
                     </Grid>
                 </Grid>
 
-                {/* =============================================
-                    PICKUP INFORMATION
-                ============================================= */}
+                {/* ITEM INFORMATION */}
 
                 <Paper
                     variant="outlined"
@@ -583,38 +677,260 @@ const ReversePickupItemView = ({
                     }}
                 >
                     <SectionHeader
-                        icon={<ReceiptLong />}
-                        title="Pickup Information"
+                        icon={<Inventory2 />}
+                        title="Reverse Pickup Item Information"
                     />
 
                     <Grid container spacing={2.5}>
                         <Grid item xs={12} sm={6}>
                             <DetailField
+                                label="Item ID"
+                                value={itemId}
+                                icon={<Numbers fontSize="small" />}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <DetailField
                                 label="Reverse Pickup ID"
-                                value={pickupId}
+                                value={reversePickupId}
+                                icon={<ReceiptLong fontSize="small" />}
                             />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
                             <DetailField
-                                label="Reverse Pickup Number"
-                                value={pickupNumber}
+                                label="Seller ID"
+                                value={sellerId}
+                                icon={<Person fontSize="small" />}
                             />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
                             <DetailField
-                                label="Order Number"
-                                value={orderNumber}
+                                label="Customer ID"
+                                value={customerId}
+                                icon={<Person fontSize="small" />}
                             />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
                             <DetailField
-                                label="Pickup Date"
-                                value={formatDate(pickupDate)}
-                                icon={<CalendarMonth fontSize="small" />}
+                                label="Sale Order Item Code"
+                                value={saleOrderItemCode}
+                                icon={<ReceiptLong fontSize="small" />}
                             />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <DetailField
+                                label="Item SKU"
+                                value={itemSku}
+                                icon={<Inventory2 fontSize="small" />}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <DetailField
+                                label="Return Reason"
+                                value={reason}
+                                icon={<Description fontSize="small" />}
+                                multiline
+                            />
+                        </Grid>
+                    </Grid>
+                </Paper>
+
+                {/* PRICING INFORMATION */}
+
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        p: 2.5,
+                        borderRadius: 2,
+                        mb: 2.5
+                    }}
+                >
+                    <SectionHeader
+                        icon={<Payments />}
+                        title="Pricing Information"
+                    />
+
+                    <Grid container spacing={2.5}>
+                        <Grid item xs={12} sm={4}>
+                            <DetailField
+                                label="Total Price"
+                                value={formatCurrency(totalPrice)}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+                            <DetailField
+                                label="Selling Price"
+                                value={formatCurrency(sellingPrice)}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+                            <DetailField
+                                label="Discount"
+                                value={formatCurrency(discount)}
+                            />
+                        </Grid>
+                    </Grid>
+                </Paper>
+
+                {/* OPTIONAL PICKUP DETAILS */}
+
+                {(pickupNumber ||
+                    orderNumber ||
+                    customerName ||
+                    customerEmail ||
+                    pickupDate ||
+                    pickupAddress ||
+                    itemName ||
+                    quantity !== undefined ||
+                    carrierName ||
+                    trackingNumber ||
+                    pickupCost !== undefined) && (
+                    <Paper
+                        variant="outlined"
+                        sx={{
+                            p: 2.5,
+                            borderRadius: 2,
+                            mb: 2.5
+                        }}
+                    >
+                        <SectionHeader
+                            icon={<LocalShipping />}
+                            title="Related Pickup Information"
+                        />
+
+                        <Grid container spacing={2.5}>
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Pickup Number"
+                                    value={pickupNumber}
+                                    icon={<ConfirmationNumber fontSize="small" />}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Order Number"
+                                    value={orderNumber}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Customer Name"
+                                    value={customerName}
+                                    icon={<Person fontSize="small" />}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Customer Email"
+                                    value={customerEmail}
+                                    icon={<Email fontSize="small" />}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Pickup Date"
+                                    value={formatDate(pickupDate)}
+                                    icon={<CalendarMonth fontSize="small" />}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Item Name"
+                                    value={itemName}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Quantity"
+                                    value={
+                                        quantity === undefined
+                                            ? undefined
+                                            : formatNumber(quantity)
+                                    }
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Pickup Cost"
+                                    value={
+                                        pickupCost === undefined
+                                            ? undefined
+                                            : formatCurrency(pickupCost)
+                                    }
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Carrier Name"
+                                    value={carrierName}
+                                    icon={<LocalShipping fontSize="small" />}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <DetailField
+                                    label="Tracking Number"
+                                    value={trackingNumber}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                <DetailField
+                                    label="Pickup Address"
+                                    value={pickupAddress}
+                                    icon={<LocationOn fontSize="small" />}
+                                    multiline
+                                />
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                )}
+
+                {/* STATUS AND AUDIT INFORMATION */}
+
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        p: 2.5,
+                        borderRadius: 2,
+                        mb: 2.5
+                    }}
+                >
+                    <SectionHeader
+                        icon={<CheckCircle />}
+                        title="Status and Record Information"
+                    />
+
+                    <Grid container spacing={2.5}>
+                        <Grid item xs={12} sm={6}>
+                            <DetailField
+                                label="Status"
+                                value={status}
+                            />
+
+                            <Box sx={{ mt: 1 }}>
+                                <Chip
+                                    size="small"
+                                    label={formatText(status, "Unknown")}
+                                    color={getStatusColor(status)}
+                                />
+                            </Box>
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
@@ -633,167 +949,7 @@ const ReversePickupItemView = ({
                     </Grid>
                 </Paper>
 
-                {/* =============================================
-                    CUSTOMER INFORMATION
-                ============================================= */}
-
-                <Paper
-                    variant="outlined"
-                    sx={{
-                        p: 2.5,
-                        borderRadius: 2,
-                        mb: 2.5
-                    }}
-                >
-                    <SectionHeader
-                        icon={<Person />}
-                        title="Customer Information"
-                    />
-
-                    <Grid container spacing={2.5}>
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Customer Name"
-                                value={customerName}
-                                icon={<Person fontSize="small" />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Customer Email"
-                                value={customerEmail}
-                                icon={<Email fontSize="small" />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <DetailField
-                                label="Pickup Address"
-                                value={pickupAddress}
-                                icon={<LocationOn fontSize="small" />}
-                                multiline
-                            />
-                        </Grid>
-                    </Grid>
-                </Paper>
-
-                {/* =============================================
-                    ITEM INFORMATION
-                ============================================= */}
-
-                <Paper
-                    variant="outlined"
-                    sx={{
-                        p: 2.5,
-                        borderRadius: 2,
-                        mb: 2.5
-                    }}
-                >
-                    <SectionHeader
-                        icon={<Inventory2 />}
-                        title="Item Information"
-                    />
-
-                    <Grid container spacing={2.5}>
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Item Name"
-                                value={itemName}
-                                icon={<Inventory2 fontSize="small" />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="SKU"
-                                value={sku}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Quantity"
-                                value={formatNumber(quantity)}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Pickup Cost"
-                                value={formatCurrency(pickupCost)}
-                            />
-                        </Grid>
-                    </Grid>
-                </Paper>
-
-                {/* =============================================
-                    SHIPPING INFORMATION
-                ============================================= */}
-
-                <Paper
-                    variant="outlined"
-                    sx={{
-                        p: 2.5,
-                        borderRadius: 2,
-                        mb: 2.5
-                    }}
-                >
-                    <SectionHeader
-                        icon={<LocalShipping />}
-                        title="Shipping Information"
-                    />
-
-                    <Grid container spacing={2.5}>
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Carrier Name"
-                                value={carrierName}
-                                icon={<LocalShipping fontSize="small" />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Tracking Number"
-                                value={trackingNumber}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
-                                    flexWrap: "wrap"
-                                }}
-                            >
-                                <CheckCircle
-                                    color="action"
-                                    fontSize="small"
-                                />
-
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                >
-                                    Current Status
-                                </Typography>
-
-                                <Chip
-                                    size="small"
-                                    label={formatText(status, "Unknown")}
-                                    color={getStatusColor(status)}
-                                />
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </Paper>
-
-                {/* =============================================
-                    NOTES
-                ============================================= */}
+                {/* NOTES */}
 
                 <Paper
                     variant="outlined"
@@ -810,8 +966,7 @@ const ReversePickupItemView = ({
                     <Typography
                         variant="body2"
                         color={
-                            notes &&
-                            String(notes).trim() !== ""
+                            notes && String(notes).trim() !== ""
                                 ? "text.primary"
                                 : "text.secondary"
                         }
@@ -827,9 +982,7 @@ const ReversePickupItemView = ({
 
             <Divider />
 
-            {/* =================================================
-                DIALOG ACTIONS
-            ================================================= */}
+            {/* FOOTER */}
 
             <DialogActions sx={{ px: 3, py: 2 }}>
                 <Button
@@ -842,7 +995,5 @@ const ReversePickupItemView = ({
             </DialogActions>
         </Dialog>
     );
-};
-
+}
 export default ReversePickupItemView;
-

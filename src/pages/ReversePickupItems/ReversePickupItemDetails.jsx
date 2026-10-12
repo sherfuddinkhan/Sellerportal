@@ -1,18 +1,20 @@
-// ReversePickupItemDetails.jsx
 
 import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import {
     Alert,
     Box,
     Button,
+    Card,
+    CardContent,
     Chip,
     CircularProgress,
+    Container,
     Divider,
     Grid,
     Paper,
-    Snackbar,
     Stack,
     Typography
 } from "@mui/material";
@@ -21,259 +23,12 @@ import {
     ArrowBack,
     Edit,
     Refresh,
-    Inventory2,
-    LocalShipping,
-    ReceiptLong,
-    AttachMoney
+    Inventory2
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+const API_URL = "http://localhost:5000/api/reverse-pickup-items";
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
-
-const API_URL = `${API_BASE_URL}/api/ReversePickupItems`;
-
-/* =========================================================
-   FORMAT HELPERS
-========================================================= */
-
-const formatText = (value) => {
-    if (value === null || value === undefined || value === "") {
-        return "—";
-    }
-
-    return String(value);
-};
-
-const formatNumber = (value) => {
-    const number = Number(value);
-
-    if (!Number.isFinite(number)) {
-        return "0";
-    }
-
-    return number.toLocaleString("en-IN");
-};
-
-const formatCurrency = (value) => {
-    const amount = Number(value);
-
-    if (!Number.isFinite(amount)) {
-        return "₹ 0.00";
-    }
-
-    return `₹ ${amount.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
-};
-
-const formatDate = (value) => {
-    if (!value) {
-        return "—";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
-    }
-
-    return date.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-};
-
-const getStatusColor = (status) => {
-    const normalizedStatus = String(status || "")
-        .trim()
-        .toLowerCase();
-
-    switch (normalizedStatus) {
-        case "completed":
-        case "received":
-        case "approved":
-            return "success";
-
-        case "pending":
-        case "requested":
-        case "scheduled":
-            return "warning";
-
-        case "rejected":
-        case "cancelled":
-            return "error";
-
-        case "picked up":
-        case "in transit":
-            return "info";
-
-        default:
-            return "default";
-    }
-};
-
-const getErrorMessage = (error) => {
-    const data = error?.response?.data;
-
-    if (typeof data === "string") {
-        return data;
-    }
-
-    if (data?.message) {
-        return data.message;
-    }
-
-    if (data?.title) {
-        return data.title;
-    }
-
-    if (data?.errors) {
-        return Object.values(data.errors)
-            .flat()
-            .join(", ");
-    }
-
-    return error?.message ||
-        "Unable to load reverse pickup item details.";
-};
-
-/* =========================================================
-   RESPONSE HELPER
-========================================================= */
-
-const extractItem = (response) => {
-    const data = response?.data;
-
-    if (!data) {
-        return null;
-    }
-
-    if (Array.isArray(data)) {
-        return data[0] || null;
-    }
-
-    if (data.data && !Array.isArray(data.data)) {
-        return data.data;
-    }
-
-    if (Array.isArray(data.data)) {
-        return data.data[0] || null;
-    }
-
-    return (
-        data.item ||
-        data.reversePickupItem ||
-        data.result ||
-        data
-    );
-};
-
-/* =========================================================
-   DETAIL FIELD
-========================================================= */
-
-const DetailField = ({
-    label,
-    value,
-    valueNode,
-    fullWidth = false
-}) => (
-    <Grid item xs={12} sm={fullWidth ? 12 : 6} md={fullWidth ? 12 : 4}>
-        <Box
-            sx={{
-                p: 2,
-                height: "100%",
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 2,
-                backgroundColor: "background.paper"
-            }}
-        >
-            <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{
-                    display: "block",
-                    mb: 0.75,
-                    textTransform: "uppercase",
-                    letterSpacing: 0.4
-                }}
-            >
-                {label}
-            </Typography>
-
-            {valueNode || (
-                <Typography
-                    variant="body1"
-                    fontWeight={600}
-                    sx={{
-                        overflowWrap: "anywhere",
-                        whiteSpace: "pre-wrap"
-                    }}
-                >
-                    {formatText(value)}
-                </Typography>
-            )}
-        </Box>
-    </Grid>
-);
-
-/* =========================================================
-   SECTION HEADER
-========================================================= */
-
-const SectionHeader = ({ icon, title, subtitle }) => (
-    <Stack
-        direction="row"
-        spacing={1.5}
-        alignItems="center"
-        sx={{ mb: 2.5 }}
-    >
-        <Box
-            sx={{
-                width: 42,
-                height: 42,
-                borderRadius: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor: "action.hover"
-            }}
-        >
-            {icon}
-        </Box>
-
-        <Box>
-            <Typography variant="h6" fontWeight={700}>
-                {title}
-            </Typography>
-
-            {subtitle && (
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    {subtitle}
-                </Typography>
-            )}
-        </Box>
-    </Stack>
-);
-
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
-
-const ReversePickupItemDetails = ({
+ function ReversePickupItemDetails({
     itemId,
     id,
     item,
@@ -282,280 +37,212 @@ const ReversePickupItemDetails = ({
     onBack,
     onEdit,
     onRefresh
-}) => {
-    const initialItem = item || reversePickupItem || null;
+}) {
+    const params = useParams();
+    const navigate = useNavigate();
 
-    const resolvedId =
+    const currentId =
         itemId ??
         id ??
-        initialItem?.reversePickupItemId ??
-        initialItem?.ReversePickupItemId ??
-        initialItem?.id ??
-        initialItem?.Id ??
-        "";
+        params.id ??
+        item?.id ??
+        reversePickupItem?.id;
 
-    const [itemData, setItemData] = useState(initialItem);
+    const initialItem = item ?? reversePickupItem ?? null;
 
+    const [itemDetails, setItemDetails] = useState(initialItem);
     const [loading, setLoading] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState("");
 
-    const [notification, setNotification] = useState({
-        open: false,
-        message: "",
-        severity: "success"
-    });
+    const getValue = (obj, camelCase, pascalCase = "") => {
+        if (!obj) return null;
 
-    /* =====================================================
-       NOTIFICATION
-    ===================================================== */
-
-    const showNotification = (
-        message,
-        severity = "success"
-    ) => {
-        setNotification({
-            open: true,
-            message,
-            severity
-        });
+        return (
+            obj[camelCase] ??
+            (pascalCase ? obj[pascalCase] : undefined) ??
+            null
+        );
     };
 
-    const closeNotification = (_, reason) => {
-        if (reason === "clickaway") {
-            return;
+    const formatValue = (value) => {
+        if (value === null || value === undefined || value === "") {
+            return "N/A";
         }
 
-        setNotification((previous) => ({
-            ...previous,
-            open: false
-        }));
+        return String(value);
     };
 
-    /* =====================================================
-       LOAD ITEM DETAILS
-    ===================================================== */
+    const formatCurrency = (value) => {
+        if (value === null || value === undefined || value === "") {
+            return "N/A";
+        }
 
-    const fetchItemDetails = async (isRefresh = false) => {
-        if (resolvedId === "" || resolvedId === null) {
-            if (initialItem) {
-                setItemData(initialItem);
-                setError("");
-            } else {
-                setError(
-                    "Reverse pickup item ID was not provided."
-                );
-            }
+        const amount = Number(value);
 
+        if (Number.isNaN(amount)) {
+            return String(value);
+        }
+
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }).format(amount);
+    };
+
+    const fetchItemDetails = async () => {
+        if (currentId === null || currentId === undefined || currentId === "") {
+            setError("Reverse pickup item ID is missing.");
+            setItemDetails(null);
             return;
         }
-
-        if (isRefresh) {
-            setRefreshing(true);
-        } else {
-            setLoading(true);
-        }
-
-        setError("");
 
         try {
+            setLoading(true);
+            setError("");
+
             const response = await axios.get(
-                `${apiUrl}/${encodeURIComponent(resolvedId)}`
+                `${apiUrl}/${encodeURIComponent(currentId)}`
             );
 
-            const data = extractItem(response);
+            const data = response.data;
 
-            if (!data) {
-                throw new Error(
-                    "Reverse pickup item was not found."
-                );
+            const result =
+                data?.data ??
+                data?.item ??
+                data?.reversePickupItem ??
+                data;
+
+            if (!result || typeof result !== "object") {
+                throw new Error("Invalid reverse pickup item response.");
             }
 
-            setItemData(data);
+            setItemDetails(result);
+        } catch (err) {
+            console.error("Error fetching reverse pickup item details:", err);
 
-            if (isRefresh) {
-                showNotification(
-                    "Item details refreshed successfully."
-                );
-            }
-        } catch (fetchError) {
-            console.error(
-                "GET REVERSE PICKUP ITEM DETAILS ERROR:",
-                fetchError
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Unable to fetch reverse pickup item details."
             );
-
-            const message = getErrorMessage(fetchError);
-
-            setError(message);
-
-            if (isRefresh) {
-                showNotification(message, "error");
-            }
         } finally {
             setLoading(false);
-            setRefreshing(false);
         }
     };
 
     useEffect(() => {
-        if (initialItem) {
-            setItemData(initialItem);
+        if (initialItem && String(initialItem.id) === String(currentId)) {
+            setItemDetails(initialItem);
+            return;
         }
 
         fetchItemDetails();
 
-        // Re-fetch when the selected ID or endpoint changes.
+        // Fetch details when the item ID or API URL changes.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [resolvedId, apiUrl]);
+    }, [currentId, apiUrl]);
 
-    /* =====================================================
-       FIELD ALIASES
-    ===================================================== */
+    const handleBack = () => {
+        if (onBack) {
+            onBack();
+            return;
+        }
 
-    const data = itemData || {};
+        navigate("/reverse-pickup-items");
+    };
 
-    const pickupItemId =
-        data.reversePickupItemId ??
-        data.ReversePickupItemId ??
-        data.id ??
-        data.Id ??
-        resolvedId;
+    const handleEdit = () => {
+        if (onEdit) {
+            onEdit(itemDetails);
+            return;
+        }
 
-    const reversePickupId =
-        data.reversePickupId ??
-        data.ReversePickupId;
-
-    const reversePickupNumber =
-        data.reversePickupNumber ??
-        data.ReversePickupNumber;
-
-    const orderId =
-        data.orderId ??
-        data.OrderId;
-
-    const orderNumber =
-        data.orderNumber ??
-        data.OrderNumber;
-
-    const productId =
-        data.itemId ??
-        data.ItemId ??
-        data.productId ??
-        data.ProductId;
-
-    const productName =
-        data.itemName ??
-        data.ItemName ??
-        data.productName ??
-        data.ProductName;
-
-    const sku =
-        data.sku ??
-        data.SKU;
-
-    const quantity =
-        data.quantity ??
-        data.Quantity;
-
-    const status =
-        data.status ??
-        data.Status;
-
-    const reason =
-        data.reason ??
-        data.Reason;
-
-    const pickupCost =
-        data.pickupCost ??
-        data.PickupCost;
-
-    const trackingNumber =
-        data.trackingNumber ??
-        data.TrackingNumber;
-
-    const notes =
-        data.notes ??
-        data.Notes;
-
-    const createdAt =
-        data.createdAt ??
-        data.CreatedAt;
-
-    const updatedAt =
-        data.updatedAt ??
-        data.UpdatedAt;
-
-    /* =====================================================
-       ACTION HANDLERS
-    ===================================================== */
+        if (currentId !== null && currentId !== undefined) {
+            navigate(`/reverse-pickup-items/${currentId}/edit`);
+        }
+    };
 
     const handleRefresh = async () => {
-        await fetchItemDetails(true);
+        await fetchItemDetails();
 
-        if (typeof onRefresh === "function") {
+        if (onRefresh) {
             onRefresh();
         }
     };
 
-    const handleBack = () => {
-        if (typeof onBack === "function") {
-            onBack();
-        }
-    };
-
-    const handleEdit = () => {
-        if (typeof onEdit === "function") {
-            onEdit(data);
-        }
-    };
-
-    /* =====================================================
-       LOADING VIEW
-    ===================================================== */
-
-    if (loading && !itemData) {
-        return (
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 5,
-                    borderRadius: 3,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 2
-                }}
-            >
-                <CircularProgress />
-
-                <Typography color="text.secondary">
-                    Loading reverse pickup item details...
+    const DetailField = ({ label, value, currency = false }) => (
+        <Grid item xs={12} sm={6} md={4}>
+            <Box sx={{ p: 1 }}>
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                        display: "block",
+                        mb: 0.5,
+                        textTransform: "uppercase",
+                        letterSpacing: 0.5
+                    }}
+                >
+                    {label}
                 </Typography>
-            </Paper>
+
+                <Typography
+                    variant="body1"
+                    fontWeight={600}
+                    sx={{ overflowWrap: "anywhere" }}
+                >
+                    {currency ? formatCurrency(value) : formatValue(value)}
+                </Typography>
+            </Box>
+        </Grid>
+    );
+
+    if (loading && !itemDetails) {
+        return (
+            <Container maxWidth="lg" sx={{ py: 5 }}>
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    minHeight="300px"
+                    gap={2}
+                >
+                    <CircularProgress />
+                    <Typography color="text.secondary">
+                        Loading reverse pickup item details...
+                    </Typography>
+                </Box>
+            </Container>
         );
     }
 
-    /* =====================================================
-       ERROR VIEW
-    ===================================================== */
-
-    if (error && !itemData) {
-        return (
-            <Paper
-                elevation={2}
-                sx={{
-                    p: { xs: 2, sm: 3 },
-                    borderRadius: 3
-                }}
+    return (
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                justifyContent="space-between"
+                alignItems={{ xs: "stretch", sm: "center" }}
+                spacing={2}
+                sx={{ mb: 3 }}
             >
-                <Alert severity="error" sx={{ mb: 3 }}>
-                    {error}
-                </Alert>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                        Reverse Pickup Item Details
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        View the complete information for this reverse pickup item.
+                    </Typography>
+                </Box>
 
                 <Stack
                     direction="row"
-                    spacing={1.5}
+                    spacing={1}
                     flexWrap="wrap"
+                    useFlexGap
                 >
                     <Button
                         variant="outlined"
@@ -566,355 +253,230 @@ const ReversePickupItemDetails = ({
                     </Button>
 
                     <Button
-                        variant="contained"
+                        variant="outlined"
                         startIcon={<Refresh />}
-                        onClick={() => fetchItemDetails()}
+                        onClick={handleRefresh}
+                        disabled={loading}
                     >
-                        Retry
+                        Refresh
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={handleEdit}
+                        disabled={!itemDetails}
+                    >
+                        Edit
                     </Button>
                 </Stack>
-            </Paper>
-        );
-    }
+            </Stack>
 
-    /* =====================================================
-       MAIN VIEW
-    ===================================================== */
-
-    return (
-        <Box sx={{ width: "100%" }}>
-            <Paper
-                elevation={2}
-                sx={{
-                    p: { xs: 2, sm: 3, md: 4 },
-                    borderRadius: 3
-                }}
-            >
-                {/* HEADER */}
-
-                <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    justifyContent="space-between"
-                    alignItems={{ xs: "stretch", sm: "center" }}
-                    spacing={2}
-                    sx={{ mb: 3 }}
-                >
-                    <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
-                            Reverse Pickup Item Details
-                        </Typography>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ mt: 0.5 }}
-                        >
-                            View the item, pickup, and tracking information.
-                        </Typography>
-                    </Box>
-
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        flexWrap="wrap"
-                        useFlexGap
-                    >
-                        <Button
-                            variant="outlined"
-                            startIcon={<ArrowBack />}
-                            onClick={handleBack}
-                        >
-                            Back
-                        </Button>
-
-                        <Button
-                            variant="outlined"
-                            startIcon={
-                                refreshing
-                                    ? (
-                                        <CircularProgress
-                                            size={16}
-                                        />
-                                    )
-                                    : <Refresh />
-                            }
-                            onClick={handleRefresh}
-                            disabled={refreshing}
-                        >
-                            Refresh
-                        </Button>
-
-                        <Button
-                            variant="contained"
-                            startIcon={<Edit />}
-                            onClick={handleEdit}
-                        >
-                            Edit
-                        </Button>
-                    </Stack>
-                </Stack>
-
-                {error && (
-                    <Alert severity="warning" sx={{ mb: 3 }}>
-                        {error}
-                    </Alert>
-                )}
-
-                <Divider sx={{ mb: 3 }} />
-
-                {/* SUMMARY */}
-
-                <Paper
-                    variant="outlined"
-                    sx={{
-                        p: 2.5,
-                        mb: 3,
-                        borderRadius: 2,
-                        bgcolor: "action.hover"
-                    }}
-                >
-                    <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        justifyContent="space-between"
-                        alignItems={{ xs: "flex-start", sm: "center" }}
-                        spacing={2}
-                    >
-                        <Box>
-                            <Typography
-                                variant="overline"
-                                color="text.secondary"
-                            >
-                                Item
-                            </Typography>
-
-                            <Typography
-                                variant="h6"
-                                fontWeight={700}
-                            >
-                                {formatText(productName)}
-                            </Typography>
-
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                            >
-                                Item ID: {formatText(pickupItemId)}
-                            </Typography>
-                        </Box>
-
-                        <Chip
-                            label={formatText(status)}
-                            color={getStatusColor(status)}
-                            variant="filled"
-                        />
-                    </Stack>
-                </Paper>
-
-                {/* REVERSE PICKUP DETAILS */}
-
-                <Box sx={{ mb: 4 }}>
-                    <SectionHeader
-                        icon={<LocalShipping />}
-                        title="Reverse Pickup Information"
-                        subtitle="Associated pickup record"
-                    />
-
-                    <Grid container spacing={2}>
-                        <DetailField
-                            label="Reverse Pickup Item ID"
-                            value={pickupItemId}
-                        />
-
-                        <DetailField
-                            label="Reverse Pickup ID"
-                            value={reversePickupId}
-                        />
-
-                        <DetailField
-                            label="Reverse Pickup Number"
-                            value={reversePickupNumber}
-                        />
-
-                        <DetailField
-                            label="Status"
-                            valueNode={
-                                <Chip
-                                    label={formatText(status)}
-                                    color={getStatusColor(status)}
-                                    size="small"
-                                />
-                            }
-                        />
-
-                        <DetailField
-                            label="Reason"
-                            value={reason}
-                        />
-
-                        <DetailField
-                            label="Tracking Number"
-                            value={trackingNumber}
-                        />
-                    </Grid>
-                </Box>
-
-                {/* ORDER DETAILS */}
-
-                <Box sx={{ mb: 4 }}>
-                    <SectionHeader
-                        icon={<ReceiptLong />}
-                        title="Order Information"
-                        subtitle="Order associated with this item"
-                    />
-
-                    <Grid container spacing={2}>
-                        <DetailField
-                            label="Order ID"
-                            value={orderId}
-                        />
-
-                        <DetailField
-                            label="Order Number"
-                            value={orderNumber}
-                        />
-                    </Grid>
-                </Box>
-
-                {/* PRODUCT DETAILS */}
-
-                <Box sx={{ mb: 4 }}>
-                    <SectionHeader
-                        icon={<Inventory2 />}
-                        title="Product Information"
-                        subtitle="Product and quantity details"
-                    />
-
-                    <Grid container spacing={2}>
-                        <DetailField
-                            label="Product / Item ID"
-                            value={productId}
-                        />
-
-                        <DetailField
-                            label="Product / Item Name"
-                            value={productName}
-                        />
-
-                        <DetailField
-                            label="SKU"
-                            value={sku}
-                        />
-
-                        <DetailField
-                            label="Quantity"
-                            value={formatNumber(quantity)}
-                        />
-                    </Grid>
-                </Box>
-
-                {/* COST DETAILS */}
-
-                <Box sx={{ mb: 4 }}>
-                    <SectionHeader
-                        icon={<AttachMoney />}
-                        title="Pickup Cost"
-                        subtitle="Cost associated with the reverse pickup item"
-                    />
-
-                    <Grid container spacing={2}>
-                        <DetailField
-                            label="Pickup Cost"
-                            valueNode={
-                                <Typography
-                                    variant="h6"
-                                    fontWeight={700}
-                                >
-                                    {formatCurrency(pickupCost)}
-                                </Typography>
-                            }
-                        />
-                    </Grid>
-                </Box>
-
-                {/* NOTES */}
-
-                <Box sx={{ mb: 4 }}>
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        sx={{ mb: 2 }}
-                    >
-                        Notes
-                    </Typography>
-
-                    <Paper
-                        variant="outlined"
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            minHeight: 70
-                        }}
-                    >
-                        <Typography
-                            variant="body1"
-                            sx={{ whiteSpace: "pre-wrap" }}
-                        >
-                            {formatText(notes)}
-                        </Typography>
-                    </Paper>
-                </Box>
-
-                {/* AUDIT INFORMATION */}
-
-                <Box>
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        sx={{ mb: 2 }}
-                    >
-                        Record Information
-                    </Typography>
-
-                    <Grid container spacing={2}>
-                        <DetailField
-                            label="Created At"
-                            value={formatDate(createdAt)}
-                        />
-
-                        <DetailField
-                            label="Last Updated At"
-                            value={formatDate(updatedAt)}
-                        />
-                    </Grid>
-                </Box>
-            </Paper>
-
-            {/* NOTIFICATION */}
-
-            <Snackbar
-                open={notification.open}
-                autoHideDuration={4000}
-                onClose={closeNotification}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right"
-                }}
-            >
+            {error && (
                 <Alert
-                    onClose={closeNotification}
-                    severity={notification.severity}
-                    variant="filled"
-                    sx={{ width: "100%" }}
+                    severity="error"
+                    sx={{ mb: 3 }}
+                    action={
+                        <Button
+                            color="inherit"
+                            size="small"
+                            onClick={handleRefresh}
+                        >
+                            Retry
+                        </Button>
+                    }
                 >
-                    {notification.message}
+                    {error}
                 </Alert>
-            </Snackbar>
-        </Box>
+            )}
+
+            {loading && itemDetails && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                    <CircularProgress size={20} />
+                    <Typography variant="body2" color="text.secondary">
+                        Refreshing details...
+                    </Typography>
+                </Box>
+            )}
+
+            {!itemDetails && !loading && !error && (
+                <Alert severity="info">
+                    No reverse pickup item details found.
+                </Alert>
+            )}
+
+            {itemDetails && (
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <Card variant="outlined">
+                            <CardContent>
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={2}
+                                    sx={{ mb: 2 }}
+                                >
+                                    <Box
+                                        sx={{
+                                            width: 48,
+                                            height: 48,
+                                            borderRadius: 2,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            bgcolor: "primary.light",
+                                            color: "primary.contrastText"
+                                        }}
+                                    >
+                                        <Inventory2 />
+                                    </Box>
+
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="h6" fontWeight={700}>
+                                            {formatValue(
+                                                getValue(
+                                                    itemDetails,
+                                                    "itemSku",
+                                                    "ItemSku"
+                                                )
+                                            )}
+                                        </Typography>
+
+                                        <Typography variant="body2" color="text.secondary">
+                                            Reverse pickup item ID: {formatValue(
+                                                getValue(itemDetails, "id", "Id")
+                                            )}
+                                        </Typography>
+                                    </Box>
+
+                                    <Chip
+                                        label="Reverse Pickup Item"
+                                        color="primary"
+                                        variant="outlined"
+                                    />
+                                </Stack>
+
+                                <Divider sx={{ mb: 2 }} />
+
+                                <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                                    General Information
+                                </Typography>
+
+                                <Grid container spacing={1}>
+                                    <DetailField
+                                        label="Item ID"
+                                        value={getValue(itemDetails, "id", "Id")}
+                                    />
+
+                                    <DetailField
+                                        label="Seller ID"
+                                        value={getValue(itemDetails, "sellerId", "SellerId")}
+                                    />
+
+                                    <DetailField
+                                        label="Customer ID"
+                                        value={getValue(itemDetails, "customerId", "CustomerId")}
+                                    />
+
+                                    <DetailField
+                                        label="Reverse Pickup ID"
+                                        value={getValue(
+                                            itemDetails,
+                                            "reversePickupId",
+                                            "ReversePickupId"
+                                        )}
+                                    />
+
+                                    <DetailField
+                                        label="Sale Order Item Code"
+                                        value={getValue(
+                                            itemDetails,
+                                            "saleOrderItemCode",
+                                            "SaleOrderItemCode"
+                                        )}
+                                    />
+
+                                    <DetailField
+                                        label="Item SKU"
+                                        value={getValue(
+                                            itemDetails,
+                                            "itemSku",
+                                            "ItemSku"
+                                        )}
+                                    />
+
+                                    <DetailField
+                                        label="Return Reason"
+                                        value={getValue(
+                                            itemDetails,
+                                            "reason",
+                                            "Reason"
+                                        )}
+                                    />
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <Card variant="outlined">
+                            <CardContent>
+                                <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                                    Pricing Information
+                                </Typography>
+
+                                <Divider sx={{ mb: 2 }} />
+
+                                <Grid container spacing={1}>
+                                    <DetailField
+                                        label="Total Price"
+                                        value={getValue(
+                                            itemDetails,
+                                            "totalPrice",
+                                            "TotalPrice"
+                                        )}
+                                        currency
+                                    />
+
+                                    <DetailField
+                                        label="Selling Price"
+                                        value={getValue(
+                                            itemDetails,
+                                            "sellingPrice",
+                                            "SellingPrice"
+                                        )}
+                                        currency
+                                    />
+
+                                    <DetailField
+                                        label="Discount"
+                                        value={getValue(
+                                            itemDetails,
+                                            "discount",
+                                            "Discount"
+                                        )}
+                                        currency
+                                    />
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <Paper
+                            variant="outlined"
+                            sx={{ p: 2, bgcolor: "background.default" }}
+                        >
+                            <Typography variant="body2" color="text.secondary">
+                                The details above are loaded from the reverse pickup
+                                item API. Fields not returned by the API are displayed
+                                as N/A.
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            )}
+        </Container>
     );
-};
-
-export default ReversePickupItemDetails;
-
+}
+export default  ReversePickupItemDetails;

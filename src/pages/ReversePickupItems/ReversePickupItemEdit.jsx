@@ -1,6 +1,6 @@
-// ReversePickupItemEdit.jsx
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import {
@@ -23,39 +23,30 @@ import {
     Refresh
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+// =====================================================
+// API CONFIGURATION
+// =====================================================
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+const API_URL = "http://localhost:5000/api/reverse-pickup-items";
 
-const API_URL = `${API_BASE_URL}/api/ReversePickupItems`;
-
-/* =========================================================
-   INITIAL FORM DATA
-========================================================= */
+// =====================================================
+// INITIAL FORM DATA
+// Only fields supported by the known API response
+// =====================================================
 
 const INITIAL_FORM_DATA = {
     reversePickupId: "",
-    reversePickupNumber: "",
-    orderId: "",
-    orderNumber: "",
-    itemId: "",
-    itemName: "",
-    sku: "",
-    quantity: 1,
-    status: "Pending",
+    saleOrderItemCode: "",
     reason: "",
-    pickupCost: 0,
-    trackingNumber: "",
-    notes: ""
+    itemSku: "",
+    totalPrice: "",
+    sellingPrice: "",
+    discount: ""
 };
 
-/* =========================================================
-   RESPONSE HELPERS
-========================================================= */
+// =====================================================
+// RESPONSE HELPERS
+// =====================================================
 
 const getItemFromResponse = (response) => {
     const data = response?.data;
@@ -66,6 +57,10 @@ const getItemFromResponse = (response) => {
 
     if (Array.isArray(data)) {
         return data[0] || null;
+    }
+
+    if (Array.isArray(data.data)) {
+        return data.data[0] || null;
     }
 
     return (
@@ -93,17 +88,19 @@ const getErrorMessage = (error) => {
     }
 
     if (data?.errors) {
-        return Object.values(data.errors)
-            .flat()
-            .join(", ");
+        return Object.values(data.errors).flat().join(", ");
+    }
+
+    if (error?.response?.status === 404) {
+        return "Reverse pickup item not found. Verify the item ID and API endpoint.";
     }
 
     return error?.message || "Something went wrong. Please try again.";
 };
 
-/* =========================================================
-   NORMALIZE ITEM DATA
-========================================================= */
+// =====================================================
+// NORMALIZE API DATA
+// =====================================================
 
 const normalizeItem = (item = {}) => ({
     reversePickupId:
@@ -111,76 +108,44 @@ const normalizeItem = (item = {}) => ({
         item.ReversePickupId ??
         "",
 
-    reversePickupNumber:
-        item.reversePickupNumber ??
-        item.ReversePickupNumber ??
+    saleOrderItemCode:
+        item.saleOrderItemCode ??
+        item.SaleOrderItemCode ??
         "",
-
-    orderId:
-        item.orderId ??
-        item.OrderId ??
-        "",
-
-    orderNumber:
-        item.orderNumber ??
-        item.OrderNumber ??
-        "",
-
-    itemId:
-        item.itemId ??
-        item.ItemId ??
-        item.productId ??
-        item.ProductId ??
-        "",
-
-    itemName:
-        item.itemName ??
-        item.ItemName ??
-        item.productName ??
-        item.ProductName ??
-        "",
-
-    sku:
-        item.sku ??
-        item.SKU ??
-        "",
-
-    quantity:
-        item.quantity ??
-        item.Quantity ??
-        1,
-
-    status:
-        item.status ??
-        item.Status ??
-        "Pending",
 
     reason:
         item.reason ??
         item.Reason ??
         "",
 
-    pickupCost:
-        item.pickupCost ??
-        item.PickupCost ??
-        0,
-
-    trackingNumber:
-        item.trackingNumber ??
-        item.TrackingNumber ??
+    itemSku:
+        item.itemSku ??
+        item.ItemSku ??
+        item.sku ??
+        item.SKU ??
         "",
 
-    notes:
-        item.notes ??
-        item.Notes ??
+    totalPrice:
+        item.totalPrice ??
+        item.TotalPrice ??
+        "",
+
+    sellingPrice:
+        item.sellingPrice ??
+        item.SellingPrice ??
+        "",
+
+    discount:
+        item.discount ??
+        item.Discount ??
         ""
 });
 
-/* =========================================================
-   COMPONENT
-========================================================= */
+// =====================================================
+// COMPONENT
+// =====================================================
 
-const ReversePickupItemEdit = ({
+ function ReversePickupItemEdit({
     itemId,
     id,
     item,
@@ -190,35 +155,38 @@ const ReversePickupItemEdit = ({
     onCancel,
     onSuccess,
     onUpdated
-}) => {
+}) {
+    const params = useParams();
+    const navigate = useNavigate();
+
+    const initialItem = item || reversePickupItem || null;
+
     const resolvedId =
         itemId ??
         id ??
-        item?.reversePickupItemId ??
-        item?.ReversePickupItemId ??
-        item?.id ??
-        item?.Id ??
-        reversePickupItem?.reversePickupItemId ??
-        reversePickupItem?.ReversePickupItemId ??
-        reversePickupItem?.id ??
-        reversePickupItem?.Id ??
+        params.id ??
+        params.itemId ??
+        initialItem?.reversePickupItemId ??
+        initialItem?.ReversePickupItemId ??
+        initialItem?.id ??
+        initialItem?.Id ??
         "";
 
     const [formData, setFormData] = useState(INITIAL_FORM_DATA);
-
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
     const [errors, setErrors] = useState({});
+    const [loadError, setLoadError] = useState("");
+
     const [notification, setNotification] = useState({
         open: false,
         message: "",
         severity: "success"
     });
 
-    /* =====================================================
-       NOTIFICATION
-    ===================================================== */
+    // -------------------------------------------------
+    // NOTIFICATIONS
+    // -------------------------------------------------
 
     const showNotification = (message, severity = "success") => {
         setNotification({
@@ -239,35 +207,44 @@ const ReversePickupItemEdit = ({
         }));
     };
 
-    /* =====================================================
-       LOAD ITEM
-    ===================================================== */
+    // -------------------------------------------------
+    // LOAD ITEM
+    // -------------------------------------------------
 
-    const loadItem = async () => {
-        if (resolvedId === "" || resolvedId === null) {
-            if (item || reversePickupItem) {
-                setFormData(
-                    normalizeItem(item || reversePickupItem)
+    const loadItem = useCallback(async () => {
+        const currentId = String(resolvedId ?? "").trim();
+
+        if (!currentId) {
+            if (initialItem) {
+                setFormData(normalizeItem(initialItem));
+                setLoadError("");
+            } else {
+                setLoadError(
+                    "Reverse pickup item ID was not provided. Open the edit page using /reverse-pickup-items/1/edit."
                 );
             }
 
+            setLoading(false);
             return;
         }
 
         setLoading(true);
+        setLoadError("");
 
         try {
+            const baseUrl = apiUrl.replace(/\/+$/, "");
+
             const response = await axios.get(
-                `${apiUrl}/${encodeURIComponent(resolvedId)}`
+                `${baseUrl}/${encodeURIComponent(currentId)}`
             );
 
-            const data = getItemFromResponse(response);
+            const result = getItemFromResponse(response);
 
-            if (!data) {
+            if (!result || typeof result !== "object") {
                 throw new Error("Reverse pickup item was not found.");
             }
 
-            setFormData(normalizeItem(data));
+            setFormData(normalizeItem(result));
             setErrors({});
         } catch (error) {
             console.error(
@@ -275,41 +252,27 @@ const ReversePickupItemEdit = ({
                 error
             );
 
-            // Fall back to supplied item data if available.
-            if (item || reversePickupItem) {
-                setFormData(
-                    normalizeItem(item || reversePickupItem)
-                );
+            const message = getErrorMessage(error);
+
+            setLoadError(message);
+
+            if (initialItem) {
+                setFormData(normalizeItem(initialItem));
             }
 
-            showNotification(
-                getErrorMessage(error),
-                "error"
-            );
+            showNotification(message, "error");
         } finally {
             setLoading(false);
         }
-    };
+    }, [resolvedId, apiUrl, initialItem]);
 
     useEffect(() => {
-        if (item || reversePickupItem) {
-            setFormData(
-                normalizeItem(item || reversePickupItem)
-            );
-            setErrors({});
-        }
+        loadItem();
+    }, [loadItem]);
 
-        if (resolvedId !== "" && resolvedId !== null) {
-            loadItem();
-        }
-
-        // Load when the selected record or API URL changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [resolvedId, apiUrl]);
-
-    /* =====================================================
-       HANDLE INPUT CHANGE
-    ===================================================== */
+    // -------------------------------------------------
+    // INPUT HANDLER
+    // -------------------------------------------------
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -325,49 +288,46 @@ const ReversePickupItemEdit = ({
         }));
     };
 
-    /* =====================================================
-       VALIDATION
-    ===================================================== */
+    // -------------------------------------------------
+    // VALIDATION
+    // -------------------------------------------------
 
     const validateForm = () => {
         const newErrors = {};
 
-        if (
-            String(formData.itemName || "").trim() === ""
-        ) {
-            newErrors.itemName = "Item name is required.";
+        if (!String(formData.saleOrderItemCode || "").trim()) {
+            newErrors.saleOrderItemCode =
+                "Sale order item code is required.";
         }
 
-        if (
-            String(formData.quantity).trim() === "" ||
-            !Number.isFinite(Number(formData.quantity)) ||
-            Number(formData.quantity) <= 0
-        ) {
-            newErrors.quantity =
-                "Quantity must be greater than zero.";
+        if (!String(formData.itemSku || "").trim()) {
+            newErrors.itemSku = "Item SKU is required.";
         }
 
-        if (
-            formData.pickupCost === "" ||
-            !Number.isFinite(Number(formData.pickupCost)) ||
-            Number(formData.pickupCost) < 0
-        ) {
-            newErrors.pickupCost =
-                "Pickup cost must be zero or greater.";
-        }
+        ["totalPrice", "sellingPrice", "discount"].forEach((field) => {
+            const value = formData[field];
 
-        if (!String(formData.status || "").trim()) {
-            newErrors.status = "Status is required.";
-        }
+            if (
+                value !== "" &&
+                value !== null &&
+                (
+                    !Number.isFinite(Number(value)) ||
+                    Number(value) < 0
+                )
+            ) {
+                newErrors[field] =
+                    "Enter a valid non-negative amount.";
+            }
+        });
 
         setErrors(newErrors);
 
         return Object.keys(newErrors).length === 0;
     };
 
-    /* =====================================================
-       UPDATE ITEM
-    ===================================================== */
+    // -------------------------------------------------
+    // UPDATE ITEM
+    // -------------------------------------------------
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -380,7 +340,9 @@ const ReversePickupItemEdit = ({
             return;
         }
 
-        if (resolvedId === "" || resolvedId === null) {
+        const currentId = String(resolvedId ?? "").trim();
+
+        if (!currentId) {
             showNotification(
                 "An item ID is required to update this record.",
                 "error"
@@ -389,21 +351,46 @@ const ReversePickupItemEdit = ({
         }
 
         const payload = {
-            ...formData,
-            quantity: Number(formData.quantity),
-            pickupCost: Number(formData.pickupCost)
+            reversePickupId:
+                formData.reversePickupId === ""
+                    ? null
+                    : Number(formData.reversePickupId),
+
+            saleOrderItemCode: formData.saleOrderItemCode.trim(),
+            reason: formData.reason.trim(),
+            itemSku: formData.itemSku.trim(),
+
+            totalPrice:
+                formData.totalPrice === ""
+                    ? null
+                    : Number(formData.totalPrice),
+
+            sellingPrice:
+                formData.sellingPrice === ""
+                    ? null
+                    : Number(formData.sellingPrice),
+
+            discount:
+                formData.discount === ""
+                    ? null
+                    : Number(formData.discount)
         };
 
         setSaving(true);
 
         try {
+            const baseUrl = apiUrl.replace(/\/+$/, "");
+
             const response = await axios.put(
-                `${apiUrl}/${encodeURIComponent(resolvedId)}`,
+                `${baseUrl}/${encodeURIComponent(currentId)}`,
                 payload
             );
 
             const updatedItem =
-                getItemFromResponse(response) || payload;
+                getItemFromResponse(response) || {
+                    ...payload,
+                    id: currentId
+                };
 
             showNotification(
                 "Reverse pickup item updated successfully.",
@@ -416,6 +403,8 @@ const ReversePickupItemEdit = ({
 
             if (typeof onSuccess === "function") {
                 onSuccess(updatedItem);
+            } else {
+                navigate("/reverse-pickup-items");
             }
         } catch (error) {
             console.error(
@@ -432,37 +421,32 @@ const ReversePickupItemEdit = ({
         }
     };
 
-    /* =====================================================
-       RESET FORM
-    ===================================================== */
+    // -------------------------------------------------
+    // RESET FORM
+    // -------------------------------------------------
 
     const handleReset = () => {
         setErrors({});
-
-        if (item || reversePickupItem) {
-            setFormData(
-                normalizeItem(item || reversePickupItem)
-            );
-        } else {
-            loadItem();
-        }
+        loadItem();
     };
 
-    /* =====================================================
-       NAVIGATION
-    ===================================================== */
+    // -------------------------------------------------
+    // NAVIGATION
+    // -------------------------------------------------
 
     const handleBack = () => {
         if (typeof onBack === "function") {
             onBack();
         } else if (typeof onCancel === "function") {
             onCancel();
+        } else {
+            navigate("/reverse-pickup-items");
         }
     };
 
-    /* =====================================================
-       LOADING STATE
-    ===================================================== */
+    // -------------------------------------------------
+    // LOADING VIEW
+    // -------------------------------------------------
 
     if (loading) {
         return (
@@ -486,9 +470,9 @@ const ReversePickupItemEdit = ({
         );
     }
 
-    /* =====================================================
-       RENDER FORM
-    ===================================================== */
+    // -------------------------------------------------
+    // FORM
+    // -------------------------------------------------
 
     return (
         <Box sx={{ width: "100%" }}>
@@ -505,17 +489,17 @@ const ReversePickupItemEdit = ({
                     sx={{
                         display: "flex",
                         justifyContent: "space-between",
-                        alignItems: { xs: "flex-start", sm: "center" },
+                        alignItems: {
+                            xs: "flex-start",
+                            sm: "center"
+                        },
                         flexWrap: "wrap",
                         gap: 2,
                         mb: 2
                     }}
                 >
                     <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
+                        <Typography variant="h5" fontWeight={700}>
                             Edit Reverse Pickup Item
                         </Typography>
 
@@ -525,6 +509,13 @@ const ReversePickupItemEdit = ({
                             sx={{ mt: 0.5 }}
                         >
                             Update the reverse pickup item details.
+                        </Typography>
+
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                        >
+                            Item ID: {String(resolvedId || "Not provided")}
                         </Typography>
                     </Box>
 
@@ -538,6 +529,24 @@ const ReversePickupItemEdit = ({
                 </Box>
 
                 <Divider sx={{ mb: 3 }} />
+
+                {loadError && (
+                    <Alert
+                        severity="error"
+                        sx={{ mb: 3 }}
+                        action={
+                            <Button
+                                color="inherit"
+                                size="small"
+                                onClick={loadItem}
+                            >
+                                Retry
+                            </Button>
+                        }
+                    >
+                        {loadError}
+                    </Alert>
+                )}
 
                 <Box
                     component="form"
@@ -562,7 +571,6 @@ const ReversePickupItemEdit = ({
                                 label="Reverse Pickup ID"
                                 name="reversePickupId"
                                 value={formData.reversePickupId}
-                                onChange={handleChange}
                                 disabled
                             />
                         </Grid>
@@ -570,31 +578,13 @@ const ReversePickupItemEdit = ({
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
-                                label="Reverse Pickup Number"
-                                name="reversePickupNumber"
-                                value={formData.reversePickupNumber}
+                                label="Sale Order Item Code"
+                                name="saleOrderItemCode"
+                                value={formData.saleOrderItemCode}
                                 onChange={handleChange}
-                                disabled
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Order ID"
-                                name="orderId"
-                                value={formData.orderId}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Order Number"
-                                name="orderNumber"
-                                value={formData.orderNumber}
-                                onChange={handleChange}
+                                required
+                                error={Boolean(errors.saleOrderItemCode)}
+                                helperText={errors.saleOrderItemCode}
                             />
                         </Grid>
 
@@ -614,52 +604,27 @@ const ReversePickupItemEdit = ({
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
-                                label="Item ID"
-                                name="itemId"
-                                value={formData.itemId}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Item Name"
-                                name="itemName"
-                                value={formData.itemName}
+                                label="Item SKU"
+                                name="itemSku"
+                                value={formData.itemSku}
                                 onChange={handleChange}
                                 required
-                                error={Boolean(errors.itemName)}
-                                helperText={errors.itemName}
+                                error={Boolean(errors.itemSku)}
+                                helperText={errors.itemSku}
                             />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
-                                label="SKU"
-                                name="sku"
-                                value={formData.sku}
+                                label="Reason"
+                                name="reason"
+                                value={formData.reason}
                                 onChange={handleChange}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                type="number"
-                                label="Quantity"
-                                name="quantity"
-                                value={formData.quantity}
-                                onChange={handleChange}
-                                required
-                                inputProps={{ min: 1, step: 1 }}
-                                error={Boolean(errors.quantity)}
-                                helperText={errors.quantity}
-                            />
-                        </Grid>
-
-                        {/* PICKUP DETAILS */}
+                        {/* PRICING */}
 
                         <Grid item xs={12}>
                             <Divider sx={{ my: 1 }} />
@@ -668,91 +633,49 @@ const ReversePickupItemEdit = ({
                                 variant="subtitle1"
                                 fontWeight={700}
                             >
-                                Pickup Details
+                                Pricing Details
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                             <TextField
                                 fullWidth
-                                select
-                                label="Status"
-                                name="status"
-                                value={formData.status}
-                                onChange={handleChange}
-                                required
-                                error={Boolean(errors.status)}
-                                helperText={errors.status}
-                            >
-                                {[
-                                    "Pending",
-                                    "Requested",
-                                    "Approved",
-                                    "Scheduled",
-                                    "Picked Up",
-                                    "In Transit",
-                                    "Received",
-                                    "Completed",
-                                    "Rejected",
-                                    "Cancelled"
-                                ].map((status) => (
-                                    <MenuItem
-                                        key={status}
-                                        value={status}
-                                    >
-                                        {status}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Pickup Cost"
-                                name="pickupCost"
                                 type="number"
-                                value={formData.pickupCost}
+                                label="Total Price"
+                                name="totalPrice"
+                                value={formData.totalPrice}
                                 onChange={handleChange}
-                                inputProps={{
-                                    min: 0,
-                                    step: "0.01"
-                                }}
-                                error={Boolean(errors.pickupCost)}
-                                helperText={errors.pickupCost}
+                                inputProps={{ min: 0, step: "0.01" }}
+                                error={Boolean(errors.totalPrice)}
+                                helperText={errors.totalPrice}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                             <TextField
                                 fullWidth
-                                label="Pickup Reason"
-                                name="reason"
-                                value={formData.reason}
+                                type="number"
+                                label="Selling Price"
+                                name="sellingPrice"
+                                value={formData.sellingPrice}
                                 onChange={handleChange}
-                                placeholder="Enter reason for return"
+                                inputProps={{ min: 0, step: "0.01" }}
+                                error={Boolean(errors.sellingPrice)}
+                                helperText={errors.sellingPrice}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                             <TextField
                                 fullWidth
-                                label="Tracking Number"
-                                name="trackingNumber"
-                                value={formData.trackingNumber}
+                                type="number"
+                                label="Discount"
+                                name="discount"
+                                value={formData.discount}
                                 onChange={handleChange}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={3}
-                                label="Notes"
-                                name="notes"
-                                value={formData.notes}
-                                onChange={handleChange}
+                                inputProps={{ min: 0, step: "0.01" }}
+                                error={Boolean(errors.discount)}
+                                helperText={errors.discount}
                             />
                         </Grid>
 
@@ -793,19 +716,15 @@ const ReversePickupItemEdit = ({
                                     variant="contained"
                                     startIcon={
                                         saving
-                                            ? (
-                                                <CircularProgress
-                                                    size={18}
-                                                    color="inherit"
-                                                />
-                                            )
+                                            ? <CircularProgress
+                                                size={18}
+                                                color="inherit"
+                                            />
                                             : <Save />
                                     }
-                                    disabled={saving}
+                                    disabled={saving || Boolean(loadError)}
                                 >
-                                    {saving
-                                        ? "Saving..."
-                                        : "Update Item"}
+                                    {saving ? "Saving..." : "Update Item"}
                                 </Button>
                             </Box>
                         </Grid>
@@ -835,7 +754,6 @@ const ReversePickupItemEdit = ({
             </Snackbar>
         </Box>
     );
-};
+}
 
 export default ReversePickupItemEdit;
-

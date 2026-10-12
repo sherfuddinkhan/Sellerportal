@@ -1,3 +1,4 @@
+
 import React, {
     useCallback,
     useEffect,
@@ -6,6 +7,7 @@ import React, {
 } from "react";
 
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
     Alert,
@@ -19,20 +21,21 @@ import ReversePickupItemToolbar from "./ReversePickupItemToolbar";
 import ReversePickupItemStatistics from "./ReversePickupItemStatistics";
 import ReversePickupItemTable from "./ReversePickupItemTable";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+const API_BASE_URL = "http://localhost:5000";
 
 const REVERSE_PICKUP_ITEMS_URL =
-    `${API_BASE_URL}/api/ReversePickupItems`;
+    `${API_BASE_URL}/api/reverse-pickup-items/all`;
 
-/* =========================================================
-   FIELD HELPERS
-========================================================= */
+const REVERSE_PICKUP_ITEM_DELETE_URL =
+    `${API_BASE_URL}/api/reverse-pickup-items`;
+
+// =========================================================
+// FIELD HELPERS
+// =========================================================
 
 const getField = (record, ...fieldNames) => {
     if (!record || typeof record !== "object") {
@@ -62,31 +65,29 @@ const getField = (record, ...fieldNames) => {
     return undefined;
 };
 
-/* =========================================================
-   RESPONSE NORMALIZATION
-========================================================= */
+// =========================================================
+// RESPONSE NORMALIZATION
+// =========================================================
 
-const extractRecords = (responseData) => {
-    if (Array.isArray(responseData)) {
-        return responseData;
+const extractRecords = (data) => {
+    if (Array.isArray(data)) {
+        return data;
     }
 
-    if (!responseData || typeof responseData !== "object") {
+    if (!data || typeof data !== "object") {
         return [];
     }
 
-    const possibleCollections = [
-        responseData.data,
-        responseData.items,
-        responseData.records,
-        responseData.results,
-        responseData.reversePickupItems,
-        responseData.ReversePickupItems,
-        responseData.reversePickups,
-        responseData.ReversePickups
+    const collections = [
+        data.data,
+        data.items,
+        data.records,
+        data.results,
+        data.reversePickupItems,
+        data.ReversePickupItems
     ];
 
-    for (const collection of possibleCollections) {
+    for (const collection of collections) {
         if (Array.isArray(collection)) {
             return collection;
         }
@@ -95,10 +96,10 @@ const extractRecords = (responseData) => {
             collection &&
             typeof collection === "object"
         ) {
-            const nestedRecords = extractRecords(collection);
+            const nested = extractRecords(collection);
 
-            if (nestedRecords.length > 0) {
-                return nestedRecords;
+            if (nested.length > 0) {
+                return nested;
             }
         }
     }
@@ -106,14 +107,20 @@ const extractRecords = (responseData) => {
     return [];
 };
 
-/* =========================================================
-   SEARCH NORMALIZATION
-========================================================= */
+// =========================================================
+// NORMALIZATION HELPERS
+// =========================================================
 
 const normalizeValue = (value) =>
-    String(value ?? "")
-        .trim()
-        .toLowerCase();
+    String(value ?? "").trim().toLowerCase();
+
+const getItemId = (item) =>
+    getField(item, "id", "reversePickupItemId");
+
+const getStatus = (item) =>
+    normalizeValue(
+        getField(item, "status", "pickupStatus")
+    );
 
 const matchesSearch = (item, searchTerm) => {
     if (!searchTerm) {
@@ -121,20 +128,23 @@ const matchesSearch = (item, searchTerm) => {
     }
 
     const searchableFields = [
-        getField(item, "id", "reversePickupItemId"),
+        getField(item, "id"),
+        getField(item, "sellerId"),
+        getField(item, "customerId"),
         getField(item, "reversePickupId"),
         getField(item, "reversePickupNumber"),
-        getField(item, "orderId", "orderNumber"),
-        getField(item, "itemId", "productId"),
+        getField(item, "saleOrderItemCode"),
+        getField(item, "orderNumber", "orderId"),
         getField(item, "itemName", "productName"),
-        getField(item, "productName"),
-        getField(item, "sku", "SKU"),
-        getField(item, "itemCode", "productCode"),
+        getField(item, "itemSku", "sku"),
         getField(item, "customerName"),
         getField(item, "trackingNumber"),
-        getField(item, "status"),
+        getField(item, "status", "pickupStatus"),
         getField(item, "reason"),
-        getField(item, "notes")
+        getField(item, "notes"),
+        getField(item, "totalPrice"),
+        getField(item, "sellingPrice"),
+        getField(item, "discount")
     ];
 
     return searchableFields.some((value) =>
@@ -142,19 +152,10 @@ const matchesSearch = (item, searchTerm) => {
     );
 };
 
-/* =========================================================
-   STATUS NORMALIZATION
-========================================================= */
-
-const getStatus = (item) =>
-    normalizeValue(
-        getField(item, "status", "pickupStatus")
-    );
-
 const matchesStatus = (item, selectedStatus) => {
     if (
         !selectedStatus ||
-        selectedStatus === "all"
+        normalizeValue(selectedStatus) === "all"
     ) {
         return true;
     }
@@ -162,9 +163,9 @@ const matchesStatus = (item, selectedStatus) => {
     return getStatus(item) === normalizeValue(selectedStatus);
 };
 
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
+// =========================================================
+// MAIN COMPONENT
+// =========================================================
 
 const ReversePickupItemsList = ({
     apiUrl = REVERSE_PICKUP_ITEMS_URL,
@@ -181,28 +182,21 @@ const ReversePickupItemsList = ({
     title = "Reverse Pickup Items",
     subtitle = "Manage and monitor reverse pickup items"
 }) => {
-    /* =====================================================
-       STATE
-    ===================================================== */
+    const navigate = useNavigate();
+
+    // =====================================================
+    // STATE
+    // =====================================================
 
     const [items, setItems] = useState([]);
-
     const [loading, setLoading] = useState(true);
-
     const [refreshing, setRefreshing] = useState(false);
-
     const [error, setError] = useState("");
-
-    const [searchTerm, setSearchTerm] =
-        useState(initialSearch);
-
-    const [statusFilter, setStatusFilter] =
-        useState(initialStatus);
-
+    const [searchTerm, setSearchTerm] = useState(initialSearch);
+    const [statusFilter, setStatusFilter] = useState(initialStatus);
     const [page, setPage] = useState(0);
-
-    const [rowsPerPage, setRowsPerPage] =
-        useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [deletingId, setDeletingId] = useState(null);
 
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -210,16 +204,40 @@ const ReversePickupItemsList = ({
         severity: "success"
     });
 
-    /* =====================================================
-       FETCH REVERSE PICKUP ITEMS
-    ===================================================== */
+    // =====================================================
+    // NOTIFICATION
+    // =====================================================
+
+    const showMessage = useCallback(
+        (message, severity = "success") => {
+            setSnackbar({
+                open: true,
+                message,
+                severity
+            });
+        },
+        []
+    );
+
+    const closeSnackbar = useCallback((event, reason) => {
+        if (reason === "clickaway") {
+            return;
+        }
+
+        setSnackbar((current) => ({
+            ...current,
+            open: false
+        }));
+    }, []);
+
+    // =====================================================
+    // FETCH RECORDS
+    // =====================================================
 
     const fetchItems = useCallback(
         async ({ silent = false } = {}) => {
             if (!apiUrl) {
-                setError(
-                    "API URL is missing. Configure REACT_APP_API_URL."
-                );
+                setError("The reverse pickup items API URL is missing.");
                 setLoading(false);
                 setRefreshing(false);
                 return;
@@ -234,10 +252,6 @@ const ReversePickupItemsList = ({
             setError("");
 
             try {
-                console.log(
-                    "\nGET ALL REVERSE PICKUP ITEMS"
-                );
-
                 const response = await axios.get(apiUrl, {
                     timeout: 30000,
                     headers: {
@@ -250,12 +264,12 @@ const ReversePickupItemsList = ({
                 setItems(records);
 
                 console.log(
-                    "REVERSE PICKUP ITEMS FETCHED:",
-                    records.length
+                    "Reverse pickup items loaded:",
+                    records
                 );
             } catch (requestError) {
                 console.error(
-                    "GET REVERSE PICKUP ITEMS ERROR:",
+                    "Failed to fetch reverse pickup items:",
                     requestError
                 );
 
@@ -266,39 +280,27 @@ const ReversePickupItemsList = ({
                     "Failed to load reverse pickup items.";
 
                 setError(message);
-
-                setSnackbar({
-                    open: true,
-                    message,
-                    severity: "error"
-                });
+                showMessage(message, "error");
             } finally {
                 setLoading(false);
                 setRefreshing(false);
             }
         },
-        [apiUrl]
+        [apiUrl, showMessage]
     );
-
-    /* =====================================================
-       INITIAL LOAD
-    ===================================================== */
 
     useEffect(() => {
         fetchItems();
     }, [fetchItems]);
 
-    /* =====================================================
-       OPTIONAL AUTO REFRESH
-    ===================================================== */
+    // =====================================================
+    // AUTOMATIC REFRESH
+    // =====================================================
 
     useEffect(() => {
         const interval = Number(refreshInterval);
 
-        if (
-            !Number.isFinite(interval) ||
-            interval <= 0
-        ) {
+        if (!Number.isFinite(interval) || interval <= 0) {
             return undefined;
         }
 
@@ -309,32 +311,29 @@ const ReversePickupItemsList = ({
         return () => clearInterval(timer);
     }, [fetchItems, refreshInterval]);
 
-    /* =====================================================
-       FILTERED ITEMS
-    ===================================================== */
+    // =====================================================
+    // SEARCH AND FILTER
+    // =====================================================
 
     const filteredItems = useMemo(() => {
-        const normalizedSearch =
-            normalizeValue(searchTerm);
+        const query = normalizeValue(searchTerm);
 
-        return items.filter((item) => {
-            return (
-                matchesSearch(item, normalizedSearch) &&
-                matchesStatus(item, statusFilter)
-            );
-        });
+        return items.filter((item) =>
+            matchesSearch(item, query) &&
+            matchesStatus(item, statusFilter)
+        );
     }, [items, searchTerm, statusFilter]);
 
-    /* =====================================================
-       PAGINATION
-    ===================================================== */
+    // =====================================================
+    // PAGINATION
+    // =====================================================
 
     const paginatedItems = useMemo(() => {
-        const startIndex = page * rowsPerPage;
+        const start = page * rowsPerPage;
 
         return filteredItems.slice(
-            startIndex,
-            startIndex + rowsPerPage
+            start,
+            start + rowsPerPage
         );
     }, [filteredItems, page, rowsPerPage]);
 
@@ -349,71 +348,162 @@ const ReversePickupItemsList = ({
         }
     }, [filteredItems.length, page, rowsPerPage]);
 
-    /* =====================================================
-       SEARCH HANDLER
-    ===================================================== */
-
     const handleSearchChange = useCallback((value) => {
-        setSearchTerm(
+        const nextValue =
             typeof value === "string"
                 ? value
-                : value?.target?.value || ""
-        );
+                : value?.target?.value ?? "";
 
+        setSearchTerm(nextValue);
         setPage(0);
     }, []);
-
-    /* =====================================================
-       STATUS FILTER HANDLER
-    ===================================================== */
 
     const handleStatusChange = useCallback((value) => {
-        setStatusFilter(
+        const nextValue =
             typeof value === "string"
                 ? value
-                : value?.target?.value || "all"
+                : value?.target?.value ?? "all";
+
+        setStatusFilter(nextValue);
+        setPage(0);
+    }, []);
+
+    const handlePageChange = useCallback((event, newPage) => {
+        setPage(newPage);
+    }, []);
+
+    const handleRowsPerPageChange = useCallback((event) => {
+        const nextValue = Number(event.target.value);
+
+        setRowsPerPage(
+            Number.isFinite(nextValue) && nextValue > 0
+                ? nextValue
+                : 10
         );
 
         setPage(0);
     }, []);
-
-    /* =====================================================
-       PAGINATION HANDLERS
-    ===================================================== */
-
-    const handlePageChange = useCallback(
-        (event, newPage) => {
-            setPage(newPage);
-        },
-        []
-    );
-
-    const handleRowsPerPageChange = useCallback(
-        (event) => {
-            const nextValue = Number(event.target.value);
-
-            setRowsPerPage(
-                Number.isFinite(nextValue) && nextValue > 0
-                    ? nextValue
-                    : 10
-            );
-
-            setPage(0);
-        },
-        []
-    );
-
-    /* =====================================================
-       REFRESH HANDLER
-    ===================================================== */
 
     const handleRefresh = useCallback(() => {
         fetchItems({ silent: true });
     }, [fetchItems]);
 
-    /* =====================================================
-       CREATE HANDLER
-    ===================================================== */
+    // =====================================================
+    // VIEW ACTION
+    // =====================================================
+
+    const handleViewItem = useCallback(
+        (record) => {
+            if (typeof onView === "function") {
+                onView(record);
+                return;
+            }
+
+            const id = getItemId(record);
+
+            if (id === undefined || id === null) {
+                showMessage("Cannot open details: item ID is missing.", "error");
+                return;
+            }
+
+            navigate(`/reverse-pickup-items/details/${id}`);
+        },
+        [navigate, onView, showMessage]
+    );
+
+    // =====================================================
+    // EDIT ACTION
+    // =====================================================
+
+    const handleEditItem = useCallback(
+        (record) => {
+            if (typeof onEdit === "function") {
+                onEdit(record);
+                return;
+            }
+
+            const id = getItemId(record);
+
+            if (id === undefined || id === null) {
+                showMessage("Cannot edit item: item ID is missing.", "error");
+                return;
+            }
+
+            navigate(`/reverse-pickup-items/${id}/edit`);
+        },
+        [navigate, onEdit, showMessage]
+    );
+
+    // =====================================================
+    // DELETE ACTION
+    // =====================================================
+
+    const handleDeleteItem = useCallback(
+        async (record) => {
+            if (typeof onDelete === "function") {
+                onDelete(record);
+                return;
+            }
+
+            const id = getItemId(record);
+
+            if (id === undefined || id === null) {
+                showMessage("Cannot delete item: item ID is missing.", "error");
+                return;
+            }
+
+            const confirmed = window.confirm(
+                `Are you sure you want to delete reverse pickup item ${id}?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            setDeletingId(id);
+
+            try {
+                await axios.delete(
+                    `${REVERSE_PICKUP_ITEM_DELETE_URL}/${encodeURIComponent(id)}`,
+                    {
+                        timeout: 30000
+                    }
+                );
+
+                setItems((currentItems) =>
+                    currentItems.filter(
+                        (item) =>
+                            String(getItemId(item)) !== String(id)
+                    )
+                );
+
+                showMessage(
+                    "Reverse pickup item deleted successfully.",
+                    "success"
+                );
+            } catch (requestError) {
+                console.error(
+                    "Delete reverse pickup item failed:",
+                    requestError
+                );
+
+                showMessage(
+                    requestError.response?.data?.message ||
+                    requestError.response?.data?.title ||
+                    requestError.message ||
+                    "Failed to delete reverse pickup item.",
+                    "error"
+                );
+            } finally {
+                setDeletingId(null);
+            }
+        },
+        [onDelete, showMessage]
+    );
+
+    // =====================================================
+    // CREATE ACTION
+    // =====================================================
 
     const handleCreate = useCallback(() => {
         if (typeof onCreate === "function") {
@@ -421,53 +511,12 @@ const ReversePickupItemsList = ({
             return;
         }
 
-        setSnackbar({
-            open: true,
-            message: "Connect the create form to enable this action.",
-            severity: "info"
-        });
-    }, [onCreate]);
+        navigate("/reverse-pickup-items/create");
+    }, [navigate, onCreate]);
 
-    /* =====================================================
-       DELETE SUCCESS HANDLER
-    ===================================================== */
-
-    const handleDeleted = useCallback(
-        async (deletedItem) => {
-            const deletedId = getField(
-                deletedItem,
-                "id",
-                "reversePickupItemId"
-            );
-
-            if (deletedId !== undefined) {
-                setItems((currentItems) =>
-                    currentItems.filter((item) => {
-                        const itemId = getField(
-                            item,
-                            "id",
-                            "reversePickupItemId"
-                        );
-
-                        return String(itemId) !== String(deletedId);
-                    })
-                );
-            } else {
-                await fetchItems({ silent: true });
-            }
-
-            setSnackbar({
-                open: true,
-                message: "Reverse pickup item deleted successfully.",
-                severity: "success"
-            });
-        },
-        [fetchItems]
-    );
-
-    /* =====================================================
-       EXPORT HANDLER
-    ===================================================== */
+    // =====================================================
+    // CSV EXPORT
+    // =====================================================
 
     const handleExport = useCallback(() => {
         if (typeof onExport === "function") {
@@ -476,54 +525,40 @@ const ReversePickupItemsList = ({
         }
 
         if (filteredItems.length === 0) {
-            setSnackbar({
-                open: true,
-                message: "There are no items to export.",
-                severity: "warning"
-            });
-
+            showMessage("There are no items to export.", "warning");
             return;
         }
 
         const columns = [
             "id",
+            "sellerId",
+            "customerId",
             "reversePickupId",
-            "reversePickupNumber",
-            "orderNumber",
-            "itemName",
-            "sku",
-            "quantity",
-            "status",
-            "pickupCost",
-            "trackingNumber",
+            "saleOrderItemCode",
             "reason",
-            "notes"
+            "itemSku",
+            "totalPrice",
+            "sellingPrice",
+            "discount"
         ];
 
-        const escapeCsvValue = (value) => {
-            const text = String(value ?? "");
+        const escapeCsvValue = (value) =>
+            `"${String(value ?? "").replace(/"/g, '""')}"`;
 
-            return `"${text.replace(/"/g, '""')}"`;
-        };
-
-        const csvRows = [
+        const csvContent = [
             columns.join(","),
             ...filteredItems.map((item) =>
                 columns
                     .map((column) =>
-                        escapeCsvValue(
-                            getField(item, column)
-                        )
+                        escapeCsvValue(getField(item, column))
                     )
                     .join(",")
             )
-        ];
+        ].join("\r\n");
 
         const blob = new Blob(
-            ["\uFEFF", csvRows.join("\n")],
-            {
-                type: "text/csv;charset=utf-8;"
-            }
+            ["\uFEFF", csvContent],
+            { type: "text/csv;charset=utf-8;" }
         );
 
         const url = URL.createObjectURL(blob);
@@ -538,110 +573,50 @@ const ReversePickupItemsList = ({
 
         URL.revokeObjectURL(url);
 
-        setSnackbar({
-            open: true,
-            message: "Reverse pickup items exported successfully.",
-            severity: "success"
-        });
-    }, [filteredItems, onExport]);
+        showMessage("CSV exported successfully.", "success");
+    }, [filteredItems, onExport, showMessage]);
 
-    /* =====================================================
-       STATISTICS
-    ===================================================== */
+    // =====================================================
+    // STATISTICS
+    // =====================================================
 
     const statistics = useMemo(() => {
-        const totalItems = items.length;
-
-        const totalQuantity = items.reduce(
-            (total, item) => {
-                const quantity = Number(
-                    getField(item, "quantity", "itemQuantity")
-                );
+        const sumField = (...fields) =>
+            items.reduce((total, item) => {
+                const value = Number(getField(item, ...fields));
 
                 return total + (
-                    Number.isFinite(quantity) ? quantity : 0
+                    Number.isFinite(value) ? value : 0
                 );
-            },
-            0
-        );
-
-        const totalCost = items.reduce(
-            (total, item) => {
-                const cost = Number(
-                    getField(
-                        item,
-                        "pickupCost",
-                        "returnCost",
-                        "totalCost"
-                    )
-                );
-
-                return total + (
-                    Number.isFinite(cost) ? cost : 0
-                );
-            },
-            0
-        );
-
-        const pendingCount = items.filter((item) =>
-            [
-                "pending",
-                "requested",
-                "scheduled"
-            ].includes(getStatus(item))
-        ).length;
-
-        const completedCount = items.filter((item) =>
-            [
-                "completed",
-                "delivered",
-                "picked up",
-                "pickedup",
-                "approved"
-            ].includes(getStatus(item))
-        ).length;
-
-        const cancelledCount = items.filter((item) =>
-            [
-                "cancelled",
-                "canceled",
-                "failed",
-                "rejected"
-            ].includes(getStatus(item))
-        ).length;
+            }, 0);
 
         return {
-            totalItems,
-            totalCount: totalItems,
-            totalQuantity,
-            totalCost,
-            pendingCount,
-            completedCount,
-            cancelledCount
+            totalItems: items.length,
+            totalCount: items.length,
+            totalQuantity: sumField("quantity", "itemQuantity"),
+            totalCost: sumField("totalPrice", "pickupCost", "returnCost", "totalCost"),
+            totalSellingPrice: sumField("sellingPrice"),
+            totalDiscount: sumField("discount"),
+
+            pendingCount: items.filter((item) =>
+                ["pending", "requested", "scheduled"].includes(getStatus(item))
+            ).length,
+
+            completedCount: items.filter((item) =>
+                ["completed", "delivered", "picked up", "pickedup", "approved"]
+                    .includes(getStatus(item))
+            ).length,
+
+            cancelledCount: items.filter((item) =>
+                ["cancelled", "canceled", "failed", "rejected"]
+                    .includes(getStatus(item))
+            ).length
         };
     }, [items]);
 
-    /* =====================================================
-       SNACKBAR HANDLER
-    ===================================================== */
-
-    const handleSnackbarClose = useCallback(
-        (event, reason) => {
-            if (reason === "clickaway") {
-                return;
-            }
-
-            setSnackbar((current) => ({
-                ...current,
-                open: false
-            }));
-        },
-        []
-    );
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
         <Box
@@ -650,8 +625,6 @@ const ReversePickupItemsList = ({
                 p: { xs: 1, sm: 2, md: 3 }
             }}
         >
-            {/* PAGE HEADER AND TOOLBAR */}
-
             {showToolbar && (
                 <ReversePickupItemToolbar
                     title={title}
@@ -663,6 +636,8 @@ const ReversePickupItemsList = ({
                     totalItems={statistics.totalItems}
                     totalQuantity={statistics.totalQuantity}
                     totalCost={statistics.totalCost}
+                    totalSellingPrice={statistics.totalSellingPrice}
+                    totalDiscount={statistics.totalDiscount}
                     pendingCount={statistics.pendingCount}
                     completedCount={statistics.completedCount}
                     cancelledCount={statistics.cancelledCount}
@@ -680,8 +655,6 @@ const ReversePickupItemsList = ({
                 />
             )}
 
-            {/* STATISTICS */}
-
             {showStatistics && (
                 <Box sx={{ mt: 2, mb: 3 }}>
                     <ReversePickupItemStatistics
@@ -692,6 +665,8 @@ const ReversePickupItemsList = ({
                         totalItems={statistics.totalItems}
                         totalQuantity={statistics.totalQuantity}
                         totalCost={statistics.totalCost}
+                        totalSellingPrice={statistics.totalSellingPrice}
+                        totalDiscount={statistics.totalDiscount}
                         pendingCount={statistics.pendingCount}
                         completedCount={statistics.completedCount}
                         cancelledCount={statistics.cancelledCount}
@@ -699,8 +674,6 @@ const ReversePickupItemsList = ({
                     />
                 </Box>
             )}
-
-            {/* REFRESH INDICATOR */}
 
             {refreshing && (
                 <Box
@@ -712,17 +685,11 @@ const ReversePickupItemsList = ({
                     }}
                 >
                     <CircularProgress size={16} />
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
+                    <Typography variant="body2" color="text.secondary">
                         Refreshing reverse pickup items...
                     </Typography>
                 </Box>
             )}
-
-            {/* ERROR MESSAGE */}
 
             {error && !loading && (
                 <Alert
@@ -746,48 +713,41 @@ const ReversePickupItemsList = ({
                 </Alert>
             )}
 
-            {/* ITEMS TABLE */}
-
-            <Box sx={{ width: "100%" }}>
-                <ReversePickupItemTable
-                    reversePickups={paginatedItems}
-                    pickups={paginatedItems}
-                    items={paginatedItems}
-                    records={paginatedItems}
-                    loading={loading}
-                    error={error}
-                    search={searchTerm}
-                    searchTerm={searchTerm}
-                    status={statusFilter}
-                    statusFilter={statusFilter}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    totalCount={filteredItems.length}
-                    count={filteredItems.length}
-                    onView={onView}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onDeleted={handleDeleted}
-                    onRefresh={handleRefresh}
-                    onPageChange={handlePageChange}
-                    onChangePage={handlePageChange}
-                    onRowsPerPageChange={handleRowsPerPageChange}
-                />
-            </Box>
-
-            {/* SNACKBAR */}
+            <ReversePickupItemTable
+                reversePickups={paginatedItems}
+                pickups={paginatedItems}
+                items={paginatedItems}
+                records={paginatedItems}
+                loading={loading}
+                error={error}
+                search={searchTerm}
+                searchTerm={searchTerm}
+                status={statusFilter}
+                statusFilter={statusFilter}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                totalCount={filteredItems.length}
+                count={filteredItems.length}
+                onView={handleViewItem}
+                onEdit={handleEditItem}
+                onDelete={handleDeleteItem}
+                onRefresh={handleRefresh}
+                onPageChange={handlePageChange}
+                onRowsPerPageChange={handleRowsPerPageChange}
+                deletingId={deletingId}
+            />
 
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={5000}
-                onClose={handleSnackbarClose}
+                onClose={closeSnackbar}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
                 }}
             >
                 <Alert
-                    onClose={handleSnackbarClose}
+                    onClose={closeSnackbar}
                     severity={snackbar.severity}
                     variant="filled"
                     sx={{ width: "100%" }}
@@ -800,4 +760,3 @@ const ReversePickupItemsList = ({
 };
 
 export default ReversePickupItemsList;
-

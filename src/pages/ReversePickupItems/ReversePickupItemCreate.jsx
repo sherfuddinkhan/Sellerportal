@@ -1,6 +1,4 @@
 
-// ReversePickupItemCreate.jsx
-
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -21,44 +19,37 @@ import {
 
 import {
     ArrowBack,
-    Add,
     Save,
     Refresh
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+const API_URL = "http://localhost:5000/api/reverse-pickup-items";
 
-const API_URL = `${API_BASE_URL}/api/ReversePickupItems`;
-
-/* =========================================================
-   INITIAL FORM DATA
-========================================================= */
+// =========================================================
+// INITIAL FORM DATA
+// =========================================================
 
 const INITIAL_FORM_DATA = {
-    reversePickupId: "",
+    reversePickupId: "4",
     reversePickupNumber: "",
-    orderId: "",
+    orderId: "2",
     orderNumber: "",
-    itemId: "",
-    itemName: "",
-    sku: "",
-    quantity: 1,
-    status: "Pending",
-    reason: "",
-    pickupCost: 0,
-    trackingNumber: "",
-    notes: ""
+    saleOrderItemCode: "",
+    itemName: "TechNova Wireless Bluetooth Headphones",
+    itemSku: "TN-WBH-001",
+    totalPrice: "2499",
+    sellingPrice: "2499",
+    discount: "0",
+    reason: "Defective"
 };
 
-/* =========================================================
-   ERROR HELPER
-========================================================= */
+// =========================================================
+// ERROR HELPER
+// =========================================================
 
 const getErrorMessage = (error) => {
     const data = error?.response?.data;
@@ -85,11 +76,10 @@ const getErrorMessage = (error) => {
         "Unable to create reverse pickup item.";
 };
 
-/* =========================================================
-   COMPONENT
-========================================================= */
-
-const ReversePickupItemCreate = ({
+// =========================================================
+// COMPONENT
+// =========================================================
+ function ReversePickupItemCreate({
     apiUrl = API_URL,
     reversePickupId,
     reversePickupNumber,
@@ -100,27 +90,25 @@ const ReversePickupItemCreate = ({
     onCancel,
     onSuccess,
     onCreated
-}) => {
-    /* =====================================================
-       FORM STATE
-    ===================================================== */
-
-    const [formData, setFormData] = useState(() => ({
+}) {
+    const getInitialData = () => ({
         ...INITIAL_FORM_DATA,
         ...(initialValues || {}),
         ...(reversePickupId !== undefined
-            ? { reversePickupId }
+            ? { reversePickupId: String(reversePickupId) }
             : {}),
         ...(reversePickupNumber !== undefined
             ? { reversePickupNumber }
             : {}),
         ...(orderId !== undefined
-            ? { orderId }
+            ? { orderId: String(orderId) }
             : {}),
         ...(orderNumber !== undefined
             ? { orderNumber }
             : {})
-    }));
+    });
+
+    const [formData, setFormData] = useState(getInitialData);
 
     const [errors, setErrors] = useState({});
     const [saving, setSaving] = useState(false);
@@ -131,9 +119,9 @@ const ReversePickupItemCreate = ({
         severity: "success"
     });
 
-    /* =====================================================
-       NOTIFICATION
-    ===================================================== */
+    // =====================================================
+    // NOTIFICATION
+    // =====================================================
 
     const showNotification = (
         message,
@@ -147,9 +135,7 @@ const ReversePickupItemCreate = ({
     };
 
     const closeNotification = (_, reason) => {
-        if (reason === "clickaway") {
-            return;
-        }
+        if (reason === "clickaway") return;
 
         setNotification((previous) => ({
             ...previous,
@@ -157,9 +143,9 @@ const ReversePickupItemCreate = ({
         }));
     };
 
-    /* =====================================================
-       HANDLE INPUT CHANGE
-    ===================================================== */
+    // =====================================================
+    // INPUT CHANGE
+    // =====================================================
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -175,45 +161,60 @@ const ReversePickupItemCreate = ({
         }));
     };
 
-    /* =====================================================
-       FORM VALIDATION
-    ===================================================== */
+    // =====================================================
+    // VALIDATION
+    // =====================================================
 
     const validateForm = () => {
         const newErrors = {};
 
         if (
-            String(formData.itemName || "").trim() === ""
+            !String(formData.reversePickupId || "").trim() ||
+            !Number.isInteger(Number(formData.reversePickupId)) ||
+            Number(formData.reversePickupId) <= 0
         ) {
-            newErrors.itemName =
-                "Item name is required.";
+            newErrors.reversePickupId =
+                "Enter a valid Reverse Pickup ID.";
         }
 
         if (
-            String(formData.quantity).trim() === "" ||
-            !Number.isFinite(Number(formData.quantity)) ||
-            Number(formData.quantity) <= 0
+            !String(formData.saleOrderItemCode || "").trim()
         ) {
-            newErrors.quantity =
-                "Quantity must be greater than zero.";
-        } else if (
-            !Number.isInteger(Number(formData.quantity))
-        ) {
-            newErrors.quantity =
-                "Quantity must be a whole number.";
+            newErrors.saleOrderItemCode =
+                "Sale Order Item Code is required.";
         }
+
+        if (!String(formData.itemSku || "").trim()) {
+            newErrors.itemSku = "SKU is required.";
+        }
+
+        if (!String(formData.reason || "").trim()) {
+            newErrors.reason = "Pickup reason is required.";
+        }
+
+        [
+            "totalPrice",
+            "sellingPrice",
+            "discount"
+        ].forEach((field) => {
+            const value = formData[field];
+
+            if (
+                value === "" ||
+                !Number.isFinite(Number(value)) ||
+                Number(value) < 0
+            ) {
+                newErrors[field] =
+                    "Enter a valid non-negative amount.";
+            }
+        });
 
         if (
-            String(formData.pickupCost).trim() === "" ||
-            !Number.isFinite(Number(formData.pickupCost)) ||
-            Number(formData.pickupCost) < 0
+            Number(formData.discount) >
+            Number(formData.totalPrice)
         ) {
-            newErrors.pickupCost =
-                "Pickup cost must be zero or greater.";
-        }
-
-        if (!String(formData.status || "").trim()) {
-            newErrors.status = "Status is required.";
+            newErrors.discount =
+                "Discount cannot exceed total price.";
         }
 
         setErrors(newErrors);
@@ -221,9 +222,9 @@ const ReversePickupItemCreate = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    /* =====================================================
-       CREATE REVERSE PICKUP ITEM
-    ===================================================== */
+    // =====================================================
+    // CREATE REVERSE PICKUP ITEM
+    // =====================================================
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -233,57 +234,45 @@ const ReversePickupItemCreate = ({
                 "Please correct the validation errors.",
                 "error"
             );
-
             return;
         }
 
         const payload = {
-            ...formData,
-            reversePickupId:
-                formData.reversePickupId === ""
-                    ? null
-                    : Number(formData.reversePickupId),
-            orderId:
-                formData.orderId === ""
-                    ? null
-                    : Number(formData.orderId),
-            itemId:
-                formData.itemId === ""
-                    ? null
-                    : Number(formData.itemId),
-            quantity: Number(formData.quantity),
-            pickupCost: Number(formData.pickupCost),
-            reversePickupNumber:
-                String(formData.reversePickupNumber || "").trim(),
-            orderNumber:
-                String(formData.orderNumber || "").trim(),
-            itemName:
-                String(formData.itemName || "").trim(),
-            sku:
-                String(formData.sku || "").trim(),
-            status:
-                String(formData.status || "").trim(),
-            reason:
-                String(formData.reason || "").trim(),
-            trackingNumber:
-                String(formData.trackingNumber || "").trim(),
-            notes:
-                String(formData.notes || "").trim()
+            id: 0,
+            sellerId: 6,
+            customerId: 3,
+            reversePickupId: Number(formData.reversePickupId),
+            saleOrderItemCode: String(
+                formData.saleOrderItemCode
+            ).trim(),
+            reason: String(formData.reason).trim(),
+            itemSku: String(formData.itemSku).trim(),
+            totalPrice: Number(formData.totalPrice),
+            sellingPrice: Number(formData.sellingPrice),
+            discount: Number(formData.discount)
         };
 
         setSaving(true);
 
         try {
+            console.log("POST URL:", apiUrl);
+            console.log("POST payload:", payload);
+
             const response = await axios.post(
                 apiUrl,
-                payload
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
             );
 
-            const createdItem = response?.data?.data
-                ?? response?.data?.item
-                ?? response?.data?.reversePickupItem
-                ?? response?.data
-                ?? payload;
+            const createdItem =
+                response?.data?.data ??
+                response?.data?.item ??
+                response?.data?.reversePickupItem ??
+                response?.data;
 
             showNotification(
                 "Reverse pickup item created successfully.",
@@ -300,7 +289,7 @@ const ReversePickupItemCreate = ({
         } catch (error) {
             console.error(
                 "CREATE REVERSE PICKUP ITEM ERROR:",
-                error
+                error.response?.data || error.message
             );
 
             showNotification(
@@ -312,46 +301,32 @@ const ReversePickupItemCreate = ({
         }
     };
 
-    /* =====================================================
-       RESET FORM
-    ===================================================== */
+    // =====================================================
+    // RESET FORM
+    // =====================================================
 
     const handleReset = () => {
-        setFormData({
-            ...INITIAL_FORM_DATA,
-            ...(initialValues || {}),
-            ...(reversePickupId !== undefined
-                ? { reversePickupId }
-                : {}),
-            ...(reversePickupNumber !== undefined
-                ? { reversePickupNumber }
-                : {}),
-            ...(orderId !== undefined
-                ? { orderId }
-                : {}),
-            ...(orderNumber !== undefined
-                ? { orderNumber }
-                : {})
-        });
-
+        setFormData(getInitialData());
         setErrors({});
     };
 
-    /* =====================================================
-       NAVIGATION
-    ===================================================== */
+    // =====================================================
+    // BACK / CANCEL
+    // =====================================================
 
     const handleBack = () => {
         if (typeof onBack === "function") {
             onBack();
         } else if (typeof onCancel === "function") {
             onCancel();
+        } else {
+            window.history.back();
         }
     };
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // =====================================================
+    // RENDER
+    // =====================================================
 
     return (
         <Box sx={{ width: "100%" }}>
@@ -362,8 +337,6 @@ const ReversePickupItemCreate = ({
                     borderRadius: 3
                 }}
             >
-                {/* HEADER */}
-
                 <Stack
                     direction={{ xs: "column", sm: "row" }}
                     justifyContent="space-between"
@@ -420,12 +393,15 @@ const ReversePickupItemCreate = ({
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
+                                required
+                                type="number"
                                 label="Reverse Pickup ID"
                                 name="reversePickupId"
                                 value={formData.reversePickupId}
                                 onChange={handleChange}
-                                type="number"
                                 inputProps={{ min: 1 }}
+                                error={Boolean(errors.reversePickupId)}
+                                helperText={errors.reversePickupId}
                             />
                         </Grid>
 
@@ -436,18 +412,20 @@ const ReversePickupItemCreate = ({
                                 name="reversePickupNumber"
                                 value={formData.reversePickupNumber}
                                 onChange={handleChange}
+                                helperText="Display information only; not sent by this API."
                             />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
+                                type="number"
                                 label="Order ID"
                                 name="orderId"
                                 value={formData.orderId}
                                 onChange={handleChange}
-                                type="number"
                                 inputProps={{ min: 1 }}
+                                helperText="Display information only; not sent by this API."
                             />
                         </Grid>
 
@@ -458,6 +436,7 @@ const ReversePickupItemCreate = ({
                                 name="orderNumber"
                                 value={formData.orderNumber}
                                 onChange={handleChange}
+                                helperText="Display information only; not sent by this API."
                             />
                         </Grid>
 
@@ -474,38 +453,30 @@ const ReversePickupItemCreate = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Item ID / Product ID"
-                                name="itemId"
-                                value={formData.itemId}
-                                onChange={handleChange}
-                                type="number"
-                                inputProps={{ min: 1 }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12}>
                             <TextField
                                 fullWidth
                                 required
+                                label="Sale Order Item Code"
+                                name="saleOrderItemCode"
+                                value={formData.saleOrderItemCode}
+                                onChange={handleChange}
+                                error={Boolean(errors.saleOrderItemCode)}
+                                helperText={
+                                    errors.saleOrderItemCode ||
+                                    "Enter the order's item code."
+                                }
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
                                 label="Item Name"
                                 name="itemName"
                                 value={formData.itemName}
                                 onChange={handleChange}
-                                error={Boolean(errors.itemName)}
-                                helperText={errors.itemName}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="SKU"
-                                name="sku"
-                                value={formData.sku}
-                                onChange={handleChange}
+                                helperText="Display information only; not sent by this API."
                             />
                         </Grid>
 
@@ -513,17 +484,12 @@ const ReversePickupItemCreate = ({
                             <TextField
                                 fullWidth
                                 required
-                                type="number"
-                                label="Quantity"
-                                name="quantity"
-                                value={formData.quantity}
+                                label="SKU"
+                                name="itemSku"
+                                value={formData.itemSku}
                                 onChange={handleChange}
-                                inputProps={{
-                                    min: 1,
-                                    step: 1
-                                }}
-                                error={Boolean(errors.quantity)}
-                                helperText={errors.quantity}
+                                error={Boolean(errors.itemSku)}
+                                helperText={errors.itemSku}
                             />
                         </Grid>
 
@@ -545,84 +511,95 @@ const ReversePickupItemCreate = ({
                                 fullWidth
                                 select
                                 required
-                                label="Status"
-                                name="status"
-                                value={formData.status}
+                                label="Pickup Reason"
+                                name="reason"
+                                value={formData.reason}
                                 onChange={handleChange}
-                                error={Boolean(errors.status)}
-                                helperText={errors.status}
+                                error={Boolean(errors.reason)}
+                                helperText={errors.reason}
                             >
                                 {[
-                                    "Pending",
-                                    "Requested",
-                                    "Approved",
-                                    "Scheduled",
-                                    "Picked Up",
-                                    "In Transit",
-                                    "Received",
-                                    "Completed",
-                                    "Rejected",
-                                    "Cancelled"
-                                ].map((status) => (
+                                    "Defective",
+                                    "Damaged",
+                                    "Wrong Item",
+                                    "Customer Return",
+                                    "Not as Described",
+                                    "Other"
+                                ].map((reason) => (
                                     <MenuItem
-                                        key={status}
-                                        value={status}
+                                        key={reason}
+                                        value={reason}
                                     >
-                                        {status}
+                                        {reason}
                                     </MenuItem>
                                 ))}
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        {/* PRICE INFORMATION */}
+
+                        <Grid item xs={12}>
+                            <Divider sx={{ my: 1 }} />
+
+                            <Typography
+                                variant="subtitle1"
+                                fontWeight={700}
+                            >
+                                Price Information
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 required
                                 type="number"
-                                label="Pickup Cost"
-                                name="pickupCost"
-                                value={formData.pickupCost}
+                                label="Total Price"
+                                name="totalPrice"
+                                value={formData.totalPrice}
                                 onChange={handleChange}
                                 inputProps={{
                                     min: 0,
                                     step: "0.01"
                                 }}
-                                error={Boolean(errors.pickupCost)}
-                                helperText={errors.pickupCost}
+                                error={Boolean(errors.totalPrice)}
+                                helperText={errors.totalPrice}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                             <TextField
                                 fullWidth
-                                label="Pickup Reason"
-                                name="reason"
-                                value={formData.reason}
+                                required
+                                type="number"
+                                label="Selling Price"
+                                name="sellingPrice"
+                                value={formData.sellingPrice}
                                 onChange={handleChange}
-                                placeholder="Enter the return reason"
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01"
+                                }}
+                                error={Boolean(errors.sellingPrice)}
+                                helperText={errors.sellingPrice}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                             <TextField
                                 fullWidth
-                                label="Tracking Number"
-                                name="trackingNumber"
-                                value={formData.trackingNumber}
+                                required
+                                type="number"
+                                label="Discount"
+                                name="discount"
+                                value={formData.discount}
                                 onChange={handleChange}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={3}
-                                label="Notes"
-                                name="notes"
-                                value={formData.notes}
-                                onChange={handleChange}
-                                placeholder="Enter additional information"
+                                inputProps={{
+                                    min: 0,
+                                    step: "0.01"
+                                }}
+                                error={Boolean(errors.discount)}
+                                helperText={errors.discount}
                             />
                         </Grid>
 
@@ -632,7 +609,10 @@ const ReversePickupItemCreate = ({
                             <Divider sx={{ my: 1 }} />
 
                             <Stack
-                                direction={{ xs: "column", sm: "row" }}
+                                direction={{
+                                    xs: "column",
+                                    sm: "row"
+                                }}
                                 justifyContent="flex-end"
                                 spacing={1.5}
                                 sx={{ mt: 1 }}
@@ -680,8 +660,6 @@ const ReversePickupItemCreate = ({
                 </Box>
             </Paper>
 
-            {/* NOTIFICATION */}
-
             <Snackbar
                 open={notification.open}
                 autoHideDuration={5000}
@@ -702,7 +680,6 @@ const ReversePickupItemCreate = ({
             </Snackbar>
         </Box>
     );
-};
+}
 
-export default ReversePickupItemCreate;
-
+export default ReversePickupItemCreate
