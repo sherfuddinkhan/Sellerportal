@@ -33911,70 +33911,111 @@ app.delete("/api/FacilityChannel/:id", async (req, res) => {
 
 //////////////////SUPPLIER ADDRESSES///////////////////////////
 // Real .NET API is on 7203
-const SUPPLIER_ADDRESS_API = process.env.SUPPLIER_ADDRESS_API || "https://localhost:7203/api/supplier-addresses";
-const SUPPLIER_API = process.env.SUPPLIER_API || "https://localhost:7203/api/suppliers";
 
-// .NET uses self-signed cert on localhost - ignore cert error
+function handleProxyError(error, res, endpointName = "API") {
+    console.error(`❌ ${endpointName} Error:`, error.message);
+
+    if (error.response) {
+        console.error("Backend status:", error.response.status);
+        console.error("Backend response:", error.response.data);
+
+        return res.status(error.response.status).json(
+            error.response.data || {
+                message: `${endpointName} failed`
+            }
+        );
+    }
+
+    if (error.request) {
+        return res.status(502).json({
+            message: `No response from backend for ${endpointName}`,
+            error: error.message
+        });
+    }
+
+    return res.status(500).json({
+        message: `Proxy error in ${endpointName}`,
+        error: error.message
+    });
+}
+const SUPPLIER_ADDRESS_API = `${BASE_URL}/supplier-addresses`;
+
+// GET ALL
 app.get("/api/SupplierAddress", async (req, res) => {
     try {
-        const response = await axios.get(`${SUPPLIER_ADDRESS_API}/all`, { httpsAgent });
+        const response = await axios.get(
+            `${SUPPLIER_ADDRESS_API}/all`,
+            { httpsAgent }
+        );
+
         return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("GET ALL ERROR:", error.response?.data || error.message);
-        return handleProxyError(res, error);
+        return handleProxyError(error, res, "SupplierAddress GET ALL");
     }
 });
 
+// GET BY ID
 app.get("/api/SupplierAddress/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        const response = await axios.get(`${SUPPLIER_ADDRESS_API}/${encodeURIComponent(id)}`, { httpsAgent });
+        const response = await axios.get(
+            `${SUPPLIER_ADDRESS_API}/${req.params.id}`,
+            { httpsAgent }
+        );
+
         return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("GET BY ID ERROR:", error.response?.data || error.message);
-        return handleProxyError(res, error);
+        return handleProxyError(error, res, "SupplierAddress GET BY ID");
     }
 });
 
+// CREATE
 app.post("/api/SupplierAddress", async (req, res) => {
     try {
-        const response = await axios.post(SUPPLIER_ADDRESS_API, req.body, { httpsAgent });
+        console.log("Supplier address payload:", req.body);
+
+        const response = await axios.post(
+            SUPPLIER_ADDRESS_API,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
         return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("CREATE ERROR:", error.response?.data || error.message);
-        return handleProxyError(res, error);
+        return handleProxyError(error, res, "SupplierAddress POST");
     }
 });
 
+// UPDATE
 app.put("/api/SupplierAddress/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        const response = await axios.put(`${SUPPLIER_ADDRESS_API}/${encodeURIComponent(id)}`, req.body, { httpsAgent });
+        const response = await axios.put(
+            `${SUPPLIER_ADDRESS_API}/${req.params.id}`,
+            req.body,
+            { httpsAgent }
+        );
+
         return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("UPDATE ERROR:", error.response?.data || error.message);
-        return handleProxyError(res, error);
+        return handleProxyError(error, res, "SupplierAddress PUT");
     }
 });
 
+// DELETE
 app.delete("/api/SupplierAddress/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        const response = await axios.delete(`${SUPPLIER_ADDRESS_API}/${encodeURIComponent(id)}`, { httpsAgent });
-        return res.status(response.status).json(response.data);
-    } catch (error) {
-        console.error("DELETE ERROR:", error.response?.data || error.message);
-        return handleProxyError(res, error);
-    }
-});
+        const response = await axios.delete(
+            `${SUPPLIER_ADDRESS_API}/${req.params.id}`,
+            { httpsAgent }
+        );
 
-app.get("/api/Supplier", async (req, res) => {
-    try {
-        const response = await axios.get(`${SUPPLIER_API}/all`, { httpsAgent });
         return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("GET SUPPLIERS ERROR:", error.response?.data || error.message);
-        return handleProxyError(res, error);
+        return handleProxyError(error, res, "SupplierAddress DELETE");
     }
 });
 
