@@ -4687,15 +4687,6 @@ app.get("/api/customer-addresses/seller/:sellerId/customer/:customerId", async (
   }
 });
 
-app.get("/api/CustomerAddresses/seller/:sellerId/customer/:customerId", async (req, res) => {
-  try {
-    const { sellerId, customerId } = req.params;
-    const response = await axios.get(`${DOTNET_API}/customer-addresses/seller/${encodeURIComponent(sellerId)}/customer/${encodeURIComponent(customerId)}`, { httpsAgent });
-    return res.status(response.status).json(response.data);
-  } catch (error) {
-    return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed" });
-  }
-});
 
 // =====================================================
 // GET SALES INVOICE BY ID - KEEP LAST - DYNAMIC FIX FOR 16
@@ -32833,193 +32824,270 @@ app.delete(
 
 
 // ============================================================
+// ============================================================
 // CUSTOMER ADDRESS APIs
-// React:
-// http://localhost:5000/api/customer-addresses
-//
-// ASP.NET:
-// https://localhost:7203/api/customer-addresses
+// ============================================================
+// GET ALL CUSTOMER ADDRESSES
+// Node: GET /api/customerAddress/all
+// ASP.NET: GET /api/customerAddress/all
 // ============================================================
 
-// GET ALL CUSTOMER ADDRESSES
-app.get("/api/customer-addresses", async (req, res) => {
+
+app.get("/api/customer-addresses/all", async (req, res) => {
     try {
         const response = await axios.get(
-            `${DOTNET_API}/customer-addresses`
+            `${API_BASE_URL}/customer-addresses/all`,
+            { httpsAgent }
         );
 
-        res.status(response.status).json(response.data);
-
+        return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "GET /api/customer-addresses error:",
+            "Get all customer addresses error:",
+            error.response?.status,
             error.response?.data || error.message
         );
 
-        res.status(error.response?.status || 500).json(
-            error.response?.data || {
-                message: "Failed to get customer addresses"
-            }
-        );
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to get all customer addresses",
+            details: error.response?.data || error.message
+        });
     }
 });
+// ============================================================
+// GET CUSTOMER ADDRESSES BY SELLER AND CUSTOMER
+// Node: GET /api/customer-addresses/seller/:sellerId/customer/:customerId
+// ASP.NET: GET /api/customer-addresses/seller/:sellerId/customer/:customerId
+// ============================================================
 
+app.get(
+    "/api/customer-addresses/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
 
+            const response = await axios.get(
+                `${API_BASE_URL}/customer-addresses/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET customer addresses by seller/customer error:",
+                error.response?.status,
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json({
+                message:
+                    "Failed to get customer addresses by seller and customer",
+                details: error.response?.data || error.message
+            });
+        }
+    }
+);
+
+// ============================================================
 // GET CUSTOMER ADDRESSES BY CUSTOMER ID
-// Example:
-// GET /api/customer-addresses/customer/3
+// Node: GET /api/customer-addresses/customer/:customerId
+// ASP.NET: GET /api/customer-addresses/customer/:customerId
+// ============================================================
+
 app.get(
     "/api/customer-addresses/customer/:customerId",
     async (req, res) => {
-
         try {
             const { customerId } = req.params;
 
             const response = await axios.get(
-                `${DOTNET_API}/customer-addresses/customer/${customerId}`
+                `${API_BASE_URL}/customer-addresses/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
             );
 
-            res.status(response.status).json(response.data);
-
+            return res.status(response.status).json(response.data);
         } catch (error) {
             console.error(
-                "GET /api/customer-addresses/customer/:customerId error:",
+                "GET customer addresses by customer error:",
+                error.response?.status,
                 error.response?.data || error.message
             );
 
-            res.status(error.response?.status || 500).json(
-                error.response?.data || {
-                    message: "Failed to get customer addresses"
-                }
-            );
+            return res.status(error.response?.status || 500).json({
+                message: "Failed to get customer addresses",
+                details: error.response?.data || error.message
+            });
         }
     }
 );
 
-
+// ============================================================
 // GET CUSTOMER ADDRESS BY ID
-// Example:
-// GET /api/customer-addresses/1
-app.get(
-    "/api/customer-addresses/:id",
-    async (req, res) => {
+// Node: GET /api/customer-addresses/:id
+// ASP.NET: GET /api/customer-addresses/:id
+// ============================================================
 
-        try {
-            const { id } = req.params;
+app.get("/api/customer-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
 
-            const response = await axios.get(
-                `${DOTNET_API}/customer-addresses/${id}`
-            );
-
-            res.status(response.status).json(response.data);
-
-        } catch (error) {
-            console.error(
-                "GET /api/customer-addresses/:id error:",
-                error.response?.data || error.message
-            );
-
-            res.status(error.response?.status || 500).json(
-                error.response?.data || {
-                    message: "Failed to get customer address"
-                }
-            );
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid customer address ID"
+            });
         }
+
+        const response = await axios.get(
+            `${API_BASE_URL}/customer-addresses/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET customer address by ID error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to get customer address",
+            details: error.response?.data || error.message
+        });
     }
-);
+});
 
-
+// ============================================================
 // CREATE CUSTOMER ADDRESS
-// POST /api/customer-addresses
-app.post(
-    "/api/customer-addresses",
-    async (req, res) => {
+// Node: POST /api/customer-addresses
+// ASP.NET: POST /api/customer-addresses
+// ============================================================
 
-        try {
-            const response = await axios.post(
-                `${DOTNET_API}/customer-addresses`,
-                req.body
-            );
-
-            res.status(response.status).json(response.data);
-
-        } catch (error) {
-            console.error(
-                "POST /api/customer-addresses error:",
-                error.response?.data || error.message
-            );
-
-            res.status(error.response?.status || 500).json(
-                error.response?.data || {
-                    message: "Failed to create customer address"
+app.post("/api/customer-addresses", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/customer-addresses`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
                 }
-            );
-        }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "POST customer address error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to create customer address",
+            details: error.response?.data || error.message
+        });
     }
-);
+});
 
-
+// ============================================================
 // UPDATE CUSTOMER ADDRESS
-// PUT /api/customer-addresses/:id
-app.put(
-    "/api/customer-addresses/:id",
-    async (req, res) => {
+// Node: PUT /api/customer-addresses/:id
+// ASP.NET: PUT /api/customer-addresses/:id
+// ============================================================
 
-        try {
-            const { id } = req.params;
+app.put("/api/customer-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
 
-            const response = await axios.put(
-                `${DOTNET_API}/customer-addresses/${id}`,
-                req.body
-            );
-
-            res.status(response.status).json(response.data);
-
-        } catch (error) {
-            console.error(
-                "PUT /api/customer-addresses/:id error:",
-                error.response?.data || error.message
-            );
-
-            res.status(error.response?.status || 500).json(
-                error.response?.data || {
-                    message: "Failed to update customer address"
-                }
-            );
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid customer address ID"
+            });
         }
+
+        const response = await axios.put(
+            `${API_BASE_URL}/customer-addresses/${id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "PUT customer address error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to update customer address",
+            details: error.response?.data || error.message
+        });
     }
-);
+});
 
-
+// ============================================================
 // DELETE CUSTOMER ADDRESS
-// DELETE /api/customer-addresses/:id
-app.delete(
-    "/api/customer-addresses/:id",
-    async (req, res) => {
+// Node: DELETE /api/customer-addresses/:id
+// ASP.NET: DELETE /api/customer-addresses/:id
+// ============================================================
 
-        try {
-            const { id } = req.params;
+app.delete("/api/customer-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
 
-            const response = await axios.delete(
-                `${DOTNET_API}/customer-addresses/${id}`
-            );
-
-            res.status(response.status).json(response.data);
-
-        } catch (error) {
-            console.error(
-                "DELETE /api/customer-addresses/:id error:",
-                error.response?.data || error.message
-            );
-
-            res.status(error.response?.status || 500).json(
-                error.response?.data || {
-                    message: "Failed to delete customer address"
-                }
-            );
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid customer address ID"
+            });
         }
+
+        const response = await axios.delete(
+            `${API_BASE_URL}/customer-addresses/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        if (response.data === undefined || response.data === null) {
+            return res.sendStatus(response.status);
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "DELETE customer address error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to delete customer address",
+            details: error.response?.data || error.message
+        });
     }
-);
+});
+
+
+
+
+
+
 
 ///////////////////// e-invoice and E-way bill /////////////////
 const {
@@ -35033,8 +35101,6 @@ app.delete('/api/ReversePickup/:id/seller/:sellerId/customer/:customerId', async
 
 ///////////////////////////////////reverse pickup items//////////////////
 // Get all reverse pickup items
-
-
 const REVERSE_PICKUP_ITEMS_API =
     "https://localhost:7203/api/reverse-pickup-items";
 
@@ -35208,10 +35274,6 @@ app.delete("/api/reverse-pickup-items/:id", async (req, res) => {
 });
 
 /////////////////ReversePickupAddress///////////////
-
-
-
-
 const REVERSE_PICKUP_ADDRESS_API =
     "http://localhost:5000/api/ReversePickupAddress";
     app.get("/api/ReversePickupAddress", async (req, res) => {
