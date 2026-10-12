@@ -6,7 +6,7 @@ import React, {
 } from "react";
 
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 import {
     Box,
     Grid,
@@ -28,16 +28,16 @@ import {
     FormControlLabel,
     Switch,
     Chip,
-    Stack
+    Stack,
 } from "@mui/material";
 
 import {
     Search,
     Close,
-    Refresh,
     Save,
     PersonAdd,
-    FilterAlt
+    FilterAlt,
+    Delete
 } from "@mui/icons-material";
 
 import SupplierContactToolbar from "./SupplierContactToolbar";
@@ -51,10 +51,10 @@ import SupplierContactView from "./SupplierContactView";
 
 const API_BASE_URL = (
     import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+).replace(/\/$/, "");
 
 const SUPPLIER_CONTACT_API =
-    `${API_BASE_URL}/SupplierContact`;
+    `${API_BASE_URL}/supplier-contacts`;
 
 const SUPPLIER_API =
     `${API_BASE_URL}/Supplier`;
@@ -71,7 +71,8 @@ const INITIAL_FORM = {
     email: "",
     phoneNumber: "",
     alternatePhone: "",
-    isPrimary: false,
+    contactType: "PRIMARY",
+    isPrimary: true,
     isActive: true,
     notes: ""
 };
@@ -137,93 +138,186 @@ const normalizeArray = (response) => {
 };
 
 /* =========================================================
+   GET CONTACT ID
+   Backend response uses partyContactId
+========================================================= */
+
+const getContactId = (contact) => {
+    return getValue(
+        contact,
+        "partyContactId",
+        "PartyContactId",
+        "supplierContactId",
+        "SupplierContactId",
+        "id",
+        "Id"
+    );
+};
+
+/* =========================================================
+   GET SUPPLIER ID
+========================================================= */
+
+const getSupplierId = (contact) => {
+    return getValue(
+        contact,
+        "supplierId",
+        "SupplierId"
+    );
+};
+
+/* =========================================================
+   CHECK PRIMARY CONTACT
+========================================================= */
+
+const isPrimaryContact = (contact) => {
+    const contactType = getValue(
+        contact,
+        "contactType",
+        "ContactType"
+    );
+
+    if (
+        String(contactType ?? "")
+            .trim()
+            .toUpperCase() === "PRIMARY"
+    ) {
+        return true;
+    }
+
+    const value = getValue(
+        contact,
+        "isPrimary",
+        "IsPrimary"
+    );
+
+    return (
+        value === true ||
+        value === 1 ||
+        String(value).toLowerCase() === "true"
+    );
+};
+
+/* =========================================================
+   CHECK ACTIVE CONTACT
+   Backend currently does not return isActive.
+   Default to true when missing.
+========================================================= */
+
+const isActiveContact = (contact) => {
+    const value = getValue(
+        contact,
+        "isActive",
+        "IsActive"
+    );
+
+    if (value === null) {
+        return true;
+    }
+
+    return (
+        value === true ||
+        value === 1 ||
+        String(value).toLowerCase() === "true" ||
+        String(value).toLowerCase() === "active"
+    );
+};
+
+/* =========================================================
    NORMALIZE CONTACT FOR FORM
 ========================================================= */
 
-const normalizeContact = (contact) => ({
-    supplierId:
-        getValue(contact, "supplierId", "SupplierId") ?? "",
+const normalizeContact = (contact) => {
+    const primary = isPrimaryContact(contact);
 
-    contactName:
-        getValue(
-            contact,
-            "contactName",
-            "ContactName",
-            "name",
-            "Name"
-        ) ?? "",
+    return {
+        supplierId:
+            getValue(
+                contact,
+                "supplierId",
+                "SupplierId"
+            ) ?? "",
 
-    designation:
-        getValue(
-            contact,
-            "designation",
-            "Designation",
-            "jobTitle",
-            "JobTitle",
-            "position",
-            "Position"
-        ) ?? "",
+        contactName:
+            getValue(
+                contact,
+                "contactName",
+                "ContactName",
+                "name",
+                "Name"
+            ) ?? "",
 
-    department:
-        getValue(contact, "department", "Department") ?? "",
+        designation:
+            getValue(
+                contact,
+                "designation",
+                "Designation",
+                "jobTitle",
+                "JobTitle",
+                "position",
+                "Position"
+            ) ?? "",
 
-    email:
-        getValue(
-            contact,
-            "email",
-            "Email",
-            "emailAddress",
-            "EmailAddress"
-        ) ?? "",
+        department:
+            getValue(
+                contact,
+                "department",
+                "Department"
+            ) ?? "",
 
-    phoneNumber:
-        getValue(
-            contact,
-            "phoneNumber",
-            "PhoneNumber",
-            "phone",
-            "Phone",
-            "mobileNumber",
-            "MobileNumber"
-        ) ?? "",
+        email:
+            getValue(
+                contact,
+                "email",
+                "Email",
+                "emailAddress",
+                "EmailAddress"
+            ) ?? "",
 
-    alternatePhone:
-        getValue(
-            contact,
-            "alternatePhone",
-            "AlternatePhone",
-            "alternatePhoneNumber",
-            "AlternatePhoneNumber"
-        ) ?? "",
+        phoneNumber:
+            getValue(
+                contact,
+                "phoneNumber",
+                "PhoneNumber",
+                "phone",
+                "Phone",
+                "mobileNumber",
+                "MobileNumber"
+            ) ?? "",
 
-    isPrimary:
-        getValue(contact, "isPrimary", "IsPrimary") === true ||
-        getValue(contact, "isPrimary", "IsPrimary") === 1 ||
-        String(
-            getValue(contact, "isPrimary", "IsPrimary")
-        ).toLowerCase() === "true",
+        alternatePhone:
+            getValue(
+                contact,
+                "alternatePhone",
+                "AlternatePhone",
+                "alternatePhoneNumber",
+                "AlternatePhoneNumber"
+            ) ?? "",
 
-    isActive:
-        getValue(contact, "isActive", "IsActive") === false ||
-        getValue(contact, "isActive", "IsActive") === 0 ||
-        String(
-            getValue(contact, "isActive", "IsActive")
-        ).toLowerCase() === "false"
-            ? false
-            : true,
+        contactType:
+            getValue(
+                contact,
+                "contactType",
+                "ContactType"
+            ) ?? (primary ? "PRIMARY" : "STANDARD"),
 
-    notes:
-        getValue(
-            contact,
-            "notes",
-            "Notes",
-            "remarks",
-            "Remarks"
-        ) ?? ""
-});
+        isPrimary: primary,
+
+        isActive: isActiveContact(contact),
+
+        notes:
+            getValue(
+                contact,
+                "notes",
+                "Notes",
+                "remarks",
+                "Remarks"
+            ) ?? ""
+    };
+};
 
 /* =========================================================
-   SUPPLIER CONTACTS LIST
+   COMPONENT
 ========================================================= */
 
 const SupplierContactsList = () => {
@@ -240,6 +334,7 @@ const SupplierContactsList = () => {
     const [deleting, setDeleting] = useState(false);
 
     const [searchTerm, setSearchTerm] = useState("");
+
     const [statusFilter, setStatusFilter] = useState("all");
     const [primaryFilter, setPrimaryFilter] = useState("all");
     const [supplierFilter, setSupplierFilter] = useState("all");
@@ -292,6 +387,7 @@ const SupplierContactsList = () => {
 
     /* =====================================================
        GET ALL SUPPLIER CONTACTS
+       GET /api/supplier-contacts/all
     ===================================================== */
 
     const fetchSupplierContacts = useCallback(async () => {
@@ -299,10 +395,15 @@ const SupplierContactsList = () => {
             setLoading(true);
 
             const response = await axios.get(
-                SUPPLIER_CONTACT_API
+                `${SUPPLIER_CONTACT_API}/all`
             );
 
             const records = normalizeArray(response.data);
+
+            console.log(
+                "Supplier Contacts API Response:",
+                records
+            );
 
             setSupplierContacts(records);
         } catch (error) {
@@ -313,6 +414,7 @@ const SupplierContactsList = () => {
 
             showNotification(
                 error.response?.data?.message ||
+                error.response?.data?.title ||
                 "Failed to load supplier contacts.",
                 "error"
             );
@@ -327,9 +429,13 @@ const SupplierContactsList = () => {
 
     const fetchSuppliers = useCallback(async () => {
         try {
-            const response = await axios.get(SUPPLIER_API);
+            const response = await axios.get(
+                SUPPLIER_API
+            );
 
-            setSuppliers(normalizeArray(response.data));
+            const records = normalizeArray(response.data);
+
+            setSuppliers(records);
         } catch (error) {
             console.error(
                 "GET SUPPLIERS ERROR:",
@@ -350,23 +456,23 @@ const SupplierContactsList = () => {
     useEffect(() => {
         fetchSupplierContacts();
         fetchSuppliers();
-    }, [fetchSupplierContacts, fetchSuppliers]);
+    }, [
+        fetchSupplierContacts,
+        fetchSuppliers
+    ]);
 
     /* =====================================================
        FILTER SUPPLIER CONTACTS
     ===================================================== */
 
     const filteredContacts = useMemo(() => {
-        const search = searchTerm.trim().toLowerCase();
+        const search = searchTerm
+            .trim()
+            .toLowerCase();
 
         return supplierContacts.filter((contact) => {
-            const id = getValue(
-                contact,
-                "supplierContactId",
-                "SupplierContactId",
-                "id",
-                "Id"
-            );
+
+            const id = getContactId(contact);
 
             const name = getValue(
                 contact,
@@ -408,10 +514,13 @@ const SupplierContactsList = () => {
                 "JobTitle"
             );
 
-            const contactSupplierId = getValue(
+            const contactSupplierId =
+                getSupplierId(contact);
+
+            const contactType = getValue(
                 contact,
-                "supplierId",
-                "SupplierId"
+                "contactType",
+                "ContactType"
             );
 
             const matchesSearch =
@@ -422,59 +531,47 @@ const SupplierContactsList = () => {
                     supplierName,
                     email,
                     phone,
-                    designation
+                    designation,
+                    contactType,
+                    contactSupplierId
                 ].some((value) =>
                     String(value ?? "")
                         .toLowerCase()
                         .includes(search)
                 );
 
-            const rawStatus = getValue(
-                contact,
-                "isActive",
-                "IsActive",
-                "status",
-                "Status"
-            );
+            const active =
+                isActiveContact(contact);
 
-            const isActive =
-                rawStatus === true ||
-                rawStatus === 1 ||
-                String(rawStatus).toLowerCase() === "true" ||
-                String(rawStatus).toLowerCase() === "active";
-
-            const isPrimary =
-                getValue(
-                    contact,
-                    "isPrimary",
-                    "IsPrimary"
-                ) === true ||
-                getValue(
-                    contact,
-                    "isPrimary",
-                    "IsPrimary"
-                ) === 1 ||
-                String(
-                    getValue(
-                        contact,
-                        "isPrimary",
-                        "IsPrimary"
-                    )
-                ).toLowerCase() === "true";
+            const primary =
+                isPrimaryContact(contact);
 
             const matchesStatus =
                 statusFilter === "all" ||
-                (statusFilter === "active" && isActive) ||
-                (statusFilter === "inactive" && !isActive);
+                (
+                    statusFilter === "active" &&
+                    active
+                ) ||
+                (
+                    statusFilter === "inactive" &&
+                    !active
+                );
 
             const matchesPrimary =
                 primaryFilter === "all" ||
-                (primaryFilter === "primary" && isPrimary) ||
-                (primaryFilter === "standard" && !isPrimary);
+                (
+                    primaryFilter === "primary" &&
+                    primary
+                ) ||
+                (
+                    primaryFilter === "standard" &&
+                    !primary
+                );
 
             const matchesSupplier =
                 supplierFilter === "all" ||
-                String(contactSupplierId) === String(supplierFilter);
+                String(contactSupplierId) ===
+                    String(supplierFilter);
 
             return (
                 matchesSearch &&
@@ -491,6 +588,23 @@ const SupplierContactsList = () => {
         supplierFilter
     ]);
 
+
+    const navigate = useNavigate();
+
+    const handleDeleteContact = (contact) => {
+    const id =
+        contact?.partyContactId ??
+        contact?.PartyContactId ??
+        contact?.supplierContactId ??
+        contact?.SupplierContactId;
+
+    if (!id || Number(id) <= 0) {
+        showNotification("Supplier contact ID is missing.", "error");
+        return;
+    }
+
+    navigate(`/supplier-contacts/${id}/delete`);
+};
     /* =====================================================
        PAGINATION
     ===================================================== */
@@ -502,7 +616,11 @@ const SupplierContactsList = () => {
             start,
             start + rowsPerPage
         );
-    }, [filteredContacts, page, rowsPerPage]);
+    }, [
+        filteredContacts,
+        page,
+        rowsPerPage
+    ]);
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -518,37 +636,66 @@ const SupplierContactsList = () => {
     ===================================================== */
 
     const resetForm = () => {
-        setFormData(INITIAL_FORM);
+        setFormData({
+            ...INITIAL_FORM
+        });
+
         setFormErrors({});
         setEditingContact(null);
     };
 
-    /* =====================================================
-       OPEN CREATE FORM
-    ===================================================== */
 
-    const handleAddContact = () => {
-        resetForm();
-        setFormOpen(true);
-    };
+// Navigate to the Create page
+const handleAddContact = () => {
+    navigate("/supplier-contacts/create");
+};
 
-    /* =====================================================
-       OPEN EDIT FORM
-    ===================================================== */
+// Navigate to the Edit page
+const handleEditContact = (contact) => {
+    const id = getContactId(contact);
 
-    const handleEditContact = (contact) => {
-        setEditingContact(contact);
-        setFormData(normalizeContact(contact));
-        setFormErrors({});
-        setFormOpen(true);
-    };
+    if (id == null) {
+        showNotification(
+            "Supplier contact ID is missing.",
+            "error"
+        );
+        return;
+    }
+
+    navigate(`/supplier-contacts/${id}/edit`, {
+        state: {
+            supplierContact: contact
+        }
+    });
+};
+
+// Navigate to the View page
+const handleViewContact = (contact) => {
+    const id = getContactId(contact);
+
+    if (id == null) {
+        showNotification(
+            "Supplier contact ID is missing.",
+            "error"
+        );
+        return;
+    }
+
+    navigate(`/supplier-contacts/${id}/view`, {
+        state: {
+            supplierContact: contact
+        }
+    });
+};
 
     /* =====================================================
        CLOSE FORM
     ===================================================== */
 
     const handleCloseForm = () => {
-        if (saving) return;
+        if (saving) {
+            return;
+        }
 
         setFormOpen(false);
         resetForm();
@@ -559,11 +706,19 @@ const SupplierContactsList = () => {
     ===================================================== */
 
     const handleFormChange = (event) => {
-        const { name, value, checked, type } = event.target;
+        const {
+            name,
+            value,
+            checked,
+            type
+        } = event.target;
 
         setFormData((previous) => ({
             ...previous,
-            [name]: type === "checkbox" ? checked : value
+            [name]:
+                type === "checkbox"
+                    ? checked
+                    : value
         }));
 
         setFormErrors((previous) => ({
@@ -580,11 +735,13 @@ const SupplierContactsList = () => {
         const errors = {};
 
         if (!formData.supplierId) {
-            errors.supplierId = "Please select a supplier.";
+            errors.supplierId =
+                "Please select a supplier.";
         }
 
         if (!formData.contactName.trim()) {
-            errors.contactName = "Contact name is required.";
+            errors.contactName =
+                "Contact name is required.";
         }
 
         if (
@@ -593,12 +750,15 @@ const SupplierContactsList = () => {
                 formData.email.trim()
             )
         ) {
-            errors.email = "Enter a valid email address.";
+            errors.email =
+                "Enter a valid email address.";
         }
 
         setFormErrors(errors);
 
-        return Object.keys(errors).length === 0;
+        return (
+            Object.keys(errors).length === 0
+        );
     };
 
     /* =====================================================
@@ -613,35 +773,69 @@ const SupplierContactsList = () => {
         }
 
         const payload = {
-            supplierId: Number(formData.supplierId),
-            contactName: formData.contactName.trim(),
-            designation: formData.designation.trim() || null,
-            department: formData.department.trim() || null,
-            email: formData.email.trim() || null,
-            phoneNumber: formData.phoneNumber.trim() || null,
-            alternatePhone: formData.alternatePhone.trim() || null,
-            isPrimary: Boolean(formData.isPrimary),
-            isActive: Boolean(formData.isActive),
-            notes: formData.notes.trim() || null
+            supplierId:
+                Number(formData.supplierId),
+
+            contactType:
+                formData.isPrimary
+                    ? "PRIMARY"
+                    : "STANDARD",
+
+            name:
+                formData.contactName.trim(),
+
+            contactName:
+                formData.contactName.trim(),
+
+            email:
+                formData.email.trim() || null,
+
+            phone:
+                formData.phoneNumber.trim() || null,
+
+            designation:
+                formData.designation.trim() || null,
+
+            department:
+                formData.department.trim() || null,
+
+            alternatePhone:
+                formData.alternatePhone.trim() || null,
+
+            isPrimary:
+                Boolean(formData.isPrimary),
+
+            isActive:
+                Boolean(formData.isActive),
+
+            notes:
+                formData.notes.trim() || null
         };
 
         try {
             setSaving(true);
 
+            /* =================================================
+               UPDATE
+               PUT /api/supplier-contacts/{id}
+            ================================================= */
+
             if (editingContact) {
-                const id = getValue(
-                    editingContact,
-                    "supplierContactId",
-                    "SupplierContactId",
-                    "id",
-                    "Id"
-                );
+
+                const id =
+                    getContactId(editingContact);
 
                 if (id == null) {
                     throw new Error(
                         "Supplier contact ID is missing."
                     );
                 }
+
+                console.log(
+                    "Updating Supplier Contact:",
+                    id,
+                    payload
+                );
 
                 await axios.put(
                     `${SUPPLIER_CONTACT_API}/${id}`,
@@ -651,7 +845,19 @@ const SupplierContactsList = () => {
                 showNotification(
                     "Supplier contact updated successfully."
                 );
+
             } else {
+
+                /* =============================================
+                   CREATE
+                   POST /api/supplier-contacts
+                ============================================= */
+
+                console.log(
+                    "Creating Supplier Contact:",
+                    payload
+                );
+
                 await axios.post(
                     SUPPLIER_CONTACT_API,
                     payload
@@ -663,13 +869,16 @@ const SupplierContactsList = () => {
             }
 
             setFormOpen(false);
+
             resetForm();
 
             await fetchSupplierContacts();
+
         } catch (error) {
             console.error(
                 "SAVE SUPPLIER CONTACT ERROR:",
-                error.response?.data ?? error.message
+                error.response?.data ??
+                error.message
             );
 
             showNotification(
@@ -688,11 +897,6 @@ const SupplierContactsList = () => {
        VIEW CONTACT
     ===================================================== */
 
-    const handleViewContact = (contact) => {
-        setSelectedContact(contact);
-        setViewOpen(true);
-    };
-
     const handleCloseView = () => {
         setViewOpen(false);
         setSelectedContact(null);
@@ -704,16 +908,8 @@ const SupplierContactsList = () => {
     };
 
     /* =====================================================
-       OPEN DELETE DIALOG
-    ===================================================== */
-
-    const handleDeleteContact = (contact) => {
-        setContactToDelete(contact);
-        setDeleteOpen(true);
-    };
-
-    /* =====================================================
        CONFIRM DELETE
+       DELETE /api/supplier-contacts/{id}
     ===================================================== */
 
     const handleConfirmDelete = async () => {
@@ -721,13 +917,8 @@ const SupplierContactsList = () => {
             return;
         }
 
-        const id = getValue(
-            contactToDelete,
-            "supplierContactId",
-            "SupplierContactId",
-            "id",
-            "Id"
-        );
+        const id =
+            getContactId(contactToDelete);
 
         if (id == null) {
             showNotification(
@@ -741,6 +932,11 @@ const SupplierContactsList = () => {
         try {
             setDeleting(true);
 
+            console.log(
+                "Deleting Supplier Contact:",
+                id
+            );
+
             await axios.delete(
                 `${SUPPLIER_CONTACT_API}/${id}`
             );
@@ -753,14 +949,17 @@ const SupplierContactsList = () => {
             );
 
             await fetchSupplierContacts();
+
         } catch (error) {
             console.error(
                 "DELETE SUPPLIER CONTACT ERROR:",
-                error.response?.data ?? error.message
+                error.response?.data ??
+                error.message
             );
 
             showNotification(
                 error.response?.data?.message ||
+                error.response?.data?.title ||
                 "Failed to delete supplier contact.",
                 "error"
             );
@@ -787,6 +986,7 @@ const SupplierContactsList = () => {
             "Contact ID",
             "Supplier ID",
             "Supplier Name",
+            "Contact Type",
             "Contact Name",
             "Designation",
             "Department",
@@ -795,72 +995,159 @@ const SupplierContactsList = () => {
             "Alternate Phone",
             "Primary Contact",
             "Active",
+            "Seller ID",
+            "Customer ID",
+            "Created Date",
             "Notes"
         ];
 
         const escapeCsv = (value) => {
-            const text = String(value ?? "");
+            const text =
+                String(value ?? "");
 
-            return `"${text.replace(/"/g, '""')}"`;
+            return `"${text.replace(
+                /"/g,
+                '""'
+            )}"`;
         };
 
-        const rows = filteredContacts.map((contact) => [
-            getValue(
-                contact,
-                "supplierContactId",
-                "SupplierContactId",
-                "id",
-                "Id"
-            ),
-            getValue(contact, "supplierId", "SupplierId"),
-            getValue(contact, "supplierName", "SupplierName"),
-            getValue(contact, "contactName", "ContactName"),
-            getValue(
-                contact,
-                "designation",
-                "Designation",
-                "jobTitle",
-                "JobTitle"
-            ),
-            getValue(contact, "department", "Department"),
-            getValue(contact, "email", "Email"),
-            getValue(
-                contact,
-                "phoneNumber",
-                "PhoneNumber",
-                "phone",
-                "Phone"
-            ),
-            getValue(
-                contact,
-                "alternatePhone",
-                "AlternatePhone"
-            ),
-            getValue(contact, "isPrimary", "IsPrimary"),
-            getValue(contact, "isActive", "IsActive"),
-            getValue(contact, "notes", "Notes")
-        ]);
+        const rows =
+            filteredContacts.map(
+                (contact) => [
+                    getContactId(contact),
+
+                    getValue(
+                        contact,
+                        "supplierId",
+                        "SupplierId"
+                    ),
+
+                    getValue(
+                        contact,
+                        "supplierName",
+                        "SupplierName"
+                    ),
+
+                    getValue(
+                        contact,
+                        "contactType",
+                        "ContactType"
+                    ),
+
+                    getValue(
+                        contact,
+                        "contactName",
+                        "ContactName",
+                        "name",
+                        "Name"
+                    ),
+
+                    getValue(
+                        contact,
+                        "designation",
+                        "Designation",
+                        "jobTitle",
+                        "JobTitle"
+                    ),
+
+                    getValue(
+                        contact,
+                        "department",
+                        "Department"
+                    ),
+
+                    getValue(
+                        contact,
+                        "email",
+                        "Email"
+                    ),
+
+                    getValue(
+                        contact,
+                        "phoneNumber",
+                        "PhoneNumber",
+                        "phone",
+                        "Phone"
+                    ),
+
+                    getValue(
+                        contact,
+                        "alternatePhone",
+                        "AlternatePhone"
+                    ),
+
+                    isPrimaryContact(contact)
+                        ? "Yes"
+                        : "No",
+
+                    isActiveContact(contact)
+                        ? "Yes"
+                        : "No",
+
+                    getValue(
+                        contact,
+                        "sellerId",
+                        "SellerId"
+                    ),
+
+                    getValue(
+                        contact,
+                        "customerId",
+                        "CustomerId"
+                    ),
+
+                    getValue(
+                        contact,
+                        "createdDate",
+                        "CreatedDate"
+                    ),
+
+                    getValue(
+                        contact,
+                        "notes",
+                        "Notes"
+                    )
+                ]
+            );
 
         const csvContent = [
-            headers.map(escapeCsv).join(","),
+            headers
+                .map(escapeCsv)
+                .join(","),
+
             ...rows.map((row) =>
-                row.map(escapeCsv).join(",")
+                row
+                    .map(escapeCsv)
+                    .join(",")
             )
         ].join("\r\n");
 
         const blob = new Blob(
-            ["\uFEFF", csvContent],
-            { type: "text/csv;charset=utf-8;" }
+            [
+                "\uFEFF",
+                csvContent
+            ],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
         );
 
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
 
         link.href = url;
-        link.download = "supplier-contacts.csv";
+
+        link.download =
+            "supplier-contacts.csv";
 
         document.body.appendChild(link);
+
         link.click();
+
         document.body.removeChild(link);
 
         URL.revokeObjectURL(url);
@@ -887,28 +1174,30 @@ const SupplierContactsList = () => {
     ===================================================== */
 
     return (
-        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
+        <Box
+            sx={{
+                p: {
+                    xs: 1.5,
+                    md: 3
+                }
+            }}
+        >
 
-            {/* TOOLBAR */}
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
 
             <SupplierContactToolbar
                 title="Supplier Contacts"
                 subtitle="Manage supplier contact information"
-                totalContacts={supplierContacts.length}
+                totalContacts={
+                    supplierContacts.length
+                }
                 activeContacts={
-                    supplierContacts.filter((contact) => {
-                        const status = getValue(
-                            contact,
-                            "isActive",
-                            "IsActive"
-                        );
-
-                        return (
-                            status === true ||
-                            status === 1 ||
-                            String(status).toLowerCase() === "true"
-                        );
-                    }).length
+                    supplierContacts.filter(
+                        (contact) =>
+                            isActiveContact(contact)
+                    ).length
                 }
                 loading={loading}
                 onAdd={handleAddContact}
@@ -916,14 +1205,20 @@ const SupplierContactsList = () => {
                 onExport={handleExportContacts}
             />
 
-            {/* STATISTICS */}
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
 
             <SupplierContactStatistics
-                supplierContacts={supplierContacts}
+                supplierContacts={
+                    supplierContacts
+                }
                 loading={loading}
             />
 
-            {/* SEARCH AND FILTERS */}
+            {/* =================================================
+                SEARCH AND FILTERS
+            ================================================= */}
 
             <Paper
                 elevation={1}
@@ -934,6 +1229,7 @@ const SupplierContactsList = () => {
                     borderRadius: 3
                 }}
             >
+
                 <Stack
                     direction="row"
                     alignItems="center"
@@ -953,14 +1249,26 @@ const SupplierContactsList = () => {
 
                     <Button
                         size="small"
-                        onClick={handleClearFilters}
+                        onClick={
+                            handleClearFilters
+                        }
                     >
                         Clear Filters
                     </Button>
                 </Stack>
 
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
+                <Grid
+                    container
+                    spacing={2}
+                >
+
+                    {/* SEARCH */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={4}
+                    >
                         <TextField
                             fullWidth
                             size="small"
@@ -968,7 +1276,10 @@ const SupplierContactsList = () => {
                             placeholder="Name, email, phone, supplier..."
                             value={searchTerm}
                             onChange={(event) => {
-                                setSearchTerm(event.target.value);
+                                setSearchTerm(
+                                    event.target.value
+                                );
+
                                 setPage(0);
                             }}
                             InputProps={{
@@ -981,7 +1292,14 @@ const SupplierContactsList = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={2.5}>
+                    {/* STATUS */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={2.5}
+                    >
                         <TextField
                             select
                             fullWidth
@@ -989,17 +1307,35 @@ const SupplierContactsList = () => {
                             label="Contact Status"
                             value={statusFilter}
                             onChange={(event) => {
-                                setStatusFilter(event.target.value);
+                                setStatusFilter(
+                                    event.target.value
+                                );
+
                                 setPage(0);
                             }}
                         >
-                            <MenuItem value="all">All Statuses</MenuItem>
-                            <MenuItem value="active">Active</MenuItem>
-                            <MenuItem value="inactive">Inactive</MenuItem>
+                            <MenuItem value="all">
+                                All Statuses
+                            </MenuItem>
+
+                            <MenuItem value="active">
+                                Active
+                            </MenuItem>
+
+                            <MenuItem value="inactive">
+                                Inactive
+                            </MenuItem>
                         </TextField>
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={2.5}>
+                    {/* PRIMARY / STANDARD */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={2.5}
+                    >
                         <TextField
                             select
                             fullWidth
@@ -1007,17 +1343,34 @@ const SupplierContactsList = () => {
                             label="Contact Type"
                             value={primaryFilter}
                             onChange={(event) => {
-                                setPrimaryFilter(event.target.value);
+                                setPrimaryFilter(
+                                    event.target.value
+                                );
+
                                 setPage(0);
                             }}
                         >
-                            <MenuItem value="all">All Contacts</MenuItem>
-                            <MenuItem value="primary">Primary</MenuItem>
-                            <MenuItem value="standard">Standard</MenuItem>
+                            <MenuItem value="all">
+                                All Contacts
+                            </MenuItem>
+
+                            <MenuItem value="primary">
+                                Primary
+                            </MenuItem>
+
+                            <MenuItem value="standard">
+                                Standard
+                            </MenuItem>
                         </TextField>
                     </Grid>
 
-                    <Grid item xs={12} md={3}>
+                    {/* SUPPLIER */}
+
+                    <Grid
+                        item
+                        xs={12}
+                        md={3}
+                    >
                         <TextField
                             select
                             fullWidth
@@ -1025,42 +1378,63 @@ const SupplierContactsList = () => {
                             label="Supplier"
                             value={supplierFilter}
                             onChange={(event) => {
-                                setSupplierFilter(event.target.value);
+                                setSupplierFilter(
+                                    event.target.value
+                                );
+
                                 setPage(0);
                             }}
                         >
-                            <MenuItem value="all">All Suppliers</MenuItem>
+                            <MenuItem value="all">
+                                All Suppliers
+                            </MenuItem>
 
-                            {suppliers.map((supplier, index) => {
-                                const id = getValue(
-                                    supplier,
-                                    "supplierId",
-                                    "SupplierId",
-                                    "id",
-                                    "Id"
-                                );
+                            {suppliers.map(
+                                (supplier, index) => {
 
-                                const name = getValue(
-                                    supplier,
-                                    "supplierName",
-                                    "SupplierName",
-                                    "name",
-                                    "Name"
-                                ) || `Supplier ${id ?? index + 1}`;
+                                    const id =
+                                        getValue(
+                                            supplier,
+                                            "supplierId",
+                                            "SupplierId",
+                                            "id",
+                                            "Id"
+                                        );
 
-                                if (id == null) return null;
+                                    const name =
+                                        getValue(
+                                            supplier,
+                                            "supplierName",
+                                            "SupplierName",
+                                            "name",
+                                            "Name"
+                                        ) ||
+                                        `Supplier ${
+                                            id ??
+                                            index + 1
+                                        }`;
 
-                                return (
-                                    <MenuItem
-                                        key={id}
-                                        value={String(id)}
-                                    >
-                                        {name}
-                                    </MenuItem>
-                                );
-                            })}
+                                    if (
+                                        id == null
+                                    ) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <MenuItem
+                                            key={id}
+                                            value={String(
+                                                id
+                                            )}
+                                        >
+                                            {name}
+                                        </MenuItem>
+                                    );
+                                }
+                            )}
                         </TextField>
                     </Grid>
+
                 </Grid>
 
                 <Box sx={{ mt: 2 }}>
@@ -1070,25 +1444,30 @@ const SupplierContactsList = () => {
                         label={`${filteredContacts.length} matching contact(s)`}
                     />
                 </Box>
+
             </Paper>
 
-            {/* CONTACT TABLE */}
+            {/* =================================================
+                CONTACT TABLE
+            ================================================= */}
 
-            <SupplierContactTable
-                supplierContacts={paginatedContacts}
-                loading={loading}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                totalCount={filteredContacts.length}
-                onPageChange={handlePageChange}
-                onRowsPerPageChange={handleRowsPerPageChange}
-                onView={handleViewContact}
-                onEdit={handleEditContact}
-                onDelete={handleDeleteContact}
-                emptyMessage="No supplier contacts match your search."
-            />
+           <SupplierContactTable
+    supplierContacts={paginatedContacts}
+    loading={loading}
+    page={page}
+    rowsPerPage={rowsPerPage}
+    totalCount={filteredContacts.length}
+    onPageChange={handlePageChange}
+    onRowsPerPageChange={handleRowsPerPageChange}
+    onView={handleViewContact}
+    onEdit={handleEditContact}
+    onDelete={handleDeleteContact}
+    emptyMessage="No supplier contacts match your search."
+/>
 
-            {/* CREATE / EDIT DIALOG */}
+            {/* =================================================
+                CREATE / EDIT DIALOG
+            ================================================= */}
 
             <Dialog
                 open={formOpen}
@@ -1096,10 +1475,14 @@ const SupplierContactsList = () => {
                 fullWidth
                 maxWidth="md"
             >
+
                 <Box
                     component="form"
-                    onSubmit={handleSubmitContact}
+                    onSubmit={
+                        handleSubmitContact
+                    }
                 >
+
                     <DialogTitle
                         sx={{
                             display: "flex",
@@ -1107,25 +1490,42 @@ const SupplierContactsList = () => {
                             gap: 1
                         }}
                     >
+
                         {editingContact
                             ? "Edit Supplier Contact"
                             : "Create Supplier Contact"}
 
-                        <Box sx={{ flex: 1 }} />
+                        <Box
+                            sx={{
+                                flex: 1
+                            }}
+                        />
 
                         <IconButton
-                            onClick={handleCloseForm}
+                            onClick={
+                                handleCloseForm
+                            }
                             disabled={saving}
                             aria-label="Close form"
                         >
                             <Close />
                         </IconButton>
+
                     </DialogTitle>
 
                     <Divider />
 
-                    <DialogContent sx={{ pt: 3 }}>
-                        <Grid container spacing={2}>
+                    <DialogContent
+                        sx={{ pt: 3 }}
+                    >
+
+                        <Grid
+                            container
+                            spacing={2}
+                        >
+
+                            {/* BASIC INFORMATION */}
+
                             <Grid item xs={12}>
                                 <Typography
                                     variant="subtitle1"
@@ -1135,84 +1535,159 @@ const SupplierContactsList = () => {
                                 </Typography>
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* SUPPLIER */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
                                 <TextField
                                     select
                                     fullWidth
                                     required
                                     label="Supplier"
                                     name="supplierId"
-                                    value={formData.supplierId}
-                                    onChange={handleFormChange}
-                                    error={Boolean(formErrors.supplierId)}
-                                    helperText={formErrors.supplierId}
+                                    value={
+                                        formData.supplierId
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
+                                    error={Boolean(
+                                        formErrors.supplierId
+                                    )}
+                                    helperText={
+                                        formErrors.supplierId
+                                    }
                                 >
-                                    {suppliers.map((supplier, index) => {
-                                        const id = getValue(
+
+                                    {suppliers.map(
+                                        (
                                             supplier,
-                                            "supplierId",
-                                            "SupplierId",
-                                            "id",
-                                            "Id"
-                                        );
+                                            index
+                                        ) => {
 
-                                        const name = getValue(
-                                            supplier,
-                                            "supplierName",
-                                            "SupplierName",
-                                            "name",
-                                            "Name"
-                                        ) || `Supplier ${id ?? index + 1}`;
+                                            const id =
+                                                getValue(
+                                                    supplier,
+                                                    "supplierId",
+                                                    "SupplierId",
+                                                    "id",
+                                                    "Id"
+                                                );
 
-                                        if (id == null) return null;
+                                            const name =
+                                                getValue(
+                                                    supplier,
+                                                    "supplierName",
+                                                    "SupplierName",
+                                                    "name",
+                                                    "Name"
+                                                ) ||
+                                                `Supplier ${
+                                                    id ??
+                                                    index + 1
+                                                }`;
 
-                                        return (
-                                            <MenuItem
-                                                key={id}
-                                                value={String(id)}
-                                            >
-                                                {name}
-                                            </MenuItem>
-                                        );
-                                    })}
+                                            if (
+                                                id == null
+                                            ) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <MenuItem
+                                                    key={id}
+                                                    value={String(
+                                                        id
+                                                    )}
+                                                >
+                                                    {name}
+                                                </MenuItem>
+                                            );
+                                        }
+                                    )}
+
                                 </TextField>
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* CONTACT NAME */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
                                 <TextField
                                     fullWidth
                                     required
                                     label="Contact Name"
                                     name="contactName"
-                                    value={formData.contactName}
-                                    onChange={handleFormChange}
-                                    error={Boolean(formErrors.contactName)}
-                                    helperText={formErrors.contactName}
+                                    value={
+                                        formData.contactName
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
+                                    error={Boolean(
+                                        formErrors.contactName
+                                    )}
+                                    helperText={
+                                        formErrors.contactName
+                                    }
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* DESIGNATION */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
                                 <TextField
                                     fullWidth
                                     label="Designation"
                                     name="designation"
-                                    value={formData.designation}
-                                    onChange={handleFormChange}
+                                    value={
+                                        formData.designation
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* DEPARTMENT */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
                                 <TextField
                                     fullWidth
                                     label="Department"
                                     name="department"
-                                    value={formData.department}
-                                    onChange={handleFormChange}
+                                    value={
+                                        formData.department
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
                                 />
                             </Grid>
 
+                            {/* CONTACT DETAILS */}
+
                             <Grid item xs={12}>
-                                <Divider sx={{ my: 1 }} />
+
+                                <Divider
+                                    sx={{
+                                        my: 1
+                                    }}
+                                />
 
                                 <Typography
                                     variant="subtitle1"
@@ -1220,40 +1695,77 @@ const SupplierContactsList = () => {
                                 >
                                     Contact Details
                                 </Typography>
+
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* EMAIL */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
                                 <TextField
                                     fullWidth
                                     label="Email Address"
                                     name="email"
                                     type="email"
-                                    value={formData.email}
-                                    onChange={handleFormChange}
-                                    error={Boolean(formErrors.email)}
-                                    helperText={formErrors.email}
+                                    value={
+                                        formData.email
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
+                                    error={Boolean(
+                                        formErrors.email
+                                    )}
+                                    helperText={
+                                        formErrors.email
+                                    }
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* PHONE */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
                                 <TextField
                                     fullWidth
                                     label="Phone Number"
                                     name="phoneNumber"
-                                    value={formData.phoneNumber}
-                                    onChange={handleFormChange}
+                                    value={
+                                        formData.phoneNumber
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            {/* ALTERNATE PHONE */}
+
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                            >
                                 <TextField
                                     fullWidth
                                     label="Alternate Phone"
                                     name="alternatePhone"
-                                    value={formData.alternatePhone}
-                                    onChange={handleFormChange}
+                                    value={
+                                        formData.alternatePhone
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
                                 />
                             </Grid>
+
+                            {/* NOTES */}
 
                             <Grid item xs={12}>
                                 <TextField
@@ -1262,27 +1774,53 @@ const SupplierContactsList = () => {
                                     minRows={3}
                                     label="Notes / Remarks"
                                     name="notes"
-                                    value={formData.notes}
-                                    onChange={handleFormChange}
+                                    value={
+                                        formData.notes
+                                    }
+                                    onChange={
+                                        handleFormChange
+                                    }
                                 />
                             </Grid>
 
+                            {/* SWITCHES */}
+
                             <Grid item xs={12}>
-                                <Divider sx={{ my: 1 }} />
+
+                                <Divider
+                                    sx={{
+                                        my: 1
+                                    }}
+                                />
 
                                 <Stack
-                                    direction={{ xs: "column", sm: "row" }}
+                                    direction={{
+                                        xs: "column",
+                                        sm: "row"
+                                    }}
                                     spacing={2}
                                 >
+
                                     <FormControlLabel
                                         control={
                                             <Switch
-                                                checked={formData.isPrimary}
-                                                onChange={(event) =>
-                                                    setFormData((previous) => ({
-                                                        ...previous,
-                                                        isPrimary: event.target.checked
-                                                    }))
+                                                checked={
+                                                    formData.isPrimary
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setFormData(
+                                                        (
+                                                            previous
+                                                        ) => ({
+                                                            ...previous,
+                                                            isPrimary:
+                                                                event
+                                                                    .target
+                                                                    .checked
+                                                        })
+                                                    )
                                                 }
                                             />
                                         }
@@ -1292,29 +1830,49 @@ const SupplierContactsList = () => {
                                     <FormControlLabel
                                         control={
                                             <Switch
-                                                checked={formData.isActive}
-                                                onChange={(event) =>
-                                                    setFormData((previous) => ({
-                                                        ...previous,
-                                                        isActive: event.target.checked
-                                                    }))
+                                                checked={
+                                                    formData.isActive
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setFormData(
+                                                        (
+                                                            previous
+                                                        ) => ({
+                                                            ...previous,
+                                                            isActive:
+                                                                event
+                                                                    .target
+                                                                    .checked
+                                                        })
+                                                    )
                                                 }
                                             />
                                         }
                                         label="Active Contact"
                                     />
+
                                 </Stack>
+
                             </Grid>
+
                         </Grid>
+
                     </DialogContent>
 
                     <Divider />
 
-                    <DialogActions sx={{ p: 2.5 }}>
+                    <DialogActions
+                        sx={{ p: 2.5 }}
+                    >
+
                         <Button
                             variant="outlined"
                             color="inherit"
-                            onClick={handleCloseForm}
+                            onClick={
+                                handleCloseForm
+                            }
                             disabled={saving}
                         >
                             Cancel
@@ -1324,14 +1882,16 @@ const SupplierContactsList = () => {
                             type="submit"
                             variant="contained"
                             startIcon={
-                                saving
-                                    ? <CircularProgress
+                                saving ? (
+                                    <CircularProgress
                                         size={18}
                                         color="inherit"
                                     />
-                                    : editingContact
-                                        ? <Save />
-                                        : <PersonAdd />
+                                ) : editingContact ? (
+                                    <Save />
+                                ) : (
+                                    <PersonAdd />
+                                )
                             }
                             disabled={saving}
                         >
@@ -1341,20 +1901,16 @@ const SupplierContactsList = () => {
                                     ? "Update Contact"
                                     : "Create Contact"}
                         </Button>
+
                     </DialogActions>
+
                 </Box>
+
             </Dialog>
 
-            {/* VIEW DIALOG */}
-
-            <SupplierContactView
-                open={viewOpen}
-                onClose={handleCloseView}
-                supplierContact={selectedContact}
-                onEdit={handleEditFromView}
-            />
-
-            {/* DELETE CONFIRMATION */}
+            {/* =================================================
+                DELETE CONFIRMATION
+            ================================================= */}
 
             <Dialog
                 open={deleteOpen}
@@ -1367,6 +1923,7 @@ const SupplierContactsList = () => {
                 fullWidth
                 maxWidth="xs"
             >
+
                 <DialogTitle
                     sx={{
                         display: "flex",
@@ -1374,14 +1931,17 @@ const SupplierContactsList = () => {
                         gap: 1
                     }}
                 >
-                    <DeleteOutline color="error" />
+                    <Delete color="error" />
 
                     Delete Supplier Contact
                 </DialogTitle>
 
                 <DialogContent>
+
                     <Typography>
+
                         Are you sure you want to delete{" "}
+
                         <strong>
                             {getValue(
                                 contactToDelete,
@@ -1389,13 +1949,22 @@ const SupplierContactsList = () => {
                                 "ContactName",
                                 "name",
                                 "Name"
-                            ) || "this contact"}
+                            ) ||
+                                "this contact"}
                         </strong>
-                        ? This action cannot be undone.
+
+                        ?
+
+                        {" "}This action cannot be undone.
+
                     </Typography>
+
                 </DialogContent>
 
-                <DialogActions sx={{ p: 2 }}>
+                <DialogActions
+                    sx={{ p: 2 }}
+                >
+
                     <Button
                         color="inherit"
                         onClick={() => {
@@ -1410,45 +1979,69 @@ const SupplierContactsList = () => {
                     <Button
                         color="error"
                         variant="contained"
-                        onClick={handleConfirmDelete}
+                        onClick={
+                            handleConfirmDelete
+                        }
                         disabled={deleting}
                         startIcon={
-                            deleting
-                                ? <CircularProgress
+                            deleting ? (
+                                <CircularProgress
                                     size={18}
                                     color="inherit"
                                 />
-                                : <DeleteOutline />
+                            ) : (
+                                <Delete/>
+                            )
                         }
                     >
-                        {deleting ? "Deleting..." : "Delete"}
+                        {deleting
+                            ? "Deleting..."
+                            : "Delete"}
                     </Button>
+
                 </DialogActions>
+
             </Dialog>
 
-            {/* NOTIFICATIONS */}
+            {/* =================================================
+                NOTIFICATIONS
+            ================================================= */}
 
             <Snackbar
-                open={notification.open}
+                open={
+                    notification.open
+                }
                 autoHideDuration={5000}
-                onClose={closeNotification}
+                onClose={
+                    closeNotification
+                }
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
                 }}
             >
+
                 <Alert
-                    onClose={closeNotification}
-                    severity={notification.severity}
+                    onClose={
+                        closeNotification
+                    }
+                    severity={
+                        notification.severity
+                    }
                     variant="filled"
-                    sx={{ width: "100%" }}
+                    sx={{
+                        width: "100%"
+                    }}
                 >
-                    {notification.message}
+                    {
+                        notification.message
+                    }
                 </Alert>
+
             </Snackbar>
+
         </Box>
     );
 };
 
 export default SupplierContactsList;
-

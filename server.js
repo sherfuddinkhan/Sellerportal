@@ -33983,13 +33983,20 @@ app.get("/api/Supplier", async (req, res) => {
    GET ALL SUPPLIER CONTACTS
    GET /api/SupplierContact
 ========================================================= */
+// ================= SUPPLIER CONTACTS API =================
 
-app.get("/api/SupplierContact", async (req, res) => {
+const SUPPLIER_CONTACT_API =
+    "https://localhost:7203/api/supplier-contacts";
+
+// GET ALL SUPPLIER CONTACTS
+app.get("/api/supplier-contacts/all", async (req, res) => {
     try {
         const response = await axios.get(
-            SUPPLIER_CONTACT_API,
+            `${SUPPLIER_CONTACT_API}/all`,
             {
-                params: req.query
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
             }
         );
 
@@ -34000,228 +34007,152 @@ app.get("/api/SupplierContact", async (req, res) => {
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to fetch supplier contacts",
+            error: error.response?.data || error.message
+        });
     }
 });
 
-/* =========================================================
-   GET SUPPLIER CONTACT BY ID
-   GET /api/SupplierContact/:id
-========================================================= */
-
-app.get("/api/SupplierContact/:id", async (req, res) => {
+// GET SUPPLIER CONTACT BY ID
+app.get("/api/supplier-contacts/:id", async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = Number(req.params.id);
 
-        if (!id || !Number.isInteger(Number(id))) {
+        if (!Number.isInteger(id) || id <= 0) {
             return res.status(400).json({
-                success: false,
-                message: "A valid supplier contact ID is required."
+                message: "Invalid supplier contact ID"
             });
         }
 
         const response = await axios.get(
-            `${SUPPLIER_CONTACT_API}/${encodeURIComponent(id)}`
+            `${SUPPLIER_CONTACT_API}/${id}`,
+            {
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
+            }
         );
 
         return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "GET SUPPLIER CONTACT BY ID ERROR:",
+            "GET SUPPLIER CONTACT ERROR:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to fetch supplier contact",
+            error: error.response?.data || error.message
+        });
     }
 });
 
-/* =========================================================
-   CREATE SUPPLIER CONTACT
-   POST /api/SupplierContact
-========================================================= */
-
-app.post("/api/SupplierContact", async (req, res) => {
+// CREATE SUPPLIER CONTACT
+app.post("/api/supplier-contacts", async (req, res) => {
     try {
-        const {
-            supplierId,
-            contactName,
-            designation,
-            department,
-            email,
-            phoneNumber,
-            alternatePhone,
-            isPrimary,
-            isActive,
-            notes
-        } = req.body;
-
-        /* -----------------------------------------------
-           BASIC VALIDATION
-        ----------------------------------------------- */
-
-        if (
-            supplierId === undefined ||
-            supplierId === null ||
-            !Number.isInteger(Number(supplierId)) ||
-            Number(supplierId) <= 0
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "A valid supplierId is required."
-            });
-        }
-
-        if (
-            typeof contactName !== "string" ||
-            !contactName.trim()
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Contact name is required."
-            });
-        }
-
-        if (
-            typeof email !== "string" ||
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "A valid email address is required."
-            });
-        }
-
-        if (
-            typeof phoneNumber !== "string" ||
-            !phoneNumber.trim()
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Phone number is required."
-            });
-        }
-
-        /* -----------------------------------------------
-           REQUEST PAYLOAD
-        ----------------------------------------------- */
-
-        const payload = {
-            supplierId: Number(supplierId),
-            contactName: contactName.trim(),
-            designation: designation?.trim() || "",
-            department: department?.trim() || "",
-            email: email.trim(),
-            phoneNumber: phoneNumber.trim(),
-            alternatePhone: alternatePhone?.trim() || "",
-            isPrimary: Boolean(isPrimary),
-            isActive: isActive === undefined
-                ? true
-                : Boolean(isActive),
-            notes: notes?.trim() || ""
-        };
-
         const response = await axios.post(
             SUPPLIER_CONTACT_API,
-            payload
+            req.body,
+            {
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
+            }
         );
 
-        return res
-            .status(response.status)
-            .json(response.data);
+        return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
             "CREATE SUPPLIER CONTACT ERROR:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to create supplier contact",
+            error: error.response?.data || error.message
+        });
     }
 });
 
-/* =========================================================
-   UPDATE SUPPLIER CONTACT
-   PUT /api/SupplierContact/:id
-========================================================= */
-
-app.put("/api/SupplierContact/:id", async (req, res) => {
+// UPDATE SUPPLIER CONTACT
+app.put("/api/supplier-contacts/:id", async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = Number(req.params.id);
 
-        if (!id || !Number.isInteger(Number(id))) {
+        if (!Number.isInteger(id) || id <= 0) {
             return res.status(400).json({
-                success: false,
-                message: "A valid supplier contact ID is required."
+                message: "Invalid supplier contact ID"
             });
         }
 
         const response = await axios.put(
-            `${SUPPLIER_CONTACT_API}/${encodeURIComponent(id)}`,
-            req.body
+            `${SUPPLIER_CONTACT_API}/${id}`,
+            req.body,
+            {
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
+            }
         );
 
-        if (response.status === 204 || response.data == null) {
-            return res.status(200).json({
-                success: true,
-                message: "Supplier contact updated successfully."
-            });
+        if (response.status === 204) {
+            return res.status(204).end();
         }
 
-        return res
-            .status(response.status)
-            .json(response.data);
+        return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
             "UPDATE SUPPLIER CONTACT ERROR:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to update supplier contact",
+            error: error.response?.data || error.message
+        });
     }
 });
 
-/* =========================================================
-   DELETE SUPPLIER CONTACT
-   DELETE /api/SupplierContact/:id
-========================================================= */
-
-app.delete("/api/SupplierContact/:id", async (req, res) => {
+// DELETE SUPPLIER CONTACT
+app.delete("/api/supplier-contacts/:id", async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = Number(req.params.id);
 
-        if (
-            !id ||
-            !Number.isInteger(Number(id)) ||
-            Number(id) <= 0
-        ) {
+        if (!Number.isInteger(id) || id <= 0) {
             return res.status(400).json({
-                success: false,
-                message: "A valid supplier contact ID is required."
+                message: "Invalid supplier contact ID"
             });
         }
 
         const response = await axios.delete(
-            `${SUPPLIER_CONTACT_API}/${encodeURIComponent(id)}`
+            `${SUPPLIER_CONTACT_API}/${id}`,
+            {
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false
+                })
+            }
         );
 
-        if (response.status === 204 || response.data == null) {
-            return res.status(200).json({
-                success: true,
-                message: "Supplier contact deleted successfully."
-            });
+        if (response.status === 204) {
+            return res.status(204).end();
         }
 
-        return res
-            .status(response.status)
-            .json(response.data);
+        return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
             "DELETE SUPPLIER CONTACT ERROR:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to delete supplier contact",
+            error: error.response?.data || error.message
+        });
     }
 });
+
+// ================= END SUPPLIER CONTACTS API =================
 
 /* =========================================================
    GET ALL SUPPLIERS

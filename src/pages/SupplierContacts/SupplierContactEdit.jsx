@@ -1,99 +1,76 @@
-import React, {
-    useCallback,
-    useEffect,
-    useState
-} from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
-    Box,
-    Paper,
-    Grid,
-    Typography,
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Button,
-    Divider,
-    Switch,
-    FormControlLabel,
-    CircularProgress,
     Alert,
-    Snackbar,
+    Box,
     Breadcrumbs,
-    Link
+    Button,
+    CircularProgress,
+    Divider,
+    FormControl,
+    Grid,
+    InputLabel,
+    Link,
+    MenuItem,
+    Paper,
+    Select,
+    Snackbar,
+    TextField,
+    Typography
 } from "@mui/material";
 
 import {
-    Save,
     ArrowBack,
     Edit,
-    Person
+    Person,
+    Save
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
-
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+// =========================================================
+// API CONFIGURATION - NODE.JS AXIOS PROXY
+// =========================================================
 
 const SUPPLIER_CONTACT_API =
-    `${API_BASE_URL}/SupplierContact`;
+    "http://localhost:5000/api/supplier-contacts";
 
 const SUPPLIER_API =
-    `${API_BASE_URL}/Supplier`;
+    "http://localhost:5000/api/Supplier";
 
-/* =========================================================
-   INITIAL FORM DATA
-========================================================= */
+// =========================================================
+// INITIAL FORM DATA - MATCHES THE API MODEL
+// =========================================================
 
 const initialFormData = {
     supplierId: "",
+    contactType: "PRIMARY",
+    name: "",
     contactName: "",
-    designation: "",
-    department: "",
     email: "",
-    phoneNumber: "",
-    alternatePhone: "",
-    isPrimary: false,
-    isActive: true,
-    notes: ""
+    phone: "",
+    sellerId: "6",
+    customerId: "3"
 };
 
-/* =========================================================
-   RESPONSE NORMALIZER
-========================================================= */
+// =========================================================
+// NORMALIZE API LIST RESPONSE
+// =========================================================
 
 const normalizeList = (response) => {
     const data = response?.data;
 
-    if (Array.isArray(data)) {
-        return data;
-    }
-
-    if (Array.isArray(data?.data)) {
-        return data.data;
-    }
-
-    if (Array.isArray(data?.items)) {
-        return data.items;
-    }
-
-    if (Array.isArray(data?.$values)) {
-        return data.$values;
-    }
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.items)) return data.items;
+    if (Array.isArray(data?.$values)) return data.$values;
 
     return [];
 };
 
-/* =========================================================
-   SAFE FIELD ACCESS
-========================================================= */
+// =========================================================
+// SAFE FIELD ACCESS
+// =========================================================
 
 const getField = (object, ...keys) => {
     for (const key of keys) {
@@ -108,110 +85,85 @@ const getField = (object, ...keys) => {
     return "";
 };
 
-/* =========================================================
-   BOOLEAN NORMALIZER
-========================================================= */
+// =========================================================
+// CONTACT ID
+// =========================================================
 
-const toBoolean = (value, defaultValue = false) => {
-    if (value === undefined || value === null || value === "") {
-        return defaultValue;
-    }
+const getContactId = (contact) =>
+    getField(
+        contact,
+        "partyContactId",
+        "PartyContactId",
+        "supplierContactId",
+        "SupplierContactId"
+    );
 
-    if (typeof value === "string") {
-        return value.toLowerCase() === "true";
-    }
-
-    return Boolean(value);
-};
-
-/* =========================================================
-   SUPPLIER HELPERS
-========================================================= */
+// =========================================================
+// SUPPLIER HELPERS
+// =========================================================
 
 const getSupplierId = (supplier) =>
     getField(
         supplier,
-        "SupplierId",
         "supplierId",
-        "Id",
-        "id"
+        "SupplierId",
+        "id",
+        "Id"
     );
 
 const getSupplierName = (supplier) =>
     getField(
         supplier,
-        "SupplierName",
         "supplierName",
-        "Name",
-        "name"
+        "SupplierName",
+        "name",
+        "Name"
     ) || "Unnamed Supplier";
 
-/* =========================================================
-   CONTACT ID HELPER
-========================================================= */
-
-const getContactId = (contact) =>
-    getField(
-        contact,
-        "SupplierContactId",
-        "supplierContactId",
-        "ContactId",
-        "contactId",
-        "Id",
-        "id"
-    );
-
-/* =========================================================
-   MAP CONTACT TO FORM
-========================================================= */
+// =========================================================
+// MAP API RESPONSE TO FORM
+// =========================================================
 
 const mapContactToForm = (contact) => ({
     supplierId: String(
-        getField(contact, "SupplierId", "supplierId")
+        getField(contact, "supplierId", "SupplierId") || ""
     ),
-    contactName: getField(
-        contact,
-        "ContactName",
-        "contactName",
-        "Name",
-        "name"
+
+    contactType: String(
+        getField(contact, "contactType", "ContactType") ||
+        "PRIMARY"
+    ).toUpperCase(),
+
+    name: String(
+        getField(contact, "name", "Name") || ""
     ),
-    designation: getField(
-        contact,
-        "Designation",
-        "designation"
+
+    contactName: String(
+        getField(contact, "contactName", "ContactName") ||
+        getField(contact, "name", "Name") ||
+        ""
     ),
-    department: getField(
-        contact,
-        "Department",
-        "department"
+
+    email: String(
+        getField(contact, "email", "Email") || ""
     ),
-    email: getField(contact, "Email", "email"),
-    phoneNumber: getField(
-        contact,
-        "PhoneNumber",
-        "phoneNumber",
-        "Phone",
-        "phone"
+
+    phone: String(
+        getField(contact, "phone", "Phone") || ""
     ),
-    alternatePhone: getField(
-        contact,
-        "AlternatePhone",
-        "alternatePhone"
+
+    sellerId: String(
+        getField(contact, "sellerId", "SellerId") || ""
     ),
-    isPrimary: toBoolean(
-        getField(contact, "IsPrimary", "isPrimary")
-    ),
-    isActive: toBoolean(
-        getField(contact, "IsActive", "isActive"),
-        true
-    ),
-    notes: getField(contact, "Notes", "notes")
+
+    customerId: String(
+        getField(contact, "customerId", "CustomerId") || ""
+    )
 });
 
-/* =========================================================
-   SUPPLIER CONTACT EDIT
-========================================================= */
+// =========================================================
+// SUPPLIER CONTACT EDIT PAGE
+// =========================================================
 
 const SupplierContactEdit = ({
     supplierContactId,
@@ -221,19 +173,19 @@ const SupplierContactEdit = ({
     onCancel,
     onUpdated
 }) => {
+    const navigate = useNavigate();
+    const params = useParams();
+
     const requestedId =
         supplierContactId ??
         contactId ??
+        params.id ??
         getContactId(supplierContact);
-
-    /* =====================================================
-       STATE
-    ===================================================== */
 
     const [formData, setFormData] = useState(initialFormData);
     const [suppliers, setSuppliers] = useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [loadingSuppliers, setLoadingSuppliers] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -246,9 +198,9 @@ const SupplierContactEdit = ({
         severity: "success"
     });
 
-    /* =====================================================
-       NOTIFICATION
-    ===================================================== */
+    // =====================================================
+    // NOTIFICATION
+    // =====================================================
 
     const showNotification = (message, severity = "success") => {
         setNotification({
@@ -258,18 +210,25 @@ const SupplierContactEdit = ({
         });
     };
 
-    /* =====================================================
-       FETCH SUPPLIER CONTACT
-    ===================================================== */
+    // =====================================================
+    // FETCH CONTACT DETAILS
+    // =====================================================
 
     const fetchSupplierContact = useCallback(async () => {
-        if (!requestedId && !supplierContact) {
-            setPageError("Supplier contact ID is required.");
-            return;
-        }
+        if (
+            requestedId === undefined ||
+            requestedId === null ||
+            requestedId === "" ||
+            Number(requestedId) <= 0
+        ) {
+            if (supplierContact) {
+                setFormData(mapContactToForm(supplierContact));
+                setLoading(false);
+                return;
+            }
 
-        if (supplierContact && !requestedId) {
-            setFormData(mapContactToForm(supplierContact));
+            setPageError("Supplier contact ID is missing or invalid.");
+            setLoading(false);
             return;
         }
 
@@ -287,21 +246,17 @@ const SupplierContactEdit = ({
                 response?.data;
 
             if (!data || typeof data !== "object") {
-                throw new Error(
-                    "Supplier contact was not found."
-                );
+                throw new Error("Supplier contact was not found.");
             }
 
             setFormData(mapContactToForm(data));
         } catch (error) {
-            console.error(
-                "GET SUPPLIER CONTACT ERROR:",
-                error
-            );
+            console.error("GET SUPPLIER CONTACT ERROR:", error);
 
             setPageError(
                 error?.response?.data?.message ||
                 error?.response?.data?.title ||
+                error?.response?.data?.detail ||
                 error?.message ||
                 "Failed to load supplier contact."
             );
@@ -310,25 +265,21 @@ const SupplierContactEdit = ({
         }
     }, [requestedId, supplierContact]);
 
-    /* =====================================================
-       FETCH SUPPLIERS
-    ===================================================== */
+    // =====================================================
+    // FETCH SUPPLIERS
+    // =====================================================
 
     const fetchSuppliers = useCallback(async () => {
         setLoadingSuppliers(true);
 
         try {
             const response = await axios.get(SUPPLIER_API);
-
             setSuppliers(normalizeList(response));
         } catch (error) {
-            console.error(
-                "GET SUPPLIERS ERROR:",
-                error
-            );
+            console.error("GET SUPPLIERS ERROR:", error);
 
             showNotification(
-                "Failed to load suppliers.",
+                "Failed to load suppliers. Check the Supplier API route.",
                 "error"
             );
         } finally {
@@ -336,49 +287,81 @@ const SupplierContactEdit = ({
         }
     }, []);
 
-    /* =====================================================
-       INITIAL LOAD
-    ===================================================== */
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
 
     useEffect(() => {
         fetchSupplierContact();
         fetchSuppliers();
     }, [fetchSupplierContact, fetchSuppliers]);
 
-    /* =====================================================
-       HANDLE FIELD CHANGE
-    ===================================================== */
+    // =====================================================
+    // INPUT CHANGE
+    // =====================================================
 
     const handleChange = (event) => {
-        const {
-            name,
-            value,
-            checked,
-            type
-        } = event.target;
+        const { name, value } = event.target;
 
-        setFormData((previous) => ({
-            ...previous,
-            [name]: type === "checkbox" ? checked : value
-        }));
+        setFormData((previous) => {
+            const updated = {
+                ...previous,
+                [name]: value
+            };
+
+            // Keep both API name fields synchronized.
+            if (name === "name") {
+                updated.contactName = value;
+            } else if (name === "contactName") {
+                updated.name = value;
+            }
+
+            return updated;
+        });
 
         setErrors((previous) => ({
             ...previous,
-            [name]: ""
+            [name]: "",
+            ...(name === "name" ? { contactName: "" } : {}),
+            ...(name === "contactName" ? { name: "" } : {})
         }));
 
         setPageError("");
     };
 
-    /* =====================================================
-       VALIDATE FORM
-    ===================================================== */
+    // =====================================================
+    // NAVIGATION
+    // =====================================================
+
+    const handleBack = () => {
+        if (saving) return;
+
+        if (onBack) {
+            onBack();
+        } else if (onCancel) {
+            onCancel();
+        } else {
+            navigate("/supplier-contacts");
+        }
+    };
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
 
     const validateForm = () => {
         const newErrors = {};
 
         if (!formData.supplierId) {
             newErrors.supplierId = "Please select a supplier.";
+        }
+
+        if (!formData.contactType) {
+            newErrors.contactType = "Please select a contact type.";
+        }
+
+        if (!formData.name.trim()) {
+            newErrors.name = "Name is required.";
         }
 
         if (!formData.contactName.trim()) {
@@ -395,17 +378,22 @@ const SupplierContactEdit = ({
             newErrors.email = "Enter a valid email address.";
         }
 
-        if (!formData.phoneNumber.trim()) {
-            newErrors.phoneNumber = "Phone number is required.";
+        if (!formData.phone.trim()) {
+            newErrors.phone = "Phone number is required.";
         }
 
         if (
-            formData.alternatePhone.trim() &&
-            formData.alternatePhone.trim() ===
-                formData.phoneNumber.trim()
+            !formData.sellerId ||
+            Number(formData.sellerId) <= 0
         ) {
-            newErrors.alternatePhone =
-                "Alternate phone must differ from the primary phone.";
+            newErrors.sellerId = "Enter a valid Seller ID.";
+        }
+
+        if (
+            !formData.customerId ||
+            Number(formData.customerId) <= 0
+        ) {
+            newErrors.customerId = "Enter a valid Customer ID.";
         }
 
         setErrors(newErrors);
@@ -413,33 +401,33 @@ const SupplierContactEdit = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    /* =====================================================
-       UPDATE SUPPLIER CONTACT
-    ===================================================== */
+    // =====================================================
+    // UPDATE CONTACT
+    // =====================================================
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
-        if (!requestedId) {
-            setPageError("Supplier contact ID is missing.");
+        if (
+            !requestedId ||
+            Number(requestedId) <= 0
+        ) {
+            setPageError("Supplier contact ID is missing or invalid.");
             return;
         }
 
         const payload = {
+            partyContactId: Number(requestedId),
             supplierId: Number(formData.supplierId),
+            contactType: formData.contactType,
+            name: formData.name.trim(),
             contactName: formData.contactName.trim(),
-            designation: formData.designation.trim(),
-            department: formData.department.trim(),
             email: formData.email.trim(),
-            phoneNumber: formData.phoneNumber.trim(),
-            alternatePhone: formData.alternatePhone.trim(),
-            isPrimary: formData.isPrimary,
-            isActive: formData.isActive,
-            notes: formData.notes.trim()
+            phone: formData.phone.trim(),
+            sellerId: Number(formData.sellerId),
+            customerId: Number(formData.customerId)
         };
 
         setSaving(true);
@@ -457,50 +445,35 @@ const SupplierContactEdit = ({
             );
 
             if (onUpdated) {
-                await onUpdated(
-                    response.data,
-                    payload
-                );
+                await onUpdated(response.data, payload);
+            } else {
+                navigate("/supplier-contacts", {
+                    state: {
+                        message: "Supplier contact updated successfully.",
+                        severity: "success"
+                    }
+                });
             }
         } catch (error) {
-            console.error(
-                "UPDATE SUPPLIER CONTACT ERROR:",
-                error
-            );
+            console.error("UPDATE SUPPLIER CONTACT ERROR:", error);
 
             const message =
                 error?.response?.data?.message ||
                 error?.response?.data?.title ||
+                error?.response?.data?.detail ||
                 error?.message ||
                 "Failed to update supplier contact.";
 
             setPageError(message);
-
             showNotification(message, "error");
         } finally {
             setSaving(false);
         }
     };
 
-    /* =====================================================
-       NAVIGATION
-    ===================================================== */
-
-    const handleBack = () => {
-        if (saving) {
-            return;
-        }
-
-        if (onBack) {
-            onBack();
-        } else if (onCancel) {
-            onCancel();
-        }
-    };
-
-    /* =====================================================
-       LOADING VIEW
-    ===================================================== */
+    // =====================================================
+    // LOADING
+    // =====================================================
 
     if (loading) {
         return (
@@ -515,7 +488,6 @@ const SupplierContactEdit = ({
                 }}
             >
                 <CircularProgress />
-
                 <Typography color="text.secondary">
                     Loading supplier contact...
                 </Typography>
@@ -523,20 +495,20 @@ const SupplierContactEdit = ({
         );
     }
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // =====================================================
+    // PAGE UI
+    // =====================================================
 
     return (
         <Box sx={{ width: "100%", p: { xs: 1, md: 3 } }}>
-            {/* BREADCRUMBS */}
             <Breadcrumbs sx={{ mb: 2 }}>
                 <Link
                     component="button"
+                    type="button"
                     underline="hover"
                     color="inherit"
                     onClick={handleBack}
-                    disabled={saving}
+                    sx={{ cursor: "pointer" }}
                 >
                     Supplier Contacts
                 </Link>
@@ -546,7 +518,6 @@ const SupplierContactEdit = ({
                 </Typography>
             </Breadcrumbs>
 
-            {/* PAGE HEADER */}
             <Box
                 sx={{
                     display: "flex",
@@ -557,28 +528,16 @@ const SupplierContactEdit = ({
                     mb: 3
                 }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5
-                    }}
-                >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                     <Edit color="primary" fontSize="large" />
 
                     <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight={600}
-                        >
+                        <Typography variant="h5" fontWeight={600}>
                             Edit Supplier Contact
                         </Typography>
 
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            Update contact information and settings.
+                        <Typography variant="body2" color="text.secondary">
+                            Update supplier contact information.
                         </Typography>
                     </Box>
                 </Box>
@@ -593,7 +552,6 @@ const SupplierContactEdit = ({
                 </Button>
             </Box>
 
-            {/* ERROR MESSAGE */}
             {pageError && (
                 <Alert
                     severity="error"
@@ -604,15 +562,8 @@ const SupplierContactEdit = ({
                 </Alert>
             )}
 
-            {/* EDIT FORM */}
-            <Paper
-                elevation={2}
-                sx={{
-                    borderRadius: 2,
-                    overflow: "hidden"
-                }}
-            >
-                <Box sx={{ p: 3 }}>
+            <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
+                <Box sx={{ p: { xs: 2, md: 3 } }}>
                     <Box
                         sx={{
                             display: "flex",
@@ -623,10 +574,7 @@ const SupplierContactEdit = ({
                     >
                         <Person color="primary" />
 
-                        <Typography
-                            variant="h6"
-                            fontWeight={600}
-                        >
+                        <Typography variant="h6" fontWeight={600}>
                             Contact Information
                         </Typography>
                     </Box>
@@ -640,21 +588,19 @@ const SupplierContactEdit = ({
                     >
                         <Grid container spacing={2.5}>
                             {/* SUPPLIER */}
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={6}>
                                 <FormControl
                                     fullWidth
                                     required
                                     error={Boolean(errors.supplierId)}
-                                    disabled={
-                                        saving || loadingSuppliers
-                                    }
+                                    disabled={saving || loadingSuppliers}
                                 >
-                                    <InputLabel id="edit-contact-supplier-label">
+                                    <InputLabel id="edit-supplier-label">
                                         Supplier
                                     </InputLabel>
 
                                     <Select
-                                        labelId="edit-contact-supplier-label"
+                                        labelId="edit-supplier-label"
                                         name="supplierId"
                                         value={formData.supplierId}
                                         label="Supplier"
@@ -663,9 +609,7 @@ const SupplierContactEdit = ({
                                         {suppliers.map((supplier, index) => {
                                             const id = getSupplierId(supplier);
 
-                                            if (id === "") {
-                                                return null;
-                                            }
+                                            if (id === "") return null;
 
                                             return (
                                                 <MenuItem
@@ -676,21 +620,79 @@ const SupplierContactEdit = ({
                                                 </MenuItem>
                                             );
                                         })}
+
+                                        {formData.supplierId &&
+                                            !suppliers.some(
+                                                (supplier) =>
+                                                    String(getSupplierId(supplier)) ===
+                                                    String(formData.supplierId)
+                                            ) && (
+                                                <MenuItem value={formData.supplierId}>
+                                                    Current supplier (ID: {formData.supplierId})
+                                                </MenuItem>
+                                            )}
                                     </Select>
 
                                     {errors.supplierId && (
-                                        <Typography
-                                            variant="caption"
-                                            color="error"
-                                        >
+                                        <Typography variant="caption" color="error">
                                             {errors.supplierId}
                                         </Typography>
                                     )}
                                 </FormControl>
                             </Grid>
 
+                            {/* CONTACT TYPE */}
+                            <Grid item xs={12} md={6}>
+                                <FormControl
+                                    fullWidth
+                                    required
+                                    error={Boolean(errors.contactType)}
+                                    disabled={saving}
+                                >
+                                    <InputLabel id="edit-contact-type-label">
+                                        Contact Type
+                                    </InputLabel>
+
+                                    <Select
+                                        labelId="edit-contact-type-label"
+                                        name="contactType"
+                                        value={formData.contactType}
+                                        label="Contact Type"
+                                        onChange={handleChange}
+                                    >
+                                        <MenuItem value="PRIMARY">Primary</MenuItem>
+                                        <MenuItem value="SECONDARY">Secondary</MenuItem>
+                                        <MenuItem value="BILLING">Billing</MenuItem>
+                                        <MenuItem value="SHIPPING">Shipping</MenuItem>
+                                        <MenuItem value="OTHER">Other</MenuItem>
+                                    </Select>
+
+                                    {errors.contactType && (
+                                        <Typography variant="caption" color="error">
+                                            {errors.contactType}
+                                        </Typography>
+                                    )}
+                                </FormControl>
+                            </Grid>
+
+                            {/* NAME */}
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    name="name"
+                                    label="Name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    error={Boolean(errors.name)}
+                                    helperText={errors.name}
+                                    disabled={saving}
+                                    inputProps={{ maxLength: 150 }}
+                                />
+                            </Grid>
+
                             {/* CONTACT NAME */}
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -705,34 +707,8 @@ const SupplierContactEdit = ({
                                 />
                             </Grid>
 
-                            {/* DESIGNATION */}
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    name="designation"
-                                    label="Designation"
-                                    value={formData.designation}
-                                    onChange={handleChange}
-                                    disabled={saving}
-                                    inputProps={{ maxLength: 100 }}
-                                />
-                            </Grid>
-
-                            {/* DEPARTMENT */}
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    name="department"
-                                    label="Department"
-                                    value={formData.department}
-                                    onChange={handleChange}
-                                    disabled={saving}
-                                    inputProps={{ maxLength: 100 }}
-                                />
-                            </Grid>
-
                             {/* EMAIL */}
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -749,98 +725,56 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* PHONE */}
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
-                                    name="phoneNumber"
+                                    name="phone"
                                     label="Phone Number"
-                                    value={formData.phoneNumber}
+                                    value={formData.phone}
                                     onChange={handleChange}
-                                    error={Boolean(errors.phoneNumber)}
-                                    helperText={errors.phoneNumber}
+                                    error={Boolean(errors.phone)}
+                                    helperText={errors.phone}
                                     disabled={saving}
                                     inputProps={{ maxLength: 30 }}
                                 />
                             </Grid>
 
-                            {/* ALTERNATE PHONE */}
-                            <Grid item xs={12} sm={6}>
+                            {/* SELLER ID */}
+                            <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
-                                    name="alternatePhone"
-                                    label="Alternate Phone"
-                                    value={formData.alternatePhone}
+                                    required
+                                    type="number"
+                                    name="sellerId"
+                                    label="Seller ID"
+                                    value={formData.sellerId}
                                     onChange={handleChange}
-                                    error={Boolean(errors.alternatePhone)}
-                                    helperText={errors.alternatePhone}
+                                    error={Boolean(errors.sellerId)}
+                                    helperText={errors.sellerId}
                                     disabled={saving}
-                                    inputProps={{ maxLength: 30 }}
+                                    inputProps={{ min: 1 }}
                                 />
                             </Grid>
 
-                            {/* NOTES */}
-                            <Grid item xs={12}>
+                            {/* CUSTOMER ID */}
+                            <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
-                                    multiline
-                                    minRows={3}
-                                    name="notes"
-                                    label="Notes"
-                                    value={formData.notes}
+                                    required
+                                    type="number"
+                                    name="customerId"
+                                    label="Customer ID"
+                                    value={formData.customerId}
                                     onChange={handleChange}
+                                    error={Boolean(errors.customerId)}
+                                    helperText={errors.customerId}
                                     disabled={saving}
-                                    inputProps={{ maxLength: 1000 }}
+                                    inputProps={{ min: 1 }}
                                 />
-                            </Grid>
-
-                            {/* STATUS SETTINGS */}
-                            <Grid item xs={12}>
-                                <Divider sx={{ mb: 2 }} />
-
-                                <Typography
-                                    variant="subtitle1"
-                                    fontWeight={600}
-                                    sx={{ mb: 1 }}
-                                >
-                                    Contact Settings
-                                </Typography>
-
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: 3
-                                    }}
-                                >
-                                    <FormControlLabel
-                                        label="Primary Contact"
-                                        control={
-                                            <Switch
-                                                name="isPrimary"
-                                                checked={formData.isPrimary}
-                                                onChange={handleChange}
-                                                disabled={saving}
-                                            />
-                                        }
-                                    />
-
-                                    <FormControlLabel
-                                        label="Active Contact"
-                                        control={
-                                            <Switch
-                                                name="isActive"
-                                                checked={formData.isActive}
-                                                onChange={handleChange}
-                                                disabled={saving}
-                                            />
-                                        }
-                                    />
-                                </Box>
                             </Grid>
                         </Grid>
 
-                        {/* FORM ACTIONS */}
                         <Divider sx={{ my: 3 }} />
 
                         <Box
@@ -864,27 +798,19 @@ const SupplierContactEdit = ({
                                 type="submit"
                                 variant="contained"
                                 startIcon={
-                                    saving ? (
-                                        <CircularProgress
-                                            size={18}
-                                            color="inherit"
-                                        />
-                                    ) : (
-                                        <Save />
-                                    )
+                                    saving
+                                        ? <CircularProgress size={18} color="inherit" />
+                                        : <Save />
                                 }
-                                disabled={saving}
+                                disabled={saving || loadingSuppliers}
                             >
-                                {saving
-                                    ? "Updating..."
-                                    : "Update Contact"}
+                                {saving ? "Updating..." : "Update Contact"}
                             </Button>
                         </Box>
                     </Box>
                 </Box>
             </Paper>
 
-            {/* NOTIFICATION */}
             <Snackbar
                 open={notification.open}
                 autoHideDuration={4000}
@@ -917,4 +843,3 @@ const SupplierContactEdit = ({
 };
 
 export default SupplierContactEdit;
-

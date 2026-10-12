@@ -460,6 +460,7 @@ import SupplierContactStatistics from "./pages/SupplierContacts/SupplierContactS
 import SupplierContactTable from "./pages/SupplierContacts/SupplierContactTable";
 import SupplierContactToolbar from "./pages/SupplierContacts/SupplierContactToolbar";
 import SupplierContactView from "./pages/SupplierContacts/SupplierContactView";
+import SupplierContactDelete from "./pages/SupplierContacts/SupplierContactDelete";
 import DeleteVendorItemCustomFieldDialog from "./pages/VendorItemCustomFields/DeleteVendorItemCustomFieldDialog";
 
 import VendorItemCustomFieldCard from "./pages/VendorItemCustomFields/VendorItemCustomFieldCard";
@@ -1909,15 +1910,30 @@ REVERSE PICKUPS ROUTES
 {/* =================================================
 SUPPLIER CONTACTS ROUTES
 ================================================= */}
+<Route
+    path="supplier-contacts"
+    element={<SupplierContactsList />}
+/>
 
-<Route path="supplier-contacts" element={<SupplierContactsList />} />
-<Route path="supplier-contacts/create" element={<SupplierContactCreate />} />
-<Route path="supplier-contacts/search" element={<SupplierContactSearch />} />
-<Route path="supplier-contacts/filters" element={<SupplierContactFilters />} />
-<Route path="supplier-contacts/statistics" element={<SupplierContactStatistics />} />
-<Route path="supplier-contacts/details/:id" element={<SupplierContactDetails />} />
-<Route path="supplier-contacts/view/:id" element={<SupplierContactView />} />
-<Route path="supplier-contacts/:id/edit" element={<SupplierContactEdit />} />
+<Route
+    path="supplier-contacts/create"
+    element={<SupplierContactCreate />}
+/>
+
+<Route
+    path="supplier-contacts/:id/view"
+    element={<SupplierContactView />}
+/>
+
+<Route
+    path="supplier-contacts/:id/edit"
+    element={<SupplierContactEdit />}
+/>
+
+<Route
+    path="supplier-contacts/:id/delete"
+    element={<SupplierContactDelete />}
+/>
 
 {/* =================================================
 VENDOR ITEM CUSTOM FIELDS ROUTES

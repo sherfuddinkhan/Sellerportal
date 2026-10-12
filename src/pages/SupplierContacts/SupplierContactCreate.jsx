@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
+    Alert,
     Box,
     Paper,
     Typography,
@@ -13,14 +14,10 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    FormControlLabel,
-    Switch,
     Divider,
     CircularProgress,
-    Alert,
     Breadcrumbs,
-    Link,
-    Snackbar
+    Link
 } from "@mui/material";
 
 import {
@@ -30,179 +27,81 @@ import {
     Clear
 } from "@mui/icons-material";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
-
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+// =========================================================
+// API CONFIGURATION
+// =========================================================
 
 const SUPPLIER_CONTACT_API =
-    `${API_BASE_URL}/SupplierContact`;
+    "http://localhost:5000/api/supplier-contacts";
 
-const SUPPLIER_API =
-    `${API_BASE_URL}/Supplier`;
-
-/* =========================================================
-   GET FIELD VALUE
-   Supports camelCase and PascalCase responses
-========================================================= */
-
-const getField = (object, ...keys) => {
-    if (!object) return "";
-
-    for (const key of keys) {
-        if (
-            object[key] !== undefined &&
-            object[key] !== null
-        ) {
-            return object[key];
-        }
-    }
-
-    return "";
-};
-
-/* =========================================================
-   INITIAL FORM STATE
-========================================================= */
+// =========================================================
+// INITIAL FORM DATA
+// =========================================================
 
 const initialFormData = {
-    supplierId: "",
+    contactType: "PRIMARY",
+    name: "",
     contactName: "",
-    designation: "",
-    department: "",
     email: "",
-    phoneNumber: "",
-    alternatePhone: "",
-    isPrimary: false,
-    isActive: true,
-    notes: ""
+    phone: "",
+    sellerId: "6",
+    customerId: "3"
 };
 
-/* =========================================================
-   COMPONENT
-========================================================= */
+// =========================================================
+// CREATE SUPPLIER CONTACT
+// =========================================================
 
-const SupplierContactCreate = ({
+function SupplierContactCreate({
     onCreated,
     onCancel,
     onBack,
-    suppliers: suppliedSuppliers = [],
     title = "Create Supplier Contact"
-}) => {
+}) {
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState(initialFormData);
-
-    const [suppliers, setSuppliers] = useState(
-        suppliedSuppliers
-    );
-
-    const [loadingSuppliers, setLoadingSuppliers] =
-        useState(false);
-
     const [saving, setSaving] = useState(false);
-
     const [error, setError] = useState("");
-
-    const [success, setSuccess] = useState("");
-
     const [fieldErrors, setFieldErrors] = useState({});
 
-    /* =====================================================
-       FETCH SUPPLIERS
-    ===================================================== */
-
-    const fetchSuppliers = async () => {
-        if (suppliedSuppliers.length > 0) {
-            setSuppliers(suppliedSuppliers);
-            return;
-        }
-
-        setLoadingSuppliers(true);
-
-        try {
-            const response = await axios.get(SUPPLIER_API);
-
-            const responseData = response.data;
-
-            const supplierList = Array.isArray(responseData)
-                ? responseData
-                : Array.isArray(responseData?.data)
-                    ? responseData.data
-                    : Array.isArray(responseData?.items)
-                        ? responseData.items
-                        : Array.isArray(responseData?.$values)
-                            ? responseData.$values
-                            : [];
-
-            setSuppliers(supplierList);
-        } catch (err) {
-            console.error(
-                "GET SUPPLIERS ERROR:",
-                err
-            );
-
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                "Failed to load suppliers."
-            );
-        } finally {
-            setLoadingSuppliers(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchSuppliers();
-    }, []);
-
-    useEffect(() => {
-        setSuppliers(suppliedSuppliers);
-    }, [suppliedSuppliers]);
-
-    /* =====================================================
-       HANDLE INPUT CHANGE
-    ===================================================== */
+    // =====================================================
+    // HANDLE INPUT CHANGE
+    // =====================================================
 
     const handleChange = (event) => {
         const { name, value } = event.target;
 
         setFormData((previous) => ({
             ...previous,
-            [name]: value
+            [name]: value,
+            ...(name === "name" ? { contactName: value } : {}),
+            ...(name === "contactName" ? { name: value } : {})
         }));
 
         setFieldErrors((previous) => ({
             ...previous,
-            [name]: ""
+            [name]: "",
+            ...(name === "name" ? { contactName: "" } : {}),
+            ...(name === "contactName" ? { name: "" } : {})
         }));
 
         setError("");
     };
 
-    /* =====================================================
-       HANDLE SWITCH CHANGE
-    ===================================================== */
-
-    const handleSwitchChange = (event) => {
-        const { name, checked } = event.target;
-
-        setFormData((previous) => ({
-            ...previous,
-            [name]: checked
-        }));
-    };
-
-    /* =====================================================
-       VALIDATE FORM
-    ===================================================== */
+    // =====================================================
+    // VALIDATION
+    // =====================================================
 
     const validateForm = () => {
         const errors = {};
 
-        if (!formData.supplierId) {
-            errors.supplierId = "Please select a supplier.";
+        if (!formData.contactType) {
+            errors.contactType = "Please select a contact type.";
+        }
+
+        if (!formData.name.trim()) {
+            errors.name = "Name is required.";
         }
 
         if (!formData.contactName.trim()) {
@@ -219,25 +118,28 @@ const SupplierContactCreate = ({
             errors.email = "Enter a valid email address.";
         }
 
-        if (!formData.phoneNumber.trim()) {
-            errors.phoneNumber = "Phone number is required.";
+        if (!formData.phone.trim()) {
+            errors.phone = "Phone number is required.";
         } else if (
-            !/^[+]?[\d\s()-]{7,20}$/.test(
-                formData.phoneNumber.trim()
+            !/^[+]?[0-9\s()-]{7,20}$/.test(
+                formData.phone.trim()
             )
         ) {
-            errors.phoneNumber =
-                "Enter a valid phone number.";
+            errors.phone = "Enter a valid phone number.";
         }
 
         if (
-            formData.alternatePhone.trim() &&
-            !/^[+]?[\d\s()-]{7,20}$/.test(
-                formData.alternatePhone.trim()
-            )
+            !Number.isInteger(Number(formData.sellerId)) ||
+            Number(formData.sellerId) <= 0
         ) {
-            errors.alternatePhone =
-                "Enter a valid alternate phone number.";
+            errors.sellerId = "Enter a valid Seller ID.";
+        }
+
+        if (
+            !Number.isInteger(Number(formData.customerId)) ||
+            Number(formData.customerId) <= 0
+        ) {
+            errors.customerId = "Enter a valid Customer ID.";
         }
 
         setFieldErrors(errors);
@@ -245,9 +147,9 @@ const SupplierContactCreate = ({
         return Object.keys(errors).length === 0;
     };
 
-    /* =====================================================
-       RESET FORM
-    ===================================================== */
+    // =====================================================
+    // CLEAR FORM
+    // =====================================================
 
     const handleReset = () => {
         setFormData(initialFormData);
@@ -255,597 +157,478 @@ const SupplierContactCreate = ({
         setError("");
     };
 
-    /* =====================================================
-       CANCEL
-    ===================================================== */
+    // =====================================================
+    // CANCEL / BACK
+    // =====================================================
 
     const handleCancel = () => {
         if (onCancel) {
             onCancel();
         } else if (onBack) {
             onBack();
+        } else {
+            navigate("/supplier-contacts");
         }
     };
 
-    /* =====================================================
-       CREATE SUPPLIER CONTACT
-    ===================================================== */
+    // =====================================================
+    // CREATE CONTACT
+    // =====================================================
+const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    setError("");
+    setFieldErrors({});
 
-        setError("");
-        setSuccess("");
+    if (!validateForm()) {
+        return;
+    }
 
-        if (!validateForm()) {
-            return;
-        }
+    // Send fields entered by the user.
+    // IDs and CreatedDate should be generated by the backend
+    // if they are configured as server-generated fields.
+    const payload = {
+        contactType: formData.contactType,
+        name: formData.name.trim(),
+        contactName: formData.contactName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        sellerId: Number(formData.sellerId),
+        customerId: Number(formData.customerId)
+    };
 
-        const payload = {
-            supplierId: Number(formData.supplierId),
-            contactName: formData.contactName.trim(),
-            designation: formData.designation.trim(),
-            department: formData.department.trim(),
-            email: formData.email.trim(),
-            phoneNumber: formData.phoneNumber.trim(),
-            alternatePhone:
-                formData.alternatePhone.trim(),
-            isPrimary: formData.isPrimary,
-            isActive: formData.isActive,
-            notes: formData.notes.trim()
-        };
-
+    try {
         setSaving(true);
 
-        try {
-            const response = await axios.post(
-                SUPPLIER_CONTACT_API,
-                payload
-            );
+        console.log("Creating supplier contact:", payload);
 
-            const createdContact = response.data;
-
-            setSuccess(
-                "Supplier contact created successfully."
-            );
-
-            if (onCreated) {
-                onCreated(createdContact || payload);
+        const response = await axios.post(
+            SUPPLIER_CONTACT_API,
+            payload,
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
             }
+        );
 
-            setFormData(initialFormData);
-            setFieldErrors({});
-        } catch (err) {
-            console.error(
-                "CREATE SUPPLIER CONTACT ERROR:",
-                err
-            );
+        console.log(
+            "SUPPLIER CONTACT CREATED:",
+            response.data
+        );
 
-            const responseData = err.response?.data;
-
-            if (
-                responseData?.errors &&
-                typeof responseData.errors === "object"
-            ) {
-                const validationErrors = {};
-
-                Object.entries(responseData.errors).forEach(
-                    ([key, messages]) => {
-                        const normalizedKey =
-                            key.charAt(0).toLowerCase() +
-                            key.slice(1);
-
-                        validationErrors[normalizedKey] =
-                            Array.isArray(messages)
-                                ? messages.join(" ")
-                                : String(messages);
-                    }
-                );
-
-                setFieldErrors(validationErrors);
-            }
-
-            setError(
-                responseData?.message ||
-                responseData?.title ||
-                responseData?.detail ||
-                "Failed to create supplier contact. Please try again."
-            );
-        } finally {
-            setSaving(false);
+        if (onCreated) {
+            onCreated(response.data || payload);
+        } else {
+            navigate("/supplier-contacts", {
+                replace: true,
+                state: {
+                    message: "Supplier contact created successfully.",
+                    severity: "success"
+                }
+            });
         }
-    };
+    } catch (err) {
+        const responseData = err.response?.data;
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+        console.error(
+            "CREATE SUPPLIER CONTACT ERROR:",
+            responseData || err.message
+        );
 
-    return (
-        <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+        console.error(
+            "HTTP STATUS:",
+            err.response?.status
+        );
 
-            {/* PAGE HEADER */}
+        console.error(
+            "REQUEST PAYLOAD:",
+            payload
+        );
 
+        if (responseData?.errors) {
+            const validationErrors = {};
+
+            Object.entries(responseData.errors).forEach(
+                ([key, messages]) => {
+                    const normalizedKey =
+                        key.charAt(0).toLowerCase() +
+                        key.slice(1);
+
+                    validationErrors[normalizedKey] =
+                        Array.isArray(messages)
+                            ? messages.join(" ")
+                            : String(messages);
+                }
+            );
+
+            setFieldErrors(validationErrors);
+        }
+
+        setError(
+            responseData?.message ||
+            responseData?.title ||
+            responseData?.detail ||
+            (typeof responseData === "string"
+                ? responseData
+                : "Failed to create supplier contact. Check the ASP.NET Core error log.")
+        );
+    } finally {
+        setSaving(false);
+    }
+};
+
+
+    // =====================================================
+    // UI
+    // =====================================================
+return (
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+        {/* Header */}
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", sm: "center" },
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                mb: 3
+            }}
+        >
+            <Box>
+                <Breadcrumbs sx={{ mb: 1 }}>
+                    <Link
+                        component="button"
+                        type="button"
+                        underline="hover"
+                        color="inherit"
+                        onClick={handleCancel}
+                    >
+                        Supplier Contacts
+                    </Link>
+
+                    <Typography color="text.primary">
+                        Create
+                    </Typography>
+                </Breadcrumbs>
+
+                <Typography variant="h5" fontWeight={700}>
+                    {title}
+                </Typography>
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 0.5 }}
+                >
+                    Add a new supplier contact with all API fields.
+                </Typography>
+            </Box>
+
+            <Button
+                variant="outlined"
+                startIcon={<ArrowBack />}
+                onClick={handleCancel}
+                disabled={saving}
+            >
+                Back
+            </Button>
+        </Box>
+
+        {/* Error */}
+        {error && (
+            <Alert
+                severity="error"
+                sx={{ mb: 2 }}
+                onClose={() => setError("")}
+            >
+                {error}
+            </Alert>
+        )}
+
+        {/* Form Card */}
+        <Paper
+            elevation={2}
+            sx={{ borderRadius: 2, overflow: "hidden" }}
+        >
             <Box
                 sx={{
+                    p: 2.5,
                     display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: {
-                        xs: "flex-start",
-                        sm: "center"
-                    },
-                    flexDirection: {
-                        xs: "column",
-                        sm: "row"
-                    },
-                    gap: 2,
-                    mb: 3
+                    alignItems: "center",
+                    gap: 1.5
                 }}
             >
+                <PersonAdd color="primary" />
+
                 <Box>
-                    <Breadcrumbs sx={{ mb: 1 }}>
-                        <Link
-                            component="button"
-                            type="button"
-                            underline="hover"
-                            color="inherit"
-                            onClick={handleCancel}
-                        >
-                            Supplier Contacts
-                        </Link>
-
-                        <Typography color="text.primary">
-                            Create
-                        </Typography>
-                    </Breadcrumbs>
-
-                    <Typography
-                        variant="h5"
-                        fontWeight={700}
-                    >
-                        {title}
+                    <Typography variant="h6" fontWeight={600}>
+                        Contact Information
                     </Typography>
 
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ mt: 0.5 }}
                     >
-                        Add a new contact for a supplier.
+                        Enter all 11 fields from the API model.
                     </Typography>
                 </Box>
-
-                <Button
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={handleCancel}
-                    disabled={saving}
-                >
-                    Back
-                </Button>
             </Box>
 
-            {/* ERROR MESSAGE */}
+            <Divider />
 
-            {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
-                >
-                    {error}
-                </Alert>
-            )}
-
-            {/* CREATE FORM */}
-
-            <Paper
-                elevation={2}
-                sx={{
-                    borderRadius: 2,
-                    overflow: "hidden"
-                }}
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                noValidate
+                sx={{ p: { xs: 2, sm: 3 } }}
             >
-                <Box
-                    sx={{
-                        p: 2.5,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5
-                    }}
-                >
-                    <PersonAdd color="primary" />
+                <Grid container spacing={2.5}>
+                    {/* 1. Party Contact ID */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Party Contact ID"
+                            name="partyContactId"
+                            value={formData.partyContactId ?? 0}
+                            onChange={handleChange}
+                            disabled={saving}
+                        />
+                    </Grid>
 
-                    <Box>
-                        <Typography
-                            variant="h6"
-                            fontWeight={600}
+                    {/* 2. Supplier ID */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Supplier ID"
+                            name="supplierId"
+                            value={formData.supplierId ?? 0}
+                            onChange={handleChange}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    {/* 3. Contact Type */}
+                    <Grid item xs={12} md={6}>
+                        <FormControl
+                            fullWidth
+                            required
+                            error={Boolean(fieldErrors.contactType)}
+                            disabled={saving}
                         >
-                            Contact Information
-                        </Typography>
+                            <InputLabel>Contact Type</InputLabel>
 
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
+                            <Select
+                                name="contactType"
+                                value={formData.contactType ?? ""}
+                                label="Contact Type"
+                                onChange={handleChange}
+                            >
+                                <MenuItem value="PRIMARY">
+                                    Primary
+                                </MenuItem>
+                                <MenuItem value="SECONDARY">
+                                    Secondary
+                                </MenuItem>
+                                <MenuItem value="BILLING">
+                                    Billing
+                                </MenuItem>
+                                <MenuItem value="SHIPPING">
+                                    Shipping
+                                </MenuItem>
+                                <MenuItem value="OTHER">
+                                    Other
+                                </MenuItem>
+                            </Select>
+
+                            {fieldErrors.contactType && (
+                                <Typography
+                                    variant="caption"
+                                    color="error"
+                                >
+                                    {fieldErrors.contactType}
+                                </Typography>
+                            )}
+                        </FormControl>
+                    </Grid>
+
+                    {/* 4. Name */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Name"
+                            name="name"
+                            value={formData.name ?? ""}
+                            onChange={handleChange}
+                            error={Boolean(fieldErrors.name)}
+                            helperText={fieldErrors.name}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    {/* 5. Contact Name */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Contact Name"
+                            name="contactName"
+                            value={formData.contactName ?? ""}
+                            onChange={handleChange}
+                            error={Boolean(fieldErrors.contactName)}
+                            helperText={fieldErrors.contactName}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    {/* 6. Email */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            type="email"
+                            label="Email Address"
+                            name="email"
+                            value={formData.email ?? ""}
+                            onChange={handleChange}
+                            error={Boolean(fieldErrors.email)}
+                            helperText={fieldErrors.email}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    {/* 7. Phone */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Phone Number"
+                            name="phone"
+                            value={formData.phone ?? ""}
+                            onChange={handleChange}
+                            error={Boolean(fieldErrors.phone)}
+                            helperText={fieldErrors.phone}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    {/* 8. Seller ID */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Seller ID"
+                            name="sellerId"
+                            value={formData.sellerId ?? ""}
+                            onChange={handleChange}
+                            error={Boolean(fieldErrors.sellerId)}
+                            helperText={fieldErrors.sellerId}
+                            disabled={saving}
+                            inputProps={{ min: 1 }}
+                        />
+                    </Grid>
+
+                    {/* 9. Customer ID */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Customer ID"
+                            name="customerId"
+                            value={formData.customerId ?? ""}
+                            onChange={handleChange}
+                            error={Boolean(fieldErrors.customerId)}
+                            helperText={fieldErrors.customerId}
+                            disabled={saving}
+                            inputProps={{ min: 1 }}
+                        />
+                    </Grid>
+
+                    {/* 10. Created Date */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Created Date"
+                            name="createdDate"
+                            type="datetime-local"
+                            value={formData.createdDate ?? ""}
+                            onChange={handleChange}
+                            disabled={saving}
+                            InputLabelProps={{ shrink: true }}
+                        />
+                    </Grid>
+
+                    {/* 11. Supplier Contact ID */}
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Supplier Contact ID"
+                            name="supplierContactId"
+                            value={formData.supplierContactId ?? 0}
+                            onChange={handleChange}
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    {/* Action Buttons */}
+                    <Grid item xs={12}>
+                        <Divider sx={{ my: 1 }} />
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                flexWrap: "wrap",
+                                gap: 1.5,
+                                mt: 2
+                            }}
                         >
-                            Enter the contact details below.
-                        </Typography>
-                    </Box>
-                </Box>
-
-                <Divider />
-
-                <Box
-                    component="form"
-                    onSubmit={handleSubmit}
-                    noValidate
-                    sx={{ p: { xs: 2, sm: 3 } }}
-                >
-                    <Grid container spacing={2.5}>
-
-                        {/* SUPPLIER */}
-
-                        <Grid item xs={12} md={6}>
-                            <FormControl
-                                fullWidth
-                                required
-                                error={Boolean(
-                                    fieldErrors.supplierId
-                                )}
+                            <Button
+                                variant="outlined"
+                                color="inherit"
+                                startIcon={<Clear />}
+                                onClick={handleReset}
+                                disabled={saving}
                             >
-                                <InputLabel>
-                                    Supplier
-                                </InputLabel>
+                                Clear
+                            </Button>
 
-                                <Select
-                                    name="supplierId"
-                                    value={formData.supplierId}
-                                    label="Supplier"
-                                    onChange={handleChange}
-                                    disabled={
-                                        saving ||
-                                        loadingSuppliers
-                                    }
-                                >
-                                    <MenuItem value="">
-                                        <em>
-                                            Select Supplier
-                                        </em>
-                                    </MenuItem>
-
-                                    {suppliers.map((supplier) => {
-                                        const supplierId =
-                                            getField(
-                                                supplier,
-                                                "supplierId",
-                                                "SupplierId",
-                                                "id",
-                                                "Id"
-                                            );
-
-                                        const supplierName =
-                                            getField(
-                                                supplier,
-                                                "supplierName",
-                                                "SupplierName",
-                                                "name",
-                                                "Name",
-                                                "companyName",
-                                                "CompanyName"
-                                            );
-
-                                        return (
-                                            <MenuItem
-                                                key={supplierId}
-                                                value={String(
-                                                    supplierId
-                                                )}
-                                            >
-                                                {supplierName ||
-                                                    `Supplier ${supplierId}`}
-                                            </MenuItem>
-                                        );
-                                    })}
-                                </Select>
-
-                                {fieldErrors.supplierId && (
-                                    <Typography
-                                        variant="caption"
-                                        color="error"
-                                        sx={{ mt: 0.5, ml: 1.5 }}
-                                    >
-                                        {fieldErrors.supplierId}
-                                    </Typography>
-                                )}
-
-                                {loadingSuppliers && (
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{ mt: 0.5 }}
-                                    >
-                                        Loading suppliers...
-                                    </Typography>
-                                )}
-                            </FormControl>
-                        </Grid>
-
-                        {/* CONTACT NAME */}
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Contact Name"
-                                name="contactName"
-                                value={formData.contactName}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    fieldErrors.contactName
-                                )}
-                                helperText={
-                                    fieldErrors.contactName
-                                }
+                            <Button
+                                variant="outlined"
+                                startIcon={<ArrowBack />}
+                                onClick={handleCancel}
                                 disabled={saving}
-                                inputProps={{
-                                    maxLength: 150
-                                }}
-                            />
-                        </Grid>
-
-                        {/* DESIGNATION */}
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Designation"
-                                name="designation"
-                                value={formData.designation}
-                                onChange={handleChange}
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 100
-                                }}
-                            />
-                        </Grid>
-
-                        {/* DEPARTMENT */}
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Department"
-                                name="department"
-                                value={formData.department}
-                                onChange={handleChange}
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 100
-                                }}
-                            />
-                        </Grid>
-
-                        {/* EMAIL */}
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                type="email"
-                                label="Email Address"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    fieldErrors.email
-                                )}
-                                helperText={fieldErrors.email}
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 254
-                                }}
-                            />
-                        </Grid>
-
-                        {/* PHONE */}
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Phone Number"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    fieldErrors.phoneNumber
-                                )}
-                                helperText={
-                                    fieldErrors.phoneNumber
-                                }
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 20
-                                }}
-                            />
-                        </Grid>
-
-                        {/* ALTERNATE PHONE */}
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="Alternate Phone"
-                                name="alternatePhone"
-                                value={formData.alternatePhone}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    fieldErrors.alternatePhone
-                                )}
-                                helperText={
-                                    fieldErrors.alternatePhone
-                                }
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 20
-                                }}
-                            />
-                        </Grid>
-
-                        {/* NOTES */}
-
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={3}
-                                label="Notes"
-                                name="notes"
-                                value={formData.notes}
-                                onChange={handleChange}
-                                disabled={saving}
-                                inputProps={{
-                                    maxLength: 1000
-                                }}
-                            />
-                        </Grid>
-
-                        {/* STATUS OPTIONS */}
-
-                        <Grid item xs={12}>
-                            <Divider sx={{ my: 1 }} />
-
-                            <Typography
-                                variant="subtitle1"
-                                fontWeight={600}
-                                sx={{ mb: 1 }}
                             >
-                                Contact Settings
-                            </Typography>
+                                Cancel
+                            </Button>
 
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    gap: 3
-                                }}
-                            >
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            name="isPrimary"
-                                            checked={
-                                                formData.isPrimary
-                                            }
-                                            onChange={
-                                                handleSwitchChange
-                                            }
-                                            disabled={saving}
-                                        />
-                                    }
-                                    label="Primary Contact"
-                                />
-
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            name="isActive"
-                                            checked={
-                                                formData.isActive
-                                            }
-                                            onChange={
-                                                handleSwitchChange
-                                            }
-                                            disabled={saving}
-                                        />
-                                    }
-                                    label="Active Contact"
-                                />
-                            </Box>
-                        </Grid>
-
-                        {/* ACTION BUTTONS */}
-
-                        <Grid item xs={12}>
-                            <Divider sx={{ my: 1 }} />
-
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                    flexWrap: "wrap",
-                                    gap: 1.5,
-                                    mt: 2
-                                }}
-                            >
-                                <Button
-                                    variant="outlined"
-                                    color="inherit"
-                                    startIcon={<Clear />}
-                                    onClick={handleReset}
-                                    disabled={saving}
-                                >
-                                    Clear
-                                </Button>
-
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<ArrowBack />}
-                                    onClick={handleCancel}
-                                    disabled={saving}
-                                >
-                                    Cancel
-                                </Button>
-
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    startIcon={
-                                        saving ? (
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                startIcon={
+                                    saving
+                                        ? (
                                             <CircularProgress
                                                 size={18}
                                                 color="inherit"
                                             />
-                                        ) : (
-                                            <Save />
                                         )
-                                    }
-                                    disabled={
-                                        saving ||
-                                        loadingSuppliers
-                                    }
-                                >
-                                    {saving
-                                        ? "Saving..."
-                                        : "Create Contact"}
-                                </Button>
-                            </Box>
-                        </Grid>
+                                        : <Save />
+                                }
+                                disabled={saving}
+                            >
+                                {saving
+                                    ? "Saving..."
+                                    : "Create Contact"}
+                            </Button>
+                        </Box>
                     </Grid>
-                </Box>
-            </Paper>
+                </Grid>
+            </Box>
+        </Paper>
+    </Box>
+);
 
-            {/* SUCCESS MESSAGE */}
-
-            <Snackbar
-                open={Boolean(success)}
-                autoHideDuration={4000}
-                onClose={() => setSuccess("")}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right"
-                }}
-            >
-                <Alert
-                    severity="success"
-                    variant="filled"
-                    onClose={() => setSuccess("")}
-                >
-                    {success}
-                </Alert>
-            </Snackbar>
-        </Box>
-    );
-};
+}
 
 export default SupplierContactCreate;
-
