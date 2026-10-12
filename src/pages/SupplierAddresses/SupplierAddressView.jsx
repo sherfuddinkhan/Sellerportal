@@ -1,428 +1,196 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Button,
     Grid,
     Typography,
     Divider,
     Box,
-    Chip
+    Chip,
+    Card,
+    CardContent,
+    CircularProgress,
+    Container,
+    IconButton
 } from "@mui/material";
-
 import {
     Business,
     Person,
     LocationOn,
-    Phone,
-    Email,
-    Public
+    Public,
+    ArrowBack
 } from "@mui/icons-material";
 
-/* =========================================================
-   SUPPLIER ADDRESS VIEW
-========================================================= */
+const API_BASE_URL = "http://localhost:5000/api";
+// If you call.NET directly use: https://localhost:7203/api
 
-const SupplierAddressView = ({
-    open,
-    onClose,
-    supplierAddress
-}) => {
-
-    /* =====================================================
-       SAFE VALUE
-    ===================================================== */
-
-    const getValue = (value) => {
-        if (
-            value === null ||
-            value === undefined ||
-            value === ""
-        ) {
-            return "N/A";
+const getFieldValue = (item,...fields) => {
+    for (const field of fields) {
+        if (item?.[field]!== undefined && item?.[field]!== null && item?.[field]!== "") {
+            return item[field];
         }
+    }
+    return "";
+};
 
-        return value;
-    };
+const getSafeValue = (value) => {
+    if (value === null || value === undefined || value === "") return "N/A";
+    return value;
+};
 
-    /* =====================================================
-       ADDRESS FIELD
-    ===================================================== */
+const formatDate = (value) => {
+    if (!value) return "N/A";
+    try { return new Date(value).toLocaleString(); }
+    catch { return String(value); }
+};
 
-    const AddressField = ({ label, value }) => (
-        <Grid item xs={12} sm={6}>
-            <Typography
-                variant="caption"
-                color="text.secondary"
-            >
-                {label}
-            </Typography>
+const AddressField = ({ label, value }) => (
+    <Grid item xs={12} sm={6}>
+        <Typography variant="caption" color="text.secondary">{label}</Typography>
+        <Typography variant="body1" fontWeight={500} sx={{ overflowWrap: "anywhere", mt: 0.5 }}>
+            {getSafeValue(value)}
+        </Typography>
+    </Grid>
+);
 
-            <Typography
-                variant="body1"
-                fontWeight={500}
-                sx={{
-                    overflowWrap: "anywhere",
-                    mt: 0.5
-                }}
-            >
-                {getValue(value)}
-            </Typography>
-        </Grid>
-    );
+const SupplierAddressViewPage = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [supplierAddress, setSupplierAddress] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    /* =====================================================
-       EMPTY STATE
-    ===================================================== */
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/SupplierAddress/${id}`);
+                setSupplierAddress(res.data?.data || res.data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [id]);
 
-    if (!supplierAddress && open) {
+    if (loading) {
         return (
-            <Dialog
-                open={open}
-                onClose={onClose}
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle>
-                    Supplier Address Details
-                </DialogTitle>
-
-                <DialogContent dividers>
-                    <Typography color="text.secondary">
-                        No supplier address details available.
-                    </Typography>
-                </DialogContent>
-
-                <DialogActions>
-                    <Button onClick={onClose}>
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <Box display="flex" justifyContent="center" mt={10}>
+                <CircularProgress />
+            </Box>
         );
     }
 
     if (!supplierAddress) {
-        return null;
+        return (
+            <Container>
+                <Typography mt={5}>No supplier address found</Typography>
+                <Button onClick={() => navigate(-1)} startIcon={<ArrowBack />}>Back</Button>
+            </Container>
+        );
     }
 
-    /* =====================================================
-       STATUS
-    ===================================================== */
-
-    const status = supplierAddress.status;
+    const supplierAddressId = getFieldValue(supplierAddress, "supplierAddressId", "SupplierAddressId", "id");
+    const supplierId = getFieldValue(supplierAddress, "supplierId", "SupplierId");
+    const supplierName = getFieldValue(supplierAddress, "supplierName", "SupplierName") ||
+        getFieldValue(supplierAddress?.supplier || supplierAddress?.Supplier, "supplierName", "SupplierName", "name", "Name");
+    const contactPerson = getFieldValue(supplierAddress, "contactPerson", "ContactPerson");
+    const addressType = getFieldValue(supplierAddress, "addressType", "AddressType");
+    const addressLine1 = getFieldValue(supplierAddress, "addressLine1", "AddressLine1");
+    const addressLine2 = getFieldValue(supplierAddress, "addressLine2", "AddressLine2");
+    const city = getFieldValue(supplierAddress, "city", "City");
+    const state = getFieldValue(supplierAddress, "state", "State");
+    const postalCode = getFieldValue(supplierAddress, "postalCode", "PostalCode");
+    const country = getFieldValue(supplierAddress, "country", "Country");
+    const phone = getFieldValue(supplierAddress, "phoneNumber", "PhoneNumber");
+    const email = getFieldValue(supplierAddress, "emailAddress", "EmailAddress", "email", "Email");
+    const website = getFieldValue(supplierAddress, "website", "Website");
+    const gstNumber = getFieldValue(supplierAddress, "gstNumber", "GSTNumber");
+    const taxNumber = getFieldValue(supplierAddress, "taxNumber", "TaxNumber");
+    const createdAt = getFieldValue(supplierAddress, "createdAt", "CreatedAt");
+    const updatedAt = getFieldValue(supplierAddress, "updatedAt", "UpdatedAt");
+    const statusRaw = getFieldValue(supplierAddress, "status", "Status", "isActive", "IsActive");
+    const isActive = statusRaw === true || String(statusRaw).toLowerCase() === "active" || String(statusRaw).toLowerCase() === "true";
 
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            fullWidth
-            maxWidth="md"
-        >
-            {/* =============================================
-               HEADER
-            ============================================= */}
+        <Container maxWidth="md" sx={{ py: 4 }}>
+            <Box display="flex" alignItems="center" gap={1} mb={2}>
+                <IconButton onClick={() => navigate(-1)}><ArrowBack /></IconButton>
+                <Typography variant="h5" fontWeight={700}>Supplier Address Details</Typography>
+                <Chip label={isActive? "Active" : "Inactive"} color={isActive? "success" : "default"} size="small" sx={{ ml: 2 }} />
+            </Box>
 
-            <DialogTitle>
-                <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    gap={2}
-                >
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                    >
-                        <LocationOn color="primary" />
-
-                        <Typography
-                            variant="h6"
-                            fontWeight={600}
-                        >
-                            Supplier Address Details
-                        </Typography>
+            <Card>
+                <CardContent>
+                    <Box mb={3}>
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                            <Business color="primary" />
+                            <Typography variant="subtitle1" fontWeight={600}>Supplier Information</Typography>
+                        </Box>
+                        <Grid container spacing={2}>
+                            <AddressField label="Supplier Address ID" value={supplierAddressId} />
+                            <AddressField label="Supplier ID" value={supplierId} />
+                            <AddressField label="Supplier Name" value={supplierName} />
+                            <AddressField label="Contact Person" value={contactPerson} />
+                            <AddressField label="Address Type" value={addressType} />
+                        </Grid>
                     </Box>
 
-                    {status !== undefined && (
-                        <Chip
-                            label={String(status)}
-                            color={
-                                String(status).toLowerCase() === "active"
-                                    ? "success"
-                                    : "default"
-                            }
-                            size="small"
-                        />
-                    )}
-                </Box>
-            </DialogTitle>
+                    <Divider sx={{ my: 3 }} />
 
-            <Divider />
-
-            {/* =============================================
-               CONTENT
-            ============================================= */}
-
-            <DialogContent dividers>
-                {/* SUPPLIER INFORMATION */}
-
-                <Box mb={3}>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        mb={2}
-                    >
-                        <Business color="primary" />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={600}
-                        >
-                            Supplier Information
-                        </Typography>
+                    <Box mb={3}>
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                            <LocationOn color="primary" />
+                            <Typography variant="subtitle1" fontWeight={600}>Address Information</Typography>
+                        </Box>
+                        <Grid container spacing={2}>
+                            <AddressField label="Address Line 1" value={addressLine1} />
+                            <AddressField label="Address Line 2" value={addressLine2} />
+                            <AddressField label="City" value={city} />
+                            <AddressField label="State" value={state} />
+                            <AddressField label="Postal Code" value={postalCode} />
+                            <AddressField label="Country" value={country} />
+                        </Grid>
                     </Box>
 
-                    <Grid container spacing={2}>
-                        <AddressField
-                            label="Supplier ID"
-                            value={
-                                supplierAddress.supplierId ??
-                                supplierAddress.SupplierId ??
-                                supplierAddress.id ??
-                                supplierAddress.Id
-                            }
-                        />
+                    <Divider sx={{ my: 3 }} />
 
-                        <AddressField
-                            label="Supplier Name"
-                            value={
-                                supplierAddress.supplierName ??
-                                supplierAddress.SupplierName
-                            }
-                        />
-
-                        <AddressField
-                            label="Contact Person"
-                            value={
-                                supplierAddress.contactPerson ??
-                                supplierAddress.ContactPerson
-                            }
-                        />
-
-                        <AddressField
-                            label="Address Type"
-                            value={
-                                supplierAddress.addressType ??
-                                supplierAddress.AddressType
-                            }
-                        />
-                    </Grid>
-                </Box>
-
-                <Divider sx={{ my: 3 }} />
-
-                {/* ADDRESS INFORMATION */}
-
-                <Box mb={3}>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        mb={2}
-                    >
-                        <LocationOn color="primary" />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={600}
-                        >
-                            Address Information
-                        </Typography>
+                    <Box mb={3}>
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                            <Person color="primary" />
+                            <Typography variant="subtitle1" fontWeight={600}>Contact Information</Typography>
+                        </Box>
+                        <Grid container spacing={2}>
+                            <AddressField label="Phone Number" value={phone} />
+                            <AddressField label="Email Address" value={email} />
+                            <AddressField label="Website" value={website} />
+                        </Grid>
                     </Box>
 
-                    <Grid container spacing={2}>
-                        <AddressField
-                            label="Address Line 1"
-                            value={
-                                supplierAddress.addressLine1 ??
-                                supplierAddress.AddressLine1
-                            }
-                        />
+                    <Divider sx={{ my: 3 }} />
 
-                        <AddressField
-                            label="Address Line 2"
-                            value={
-                                supplierAddress.addressLine2 ??
-                                supplierAddress.AddressLine2
-                            }
-                        />
-
-                        <AddressField
-                            label="City"
-                            value={
-                                supplierAddress.city ??
-                                supplierAddress.City
-                            }
-                        />
-
-                        <AddressField
-                            label="State"
-                            value={
-                                supplierAddress.state ??
-                                supplierAddress.State
-                            }
-                        />
-
-                        <AddressField
-                            label="Postal Code"
-                            value={
-                                supplierAddress.postalCode ??
-                                supplierAddress.PostalCode ??
-                                supplierAddress.zipCode ??
-                                supplierAddress.ZipCode
-                            }
-                        />
-
-                        <AddressField
-                            label="Country"
-                            value={
-                                supplierAddress.country ??
-                                supplierAddress.Country
-                            }
-                        />
-                    </Grid>
-                </Box>
-
-                <Divider sx={{ my: 3 }} />
-
-                {/* CONTACT INFORMATION */}
-
-                <Box mb={3}>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        mb={2}
-                    >
-                        <Person color="primary" />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={600}
-                        >
-                            Contact Information
-                        </Typography>
+                    <Box>
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                            <Public color="primary" />
+                            <Typography variant="subtitle1" fontWeight={600}>Additional Information</Typography>
+                        </Box>
+                        <Grid container spacing={2}>
+                            <AddressField label="GST Number" value={gstNumber} />
+                            <AddressField label="Tax Number" value={taxNumber} />
+                            <AddressField label="Created At" value={formatDate(createdAt)} />
+                            <AddressField label="Updated At" value={formatDate(updatedAt)} />
+                        </Grid>
                     </Box>
+                </CardContent>
+            </Card>
 
-                    <Grid container spacing={2}>
-                        <AddressField
-                            label="Phone Number"
-                            value={
-                                supplierAddress.phoneNumber ??
-                                supplierAddress.PhoneNumber ??
-                                supplierAddress.phone ??
-                                supplierAddress.Phone
-                            }
-                        />
-
-                        <AddressField
-                            label="Email Address"
-                            value={
-                                supplierAddress.emailAddress ??
-                                supplierAddress.EmailAddress ??
-                                supplierAddress.email ??
-                                supplierAddress.Email
-                            }
-                        />
-
-                        <AddressField
-                            label="Website"
-                            value={
-                                supplierAddress.website ??
-                                supplierAddress.Website
-                            }
-                        />
-                    </Grid>
-                </Box>
-
-                <Divider sx={{ my: 3 }} />
-
-                {/* ADDITIONAL INFORMATION */}
-
-                <Box>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        mb={2}
-                    >
-                        <Public color="primary" />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={600}
-                        >
-                            Additional Information
-                        </Typography>
-                    </Box>
-
-                    <Grid container spacing={2}>
-                        <AddressField
-                            label="GST Number"
-                            value={
-                                supplierAddress.gstNumber ??
-                                supplierAddress.GSTNumber
-                            }
-                        />
-
-                        <AddressField
-                            label="Tax Number"
-                            value={
-                                supplierAddress.taxNumber ??
-                                supplierAddress.TaxNumber
-                            }
-                        />
-
-                        <AddressField
-                            label="Created At"
-                            value={
-                                supplierAddress.createdAt ??
-                                supplierAddress.CreatedAt
-                            }
-                        />
-
-                        <AddressField
-                            label="Updated At"
-                            value={
-                                supplierAddress.updatedAt ??
-                                supplierAddress.UpdatedAt
-                            }
-                        />
-                    </Grid>
-                </Box>
-            </DialogContent>
-
-            {/* =============================================
-               ACTIONS
-            ============================================= */}
-
-            <DialogActions sx={{ p: 2 }}>
-                <Button
-                    variant="contained"
-                    onClick={onClose}
-                >
-                    Close
-                </Button>
-            </DialogActions>
-        </Dialog>
+            <Box mt={3} display="flex" gap={2}>
+                <Button variant="contained" onClick={() => navigate(-1)}>Back to List</Button>
+                <Button variant="outlined" onClick={() => navigate(`/supplier-addresses/${supplierAddressId}/edit`)}>Edit</Button>
+            </Box>
+        </Container>
     );
 };
 
-export default SupplierAddressView;
-
+export default SupplierAddressViewPage;

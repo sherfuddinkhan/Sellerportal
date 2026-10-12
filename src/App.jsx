@@ -1875,17 +1875,28 @@ REVERSE PICKUPS ROUTES
 <Route path="reverse-pickups/details/:id" element={<ReversePickupDetails />} />
 <Route path="reverse-pickups/view/:id" element={<ReversePickupView />} />
 <Route path="reverse-pickups/:id/edit" element={<ReversePickupEdit />} />
+
 {/* =================================================
-SUPPLIER ADDRESSES ROUTES
+   SUPPLIER ADDRESSES ROUTES - FINAL
 ================================================= */}
+
+// List must be first
 <Route path="supplier-addresses" element={<SupplierAddressesList />} />
+
+// Static routes BEFORE dynamic :id
 <Route path="supplier-addresses/create" element={<SupplierAddressCreate />} />
-<Route path="supplier-addresses/search" element={<SupplierAddressSearch />} />
-<Route path="supplier-addresses/filters" element={<SupplierAddressFilters />} />
-<Route path="supplier-addresses/statistics" element={<SupplierAddressStatistics />} />
-<Route path="supplier-addresses/details/:id" element={<SupplierAddressDetails />} />
+<Route path="supplier-addresses/add" element={<SupplierAddressEdit />} />
+
+
+
+// View routes - keep only ONE
 <Route path="supplier-addresses/view/:id" element={<SupplierAddressView />} />
+<Route path="supplier-addresses/details/:id" element={<SupplierAddressView />} />
+<Route path="supplier-addresses/:id" element={<SupplierAddressView />} />
+
+// Edit routes
 <Route path="supplier-addresses/:id/edit" element={<SupplierAddressEdit />} />
+<Route path="supplier-addresses/edit/:id" element={<SupplierAddressEdit />} />
 
 {/* =================================================
 SUPPLIER CONTACTS ROUTES

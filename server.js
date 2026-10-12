@@ -33961,289 +33961,71 @@ app.delete("/api/FacilityChannel/:id", async (req, res) => {
     }
 });
 //////////////////SUPPLIER ADDRESSES///////////////////////////
-/* =========================================================
-   GET ALL SUPPLIER ADDRESSES
-   GET /api/SupplierAddress
-========================================================= */
+// Real .NET API is on 7203
+const SUPPLIER_ADDRESS_API = process.env.SUPPLIER_ADDRESS_API || "https://localhost:7203/api/supplier-addresses";
+const SUPPLIER_API = process.env.SUPPLIER_API || "https://localhost:7203/api/suppliers";
 
+// .NET uses self-signed cert on localhost - ignore cert error
 app.get("/api/SupplierAddress", async (req, res) => {
     try {
-        const [rows] = await pool.query(`
-            SELECT *
-            FROM SupplierAddresses
-            ORDER BY SupplierAddressId DESC
-        `);
-
-        res.status(200).json(rows);
+        const response = await axios.get(`${SUPPLIER_ADDRESS_API}/all`, { httpsAgent });
+        return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("GET SUPPLIER ADDRESSES ERROR:", error.message);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to retrieve supplier addresses"
-        });
+        console.error("GET ALL ERROR:", error.response?.data || error.message);
+        return handleProxyError(res, error);
     }
 });
-
-/* =========================================================
-   GET SUPPLIER ADDRESS BY ID
-   GET /api/SupplierAddress/:id
-========================================================= */
 
 app.get("/api/SupplierAddress/:id", async (req, res) => {
     try {
         const { id } = req.params;
-
-        const [rows] = await pool.query(
-            `SELECT * FROM SupplierAddresses
-             WHERE SupplierAddressId = ?`,
-            [id]
-        );
-
-        if (rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Supplier address not found"
-            });
-        }
-
-        res.status(200).json(rows[0]);
+        const response = await axios.get(`${SUPPLIER_ADDRESS_API}/${encodeURIComponent(id)}`, { httpsAgent });
+        return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("GET SUPPLIER ADDRESS ERROR:", error.message);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to retrieve supplier address"
-        });
+        console.error("GET BY ID ERROR:", error.response?.data || error.message);
+        return handleProxyError(res, error);
     }
 });
-
-/* =========================================================
-   CREATE SUPPLIER ADDRESS
-   POST /api/SupplierAddress
-========================================================= */
 
 app.post("/api/SupplierAddress", async (req, res) => {
     try {
-        const {
-            supplierId,
-            addressType,
-            addressLine1,
-            addressLine2,
-            city,
-            state,
-            postalCode,
-            country,
-            contactPerson,
-            phoneNumber,
-            email,
-            website,
-            gstNumber,
-            isActive
-        } = req.body;
-
-        if (
-            !supplierId ||
-            !addressLine1 ||
-            !city ||
-            !state ||
-            !postalCode ||
-            !country
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Supplier, address line 1, city, state, postal code, and country are required"
-            });
-        }
-
-        const [result] = await pool.query(
-            `INSERT INTO SupplierAddresses (
-                SupplierId,
-                AddressType,
-                AddressLine1,
-                AddressLine2,
-                City,
-                State,
-                PostalCode,
-                Country,
-                ContactPerson,
-                PhoneNumber,
-                Email,
-                Website,
-                GSTNumber,
-                IsActive
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                supplierId,
-                addressType || null,
-                addressLine1,
-                addressLine2 || null,
-                city,
-                state,
-                postalCode,
-                country,
-                contactPerson || null,
-                phoneNumber || null,
-                email || null,
-                website || null,
-                gstNumber || null,
-                isActive ?? true
-            ]
-        );
-
-        res.status(201).json({
-            success: true,
-            message: "Supplier address created successfully",
-            supplierAddressId: result.insertId
-        });
+        const response = await axios.post(SUPPLIER_ADDRESS_API, req.body, { httpsAgent });
+        return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("CREATE SUPPLIER ADDRESS ERROR:", error.message);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to create supplier address"
-        });
+        console.error("CREATE ERROR:", error.response?.data || error.message);
+        return handleProxyError(res, error);
     }
 });
-
-/* =========================================================
-   UPDATE SUPPLIER ADDRESS
-   PUT /api/SupplierAddress/:id
-========================================================= */
 
 app.put("/api/SupplierAddress/:id", async (req, res) => {
     try {
         const { id } = req.params;
-
-        const {
-            supplierId,
-            addressType,
-            addressLine1,
-            addressLine2,
-            city,
-            state,
-            postalCode,
-            country,
-            contactPerson,
-            phoneNumber,
-            email,
-            website,
-            gstNumber,
-            isActive
-        } = req.body;
-
-        const [result] = await pool.query(
-            `UPDATE SupplierAddresses SET
-                SupplierId = ?,
-                AddressType = ?,
-                AddressLine1 = ?,
-                AddressLine2 = ?,
-                City = ?,
-                State = ?,
-                PostalCode = ?,
-                Country = ?,
-                ContactPerson = ?,
-                PhoneNumber = ?,
-                Email = ?,
-                Website = ?,
-                GSTNumber = ?,
-                IsActive = ?
-             WHERE SupplierAddressId = ?`,
-            [
-                supplierId,
-                addressType || null,
-                addressLine1,
-                addressLine2 || null,
-                city,
-                state,
-                postalCode,
-                country,
-                contactPerson || null,
-                phoneNumber || null,
-                email || null,
-                website || null,
-                gstNumber || null,
-                isActive ?? true,
-                id
-            ]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Supplier address not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Supplier address updated successfully"
-        });
+        const response = await axios.put(`${SUPPLIER_ADDRESS_API}/${encodeURIComponent(id)}`, req.body, { httpsAgent });
+        return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("UPDATE SUPPLIER ADDRESS ERROR:", error.message);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to update supplier address"
-        });
+        console.error("UPDATE ERROR:", error.response?.data || error.message);
+        return handleProxyError(res, error);
     }
 });
-
-/* =========================================================
-   DELETE SUPPLIER ADDRESS
-   DELETE /api/SupplierAddress/:id
-========================================================= */
 
 app.delete("/api/SupplierAddress/:id", async (req, res) => {
     try {
         const { id } = req.params;
-
-        const [result] = await pool.query(
-            `DELETE FROM SupplierAddresses
-             WHERE SupplierAddressId = ?`,
-            [id]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Supplier address not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Supplier address deleted successfully"
-        });
+        const response = await axios.delete(`${SUPPLIER_ADDRESS_API}/${encodeURIComponent(id)}`, { httpsAgent });
+        return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("DELETE SUPPLIER ADDRESS ERROR:", error.message);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to delete supplier address"
-        });
+        console.error("DELETE ERROR:", error.response?.data || error.message);
+        return handleProxyError(res, error);
     }
 });
 
-/* =========================================================
-   GET ALL SUPPLIERS
-   GET /api/Supplier
-========================================================= */
-
 app.get("/api/Supplier", async (req, res) => {
     try {
-        const [rows] = await pool.query(
-            "SELECT * FROM Suppliers ORDER BY SupplierId DESC"
-        );
-
-        res.status(200).json(rows);
+        const response = await axios.get(`${SUPPLIER_API}/all`, { httpsAgent });
+        return res.status(response.status).json(response.data);
     } catch (error) {
-        console.error("GET SUPPLIERS ERROR:", error.message);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to retrieve suppliers"
-        });
+        console.error("GET SUPPLIERS ERROR:", error.response?.data || error.message);
+        return handleProxyError(res, error);
     }
 });
 
