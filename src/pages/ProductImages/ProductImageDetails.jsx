@@ -1,19 +1,19 @@
 // =========================================================
 // ProductImageDetails.jsx
-// Product Image Details
-// Frontend uses server.js
+// Product Image Details - Separate Page
+// Frontend -> Node.js server.js -> ASP.NET Core API
 // NO apiService
 // =========================================================
 
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
     Alert,
     Box,
     Button,
+    Card,
+    CardContent,
     Chip,
     CircularProgress,
     Divider,
@@ -28,229 +28,225 @@ import {
     Image as ImageIcon
 } from "@mui/icons-material";
 
-import {
-    useNavigate,
-    useParams
-} from "react-router-dom";
-
-
 // =========================================================
-// SERVER URL
+// NODE SERVER
 // =========================================================
 
 const SERVER_URL = "http://localhost:5000";
-
 
 // =========================================================
 // PRODUCT IMAGE DETAILS
 // =========================================================
 
 const ProductImageDetails = () => {
-
     const navigate = useNavigate();
-
     const { id } = useParams();
 
-
-    // =====================================================
-    // STATE
-    // =====================================================
-
-    const [image, setImage] =
-        useState(null);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [error, setError] =
-        useState("");
-
+    const [image, setImage] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
     // =====================================================
     // LOAD PRODUCT IMAGE
+    // GET /api/product-images/:id
     // =====================================================
 
-    useEffect(() => {
-
-        if (!id) {
-
-            setError(
-                "Product Image ID is missing."
-            );
-
+    const loadProductImage = useCallback(async () => {
+        if (!id || !Number.isInteger(Number(id)) || Number(id) <= 0) {
+            setError("A valid Product Image ID is required.");
             setLoading(false);
-
             return;
         }
 
-        loadProductImage();
+        try {
+            setLoading(true);
+            setError("");
 
+            const url = `${SERVER_URL}/api/product-images/${id}`;
+
+            console.log("Loading Product Image:", url);
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json"
+                }
+            });
+
+            const contentType = response.headers.get("content-type");
+            let responseData;
+
+            if (contentType?.includes("application/json")) {
+                responseData = await response.json();
+            } else {
+                responseData = await response.text();
+            }
+
+            if (!response.ok) {
+                let message = `Failed to fetch product image. HTTP ${response.status}`;
+
+                if (responseData && typeof responseData === "object") {
+                    if (responseData.errors) {
+                        message = Object.entries(responseData.errors)
+                            .map(([field, messages]) =>
+                                `${field}: ${
+                                    Array.isArray(messages)
+                                        ? messages.join(", ")
+                                        : String(messages)
+                                }`
+                            )
+                            .join(" | ");
+                    } else {
+                        message =
+                            responseData.message ||
+                            responseData.title ||
+                            responseData.error ||
+                            message;
+                    }
+                } else if (typeof responseData === "string" && responseData.trim()) {
+                    message = responseData;
+                }
+
+                throw new Error(message);
+            }
+
+            const record =
+                responseData?.data ??
+                responseData?.item ??
+                responseData;
+
+            if (
+                !record ||
+                typeof record !== "object" ||
+                Array.isArray(record)
+            ) {
+                throw new Error("Product image was not found.");
+            }
+
+            setImage(record);
+        } catch (err) {
+            console.error("Product Image Details Error:", err);
+
+            setError(
+                err?.message || "Failed to fetch product image."
+            );
+        } finally {
+            setLoading(false);
+        }
     }, [id]);
 
+    useEffect(() => {
+        loadProductImage();
+    }, [loadProductImage]);
 
     // =====================================================
-    // FETCH PRODUCT IMAGE
-    //
-    // GET:
-    // /api/product-images/{id}
+    // GET VALUE - PASCALCASE / CAMELCASE
     // =====================================================
 
-   const loadProductImage = async () => { 
-    try { 
-    setLoading(true); 
-    setError(""); console.log( "========================================" ); 
-    console.log( "Loading Product Image" ); 
-    console.log( "ID:", id );
-    const url = `${SERVER_URL}/api/product-images/${id}`; 
-    console.log( "Request URL:", url ); 
-    console.log( "========================================" ); 
-    const response = await fetch(url, { method: "GET", headers: { Accept: "application/json" } });
-     // ===================================================== // READ RESPONSE // ===================================================== const contentType = response.headers.get( "content-type" ); let responseData; if ( contentType && contentType.includes( "application/json" ) ) { responseData = await response.json(); } else { responseData = await response.text(); } console.log( "HTTP Status:", response.status ); console.log( "API Response:", responseData ); // ===================================================== // HANDLE ERROR // ===================================================== if (!response.ok) { let message = `Failed to fetch product image. HTTP ${response.status}`; // ASP.NET validation response if ( responseData && typeof responseData === "object" ) { if ( responseData.errors ) { const validationErrors = Object.entries( responseData.errors ) .map( ([field, errors]) => { const errorMessages = Array.isArray(errors) ? errors.join(", ") : String(errors); return `${field}: ${errorMessages}`; } ) .join(" | "); message = validationErrors || responseData.title || message; } else { message = responseData.message || responseData.title || responseData.error || message; } } else if ( typeof responseData === "string" && responseData.trim() ) { message = responseData; } throw new Error( message ); } // ===================================================== // EXTRACT PRODUCT IMAGE // ===================================================== const productImage = responseData?.data ?? responseData?.item ?? responseData; if ( !productImage || typeof productImage !== "object" ) { throw new Error( "Product image was not found." ); } console.log( "Product Image:", productImage ); setImage( productImage ); } catch (err) { console.error( "Product Image Details Error:", err ); 
-    setError( err?.message || "Failed to fetch product image." ); 
-     } 
-     finally 
-     { 
-        setLoading(false); 
-     } 
-    };
-
+    const getValue = (pascalCase, camelCase, fallback = "") =>
+        image?.[pascalCase] ??
+        image?.[camelCase] ??
+        fallback;
 
     // =====================================================
-    // GET VALUE
-    // Supports PascalCase + camelCase
+    // IMAGE ID
     // =====================================================
 
-    const getValue = (
-        pascalCase,
-        camelCase,
-        fallback = ""
-    ) => {
+    const productImageId =
+        getValue("ProductImageId", "productImageId") ||
+        getValue("Id", "id", id);
 
-        if (!image) {
+    // =====================================================
+    // BOOLEAN HELPER
+    // =====================================================
 
-            return fallback;
-
-        }
+    const getBooleanValue = (pascalCase, camelCase) => {
+        const value = getValue(pascalCase, camelCase, false);
 
         return (
-            image?.[pascalCase] ??
-            image?.[camelCase] ??
-            fallback
-        );
-
-    };
-
-
-    // =====================================================
-    // BOOLEAN VALUE
-    // =====================================================
-
-    const getBooleanValue = (
-        pascalCase,
-        camelCase,
-        fallback = false
-    ) => {
-
-        const value =
-            getValue(
-                pascalCase,
-                camelCase,
-                fallback
-            );
-
-
-        if (
             value === true ||
             value === 1 ||
             value === "1" ||
-            value === "true" ||
-            value === "True"
-        ) {
-
-            return true;
-
-        }
-
-
-        return false;
-
+            String(value).toLowerCase() === "true"
+        );
     };
-
 
     // =====================================================
     // FORMAT DATE
     // =====================================================
 
     const formatDate = (value) => {
+        if (!value) return "—";
 
-        if (!value) {
+        const date = new Date(value);
 
-            return "—";
-
-        }
-
-        const date =
-            new Date(value);
-
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-
-            return "—";
-
-        }
-
-
-        return date.toLocaleString();
-
+        return Number.isNaN(date.getTime())
+            ? "—"
+            : date.toLocaleString();
     };
 
+    // =====================================================
+    // IMAGE VALUES
+    // =====================================================
+
+    const productId = getValue("ProductId", "productId", "—");
+    const sellerId = getValue("SellerId", "sellerId", "—");
+    const customerId = getValue("CustomerId", "customerId", "—");
+
+    const imageName = getValue("ImageName", "imageName", "—");
+    const imageType = getValue("ImageType", "imageType", "—");
+    const imageUrl = getValue("ImageUrl", "imageUrl", "");
+
+    const imageSize = getValue("ImageSize", "imageSize", null);
+    const displayOrder = getValue("DisplayOrder", "displayOrder", "—");
+
+    const isPrimary = getBooleanValue("IsPrimary", "isPrimary");
+    const isActive = getBooleanValue("IsActive", "isActive");
+
+    const createdDate = getValue("CreatedDate", "createdDate");
+    const updatedDate = getValue("UpdatedDate", "updatedDate");
 
     // =====================================================
-    // BACK
+    // FORMAT IMAGE SIZE
+    // =====================================================
+
+    const formatImageSize = (size) => {
+        if (size === null || size === undefined || size === "") {
+            return "—";
+        }
+
+        const number = Number(size);
+
+        if (!Number.isFinite(number)) return String(size);
+        if (number < 1024) return `${number} B`;
+        if (number < 1024 * 1024) {
+            return `${(number / 1024).toFixed(2)} KB`;
+        }
+        if (number < 1024 * 1024 * 1024) {
+            return `${(number / (1024 * 1024)).toFixed(2)} MB`;
+        }
+
+        return `${(number / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    };
+
+    // =====================================================
+    // NAVIGATION
     // =====================================================
 
     const handleBack = () => {
-
-        navigate(
-            "/product-images"
-        );
-
+        navigate("/product-images");
     };
-
-
-    // =====================================================
-    // EDIT
-    // =====================================================
 
     const handleEdit = () => {
-
-        const productImageId =
-            getValue(
-                "ProductImageId",
-                "productImageId",
-                id
-            );
-
-
-        navigate(
-            `/product-images/edit/${productImageId}`
-        );
-
+        navigate(`/product-images/edit/${productImageId}`);
     };
-
 
     // =====================================================
     // LOADING
     // =====================================================
 
     if (loading) {
-
         return (
-
             <Box
                 sx={{
                     minHeight: 400,
@@ -259,227 +255,115 @@ const ProductImageDetails = () => {
                     justifyContent: "center"
                 }}
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
-
     }
-
 
     // =====================================================
     // ERROR
     // =====================================================
 
     if (error || !image) {
-
         return (
-
             <Box sx={{ p: 3 }}>
-
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                >
-                    {error ||
-                        "Product image not found."}
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error || "Product image not found."}
                 </Alert>
-
 
                 <Button
                     variant="outlined"
-                    startIcon={
-                        <ArrowBack />
-                    }
-                    onClick={
-                        handleBack
-                    }
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
                 >
                     Back to Product Images
                 </Button>
 
+                <Button
+                    sx={{ ml: 1 }}
+                    onClick={loadProductImage}
+                >
+                    Retry
+                </Button>
             </Box>
-
         );
-
     }
 
-
     // =====================================================
-    // IMAGE VALUES
+    // REUSABLE INFORMATION FIELD
     // =====================================================
 
-    const productImageId =
-        getValue(
-            "ProductImageId",
-            "productImageId"
-        );
+    const Field = ({ label, value }) => (
+        <Grid item xs={12} md={6}>
+            <Typography variant="caption" color="text.secondary">
+                {label}
+            </Typography>
 
-
-    const productId =
-        getValue(
-            "ProductId",
-            "productId"
-        );
-
-
-    const imageUrl =
-        getValue(
-            "ImageUrl",
-            "imageUrl"
-        );
-
-
-    const imageName =
-        getValue(
-            "ImageName",
-            "imageName"
-        );
-
-
-    const imageType =
-        getValue(
-            "ImageType",
-            "imageType"
-        );
-
-
-    const isPrimary =
-        getBooleanValue(
-            "IsPrimary",
-            "isPrimary"
-        );
-
-
-    const isActive =
-        getBooleanValue(
-            "IsActive",
-            "isActive"
-        );
-
-
-    const createdDate =
-        getValue(
-            "CreatedDate",
-            "createdDate"
-        );
-
-
-    const updatedDate =
-        getValue(
-            "UpdatedDate",
-            "updatedDate"
-        );
-
+            <Typography
+                variant="body1"
+                fontWeight={600}
+                sx={{ overflowWrap: "anywhere" }}
+            >
+                {value !== null && value !== undefined && value !== ""
+                    ? value
+                    : "—"}
+            </Typography>
+        </Grid>
+    );
 
     // =====================================================
     // UI
     // =====================================================
 
     return (
-
         <Box sx={{ p: 3 }}>
-
-
-            {/* =================================================
-                HEADER
-            ================================================= */}
-
+            {/* HEADER */}
             <Box
                 sx={{
                     display: "flex",
-                    justifyContent:
-                        "space-between",
+                    justifyContent: "space-between",
                     alignItems: "center",
                     gap: 2,
                     mb: 3,
                     flexWrap: "wrap"
                 }}
             >
-
                 <Box>
-
-                    <Typography
-                        variant="h5"
-                        fontWeight="bold"
-                    >
+                    <Typography variant="h5" fontWeight="bold">
                         Product Image Details
                     </Typography>
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
+                    <Typography variant="body2" color="text.secondary">
                         View product image information
                     </Typography>
-
                 </Box>
 
-
-                <Box
-                    sx={{
-                        display: "flex",
-                        gap: 1
-                    }}
-                >
-
+                <Box sx={{ display: "flex", gap: 1 }}>
                     <Button
                         variant="outlined"
-                        startIcon={
-                            <ArrowBack />
-                        }
-                        onClick={
-                            handleBack
-                        }
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
                     >
                         Back
                     </Button>
 
-
                     <Button
                         variant="contained"
-                        startIcon={
-                            <Edit />
-                        }
-                        onClick={
-                            handleEdit
-                        }
+                        startIcon={<Edit />}
+                        onClick={handleEdit}
                     >
                         Edit
                     </Button>
-
                 </Box>
-
             </Box>
 
-
-            {/* =================================================
-                IMAGE PREVIEW
-            ================================================= */}
-
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 3,
-                    mb: 3
-                }}
-            >
-
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ mb: 2 }}
-                >
+            {/* IMAGE PREVIEW */}
+            <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
                     Image Preview
                 </Typography>
 
-
-                <Divider
-                    sx={{ mb: 3 }}
-                />
-
+                <Divider sx={{ mb: 3 }} />
 
                 <Box
                     sx={{
@@ -493,16 +377,11 @@ const ProductImageDetails = () => {
                         p: 2
                     }}
                 >
-
                     {imageUrl ? (
-
                         <Box
                             component="img"
                             src={imageUrl}
-                            alt={
-                                imageName ||
-                                "Product Image"
-                            }
+                            alt={imageName}
                             sx={{
                                 maxWidth: "100%",
                                 maxHeight: 350,
@@ -510,410 +389,113 @@ const ProductImageDetails = () => {
                                 borderRadius: 1
                             }}
                             onError={(event) => {
-
-                                event.currentTarget.style.display =
-                                    "none";
-
+                                event.currentTarget.style.display = "none";
                             }}
                         />
-
                     ) : (
+                        <Box sx={{ textAlign: "center", color: "text.secondary" }}>
+                            <ImageIcon sx={{ fontSize: 70 }} />
+                            <Typography>No image available</Typography>
+                        </Box>
+                    )}
+                </Box>
+            </Paper>
 
-                        <Box
-                            sx={{
-                                textAlign: "center",
-                                color:
-                                    "text.secondary"
-                            }}
-                        >
+            {/* BASIC INFORMATION */}
+            <Card sx={{ mb: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+                        Basic Information
+                    </Typography>
 
-                            <ImageIcon
-                                sx={{
-                                    fontSize: 70
-                                }}
-                            />
+                    <Divider sx={{ mb: 3 }} />
 
-                            <Typography>
-                                No image available
+                    <Grid container spacing={3}>
+                        <Field label="Product Image ID" value={productImageId} />
+                        <Field label="Product ID" value={productId} />
+                        <Field label="Seller ID" value={sellerId} />
+                        <Field label="Customer ID" value={customerId} />
+                        <Field label="Image Name" value={imageName} />
+                        <Field label="Image Type" value={imageType} />
+                        <Field label="Image Size" value={formatImageSize(imageSize)} />
+                        <Field label="Display Order" value={displayOrder} />
+
+                        <Grid item xs={12}>
+                            <Typography variant="caption" color="text.secondary">
+                                Image URL
                             </Typography>
 
-                        </Box>
-
-                    )}
-
-                </Box>
-
-            </Paper>
-
-
-            {/* =================================================
-                BASIC INFORMATION
-            ================================================= */}
-
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 3,
-                    mb: 3
-                }}
-            >
-
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ mb: 2 }}
-                >
-                    Basic Information
-                </Typography>
-
-
-                <Divider
-                    sx={{ mb: 3 }}
-                />
-
-
-                <Grid
-                    container
-                    spacing={3}
-                >
-
-                    {/* PRODUCT IMAGE ID */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Product Image ID
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                            fontWeight="600"
-                        >
-                            {productImageId ||
-                                "—"}
-                        </Typography>
-
+                            <Typography sx={{ overflowWrap: "anywhere" }}>
+                                {imageUrl || "—"}
+                            </Typography>
+                        </Grid>
                     </Grid>
+                </CardContent>
+            </Card>
 
+            {/* STATUS */}
+            <Card sx={{ mb: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+                        Status
+                    </Typography>
 
-                    {/* PRODUCT ID */}
+                    <Divider sx={{ mb: 3 }} />
 
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="caption" color="text.secondary">
+                                Primary Image
+                            </Typography>
 
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Product ID
-                        </Typography>
+                            <Box sx={{ mt: 1 }}>
+                                <Chip
+                                    label={isPrimary ? "Primary" : "Not Primary"}
+                                    color={isPrimary ? "success" : "default"}
+                                />
+                            </Box>
+                        </Grid>
 
-                        <Typography
-                            variant="body1"
-                            fontWeight="600"
-                        >
-                            {productId ||
-                                "—"}
-                        </Typography>
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="caption" color="text.secondary">
+                                Status
+                            </Typography>
 
+                            <Box sx={{ mt: 1 }}>
+                                <Chip
+                                    label={isActive ? "Active" : "Inactive"}
+                                    color={isActive ? "success" : "default"}
+                                />
+                            </Box>
+                        </Grid>
                     </Grid>
+                </CardContent>
+            </Card>
 
+            {/* RECORD INFORMATION */}
+            <Card>
+                <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+                        Record Information
+                    </Typography>
 
-                    {/* IMAGE NAME */}
+                    <Divider sx={{ mb: 3 }} />
 
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
+                    <Grid container spacing={3}>
+                        <Field
+                            label="Created Date"
+                            value={formatDate(createdDate)}
+                        />
 
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Image Name
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                            fontWeight="600"
-                        >
-                            {imageName ||
-                                "—"}
-                        </Typography>
-
+                        <Field
+                            label="Updated Date"
+                            value={formatDate(updatedDate)}
+                        />
                     </Grid>
-
-
-                    {/* IMAGE TYPE */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Image Type
-                        </Typography>
-
-                        <Box sx={{ mt: 0.5 }}>
-
-                            <Chip
-                                label={
-                                    imageType ||
-                                    "Unknown"
-                                }
-                                variant="outlined"
-                            />
-
-                        </Box>
-
-                    </Grid>
-
-
-                    {/* IMAGE URL */}
-
-                    <Grid
-                        item
-                        xs={12}
-                    >
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Image URL
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                            sx={{
-                                wordBreak:
-                                    "break-all"
-                            }}
-                        >
-                            {imageUrl ||
-                                "—"}
-                        </Typography>
-
-                    </Grid>
-
-                </Grid>
-
-            </Paper>
-
-
-            {/* =================================================
-                STATUS
-            ================================================= */}
-
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 3,
-                    mb: 3
-                }}
-            >
-
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ mb: 2 }}
-                >
-                    Status
-                </Typography>
-
-
-                <Divider
-                    sx={{ mb: 3 }}
-                />
-
-
-                <Grid
-                    container
-                    spacing={3}
-                >
-
-                    {/* PRIMARY */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Primary Image
-                        </Typography>
-
-
-                        <Box sx={{ mt: 0.5 }}>
-
-                            <Chip
-                                label={
-                                    isPrimary
-                                        ? "Primary"
-                                        : "Not Primary"
-                                }
-                                color={
-                                    isPrimary
-                                        ? "success"
-                                        : "default"
-                                }
-                            />
-
-                        </Box>
-
-                    </Grid>
-
-
-                    {/* ACTIVE */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Status
-                        </Typography>
-
-
-                        <Box sx={{ mt: 0.5 }}>
-
-                            <Chip
-                                label={
-                                    isActive
-                                        ? "Active"
-                                        : "Inactive"
-                                }
-                                color={
-                                    isActive
-                                        ? "success"
-                                        : "default"
-                                }
-                            />
-
-                        </Box>
-
-                    </Grid>
-
-                </Grid>
-
-            </Paper>
-
-
-            {/* =================================================
-                RECORD INFORMATION
-            ================================================= */}
-
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 3
-                }}
-            >
-
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ mb: 2 }}
-                >
-                    Record Information
-                </Typography>
-
-
-                <Divider
-                    sx={{ mb: 3 }}
-                />
-
-
-                <Grid
-                    container
-                    spacing={3}
-                >
-
-                    {/* CREATED */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Created Date
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                        >
-                            {formatDate(
-                                createdDate
-                            )}
-                        </Typography>
-
-                    </Grid>
-
-
-                    {/* UPDATED */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                        >
-                            Updated Date
-                        </Typography>
-
-                        <Typography
-                            variant="body1"
-                        >
-                            {formatDate(
-                                updatedDate
-                            )}
-                        </Typography>
-
-                    </Grid>
-
-                </Grid>
-
-            </Paper>
-
+                </CardContent>
+            </Card>
         </Box>
-
     );
-
 };
-
 
 export default ProductImageDetails;

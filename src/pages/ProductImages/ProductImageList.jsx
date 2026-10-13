@@ -1,990 +1,323 @@
 // =========================================================
 // ProductImageList.jsx
 // Product Image List
-// Frontend uses server.js
-// NO apiService
+// View / Edit / Delete navigate to separate pages
+// Frontend -> Node.js server.js -> ASP.NET Core API
 // =========================================================
 
-import React, {
-    useEffect,
-    useState,
-} from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import {
-    Box,
-    Alert,
-    Snackbar,
-} from "@mui/material";
+import { Box, Alert, Snackbar } from "@mui/material";
 
-import ProductImageToolbar
-    from "./ProductImageToolbar";
-
-import ProductImageStatistics
-    from "./ProductImageStatistics";
-
-import ProductImageSearch
-    from "./ProductImageSearch";
-
-import ProductImageTable
-    from "./ProductImageTable";
-
-import ProductImagePagination
-    from "./ProductImagePagination";
-
-import ProductImageModal
-    from "./ProductImageModal";
-
-import ProductImageView
-    from "./ProductImageView";
-
-import DeleteProductImageDialog
-    from "./DeleteProductImageDialog";
-
+import ProductImageToolbar from "./ProductImageToolbar";
+import ProductImageStatistics from "./ProductImageStatistics";
+import ProductImageSearch from "./ProductImageSearch";
+import ProductImageTable from "./ProductImageTable";
+import ProductImagePagination from "./ProductImagePagination";
 
 // =========================================================
-// SERVER URL
+// NODE.JS SERVER
 // =========================================================
 
 const SERVER_URL = "http://localhost:5000";
 
+// =========================================================
+// GET IMAGE ID
+// Supports camelCase and PascalCase responses
+// =========================================================
+
+const getImageId = (image) =>
+    image?.id ??
+    image?.Id ??
+    image?.productImageId ??
+    image?.ProductImageId ??
+    image?.productImagesId ??
+    image?.ProductImagesId ??
+    null;
 
 // =========================================================
 // PRODUCT IMAGE LIST
 // =========================================================
 
 const ProductImageList = () => {
+    const navigate = useNavigate();
 
-    // =====================================================
+    // -----------------------------------------------------
     // STATE
-    // =====================================================
+    // -----------------------------------------------------
 
     const [images, setImages] = useState([]);
+    const [filteredImages, setFilteredImages] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const [filteredImages, setFilteredImages] =
-        useState([]);
+    const [searchText, setSearchText] = useState("");
+    const [imageTypeFilter, setImageTypeFilter] = useState("");
 
-    const [loading, setLoading] =
-        useState(false);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
-    const [searchText, setSearchText] =
-        useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-    const [imageTypeFilter, setImageTypeFilter] =
-        useState("");
-
-    const [selectedImage, setSelectedImage] =
-        useState(null);
-
-    const [modalOpen, setModalOpen] =
-        useState(false);
-
-    const [viewOpen, setViewOpen] =
-        useState(false);
-
-    const [deleteOpen, setDeleteOpen] =
-        useState(false);
-
-    const [page, setPage] =
-        useState(1);
-
-    const [pageSize, setPageSize] =
-        useState(10);
-
-    const [error, setError] =
-        useState("");
-
-    const [success, setSuccess] =
-        useState("");
-
-    // =====================================================
-    // STATISTICS REFRESH TRIGGER
-    // =====================================================
-
-    const [statisticsRefresh, setStatisticsRefresh] =
-        useState(0);
-
+    const [statisticsRefresh, setStatisticsRefresh] = useState(0);
 
     // =====================================================
     // LOAD PRODUCT IMAGES
-    //
-    // GET:
-    // http://localhost:5000/api/product-images/all
+    // GET http://localhost:5000/api/product-images/all
     // =====================================================
 
     const loadImages = async () => {
-
         try {
-
             setLoading(true);
-
             setError("");
 
             const response = await fetch(
                 `${SERVER_URL}/api/product-images/all`
             );
 
-            // -------------------------------------------------
-            // RESPONSE ERROR
-            // -------------------------------------------------
-
             if (!response.ok) {
-
-                const errorData =
-                    await response
-                        .json()
-                        .catch(() => ({}));
+                const errorData = await response
+                    .json()
+                    .catch(() => ({}));
 
                 throw new Error(
                     errorData.message ||
                     `Failed to load product images. Status: ${response.status}`
                 );
-
             }
 
-
-            // -------------------------------------------------
-            // RESPONSE DATA
-            // -------------------------------------------------
-
-            const data =
-                await response.json();
-
-
-            // -------------------------------------------------
-            // SUPPORT DIFFERENT API RESPONSE FORMATS
-            //
-            // []
-            // { items: [] }
-            // { data: [] }
-            // -------------------------------------------------
+            const data = await response.json();
 
             let imageList = [];
 
-
             if (Array.isArray(data)) {
-
                 imageList = data;
-
-            }
-
-            else if (
-                Array.isArray(data?.items)
-            ) {
-
+            } else if (Array.isArray(data?.items)) {
                 imageList = data.items;
-
-            }
-
-            else if (
-                Array.isArray(data?.data)
-            ) {
-
+            } else if (Array.isArray(data?.data)) {
                 imageList = data.data;
-
             }
-
-
-            // -------------------------------------------------
-            // UPDATE IMAGE STATE
-            // -------------------------------------------------
 
             setImages(imageList);
-
-            setFilteredImages(imageList);
-
-
-            // -------------------------------------------------
-            // RESET PAGE
-            // -------------------------------------------------
-
             setPage(1);
 
-
-            // -------------------------------------------------
-            // REFRESH STATISTICS
-            // -------------------------------------------------
-
-            setStatisticsRefresh(
-                (previous) => previous + 1
-            );
-
-        }
-
-        catch (err) {
-
-            console.error(
-                "Load Product Images Error:",
-                err
-            );
+            setStatisticsRefresh((previous) => previous + 1);
+        } catch (err) {
+            console.error("Load Product Images Error:", err);
 
             setError(
-                err?.message ||
-                "Failed to load product images."
+                err?.message || "Failed to load product images."
             );
 
-        }
-
-        finally {
-
+            setImages([]);
+        } finally {
             setLoading(false);
-
         }
-
     };
-
 
     // =====================================================
     // INITIAL LOAD
     // =====================================================
 
     useEffect(() => {
-
         loadImages();
-
     }, []);
 
-
     // =====================================================
-    // SEARCH & FILTER
+    // SEARCH AND FILTER
     // =====================================================
 
     useEffect(() => {
-
         let result = [...images];
 
+        if (searchText.trim()) {
+            const search = searchText.trim().toLowerCase();
 
-        // =================================================
-        // SEARCH
-        // =================================================
+            result = result.filter((item) => {
+                const productId = String(
+                    item?.productId ?? item?.ProductId ?? ""
+                ).toLowerCase();
 
-        if (
-            searchText.trim() !== ""
-        ) {
+                const imageName = String(
+                    item?.imageName ?? item?.ImageName ?? ""
+                ).toLowerCase();
 
-            const search =
-                searchText
-                    .trim()
-                    .toLowerCase();
+                const imageUrl = String(
+                    item?.imageUrl ?? item?.ImageUrl ?? ""
+                ).toLowerCase();
 
+                const imageType = String(
+                    item?.imageType ?? item?.ImageType ?? ""
+                ).toLowerCase();
 
-            result =
-                result.filter((item) => {
-
-
-                    // -----------------------------------------
-                    // PRODUCT ID
-                    // -----------------------------------------
-
-                    const productId =
-                        String(
-                            item?.ProductId ??
-                            item?.productId ??
-                            ""
-                        )
-                            .toLowerCase();
-
-
-                    // -----------------------------------------
-                    // IMAGE NAME
-                    // -----------------------------------------
-
-                    const imageName =
-                        String(
-                            item?.ImageName ??
-                            item?.imageName ??
-                            ""
-                        )
-                            .toLowerCase();
-
-
-                    // -----------------------------------------
-                    // IMAGE URL
-                    // -----------------------------------------
-
-                    const imageUrl =
-                        String(
-                            item?.ImageUrl ??
-                            item?.imageUrl ??
-                            ""
-                        )
-                            .toLowerCase();
-
-
-                    // -----------------------------------------
-                    // IMAGE TYPE
-                    // -----------------------------------------
-
-                    const imageType =
-                        String(
-                            item?.ImageType ??
-                            item?.imageType ??
-                            ""
-                        )
-                            .toLowerCase();
-
-
-                    return (
-
-                        productId.includes(
-                            search
-                        ) ||
-
-                        imageName.includes(
-                            search
-                        ) ||
-
-                        imageUrl.includes(
-                            search
-                        ) ||
-
-                        imageType.includes(
-                            search
-                        )
-
-                    );
-
-                });
-
+                return (
+                    productId.includes(search) ||
+                    imageName.includes(search) ||
+                    imageUrl.includes(search) ||
+                    imageType.includes(search)
+                );
+            });
         }
 
+        if (imageTypeFilter !== "") {
+            result = result.filter((item) => {
+                const imageType =
+                    item?.imageType ?? item?.ImageType ?? "";
 
-        // =================================================
-        // IMAGE TYPE FILTER
-        // =================================================
-
-        if (
-            imageTypeFilter !== ""
-        ) {
-
-            result =
-                result.filter((item) => {
-
-                    const imageType =
-                        item?.ImageType ??
-                        item?.imageType ??
-                        "";
-
-                    return (
-                        String(imageType)
-                            .toLowerCase() ===
-                        String(imageTypeFilter)
-                            .toLowerCase()
-                    );
-
-                });
-
+                return (
+                    String(imageType).toLowerCase() ===
+                    String(imageTypeFilter).toLowerCase()
+                );
+            });
         }
-
-
-        // =================================================
-        // UPDATE FILTERED DATA
-        // =================================================
 
         setFilteredImages(result);
-
         setPage(1);
-
-    }, [
-        images,
-        searchText,
-        imageTypeFilter,
-    ]);
-
+    }, [images, searchText, imageTypeFilter]);
 
     // =====================================================
     // PAGINATION
     // =====================================================
 
-    const totalPages =
-        Math.ceil(
-            filteredImages.length /
-            pageSize
-        );
+    const totalPages = Math.ceil(
+        filteredImages.length / pageSize
+    );
 
-
-    const pagedImages =
-        filteredImages.slice(
-            (page - 1) * pageSize,
-            page * pageSize
-        );
-
+    const pagedImages = filteredImages.slice(
+        (page - 1) * pageSize,
+        page * pageSize
+    );
 
     // =====================================================
-    // SAVE PRODUCT IMAGE
-    //
-    // POST:
-    // /api/product-images
-    //
-    // PUT:
-    // /api/product-images/:id
+    // CREATE PRODUCT IMAGE
+    // Opens a separate page
     // =====================================================
 
-    const handleSave = async (data) => {
-
-        try {
-
-            setError("");
-
-
-            // =================================================
-            // DETECT PRODUCT IMAGE ID
-            // =================================================
-
-            const productImageId =
-                data?.ProductImageId ??
-                data?.productImageId ??
-                0;
-
-
-            // =================================================
-            // UPDATE
-            // =================================================
-
-            if (productImageId) {
-
-                const response =
-                    await fetch(
-                        `${SERVER_URL}/api/product-images/${productImageId}`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-                            },
-
-                            body:
-                                JSON.stringify(data),
-                        }
-                    );
-
-
-                // ---------------------------------------------
-                // UPDATE ERROR
-                // ---------------------------------------------
-
-                if (!response.ok) {
-
-                    const errorData =
-                        await response
-                            .json()
-                            .catch(
-                                () => ({})
-                            );
-
-
-                    throw new Error(
-                        errorData.message ||
-                        `Failed to update product image. Status: ${response.status}`
-                    );
-
-                }
-
-
-                setSuccess(
-                    "Product image updated successfully."
-                );
-
-            }
-
-
-            // =================================================
-            // CREATE
-            // =================================================
-
-            else {
-
-                const response =
-                    await fetch(
-                        `${SERVER_URL}/api/product-images`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-                            },
-
-                            body:
-                                JSON.stringify(data),
-                        }
-                    );
-
-
-                // ---------------------------------------------
-                // CREATE ERROR
-                // ---------------------------------------------
-
-                if (!response.ok) {
-
-                    const errorData =
-                        await response
-                            .json()
-                            .catch(
-                                () => ({})
-                            );
-
-
-                    throw new Error(
-                        errorData.message ||
-                        `Failed to create product image. Status: ${response.status}`
-                    );
-
-                }
-
-
-                setSuccess(
-                    "Product image created successfully."
-                );
-
-            }
-
-
-            // =================================================
-            // RELOAD IMAGE LIST
-            // =================================================
-
-            await loadImages();
-
-
-            // =================================================
-            // CLOSE MODAL
-            // =================================================
-
-            setModalOpen(false);
-
-            setSelectedImage(null);
-
-        }
-
-        catch (err) {
-
-            console.error(
-                "Save Product Image Error:",
-                err
-            );
-
-            setError(
-                err?.message ||
-                "Failed to save product image."
-            );
-
-        }
-
+    const handleCreate = () => {
+        navigate("/product-images/create");
     };
 
+    // =====================================================
+    // VIEW PRODUCT IMAGE
+    // Opens /product-images/:id
+    // =====================================================
+
+    const handleView = (image) => {
+        const id = getImageId(image);
+
+        if (!id) {
+            setError("Cannot view this image: image ID is missing.");
+            return;
+        }
+
+        navigate(`/product-images/${id}`);
+    };
+
+    // =====================================================
+    // EDIT PRODUCT IMAGE
+    // Opens /product-images/edit/:id
+    // =====================================================
+
+    const handleEdit = (image) => {
+        const id = getImageId(image);
+
+        if (!id) {
+            setError("Cannot edit this image: image ID is missing.");
+            return;
+        }
+
+        navigate(`/product-images/edit/${id}`);
+    };
 
     // =====================================================
     // DELETE PRODUCT IMAGE
-    //
-    // DELETE:
-    // /api/product-images/:id
+    // Opens /product-images/delete/:id
     // =====================================================
 
-    const handleDelete = async (id) => {
+    const handleDelete = (image) => {
+        const id = getImageId(image);
 
-        try {
-
-            setError("");
-
-
-            // =================================================
-            // DELETE REQUEST
-            // =================================================
-
-            const response =
-                await fetch(
-                    `${SERVER_URL}/api/product-images/${id}`,
-                    {
-                        method: "DELETE",
-                    }
-                );
-
-
-            // =================================================
-            // DELETE ERROR
-            // =================================================
-
-            if (!response.ok) {
-
-                const errorData =
-                    await response
-                        .json()
-                        .catch(
-                            () => ({})
-                        );
-
-
-                throw new Error(
-                    errorData.message ||
-                    `Failed to delete product image. Status: ${response.status}`
-                );
-
-            }
-
-
-            // =================================================
-            // RELOAD IMAGE LIST
-            // =================================================
-
-            await loadImages();
-
-
-            // =================================================
-            // CLOSE DELETE DIALOG
-            // =================================================
-
-            setDeleteOpen(false);
-
-            setSelectedImage(null);
-
-
-            // =================================================
-            // SUCCESS
-            // =================================================
-
-            setSuccess(
-                "Product image deleted successfully."
-            );
-
+        if (!id) {
+            setError("Cannot delete this image: image ID is missing.");
+            return;
         }
 
-        catch (err) {
-
-            console.error(
-                "Delete Product Image Error:",
-                err
-            );
-
-            setError(
-                err?.message ||
-                "Failed to delete product image."
-            );
-
-        }
-
+        navigate(`/product-images/delete/${id}`);
     };
-
 
     // =====================================================
     // RENDER
     // =====================================================
 
     return (
-
         <Box sx={{ p: 3 }}>
-
-
-            {/* =================================================
-                ERROR MESSAGE
-            ================================================= */}
-
+            {/* ERROR MESSAGE */}
             {error && (
-
                 <Alert
                     severity="error"
                     sx={{ mb: 2 }}
-                    onClose={() =>
-                        setError("")
-                    }
+                    onClose={() => setError("")}
                 >
                     {error}
                 </Alert>
-
             )}
 
-
-            {/* =================================================
-                TOOLBAR
-            ================================================= */}
-
+            {/* TOOLBAR */}
             <ProductImageToolbar
-
-                onAdd={() => {
-
-                    setSelectedImage(null);
-
-                    setModalOpen(true);
-
-                }}
-
+                onAdd={handleCreate}
                 onRefresh={loadImages}
-
                 onExport={() => {
-
-                    console.log(
-                        "Export Product Images"
-                    );
-
+                    console.log("Export Product Images");
                 }}
-
             />
 
-
-            {/* =================================================
-                STATISTICS
-            ================================================= */}
-
+            {/* STATISTICS */}
             <ProductImageStatistics
-                refreshTrigger={
-                    statisticsRefresh
-                }
+                refreshTrigger={statisticsRefresh}
             />
 
-
-            {/* =================================================
-                SEARCH
-            ================================================= */}
-
+            {/* SEARCH AND FILTER */}
             <ProductImageSearch
-
-                searchText={
-                    searchText
-                }
-
-                setSearchText={
-                    setSearchText
-                }
-
-                imageTypeFilter={
-                    imageTypeFilter
-                }
-
-                setImageTypeFilter={
-                    setImageTypeFilter
-                }
-
-                images={
-                    images
-                }
-
+                searchText={searchText}
+                setSearchText={setSearchText}
+                imageTypeFilter={imageTypeFilter}
+                setImageTypeFilter={setImageTypeFilter}
+                images={images}
             />
 
-
-            {/* =================================================
-                PRODUCT IMAGE TABLE
-            ================================================= */}
-
+            {/* PRODUCT IMAGE TABLE */}
             <ProductImageTable
-
-                images={
-                    pagedImages
-                }
-
-                loading={
-                    loading
-                }
-
-                onView={(row) => {
-
-                    setSelectedImage(
-                        row
-                    );
-
-                    setViewOpen(
-                        true
-                    );
-
-                }}
-
-                onEdit={(row) => {
-
-                    setSelectedImage(
-                        row
-                    );
-
-                    setModalOpen(
-                        true
-                    );
-
-                }}
-
-                onDelete={(row) => {
-
-                    setSelectedImage(
-                        row
-                    );
-
-                    setDeleteOpen(
-                        true
-                    );
-
-                }}
-
+                images={pagedImages}
+                loading={loading}
+                onView={handleView}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
             />
 
-
-            {/* =================================================
-                PAGINATION
-            ================================================= */}
-
+            {/* PAGINATION */}
             <ProductImagePagination
-
-                page={
-                    page
-                }
-
-                totalPages={
-                    totalPages
-                }
-
-                pageSize={
-                    pageSize
-                }
-
-                totalRecords={
-                    filteredImages.length
-                }
-
-                onPageChange={
-                    setPage
-                }
-
-                onPageSizeChange={
-                    (size) => {
-
-                        setPageSize(
-                            size
-                        );
-
-                        setPage(
-                            1
-                        );
-
-                    }
-                }
-
-            />
-
-
-            {/* =================================================
-                CREATE / EDIT MODAL
-            ================================================= */}
-
-            <ProductImageModal
-
-                open={
-                    modalOpen
-                }
-
-                image={
-                    selectedImage
-                }
-
-                onClose={() => {
-
-                    setModalOpen(
-                        false
-                    );
-
-                    setSelectedImage(
-                        null
-                    );
-
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                totalRecords={filteredImages.length}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setPage(1);
                 }}
-
-                onSave={
-                    handleSave
-                }
-
             />
 
-
-            {/* =================================================
-                VIEW MODAL
-            ================================================= */}
-
-            <ProductImageView
-
-                open={
-                    viewOpen
-                }
-
-                image={
-                    selectedImage
-                }
-
-                onClose={() => {
-
-                    setViewOpen(
-                        false
-                    );
-
-                    setSelectedImage(
-                        null
-                    );
-
-                }}
-
-            />
-
-
-            {/* =================================================
-                DELETE DIALOG
-            ================================================= */}
-
-            <DeleteProductImageDialog
-
-                open={
-                    deleteOpen
-                }
-
-                image={
-                    selectedImage
-                }
-
-                onClose={() => {
-
-                    setDeleteOpen(
-                        false
-                    );
-
-                    setSelectedImage(
-                        null
-                    );
-
-                }}
-
-                onDeleted={
-                    handleDelete
-                }
-
-            />
-
-
-            {/* =================================================
-                SUCCESS MESSAGE
-            ================================================= */}
-
+            {/* SUCCESS MESSAGE */}
             <Snackbar
-
-                open={
-                    Boolean(success)
-                }
-
-                autoHideDuration={
-                    3000
-                }
-
-                onClose={() =>
-                    setSuccess("")
-                }
-
-                message={
-                    success
-                }
-
+                open={Boolean(success)}
+                autoHideDuration={3000}
+                onClose={() => setSuccess("")}
+                message={success}
             />
-
         </Box>
-
     );
-
 };
 
-
-// =========================================================
-// EXPORT
-// =========================================================
-
 export default ProductImageList;
+

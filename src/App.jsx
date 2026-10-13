@@ -2021,45 +2021,49 @@ VENDOR ITEM MASTERS ROUTES
                 />
 
 
-                {/* =================================================
-                    PRODUCT IMAGES
-                ================================================= */}
+               {/* =================================================
+    PRODUCT IMAGES
+================================================= */}
 
-                <Route
-                    path="product-images"
-                    element={<ProductImageList />}
-                />
+<Route
+    path="product-images"
+    element={<ProductImageList />}
+/>
 
-                <Route
-                    path="product-images/create"
-                    element={<ProductImageCreate />}
-                />
+<Route
+    path="product-images/create"
+    element={<ProductImageCreate />}
+/>
 
-                <Route
-                    path="product-images/search"
-                    element={<ProductImageSearch />}
-                />
+<Route
+    path="product-images/search"
+    element={<ProductImageSearch />}
+/>
 
-                <Route
-                    path="product-images/statistics"
-                    element={<ProductImageStatistics />}
-                />
+<Route
+    path="product-images/statistics"
+    element={<ProductImageStatistics />}
+/>
 
-                <Route
-                    path="product-images/details/:id"
-                    element={<ProductImageDetails />}
-                />
+<Route
+    path="product-images/edit/:id"
+    element={<ProductImageEdit />}
+/>
 
-                <Route
-                    path="product-images/edit/:id"
-                    element={<ProductImageEdit />}
-                />
+<Route
+    path="product-images/delete/:id"
+    element={<DeleteProductImageDialog />}
+/>
 
-                <Route
-                    path="product-images/:id"
-                    element={<ProductImageView />}
-                />
+<Route
+    path="product-images/details/:id"
+    element={<ProductImageDetails />}
+/>
 
+<Route
+    path="product-images/:id"
+    element={<ProductImageDetails />}
+/>
 
                 {/* =================================================
                     PRODUCT INVENTORY
