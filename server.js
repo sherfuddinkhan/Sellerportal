@@ -11329,14 +11329,6 @@ app.put("/api/seller-customers/:sellerId/customers/:customerId", async (req, res
     }
 });
 
-
-// ============================================================
-// DELETE SELLER CUSTOMER
-// DELETE /api/seller-customers/6/customers/3
-// ASP.NET: DELETE /api/SellerCustomer/6/customers/3
-// ============================================================
-
-
 // =====================================================
 // DELETE SELLER CUSTOMER
 // React -> Node.js -> ASP.NET Core
