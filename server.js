@@ -35845,6 +35845,270 @@ app.delete("/api/manifest-packages-putaway/:id", async (req, res) => {
         );
     }
 });
+//////////////////////putaway/////////
+// =====================================================
+// PUTAWAY APIs
+// ASP.NET BASE URL: https://localhost:7203/api
+// React / Node URL: http://localhost:5000/api/Putaway
+// =====================================================
+
+// GET ALL PUTAWAYS
+// GET: /api/Putaway/all
+app.get("/api/Putaway/all", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/Putaway/all`,
+            {
+                params: req.query,
+                httpsAgent
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Get All Putaways Error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to fetch all putaways"
+            }
+        );
+    }
+});
+
+
+// GET PUTAWAYS BY SELLER AND CUSTOMER
+// GET: /api/Putaway/seller/:sellerId/customer/:customerId
+app.get(
+    "/api/Putaway/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/Putaway/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Get Putaways By Seller/Customer Error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to fetch seller/customer putaways"
+                }
+            );
+        }
+    }
+);
+
+
+// CREATE PUTAWAY
+// POST: /api/Putaway/seller/:sellerId/customer/:customerId
+
+app.post("/api/Putaway/seller/:sellerId/customer/:customerId", async (req, res) => {
+    try {
+        const { sellerId, customerId } = req.params;
+
+        const response = await axios.post(
+            `${DOTNET_API}/Putaway/seller/${sellerId}/customer/${customerId}`,
+            req.body,
+            { httpsAgent }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Create Putaway Error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                success: false,
+                message: "Failed to create Putaway."
+            }
+        );
+    }
+});
+
+
+// GET PUTAWAY BY ID
+// GET: /api/Putaway/:id/seller/:sellerId/customer/:customerId
+app.get(
+    "/api/Putaway/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/Putaway/${id}/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Get Putaway By ID Error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to fetch putaway"
+                }
+            );
+        }
+    }
+);
+
+
+// UPDATE PUTAWAY
+// PUT: /api/Putaway/:id/seller/:sellerId/customer/:customerId
+app.put(
+    "/api/Putaway/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.put(
+                `${DOTNET_API}/Putaway/${id}/seller/${sellerId}/customer/${customerId}`,
+                req.body,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Update Putaway Error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to update putaway"
+                }
+            );
+        }
+    }
+);
+
+
+// DELETE PUTAWAY
+// DELETE: /api/Putaway/:id/seller/:sellerId/customer/:customerId
+app.delete(
+    "/api/Putaway/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.delete(
+                `${DOTNET_API}/Putaway/${id}/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Delete Putaway Error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to delete putaway"
+                }
+            );
+        }
+    }
+);
+
+
+// GET PUTAWAY STATISTICS
+// GET: /api/Putaway/statistics/seller/:sellerId/customer/:customerId
+app.get(
+    "/api/Putaway/statistics/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/Putaway/statistics/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Get Putaway Statistics Error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to fetch putaway statistics"
+                }
+            );
+        }
+    }
+);
+
+
+// GET PUTAWAYS BY SELLER ONLY
+// GET: /api/Putaway/seller/:sellerId
+app.get(
+    "/api/Putaway/seller/:sellerId",
+    async (req, res) => {
+        try {
+            const { sellerId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/Putaway/seller/${sellerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Get Putaways By Seller Error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to fetch seller putaways"
+                }
+            );
+        }
+    }
+);
+
+
 
 // =====================================================
 // INVOICE TAX DETAILS

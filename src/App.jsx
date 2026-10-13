@@ -964,7 +964,20 @@ import MarketplaceCustomersDelete from "./pages/MarketplaceCustomers/Marketplace
 import MarketplaceCustomersTable from "./pages/MarketplaceCustomers/MarketplaceCustomersTable";
 import MarketplaceCustomersCreate from "./pages/MarketplaceCustomers/MarketplaceCustomersCreate";
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// =====================================================
+// PUTAWAY IMPORTS
+// =====================================================
+import PutawayList from "./pages/Putaway/PutawayList";
+import PutawayCreate from "./pages/Putaway/PutawayCreate";
+import PutawayEdit from "./pages/Putaway/PutawayEdit";
 
+// Optional: import these only if you use them directly
+// in this routing file.
+import PutawayForm from "./pages/Putaway/PutawayForm";
+import PutawayTable from "./pages/Putaway/PutawayTable";
+import PutawayView from "./pages/Putaway/PutawayView";
+import PutawayDelete from "./pages/Putaway/PutawayDelete";
 
 // =========================================================
 // MARKETPLACE ORDER IMPORTS
@@ -3080,6 +3093,18 @@ VENDOR ITEM MASTERS ROUTES
                     element={<SalesInvoiceView />}
                 />
                 <Route path="/sales-invoices/print/:id" element={<SalesInvoicePrint />}/>
+
+                ///////////////////////////
+// PUTAWAY ROUTES
+<Route path="putaways" element={<PutawayList />} />
+<Route path="putaways/create" element={<PutawayCreate />} />
+<Route path="putaways/:id/edit" element={<PutawayEdit />} />
+<Route path="putaways/view/:id" element={<PutawayView />} />
+// REDIRECTS - fix old /putaway links
+<Route path="putaway" element={<Navigate to="/putaways" replace />} />
+<Route path="putaway/*" element={<Navigate to="/putaways" replace />} />
+
+
 
     {/* =================================================
     SHIPMENTS
