@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
     Dialog,
     DialogTitle,
@@ -15,11 +16,7 @@ const field = (row, name) =>
     row?.[name.charAt(0).toUpperCase() + name.slice(1)] ??
     "—";
 
-function MarketplaceCustomersView({
-    open,
-    customer,
-    onClose
-}) {
+function MarketplaceCustomersView({ open, customer, onClose }) {
     if (!customer) return null;
 
     const fields = [
@@ -83,4 +80,5 @@ function MarketplaceCustomersView({
         </Dialog>
     );
 }
-export default MarketplaceCustomersView
+
+export default MarketplaceCustomersView;

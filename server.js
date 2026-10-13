@@ -11369,63 +11369,171 @@ app.delete(
         }
     }
 );
-////////////////// Marketplace customers//////////////
-// =====================================================
-// MARKETPLACE CUSTOMERS API
-// Node.js -> ASP.NET Core
-// =====================================================
-// =====================================================
-// GET ALL MARKETPLACE CUSTOMERS
-// React: GET /api/marketplace/customers/all
-// ASP.NET: GET /api/marketplace/customers/all
-// =====================================================
-app.get("/api/marketplace/customers/all", async (req, res) => {
-    try {
-        const response = await axios.get(
-            `${DOTNET_API}/marketplace/customers/all`,
-            { httpsAgent }
-        );
 
-        res.status(response.status).json(response.data);
+// =====================================================
+// MARKETPLACE CUSTOMERS - GET ALL
+// React -> Node.js -> ASP.NET Core
+// =====================================================
+
+app.get("/api/marketplace/customers/all", async (req, res) => {
+    const targetUrl =
+        `${DOTNET_API}/marketplace/customers/all`;
+
+    console.log("GET Marketplace Customers");
+    console.log("ASP.NET URL:", targetUrl);
+
+    try {
+        const response = await axios.get(targetUrl, {
+            httpsAgent
+        });
+
+        return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "Get all marketplace customers error:",
+            "MARKETPLACE CUSTOMERS PROXY ERROR:",
+            error.response?.status,
             error.response?.data || error.message
         );
 
-        res.status(error.response?.status || 500).json({
+        return res.status(error.response?.status || 500).json({
             message: "Failed to retrieve marketplace customers",
+            backendUrl: targetUrl,
             error: error.response?.data || error.message
         });
     }
 });
 
+
+app.put("/api/marketplace/customers/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid marketplace customer ID."
+            });
+        }
+
+        const response = await axios.put(
+            `${DOTNET_API}/marketplace/customers/${id}`,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Update Marketplace Customer Error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to update marketplace customer."
+            }
+        );
+    }
+});
+app.post("/api/marketplace/customers", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${DOTNET_API}/marketplace/customers`,
+            req.body,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Create Marketplace Customer failed:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to create marketplace customer.",
+            details: error.response?.data || error.message
+        });
+    }
+});
+
+app.delete("/api/marketplace/customers/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid marketplace customer ID."
+            });
+        }
+
+        const response = await axios.delete(
+            `${DOTNET_API}/marketplace/customers/${id}`,
+            { httpsAgent }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Delete Marketplace Customer Error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to delete marketplace customer."
+            }
+        );
+    }
+});
+
+
+
+
+
+
+
 // =====================================================
-// GET MARKETPLACE CUSTOMER BY SELLER ID + CUSTOMER ID
-// React: GET /api/marketplace/customers/6/3
-// ASP.NET: GET /api/marketplace/customers/6/3
-// IMPORTANT: Keep this route after /all.
+// GET CUSTOMER ADDRESSES BY SELLER ID + CUSTOMER ID
+// React: GET /api/customer-addresses/seller/6/customer/3
+// ASP.NET: GET /api/customer-addresses/seller/6/customer/3
 // =====================================================
 app.get(
-    "/api/marketplace/customers/:sellerId/:customerId",
+    "/api/customer-addresses/seller/:sellerId/customer/:customerId",
     async (req, res) => {
         try {
             const { sellerId, customerId } = req.params;
 
             const response = await axios.get(
-                `${DOTNET_API}/marketplace/customers/${sellerId}/${customerId}`,
-                { httpsAgent }
+                `${DOTNET_API}/customer-addresses/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
             );
 
-            res.status(response.status).json(response.data);
+            return res.status(response.status).json(response.data);
         } catch (error) {
             console.error(
-                "Get marketplace customer by seller/customer error:",
+                "Get customer addresses by seller/customer error:",
                 error.response?.data || error.message
             );
 
-            res.status(error.response?.status || 500).json({
-                message: "Failed to retrieve marketplace customer",
+            return res.status(error.response?.status || 500).json({
+                message: "Failed to retrieve customer addresses by seller and customer",
                 error: error.response?.data || error.message
             });
         }
@@ -11433,14 +11541,85 @@ app.get(
 );
 
 // =====================================================
-// CREATE MARKETPLACE CUSTOMER
-// React: POST /api/marketplace/customers
-// ASP.NET: POST /api/marketplace/customers
+// GET CUSTOMER ADDRESSES BY CUSTOMER ID
+// React: GET /api/customer-addresses/customer/3
+// ASP.NET: GET /api/customer-addresses/customer/3
 // =====================================================
-app.post("/api/marketplace/customers", async (req, res) => {
+app.get(
+    "/api/customer-addresses/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { customerId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/customer-addresses/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Get customer addresses by customer ID error:",
+                error.response?.data || error.message
+            );
+
+            return res.status(error.response?.status || 500).json({
+                message: "Failed to retrieve customer addresses for customer",
+                error: error.response?.data || error.message
+            });
+        }
+    }
+);
+
+// =====================================================
+// GET CUSTOMER ADDRESS BY DATABASE ID
+// React: GET /api/customer-addresses/1
+// ASP.NET: GET /api/customer-addresses/1
+// IMPORTANT: Keep this after the more specific GET routes.
+// =====================================================
+app.get("/api/customer-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid customer address ID"
+            });
+        }
+
+        const response = await axios.get(
+            `${DOTNET_API}/customer-addresses/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Get customer address by ID error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to retrieve customer address",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// =====================================================
+// CREATE CUSTOMER ADDRESS
+// React: POST /api/customer-addresses
+// ASP.NET: POST /api/customer-addresses
+// =====================================================
+app.post("/api/customer-addresses", async (req, res) => {
     try {
         const response = await axios.post(
-            `${DOTNET_API}/marketplace/customers`,
+            `${DOTNET_API}/customer-addresses`,
             req.body,
             {
                 httpsAgent,
@@ -11451,19 +11630,106 @@ app.post("/api/marketplace/customers", async (req, res) => {
             }
         );
 
-        res.status(response.status).json(response.data);
+        return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "Create marketplace customer error:",
+            "Create customer address error:",
             error.response?.data || error.message
         );
 
-        res.status(error.response?.status || 500).json({
-            message: "Failed to create marketplace customer",
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to create customer address",
             error: error.response?.data || error.message
         });
     }
 });
+
+// =====================================================
+// UPDATE CUSTOMER ADDRESS
+// React: PUT /api/customer-addresses/1
+// ASP.NET: PUT /api/customer-addresses/1
+// =====================================================
+app.put("/api/customer-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid customer address ID"
+            });
+        }
+
+        const response = await axios.put(
+            `${DOTNET_API}/customer-addresses/${id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "*/*"
+                }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Update customer address error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to update customer address",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// =====================================================
+// DELETE CUSTOMER ADDRESS
+// React: DELETE /api/customer-addresses/1
+// ASP.NET: DELETE /api/customer-addresses/1
+// =====================================================
+app.delete("/api/customer-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid customer address ID"
+            });
+        }
+
+        const response = await axios.delete(
+            `${DOTNET_API}/customer-addresses/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        if (response.status === 204 || response.status === 200) {
+            return res.status(response.status).json(
+                response.data ?? {
+                    message: "Customer address deleted successfully",
+                    id
+                }
+            );
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Delete customer address error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to delete customer address",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
 
 
 

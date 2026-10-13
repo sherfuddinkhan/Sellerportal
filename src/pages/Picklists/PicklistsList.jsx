@@ -1,4 +1,3 @@
-// PicklistsList.jsx
 
 import React, {
     useCallback,
@@ -8,56 +7,50 @@ import React, {
 } from "react";
 
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
     Alert,
     Box,
+    Button,
     CircularProgress,
+    Paper,
     Snackbar,
+    TextField,
     Typography
 } from "@mui/material";
 
-import PicklistToolbar from "./PicklistToolbar";
-import PicklistStatistics from "./PicklistStatistics";
-import PicklistSearch from "./PicklistSearch";
+import {
+    Add as AddIcon,
+    Refresh as RefreshIcon
+} from "@mui/icons-material";
+
+
 import PicklistTable from "./PicklistTable";
-import PicklistPagination from "./PicklistPagination";
 
 /* =========================================================
    API CONFIGURATION
 ========================================================= */
+
 const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
 ).replace(/\/+$/, "");
 
-const PICKLIST_API_URL = `${API_BASE_URL}/api/Picklist`;
+const MARKETPLACE_CUSTOMERS_API =
+    `${API_BASE_URL}/api/marketplace/customers`;
 
 /* =========================================================
    RESPONSE HELPER
 ========================================================= */
 
-const extractPicklists = (response) => {
+const extractCustomers = (response) => {
     const data = response?.data;
 
-    if (Array.isArray(data)) {
-        return data;
-    }
-
-    if (Array.isArray(data?.data)) {
-        return data.data;
-    }
-
-    if (Array.isArray(data?.items)) {
-        return data.items;
-    }
-
-    if (Array.isArray(data?.results)) {
-        return data.results;
-    }
-
-    if (Array.isArray(data?.result)) {
-        return data.result;
-    }
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.items)) return data.items;
+    if (Array.isArray(data?.results)) return data.results;
+    if (Array.isArray(data?.result)) return data.result;
 
     return [];
 };
@@ -66,138 +59,32 @@ const extractPicklists = (response) => {
    FIELD HELPERS
 ========================================================= */
 
-const getFieldValue = (
-    item,
-    fields,
-    fallback = ""
-) => {
-    for (const field of fields) {
-        const value = item?.[field];
+const getField = (item, name, fallback = "") => {
+    if (!item) return fallback;
 
-        if (value !== undefined && value !== null) {
-            return value;
-        }
-    }
+    const pascalName =
+        name.charAt(0).toUpperCase() + name.slice(1);
 
-    return fallback;
+    return item[name] ?? item[pascalName] ?? fallback;
 };
 
-const getPicklistId = (item) =>
-    getFieldValue(item, [
-        "picklistId",
-        "PicklistId",
-        "pickListId",
-        "PickListId",
-        "id",
-        "Id"
-    ]);
-
-const getPicklistNumber = (item) =>
-    getFieldValue(item, [
-        "picklistNumber",
-        "PicklistNumber",
-        "pickListNumber",
-        "PickListNumber",
-        "picklistNo",
-        "PicklistNo",
-        "number",
-        "Number"
-    ], "—");
-
-const getOrderNumber = (item) =>
-    getFieldValue(item, [
-        "orderNumber",
-        "OrderNumber",
-        "salesOrderNumber",
-        "SalesOrderNumber",
-        "orderNo",
-        "OrderNo"
-    ], "—");
-
-const getWarehouseName = (item) =>
-    getFieldValue(item, [
-        "warehouseName",
-        "WarehouseName",
-        "warehouse",
-        "Warehouse",
-        "locationName",
-        "LocationName"
-    ], "—");
-
-const getStatus = (item) =>
-    String(
-        getFieldValue(item, [
-            "status",
-            "Status",
-            "picklistStatus",
-            "PicklistStatus"
-        ], "Pending")
-    );
-
-const getPicklistDate = (item) =>
-    getFieldValue(item, [
-        "picklistDate",
-        "PicklistDate",
-        "createdDate",
-        "CreatedDate",
-        "createdAt",
-        "CreatedAt",
-        "date",
-        "Date"
-    ]);
-
-const getItemCount = (item) => {
-    const count = getFieldValue(item, [
-        "totalItems",
-        "TotalItems",
-        "itemCount",
-        "ItemCount",
-        "totalQuantity",
-        "TotalQuantity"
-    ]);
-
-    if (count !== "") {
-        const number = Number(count);
-
-        if (Number.isFinite(number)) {
-            return number;
-        }
-    }
-
-    const items = getFieldValue(item, [
-        "items",
-        "Items",
-        "picklistItems",
-        "PicklistItems",
-        "details",
-        "Details"
-    ]);
-
-    return Array.isArray(items) ? items.length : 0;
-};
-
-const normalizeStatus = (value) =>
-    String(value ?? "")
-        .trim()
-        .toLowerCase()
-        .replace(/[\s_-]+/g, "");
+const getCustomerId = (item) =>
+    getField(item, "id", getField(item, "Id", ""));
 
 /* =========================================================
    COMPONENT
 ========================================================= */
 
-const PicklistsList = () => {
-    const [picklists, setPicklists] = useState([]);
+const MarketplaceCustomersList = () => {
+    const navigate = useNavigate();
 
+    const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [deletingId, setDeletingId] = useState(null);
     const [error, setError] = useState("");
-
     const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("All");
-
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const [notification, setNotification] = useState({
         open: false,
@@ -205,10 +92,8 @@ const PicklistsList = () => {
         severity: "success"
     });
 
-    const [refreshKey, setRefreshKey] = useState(0);
-
     /* =====================================================
-       NOTIFICATION
+       NOTIFICATIONS
     ===================================================== */
 
     const showNotification = useCallback(
@@ -222,32 +107,27 @@ const PicklistsList = () => {
         []
     );
 
-    const closeNotification = useCallback(
-        (event, reason) => {
-            if (reason === "clickaway") {
-                return;
-            }
+    const closeNotification = useCallback((event, reason) => {
+        if (reason === "clickaway") return;
 
-            setNotification((previous) => ({
-                ...previous,
-                open: false
-            }));
-        },
-        []
-    );
+        setNotification((previous) => ({
+            ...previous,
+            open: false
+        }));
+    }, []);
 
     /* =====================================================
-       GET ALL PICKLISTS
+       GET ALL MARKETPLACE CUSTOMERS
     ===================================================== */
 
-    const fetchPicklists = useCallback(
+    const fetchCustomers = useCallback(
         async (signal) => {
             setLoading(true);
             setError("");
 
             try {
                 const response = await axios.get(
-                    PICKLIST_API_URL,
+                    `${MARKETPLACE_CUSTOMERS_API}/all`,
                     {
                         signal,
                         headers: {
@@ -256,7 +136,7 @@ const PicklistsList = () => {
                     }
                 );
 
-                setPicklists(extractPicklists(response));
+                setCustomers(extractCustomers(response));
             } catch (err) {
                 if (
                     err?.code === "ERR_CANCELED" ||
@@ -266,7 +146,7 @@ const PicklistsList = () => {
                 }
 
                 console.error(
-                    "GET ALL PICKLISTS ERROR:",
+                    "GET MARKETPLACE CUSTOMERS ERROR:",
                     err
                 );
 
@@ -274,10 +154,9 @@ const PicklistsList = () => {
                     err?.response?.data?.message ||
                     err?.response?.data?.title ||
                     err?.message ||
-                    "Unable to load picklists.";
+                    "Unable to load marketplace customers.";
 
                 setError(message);
-
                 showNotification(message, "error");
             } finally {
                 if (!signal?.aborted) {
@@ -291,12 +170,10 @@ const PicklistsList = () => {
     useEffect(() => {
         const controller = new AbortController();
 
-        fetchPicklists(controller.signal);
+        fetchCustomers(controller.signal);
 
-        return () => {
-            controller.abort();
-        };
-    }, [fetchPicklists, refreshKey]);
+        return () => controller.abort();
+    }, [fetchCustomers, refreshKey]);
 
     /* =====================================================
        REFRESH
@@ -310,303 +187,132 @@ const PicklistsList = () => {
        SEARCH
     ===================================================== */
 
-    const handleSearchChange = useCallback((value) => {
-        const nextValue =
-            typeof value === "string"
-                ? value
-                : value?.target?.value ?? "";
-
-        setSearchTerm(nextValue);
+    const handleSearchChange = useCallback((event) => {
+        setSearchTerm(event.target.value);
         setPage(0);
     }, []);
 
-    /* =====================================================
-       STATUS FILTER
-    ===================================================== */
-
-    const handleStatusChange = useCallback((value) => {
-        const nextValue =
-            typeof value === "string"
-                ? value
-                : value?.target?.value ?? "All";
-
-        setStatusFilter(nextValue);
-        setPage(0);
-    }, []);
-
-    /* =====================================================
-       RESET FILTERS
-    ===================================================== */
-
-    const handleResetFilters = useCallback(() => {
+    const handleResetSearch = useCallback(() => {
         setSearchTerm("");
-        setStatusFilter("All");
         setPage(0);
     }, []);
 
     /* =====================================================
-       FILTER PICKLISTS
+       FILTER CUSTOMERS
     ===================================================== */
 
-    const filteredPicklists = useMemo(() => {
+    const filteredCustomers = useMemo(() => {
         const search = searchTerm.trim().toLowerCase();
 
-        return picklists.filter((item) => {
+        if (!search) return customers;
+
+        return customers.filter((item) => {
             const searchableFields = [
-                getPicklistId(item),
-                getPicklistNumber(item),
-                getOrderNumber(item),
-                getWarehouseName(item),
-                getStatus(item),
-                getFieldValue(item, [
-                    "customerName",
-                    "CustomerName"
-                ]),
-                getFieldValue(item, [
-                    "pickerName",
-                    "PickerName",
-                    "assignedTo",
-                    "AssignedTo"
-                ])
+                getCustomerId(item),
+                getField(item, "sellerId"),
+                getField(item, "customerId"),
+                getField(item, "marketplaceName"),
+                getField(item, "marketplaceCustomerId"),
+                getField(item, "companyName"),
+                getField(item, "gstin"),
+                getField(item, "email"),
+                getField(item, "phone"),
+                getField(item, "city"),
+                getField(item, "state"),
+                getField(item, "pincode")
             ];
 
-            const matchesSearch =
-                !search ||
-                searchableFields.some((value) =>
-                    String(value ?? "")
-                        .toLowerCase()
-                        .includes(search)
-                );
-
-            const matchesStatus =
-                statusFilter === "All" ||
-                normalizeStatus(getStatus(item)) ===
-                    normalizeStatus(statusFilter);
-
-            return matchesSearch && matchesStatus;
+            return searchableFields.some((value) =>
+                String(value ?? "")
+                    .toLowerCase()
+                    .includes(search)
+            );
         });
-    }, [
-        picklists,
-        searchTerm,
-        statusFilter
-    ]);
-
-    /* =====================================================
-       STATISTICS
-    ===================================================== */
-
-    const statistics = useMemo(() => {
-        const result = {
-            total: picklists.length,
-            pending: 0,
-            inProgress: 0,
-            completed: 0,
-            cancelled: 0
-        };
-
-        picklists.forEach((item) => {
-            const status = normalizeStatus(getStatus(item));
-
-            if (
-                ["pending", "created", "new"].includes(status)
-            ) {
-                result.pending += 1;
-            } else if (
-                [
-                    "inprogress",
-                    "processing",
-                    "assigned",
-                    "started"
-                ].includes(status)
-            ) {
-                result.inProgress += 1;
-            } else if (
-                [
-                    "completed",
-                    "complete",
-                    "picked",
-                    "closed"
-                ].includes(status)
-            ) {
-                result.completed += 1;
-            } else if (
-                ["cancelled", "canceled"].includes(status)
-            ) {
-                result.cancelled += 1;
-            }
-        });
-
-        return result;
-    }, [picklists]);
+    }, [customers, searchTerm]);
 
     /* =====================================================
        PAGINATION
     ===================================================== */
 
-    const paginatedPicklists = useMemo(() => {
-        const startIndex = page * rowsPerPage;
+    const paginatedCustomers = useMemo(() => {
+        const start = page * rowsPerPage;
 
-        return filteredPicklists.slice(
-            startIndex,
-            startIndex + rowsPerPage
+        return filteredCustomers.slice(
+            start,
+            start + rowsPerPage
         );
-    }, [
-        filteredPicklists,
-        page,
-        rowsPerPage
-    ]);
+    }, [filteredCustomers, page, rowsPerPage]);
 
     useEffect(() => {
         const lastPage = Math.max(
             0,
-            Math.ceil(filteredPicklists.length / rowsPerPage) - 1
+            Math.ceil(filteredCustomers.length / rowsPerPage) - 1
         );
 
         if (page > lastPage) {
             setPage(lastPage);
         }
-    }, [
-        filteredPicklists.length,
-        rowsPerPage,
-        page
-    ]);
+    }, [filteredCustomers.length, rowsPerPage, page]);
 
-    const handlePageChange = useCallback(
-        (event, newPage) => {
-            setPage(newPage);
-        },
-        []
-    );
+    const handlePageChange = useCallback((event, newPage) => {
+        setPage(newPage);
+    }, []);
 
-    const handleRowsPerPageChange = useCallback(
-        (event) => {
-            const value = Number(
-                event?.target?.value ?? event
-            );
+    const handleRowsPerPageChange = useCallback((event) => {
+        const value = Number(event.target.value);
 
-            if (Number.isFinite(value) && value > 0) {
-                setRowsPerPage(value);
-                setPage(0);
-            }
-        },
-        []
-    );
+        if (Number.isFinite(value) && value > 0) {
+            setRowsPerPage(value);
+            setPage(0);
+        }
+    }, []);
 
     /* =====================================================
-       VIEW PICKLIST
+       NAVIGATION ACTIONS
     ===================================================== */
 
-    const handleView = useCallback(
-        (item) => {
-            const id = getPicklistId(item);
-
-            if (id === "") {
-                showNotification(
-                    "Picklist ID is missing.",
-                    "warning"
-                );
-
-                return;
-            }
-
-            showNotification(
-                `Selected picklist ${getPicklistNumber(item)}.`,
-                "info"
-            );
-
-            // Connect your details page or dialog here.
-        },
-        [showNotification]
-    );
-
-    /* =====================================================
-       EDIT PICKLIST
-    ===================================================== */
-
-    const handleEdit = useCallback(
-        (item) => {
-            const id = getPicklistId(item);
-
-            if (id === "") {
-                showNotification(
-                    "Picklist ID is missing.",
-                    "warning"
-                );
-
-                return;
-            }
-
-            // Connect your edit page or dialog here.
-            showNotification(
-                `Edit selected for picklist ${getPicklistNumber(item)}.`,
-                "info"
-            );
-        },
-        [showNotification]
-    );
-
-    /* =====================================================
-       DELETE PICKLIST
-    ===================================================== */
-
-    const handleDelete = useCallback(
-        async (item) => {
-            const id = getPicklistId(item);
+    const navigateToCustomer = useCallback(
+        (action, customer) => {
+            const id = getCustomerId(customer);
 
             if (id === "" || id === null || id === undefined) {
                 showNotification(
-                    "Cannot delete picklist: ID is missing.",
+                    "Marketplace customer ID is missing.",
                     "warning"
                 );
-
                 return;
             }
 
-            const confirmed = window.confirm(
-                `Are you sure you want to delete picklist ${getPicklistNumber(item)}?`
+            navigate(
+                `/marketplace-customers/${action}/${encodeURIComponent(id)}`,
+                {
+                    state: {
+                        customer
+                    }
+                }
             );
-
-            if (!confirmed) {
-                return;
-            }
-
-            setDeletingId(id);
-
-            try {
-                await axios.delete(
-                    `${PICKLIST_API_URL}/${encodeURIComponent(id)}`
-                );
-
-                setPicklists((previous) =>
-                    previous.filter(
-                        (picklist) =>
-                            String(getPicklistId(picklist)) !==
-                            String(id)
-                    )
-                );
-
-                showNotification(
-                    "Picklist deleted successfully.",
-                    "success"
-                );
-            } catch (err) {
-                console.error(
-                    "DELETE PICKLIST ERROR:",
-                    err
-                );
-
-                showNotification(
-                    err?.response?.data?.message ||
-                    err?.response?.data?.title ||
-                    err?.message ||
-                    "Failed to delete picklist.",
-                    "error"
-                );
-            } finally {
-                setDeletingId(null);
-            }
         },
-        [showNotification]
+        [navigate, showNotification]
+    );
+
+    const handleView = useCallback(
+        (customer) => navigateToCustomer("view", customer),
+        [navigateToCustomer]
+    );
+
+    const handleDetails = useCallback(
+        (customer) => navigateToCustomer("details", customer),
+        [navigateToCustomer]
+    );
+
+    const handleEdit = useCallback(
+        (customer) => navigateToCustomer("edit", customer),
+        [navigateToCustomer]
+    );
+
+    const handleDelete = useCallback(
+        (customer) => navigateToCustomer("delete", customer),
+        [navigateToCustomer]
     );
 
     /* =====================================================
@@ -617,79 +323,118 @@ const PicklistsList = () => {
         <Box
             sx={{
                 width: "100%",
-                p: {
-                    xs: 1.5,
-                    sm: 2.5,
-                    md: 3
-                },
+                p: { xs: 1.5, sm: 2.5, md: 3 },
                 boxSizing: "border-box"
             }}
         >
-            {/* PAGE TOOLBAR */}
+            {/* PAGE HEADER */}
 
-            <Box sx={{ mb: 3 }}>
-                <PicklistToolbar
-                    onRefresh={handleRefresh}
-                    loading={loading}
-                    refreshing={loading}
-                    onAdd={() =>
-                        showNotification(
-                            "Connect the picklist creation form to enable this action.",
-                            "info"
-                        )
-                    }
-                />
-            </Box>
+            <Paper
+                variant="outlined"
+                sx={{
+                    p: 2,
+                    mb: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 2
+                }}
+            >
+                <Box>
+                    <Typography variant="h5" fontWeight={700}>
+                        Marketplace Customers
+                    </Typography>
 
-            {/* STATISTICS */}
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Manage your marketplace customer mappings.
+                    </Typography>
 
-            <Box sx={{ mb: 3 }}>
-                <PicklistStatistics
-                    statistics={statistics}
-                    totalPicklists={statistics.total}
-                    pendingPicklists={statistics.pending}
-                    inProgressPicklists={statistics.inProgress}
-                    completedPicklists={statistics.completed}
-                    cancelledPicklists={statistics.cancelled}
-                />
-            </Box>
+                    <Typography
+                        variant="body2"
+                        sx={{ mt: 1 }}
+                    >
+                        Total: {customers.length}
+                        {" | "}
+                        Filtered: {filteredCustomers.length}
+                    </Typography>
+                </Box>
 
-            {/* SEARCH AND FILTER */}
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 1,
+                        flexWrap: "wrap"
+                    }}
+                >
+                    <Button
+                        variant="outlined"
+                        startIcon={<RefreshIcon />}
+                        onClick={handleRefresh}
+                        disabled={loading}
+                    >
+                        Refresh
+                    </Button>
 
-            <Box sx={{ mb: 2 }}>
-                <PicklistSearch
-                    searchTerm={searchTerm}
-                    search={searchTerm}
-                    onSearchChange={handleSearchChange}
-                    onSearch={handleSearchChange}
-                    statusFilter={statusFilter}
-                    onStatusChange={handleStatusChange}
-                    onFilterChange={handleStatusChange}
-                    onReset={handleResetFilters}
-                />
-            </Box>
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() =>
+                            navigate("/marketplace-customers/create")
+                        }
+                    >
+                        Create Customer
+                    </Button>
+                </Box>
+            </Paper>
 
-            {/* ERROR MESSAGE */}
+            {/* SEARCH */}
 
-            {error && !loading && (
+            <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 2,
+                        alignItems: "center",
+                        flexWrap: "wrap"
+                    }}
+                >
+                    <TextField
+                        fullWidth
+                        label="Search Marketplace Customers"
+                        placeholder="Search company, marketplace, GSTIN, email, phone..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        sx={{ flex: "1 1 300px" }}
+                    />
+
+                    <Button
+                        variant="outlined"
+                        onClick={handleResetSearch}
+                    >
+                        Reset
+                    </Button>
+                </Box>
+            </Paper>
+
+            {/* ERROR */}
+
+            {error && (
                 <Alert
                     severity="error"
                     sx={{ mb: 2 }}
                     action={
-                        <Typography
-                            component="button"
+                        <Button
+                            color="inherit"
+                            size="small"
                             onClick={handleRefresh}
-                            sx={{
-                                border: 0,
-                                background: "transparent",
-                                color: "inherit",
-                                font: "inherit",
-                                fontWeight: 700,
-                                cursor: "pointer"
-                            }}
                         >
                             Retry
-                        </Typography>
+                        </Button>
                     }
                 >
                     {error}
@@ -711,81 +456,23 @@ const PicklistsList = () => {
                 >
                     <CircularProgress />
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
-                        Loading picklists...
+                    <Typography color="text.secondary">
+                        Loading marketplace customers...
                     </Typography>
                 </Box>
             ) : (
-                <>
-                    {/* TABLE */}
-
-                    <PicklistTable
-                        picklists={paginatedPicklists}
-                        data={paginatedPicklists}
-                        loading={loading}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />
-
-                    {/* DELETE PROGRESS */}
-
-                    {deletingId !== null && (
-                        <Alert
-                            severity="info"
-                            sx={{ mt: 2 }}
-                            icon={<CircularProgress size={18} />}
-                        >
-                            Deleting picklist...
-                        </Alert>
-                    )}
-
-                    {/* EMPTY STATE */}
-
-                    {filteredPicklists.length === 0 && (
-                        <Box
-                            sx={{
-                                py: 4,
-                                textAlign: "center"
-                            }}
-                        >
-                            <Typography
-                                variant="h6"
-                                color="text.secondary"
-                            >
-                                No picklists found
-                            </Typography>
-
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mt: 1 }}
-                            >
-                                Try a different search term or status filter.
-                            </Typography>
-                        </Box>
-                    )}
-
-                    {/* PAGINATION */}
-
-                    {filteredPicklists.length > 0 && (
-                        <Box sx={{ mt: 2 }}>
-                            <PicklistPagination
-                                page={page}
-                                count={filteredPicklists.length}
-                                totalCount={filteredPicklists.length}
-                                rowsPerPage={rowsPerPage}
-                                onPageChange={handlePageChange}
-                                onRowsPerPageChange={
-                                    handleRowsPerPageChange
-                                }
-                            />
-                        </Box>
-                    )}
-                </>
+                <PicklistsTable
+                    customers={paginatedCustomers}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={handlePageChange}
+                    onRowsPerPageChange={handleRowsPerPageChange}
+                    totalCount={filteredCustomers.length}
+                    onView={handleView}
+                    onDetails={handleDetails}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
             )}
 
             {/* NOTIFICATIONS */}
@@ -812,5 +499,4 @@ const PicklistsList = () => {
     );
 };
 
-export default PicklistsList;
-
+export default MarketplaceCustomersList;

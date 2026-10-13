@@ -1,555 +1,521 @@
-import React from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
+    Alert,
     Box,
-    IconButton,
+    Button,
+    CircularProgress,
     Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    Tooltip,
+    Snackbar,
+    TextField,
     Typography
 } from "@mui/material";
 
 import {
-    Visibility,
-    InfoOutlined,
-    EditOutlined,
-    Delete as DeleteIcon
+    Add as AddIcon,
+    Refresh as RefreshIcon
 } from "@mui/icons-material";
 
-// =========================================================
-// FIELD HELPER
-// Supports both camelCase and PascalCase API responses
-// =========================================================
+import MarketplaceCustomersTable from "./MarketplaceCustomersTable";
 
-const field = (row, name) => {
-    if (!row) return "";
+// =====================================================
+// API CONFIGURATION
+// =====================================================
+
+const API_BASE_URL = (
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
+
+const MARKETPLACE_CUSTOMERS_API =
+    `${API_BASE_URL}/marketplace/customers`;
+
+// =====================================================
+// RESPONSE HELPER
+// =====================================================
+
+const extractCustomers = (response) => {
+    const data = response?.data;
+
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.items)) return data.items;
+    if (Array.isArray(data?.results)) return data.results;
+    if (Array.isArray(data?.result)) return data.result;
+
+    return [];
+};
+
+// =====================================================
+// FIELD HELPERS
+// =====================================================
+
+const getField = (item, name, fallback = "") => {
+    if (!item) return fallback;
 
     const pascalName =
         name.charAt(0).toUpperCase() + name.slice(1);
 
-    return row[name] ?? row[pascalName] ?? "";
+    return item[name] ?? item[pascalName] ?? fallback;
 };
 
-// =========================================================
-// MARKETPLACE CUSTOMERS LIST
-// =========================================================
+const getCustomerId = (item) => getField(item, "id", "");
 
-function MarketplaceCustomersList({
-    customers = [],
-    page = 0,
-    rowsPerPage = 10,
+// =====================================================
+// COMPONENT
+// =====================================================
 
-    onPageChange,
-    onRowsPerPageChange,
+const MarketplaceCustomersList = () => {
+    const navigate = useNavigate();
 
-    onView,
-    onDetails,
-    onEdit,
-    onDelete
-}) {
-    // =====================================================
-    // PAGINATION
-    // =====================================================
+    const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
 
-    const visibleCustomers = customers.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const [notification, setNotification] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
+
+    // =================================================
+    // NOTIFICATIONS
+    // =================================================
+
+    const showNotification = useCallback(
+        (message, severity = "success") => {
+            setNotification({
+                open: true,
+                message,
+                severity
+            });
+        },
+        []
     );
+
+    const closeNotification = useCallback((event, reason) => {
+        if (reason === "clickaway") return;
+
+        setNotification((previous) => ({
+            ...previous,
+            open: false
+        }));
+    }, []);
+
+    // =================================================
+    // GET ALL MARKETPLACE CUSTOMERS
+    // GET http://localhost:5000/api/marketplace/customers/all
+    // =================================================
+
+    const fetchCustomers = useCallback(
+        async (signal) => {
+            setLoading(true);
+            setError("");
+
+            const requestUrl =
+                `${MARKETPLACE_CUSTOMERS_API}/all`;
+
+            try {
+                console.log(
+                    "Fetching marketplace customers:",
+                    requestUrl
+                );
+
+                const response = await axios.get(requestUrl, {
+                    signal,
+                    headers: {
+                        Accept: "application/json"
+                    }
+                });
+
+                const result = extractCustomers(response);
+
+                setCustomers(result);
+
+                console.log(
+                    "Marketplace customers loaded:",
+                    result.length
+                );
+            } catch (err) {
+                if (
+                    err?.code === "ERR_CANCELED" ||
+                    err?.name === "CanceledError"
+                ) {
+                    return;
+                }
+
+                console.error(
+                    "GET MARKETPLACE CUSTOMERS ERROR",
+                    {
+                        requestUrl,
+                        status: err?.response?.status,
+                        response: err?.response?.data,
+                        message: err?.message
+                    }
+                );
+
+                const backendDetails = err?.response?.data;
+
+                const message =
+                    backendDetails?.message ||
+                    backendDetails?.title ||
+                    (typeof backendDetails === "string"
+                        ? backendDetails
+                        : null) ||
+                    `Request failed (${err?.response?.status || "network error"}). URL: ${requestUrl}`;
+
+                setCustomers([]);
+                setError(message);
+
+                showNotification(message, "error");
+            } finally {
+                if (!signal?.aborted) {
+                    setLoading(false);
+                }
+            }
+        },
+        [showNotification]
+    );
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        fetchCustomers(controller.signal);
+
+        return () => controller.abort();
+    }, [fetchCustomers, refreshKey]);
+
+    // =================================================
+    // REFRESH
+    // =================================================
+
+    const handleRefresh = useCallback(() => {
+        setRefreshKey((previous) => previous + 1);
+    }, []);
+
+    // =================================================
+    // SEARCH
+    // =================================================
+
+    const handleSearchChange = useCallback((event) => {
+        setSearchTerm(event.target.value);
+        setPage(0);
+    }, []);
+
+    const handleResetSearch = useCallback(() => {
+        setSearchTerm("");
+        setPage(0);
+    }, []);
+
+    // =================================================
+    // FILTER CUSTOMERS
+    // =================================================
+
+    const filteredCustomers = useMemo(() => {
+        const search = searchTerm.trim().toLowerCase();
+
+        if (!search) return customers;
+
+        return customers.filter((item) => {
+            const fields = [
+                getCustomerId(item),
+                getField(item, "sellerId"),
+                getField(item, "customerId"),
+                getField(item, "marketplaceName"),
+                getField(item, "marketplaceCustomerId"),
+                getField(item, "companyName"),
+                getField(item, "gstin"),
+                getField(item, "email"),
+                getField(item, "phone"),
+                getField(item, "city"),
+                getField(item, "state"),
+                getField(item, "pincode")
+            ];
+
+            return fields.some((value) =>
+                String(value ?? "")
+                    .toLowerCase()
+                    .includes(search)
+            );
+        });
+    }, [customers, searchTerm]);
+
+    // =================================================
+    // PAGINATION
+    // =================================================
+
+    const paginatedCustomers = useMemo(() => {
+        const start = page * rowsPerPage;
+
+        return filteredCustomers.slice(
+            start,
+            start + rowsPerPage
+        );
+    }, [filteredCustomers, page, rowsPerPage]);
+
+    useEffect(() => {
+        const lastPage = Math.max(
+            0,
+            Math.ceil(filteredCustomers.length / rowsPerPage) - 1
+        );
+
+        if (page > lastPage) {
+            setPage(lastPage);
+        }
+    }, [filteredCustomers.length, rowsPerPage, page]);
+
+    const handlePageChange = useCallback((event, newPage) => {
+        setPage(newPage);
+    }, []);
+
+    const handleRowsPerPageChange = useCallback((event) => {
+        const value = Number(event.target.value);
+
+        if (Number.isFinite(value) && value > 0) {
+            setRowsPerPage(value);
+            setPage(0);
+        }
+    }, []);
+
+    // =================================================
+    // NAVIGATION ACTIONS
+    // =================================================
+
+    const navigateToCustomer = useCallback(
+        (action, customer) => {
+            const id = getCustomerId(customer);
+
+            if (id === "" || id === null || id === undefined) {
+                showNotification(
+                    "Marketplace customer database ID is missing.",
+                    "warning"
+                );
+                return;
+            }
+
+            navigate(
+                `/marketplace-customers/${action}/${encodeURIComponent(id)}`,
+                {
+                    state: {
+                        customer
+                    }
+                }
+            );
+        },
+        [navigate, showNotification]
+    );
+
+    const handleView = useCallback(
+        (customer) => navigateToCustomer("view", customer),
+        [navigateToCustomer]
+    );
+
+    const handleDetails = useCallback(
+        (customer) => navigateToCustomer("details", customer),
+        [navigateToCustomer]
+    );
+
+    const handleEdit = useCallback(
+        (customer) => navigateToCustomer("edit", customer),
+        [navigateToCustomer]
+    );
+
+    const handleDelete = useCallback(
+        (customer) => navigateToCustomer("delete", customer),
+        [navigateToCustomer]
+    );
+
+    // =================================================
+    // RENDER
+    // =================================================
 
     return (
-        <Paper
-            variant="outlined"
+        <Box
             sx={{
                 width: "100%",
-                overflow: "hidden"
+                p: { xs: 1.5, sm: 2.5, md: 3 },
+                boxSizing: "border-box"
             }}
         >
-            {/* =================================================
-                HEADER
-            ================================================= */}
+            {/* PAGE HEADER */}
 
-            <Box sx={{ p: 2 }}>
-                <Typography
-                    variant="h6"
-                    fontWeight={700}
-                >
-                    Marketplace Customers
-                </Typography>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
-                    Total records: {customers.length}
-                </Typography>
-            </Box>
-
-            {/* =================================================
-                TABLE
-            ================================================= */}
-
-            <TableContainer
+            <Paper
+                variant="outlined"
                 sx={{
-                    maxHeight: 600,
-                    overflowX: "auto"
+                    p: 2,
+                    mb: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 2
                 }}
             >
-                <Table
-                    stickyHeader
-                    size="small"
+                <Box>
+                    <Typography variant="h5" fontWeight={700}>
+                        Marketplace Customers
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Manage your marketplace customer mappings.
+                    </Typography>
+
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                        Total: {customers.length}
+                        {" | "}
+                        Filtered: {filteredCustomers.length}
+                    </Typography>
+                </Box>
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 1,
+                        flexWrap: "wrap"
+                    }}
                 >
-                    {/* =================================================
-                        TABLE HEADER
-                    ================================================= */}
+                    <Button
+                        variant="outlined"
+                        startIcon={<RefreshIcon />}
+                        onClick={handleRefresh}
+                        disabled={loading}
+                    >
+                        Refresh
+                    </Button>
 
-                    <TableHead>
-                        <TableRow>
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                ID
-                            </TableCell>
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() =>
+                            navigate("/marketplace-customers/create")
+                        }
+                    >
+                        Create Customer
+                    </Button>
+                </Box>
+            </Paper>
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Seller ID
-                            </TableCell>
+            {/* SEARCH */}
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Customer ID
-                            </TableCell>
+            <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 2,
+                        alignItems: "center",
+                        flexWrap: "wrap"
+                    }}
+                >
+                    <TextField
+                        fullWidth
+                        label="Search Marketplace Customers"
+                        placeholder="Search company, marketplace, GSTIN, email, phone..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        sx={{ flex: "1 1 300px" }}
+                    />
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Marketplace
-                            </TableCell>
+                    <Button
+                        variant="outlined"
+                        onClick={handleResetSearch}
+                    >
+                        Reset
+                    </Button>
+                </Box>
+            </Paper>
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Marketplace Customer ID
-                            </TableCell>
+            {/* ERROR */}
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Company
-                            </TableCell>
+            {error && (
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2, whiteSpace: "pre-wrap" }}
+                    action={
+                        <Button
+                            color="inherit"
+                            size="small"
+                            onClick={handleRefresh}
+                        >
+                            Retry
+                        </Button>
+                    }
+                >
+                    {error}
+                </Alert>
+            )}
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                GSTIN
-                            </TableCell>
+            {/* LOADING AND TABLE */}
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Email
-                            </TableCell>
+            {loading ? (
+                <Box
+                    sx={{
+                        minHeight: 220,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 2
+                    }}
+                >
+                    <CircularProgress />
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Phone
-                            </TableCell>
+                    <Typography color="text.secondary">
+                        Loading marketplace customers...
+                    </Typography>
+                </Box>
+            ) : (
+                <MarketplaceCustomersTable
+                    customers={paginatedCustomers}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={handlePageChange}
+                    onRowsPerPageChange={handleRowsPerPageChange}
+                    totalCount={filteredCustomers.length}
+                    onView={handleView}
+                    onDetails={handleDetails}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            )}
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Address
-                            </TableCell>
+            {/* NOTIFICATIONS */}
 
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                City
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                State
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                State Code
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Pincode
-                            </TableCell>
-
-                            <TableCell
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap"
-                                }}
-                            >
-                                Created At
-                            </TableCell>
-
-                            <TableCell
-                                align="center"
-                                sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap",
-                                    minWidth: 180
-                                }}
-                            >
-                                Actions
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    {/* =================================================
-                        TABLE BODY
-                    ================================================= */}
-
-                    <TableBody>
-                        {visibleCustomers.map(
-                            (row, index) => {
-
-                                const id = field(
-                                    row,
-                                    "id"
-                                );
-
-                                return (
-                                    <TableRow
-                                        hover
-                                        key={
-                                            id ||
-                                            `marketplace-customer-${index}`
-                                        }
-                                    >
-                                        {/* ID */}
-
-                                        <TableCell>
-                                            {id}
-                                        </TableCell>
-
-                                        {/* SELLER ID */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "sellerId"
-                                            )}
-                                        </TableCell>
-
-                                        {/* CUSTOMER ID */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "customerId"
-                                            )}
-                                        </TableCell>
-
-                                        {/* MARKETPLACE */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "marketplaceName"
-                                            )}
-                                        </TableCell>
-
-                                        {/* MARKETPLACE CUSTOMER ID */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "marketplaceCustomerId"
-                                            )}
-                                        </TableCell>
-
-                                        {/* COMPANY */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "companyName"
-                                            )}
-                                        </TableCell>
-
-                                        {/* GSTIN */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "gstin"
-                                            )}
-                                        </TableCell>
-
-                                        {/* EMAIL */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "email"
-                                            )}
-                                        </TableCell>
-
-                                        {/* PHONE */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "phone"
-                                            )}
-                                        </TableCell>
-
-                                        {/* ADDRESS */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "address"
-                                            )}
-                                        </TableCell>
-
-                                        {/* CITY */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "city"
-                                            )}
-                                        </TableCell>
-
-                                        {/* STATE */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "state"
-                                            )}
-                                        </TableCell>
-
-                                        {/* STATE CODE */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "stateCode"
-                                            )}
-                                        </TableCell>
-
-                                        {/* PINCODE */}
-
-                                        <TableCell>
-                                            {field(
-                                                row,
-                                                "pincode"
-                                            )}
-                                        </TableCell>
-
-                                        {/* CREATED AT */}
-
-                                        <TableCell
-                                            sx={{
-                                                whiteSpace:
-                                                    "nowrap"
-                                            }}
-                                        >
-                                            {field(
-                                                row,
-                                                "createdAt"
-                                            )
-                                                ? new Date(
-                                                      field(
-                                                          row,
-                                                          "createdAt"
-                                                      )
-                                                  ).toLocaleString()
-                                                : ""}
-                                        </TableCell>
-
-                                        {/* =================================================
-                                            ACTIONS
-                                        ================================================= */}
-
-                                        <TableCell
-                                            align="center"
-                                            sx={{
-                                                whiteSpace:
-                                                    "nowrap",
-                                                minWidth: 180
-                                            }}
-                                        >
-                                            {/* VIEW */}
-
-                                            <Tooltip title="View">
-                                                <IconButton
-                                                    size="small"
-                                                    color="primary"
-                                                    onClick={() =>
-                                                        onView &&
-                                                        onView(row)
-                                                    }
-                                                >
-                                                    <Visibility fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-
-                                            {/* DETAILS */}
-
-                                            <Tooltip title="Details">
-                                                <IconButton
-                                                    size="small"
-                                                    color="info"
-                                                    onClick={() =>
-                                                        onDetails &&
-                                                        onDetails(row)
-                                                    }
-                                                >
-                                                    <InfoOutlined fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-
-                                            {/* EDIT */}
-
-                                            <Tooltip title="Edit">
-                                                <IconButton
-                                                    size="small"
-                                                    color="success"
-                                                    onClick={() =>
-                                                        onEdit &&
-                                                        onEdit(row)
-                                                    }
-                                                >
-                                                    <EditOutlined fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-
-                                            {/* DELETE */}
-
-                                            <Tooltip title="Delete">
-                                                <IconButton
-                                                    size="small"
-                                                    color="error"
-                                                    onClick={() =>
-                                                        onDelete &&
-                                                        onDelete(row)
-                                                    }
-                                                >
-                                                    <DeleteIcon fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            }
-                        )}
-
-                        {/* =================================================
-                            NO RECORDS
-                        ================================================= */}
-
-                        {visibleCustomers.length === 0 && (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={17}
-                                    align="center"
-                                    sx={{
-                                        py: 5
-                                    }}
-                                >
-                                    <Typography
-                                        color="text.secondary"
-                                    >
-                                        No marketplace
-                                        customers found.
-                                    </Typography>
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            {/* =================================================
-                PAGINATION
-            ================================================= */}
-
-            <TablePagination
-                component="div"
-                count={customers.length}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                onPageChange={
-                    onPageChange
-                }
-                onRowsPerPageChange={
-                    onRowsPerPageChange
-                }
-                rowsPerPageOptions={[
-                    5,
-                    10,
-                    25,
-                    50
-                ]}
-            />
-        </Paper>
+            <Snackbar
+                open={notification.open}
+                autoHideDuration={5000}
+                onClose={closeNotification}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right"
+                }}
+            >
+                <Alert
+                    onClose={closeNotification}
+                    severity={notification.severity}
+                    variant="filled"
+                    sx={{ width: "100%" }}
+                >
+                    {notification.message}
+                </Alert>
+            </Snackbar>
+        </Box>
     );
-}
+};
 
 export default MarketplaceCustomersList;

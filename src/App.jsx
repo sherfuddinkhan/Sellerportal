@@ -962,6 +962,8 @@ import MarketplaceCustomersEdit from "./pages/MarketplaceCustomers/MarketplaceCu
 import MarketplaceCustomersSearch from "./pages/MarketplaceCustomers/MarketplaceCustomersSearch";
 import MarketplaceCustomersDelete from "./pages/MarketplaceCustomers/MarketplaceCustomersDelete";
 import MarketplaceCustomersTable from "./pages/MarketplaceCustomers/MarketplaceCustomersTable";
+import MarketplaceCustomersCreate from "./pages/MarketplaceCustomers/MarketplaceCustomersCreate";
+
 
 
 // =========================================================
@@ -2088,20 +2090,31 @@ VENDOR ITEM MASTERS ROUTES
 
 <Route
     path="marketplace-customers/view/:id"
-    element={<MarketplaceCustomersList />}
+    element={<MarketplaceCustomersView />}
 />
 
 <Route
     path="marketplace-customers/details/:id"
-    element={<MarketplaceCustomersList />}
+    element={<MarketplaceCustomersDetails />}
 />
 
 <Route
-    path="marketplace-customers/:id/edit"
-    element={<MarketplaceCustomersList />}
+    path="marketplace-customers/delete/:id"
+    element={<MarketplaceCustomersDelete />}
+/>
+
+<Route
+    path="marketplace-customers/edit/:id"
+    element={<MarketplaceCustomersEdit />}
 />
 
 <Route path="marketplace-customers/table" element={<MarketplaceCustomersTable />} />
+
+<Route
+    path="marketplace-customers/create"
+    element={<MarketplaceCustomersCreate />}
+/>
+
                 {/* =================================================
                     PRODUCT INVENTORY
                 ================================================= */}
