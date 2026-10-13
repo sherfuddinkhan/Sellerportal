@@ -3,11 +3,7 @@
 // Seller Customer Details Page
 // =========================================================
 
-import React, {
-    useEffect,
-    useState,
-} from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 
 import {
@@ -24,314 +20,359 @@ import {
     Typography,
 } from "@mui/material";
 
-import {
-    ArrowBack,
-    Edit,
-} from "@mui/icons-material";
+import { ArrowBack, Edit, Refresh } from "@mui/icons-material";
 
-import {
-    useNavigate,
-    useParams,
-} from "react-router-dom";
-
+import { useNavigate, useParams } from "react-router-dom";
 
 // =========================================================
 // CONFIGURATION
-// =========================================================
-//
-// React
-//    ↓
-// Node server.js : 5000
-//    ↓
-// ASP.NET Core : 7203
-//
-// IMPORTANT:
-// React must call the Node route.
-// Do NOT call /api/SellerCustomer directly from React.
+// React -> Node.js : 5000 -> ASP.NET Core : 7203
 // =========================================================
 
 const SERVER_URL = "http://localhost:5000";
+const API_URL = `${SERVER_URL}/api/seller-customers`;
 
+// =========================================================
+// HELPERS
+// =========================================================
+
+const getValue = (obj, pascal, camel, fallback = "") =>
+    obj?.[pascal] ?? obj?.[camel] ?? fallback;
+
+const isTrue = (value) =>
+    value === true ||
+    value === 1 ||
+    (
+        typeof value === "string" &&
+        ["true", "1", "yes", "active"].includes(
+            value.trim().toLowerCase()
+        )
+    );
+
+const formatDate = (value) => {
+    if (!value) return "-";
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? "-"
+        : date.toLocaleString("en-IN");
+};
+
+const formatCurrency = (value) => {
+    const amount = Number(value ?? 0);
+
+    return `₹ ${(
+        Number.isFinite(amount) ? amount : 0
+    ).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })}`;
+};
+
+// Support direct objects and common API response wrappers.
+const normalizeCustomer = (responseData) => {
+    let data =
+        responseData?.customer ??
+        responseData?.Customer ??
+        responseData?.data ??
+        responseData?.Data ??
+        responseData;
+
+    if (Array.isArray(data)) {
+        return null;
+    }
+
+    return data && typeof data === "object" ? data : null;
+};
+
+const getCustomerId = (customer) =>
+    getValue(customer, "CustomerId", "customerId",
+        getValue(customer, "Id", "id", null));
+
+const getSellerId = (customer) =>
+    getValue(customer, "SellerId", "sellerId", null);
+
+// =========================================================
+// REUSABLE FIELD
+// =========================================================
+
+const Field = ({ label, value }) => (
+    <Grid item xs={12} sm={6}>
+        <Typography
+            variant="caption"
+            color="text.secondary"
+            display="block"
+            sx={{ mb: 0.5 }}
+        >
+            {label}
+        </Typography>
+
+        <Typography
+            variant="body1"
+            fontWeight={500}
+            sx={{ overflowWrap: "anywhere" }}
+        >
+            {value !== null && value !== undefined && value !== ""
+                ? value
+                : "-"}
+        </Typography>
+    </Grid>
+);
+
+// =========================================================
+// SECTION CARD
+// =========================================================
+
+const SectionCard = ({ title, children }) => (
+    <Card sx={{ mt: 3 }}>
+        <CardContent>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+                {title}
+            </Typography>
+
+            <Divider sx={{ mb: 3 }} />
+
+            <Grid container spacing={3}>
+                {children}
+            </Grid>
+        </CardContent>
+    </Card>
+);
 
 // =========================================================
 // COMPONENT
 // =========================================================
 
 const SellerCustomerView = () => {
-
     const navigate = useNavigate();
 
-    const {
-        sellerId,
-        customerId,
-    } = useParams();
+    // Supports:
+    // /seller-customers/view/:id
+    // /seller-customers/details/:sellerId/:customerId
+    const { sellerId, customerId, id } = useParams();
 
-
-    // =====================================================
-    // STATE
-    // =====================================================
+    const requestedCustomerId = customerId || id;
+    const requestedSellerId = sellerId || "";
 
     const [customer, setCustomer] = useState(null);
-
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState("");
-
 
     // =====================================================
     // LOAD CUSTOMER
     // =====================================================
 
-    useEffect(() => {
+    const loadCustomer = useCallback(async () => {
+        if (
+            !requestedCustomerId ||
+            !/^\d+$/.test(String(requestedCustomerId)) ||
+            Number(requestedCustomerId) <= 0
+        ) {
+            setCustomer(null);
+            setError("A valid customer ID is missing from the URL.");
+            setLoading(false);
+            return;
+        }
 
-        const loadCustomer = async () => {
+        if (
+            requestedSellerId &&
+            (
+                !/^\d+$/.test(String(requestedSellerId)) ||
+                Number(requestedSellerId) <= 0
+            )
+        ) {
+            setCustomer(null);
+            setError("A valid seller ID is required.");
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        setError("");
+        setCustomer(null);
+
+        try {
+            let customerData = null;
 
             // -------------------------------------------------
-            // Validate URL parameters
+            // OPTION 1: Both sellerId and customerId are in URL
             // -------------------------------------------------
 
-            if (!sellerId || !customerId) {
-
-                setError(
-                    "Seller ID or Customer ID is missing from the URL."
-                );
-
-                setLoading(false);
-
-                return;
-            }
-
-
-            try {
-
-                setLoading(true);
-
-                setError("");
-
-                // =================================================
-                // CORRECT NODE PROXY URL
-                // =================================================
-                //
-                // React:
-                // http://localhost:5000/api/seller-customers/6/customers/3
-                //
-                // Node forwards to:
-                // https://localhost:7203/api/SellerCustomer/6/customers/3
-                //
-                // =================================================
-
+            if (requestedSellerId) {
                 const url =
-                    `${SERVER_URL}/api/seller-customers/${sellerId}/customers/${customerId}`;
+                    `${API_URL}/${encodeURIComponent(requestedSellerId)}` +
+                    `/customers/${encodeURIComponent(requestedCustomerId)}`;
 
+                console.log("GET SELLER CUSTOMER:", url);
 
-                console.log(
-                    "================================================"
-                );
+                const response = await axios.get(url, {
+                    headers: { Accept: "*/*" },
+                    timeout: 30000,
+                });
 
-                console.log(
-                    "GET SELLER CUSTOMER DETAILS"
-                );
+                customerData = normalizeCustomer(response.data);
+            } else {
+                // -------------------------------------------------
+                // OPTION 2: URL only contains customer ID
+                // GET /seller-customers/view/3
+                //
+                // Retrieve the customer list and find the matching
+                // customer. Its SellerId is obtained from the record.
+                // -------------------------------------------------
 
-                console.log(
-                    "Seller ID:",
-                    sellerId
-                );
+                const response = await axios.get(API_URL, {
+                    headers: { Accept: "*/*" },
+                    timeout: 30000,
+                });
 
-                console.log(
-                    "Customer ID:",
-                    customerId
-                );
+                const responseData = response.data;
 
-                console.log(
-                    "Node URL:",
-                    url
-                );
+                const list =
+                    Array.isArray(responseData)
+                        ? responseData
+                        : responseData?.customers ??
+                          responseData?.Customers ??
+                          responseData?.data ??
+                          responseData?.Data;
 
-                console.log(
-                    "================================================"
-                );
+                if (!Array.isArray(list)) {
+                    throw new Error(
+                        "The customer list API did not return an array. " +
+                        "Use the details URL containing both sellerId and customerId."
+                    );
+                }
 
-
-                // =================================================
-                // CALL NODE USING AXIOS
-                // =================================================
-
-                const response = await axios.get(
-                    url,
-                    {
-                        headers: {
-                            Accept: "*/*",
-                        },
-                    }
-                );
-
-
-                console.log(
-                    "================================================"
-                );
-
-                console.log(
-                    "SELLER CUSTOMER RESPONSE"
-                );
-
-                console.log(
-                    response.data
-                );
-
-                console.log(
-                    "================================================"
-                );
-
-
-                // =================================================
-                // STORE CUSTOMER
-                // =================================================
-
-                setCustomer(
-                    response.data
-                );
-
-            }
-            catch (err) {
-
-                console.error(
-                    "================================================"
-                );
-
-                console.error(
-                    "SELLER CUSTOMER LOAD ERROR"
-                );
-
-                console.error(
-                    "MESSAGE:",
-                    err.message
-                );
-
-                console.error(
-                    "STATUS:",
-                    err.response?.status
-                );
-
-                console.error(
-                    "DATA:",
-                    err.response?.data
-                );
-
-                console.error(
-                    "URL:",
-                    err.config?.url
-                );
-
-                console.error(
-                    "================================================"
-                );
-
-
-                setError(
-
-                    err.response?.data?.message ||
-
-                    err.response?.data?.title ||
-
-                    `Failed to load seller customer. HTTP ${
-                        err.response?.status || 500
-                    }`
-
-                );
-
-            }
-            finally {
-
-                setLoading(false);
-
+                customerData = list.find(
+                    (item) =>
+                        String(getCustomerId(item)) ===
+                        String(requestedCustomerId)
+                ) ?? null;
             }
 
-        };
+            if (!customerData) {
+                throw new Error(
+                    `Customer ${requestedCustomerId} was not found.`
+                );
+            }
 
+            const resolvedCustomerId = getCustomerId(customerData);
+            const resolvedSellerId = getSellerId(customerData);
 
+            if (
+                String(resolvedCustomerId) !==
+                String(requestedCustomerId)
+            ) {
+                throw new Error(
+                    "The API response does not match the requested customer ID."
+                );
+            }
+
+            // Single-ID route needs SellerId from the returned record.
+            if (!resolvedSellerId) {
+                throw new Error(
+                    "The customer was found, but the response does not " +
+                    "contain SellerId. Check the API response or use " +
+                    "/seller-customers/details/:sellerId/:customerId."
+                );
+            }
+
+            // If both IDs were specified, verify the returned record.
+            if (
+                requestedSellerId &&
+                String(resolvedSellerId) !== String(requestedSellerId)
+            ) {
+                throw new Error(
+                    "The returned customer does not belong to the requested seller."
+                );
+            }
+
+            setCustomer(customerData);
+        } catch (err) {
+            console.error("SELLER CUSTOMER LOAD ERROR:", {
+                message: err.message,
+                status: err.response?.status,
+                data: err.response?.data,
+                url: err.config?.url,
+            });
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Failed to load seller customer."
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [requestedCustomerId, requestedSellerId]);
+
+    useEffect(() => {
         loadCustomer();
-
-    }, [
-        sellerId,
-        customerId,
-    ]);
-
+    }, [loadCustomer]);
 
     // =====================================================
-    // BACK
+    // NAVIGATION
     // =====================================================
 
     const handleBack = () => {
-
-        navigate(
-            "/seller-customers"
-        );
-
+        navigate("/seller-customers");
     };
-
-
-    // =====================================================
-    // EDIT
-    // =====================================================
 
     const handleEdit = () => {
+        const actualSellerId = getSellerId(customer);
+        const actualCustomerId = getCustomerId(customer);
+
+        if (!actualSellerId || !actualCustomerId) {
+            setError("Seller ID or customer ID is unavailable for editing.");
+            return;
+        }
 
         navigate(
-            `/seller-customers/edit/${sellerId}/${customerId}`
+            `/seller-customers/edit/${actualSellerId}/${actualCustomerId}`
         );
-
     };
-
 
     // =====================================================
     // LOADING
     // =====================================================
 
     if (loading) {
-
         return (
-
             <Box
                 sx={{
-                    minHeight: "400px",
+                    minHeight: 400,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                 }}
             >
-
-                <CircularProgress />
-
+                <Stack spacing={2} alignItems="center">
+                    <CircularProgress />
+                    <Typography color="text.secondary">
+                        Loading customer details...
+                    </Typography>
+                </Stack>
             </Box>
-
         );
-
     }
-
 
     // =====================================================
     // ERROR
     // =====================================================
 
     if (error) {
-
         return (
-
             <Box sx={{ p: 3 }}>
+                <Typography variant="h5" fontWeight={600} sx={{ mb: 2 }}>
+                    Customer Details
+                </Typography>
 
-                <Alert
-                    severity="error"
-                    sx={{ mb: 3 }}
-                >
+                <Alert severity="error" sx={{ mb: 3 }}>
                     {error}
                 </Alert>
 
-
-                <Stack
-                    direction="row"
-                    spacing={2}
-                >
-
+                <Stack direction="row" spacing={2} flexWrap="wrap">
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
@@ -340,40 +381,24 @@ const SellerCustomerView = () => {
                         Back to Customers
                     </Button>
 
-
                     <Button
                         variant="contained"
-                        onClick={() => window.location.reload()}
+                        startIcon={<Refresh />}
+                        onClick={loadCustomer}
                     >
                         Retry
                     </Button>
-
                 </Stack>
-
             </Box>
-
         );
-
     }
 
-
-    // =====================================================
-    // CUSTOMER NOT FOUND
-    // =====================================================
-
     if (!customer) {
-
         return (
-
             <Box sx={{ p: 3 }}>
-
-                <Alert
-                    severity="warning"
-                    sx={{ mb: 3 }}
-                >
+                <Alert severity="warning" sx={{ mb: 3 }}>
                     Customer not found.
                 </Alert>
-
 
                 <Button
                     variant="outlined"
@@ -382,204 +407,97 @@ const SellerCustomerView = () => {
                 >
                     Back to Customers
                 </Button>
-
             </Box>
-
         );
-
     }
 
-
     // =====================================================
-    // SUPPORT CAMELCASE + PASCALCASE
-    // =====================================================
-
-    const CustomerId =
-        customer.CustomerId ??
-        customer.customerId;
-
-    const SellerId =
-        customer.SellerId ??
-        customer.sellerId;
-
-    const CustomerCode =
-        customer.CustomerCode ??
-        customer.customerCode;
-
-    const CustomerName =
-        customer.CustomerName ??
-        customer.customerName;
-
-    const ContactPerson =
-        customer.ContactPerson ??
-        customer.contactPerson;
-
-    const Email =
-        customer.Email ??
-        customer.email;
-
-    const Phone =
-        customer.Phone ??
-        customer.phone;
-
-    const GSTIN =
-        customer.GSTIN ??
-        customer.gstin;
-
-    const AddressLine1 =
-        customer.AddressLine1 ??
-        customer.addressLine1;
-
-    const AddressLine2 =
-        customer.AddressLine2 ??
-        customer.addressLine2;
-
-    const City =
-        customer.City ??
-        customer.city;
-
-    const State =
-        customer.State ??
-        customer.state;
-
-    const Country =
-        customer.Country ??
-        customer.country;
-
-    const PostalCode =
-        customer.PostalCode ??
-        customer.postalCode;
-
-    const CreditLimit =
-        customer.CreditLimit ??
-        customer.creditLimit ??
-        0;
-
-    const IsActive =
-        customer.IsActive ??
-        customer.isActive;
-
-    const CreatedDate =
-        customer.CreatedDate ??
-        customer.createdDate;
-
-    const UpdatedDate =
-        customer.UpdatedDate ??
-        customer.updatedDate;
-
-
-    // =====================================================
-    // FIELD COMPONENT
+    // NORMALIZE CUSTOMER FIELDS
     // =====================================================
 
-    const Field = ({
-        label,
-        value,
-    }) => (
+    const CustomerId = getCustomerId(customer);
+    const SellerId = getSellerId(customer);
 
-        <Grid
-            item
-            xs={12}
-            md={6}
-        >
-
-            <Typography
-                variant="caption"
-                color="text.secondary"
-                display="block"
-                sx={{
-                    mb: 0.5,
-                }}
-            >
-                {label}
-            </Typography>
-
-
-            <Typography
-                variant="body1"
-                fontWeight={500}
-            >
-                {
-                    value !== null &&
-                    value !== undefined &&
-                    value !== ""
-                        ? value
-                        : "-"
-                }
-            </Typography>
-
-        </Grid>
-
+    const CustomerCode = getValue(
+        customer, "CustomerCode", "customerCode"
     );
 
+    const CustomerName = getValue(
+        customer, "CustomerName", "customerName"
+    );
+
+    const ContactPerson = getValue(
+        customer, "ContactPerson", "contactPerson"
+    );
+
+    const Email = getValue(customer, "Email", "email");
+    const Phone = getValue(customer, "Phone", "phone");
+    const GSTIN = getValue(customer, "GSTIN", "gstin");
+
+    const AddressLine1 = getValue(
+        customer, "AddressLine1", "addressLine1"
+    );
+
+    const AddressLine2 = getValue(
+        customer, "AddressLine2", "addressLine2"
+    );
+
+    const City = getValue(customer, "City", "city");
+    const State = getValue(customer, "State", "state");
+    const Country = getValue(customer, "Country", "country");
+
+    const PostalCode = getValue(
+        customer, "PostalCode", "postalCode"
+    );
+
+    const CreditLimit = getValue(
+        customer, "CreditLimit", "creditLimit", 0
+    );
+
+    const rawIsActive = getValue(
+        customer, "IsActive", "isActive", false
+    );
+
+    const IsActive = isTrue(rawIsActive);
+
+    const CreatedDate = getValue(
+        customer, "CreatedDate", "createdDate"
+    );
+
+    const UpdatedDate = getValue(
+        customer, "UpdatedDate", "updatedDate"
+    );
 
     // =====================================================
     // RENDER
     // =====================================================
 
     return (
-
-        <Box sx={{ p: 3 }}>
-
-            {/* =================================================
-                HEADER
-            ================================================= */}
+        <Box sx={{ p: { xs: 2, md: 3 }, pb: 5 }}>
+            {/* HEADER */}
 
             <Stack
-                direction={{
-                    xs: "column",
-                    sm: "row",
-                }}
+                direction={{ xs: "column", sm: "row" }}
                 justifyContent="space-between"
-                alignItems={{
-                    xs: "flex-start",
-                    sm: "center",
-                }}
+                alignItems={{ xs: "flex-start", sm: "center" }}
                 spacing={2}
-                sx={{
-                    mb: 3,
-                }}
+                sx={{ mb: 3 }}
             >
-
                 <Box>
-
-                    <Typography
-                        variant="h5"
-                        fontWeight={600}
-                    >
+                    <Typography variant="h5" fontWeight={600}>
                         Customer Details
                     </Typography>
 
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
+                    <Typography variant="body2" color="text.secondary">
                         View seller customer information
                     </Typography>
 
-
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                    >
-                        Seller ID:{" "}
-                        {SellerId || sellerId}
-
-                        {" | "}
-
-                        Customer ID:{" "}
-                        {CustomerId || customerId}
+                    <Typography variant="caption" color="text.secondary">
+                        Seller ID: {SellerId} | Customer ID: {CustomerId}
                     </Typography>
-
                 </Box>
 
-
-                <Stack
-                    direction="row"
-                    spacing={1}
-                >
-
+                <Stack direction="row" spacing={1}>
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
@@ -588,306 +506,93 @@ const SellerCustomerView = () => {
                         Back
                     </Button>
 
-
                     <Button
                         variant="contained"
                         startIcon={<Edit />}
                         onClick={handleEdit}
                     >
-                        Edit
+                        Edit Customer
                     </Button>
-
                 </Stack>
-
             </Stack>
 
-
-            {/* =================================================
-                CUSTOMER INFORMATION
-            ================================================= */}
+            {/* CUSTOMER INFORMATION */}
 
             <Card>
-
                 <CardContent>
-
-                    <Typography
-                        variant="h6"
-                        fontWeight={600}
-                        sx={{
-                            mb: 2,
-                        }}
-                    >
+                    <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
                         Customer Information
                     </Typography>
 
+                    <Divider sx={{ mb: 3 }} />
 
-                    <Divider
-                        sx={{
-                            mb: 3,
-                        }}
-                    />
-
-
-                    <Grid
-                        container
-                        spacing={3}
-                    >
-
-                        <Field
-                            label="Customer ID"
-                            value={CustomerId}
-                        />
-
-
-                        <Field
-                            label="Seller ID"
-                            value={SellerId}
-                        />
-
-
-                        <Field
-                            label="Customer Code"
-                            value={CustomerCode}
-                        />
-
-
-                        <Field
-                            label="Customer Name"
-                            value={CustomerName}
-                        />
-
-
-                        <Field
-                            label="Contact Person"
-                            value={ContactPerson}
-                        />
-
-
-                        <Field
-                            label="Email"
-                            value={Email}
-                        />
-
-
-                        <Field
-                            label="Phone"
-                            value={Phone}
-                        />
-
-
-                        <Field
-                            label="GSTIN"
-                            value={GSTIN}
-                        />
-
+                    <Grid container spacing={3}>
+                        <Field label="Customer ID" value={CustomerId} />
+                        <Field label="Seller ID" value={SellerId} />
+                        <Field label="Customer Code" value={CustomerCode} />
+                        <Field label="Customer Name" value={CustomerName} />
+                        <Field label="Contact Person" value={ContactPerson} />
+                        <Field label="Email" value={Email} />
+                        <Field label="Phone" value={Phone} />
+                        <Field label="GSTIN" value={GSTIN} />
                     </Grid>
-
                 </CardContent>
-
             </Card>
 
+            {/* ADDRESS INFORMATION */}
 
-            {/* =================================================
-                ADDRESS
-            ================================================= */}
+            <SectionCard title="Address Information">
+                <Field label="Address Line 1" value={AddressLine1} />
+                <Field label="Address Line 2" value={AddressLine2} />
+                <Field label="City" value={City} />
+                <Field label="State" value={State} />
+                <Field label="Country" value={Country} />
+                <Field label="Postal Code" value={PostalCode} />
+            </SectionCard>
 
-            <Card
-                sx={{
-                    mt: 3,
-                }}
-            >
+            {/* ACCOUNT INFORMATION */}
 
-                <CardContent>
+            <SectionCard title="Account Information">
+                <Field
+                    label="Credit Limit"
+                    value={formatCurrency(CreditLimit)}
+                />
 
+                <Grid item xs={12} sm={6}>
                     <Typography
-                        variant="h6"
-                        fontWeight={600}
-                        sx={{
-                            mb: 2,
-                        }}
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                        sx={{ mb: 1 }}
                     >
-                        Address Information
+                        Status
                     </Typography>
 
-
-                    <Divider
-                        sx={{
-                            mb: 3,
-                        }}
+                    <Chip
+                        label={IsActive ? "Active" : "Inactive"}
+                        color={IsActive ? "success" : "error"}
                     />
+                </Grid>
 
+                <Field
+                    label="Created Date"
+                    value={formatDate(CreatedDate)}
+                />
 
-                    <Grid
-                        container
-                        spacing={3}
-                    >
+                <Field
+                    label="Updated Date"
+                    value={formatDate(UpdatedDate)}
+                />
+            </SectionCard>
 
-                        <Field
-                            label="Address Line 1"
-                            value={AddressLine1}
-                        />
-
-
-                        <Field
-                            label="Address Line 2"
-                            value={AddressLine2}
-                        />
-
-
-                        <Field
-                            label="City"
-                            value={City}
-                        />
-
-
-                        <Field
-                            label="State"
-                            value={State}
-                        />
-
-
-                        <Field
-                            label="Country"
-                            value={Country}
-                        />
-
-
-                        <Field
-                            label="Postal Code"
-                            value={PostalCode}
-                        />
-
-                    </Grid>
-
-                </CardContent>
-
-            </Card>
-
-
-            {/* =================================================
-                ACCOUNT INFORMATION
-            ================================================= */}
-
-            <Card
-                sx={{
-                    mt: 3,
-                }}
-            >
-
-                <CardContent>
-
-                    <Typography
-                        variant="h6"
-                        fontWeight={600}
-                        sx={{
-                            mb: 2,
-                        }}
-                    >
-                        Account Information
-                    </Typography>
-
-
-                    <Divider
-                        sx={{
-                            mb: 3,
-                        }}
-                    />
-
-
-                    <Grid
-                        container
-                        spacing={3}
-                    >
-
-                        <Field
-                            label="Credit Limit"
-                            value={`₹ ${Number(
-                                CreditLimit
-                            ).toLocaleString("en-IN")}`}
-                        />
-
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-
-                            <Typography
-                                variant="caption"
-                                color="text.secondary"
-                                display="block"
-                                sx={{
-                                    mb: 1,
-                                }}
-                            >
-                                Status
-                            </Typography>
-
-
-                            <Chip
-                                label={
-                                    IsActive
-                                        ? "Active"
-                                        : "Inactive"
-                                }
-                                color={
-                                    IsActive
-                                        ? "success"
-                                        : "error"
-                                }
-                            />
-
-                        </Grid>
-
-
-                        <Field
-                            label="Created Date"
-                            value={
-                                CreatedDate
-                                    ? new Date(
-                                        CreatedDate
-                                    ).toLocaleString(
-                                        "en-IN"
-                                    )
-                                    : "-"
-                            }
-                        />
-
-
-                        <Field
-                            label="Updated Date"
-                            value={
-                                UpdatedDate
-                                    ? new Date(
-                                        UpdatedDate
-                                    ).toLocaleString(
-                                        "en-IN"
-                                    )
-                                    : "-"
-                            }
-                        />
-
-                    </Grid>
-
-                </CardContent>
-
-            </Card>
-
-
-            {/* =================================================
-                BOTTOM ACTIONS
-            ================================================= */}
+            {/* BOTTOM ACTIONS */}
 
             <Stack
                 direction="row"
                 justifyContent="flex-end"
                 spacing={2}
-                sx={{
-                    mt: 3,
-                }}
+                sx={{ mt: 3 }}
             >
-
                 <Button
                     variant="outlined"
                     startIcon={<ArrowBack />}
@@ -896,7 +601,6 @@ const SellerCustomerView = () => {
                     Back to Customers
                 </Button>
 
-
                 <Button
                     variant="contained"
                     startIcon={<Edit />}
@@ -904,14 +608,9 @@ const SellerCustomerView = () => {
                 >
                     Edit Customer
                 </Button>
-
             </Stack>
-
         </Box>
-
     );
-
 };
-
 
 export default SellerCustomerView;

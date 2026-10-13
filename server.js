@@ -227,6 +227,38 @@ app.get(
         });
     }
 );
+// =====================================================
+// COMMON PROXY ERROR HANDLER
+// Always call as: handleProxyError(error, res)
+// =====================================================
+function handleProxyError(error, res) {
+    // Prevent a second error if Express response is unavailable
+    if (!res || typeof res.status !== "function") {
+        console.error("Invalid Express response passed to handleProxyError.");
+        console.error("Original error:", error?.message || error);
+        return;
+    }
+
+    const statusCode = error?.response?.status || 500;
+
+    const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        error?.message ||
+        "An unexpected proxy error occurred.";
+
+    console.error("Proxy API Error:", {
+        status: statusCode,
+        message: errorMessage,
+        url: error?.config?.url
+    });
+
+    return res.status(statusCode).json({
+        success: false,
+        message: errorMessage,
+        details: error?.response?.data || null
+    });
+}
 
 
 // =========================================================
@@ -11013,774 +11045,333 @@ app.delete(
         }
     }
 );
+
 // ============================================================
-// SELLER CUSTOMER ROUTES
-// ============================================================
+// SELLER CUSTOMER API ROUTES
+// React -> Node.js : 5000 -> ASP.NET Core : 7203
 //
-// React
-//   ↓
-// Node.js : 5000
-//   ↓
-// ASP.NET Core : 7203
+// React base URL:
+// http://localhost:5000/api/seller-customers
 //
-// React must NEVER call ASP.NET directly.
-// React calls:
-// http://localhost:5000/api/seller-customers/...
+// ASP.NET base URL:
+// https://localhost:7203/api/SellerCustomer
 //
-// Node forwards to:
-// https://localhost:7203/api/SellerCustomer/...
+// Required existing variables:
+// axios, DOTNET_API, httpsAgent
 // ============================================================
 
 
 // ============================================================
 // GET ALL SELLER CUSTOMERS
-// ============================================================
 // GET /api/seller-customers
+// ASP.NET: GET /api/SellerCustomer
 // ============================================================
 
-app.get(
-    "/api/seller-customers",
-    async (req, res) => {
+app.get("/api/seller-customers", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/SellerCustomer`,
+            {
+                httpsAgent,
+                headers: { Accept: "*/*" },
+                timeout: 30000
+            }
+        );
 
-        console.log("================================================");
-        console.log("GET ALL SELLER CUSTOMERS");
-        console.log("================================================");
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("GET ALL SELLER CUSTOMERS:", error.response?.data || error.message);
 
-        try {
-
-            const response = await axios.get(
-                `${DOTNET_API}/SellerCustomer`,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            console.log(
-                "BACKEND STATUS:",
-                response.status
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "GET ALL SELLER CUSTOMERS ERROR"
-            );
-
-            console.error(
-                "MESSAGE:",
-                error.message
-            );
-
-            console.error(
-                "STATUS:",
-                error.response?.status
-            );
-
-            console.error(
-                "DATA:",
-                error.response?.data
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Failed to load seller customers.",
-                    backendStatus:
-                        error.response?.status || null,
-                    backendResponse:
-                        error.response?.data || null
-                });
-        }
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: error.response?.data?.message ||
+                     error.response?.data?.title ||
+                     error.message
+        });
     }
-);
+});
 
 
 // ============================================================
 // GET CUSTOMERS BY SELLER
-// ============================================================
 // GET /api/seller-customers/seller/6
+// ASP.NET: GET /api/SellerCustomer/seller/6
 // ============================================================
 
-app.get(
-    "/api/seller-customers/seller/:sellerId",
-    async (req, res) => {
+app.get("/api/seller-customers/seller/:sellerId", async (req, res) => {
+    try {
+        const { sellerId } = req.params;
 
-        const {
-            sellerId
-        } = req.params;
+        const response = await axios.get(
+            `${DOTNET_API}/SellerCustomer/seller/${encodeURIComponent(sellerId)}`,
+            {
+                httpsAgent,
+                headers: { Accept: "*/*" },
+                timeout: 30000
+            }
+        );
 
-        console.log("================================================");
-        console.log("GET SELLER CUSTOMERS BY SELLER");
-        console.log("SELLER ID:", sellerId);
-        console.log("================================================");
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("GET CUSTOMERS BY SELLER:", error.response?.data || error.message);
 
-        try {
-
-            const response = await axios.get(
-                `${DOTNET_API}/SellerCustomer/seller/${sellerId}`,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            console.log(
-                "BACKEND STATUS:",
-                response.status
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "GET SELLER CUSTOMERS BY SELLER ERROR"
-            );
-
-            console.error(
-                "MESSAGE:",
-                error.message
-            );
-
-            console.error(
-                "STATUS:",
-                error.response?.status
-            );
-
-            console.error(
-                "DATA:",
-                error.response?.data
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Failed to load seller customers.",
-                    backendStatus:
-                        error.response?.status || null,
-                    backendResponse:
-                        error.response?.data || null
-                });
-        }
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: error.response?.data?.message ||
+                     error.response?.data?.title ||
+                     error.message
+        });
     }
-);
+});
 
 
 // ============================================================
-// GET SELLER CUSTOMER DETAILS / AGGREGATE
-// ============================================================
+// GET SELLER CUSTOMER DETAILS
 // GET /api/seller-customers/6/customers/3
-//
-// ASP.NET:
-// GET /api/SellerCustomer/6/customers/3
-//
-// IMPORTANT:
-// This route MUST appear only once.
+// ASP.NET: GET /api/SellerCustomer/6/customers/3
 // ============================================================
 
-app.get(
-    "/api/seller-customers/:sellerId/customers/:customerId",
-    async (req, res) => {
+app.get("/api/seller-customers/:sellerId/customers/:customerId", async (req, res) => {
+    try {
+        const { sellerId, customerId } = req.params;
 
-        const {
-            sellerId,
-            customerId
-        } = req.params;
+        const response = await axios.get(
+            `${DOTNET_API}/SellerCustomer/${encodeURIComponent(sellerId)}/customers/${encodeURIComponent(customerId)}`,
+            {
+                httpsAgent,
+                headers: { Accept: "*/*" },
+                timeout: 30000
+            }
+        );
 
-        console.log("================================================");
-        console.log("GET SELLER CUSTOMER DETAILS");
-        console.log("SELLER ID:", sellerId);
-        console.log("CUSTOMER ID:", customerId);
-        console.log("================================================");
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("GET SELLER CUSTOMER DETAILS:", error.response?.data || error.message);
 
-        try {
-
-            const backendUrl =
-                `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`;
-
-            console.log(
-                "BACKEND URL:",
-                backendUrl
-            );
-
-            const response = await axios.get(
-                backendUrl,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            console.log(
-                "BACKEND STATUS:",
-                response.status
-            );
-
-            console.log(
-                "BACKEND RESPONSE:",
-                response.data
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error("================================================");
-            console.error("GET SELLER CUSTOMER DETAILS ERROR");
-            console.error("================================================");
-
-            console.error(
-                "MESSAGE:",
-                error.message
-            );
-
-            console.error(
-                "CODE:",
-                error.code
-            );
-
-            console.error(
-                "STATUS:",
-                error.response?.status
-            );
-
-            console.error(
-                "DATA:",
-                error.response?.data
-            );
-
-            console.error("================================================");
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Failed to load seller customer.",
-
-                    backendStatus:
-                        error.response?.status || null,
-
-                    backendResponse:
-                        error.response?.data || null
-                });
-        }
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: error.response?.data?.message ||
+                     error.response?.data?.title ||
+                     error.message
+        });
     }
-);
+});
 
 
 // ============================================================
 // GET CUSTOMER BY CODE
-// ============================================================
 // GET /api/seller-customers/6/code/CUST001
+// ASP.NET: GET /api/SellerCustomer/6/code/CUST001
 // ============================================================
 
-app.get(
-    "/api/seller-customers/:sellerId/code/:customerCode",
-    async (req, res) => {
+app.get("/api/seller-customers/:sellerId/code/:customerCode", async (req, res) => {
+    try {
+        const { sellerId, customerCode } = req.params;
 
-        const {
-            sellerId,
-            customerCode
-        } = req.params;
+        const response = await axios.get(
+            `${DOTNET_API}/SellerCustomer/${encodeURIComponent(sellerId)}/code/${encodeURIComponent(customerCode)}`,
+            {
+                httpsAgent,
+                headers: { Accept: "*/*" },
+                timeout: 30000
+            }
+        );
 
-        console.log("================================================");
-        console.log("GET CUSTOMER BY CODE");
-        console.log("SELLER ID:", sellerId);
-        console.log("CUSTOMER CODE:", customerCode);
-        console.log("================================================");
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("GET CUSTOMER BY CODE:", error.response?.data || error.message);
 
-        try {
-
-            const backendUrl =
-                `${DOTNET_API}/SellerCustomer/${sellerId}/code/${encodeURIComponent(customerCode)}`;
-
-            const response = await axios.get(
-                backendUrl,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "GET CUSTOMER BY CODE ERROR:",
-                error.response?.data ||
-                error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Customer not found.",
-                    backendStatus:
-                        error.response?.status || null,
-                    backendResponse:
-                        error.response?.data || null
-                });
-        }
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: error.response?.data?.message ||
+                     error.response?.data?.title ||
+                     error.message
+        });
     }
-);
+});
 
 
 // ============================================================
 // FILTER SELLER CUSTOMERS
-// ============================================================
 // GET /api/seller-customers/filter?sellerId=6
+// Optional: &search=Priya&isActive=true
 //
-// Optional:
-// ?sellerId=6&search=Priya
-// ?sellerId=6&isActive=true
-// ?sellerId=6&search=Priya&isActive=true
+// ASP.NET: GET /api/SellerCustomer/filter?sellerId=6
+//
+// IMPORTANT:
+// This static route must appear BEFORE the dynamic
+// /:sellerId/customers/:customerId and /:sellerId/code/:customerCode
+// routes for clarity and to avoid future route conflicts.
 // ============================================================
 
-app.get(
-    "/api/seller-customers/filter",
-    async (req, res) => {
+app.get("/api/seller-customers/filter", async (req, res) => {
+    try {
+        const { sellerId, search, isActive } = req.query;
 
-        console.log("================================================");
-        console.log("FILTER SELLER CUSTOMERS");
-        console.log("QUERY:", req.query);
-        console.log("================================================");
-
-        try {
-
-            const {
-                sellerId,
-                search,
-                isActive
-            } = req.query;
-
-            if (
-                sellerId === undefined ||
-                sellerId === null ||
-                String(sellerId).trim() === ""
-            ) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: "sellerId is required."
-                });
-            }
-
-            const params = new URLSearchParams();
-
-            params.append(
-                "sellerId",
-                String(sellerId).trim()
-            );
-
-            if (
-                search !== undefined &&
-                search !== null &&
-                String(search).trim() !== ""
-            ) {
-
-                params.append(
-                    "search",
-                    String(search).trim()
-                );
-            }
-
-            if (
-                isActive !== undefined &&
-                isActive !== null &&
-                String(isActive).trim() !== ""
-            ) {
-
-                params.append(
-                    "isActive",
-                    String(isActive).trim()
-                );
-            }
-
-            const backendUrl =
-                `${DOTNET_API}/SellerCustomer/filter?${params.toString()}`;
-
-            console.log(
-                "BACKEND URL:",
-                backendUrl
-            );
-
-            const response = await axios.get(
-                backendUrl,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            console.log(
-                "BACKEND STATUS:",
-                response.status
-            );
-
-            console.log(
-                "BACKEND DATA:",
-                response.data
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
+        if (sellerId === undefined || String(sellerId).trim() === "") {
+            return res.status(400).json({
+                success: false,
+                message: "sellerId is required."
+            });
         }
-        catch (error) {
 
-            console.error("================================================");
-            console.error("SELLER CUSTOMER FILTER ERROR");
-            console.error("================================================");
+        const params = new URLSearchParams();
+        params.set("sellerId", String(sellerId).trim());
 
-            console.error(
-                "MESSAGE:",
-                error.message
-            );
-
-            console.error(
-                "STATUS:",
-                error.response?.status
-            );
-
-            console.error(
-                "DATA:",
-                error.response?.data
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Failed to filter seller customers.",
-                    backendStatus:
-                        error.response?.status || null,
-                    backendResponse:
-                        error.response?.data || null
-                });
+        if (search !== undefined && String(search).trim() !== "") {
+            params.set("search", String(search).trim());
         }
+
+        if (isActive !== undefined && String(isActive).trim() !== "") {
+            params.set("isActive", String(isActive).trim());
+        }
+
+        const backendUrl =
+            `${DOTNET_API}/SellerCustomer/filter?${params.toString()}`;
+
+        console.log("FILTER SELLER CUSTOMERS:", backendUrl);
+
+        const response = await axios.get(backendUrl, {
+            httpsAgent,
+            headers: { Accept: "*/*" },
+            timeout: 30000
+        });
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("FILTER SELLER CUSTOMERS:", error.response?.data || error.message);
+
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: error.response?.data?.message ||
+                     error.response?.data?.title ||
+                     error.message,
+            backendStatus: error.response?.status || null,
+            backendResponse: error.response?.data || null
+        });
     }
-);
+});
 
 
 // ============================================================
 // CREATE SELLER CUSTOMER
-// ============================================================
 // POST /api/seller-customers
+// ASP.NET: POST /api/SellerCustomer
 // ============================================================
 
-app.post(
-    "/api/seller-customers",
-    async (req, res) => {
+app.post("/api/seller-customers", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${DOTNET_API}/SellerCustomer`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    Accept: "*/*",
+                    "Content-Type": "application/json"
+                },
+                timeout: 30000
+            }
+        );
 
-        console.log("================================================");
-        console.log("CREATE SELLER CUSTOMER");
-        console.log("BODY:", req.body);
-        console.log("================================================");
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("CREATE SELLER CUSTOMER:", error.response?.data || error.message);
 
-        try {
-
-            const response = await axios.post(
-                `${DOTNET_API}/SellerCustomer`,
-                req.body,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*",
-                        "Content-Type": "application/json"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            console.log(
-                "BACKEND STATUS:",
-                response.status
-            );
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "CREATE SELLER CUSTOMER ERROR:",
-                error.response?.data ||
-                error.message
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Failed to create customer.",
-                    backendStatus:
-                        error.response?.status || null,
-                    backendResponse:
-                        error.response?.data || null
-                });
-        }
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: error.response?.data?.message ||
+                     error.response?.data?.title ||
+                     error.message,
+            backendResponse: error.response?.data || null
+        });
     }
-);
+});
 
 
 // ============================================================
 // UPDATE SELLER CUSTOMER
-// ============================================================
 // PUT /api/seller-customers/6/customers/3
-//
-// ASP.NET:
-// PUT /api/SellerCustomer/6/customers/3
+// ASP.NET: PUT /api/SellerCustomer/6/customers/3
 // ============================================================
 
-app.put(
-    "/api/seller-customers/:sellerId/customers/:customerId",
-    async (req, res) => {
+app.put("/api/seller-customers/:sellerId/customers/:customerId", async (req, res) => {
+    try {
+        const { sellerId, customerId } = req.params;
 
-        const {
-            sellerId,
-            customerId
-        } = req.params;
-
-        console.log("================================================");
-        console.log("UPDATE SELLER CUSTOMER");
-        console.log("SELLER ID:", sellerId);
-        console.log("CUSTOMER ID:", customerId);
-        console.log("BODY:", req.body);
-        console.log("================================================");
-
-        try {
-
-            const backendUrl =
-                `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`;
-
-            const response = await axios.put(
-                backendUrl,
-                req.body,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*",
-                        "Content-Type": "application/json"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            console.log(
-                "BACKEND STATUS:",
-                response.status
-            );
-
-            console.log(
-                "BACKEND DATA:",
-                response.data
-            );
-
-            // ASP.NET PUT returns 204
-            if (response.status === 204) {
-
-                return res.status(204).send();
+        const response = await axios.put(
+            `${DOTNET_API}/SellerCustomer/${encodeURIComponent(sellerId)}/customers/${encodeURIComponent(customerId)}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    Accept: "*/*",
+                    "Content-Type": "application/json"
+                },
+                timeout: 30000
             }
+        );
 
-            return res
-                .status(response.status)
-                .json(response.data);
-
+        if (response.status === 204) {
+            return res.status(204).send();
         }
-        catch (error) {
 
-            console.error("================================================");
-            console.error("UPDATE SELLER CUSTOMER ERROR");
-            console.error("================================================");
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("UPDATE SELLER CUSTOMER:", error.response?.data || error.message);
 
-            console.error(
-                "MESSAGE:",
-                error.message
-            );
-
-            console.error(
-                "STATUS:",
-                error.response?.status
-            );
-
-            console.error(
-                "DATA:",
-                error.response?.data
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Failed to update seller customer.",
-                    backendStatus:
-                        error.response?.status || null,
-                    backendResponse:
-                        error.response?.data || null
-                });
-        }
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: error.response?.data?.message ||
+                     error.response?.data?.title ||
+                     error.message
+        });
     }
-);
+});
 
 
 // ============================================================
 // DELETE SELLER CUSTOMER
-// ============================================================
 // DELETE /api/seller-customers/6/customers/3
+// ASP.NET: DELETE /api/SellerCustomer/6/customers/3
 // ============================================================
+
+
+// =====================================================
+// DELETE SELLER CUSTOMER
+// React -> Node.js -> ASP.NET Core
+// =====================================================
 
 app.delete(
     "/api/seller-customers/:sellerId/customers/:customerId",
     async (req, res) => {
-
-        const {
-            sellerId,
-            customerId
-        } = req.params;
-
-        console.log("================================================");
-        console.log("DELETE SELLER CUSTOMER");
-        console.log("SELLER ID:", sellerId);
-        console.log("CUSTOMER ID:", customerId);
-        console.log("================================================");
-
         try {
+            const sellerId = Number(req.params.sellerId);
+            const customerId = Number(req.params.customerId);
 
-            const backendUrl =
-                `${DOTNET_API}/SellerCustomer/${sellerId}/customers/${customerId}`;
-
-            const response = await axios.delete(
-                backendUrl,
-                {
-                    httpsAgent,
-                    headers: {
-                        Accept: "*/*"
-                    },
-                    timeout: 30000
-                }
-            );
-
-            console.log(
-                "BACKEND STATUS:",
-                response.status
-            );
-
-            if (response.status === 204) {
-
-                return res.status(204).send();
+            if (
+                !Number.isInteger(sellerId) || sellerId <= 0 ||
+                !Number.isInteger(customerId) || customerId <= 0
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid seller ID or customer ID."
+                });
             }
 
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            console.error("================================================");
-            console.error("DELETE SELLER CUSTOMER ERROR");
-            console.error("================================================");
-
-            console.error(
-                "MESSAGE:",
-                error.message
+            const response = await axios.delete(
+                `${BASE_URL}/SellerCustomer/${sellerId}/customers/${customerId}`
             );
 
-            console.error(
-                "STATUS:",
-                error.response?.status
-            );
-
-            console.error(
-                "DATA:",
-                error.response?.data
-            );
-
-            return res
-                .status(error.response?.status || 500)
-                .json({
-                    success: false,
-                    message:
-                        error.response?.data?.message ||
-                        error.response?.data?.title ||
-                        error.message ||
-                        "Failed to delete seller customer.",
-                    backendStatus:
-                        error.response?.status || null,
-                    backendResponse:
-                        error.response?.data || null
-                });
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            return handleProxyError(error, res);
         }
     }
 );
 
 
+/////////////////// ware house///////////////////////
 const WAREHOUSE_LOCATION_API =
     `${DOTNET_API}/WarehouseLocation`;
 
@@ -33980,32 +33571,7 @@ app.delete("/api/FacilityChannel/:id", async (req, res) => {
 //////////////////SUPPLIER ADDRESSES///////////////////////////
 // Real .NET API is on 7203
 
-function handleProxyError(error, res, endpointName = "API") {
-    console.error(`❌ ${endpointName} Error:`, error.message);
 
-    if (error.response) {
-        console.error("Backend status:", error.response.status);
-        console.error("Backend response:", error.response.data);
-
-        return res.status(error.response.status).json(
-            error.response.data || {
-                message: `${endpointName} failed`
-            }
-        );
-    }
-
-    if (error.request) {
-        return res.status(502).json({
-            message: `No response from backend for ${endpointName}`,
-            error: error.message
-        });
-    }
-
-    return res.status(500).json({
-        message: `Proxy error in ${endpointName}`,
-        error: error.message
-    });
-}
 const SUPPLIER_ADDRESS_API = `${BASE_URL}/supplier-addresses`;
 
 // GET ALL

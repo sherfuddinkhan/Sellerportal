@@ -1240,7 +1240,6 @@ function App() {
                     path="sellers/edit/:id"
                     element={<SellerEdit />}
                 />
-
 {/* =================================================
     SELLER CUSTOMERS
 ================================================= */}
@@ -1279,10 +1278,17 @@ function App() {
     path="seller-customers/edit/:sellerId/:customerId"
     element={<SellerCustomerEdit />}
 />
+
 <Route
     path="seller-customers/delete/:sellerId/:customerId"
     element={<DeleteSellerCustomerDialog />}
 />
+<Route
+    path="seller-customers/view/:id"
+    element={<SellerCustomerView />}
+/>
+
+
                 {/* =================================================
                     CATEGORIES
                 ================================================= */}

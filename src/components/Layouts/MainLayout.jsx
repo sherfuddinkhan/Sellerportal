@@ -89,18 +89,10 @@ const MainLayout = () => {
                 { label: "Sellers", path: "/sellers", icon: "🏪", children: [
                     { label: "Seller List", path: "/sellers" },
                     { label: "Create Seller", path: "/sellers/create" },
-                    { label: "View Seller", path: "/sellers/view/:id" },
-                    { label: "Edit Seller", path: "/sellers/edit/:id" },
-                    { label: "Seller Filters", path: "/sellers/filters" },
-                    { label: "Search Sellers", path: "/sellers/search" },
-                    { label: "Statistics", path: "/sellers/statistics" },
                 ]},
                 { label: "Seller Customers", path: "/seller-customers", icon: "👥", children: [
                     { label: "Customer List", path: "/seller-customers" },
                     { label: "Create Customer", path: "/seller-customers/create" },
-                    { label: "View Customer", path: "/seller-customers/view/:id" },
-                    { label: "Edit Customer", path: "/seller-customers/edit/:id" },
-                    { label: "Customer Filters", path: "/seller-customers/filters" },
                     { label: "Search", path: "/seller-customers/search" },
                 ]},
                 { label: "Marketplace Customers", path: "/marketplace-customers", icon: "🧑‍🤝‍🧑", children: [
