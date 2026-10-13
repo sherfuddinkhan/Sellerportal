@@ -954,6 +954,15 @@ import MarketplaceDetails from "./pages/Marketplaces/MarketplaceDetails";
 import MarketplaceEdit from "./pages/Marketplaces/MarketplaceEdit";
 import MarketplaceCardPage from "./pages/Marketplaces/MarketplaceCardPage";
 import MarketplaceSelector from "./pages/Marketplaces/MarketplaceSelector";
+/////////////////////////
+import MarketplaceCustomersList from "./pages/MarketplaceCustomers/MarketplaceCustomersList";
+import MarketplaceCustomersView from "./pages/MarketplaceCustomers/MarketplaceCustomersView";
+import MarketplaceCustomersDetails from "./pages/MarketplaceCustomers/MarketplaceCustomersDetails";
+import MarketplaceCustomersEdit from "./pages/MarketplaceCustomers/MarketplaceCustomersEdit";
+import MarketplaceCustomersSearch from "./pages/MarketplaceCustomers/MarketplaceCustomersSearch";
+import MarketplaceCustomersDelete from "./pages/MarketplaceCustomers/MarketplaceCustomersDelete";
+import MarketplaceCustomersTable from "./pages/MarketplaceCustomers/MarketplaceCustomersTable";
+
 
 // =========================================================
 // MARKETPLACE ORDER IMPORTS
@@ -2064,7 +2073,35 @@ VENDOR ITEM MASTERS ROUTES
     path="product-images/:id"
     element={<ProductImageDetails />}
 />
+////////////////////////
 
+{/* MARKETPLACE CUSTOMERS */}
+<Route
+    path="marketplace-customers"
+    element={<MarketplaceCustomersList />}
+/>
+
+<Route
+    path="marketplace-customers/search"
+    element={<MarketplaceCustomersList />}
+/>
+
+<Route
+    path="marketplace-customers/view/:id"
+    element={<MarketplaceCustomersList />}
+/>
+
+<Route
+    path="marketplace-customers/details/:id"
+    element={<MarketplaceCustomersList />}
+/>
+
+<Route
+    path="marketplace-customers/:id/edit"
+    element={<MarketplaceCustomersList />}
+/>
+
+<Route path="marketplace-customers/table" element={<MarketplaceCustomersTable />} />
                 {/* =================================================
                     PRODUCT INVENTORY
                 ================================================= */}

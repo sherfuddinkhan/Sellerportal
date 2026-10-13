@@ -11369,6 +11369,102 @@ app.delete(
         }
     }
 );
+////////////////// Marketplace customers//////////////
+// =====================================================
+// MARKETPLACE CUSTOMERS API
+// Node.js -> ASP.NET Core
+// =====================================================
+// =====================================================
+// GET ALL MARKETPLACE CUSTOMERS
+// React: GET /api/marketplace/customers/all
+// ASP.NET: GET /api/marketplace/customers/all
+// =====================================================
+app.get("/api/marketplace/customers/all", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${DOTNET_API}/marketplace/customers/all`,
+            { httpsAgent }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Get all marketplace customers error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json({
+            message: "Failed to retrieve marketplace customers",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// =====================================================
+// GET MARKETPLACE CUSTOMER BY SELLER ID + CUSTOMER ID
+// React: GET /api/marketplace/customers/6/3
+// ASP.NET: GET /api/marketplace/customers/6/3
+// IMPORTANT: Keep this route after /all.
+// =====================================================
+app.get(
+    "/api/marketplace/customers/:sellerId/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/marketplace/customers/${sellerId}/${customerId}`,
+                { httpsAgent }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "Get marketplace customer by seller/customer error:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json({
+                message: "Failed to retrieve marketplace customer",
+                error: error.response?.data || error.message
+            });
+        }
+    }
+);
+
+// =====================================================
+// CREATE MARKETPLACE CUSTOMER
+// React: POST /api/marketplace/customers
+// ASP.NET: POST /api/marketplace/customers
+// =====================================================
+app.post("/api/marketplace/customers", async (req, res) => {
+    try {
+        const response = await axios.post(
+            `${DOTNET_API}/marketplace/customers`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "*/*"
+                }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "Create marketplace customer error:",
+            error.response?.data || error.message
+        );
+
+        res.status(error.response?.status || 500).json({
+            message: "Failed to create marketplace customer",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
 
 
 /////////////////// ware house///////////////////////
