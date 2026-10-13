@@ -1,3 +1,4 @@
+
 import React, {
     useEffect,
     useState,
@@ -5,6 +6,11 @@ import React, {
 } from "react";
 
 import axios from "axios";
+
+import {
+    useParams,
+    useNavigate
+} from "react-router-dom";
 
 import {
     Box,
@@ -20,26 +26,30 @@ import {
 
 import {
     ArrowBack,
-    Save,
     LocationOn
 } from "@mui/icons-material";
 
-import ReversePickupAddressForm from "./ReversePickupAddressForm";
+import ReversePickupAddressForm
+    from "./ReversePickupAddressForm";
 
 /* =========================================================
    API CONFIGURATION
+   React -> Node.js -> ASP.NET Core
 ========================================================= */
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+const API_BASE_URL = "http://localhost:5000";
 
-const DEFAULT_API_ENDPOINT = "/api/ReversePickupAddress";
+const DEFAULT_API_ENDPOINT =
+    "/api/reverse-pickup-addresses";
 
 const getEndpoint = (endpoint) => {
     const path = endpoint || DEFAULT_API_ENDPOINT;
 
-    return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+    const normalizedPath = path.startsWith("/")
+        ? path
+        : `/${path}`;
+
+    return `${API_BASE_URL}${normalizedPath}`;
 };
 
 /* =========================================================
@@ -62,7 +72,9 @@ const getErrorMessage = (error, fallback) => {
     }
 
     if (data?.errors) {
-        return Object.values(data.errors).flat().join(" ");
+        return Object.values(data.errors)
+            .flat()
+            .join(" ");
     }
 
     return error?.message || fallback;
@@ -77,11 +89,19 @@ const extractAddress = (responseData) => {
         return null;
     }
 
-    if (responseData.data && !Array.isArray(responseData.data)) {
+    if (
+        responseData.data &&
+        !Array.isArray(responseData.data) &&
+        typeof responseData.data === "object"
+    ) {
         return responseData.data;
     }
 
-    if (responseData.result && !Array.isArray(responseData.result)) {
+    if (
+        responseData.result &&
+        !Array.isArray(responseData.result) &&
+        typeof responseData.result === "object"
+    ) {
         return responseData.result;
     }
 
@@ -95,26 +115,42 @@ const extractAddress = (responseData) => {
 const ReversePickupAddressEdit = ({
     addressId,
     id,
-
     address: initialAddress = null,
-
     endpoint = DEFAULT_API_ENDPOINT,
-
     onSuccess,
     onCancel,
     onUpdated,
-
     navigateBack,
-
     showBreadcrumbs = true,
     title = "Edit Reverse Pickup Address"
 }) => {
-
     /* =====================================================
-       IDENTIFIER
+       ROUTER
     ===================================================== */
 
-    const resolvedAddressId = addressId ?? id;
+    const params = useParams();
+    const navigate = useNavigate();
+
+    /* =====================================================
+       ADDRESS ID
+
+       Supports:
+       - addressId prop
+       - id prop
+       - /reverse-pickup-addresses/:id/edit
+       - /reverse-pickup-addresses/:addressId/edit
+    ===================================================== */
+
+    const resolvedAddressId =
+        addressId ??
+        id ??
+        params.addressId ??
+        params.id ??
+        params.reversePickupAddressId;
+
+    /* =====================================================
+       API URL
+    ===================================================== */
 
     const apiUrl = getEndpoint(endpoint);
 
@@ -122,15 +158,47 @@ const ReversePickupAddressEdit = ({
        STATE
     ===================================================== */
 
-    const [address, setAddress] = useState(initialAddress);
+    const [address, setAddress] =
+        useState(initialAddress);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [submitting, setSubmitting] = useState(false);
+    const [submitting, setSubmitting] =
+        useState(false);
 
-    const [error, setError] = useState("");
+    const [error, setError] =
+        useState("");
 
-    const [success, setSuccess] = useState("");
+    const [success, setSuccess] =
+        useState("");
+
+    /* =====================================================
+       BACK / CANCEL NAVIGATION
+    ===================================================== */
+
+    const handleBack = () => {
+        if (submitting) {
+            return;
+        }
+
+        // Use the parent's cancel handler if provided.
+        if (typeof onCancel === "function") {
+            onCancel();
+            return;
+        }
+
+        // Use a custom navigation callback if provided.
+        if (typeof navigateBack === "function") {
+            navigateBack();
+            return;
+        }
+
+        // Default: return to the address list.
+        navigate("/reverse-pickup-addresses");
+    };
+
+    const handleCancel = handleBack;
 
     /* =====================================================
        LOAD ADDRESS
@@ -140,10 +208,10 @@ const ReversePickupAddressEdit = ({
         if (
             resolvedAddressId === undefined ||
             resolvedAddressId === null ||
-            resolvedAddressId === ""
+            String(resolvedAddressId).trim() === ""
         ) {
-            setError("A valid address ID is required.");
             setAddress(null);
+            setError("A valid address ID is required.");
             return;
         }
 
@@ -152,20 +220,47 @@ const ReversePickupAddressEdit = ({
         setSuccess("");
 
         try {
-            const response = await axios.get(
-                `${apiUrl}/${encodeURIComponent(resolvedAddressId)}`
+            const requestUrl =
+                `${apiUrl}/${encodeURIComponent(
+                    resolvedAddressId
+                )}`;
+
+            console.log(
+                "Reverse Pickup Address GET:",
+                requestUrl
+            );
+
+            const response = await axios.get(requestUrl);
+
+            console.log(
+                "Reverse Pickup Address Response:",
+                response.data
             );
 
             const record = extractAddress(response.data);
 
-            if (!record || typeof record !== "object") {
+            if (
+                !record ||
+                typeof record !== "object" ||
+                Array.isArray(record)
+            ) {
                 setAddress(null);
-                setError("Address information was not found.");
+                setError(
+                    "Address information was not found."
+                );
                 return;
             }
 
             setAddress(record);
         } catch (requestError) {
+            console.error(
+                "Failed to load reverse pickup address:",
+                requestError.response?.data ||
+                    requestError.message
+            );
+
+            setAddress(null);
+
             setError(
                 getErrorMessage(
                     requestError,
@@ -185,6 +280,7 @@ const ReversePickupAddressEdit = ({
         if (initialAddress) {
             setAddress(initialAddress);
             setError("");
+            setSuccess("");
             return;
         }
 
@@ -199,9 +295,11 @@ const ReversePickupAddressEdit = ({
         if (
             resolvedAddressId === undefined ||
             resolvedAddressId === null ||
-            resolvedAddressId === ""
+            String(resolvedAddressId).trim() === ""
         ) {
-            setError("A valid address ID is required to update.");
+            setError(
+                "A valid address ID is required to update."
+            );
             return;
         }
 
@@ -210,16 +308,43 @@ const ReversePickupAddressEdit = ({
         setSuccess("");
 
         try {
-            const response = await axios.put(
-                `${apiUrl}/${encodeURIComponent(resolvedAddressId)}`,
+            const updateUrl =
+                `${apiUrl}/${encodeURIComponent(
+                    resolvedAddressId
+                )}`;
+
+            console.log(
+                "Reverse Pickup Address PUT:",
+                updateUrl
+            );
+
+            console.log(
+                "Reverse Pickup Address Update Data:",
                 formData
             );
 
+            const response = await axios.put(
+                updateUrl,
+                formData
+            );
+
+            console.log(
+                "Reverse Pickup Address Update Response:",
+                response.data
+            );
+
+            const responseAddress =
+                extractAddress(response.data);
+
             const updatedAddress =
-                extractAddress(response.data) || {
-                    ...address,
-                    ...formData
-                };
+                responseAddress &&
+                typeof responseAddress === "object" &&
+                !Array.isArray(responseAddress)
+                    ? responseAddress
+                    : {
+                        ...address,
+                        ...formData
+                    };
 
             setAddress(updatedAddress);
 
@@ -235,35 +360,22 @@ const ReversePickupAddressEdit = ({
                 onSuccess(updatedAddress);
             }
         } catch (requestError) {
-            const message = getErrorMessage(
-                requestError,
-                "Failed to update reverse pickup address."
+            console.error(
+                "Update reverse pickup address error:",
+                requestError.response?.data ||
+                    requestError.message
             );
 
-            setError(message);
+            setError(
+                getErrorMessage(
+                    requestError,
+                    "Failed to update reverse pickup address."
+                )
+            );
 
             throw requestError;
         } finally {
             setSubmitting(false);
-        }
-    };
-
-    /* =====================================================
-       CANCEL
-    ===================================================== */
-
-    const handleCancel = () => {
-        if (submitting) {
-            return;
-        }
-
-        if (typeof onCancel === "function") {
-            onCancel();
-            return;
-        }
-
-        if (typeof navigateBack === "function") {
-            navigateBack();
         }
     };
 
@@ -293,22 +405,23 @@ const ReversePickupAddressEdit = ({
                 }
             }}
         >
-            {/* =================================================
-                BREADCRUMBS
-            ================================================= */}
+            {/* BREADCRUMBS */}
 
             {showBreadcrumbs && (
                 <Breadcrumbs sx={{ mb: 2 }}>
                     <Link
                         component="button"
+                        type="button"
                         underline="hover"
                         color="inherit"
-                        onClick={handleCancel}
-                        disabled={submitting}
+                        onClick={handleBack}
                         sx={{
                             display: "inline-flex",
                             alignItems: "center",
-                            cursor: "pointer"
+                            cursor: submitting
+                                ? "not-allowed"
+                                : "pointer",
+                            opacity: submitting ? 0.5 : 1
                         }}
                     >
                         Reverse Pickup Addresses
@@ -323,9 +436,7 @@ const ReversePickupAddressEdit = ({
                 </Breadcrumbs>
             )}
 
-            {/* =================================================
-                PAGE HEADER
-            ================================================= */}
+            {/* PAGE HEADER */}
 
             <Stack
                 direction={{
@@ -377,20 +488,21 @@ const ReversePickupAddressEdit = ({
                     </Box>
                 </Stack>
 
+                {/* BACK BUTTON */}
+
                 <Button
+                    type="button"
                     variant="outlined"
                     color="inherit"
                     startIcon={<ArrowBack />}
-                    onClick={handleCancel}
+                    onClick={handleBack}
                     disabled={submitting}
                 >
                     Back
                 </Button>
             </Stack>
 
-            {/* =================================================
-                SUCCESS MESSAGE
-            ================================================= */}
+            {/* SUCCESS MESSAGE */}
 
             {success && (
                 <Alert
@@ -401,9 +513,7 @@ const ReversePickupAddressEdit = ({
                 </Alert>
             )}
 
-            {/* =================================================
-                ERROR MESSAGE
-            ================================================= */}
+            {/* ERROR MESSAGE */}
 
             {error && (
                 <Alert
@@ -412,6 +522,7 @@ const ReversePickupAddressEdit = ({
                     action={
                         !address ? (
                             <Button
+                                type="button"
                                 color="inherit"
                                 size="small"
                                 onClick={handleRetry}
@@ -426,9 +537,7 @@ const ReversePickupAddressEdit = ({
                 </Alert>
             )}
 
-            {/* =================================================
-                LOADING STATE
-            ================================================= */}
+            {/* LOADING STATE */}
 
             {loading ? (
                 <Paper
@@ -449,6 +558,8 @@ const ReversePickupAddressEdit = ({
                     </Typography>
                 </Paper>
             ) : !address ? (
+                /* ADDRESS NOT FOUND */
+
                 <Paper
                     elevation={1}
                     sx={{
@@ -471,18 +582,32 @@ const ReversePickupAddressEdit = ({
                         The requested address could not be loaded.
                     </Typography>
 
-                    <Button
-                        variant="contained"
-                        onClick={handleRetry}
-                        disabled={loading}
+                    <Stack
+                        direction="row"
+                        spacing={2}
+                        justifyContent="center"
                     >
-                        Try Again
-                    </Button>
+                        <Button
+                            type="button"
+                            variant="contained"
+                            onClick={handleRetry}
+                            disabled={loading}
+                        >
+                            Try Again
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={handleBack}
+                        >
+                            Back to Addresses
+                        </Button>
+                    </Stack>
                 </Paper>
             ) : (
-                /* =============================================
-                   EDIT FORM
-                ============================================= */
+                /* EDIT FORM */
 
                 <Paper
                     elevation={1}
@@ -516,8 +641,10 @@ const ReversePickupAddressEdit = ({
                         key={String(resolvedAddressId)}
                         mode="edit"
                         address={address}
+                        initialData={address}
                         onSubmit={handleUpdate}
-                        onCancel={handleCancel}
+                        onCancel={handleBack}
+                        loading={submitting}
                         submitting={submitting}
                         error=""
                         success=""
@@ -528,9 +655,7 @@ const ReversePickupAddressEdit = ({
                 </Paper>
             )}
 
-            {/* =================================================
-                FOOTER
-            ================================================= */}
+            {/* FOOTER BACK BUTTON */}
 
             <Box
                 sx={{
@@ -540,10 +665,11 @@ const ReversePickupAddressEdit = ({
                 }}
             >
                 <Button
+                    type="button"
                     variant="text"
                     color="inherit"
                     startIcon={<ArrowBack />}
-                    onClick={handleCancel}
+                    onClick={handleBack}
                     disabled={submitting}
                 >
                     Return to Addresses
@@ -554,4 +680,3 @@ const ReversePickupAddressEdit = ({
 };
 
 export default ReversePickupAddressEdit;
-

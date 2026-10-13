@@ -1855,9 +1855,18 @@ REVERSE PICKUP ADDRESSES ROUTES
 <Route path="reverse-pickup-addresses/search" element={<ReversePickupAddressSearch />} />
 <Route path="reverse-pickup-addresses/filters" element={<ReversePickupAddressFilters />} />
 <Route path="reverse-pickup-addresses/statistics" element={<ReversePickupAddressStatistics />} />
+
+{/* Direct details URL: /reverse-pickup-addresses/1404 */}
+<Route path="reverse-pickup-addresses/:id" element={<ReversePickupAddressDetails />} />
+
+{/* Existing details and view URLs */}
 <Route path="reverse-pickup-addresses/details/:id" element={<ReversePickupAddressDetails />} />
 <Route path="reverse-pickup-addresses/view/:id" element={<ReversePickupAddressView />} />
+
+{/* Edit URL */}
 <Route path="reverse-pickup-addresses/:id/edit" element={<ReversePickupAddressEdit />} />
+
+
 
 {/* =================================================
 REVERSE PICKUP ITEMS ROUTES

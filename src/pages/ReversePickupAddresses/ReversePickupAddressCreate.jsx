@@ -1,6 +1,7 @@
 // ReversePickupAddressCreate.jsx
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import {
@@ -20,8 +21,6 @@ import {
 
 import {
     ArrowBack,
-    Save,
-    RestartAlt,
     LocationOn
 } from "@mui/icons-material";
 
@@ -30,11 +29,10 @@ import ReversePickupAddressForm from "./ReversePickupAddressForm";
 /* =========================================================
    API CONFIGURATION
 ========================================================= */
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
 
-const DEFAULT_ENDPOINT = `${API_BASE_URL}/api/ReversePickupAddress`;
+// React -> Node.js -> ASP.NET Core
+const API_BASE_URL = "http://localhost:5000";
+const DEFAULT_ENDPOINT = `${API_BASE_URL}/api/reverse-pickup-addresses`;
 
 /* =========================================================
    REVERSE PICKUP ADDRESS CREATE
@@ -52,6 +50,7 @@ const ReversePickupAddressCreate = ({
     showCard = true,
     initialValues = {},
     addressTypes = [
+        { value: "PICKUP", label: "Pickup" },
         { value: "Home", label: "Home" },
         { value: "Office", label: "Office" },
         { value: "Warehouse", label: "Warehouse" },
@@ -61,6 +60,8 @@ const ReversePickupAddressCreate = ({
         { value: "India", label: "India" }
     ]
 }) => {
+    const navigate = useNavigate();
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -107,7 +108,7 @@ const ReversePickupAddressCreate = ({
         }
 
         if (err?.response?.status === 404) {
-            return "The reverse pickup address API endpoint was not found.";
+            return "The reverse pickup address API endpoint was not found. Check your Node.js proxy route.";
         }
 
         if (err?.response?.status === 409) {
@@ -119,7 +120,7 @@ const ReversePickupAddressCreate = ({
         }
 
         if (err?.request && !err?.response) {
-            return "Unable to connect to the server. Please check your API URL and network connection.";
+            return "Unable to connect to the Node.js server. Make sure it is running on port 5000.";
         }
 
         return err?.message || "Failed to create reverse pickup address.";
@@ -130,11 +131,14 @@ const ReversePickupAddressCreate = ({
     ===================================================== */
 
     const handleCreate = async (formData) => {
-        if (loading) return;
+        if (loading) {
+            return;
+        }
 
         setLoading(true);
         setError("");
         setSuccess("");
+        setCreatedAddress(null);
 
         try {
             const response = await axios.post(
@@ -144,17 +148,20 @@ const ReversePickupAddressCreate = ({
                     headers: {
                         "Content-Type": "application/json",
                         Accept: "application/json"
-                    }
+                    },
+                    timeout: 30000
                 }
             );
 
             const responseData = response?.data ?? null;
 
             setCreatedAddress(responseData);
-            setSuccess(
+
+            const successMessage =
                 responseData?.message ||
-                "Reverse pickup address created successfully."
-            );
+                "Reverse pickup address created successfully.";
+
+            setSuccess(successMessage);
             setNotificationOpen(true);
 
             if (typeof onSuccess === "function") {
@@ -184,14 +191,22 @@ const ReversePickupAddressCreate = ({
         setError("");
         setSuccess("");
         setCreatedAddress(null);
-        setFormResetKey((previous) => previous + 1);
+        setFormResetKey(previous => previous + 1);
     };
 
     /* =====================================================
        CANCEL / BACK
+
+       1. Use onCancel when supplied.
+       2. Otherwise use navigateBack when supplied.
+       3. Otherwise navigate to the list page.
     ===================================================== */
 
     const handleCancel = () => {
+        if (loading) {
+            return;
+        }
+
         if (typeof onCancel === "function") {
             onCancel();
             return;
@@ -202,9 +217,7 @@ const ReversePickupAddressCreate = ({
             return;
         }
 
-        if (typeof window !== "undefined") {
-            window.history.back();
-        }
+        navigate("/reverse-pickup-addresses");
     };
 
     /* =====================================================
@@ -258,13 +271,19 @@ const ReversePickupAddressCreate = ({
     ===================================================== */
 
     return (
-        <Box sx={{ width: "100%", p: { xs: 1, sm: 2, md: 3 } }}>
+        <Box
+            sx={{
+                width: "100%",
+                p: { xs: 1, sm: 2, md: 3 }
+            }}
+        >
             {/* BREADCRUMBS */}
 
             {showBreadcrumbs && (
                 <Breadcrumbs sx={{ mb: 2 }}>
                     <Link
                         component="button"
+                        type="button"
                         underline="hover"
                         color="inherit"
                         onClick={handleCancel}
@@ -286,8 +305,14 @@ const ReversePickupAddressCreate = ({
                     sx={{
                         display: "flex",
                         justifyContent: "space-between",
-                        alignItems: { xs: "flex-start", sm: "center" },
-                        flexDirection: { xs: "column", sm: "row" },
+                        alignItems: {
+                            xs: "flex-start",
+                            sm: "center"
+                        },
+                        flexDirection: {
+                            xs: "column",
+                            sm: "row"
+                        },
                         gap: 2,
                         mb: 3
                     }}
@@ -306,7 +331,8 @@ const ReversePickupAddressCreate = ({
                                 alignItems: "center",
                                 justifyContent: "center",
                                 bgcolor: "primary.main",
-                                color: "primary.contrastText"
+                                color: "primary.contrastText",
+                                flexShrink: 0
                             }}
                         >
                             <LocationOn />
@@ -332,6 +358,7 @@ const ReversePickupAddressCreate = ({
                     </Stack>
 
                     <Button
+                        type="button"
                         variant="outlined"
                         startIcon={<ArrowBack />}
                         onClick={handleCancel}
@@ -352,7 +379,15 @@ const ReversePickupAddressCreate = ({
                         overflow: "visible"
                     }}
                 >
-                    <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+                    <CardContent
+                        sx={{
+                            p: {
+                                xs: 2,
+                                sm: 3,
+                                md: 4
+                            }
+                        }}
+                    >
                         <Typography
                             variant="h6"
                             fontWeight={700}
@@ -366,7 +401,8 @@ const ReversePickupAddressCreate = ({
                             color="text.secondary"
                             sx={{ mb: 2 }}
                         >
-                            Provide the required information below.
+                            Provide the required contact and location
+                            information below.
                         </Typography>
 
                         <Divider sx={{ mb: 3 }} />
@@ -423,4 +459,3 @@ const ReversePickupAddressCreate = ({
 };
 
 export default ReversePickupAddressCreate;
-

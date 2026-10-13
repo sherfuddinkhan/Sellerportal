@@ -1,3 +1,4 @@
+
 import React from "react";
 
 import {
@@ -13,7 +14,8 @@ import {
     Divider,
     IconButton,
     Tooltip,
-    CircularProgress
+    CircularProgress,
+    Stack
 } from "@mui/material";
 
 import {
@@ -26,7 +28,9 @@ import {
     Public,
     PinDrop,
     Business,
-    LocalShipping
+    LocalShipping,
+    Badge,
+    CalendarMonth
 } from "@mui/icons-material";
 
 /* =========================================================
@@ -39,12 +43,14 @@ const getField = (object, ...keys) => {
     }
 
     for (const key of keys) {
+        const value = object[key];
+
         if (
-            object[key] !== undefined &&
-            object[key] !== null &&
-            object[key] !== ""
+            value !== undefined &&
+            value !== null &&
+            String(value).trim() !== ""
         ) {
-            return object[key];
+            return value;
         }
     }
 
@@ -56,7 +62,11 @@ const getField = (object, ...keys) => {
 ========================================================= */
 
 const formatText = (value, fallback = "—") => {
-    if (value === undefined || value === null || value === "") {
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
         return fallback;
     }
 
@@ -102,9 +112,9 @@ const getStatusConfig = (status) => {
         .replace(/[_-]/g, " ");
 
     if (
-        normalized === "active" ||
-        normalized === "approved" ||
-        normalized === "verified"
+        ["active", "approved", "verified", "completed"].includes(
+            normalized
+        )
     ) {
         return {
             label: status,
@@ -113,9 +123,9 @@ const getStatusConfig = (status) => {
     }
 
     if (
-        normalized === "inactive" ||
-        normalized === "disabled" ||
-        normalized === "rejected"
+        ["inactive", "disabled", "rejected", "cancelled"].includes(
+            normalized
+        )
     ) {
         return {
             label: status,
@@ -124,8 +134,9 @@ const getStatusConfig = (status) => {
     }
 
     if (
-        normalized === "pending" ||
-        normalized === "processing"
+        ["pending", "processing", "in progress"].includes(
+            normalized
+        )
     ) {
         return {
             label: status,
@@ -217,13 +228,11 @@ const DetailField = ({
 ========================================================= */
 
 const SectionHeader = ({ icon: Icon, title }) => (
-    <Box
-        sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            mb: 2
-        }}
+    <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        sx={{ mb: 2 }}
     >
         {Icon && (
             <Icon
@@ -238,7 +247,7 @@ const SectionHeader = ({ icon: Icon, title }) => (
         >
             {title}
         </Typography>
-    </Box>
+    </Stack>
 );
 
 /* =========================================================
@@ -253,20 +262,44 @@ const ReversePickupAddressView = ({
     loading = false,
     title = "Reverse Pickup Address"
 }) => {
-    const data = address || reversePickupAddress || null;
+    /* -----------------------------------------------------
+       NORMALIZE RESPONSE
+    ----------------------------------------------------- */
+
+    const source = address || reversePickupAddress || null;
+
+    // Supports API responses wrapped in { data: { ... } }.
+    const data =
+        source?.data &&
+        !Array.isArray(source.data) &&
+        typeof source.data === "object"
+            ? source.data
+            : source;
 
     /* -----------------------------------------------------
-       ADDRESS FIELDS
+       IDENTIFIERS
     ----------------------------------------------------- */
 
     const addressId = getField(
         data,
+        "id",
+        "Id",
         "reversePickupAddressId",
         "ReversePickupAddressId",
         "addressId",
-        "AddressId",
-        "id",
-        "Id"
+        "AddressId"
+    );
+
+    const sellerId = getField(
+        data,
+        "sellerId",
+        "SellerId"
+    );
+
+    const customerId = getField(
+        data,
+        "customerId",
+        "CustomerId"
     );
 
     const reversePickupId = getField(
@@ -281,11 +314,9 @@ const ReversePickupAddressView = ({
         "ReversePickupNumber"
     );
 
-    const customerId = getField(
-        data,
-        "customerId",
-        "CustomerId"
-    );
+    /* -----------------------------------------------------
+       RECIPIENT / CUSTOMER
+    ----------------------------------------------------- */
 
     const customerName = getField(
         data,
@@ -303,6 +334,36 @@ const ReversePickupAddressView = ({
         "CompanyName",
         "businessName",
         "BusinessName"
+    );
+
+    const phone = getField(
+        data,
+        "phone",
+        "Phone",
+        "phoneNumber",
+        "PhoneNumber",
+        "mobile",
+        "Mobile"
+    );
+
+    const email = getField(
+        data,
+        "email",
+        "Email",
+        "emailAddress",
+        "EmailAddress"
+    );
+
+    /* -----------------------------------------------------
+       ADDRESS
+    ----------------------------------------------------- */
+
+    const addressType = getField(
+        data,
+        "addressType",
+        "AddressType",
+        "type",
+        "Type"
     );
 
     const addressLine1 = getField(
@@ -339,12 +400,14 @@ const ReversePickupAddressView = ({
 
     const postalCode = getField(
         data,
+        "pincode",
+        "Pincode",
+        "pinCode",
+        "PinCode",
         "postalCode",
         "PostalCode",
         "zipCode",
-        "ZipCode",
-        "pinCode",
-        "PinCode"
+        "ZipCode"
     );
 
     const country = getField(
@@ -355,31 +418,9 @@ const ReversePickupAddressView = ({
         "CountryName"
     );
 
-    const phone = getField(
-        data,
-        "phone",
-        "Phone",
-        "phoneNumber",
-        "PhoneNumber",
-        "mobile",
-        "Mobile"
-    );
-
-    const email = getField(
-        data,
-        "email",
-        "Email",
-        "emailAddress",
-        "EmailAddress"
-    );
-
-    const addressType = getField(
-        data,
-        "addressType",
-        "AddressType",
-        "type",
-        "Type"
-    );
+    /* -----------------------------------------------------
+       OTHER DETAILS
+    ----------------------------------------------------- */
 
     const status = getField(
         data,
@@ -426,7 +467,7 @@ const ReversePickupAddressView = ({
     const statusConfig = getStatusConfig(status);
 
     /* -----------------------------------------------------
-       ADDRESS SUMMARY
+       FORMATTED ADDRESS
     ----------------------------------------------------- */
 
     const addressParts = [
@@ -443,7 +484,7 @@ const ReversePickupAddressView = ({
             String(part).trim() !== ""
     );
 
-    const formattedAddress = addressParts.length
+    const formattedAddress = addressParts.length > 0
         ? addressParts.join(", ")
         : "No address information available";
 
@@ -459,6 +500,8 @@ const ReversePickupAddressView = ({
             maxWidth="md"
             aria-labelledby="reverse-pickup-address-view-title"
         >
+            {/* DIALOG HEADER */}
+
             <DialogTitle
                 id="reverse-pickup-address-view-title"
                 sx={{
@@ -469,13 +512,11 @@ const ReversePickupAddressView = ({
                     pr: 2
                 }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5,
-                        minWidth: 0
-                    }}
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1.5}
+                    sx={{ minWidth: 0 }}
                 >
                     <Box
                         sx={{
@@ -486,7 +527,7 @@ const ReversePickupAddressView = ({
                             height: 42,
                             flexShrink: 0,
                             borderRadius: 2,
-                            backgroundColor: "primary.light",
+                            backgroundColor: "primary.main",
                             color: "primary.contrastText"
                         }}
                     >
@@ -512,10 +553,11 @@ const ReversePickupAddressView = ({
                             View reverse pickup address information
                         </Typography>
                     </Box>
-                </Box>
+                </Stack>
 
                 <Tooltip title="Close">
                     <IconButton
+                        type="button"
                         onClick={onClose}
                         aria-label="Close address details"
                         size="small"
@@ -526,6 +568,8 @@ const ReversePickupAddressView = ({
             </DialogTitle>
 
             <Divider />
+
+            {/* DIALOG CONTENT */}
 
             <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
                 {loading ? (
@@ -595,22 +639,23 @@ const ReversePickupAddressView = ({
                                 backgroundColor: "action.hover"
                             }}
                         >
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "flex-start",
-                                    justifyContent: "space-between",
-                                    flexWrap: "wrap",
-                                    gap: 2,
-                                    mb: 1.5
+                            <Stack
+                                direction={{
+                                    xs: "column",
+                                    sm: "row"
                                 }}
+                                alignItems={{
+                                    xs: "flex-start",
+                                    sm: "center"
+                                }}
+                                justifyContent="space-between"
+                                spacing={2}
+                                sx={{ mb: 1.5 }}
                             >
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 1.5
-                                    }}
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={1.5}
                                 >
                                     <LocationOn
                                         color="primary"
@@ -638,14 +683,12 @@ const ReversePickupAddressView = ({
                                             )}
                                         </Typography>
                                     </Box>
-                                </Box>
+                                </Stack>
 
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: 1
-                                    }}
+                                <Stack
+                                    direction="row"
+                                    flexWrap="wrap"
+                                    gap={1}
                                 >
                                     {status !== undefined && (
                                         <Chip
@@ -663,8 +706,8 @@ const ReversePickupAddressView = ({
                                             size="small"
                                         />
                                     )}
-                                </Box>
-                            </Box>
+                                </Stack>
+                            </Stack>
 
                             <Typography
                                 variant="body2"
@@ -725,7 +768,7 @@ const ReversePickupAddressView = ({
                                 />
 
                                 <DetailField
-                                    label="Postal Code"
+                                    label="PIN Code"
                                     value={postalCode}
                                     icon={PinDrop}
                                 />
@@ -765,6 +808,12 @@ const ReversePickupAddressView = ({
                                     label="Company Name"
                                     value={companyName}
                                     icon={Business}
+                                />
+
+                                <DetailField
+                                    label="Seller ID"
+                                    value={sellerId}
+                                    icon={Badge}
                                 />
 
                                 <DetailField
@@ -848,38 +897,45 @@ const ReversePickupAddressView = ({
                             </>
                         )}
 
-                        <Divider sx={{ mb: 3 }} />
+                        {/* RECORD INFORMATION */}
 
-                        {/* AUDIT INFORMATION */}
+                        {(createdAt || updatedAt) && (
+                            <>
+                                <Divider sx={{ mb: 3 }} />
 
-                        <Box>
-                            <SectionHeader
-                                icon={Public}
-                                title="Record Information"
-                            />
+                                <Box>
+                                    <SectionHeader
+                                        icon={CalendarMonth}
+                                        title="Record Information"
+                                    />
 
-                            <Grid container spacing={2}>
-                                <DetailField
-                                    label="Created At"
-                                    value={formatDate(createdAt)}
-                                    icon={Public}
-                                />
+                                    <Grid container spacing={2}>
+                                        <DetailField
+                                            label="Created At"
+                                            value={formatDate(createdAt)}
+                                            icon={CalendarMonth}
+                                        />
 
-                                <DetailField
-                                    label="Last Updated"
-                                    value={formatDate(updatedAt)}
-                                    icon={Public}
-                                />
-                            </Grid>
-                        </Box>
+                                        <DetailField
+                                            label="Last Updated"
+                                            value={formatDate(updatedAt)}
+                                            icon={CalendarMonth}
+                                        />
+                                    </Grid>
+                                </Box>
+                            </>
+                        )}
                     </Box>
                 )}
             </DialogContent>
 
             <Divider />
 
+            {/* DIALOG FOOTER */}
+
             <DialogActions sx={{ px: 3, py: 2 }}>
                 <Button
+                    type="button"
                     variant="outlined"
                     color="inherit"
                     onClick={onClose}
@@ -893,4 +949,3 @@ const ReversePickupAddressView = ({
 };
 
 export default ReversePickupAddressView;
-

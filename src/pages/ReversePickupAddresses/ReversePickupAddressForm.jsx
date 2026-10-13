@@ -1,7 +1,5 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
+
+import React, { useEffect, useState } from "react";
 
 import {
     Box,
@@ -24,9 +22,9 @@ import {
     LocationOn
 } from "@mui/icons-material";
 
-/* =========================================================
-   INITIAL FORM VALUES
-========================================================= */
+// ============================================================
+// INITIAL FORM VALUES
+// ============================================================
 
 const initialFormData = {
     contactName: "",
@@ -34,25 +32,21 @@ const initialFormData = {
     phoneNumber: "",
     alternatePhoneNumber: "",
     email: "",
-
     addressLine1: "",
     addressLine2: "",
-
     landmark: "",
     city: "",
     state: "",
     postalCode: "",
     country: "India",
-
-    addressType: "Home",
-
+    addressType: "PICKUP",
     isDefault: false,
     isActive: true
 };
 
-/* =========================================================
-   FIELD ALIASES
-========================================================= */
+// ============================================================
+// FIELD VALUE HELPER
+// ============================================================
 
 const getFieldValue = (source, aliases, fallback = "") => {
     for (const key of aliases) {
@@ -66,181 +60,176 @@ const getFieldValue = (source, aliases, fallback = "") => {
     return fallback;
 };
 
-/* =========================================================
-   MAP ADDRESS DATA
-========================================================= */
+// ============================================================
+// MAP API ADDRESS TO FORM
+// ============================================================
 
-const mapAddressToForm = (address = {}) => ({
-    contactName: getFieldValue(
-        address,
-        ["contactName", "ContactName", "name", "Name"]
-    ),
-
-    contactPerson: getFieldValue(
-        address,
-        ["contactPerson", "ContactPerson"]
-    ),
-
-    phoneNumber: getFieldValue(
-        address,
-        [
-            "phoneNumber",
-            "PhoneNumber",
-            "phone",
-            "Phone",
-            "mobileNumber",
-            "MobileNumber"
-        ]
-    ),
-
-    alternatePhoneNumber: getFieldValue(
-        address,
-        [
-            "alternatePhoneNumber",
-            "AlternatePhoneNumber",
-            "alternatePhone",
-            "AlternatePhone"
-        ]
-    ),
-
-    email: getFieldValue(
-        address,
-        ["email", "Email", "emailAddress", "EmailAddress"]
-    ),
-
-    addressLine1: getFieldValue(
-        address,
-        [
-            "addressLine1",
-            "AddressLine1",
-            "address1",
-            "Address1"
-        ]
-    ),
-
-    addressLine2: getFieldValue(
-        address,
-        [
-            "addressLine2",
-            "AddressLine2",
-            "address2",
-            "Address2"
-        ]
-    ),
-
-    landmark: getFieldValue(
-        address,
-        ["landmark", "Landmark"]
-    ),
-
-    city: getFieldValue(
-        address,
-        ["city", "City"]
-    ),
-
-    state: getFieldValue(
-        address,
-        ["state", "State", "stateName", "StateName"]
-    ),
-
-    postalCode: getFieldValue(
-        address,
-        [
-            "postalCode",
-            "PostalCode",
-            "zipCode",
-            "ZipCode",
-            "pinCode",
-            "PinCode"
-        ]
-    ),
-
-    country: getFieldValue(
-        address,
-        ["country", "Country"],
-        "India"
-    ),
-
-    addressType: getFieldValue(
+const mapAddressToForm = (address = {}) => {
+    const addressType = getFieldValue(
         address,
         ["addressType", "AddressType"],
-        "Home"
-    ),
+        "PICKUP"
+    );
 
-    isDefault: Boolean(
-        getFieldValue(
+    return {
+        contactName: getFieldValue(
             address,
-            ["isDefault", "IsDefault", "defaultAddress", "DefaultAddress"],
-            false
-        )
-    ),
+            ["contactName", "ContactName", "name", "Name"]
+        ),
 
-    isActive: Boolean(
-        getFieldValue(
+        contactPerson: getFieldValue(
             address,
-            ["isActive", "IsActive", "active", "Active"],
-            true
-        )
-    )
-});
+            ["contactPerson", "ContactPerson"]
+        ),
 
-/* =========================================================
-   REVERSE PICKUP ADDRESS FORM
-========================================================= */
+        phoneNumber: getFieldValue(
+            address,
+            [
+                "phoneNumber",
+                "PhoneNumber",
+                "phone",
+                "Phone",
+                "mobileNumber",
+                "MobileNumber"
+            ]
+        ),
+
+        alternatePhoneNumber: getFieldValue(
+            address,
+            [
+                "alternatePhoneNumber",
+                "AlternatePhoneNumber",
+                "alternatePhone",
+                "AlternatePhone"
+            ]
+        ),
+
+        email: getFieldValue(
+            address,
+            ["email", "Email", "emailAddress", "EmailAddress"]
+        ),
+
+        addressLine1: getFieldValue(
+            address,
+            ["addressLine1", "AddressLine1", "address1", "Address1"]
+        ),
+
+        addressLine2: getFieldValue(
+            address,
+            ["addressLine2", "AddressLine2", "address2", "Address2"]
+        ),
+
+        landmark: getFieldValue(
+            address,
+            ["landmark", "Landmark"]
+        ),
+
+        city: getFieldValue(
+            address,
+            ["city", "City"]
+        ),
+
+        state: getFieldValue(
+            address,
+            ["state", "State", "stateName", "StateName"]
+        ),
+
+        postalCode: getFieldValue(
+            address,
+            [
+                "postalCode",
+                "PostalCode",
+                "zipCode",
+                "ZipCode",
+                "pinCode",
+                "PinCode",
+                "pincode",
+                "Pincode"
+            ]
+        ),
+
+        country: getFieldValue(
+            address,
+            ["country", "Country"],
+            "India"
+        ),
+
+        addressType,
+
+        isDefault: Boolean(
+            getFieldValue(
+                address,
+                [
+                    "isDefault",
+                    "IsDefault",
+                    "defaultAddress",
+                    "DefaultAddress"
+                ],
+                false
+            )
+        ),
+
+        isActive: Boolean(
+            getFieldValue(
+                address,
+                ["isActive", "IsActive", "active", "Active"],
+                true
+            )
+        )
+    };
+};
+
+// ============================================================
+// ADDRESS TYPE OPTIONS
+// The value sent to the API is separate from its display label.
+// ============================================================
+
+const DEFAULT_ADDRESS_TYPES = [
+    { value: "PICKUP", label: "Pickup Address" },
+    { value: "RETURN", label: "Return Address" },
+    { value: "Home", label: "Home" },
+    { value: "Office", label: "Office" },
+    { value: "Warehouse", label: "Warehouse" },
+    { value: "Other", label: "Other" }
+];
+
+const DEFAULT_COUNTRIES = [
+    "India",
+    "United States",
+    "United Kingdom",
+    "Canada",
+    "Australia",
+    "Other"
+];
+
+// ============================================================
+// REVERSE PICKUP ADDRESS FORM
+// ============================================================
 
 const ReversePickupAddressForm = ({
     address = null,
     initialValues = null,
-
     mode = "create",
-
     onSubmit,
     onCancel,
     onReset,
-
     loading = false,
     submitting = false,
-
     error = "",
     success = "",
-
     formId = "reverse-pickup-address-form",
-
     submitLabel,
     showActions = true,
     showCancelButton = false,
-
     disabled = false,
-
-    addressTypes = [
-        "Home",
-        "Office",
-        "Warehouse",
-        "Other"
-    ],
-
-    countries = [
-        "India",
-        "United States",
-        "United Kingdom",
-        "Canada",
-        "Australia",
-        "Other"
-    ]
+    addressTypes = DEFAULT_ADDRESS_TYPES,
+    countries = DEFAULT_COUNTRIES
 }) => {
-
-    /* =====================================================
-       MODE
-    ===================================================== */
-
     const normalizedMode = String(mode || "create")
         .trim()
         .toLowerCase();
 
-    const isEditMode = [
-        "edit",
-        "update"
-    ].includes(normalizedMode);
+    const isEditMode = ["edit", "update"].includes(normalizedMode);
 
     const isViewMode = [
         "view",
@@ -252,9 +241,54 @@ const ReversePickupAddressForm = ({
 
     const isDisabled = disabled || isBusy || isViewMode;
 
-    /* =====================================================
-       FORM STATE
-    ===================================================== */
+    // --------------------------------------------------------
+    // Normalize options so the dropdown can accept either
+    // ["Home", "Office"] or [{value, label}, ...].
+    // --------------------------------------------------------
+
+    const normalizedAddressTypes = (
+        Array.isArray(addressTypes) && addressTypes.length
+            ? addressTypes
+            : DEFAULT_ADDRESS_TYPES
+    ).map((item) => {
+        if (typeof item === "string") {
+            const matching = DEFAULT_ADDRESS_TYPES.find(
+                (option) => option.value === item
+            );
+
+            return matching || {
+                value: item,
+                label: item
+            };
+        }
+
+        return {
+            value: String(item.value ?? item.label ?? ""),
+            label: String(item.label ?? item.value ?? "")
+        };
+    }).filter((item) => item.value !== "");
+
+    const normalizedCountries = (
+        Array.isArray(countries) && countries.length
+            ? countries
+            : DEFAULT_COUNTRIES
+    ).map((country) => {
+        if (typeof country === "string") {
+            return {
+                value: country,
+                label: country
+            };
+        }
+
+        return {
+            value: String(country.value ?? country.label ?? ""),
+            label: String(country.label ?? country.value ?? "")
+        };
+    }).filter((item) => item.value !== "");
+
+    // --------------------------------------------------------
+    // FORM STATE
+    // --------------------------------------------------------
 
     const [formData, setFormData] = useState(() => ({
         ...initialFormData,
@@ -263,9 +297,9 @@ const ReversePickupAddressForm = ({
 
     const [fieldErrors, setFieldErrors] = useState({});
 
-    /* =====================================================
-       RESET FORM WHEN ADDRESS CHANGES
-    ===================================================== */
+    // --------------------------------------------------------
+    // RESET FORM WHEN THE ADDRESS CHANGES
+    // --------------------------------------------------------
 
     useEffect(() => {
         const source = initialValues || address || {};
@@ -278,9 +312,9 @@ const ReversePickupAddressForm = ({
         setFieldErrors({});
     }, [address, initialValues, mode]);
 
-    /* =====================================================
-       HANDLE FIELD CHANGE
-    ===================================================== */
+    // --------------------------------------------------------
+    // HANDLE INPUT CHANGE
+    // --------------------------------------------------------
 
     const handleChange = (event) => {
         const {
@@ -290,9 +324,7 @@ const ReversePickupAddressForm = ({
             checked
         } = event.target;
 
-        const nextValue = type === "checkbox"
-            ? checked
-            : value;
+        const nextValue = type === "checkbox" ? checked : value;
 
         setFormData((previous) => ({
             ...previous,
@@ -305,9 +337,9 @@ const ReversePickupAddressForm = ({
         }));
     };
 
-    /* =====================================================
-       VALIDATION
-    ===================================================== */
+    // --------------------------------------------------------
+    // VALIDATE FORM
+    // --------------------------------------------------------
 
     const validateForm = () => {
         const errors = {};
@@ -323,15 +355,11 @@ const ReversePickupAddressForm = ({
                 .replace(/\D/g, "");
 
             if (digits.length < 7 || digits.length > 15) {
-                errors.phoneNumber =
-                    "Enter a valid phone number.";
+                errors.phoneNumber = "Enter a valid phone number.";
             }
         }
 
-        if (
-            formData.alternatePhoneNumber &&
-            String(formData.alternatePhoneNumber).trim()
-        ) {
+        if (String(formData.alternatePhoneNumber || "").trim()) {
             const digits = String(formData.alternatePhoneNumber)
                 .replace(/\D/g, "");
 
@@ -341,8 +369,9 @@ const ReversePickupAddressForm = ({
             }
         }
 
+        // Correct email validation regex.
         if (
-            formData.email &&
+            String(formData.email || "").trim() &&
             !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
                 String(formData.email).trim()
             )
@@ -364,9 +393,7 @@ const ReversePickupAddressForm = ({
 
         if (!String(formData.postalCode).trim()) {
             errors.postalCode = "Postal code is required.";
-        } else if (
-            String(formData.postalCode).trim().length > 20
-        ) {
+        } else if (String(formData.postalCode).trim().length > 20) {
             errors.postalCode =
                 "Postal code cannot exceed 20 characters.";
         }
@@ -384,9 +411,9 @@ const ReversePickupAddressForm = ({
         return Object.keys(errors).length === 0;
     };
 
-    /* =====================================================
-       SUBMIT FORM
-    ===================================================== */
+    // --------------------------------------------------------
+    // SUBMIT FORM
+    // --------------------------------------------------------
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -399,30 +426,33 @@ const ReversePickupAddressForm = ({
             return;
         }
 
-        if (typeof onSubmit === "function") {
-            onSubmit({
-                ...formData,
-                contactName: formData.contactName.trim(),
-                contactPerson: formData.contactPerson.trim(),
-                phoneNumber: formData.phoneNumber.trim(),
-                alternatePhoneNumber:
-                    formData.alternatePhoneNumber.trim(),
-                email: formData.email.trim(),
-                addressLine1: formData.addressLine1.trim(),
-                addressLine2: formData.addressLine2.trim(),
-                landmark: formData.landmark.trim(),
-                city: formData.city.trim(),
-                state: formData.state.trim(),
-                postalCode: formData.postalCode.trim(),
-                country: formData.country.trim(),
-                addressType: formData.addressType.trim()
-            });
+        if (typeof onSubmit !== "function") {
+            return;
         }
+
+        onSubmit({
+            ...formData,
+            contactName: String(formData.contactName).trim(),
+            contactPerson: String(formData.contactPerson || "").trim(),
+            phoneNumber: String(formData.phoneNumber).trim(),
+            alternatePhoneNumber: String(
+                formData.alternatePhoneNumber || ""
+            ).trim(),
+            email: String(formData.email || "").trim(),
+            addressLine1: String(formData.addressLine1).trim(),
+            addressLine2: String(formData.addressLine2 || "").trim(),
+            landmark: String(formData.landmark || "").trim(),
+            city: String(formData.city).trim(),
+            state: String(formData.state).trim(),
+            postalCode: String(formData.postalCode).trim(),
+            country: String(formData.country).trim(),
+            addressType: String(formData.addressType).trim()
+        });
     };
 
-    /* =====================================================
-       RESET FORM
-    ===================================================== */
+    // --------------------------------------------------------
+    // RESET FORM
+    // --------------------------------------------------------
 
     const handleReset = () => {
         if (isBusy || disabled || isViewMode) {
@@ -443,9 +473,9 @@ const ReversePickupAddressForm = ({
         }
     };
 
-    /* =====================================================
-       TEXT FIELD HELPER
-    ===================================================== */
+    // --------------------------------------------------------
+    // TEXT FIELD HELPER
+    // --------------------------------------------------------
 
     const renderTextField = ({
         name,
@@ -474,17 +504,15 @@ const ReversePickupAddressForm = ({
             error={Boolean(fieldErrors[name])}
             helperText={fieldErrors[name] || " "}
             inputProps={
-                maxLength
-                    ? { maxLength }
-                    : undefined
+                maxLength ? { maxLength } : undefined
             }
             size="small"
         />
     );
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    // --------------------------------------------------------
+    // RENDER
+    // --------------------------------------------------------
 
     return (
         <Box
@@ -494,31 +522,19 @@ const ReversePickupAddressForm = ({
             noValidate
             sx={{ width: "100%" }}
         >
-            {/* =================================================
-                ALERTS
-            ================================================= */}
-
             {error && (
-                <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                >
+                <Alert severity="error" sx={{ mb: 2 }}>
                     {error}
                 </Alert>
             )}
 
             {success && (
-                <Alert
-                    severity="success"
-                    sx={{ mb: 2 }}
-                >
+                <Alert severity="success" sx={{ mb: 2 }}>
                     {success}
                 </Alert>
             )}
 
-            {/* =================================================
-                CONTACT INFORMATION
-            ================================================= */}
+            {/* CONTACT INFORMATION */}
 
             <Stack
                 direction="row"
@@ -528,10 +544,7 @@ const ReversePickupAddressForm = ({
             >
                 <LocationOn color="primary" />
 
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                >
+                <Typography variant="subtitle1" fontWeight={700}>
                     Contact Information
                 </Typography>
             </Stack>
@@ -586,9 +599,7 @@ const ReversePickupAddressForm = ({
 
             <Divider sx={{ my: 3 }} />
 
-            {/* =================================================
-                ADDRESS INFORMATION
-            ================================================= */}
+            {/* ADDRESS INFORMATION */}
 
             <Typography
                 variant="subtitle1"
@@ -654,6 +665,8 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
+                {/* COUNTRY DROPDOWN */}
+
                 <Grid item xs={12} sm={6}>
                     <TextField
                         select
@@ -661,22 +674,25 @@ const ReversePickupAddressForm = ({
                         size="small"
                         name="country"
                         label="Country"
-                        value={formData.country}
+                        value={formData.country || "India"}
                         onChange={handleChange}
                         disabled={isDisabled}
+                        required
                         error={Boolean(fieldErrors.country)}
                         helperText={fieldErrors.country || " "}
                     >
-                        {countries.map((country) => (
+                        {normalizedCountries.map((country) => (
                             <MenuItem
-                                key={country}
-                                value={country}
+                                key={country.value}
+                                value={country.value}
                             >
-                                {country}
+                                {country.label}
                             </MenuItem>
                         ))}
                     </TextField>
                 </Grid>
+
+                {/* ADDRESS TYPE DROPDOWN */}
 
                 <Grid item xs={12} sm={6}>
                     <TextField
@@ -685,19 +701,22 @@ const ReversePickupAddressForm = ({
                         size="small"
                         name="addressType"
                         label="Address Type"
-                        value={formData.addressType}
+                        value={formData.addressType || "PICKUP"}
                         onChange={handleChange}
                         disabled={isDisabled}
                         required
                         error={Boolean(fieldErrors.addressType)}
-                        helperText={fieldErrors.addressType || " "}
+                        helperText={
+                            fieldErrors.addressType ||
+                            "Select the address type"
+                        }
                     >
-                        {addressTypes.map((type) => (
+                        {normalizedAddressTypes.map((option) => (
                             <MenuItem
-                                key={type}
-                                value={type}
+                                key={option.value}
+                                value={option.value}
                             >
-                                {type}
+                                {option.label}
                             </MenuItem>
                         ))}
                     </TextField>
@@ -706,9 +725,7 @@ const ReversePickupAddressForm = ({
 
             <Divider sx={{ my: 3 }} />
 
-            {/* =================================================
-                ADDRESS SETTINGS
-            ================================================= */}
+            {/* ADDRESS SETTINGS */}
 
             <Typography
                 variant="subtitle1"
@@ -744,9 +761,7 @@ const ReversePickupAddressForm = ({
                 />
             </Stack>
 
-            {/* =================================================
-                FORM ACTIONS
-            ================================================= */}
+            {/* FORM ACTIONS */}
 
             {showActions && !isViewMode && (
                 <>
@@ -823,4 +838,3 @@ const ReversePickupAddressForm = ({
 };
 
 export default ReversePickupAddressForm;
-

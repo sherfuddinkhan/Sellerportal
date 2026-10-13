@@ -35274,26 +35274,245 @@ app.delete("/api/reverse-pickup-items/:id", async (req, res) => {
 });
 
 /////////////////ReversePickupAddress///////////////
+// =====================================================
+// GET ALL REVERSE PICKUP ADDRESSES
+// React:
+// GET /api/reverse-pickup-addresses/all
+//
+// ASP.NET:
+// GET https://localhost:7203/api/reverse-pickup-addresses/all
+// =====================================================
+// REVERSE PICKUP ADDRESSES API
+// ASP.NET: https://localhost:7203/api/reverse-pickup-addresses
+// React:   http://localhost:5000/api/reverse-pickup-addresses/all
+// =====================================================
+
+
 const REVERSE_PICKUP_ADDRESS_API =
-    "http://localhost:5000/api/ReversePickupAddress";
-    app.get("/api/ReversePickupAddress", async (req, res) => {
+    `${BASE_URL}/reverse-pickup-addresses`;
+
+// GET ALL REVERSE PICKUP ADDRESSES
+app.get("/api/reverse-pickup-addresses/all", async (req, res) => {
     try {
         const response = await axios.get(
-            REVERSE_PICKUP_ADDRESS_API,
+            `${REVERSE_PICKUP_ADDRESS_API}/all`,
             {
-                params: req.query,
-                headers: {
-                    Accept: "application/json"
-                },
-                timeout: 15000
+                httpsAgent
             }
         );
 
         return res.status(response.status).json(response.data);
+
     } catch (error) {
-        return handleApiError(error, res);
+        console.error(
+            "GET /api/reverse-pickup-addresses/all error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to fetch reverse pickup addresses",
+                error: error.message
+            }
+        );
     }
 });
+
+
+
+// =====================================================
+// GET REVERSE PICKUP ADDRESS BY ID
+// React:
+// GET /api/reverse-pickup-addresses/:id
+//
+// ASP.NET:
+// GET https://localhost:7203/api/reverse-pickup-addresses/{id}
+// =====================================================
+
+app.get("/api/reverse-pickup-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid reverse pickup address ID"
+            });
+        }
+
+        const response = await axios.get(
+            `${REVERSE_PICKUP_ADDRESS_API}/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "GET /api/reverse-pickup-addresses/:id error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to fetch reverse pickup address"
+            }
+        );
+    }
+});
+
+
+// =====================================================
+// CREATE REVERSE PICKUP ADDRESS
+// React:
+// POST /api/reverse-pickup-addresses
+//
+// ASP.NET:
+// POST https://localhost:7203/api/reverse-pickup-addresses
+//
+// Body:
+// {
+//   "id": 0,
+//   "sellerId": 0,
+//   "customerId": 0,
+//   "reversePickupId": 0,
+//   "addressType": "string",
+//   "addressLine1": "string",
+//   "city": "string",
+//   "pincode": "string",
+//   "phone": "string"
+// }
+// =====================================================
+
+app.post("/api/reverse-pickup-addresses", async (req, res) => {
+    try {
+        const response = await axios.post(
+            REVERSE_PICKUP_ADDRESS_API,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "POST /api/reverse-pickup-addresses error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to create reverse pickup address"
+            }
+        );
+    }
+});
+
+
+// =====================================================
+// UPDATE REVERSE PICKUP ADDRESS
+// React:
+// PUT /api/reverse-pickup-addresses/:id
+//
+// ASP.NET:
+// PUT https://localhost:7203/api/reverse-pickup-addresses/{id}
+// =====================================================
+
+app.put("/api/reverse-pickup-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid reverse pickup address ID"
+            });
+        }
+
+        const response = await axios.put(
+            `${REVERSE_PICKUP_ADDRESS_API}/${id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "PUT /api/reverse-pickup-addresses/:id error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to update reverse pickup address"
+            }
+        );
+    }
+});
+
+
+// =====================================================
+// DELETE REVERSE PICKUP ADDRESS
+// React:
+// DELETE /api/reverse-pickup-addresses/:id
+//
+// ASP.NET:
+// DELETE https://localhost:7203/api/reverse-pickup-addresses/{id}
+// =====================================================
+
+app.delete("/api/reverse-pickup-addresses/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                message: "Invalid reverse pickup address ID"
+            });
+        }
+
+        const response = await axios.delete(
+            `${REVERSE_PICKUP_ADDRESS_API}/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+
+    } catch (error) {
+        console.error(
+            "DELETE /api/reverse-pickup-addresses/:id error:",
+            error.response?.data || error.message
+        );
+
+        return res.status(
+            error.response?.status || 500
+        ).json(
+            error.response?.data || {
+                message: "Failed to delete reverse pickup address"
+            }
+        );
+    }
+});
+
+
 ///////////////////////////////
 /* =========================================================
    API CONFIGURATION
