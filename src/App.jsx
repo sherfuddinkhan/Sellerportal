@@ -936,6 +936,15 @@ import OrderItemCreate from "./pages/OrderItems/OrderItemCreate";
 import OrderItemDetails from "./pages/OrderItems/OrderItemDetails";
 import OrderItemEdit from "./pages/OrderItems/OrderItemEdit";
 
+//////////////////////////SaleOrderAddresses//////////////////////////////////
+
+import SaleOrderAddressesList from "./pages/SaleOrderAddresses/SaleOrderAddressesList";
+import SaleOrderAddressesForm from "./pages/SaleOrderAddresses/SaleOrderAddressesForm";
+import SaleOrderAddressesView from "./pages/SaleOrderAddresses/SaleOrderAddressesView";
+import SaleOrderAddressesEdit from "./pages/SaleOrderAddresses/SaleOrderAddressesEdit";
+import SaleOrderAddressesDelete from "./pages/SaleOrderAddresses/SaleOrderAddressesDelete";
+
+
 // =========================================================
 // MARKETPLACE IMPORTS
 // =========================================================
@@ -1269,49 +1278,22 @@ function App() {
     SELLER CUSTOMERS
 ================================================= */}
 
-<Route
-    path="seller-customers"
-    element={<SellerCustomerList />}
-/>
+<Route path="seller-customers" element={<SellerCustomerList />}/>
 
-<Route
-    path="seller-customers/create"
-    element={<SellerCustomerCreate />}
-/>
+<Route path="seller-customers/create" element={<SellerCustomerCreate />}/>
 
-<Route
-    path="seller-customers/search"
-    element={<SellerCustomerSearch />}
-/>
+<Route path="seller-customers/search" element={<SellerCustomerSearch />}/>
 
-<Route
-    path="seller-customers/filters"
-    element={<SellerCustomerFilters />}
-/>
+<Route path="seller-customers/filters" element={<SellerCustomerFilters />}/>
 
-<Route
-    path="seller-customers/statistics"
-    element={<SellerCustomerStatistics />}
-/>
+<Route path="seller-customers/statistics" element={<SellerCustomerStatistics />}/>
 
-<Route
-    path="seller-customers/details/:sellerId/:customerId"
-    element={<SellerCustomerDetails />}
-/>
+<Route path="seller-customers/details/:sellerId/:customerId" element={<SellerCustomerDetails />}/>
 
-<Route
-    path="seller-customers/edit/:sellerId/:customerId"
-    element={<SellerCustomerEdit />}
-/>
+<Route path="seller-customers/edit/:sellerId/:customerId" element={<SellerCustomerEdit />}/>
 
-<Route
-    path="seller-customers/delete/:sellerId/:customerId"
-    element={<DeleteSellerCustomerDialog />}
-/>
-<Route
-    path="seller-customers/view/:id"
-    element={<SellerCustomerView />}
-/>
+<Route path="seller-customers/delete/:sellerId/:customerId" element={<DeleteSellerCustomerDialog />}/>
+<Route path="seller-customers/view/:id" element={<SellerCustomerView />}/>
 
 
                 {/* =================================================
@@ -1358,10 +1340,7 @@ function App() {
                     element={<CategoryView />}
                 />
 
-              <Route
-    path="categories/:id/products"
-    element={<CategoryProducts />}
-/>
+              <Route path="categories/:id/products" element={<CategoryProducts />}/>
 {/* =================================================
 MANIFEST PACKAGES PUTAWAY ROUTES
 ================================================= */}
@@ -2002,6 +1981,39 @@ SUPPLIER CONTACTS ROUTES
     path="vendor-item-custom-fields/:id/delete"
     element={<DeleteVendorItemCustomFieldDialog/>}
 />
+
+/////////////////////////////////////////////
+
+<Route
+    path="/sale-order-addresses"
+    element={<SaleOrderAddressesList />}
+/>
+
+<Route
+    path="/sale-order-addresses/create"
+    element={<SaleOrderAddressesForm />}
+/>
+
+<Route
+    path="/sale-order-addresses/view/:id"
+    element={<SaleOrderAddressesView />}
+/>
+
+<Route
+    path="/sale-order-addresses/details/:id"
+    element={<SaleOrderAddressesView />}
+/>
+
+<Route
+    path="/sale-order-addresses/edit/:id"
+    element={<SaleOrderAddressesForm />}
+/>
+
+<Route
+    path="/sale-order-addresses/delete/:id"
+    element={<SaleOrderAddressesDelete />}
+/>
+
 
 {/* =================================================
 VENDOR ITEM MASTERS ROUTES

@@ -37223,6 +37223,271 @@ app.delete(
     }
 );
 
+///////////////////////////////sale-order-address//////////////
+
+// =========================================================
+// SALE ORDER ADDRESSES API
+// React -> Node.js Proxy -> ASP.NET Core API
+// =========================================================
+
+
+const SALE_ORDER_ADDRESS_API =
+    "https://localhost:7203/api/sale-order-addresses";
+
+const saleOrderAddressHttpsAgent = new https.Agent({
+    rejectUnauthorized: false
+});
+
+// GET ALL SALE ORDER ADDRESSES
+app.get("/api/SaleOrderAddresses", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${SALE_ORDER_ADDRESS_API}/all`,
+            {
+                httpsAgent: saleOrderAddressHttpsAgent,
+                headers: { Accept: "*/*" },
+                timeout: 15000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET SALE ORDER ADDRESSES ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to retrieve sale order addresses.",
+            details: error.response?.data || error.message
+        });
+    }
+});
+
+// GET SALE ORDER ADDRESS BY ID
+app.get("/api/SaleOrderAddresses/:id", async (req, res) => {
+    try {
+        const id = encodeURIComponent(req.params.id);
+
+        const response = await axios.get(
+            `${SALE_ORDER_ADDRESS_API}/${id}`,
+            {
+                httpsAgent: saleOrderAddressHttpsAgent,
+                headers: { Accept: "*/*" },
+                timeout: 15000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET SALE ORDER ADDRESS BY ID ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to retrieve sale order address.",
+            details: error.response?.data || error.message
+        });
+    }
+});
+
+// CREATE SALE ORDER ADDRESS
+app.post("/api/SaleOrderAddresses", async (req, res) => {
+    try {
+        const response = await axios.post(
+            SALE_ORDER_ADDRESS_API,
+            req.body,
+            {
+                httpsAgent: saleOrderAddressHttpsAgent,
+                headers: {
+                    Accept: "*/*",
+                    "Content-Type": "application/json"
+                },
+                timeout: 15000
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "CREATE SALE ORDER ADDRESS ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to create sale order address.",
+            details: error.response?.data || error.message
+        });
+    }
+});
+
+// UPDATE SALE ORDER ADDRESS
+app.put("/api/SaleOrderAddresses/:id", async (req, res) => {
+    const addressId = req.params.id;
+
+    try {
+        const response = await axios.put(
+            `${SALE_ORDER_ADDRESS_API}/${encodeURIComponent(addressId)}`,
+            req.body,
+            {
+                httpsAgent: saleOrderAddressHttpsAgent,
+                headers: {
+                    Accept: "*/*",
+                    "Content-Type": "application/json"
+                },
+                timeout: 15000
+            }
+        );
+
+        if (response.status === 204 || response.data == null) {
+            return res.status(response.status).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("UPDATE SALE ORDER ADDRESS ERROR:", {
+            addressId,
+            backendUrl:
+                `${SALE_ORDER_ADDRESS_API}/${encodeURIComponent(addressId)}`,
+            status: error.response?.status,
+            backendResponse: error.response?.data,
+            message: error.message
+        });
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to update sale order address.",
+            details: error.response?.data || error.message
+        });
+    }
+});
+
+// ============================================================
+// SALE ORDER ADDRESSES - DELETE
+// Accepts either a numeric database ID or ADDR-SO-18
+// ============================================================
+app.delete("/api/sale-order-addresses/:id", async (req, res) => {
+    const requestedId = decodeURIComponent(req.params.id).trim();
+
+    try {
+        console.log("DELETE SALE ORDER ADDRESS:", requestedId);
+
+        let databaseId = null;
+
+        // Numeric ID: use it directly.
+        if (/^\d+$/.test(requestedId)) {
+            databaseId = Number(requestedId);
+        } else {
+            // String ID: find the address in the backend's /all list.
+            const allResponse = await axios.get(
+                `${SALE_ORDER_ADDRESS_API}/all`,
+                {
+                    httpsAgent: saleOrderAddressHttpsAgent,
+                    headers: { Accept: "*/*" },
+                    timeout: 15000
+                }
+            );
+
+            const data = allResponse.data;
+
+            const addresses = Array.isArray(data)
+                ? data
+                : Array.isArray(data?.data)
+                    ? data.data
+                    : Array.isArray(data?.items)
+                        ? data.items
+                        : [];
+
+            const address = addresses.find((item) => {
+                const addressId =
+                    item.addressId ??
+                    item.AddressId ??
+                    "";
+
+                return String(addressId).trim().toLowerCase() ===
+                    requestedId.toLowerCase();
+            });
+
+            if (!address) {
+                return res.status(404).json({
+                    message: `Address '${requestedId}' was not found in the backend /all response.`,
+                    requestedId,
+                    countReturned: addresses.length
+                });
+            }
+
+            // Use only actual database primary-key fields.
+            const keyCandidates = [
+                address.id,
+                address.Id,
+                address.saleOrderAddressId,
+                address.SaleOrderAddressId,
+                address.saleOrderAddressesId,
+                address.SaleOrderAddressesId,
+                address.addressRecordId,
+                address.AddressRecordId
+            ];
+
+            const key = keyCandidates.find((value) =>
+                value !== undefined &&
+                value !== null &&
+                String(value).trim() !== "" &&
+                /^\d+$/.test(String(value).trim())
+            );
+
+            if (key === undefined) {
+                return res.status(400).json({
+                    message:
+                        `Address '${requestedId}' exists, but /all does not expose its numeric database primary key. ` +
+                        "Expose the primary key in the API response before deleting.",
+                    addressId: address.addressId ?? address.AddressId,
+                    salesOrderId:
+                        address.salesOrderId ?? address.SalesOrderId
+                });
+            }
+
+            databaseId = Number(key);
+        }
+
+        if (!Number.isSafeInteger(databaseId) || databaseId <= 0) {
+            return res.status(400).json({
+                message: "A valid numeric database ID is required."
+            });
+        }
+
+        console.log("Resolved address database ID:", databaseId);
+
+        const deleteResponse = await axios.delete(
+            `${SALE_ORDER_ADDRESS_API}/${databaseId}`,
+            {
+                httpsAgent: saleOrderAddressHttpsAgent,
+                headers: { Accept: "*/*" },
+                timeout: 15000
+            }
+        );
+
+        if (
+            deleteResponse.status === 204 ||
+            deleteResponse.data == null
+        ) {
+            return res.status(204).end();
+        }
+
+        return res.status(deleteResponse.status).json(
+            deleteResponse.data
+        );
+    } catch (error) {
+        console.error(
+            "DELETE SALE ORDER ADDRESS ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            message: "Failed to delete sale order address.",
+            details: error.response?.data || error.message
+        });
+    }
+});
 
 
 
