@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 
 import {
     Alert,
-    Autocomplete,
     Box,
     Button,
     Card,
     CardContent,
-    Chip,
     CircularProgress,
+    Chip,
     Divider,
     Grid,
     IconButton,
@@ -18,16 +17,28 @@ import {
     Typography
 } from "@mui/material";
 
-import {
-    Add,
-    ArrowBack,
-    Inventory2,
-    Save
-} from "@mui/icons-material";
+import Add from "@mui/icons-material/Add";
+import ArrowBack from "@mui/icons-material/ArrowBack";
+import Delete from "@mui/icons-material/Delete";
+import Inventory2 from "@mui/icons-material/Inventory2";
+import Save from "@mui/icons-material/Save";
 
-/* =========================================================
-   HELPERS
-========================================================= */
+const DEFAULT_DESTINATIONS = [
+    "INVOICING",
+    "BENGALURU",
+    "CHENNAI",
+    "HYDERABAD",
+    "MUMBAI",
+    "DELHI"
+];
+
+const createEmptyForm = () => ({
+    picklistCode: "",
+    destination: "BENGALURU",
+    shippingPackageCodes: "",
+    sellerId: "6",
+    customerId: "3"
+});
 
 const getField = (object, fields, fallback = "") => {
     if (!object || typeof object !== "object") {
@@ -46,321 +57,107 @@ const getField = (object, fields, fallback = "") => {
     return fallback;
 };
 
-const getId = (object) =>
-    getField(object, [
-        "picklistId",
-        "PicklistId",
-        "pickListId",
-        "PickListId",
-        "id",
-        "Id"
-    ], "");
+const getPicklistCode = (picklist) =>
+    getField(picklist, [
+        "picklistCode",
+        "PicklistCode",
+        "pickListCode",
+        "PickListCode"
+    ]);
 
-const getOrderId = (object) =>
-    getField(object, [
-        "orderId",
-        "OrderId",
-        "salesOrderId",
-        "SalesOrderId"
-    ], "");
+const getPackageCodes = (picklist) => {
+    const raw = getField(picklist, [
+        "shippingPackageCodes",
+        "ShippingPackageCodes"
+    ]);
 
-const getOrderNumber = (object) =>
-    getField(object, [
-        "orderNumber",
-        "OrderNumber",
-        "salesOrderNumber",
-        "SalesOrderNumber",
-        "orderNo",
-        "OrderNo"
-    ], "");
+    if (Array.isArray(raw)) {
+        return raw.join("\n");
+    }
 
-const getWarehouseId = (object) =>
-    getField(object, [
-        "warehouseId",
-        "WarehouseId",
-        "locationId",
-        "LocationId"
-    ], "");
-
-const getWarehouseName = (object) =>
-    getField(object, [
-        "warehouseName",
-        "WarehouseName",
-        "warehouse",
-        "Warehouse",
-        "locationName",
-        "LocationName"
-    ], "");
-
-const getPicklistNumber = (object) =>
-    getField(object, [
-        "picklistNumber",
-        "PicklistNumber",
-        "pickListNumber",
-        "PickListNumber",
-        "picklistNo",
-        "PicklistNo"
-    ], "");
-
-const getPicklistDate = (object) =>
-    getField(object, [
-        "picklistDate",
-        "PicklistDate",
-        "date",
-        "Date"
-    ], "");
-
-const getPicklistStatus = (object) =>
-    getField(object, [
-        "status",
-        "Status",
-        "picklistStatus",
-        "PicklistStatus"
-    ], "Pending");
-
-const getItemList = (object) => {
-    const items = getField(object, [
-        "items",
-        "Items",
-        "picklistItems",
-        "PicklistItems",
-        "details",
-        "Details"
-    ], []);
-
-    return Array.isArray(items) ? items : [];
-};
-
-const getItemId = (item) =>
-    getField(item, [
-        "itemId",
-        "ItemId",
-        "productId",
-        "ProductId",
-        "inventoryItemId",
-        "InventoryItemId"
-    ], "");
-
-const getItemName = (item) =>
-    getField(item, [
-        "itemName",
-        "ItemName",
-        "productName",
-        "ProductName",
-        "name",
-        "Name"
-    ], "");
-
-const getItemCode = (item) =>
-    getField(item, [
-        "itemCode",
-        "ItemCode",
-        "productCode",
-        "ProductCode",
-        "sku",
-        "SKU"
-    ], "");
-
-const getItemQuantity = (item) =>
-    getField(item, [
-        "quantity",
-        "Quantity",
-        "requiredQuantity",
-        "RequiredQuantity",
-        "pickQuantity",
-        "PickQuantity"
-    ], 1);
-
-const formatDateForInput = (value) => {
-    if (!value) return "";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
+    if (typeof raw !== "string" || !raw.trim()) {
         return "";
     }
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+    try {
+        const parsed = JSON.parse(raw);
 
-    return `${year}-${month}-${day}`;
-};
-
-const getOptionId = (option) =>
-    getField(option, [
-        "id",
-        "Id",
-        "orderId",
-        "OrderId",
-        "salesOrderId",
-        "SalesOrderId",
-        "warehouseId",
-        "WarehouseId",
-        "productId",
-        "ProductId",
-        "itemId",
-        "ItemId"
-    ], "");
-
-const getOptionLabel = (option) => {
-    if (typeof option === "string" || typeof option === "number") {
-        return String(option);
+        if (Array.isArray(parsed)) {
+            return parsed.join("\n");
+        }
+    } catch {
+        // A single package code may be stored as plain text.
     }
 
-    return String(
-        getField(option, [
-            "orderNumber",
-            "OrderNumber",
-            "salesOrderNumber",
-            "SalesOrderNumber",
-            "warehouseName",
-            "WarehouseName",
-            "productName",
-            "ProductName",
-            "itemName",
-            "ItemName",
-            "name",
-            "Name",
-            "number",
-            "Number"
-        ], "")
-    );
+    return raw;
 };
-
-/* =========================================================
-   CONSTANTS
-========================================================= */
-
-const DEFAULT_STATUSES = [
-    "Pending",
-    "In Progress",
-    "Completed",
-    "Cancelled"
-];
-
-const EMPTY_ITEM = {
-    itemId: "",
-    itemName: "",
-    itemCode: "",
-    quantity: 1
-};
-
-const EMPTY_FORM = {
-    picklistNumber: "",
-    orderId: "",
-    orderNumber: "",
-    warehouseId: "",
-    warehouseName: "",
-    picklistDate: formatDateForInput(new Date()),
-    status: "Pending",
-    notes: "",
-    items: []
-};
-
-/* =========================================================
-   PICKLIST FORM
-========================================================= */
 
 const PicklistForm = ({
     picklist = null,
     initialData = null,
     mode = "create",
-
-    orders = [],
-    warehouses = [],
-    products = [],
-    statuses = DEFAULT_STATUSES,
-
+    destinations = DEFAULT_DESTINATIONS,
+    statuses,
     loading = false,
     error = "",
-
     onSubmit,
     onCancel,
     onBack,
-
     title,
     showPicklistNumber = true,
-    showStatus = true,
+    showStatus = false,
     showItems = true,
     readOnly = false
 }) => {
     const source = initialData || picklist;
-
     const normalizedMode = String(mode).toLowerCase();
 
     const isEditMode = normalizedMode === "edit";
+
     const isReadOnly =
         readOnly ||
         normalizedMode === "view" ||
         normalizedMode === "details";
 
-    const [formData, setFormData] = useState(EMPTY_FORM);
-    const [validationErrors, setValidationErrors] = useState({});
+    // Backward compatibility: if a parent passes statuses,
+    // use them as destination options only when destinations
+    // were not explicitly supplied.
+    const destinationOptions =
+        destinations !== DEFAULT_DESTINATIONS
+            ? destinations
+            : Array.isArray(statuses)
+                ? statuses
+                : DEFAULT_DESTINATIONS;
+
+    const [formData, setFormData] = useState(createEmptyForm);
     const [localError, setLocalError] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
-    /* =====================================================
-       INITIALIZE FORM
-    ===================================================== */
-
     useEffect(() => {
         if (!source) {
-            setFormData({
-                ...EMPTY_FORM,
-                picklistDate: formatDateForInput(new Date())
-            });
-
-            setValidationErrors({});
+            setFormData(createEmptyForm());
             setLocalError("");
             return;
         }
 
-        const sourceItems = getItemList(source);
-
         setFormData({
-            ...EMPTY_FORM,
-            ...source,
-
-            picklistNumber: getPicklistNumber(source),
-
-            orderId: getOrderId(source),
-            orderNumber: getOrderNumber(source),
-
-            warehouseId: getWarehouseId(source),
-            warehouseName: getWarehouseName(source),
-
-            picklistDate: formatDateForInput(
-                getPicklistDate(source)
+            picklistCode: getPicklistCode(source),
+            destination: getField(
+                source,
+                ["destination", "Destination"],
+                "BENGALURU"
             ),
-
-            status: getPicklistStatus(source),
-
-            notes: getField(source, [
-                "notes",
-                "Notes",
-                "remarks",
-                "Remarks",
-                "description",
-                "Description"
-            ], ""),
-
-            items: sourceItems.map((item) => ({
-                ...item,
-                itemId: getItemId(item),
-                itemName: getItemName(item),
-                itemCode: getItemCode(item),
-                quantity: getItemQuantity(item)
-            }))
+            shippingPackageCodes: getPackageCodes(source),
+            sellerId: String(
+                getField(source, ["sellerId", "SellerId"], "6")
+            ),
+            customerId: String(
+                getField(source, ["customerId", "CustomerId"], "3")
+            )
         });
 
-        setValidationErrors({});
         setLocalError("");
     }, [source]);
-
-    /* =====================================================
-       INPUT HANDLERS
-    ===================================================== */
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -370,205 +167,72 @@ const PicklistForm = ({
             [name]: value
         }));
 
-        setValidationErrors((previous) => ({
-            ...previous,
-            [name]: ""
-        }));
-
         setLocalError("");
     };
 
-    const handleOrderChange = (_, selectedOrder) => {
-        if (!selectedOrder) {
-            setFormData((previous) => ({
-                ...previous,
-                orderId: "",
-                orderNumber: ""
-            }));
-
-            return;
-        }
-
-        if (typeof selectedOrder === "string") {
-            setFormData((previous) => ({
-                ...previous,
-                orderId: "",
-                orderNumber: selectedOrder
-            }));
-
-            return;
-        }
-
+    const handleAddPackage = () => {
         setFormData((previous) => ({
             ...previous,
-            orderId: getOptionId(selectedOrder),
-            orderNumber: getOrderNumber(selectedOrder) ||
-                getOptionLabel(selectedOrder)
-        }));
-
-        setValidationErrors((previous) => ({
-            ...previous,
-            orderId: "",
-            orderNumber: ""
+            shippingPackageCodes: previous.shippingPackageCodes
+                ? `${previous.shippingPackageCodes}\n`
+                : ""
         }));
     };
 
-    const handleWarehouseChange = (_, selectedWarehouse) => {
-        if (!selectedWarehouse) {
-            setFormData((previous) => ({
-                ...previous,
-                warehouseId: "",
-                warehouseName: ""
-            }));
-
-            return;
-        }
-
-        if (typeof selectedWarehouse === "string") {
-            setFormData((previous) => ({
-                ...previous,
-                warehouseId: "",
-                warehouseName: selectedWarehouse
-            }));
-
-            return;
-        }
+    const handleRemovePackage = (indexToRemove) => {
+        const codes = formData.shippingPackageCodes
+            .split(/[\n,;]+/)
+            .map((code) => code.trim())
+            .filter(Boolean);
 
         setFormData((previous) => ({
             ...previous,
-            warehouseId: getOptionId(selectedWarehouse),
-            warehouseName: getWarehouseName(selectedWarehouse) ||
-                getOptionLabel(selectedWarehouse)
-        }));
-
-        setValidationErrors((previous) => ({
-            ...previous,
-            warehouseId: "",
-            warehouseName: ""
+            shippingPackageCodes: codes
+                .filter((_, index) => index !== indexToRemove)
+                .join("\n")
         }));
     };
 
-    /* =====================================================
-       ITEM HANDLERS
-    ===================================================== */
-
-    const handleAddItem = () => {
-        setFormData((previous) => ({
-            ...previous,
-            items: [
-                ...previous.items,
-                { ...EMPTY_ITEM }
-            ]
-        }));
-    };
-
-    const handleRemoveItem = (index) => {
-        setFormData((previous) => ({
-            ...previous,
-            items: previous.items.filter(
-                (_, itemIndex) => itemIndex !== index
-            )
-        }));
-    };
-
-    const handleItemChange = (index, field, value) => {
-        setFormData((previous) => ({
-            ...previous,
-            items: previous.items.map((item, itemIndex) => {
-                if (itemIndex !== index) {
-                    return item;
-                }
-
-                return {
-                    ...item,
-                    [field]: value
-                };
-            })
-        }));
-
-        setLocalError("");
-    };
-
-    const handleProductChange = (index, selectedProduct) => {
-        if (!selectedProduct) {
-            handleItemChange(index, "itemId", "");
-            handleItemChange(index, "itemName", "");
-            handleItemChange(index, "itemCode", "");
-            return;
-        }
-
-        if (typeof selectedProduct === "string") {
-            handleItemChange(index, "itemId", "");
-            handleItemChange(index, "itemName", selectedProduct);
-            return;
-        }
-
-        setFormData((previous) => ({
-            ...previous,
-            items: previous.items.map((item, itemIndex) => {
-                if (itemIndex !== index) {
-                    return item;
-                }
-
-                return {
-                    ...item,
-                    itemId: getOptionId(selectedProduct),
-                    itemName: getItemName(selectedProduct) ||
-                        getOptionLabel(selectedProduct),
-                    itemCode: getItemCode(selectedProduct)
-                };
-            })
-        }));
-    };
-
-    /* =====================================================
-       VALIDATION
-    ===================================================== */
+    const packageCodes = formData.shippingPackageCodes
+        .split(/[\n,;]+/)
+        .map((code) => code.trim())
+        .filter(Boolean);
 
     const validateForm = () => {
-        const errors = {};
-
-        if (!String(formData.orderNumber || "").trim()) {
-            errors.orderNumber = "Order number is required.";
+        if (!isEditMode && !formData.picklistCode.trim()) {
+            setLocalError("Picklist code is required.");
+            return false;
         }
 
-        if (!String(formData.warehouseName || "").trim()) {
-            errors.warehouseName = "Warehouse is required.";
-        }
-
-        if (!formData.picklistDate) {
-            errors.picklistDate = "Picklist date is required.";
+        if (!formData.destination.trim()) {
+            setLocalError("Destination is required.");
+            return false;
         }
 
         if (
-            showItems &&
-            formData.items.some(
-                (item) => !String(item.itemName || "").trim()
-            )
+            !Number.isInteger(Number(formData.sellerId)) ||
+            Number(formData.sellerId) <= 0
         ) {
-            errors.items = "Select or enter a product for every item.";
+            setLocalError("Enter a valid Seller ID.");
+            return false;
         }
 
         if (
-            showItems &&
-            formData.items.some(
-                (item) =>
-                    item.quantity === "" ||
-                    !Number.isFinite(Number(item.quantity)) ||
-                    Number(item.quantity) <= 0
-            )
+            !Number.isInteger(Number(formData.customerId)) ||
+            Number(formData.customerId) <= 0
         ) {
-            errors.quantities = "Each item quantity must be greater than zero.";
+            setLocalError("Enter a valid Customer ID.");
+            return false;
         }
 
-        setValidationErrors(errors);
+        if (packageCodes.length === 0) {
+            setLocalError("Enter at least one shipping package code.");
+            return false;
+        }
 
-        return Object.keys(errors).length === 0;
+        setLocalError("");
+        return true;
     };
-
-    /* =====================================================
-       SUBMIT FORM
-    ===================================================== */
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -577,68 +241,42 @@ const PicklistForm = ({
             return;
         }
 
-        setLocalError("");
+        if (typeof onSubmit !== "function") {
+            setLocalError("Submit handler is not configured.");
+            return;
+        }
 
         if (!validateForm()) {
             return;
         }
 
-        if (typeof onSubmit !== "function") {
-            setLocalError(
-                "Submit handler is not configured. Pass an onSubmit function."
-            );
-            return;
-        }
-
-        const picklistId = getId(source);
-
         const payload = {
-            ...(source || {}),
-
-            ...(picklistId !== "" ? {
-                picklistId
-            } : {}),
-
-            picklistNumber: String(
-                formData.picklistNumber || ""
-            ).trim(),
-
-            orderId: formData.orderId || null,
-            orderNumber: String(
-                formData.orderNumber || ""
-            ).trim(),
-
-            warehouseId: formData.warehouseId || null,
-            warehouseName: String(
-                formData.warehouseName || ""
-            ).trim(),
-
-            picklistDate: formData.picklistDate,
-            status: formData.status,
-
-            notes: String(formData.notes || "").trim(),
-
-            items: showItems
-                ? formData.items.map((item) => ({
-                    ...item,
-                    itemId: item.itemId || null,
-                    itemName: String(item.itemName || "").trim(),
-                    itemCode: String(item.itemCode || "").trim(),
-                    quantity: Number(item.quantity)
-                }))
-                : getItemList(source)
+            picklistCode: formData.picklistCode.trim(),
+            destination: formData.destination.trim(),
+            shippingPackageCodes: JSON.stringify([
+                ...new Set(packageCodes)
+            ]),
+            sellerId: Number(formData.sellerId),
+            customerId: Number(formData.customerId)
         };
 
+        // Preserve the original picklist code during editing.
+        if (isEditMode && source) {
+            payload.picklistCode = getPicklistCode(source);
+        }
+
         setSubmitting(true);
+        setLocalError("");
 
         try {
             await onSubmit(payload, {
                 mode: isEditMode ? "edit" : "create",
-                id: picklistId
+                id: payload.picklistCode
             });
         } catch (submitError) {
             setLocalError(
                 submitError?.response?.data?.message ||
+                submitError?.response?.data?.title ||
                 submitError?.message ||
                 "Unable to save the picklist."
             );
@@ -647,41 +285,18 @@ const PicklistForm = ({
         }
     };
 
-    /* =====================================================
-       DERIVED VALUES
-    ===================================================== */
-
     const isBusy = loading || submitting;
 
-    const formTitle = title || (
-        isReadOnly
+    const formTitle =
+        title ||
+        (isReadOnly
             ? "Picklist Details"
             : isEditMode
                 ? "Edit Picklist"
-                : "Create Picklist"
-    );
-
-    const totalQuantity = formData.items.reduce(
-        (total, item) => total + (
-            Number.isFinite(Number(item.quantity))
-                ? Number(item.quantity)
-                : 0
-        ),
-        0
-    );
-
-    /* =====================================================
-       RENDER
-    ===================================================== */
+                : "Create Picklist");
 
     return (
-        <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-        >
-            {/* HEADER */}
-
+        <Box component="form" onSubmit={handleSubmit} noValidate>
             <Stack
                 direction={{ xs: "column", sm: "row" }}
                 justifyContent="space-between"
@@ -689,11 +304,7 @@ const PicklistForm = ({
                 spacing={2}
                 sx={{ mb: 3 }}
             >
-                <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={1.5}
-                >
+                <Stack direction="row" alignItems="center" spacing={1.5}>
                     <IconButton
                         onClick={onBack || onCancel}
                         aria-label="Go back"
@@ -718,36 +329,20 @@ const PicklistForm = ({
                     </Box>
 
                     <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
+                        <Typography variant="h5" fontWeight={700}>
                             {formTitle}
                         </Typography>
 
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
+                        <Typography variant="body2" color="text.secondary">
                             {isReadOnly
-                                ? "Review picklist information and items."
+                                ? "Review picklist and package information."
                                 : isEditMode
                                     ? "Update the picklist details below."
-                                    : "Enter the details to create a new picklist."}
+                                    : "Enter the details to create a picklist."}
                         </Typography>
                     </Box>
                 </Stack>
-
-                {isEditMode && (
-                    <Chip
-                        label="Edit Mode"
-                        color="info"
-                        variant="outlined"
-                    />
-                )}
             </Stack>
-
-            {/* ERRORS */}
 
             {(error || localError) && (
                 <Alert
@@ -759,12 +354,7 @@ const PicklistForm = ({
                 </Alert>
             )}
 
-            {/* PICKLIST INFORMATION */}
-
-            <Card
-                variant="outlined"
-                sx={{ mb: 3, borderRadius: 2 }}
-            >
+            <Card variant="outlined" sx={{ mb: 3, borderRadius: 2 }}>
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                     <Typography
                         variant="h6"
@@ -779,207 +369,101 @@ const PicklistForm = ({
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     fullWidth
-                                    label="Picklist Number"
-                                    name="picklistNumber"
-                                    value={formData.picklistNumber ?? ""}
+                                    required={!isEditMode}
+                                    label="Picklist Code"
+                                    name="picklistCode"
+                                    value={formData.picklistCode}
                                     onChange={handleChange}
-                                    disabled={isReadOnly || isBusy}
+                                    disabled={
+                                        isReadOnly ||
+                                        isBusy ||
+                                        isEditMode
+                                    }
+                                    placeholder="e.g. PL-TN-0003"
                                     helperText={
                                         isEditMode
-                                            ? "Picklist reference"
-                                            : "Leave blank if generated by the server."
+                                            ? "The existing picklist code is preserved."
+                                            : "Enter a unique picklist code."
                                     }
                                 />
                             </Grid>
                         )}
 
                         <Grid item xs={12} sm={6}>
-                            {orders.length > 0 ? (
-                                <Autocomplete
-                                    options={orders}
-                                    value={
-                                        orders.find((order) =>
-                                            String(getOptionId(order)) ===
-                                                String(formData.orderId) &&
-                                            formData.orderId !== ""
-                                        ) ||
-                                        orders.find((order) =>
-                                            getOptionLabel(order) ===
-                                            formData.orderNumber
-                                        ) ||
-                                        (formData.orderNumber
-                                            ? {
-                                                orderNumber: formData.orderNumber,
-                                                orderId: formData.orderId
-                                            }
-                                            : null)
-                                    }
-                                    getOptionLabel={getOptionLabel}
-                                    isOptionEqualToValue={(option, value) =>
-                                        String(getOptionId(option)) ===
-                                            String(getOptionId(value)) ||
-                                        getOptionLabel(option) ===
-                                            getOptionLabel(value)
-                                    }
-                                    onChange={handleOrderChange}
-                                    disabled={isReadOnly || isBusy}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            required
-                                            label="Order Number"
-                                            error={Boolean(validationErrors.orderNumber)}
-                                            helperText={validationErrors.orderNumber}
-                                        />
-                                    )}
-                                />
-                            ) : (
-                                <TextField
-                                    fullWidth
-                                    required
-                                    label="Order Number"
-                                    name="orderNumber"
-                                    value={formData.orderNumber ?? ""}
-                                    onChange={handleChange}
-                                    disabled={isReadOnly || isBusy}
-                                    error={Boolean(validationErrors.orderNumber)}
-                                    helperText={validationErrors.orderNumber}
-                                />
-                            )}
-                        </Grid>
+                            <TextField
+                                select
+                                fullWidth
+                                required
+                                label="Destination"
+                                name="destination"
+                                value={formData.destination}
+                                onChange={handleChange}
+                                disabled={isReadOnly || isBusy}
+                            >
+                                {destinationOptions.map((item) => {
+                                    const value =
+                                        typeof item === "string"
+                                            ? item
+                                            : item.value;
 
-                        <Grid item xs={12} sm={6}>
-                            {warehouses.length > 0 ? (
-                                <Autocomplete
-                                    options={warehouses}
-                                    value={
-                                        warehouses.find((warehouse) =>
-                                            String(getOptionId(warehouse)) ===
-                                                String(formData.warehouseId) &&
-                                            formData.warehouseId !== ""
-                                        ) ||
-                                        warehouses.find((warehouse) =>
-                                            getOptionLabel(warehouse) ===
-                                            formData.warehouseName
-                                        ) ||
-                                        (formData.warehouseName
-                                            ? {
-                                                warehouseName: formData.warehouseName,
-                                                warehouseId: formData.warehouseId
-                                            }
-                                            : null)
-                                    }
-                                    getOptionLabel={getOptionLabel}
-                                    isOptionEqualToValue={(option, value) =>
-                                        String(getOptionId(option)) ===
-                                            String(getOptionId(value)) ||
-                                        getOptionLabel(option) ===
-                                            getOptionLabel(value)
-                                    }
-                                    onChange={handleWarehouseChange}
-                                    disabled={isReadOnly || isBusy}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            required
-                                            label="Warehouse"
-                                            error={Boolean(validationErrors.warehouseName)}
-                                            helperText={validationErrors.warehouseName}
-                                        />
-                                    )}
-                                />
-                            ) : (
-                                <TextField
-                                    fullWidth
-                                    required
-                                    label="Warehouse"
-                                    name="warehouseName"
-                                    value={formData.warehouseName ?? ""}
-                                    onChange={handleChange}
-                                    disabled={isReadOnly || isBusy}
-                                    error={Boolean(validationErrors.warehouseName)}
-                                    helperText={validationErrors.warehouseName}
-                                />
-                            )}
+                                    const label =
+                                        typeof item === "string"
+                                            ? item
+                                            : item.label;
+
+                                    return (
+                                        <MenuItem key={value} value={value}>
+                                            {label}
+                                        </MenuItem>
+                                    );
+                                })}
+
+                                {/* Preserve existing destination values */}
+                                {!destinationOptions.some((item) =>
+                                    (typeof item === "string"
+                                        ? item
+                                        : item.value) === formData.destination
+                                ) && formData.destination && (
+                                    <MenuItem value={formData.destination}>
+                                        {formData.destination}
+                                    </MenuItem>
+                                )}
+                            </TextField>
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
-                                type="date"
-                                label="Picklist Date"
-                                name="picklistDate"
-                                value={formData.picklistDate ?? ""}
+                                type="number"
+                                label="Seller ID"
+                                name="sellerId"
+                                value={formData.sellerId}
                                 onChange={handleChange}
                                 disabled={isReadOnly || isBusy}
-                                error={Boolean(validationErrors.picklistDate)}
-                                helperText={validationErrors.picklistDate}
-                                InputLabelProps={{
-                                    shrink: true
-                                }}
+                                inputProps={{ min: 1, step: 1 }}
                             />
                         </Grid>
 
-                        {showStatus && (
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Status"
-                                    name="status"
-                                    value={formData.status || "Pending"}
-                                    onChange={handleChange}
-                                    disabled={isReadOnly || isBusy}
-                                >
-                                    {statuses.map((status) => {
-                                        const value =
-                                            typeof status === "string"
-                                                ? status
-                                                : status.value;
-
-                                        const label =
-                                            typeof status === "string"
-                                                ? status
-                                                : status.label;
-
-                                        return (
-                                            <MenuItem
-                                                key={value}
-                                                value={value}
-                                            >
-                                                {label}
-                                            </MenuItem>
-                                        );
-                                    })}
-                                </TextField>
-                            </Grid>
-                        )}
-
-                        <Grid item xs={12}>
+                        <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
-                                multiline
-                                minRows={2}
-                                label="Notes / Remarks"
-                                name="notes"
-                                value={formData.notes ?? ""}
+                                required
+                                type="number"
+                                label="Customer ID"
+                                name="customerId"
+                                value={formData.customerId}
                                 onChange={handleChange}
                                 disabled={isReadOnly || isBusy}
-                                placeholder="Enter additional notes..."
+                                inputProps={{ min: 1, step: 1 }}
                             />
                         </Grid>
                     </Grid>
                 </CardContent>
             </Card>
 
-            {/* ITEM DETAILS */}
-
             {showItems && (
-                <Card
-                    variant="outlined"
-                    sx={{ mb: 3, borderRadius: 2 }}
-                >
+                <Card variant="outlined" sx={{ mb: 3, borderRadius: 2 }}>
                     <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                         <Stack
                             direction={{ xs: "column", sm: "row" }}
@@ -989,257 +473,96 @@ const PicklistForm = ({
                             sx={{ mb: 2.5 }}
                         >
                             <Box>
-                                <Typography
-                                    variant="h6"
-                                    fontWeight={700}
-                                >
-                                    Picklist Items
+                                <Typography variant="h6" fontWeight={700}>
+                                    Shipping Packages
                                 </Typography>
 
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
                                 >
-                                    Add products and their required quantities.
+                                    Enter one package code per line.
                                 </Typography>
                             </Box>
 
                             {!isReadOnly && (
                                 <Button
+                                    type="button"
                                     variant="outlined"
                                     startIcon={<Add />}
-                                    onClick={handleAddItem}
+                                    onClick={handleAddPackage}
                                     disabled={isBusy}
                                 >
-                                    Add Item
+                                    Add Package Line
                                 </Button>
                             )}
                         </Stack>
 
-                        {validationErrors.items && (
-                            <Alert
-                                severity="error"
-                                sx={{ mb: 2 }}
-                            >
-                                {validationErrors.items}
-                            </Alert>
-                        )}
+                        <TextField
+                            fullWidth
+                            multiline
+                            minRows={4}
+                            label="Shipping Package Codes"
+                            name="shippingPackageCodes"
+                            value={formData.shippingPackageCodes}
+                            onChange={handleChange}
+                            disabled={isReadOnly || isBusy}
+                            placeholder={"SP-20\nSP-21"}
+                            helperText="Separate package codes with new lines, commas, or semicolons."
+                        />
 
-                        {validationErrors.quantities && (
-                            <Alert
-                                severity="error"
-                                sx={{ mb: 2 }}
-                            >
-                                {validationErrors.quantities}
-                            </Alert>
-                        )}
-
-                        {formData.items.length === 0 ? (
-                            <Box
-                                sx={{
-                                    py: 4,
-                                    px: 2,
-                                    textAlign: "center",
-                                    bgcolor: "action.hover",
-                                    borderRadius: 2
-                                }}
-                            >
-                                <Inventory2
-                                    sx={{
-                                        fontSize: 38,
-                                        color: "text.secondary",
-                                        mb: 1
-                                    }}
-                                />
+                        {packageCodes.length > 0 && (
+                            <>
+                                <Divider sx={{ my: 2 }} />
 
                                 <Typography
-                                    variant="body1"
-                                    fontWeight={600}
+                                    variant="subtitle2"
+                                    sx={{ mb: 1 }}
                                 >
-                                    No items added
+                                    Package preview ({packageCodes.length})
                                 </Typography>
 
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    sx={{ mt: 0.5 }}
+                                <Stack
+                                    direction="row"
+                                    flexWrap="wrap"
+                                    gap={1}
                                 >
-                                    {isReadOnly
-                                        ? "No item details are available."
-                                        : "Use Add Item to include products in this picklist."}
-                                </Typography>
-                            </Box>
-                        ) : (
-                            <Stack spacing={2}>
-                                {formData.items.map((item, index) => (
-                                    <Box
-                                        key={
-                                            item.picklistItemId ||
-                                            item.PicklistItemId ||
-                                            item.itemId ||
-                                            item.ItemId ||
-                                            index
-                                        }
-                                        sx={{
-                                            p: 2,
-                                            border: 1,
-                                            borderColor: "divider",
-                                            borderRadius: 2
-                                        }}
-                                    >
-                                        <Stack
-                                            direction="row"
-                                            justifyContent="space-between"
-                                            alignItems="center"
-                                            sx={{ mb: 2 }}
+                                    {packageCodes.map((code, index) => (
+                                        <Box
+                                            key={`${code}-${index}`}
+                                            sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 0.5
+                                            }}
                                         >
-                                            <Typography fontWeight={700}>
-                                                Item {index + 1}
-                                            </Typography>
+                                            <Chip
+                                                label={code}
+                                                variant="outlined"
+                                            />
 
                                             {!isReadOnly && (
                                                 <IconButton
+                                                    type="button"
+                                                    size="small"
                                                     color="error"
-                                                    aria-label={`Remove item ${index + 1}`}
+                                                    aria-label={`Remove ${code}`}
                                                     onClick={() =>
-                                                        handleRemoveItem(index)
+                                                        handleRemovePackage(index)
                                                     }
                                                     disabled={isBusy}
-                                                    size="small"
                                                 >
-                                                    <DeleteOutline />
+                                                    <Delete fontSize="small" />
                                                 </IconButton>
                                             )}
-                                        </Stack>
-
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} md={6}>
-                                                {products.length > 0 ? (
-                                                    <Autocomplete
-                                                        options={products}
-                                                        value={
-                                                            products.find((product) =>
-                                                                String(getOptionId(product)) ===
-                                                                String(item.itemId)
-                                                            ) ||
-                                                            products.find((product) =>
-                                                                getOptionLabel(product) ===
-                                                                item.itemName
-                                                            ) ||
-                                                            (item.itemName
-                                                                ? {
-                                                                    itemId: item.itemId,
-                                                                    itemName: item.itemName
-                                                                }
-                                                                : null)
-                                                        }
-                                                        getOptionLabel={getOptionLabel}
-                                                        isOptionEqualToValue={(
-                                                            option,
-                                                            value
-                                                        ) =>
-                                                            String(getOptionId(option)) ===
-                                                                String(getOptionId(value)) ||
-                                                            getOptionLabel(option) ===
-                                                                getOptionLabel(value)
-                                                        }
-                                                        onChange={(_, value) =>
-                                                            handleProductChange(index, value)
-                                                        }
-                                                        disabled={isReadOnly || isBusy}
-                                                        renderInput={(params) => (
-                                                            <TextField
-                                                                {...params}
-                                                                required
-                                                                label="Product"
-                                                            />
-                                                        )}
-                                                    />
-                                                ) : (
-                                                    <TextField
-                                                        fullWidth
-                                                        required
-                                                        label="Product Name"
-                                                        value={item.itemName ?? ""}
-                                                        onChange={(event) =>
-                                                            handleItemChange(
-                                                                index,
-                                                                "itemName",
-                                                                event.target.value
-                                                            )
-                                                        }
-                                                        disabled={isReadOnly || isBusy}
-                                                    />
-                                                )}
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={6} md={3}>
-                                                <TextField
-                                                    fullWidth
-                                                    label="Item Code / SKU"
-                                                    value={item.itemCode ?? ""}
-                                                    onChange={(event) =>
-                                                        handleItemChange(
-                                                            index,
-                                                            "itemCode",
-                                                            event.target.value
-                                                        )
-                                                    }
-                                                    disabled={isReadOnly || isBusy}
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={12} sm={6} md={3}>
-                                                <TextField
-                                                    fullWidth
-                                                    required
-                                                    type="number"
-                                                    label="Quantity"
-                                                    value={item.quantity ?? ""}
-                                                    onChange={(event) =>
-                                                        handleItemChange(
-                                                            index,
-                                                            "quantity",
-                                                            event.target.value
-                                                        )
-                                                    }
-                                                    disabled={isReadOnly || isBusy}
-                                                    inputProps={{
-                                                        min: 1,
-                                                        step: 1
-                                                    }}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                ))}
-                            </Stack>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </>
                         )}
-
-                        <Divider sx={{ my: 2.5 }} />
-
-                        <Stack
-                            direction={{ xs: "column", sm: "row" }}
-                            justifyContent="space-between"
-                            alignItems={{ xs: "flex-start", sm: "center" }}
-                            spacing={1}
-                        >
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                            >
-                                Total item lines: {formData.items.length}
-                            </Typography>
-
-                            <Typography fontWeight={700}>
-                                Total Quantity: {totalQuantity}
-                            </Typography>
-                        </Stack>
                     </CardContent>
                 </Card>
             )}
-
-            {/* ACTIONS */}
 
             <Stack
                 direction={{ xs: "column-reverse", sm: "row" }}
@@ -1247,6 +570,7 @@ const PicklistForm = ({
                 spacing={1.5}
             >
                 <Button
+                    type="button"
                     variant="outlined"
                     onClick={onCancel || onBack}
                     disabled={isBusy}
@@ -1278,4 +602,3 @@ const PicklistForm = ({
 };
 
 export default PicklistForm;
-

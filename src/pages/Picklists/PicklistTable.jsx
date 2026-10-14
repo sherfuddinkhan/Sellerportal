@@ -21,7 +21,8 @@ import {
     Visibility,
     Edit,
     Delete,
-    PlaylistAddCheck
+    PlaylistAddCheck,
+    InfoOutlined
 } from "@mui/icons-material";
 
 /* =========================================================
@@ -29,11 +30,13 @@ import {
 ========================================================= */
 
 const getFieldValue = (item, fields, fallback = "") => {
-    for (const field of fields) {
-        const value = item?.[field];
+    if (!item || typeof item !== "object") {
+        return fallback;
+    }
 
-        if (value !== undefined && value !== null) {
-            return value;
+    for (const field of fields) {
+        if (item[field] !== undefined && item[field] !== null) {
+            return item[field];
         }
     }
 
@@ -43,6 +46,14 @@ const getFieldValue = (item, fields, fallback = "") => {
 /* =========================================================
    PICKLIST FIELD HELPERS
 ========================================================= */
+
+const getPicklistCode = (picklist) =>
+    getFieldValue(picklist, [
+        "picklistCode",
+        "PicklistCode",
+        "pickListCode",
+        "PickListCode"
+    ]);
 
 const getPicklistId = (picklist) =>
     getFieldValue(picklist, [
@@ -54,37 +65,45 @@ const getPicklistId = (picklist) =>
         "Id"
     ]);
 
+const getPicklistIdentifier = (picklist) =>
+    getPicklistCode(picklist) || getPicklistId(picklist);
+
 const getPicklistNumber = (picklist) =>
+    getPicklistCode(picklist) ||
     getFieldValue(picklist, [
         "picklistNumber",
         "PicklistNumber",
-        "pickListNumber",
-        "PickListNumber",
         "picklistNo",
-        "PicklistNo",
-        "number",
-        "Number"
+        "PicklistNo"
     ], "—");
 
-const getOrderNumber = (picklist) =>
+const getDestination = (picklist) =>
     getFieldValue(picklist, [
-        "orderNumber",
-        "OrderNumber",
-        "salesOrderNumber",
-        "SalesOrderNumber",
-        "orderNo",
-        "OrderNo"
+        "destination",
+        "Destination"
     ], "—");
 
-const getWarehouseName = (picklist) =>
+const getSellerId = (picklist) =>
     getFieldValue(picklist, [
-        "warehouseName",
-        "WarehouseName",
-        "warehouse",
-        "Warehouse",
-        "locationName",
-        "LocationName"
+        "sellerId",
+        "SellerId"
     ], "—");
+
+const getCustomerId = (picklist) =>
+    getFieldValue(picklist, [
+        "customerId",
+        "CustomerId"
+    ], "—");
+
+const getDateValue = (picklist) =>
+    getFieldValue(picklist, [
+        "createdDate",
+        "CreatedDate",
+        "picklistDate",
+        "PicklistDate",
+        "createdAt",
+        "CreatedAt"
+    ]);
 
 const getStatus = (picklist) =>
     getFieldValue(picklist, [
@@ -94,50 +113,69 @@ const getStatus = (picklist) =>
         "PicklistStatus"
     ], "Pending");
 
-const getDateValue = (picklist) =>
-    getFieldValue(picklist, [
-        "picklistDate",
-        "PicklistDate",
-        "createdDate",
-        "CreatedDate",
-        "createdAt",
-        "CreatedAt",
-        "date",
-        "Date"
-    ]);
+/* =========================================================
+   PACKAGE CODE HELPERS
+========================================================= */
+
+const getPackageCodes = (picklist) => {
+    const value = getFieldValue(picklist, [
+        "shippingPackageCodes",
+        "ShippingPackageCodes"
+    ], "");
+
+    if (!value) {
+        return [];
+    }
+
+    if (Array.isArray(value)) {
+        return value;
+    }
+
+    if (typeof value !== "string") {
+        return [String(value)];
+    }
+
+    try {
+        const parsed = JSON.parse(value);
+
+        if (Array.isArray(parsed)) {
+            return parsed;
+        }
+
+        if (parsed && typeof parsed === "object") {
+            return Object.values(parsed);
+        }
+
+        return parsed ? [String(parsed)] : [];
+    } catch {
+        return value
+            .split(/[,;\n]+/)
+            .map((code) => code.trim())
+            .filter(Boolean);
+    }
+};
 
 const getItemCount = (picklist) => {
-    const count = getFieldValue(picklist, [
+    const directCount = getFieldValue(picklist, [
         "totalItems",
         "TotalItems",
         "itemCount",
-        "ItemCount",
-        "totalQuantity",
-        "TotalQuantity"
-    ]);
+        "ItemCount"
+    ], null);
 
-    if (count !== "") {
-        const number = Number(count);
+    if (directCount !== null && directCount !== "") {
+        const count = Number(directCount);
 
-        if (Number.isFinite(number)) {
-            return number;
+        if (Number.isFinite(count)) {
+            return count;
         }
     }
 
-    const items = getFieldValue(picklist, [
-        "items",
-        "Items",
-        "picklistItems",
-        "PicklistItems",
-        "details",
-        "Details"
-    ]);
-
-    return Array.isArray(items) ? items.length : 0;
+    return getPackageCodes(picklist).length;
 };
 
 /* =========================================================
-   STATUS NORMALIZATION
+   STATUS HELPERS
 ========================================================= */
 
 const normalizeStatus = (status) =>
@@ -146,14 +184,8 @@ const normalizeStatus = (status) =>
         .toLowerCase()
         .replace(/[\s_-]+/g, "");
 
-/* =========================================================
-   STATUS CHIP
-========================================================= */
-
 const getStatusColor = (status) => {
-    const normalized = normalizeStatus(status);
-
-    switch (normalized) {
+    switch (normalizeStatus(status)) {
         case "completed":
         case "complete":
         case "picked":
@@ -183,7 +215,7 @@ const getStatusColor = (status) => {
 
 const PicklistStatusChip = ({ status }) => (
     <Chip
-        label={status || "Unknown"}
+        label={status || "Pending"}
         color={getStatusColor(status)}
         size="small"
         variant="outlined"
@@ -226,14 +258,47 @@ const PicklistTable = ({
     data,
     loading = false,
     onView,
+    onDetails,
     onEdit,
-    onDelete
+    onDelete,
+    getPicklistId: suppliedGetPicklistId,
+    getPicklistCode: suppliedGetPicklistCode,
+    getPicklistNumber: suppliedGetPicklistNumber,
+    getDestination: suppliedGetDestination,
+    getStatus: suppliedGetStatus,
+    getDateValue: suppliedGetDateValue,
+    getItemCount: suppliedGetItemCount,
+    formatDate: suppliedFormatDate
 }) => {
     const rows = Array.isArray(picklists)
         ? picklists
         : Array.isArray(data)
             ? data
             : [];
+
+    const picklistCodeGetter =
+        suppliedGetPicklistCode || getPicklistCode;
+
+    const picklistIdGetter =
+        suppliedGetPicklistId || getPicklistId;
+
+    const picklistNumberGetter =
+        suppliedGetPicklistNumber || getPicklistNumber;
+
+    const destinationGetter =
+        suppliedGetDestination || getDestination;
+
+    const statusGetter =
+        suppliedGetStatus || getStatus;
+
+    const dateGetter =
+        suppliedGetDateValue || getDateValue;
+
+    const itemCountGetter =
+        suppliedGetItemCount || getItemCount;
+
+    const dateFormatter =
+        suppliedFormatDate || formatDate;
 
     return (
         <TableContainer
@@ -249,7 +314,7 @@ const PicklistTable = ({
         >
             <Table
                 sx={{
-                    minWidth: 950,
+                    minWidth: 1000,
                     "& .MuiTableCell-root": {
                         px: 2,
                         py: 1.75
@@ -257,9 +322,7 @@ const PicklistTable = ({
                 }}
                 aria-label="Picklists table"
             >
-                {/* =============================================
-                    TABLE HEADER
-                ============================================= */}
+                {/* TABLE HEADER */}
 
                 <TableHead>
                     <TableRow
@@ -268,90 +331,81 @@ const PicklistTable = ({
                         }}
                     >
                         <TableCell>
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                            >
-                                Picklist No.
+                            <Typography variant="subtitle2" fontWeight={700}>
+                                Picklist Code
                             </Typography>
                         </TableCell>
 
                         <TableCell>
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                            >
-                                Order No.
+                            <Typography variant="subtitle2" fontWeight={700}>
+                                Destination
                             </Typography>
                         </TableCell>
 
                         <TableCell>
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                            >
-                                Warehouse
-                            </Typography>
-                        </TableCell>
-
-                        <TableCell>
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                            >
-                                Picklist Date
+                            <Typography variant="subtitle2" fontWeight={700}>
+                                Created Date
                             </Typography>
                         </TableCell>
 
                         <TableCell align="center">
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                            >
-                                Items
+                            <Typography variant="subtitle2" fontWeight={700}>
+                                Packages
                             </Typography>
                         </TableCell>
 
                         <TableCell>
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                            >
+                            <Typography variant="subtitle2" fontWeight={700}>
+                                Seller ID
+                            </Typography>
+                        </TableCell>
+
+                        <TableCell>
+                            <Typography variant="subtitle2" fontWeight={700}>
+                                Customer ID
+                            </Typography>
+                        </TableCell>
+
+                        <TableCell>
+                            <Typography variant="subtitle2" fontWeight={700}>
                                 Status
                             </Typography>
                         </TableCell>
 
                         <TableCell align="center">
-                            <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                            >
+                            <Typography variant="subtitle2" fontWeight={700}>
                                 Actions
                             </Typography>
                         </TableCell>
                     </TableRow>
                 </TableHead>
 
-                {/* =============================================
-                    TABLE BODY
-                ============================================= */}
+                {/* TABLE BODY */}
 
                 <TableBody>
                     {rows.length > 0 ? (
                         rows.map((picklist, index) => {
-                            const id = getPicklistId(picklist);
-                            const picklistNumber =
-                                getPicklistNumber(picklist);
+                            const code = picklistCodeGetter(picklist);
+                            const id = picklistIdGetter(picklist);
 
-                            const status = getStatus(picklist);
+                            const identifier =
+                                code || id || `picklist-${index}`;
+
+                            const picklistNumber =
+                                picklistNumberGetter(picklist);
+
+                            const status = statusGetter(picklist);
+                            const normalizedStatus = normalizeStatus(status);
+
+                            const isReadOnly =
+                                normalizedStatus === "completed" ||
+                                normalizedStatus === "complete" ||
+                                normalizedStatus === "cancelled" ||
+                                normalizedStatus === "canceled";
 
                             return (
                                 <TableRow
-                                    key={
-                                        id !== ""
-                                            ? id
-                                            : `picklist-${index}`
-                                    }
+                                    key={String(identifier)}
                                     hover
                                     sx={{
                                         "&:last-child td": {
@@ -359,7 +413,7 @@ const PicklistTable = ({
                                         }
                                     }}
                                 >
-                                    {/* PICKLIST NUMBER */}
+                                    {/* PICKLIST CODE */}
 
                                     <TableCell>
                                         <Box
@@ -378,75 +432,91 @@ const PicklistTable = ({
                                                     height: 34,
                                                     flexShrink: 0,
                                                     borderRadius: 1.5,
-                                                    backgroundColor:
-                                                        "action.hover",
+                                                    backgroundColor: "action.hover",
                                                     color: "primary.main"
                                                 }}
                                             >
-                                                <PlaylistAddCheck
-                                                    fontSize="small"
-                                                />
+                                                <PlaylistAddCheck fontSize="small" />
                                             </Box>
 
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight={600}
-                                            >
-                                                {picklistNumber}
-                                            </Typography>
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={600}
+                                                >
+                                                    {picklistNumber}
+                                                </Typography>
+
+                                                {id !== "" &&
+                                                    id !== null &&
+                                                    id !== undefined && (
+                                                        <Typography
+                                                            variant="caption"
+                                                            color="text.secondary"
+                                                        >
+                                                            ID: {id}
+                                                        </Typography>
+                                                    )}
+                                            </Box>
                                         </Box>
                                     </TableCell>
 
-                                    {/* ORDER NUMBER */}
+                                    {/* DESTINATION */}
+
+                                    <TableCell>
+                                        <Typography variant="body2">
+                                            {destinationGetter(picklist)}
+                                        </Typography>
+                                    </TableCell>
+
+                                    {/* CREATED DATE */}
 
                                     <TableCell>
                                         <Typography
                                             variant="body2"
                                             color="text.secondary"
                                         >
-                                            {getOrderNumber(picklist)}
+                                            {dateFormatter(dateGetter(picklist))}
                                         </Typography>
                                     </TableCell>
 
-                                    {/* WAREHOUSE */}
-
-                                    <TableCell>
-                                        <Typography
-                                            variant="body2"
-                                        >
-                                            {getWarehouseName(picklist)}
-                                        </Typography>
-                                    </TableCell>
-
-                                    {/* PICKLIST DATE */}
-
-                                    <TableCell>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                        >
-                                            {formatDate(
-                                                getDateValue(picklist)
-                                            )}
-                                        </Typography>
-                                    </TableCell>
-
-                                    {/* ITEM COUNT */}
+                                    {/* PACKAGE COUNT */}
 
                                     <TableCell align="center">
-                                        <Chip
-                                            label={getItemCount(picklist)}
-                                            size="small"
-                                            variant="outlined"
-                                        />
+                                        <Tooltip
+                                            title={
+                                                getPackageCodes(picklist).join(", ") ||
+                                                "No package codes"
+                                            }
+                                        >
+                                            <Chip
+                                                label={itemCountGetter(picklist)}
+                                                size="small"
+                                                variant="outlined"
+                                            />
+                                        </Tooltip>
+                                    </TableCell>
+
+                                    {/* SELLER ID */}
+
+                                    <TableCell>
+                                        <Typography variant="body2">
+                                            {getSellerId(picklist)}
+                                        </Typography>
+                                    </TableCell>
+
+                                    {/* CUSTOMER ID */}
+
+                                    <TableCell>
+                                        <Typography variant="body2">
+                                            {getCustomerId(picklist)}
+                                        </Typography>
                                     </TableCell>
 
                                     {/* STATUS */}
 
                                     <TableCell>
-                                        <PicklistStatusChip
-                                            status={status}
-                                        />
+                                        <PicklistStatusChip status={status} />
                                     </TableCell>
 
                                     {/* ACTIONS */}
@@ -457,7 +527,7 @@ const PicklistTable = ({
                                                 display: "flex",
                                                 justifyContent: "center",
                                                 alignItems: "center",
-                                                gap: 0.5
+                                                gap: 0.25
                                             }}
                                         >
                                             <Tooltip title="View picklist">
@@ -465,13 +535,24 @@ const PicklistTable = ({
                                                     size="small"
                                                     color="primary"
                                                     aria-label={`View picklist ${picklistNumber}`}
-                                                    onClick={() =>
-                                                        onView?.(picklist)
-                                                    }
+                                                    onClick={() => onView?.(picklist)}
                                                 >
                                                     <Visibility fontSize="small" />
                                                 </IconButton>
                                             </Tooltip>
+
+                                            {onDetails && (
+                                                <Tooltip title="Picklist details">
+                                                    <IconButton
+                                                        size="small"
+                                                        color="default"
+                                                        aria-label={`Details for ${picklistNumber}`}
+                                                        onClick={() => onDetails(picklist)}
+                                                    >
+                                                        <InfoOutlined fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
 
                                             <Tooltip title="Edit picklist">
                                                 <span>
@@ -479,17 +560,8 @@ const PicklistTable = ({
                                                         size="small"
                                                         color="info"
                                                         aria-label={`Edit picklist ${picklistNumber}`}
-                                                        onClick={() =>
-                                                            onEdit?.(picklist)
-                                                        }
-                                                        disabled={
-                                                            normalizeStatus(status) ===
-                                                            "completed" ||
-                                                            normalizeStatus(status) ===
-                                                            "cancelled" ||
-                                                            normalizeStatus(status) ===
-                                                            "canceled"
-                                                        }
+                                                        onClick={() => onEdit?.(picklist)}
+                                                        disabled={isReadOnly}
                                                     >
                                                         <Edit fontSize="small" />
                                                     </IconButton>
@@ -501,9 +573,7 @@ const PicklistTable = ({
                                                     size="small"
                                                     color="error"
                                                     aria-label={`Delete picklist ${picklistNumber}`}
-                                                    onClick={() =>
-                                                        onDelete?.(picklist)
-                                                    }
+                                                    onClick={() => onDelete?.(picklist)}
                                                 >
                                                     <Delete fontSize="small" />
                                                 </IconButton>
@@ -515,11 +585,7 @@ const PicklistTable = ({
                         })
                     ) : (
                         <TableRow>
-                            <TableCell
-                                colSpan={7}
-                                align="center"
-                                sx={{ py: 6 }}
-                            >
+                            <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
                                 <Typography
                                     variant="body1"
                                     fontWeight={600}
@@ -536,8 +602,7 @@ const PicklistTable = ({
                                         color="text.secondary"
                                         sx={{ mt: 1 }}
                                     >
-                                        Picklists will appear here when
-                                        records are available.
+                                        Picklists will appear here when records are available.
                                     </Typography>
                                 )}
                             </TableCell>
@@ -550,4 +615,3 @@ const PicklistTable = ({
 };
 
 export default PicklistTable;
-

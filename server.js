@@ -35629,317 +35629,194 @@ app.delete("/api/reverse-pickup-addresses/:id", async (req, res) => {
 });
 
 
-///////////////////////////////
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
+///////////////////////////////picklist////////////
 
 const PICKLIST_API =
     process.env.PICKLIST_API ||
-    "https://localhost:5000/api/Picklist";
+    "https://localhost:7203/api/picklists";
 
+const picklistHttpsAgent = new https.Agent({
+    rejectUnauthorized: false
+});
 
 /* =========================================================
    GET ALL PICKLISTS
-   GET /api/Picklist
+   NODE: GET /api/Picklist
+   DOTNET: GET /api/picklists/all
 ========================================================= */
 
-app.get(
-    "/api/Picklist",
-    async (req, res) => {
-
-        try {
-
-            const response =
-                await axios.get(
-                    PICKLIST_API,
-                    {
-                        headers: {
-                            Accept:
-                                "application/json"
-                        },
-                        params:
-                            req.query,
-                        timeout: 15000
-                    }
-                );
-
-            if (
-                response.data === undefined ||
-                response.data === null
-            ) {
-
-                return res
-                    .status(response.status)
-                    .end();
-
+app.get("/api/Picklist", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${PICKLIST_API}/all`,
+            {
+                headers: {
+                    Accept: "application/json"
+                },
+                params: req.query,
+                httpsAgent: picklistHttpsAgent,
+                timeout: 15000
             }
+        );
 
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleApiError(
-                error,
-                res
-            );
-
+        if (response.data == null) {
+            return res.status(response.status).end();
         }
 
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
     }
-);
+});
 
 /* =========================================================
-   GET PICKLIST BY ID
-   GET /api/Picklist/:id
+   GET PICKLIST BY CODE
+   NODE: GET /api/Picklist/:id
+   DOTNET: GET /api/picklists/{picklistCode}
 ========================================================= */
 
-app.get(
-    "/api/Picklist/:id",
-    async (req, res) => {
+app.get("/api/Picklist/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
 
-        try {
-
-            const { id } =
-                req.params;
-
-            if (!id) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Picklist ID is required."
-                });
-
-            }
-
-            const response =
-                await axios.get(
-                    `${PICKLIST_API}/${encodeURIComponent(id)}`,
-                    {
-                        headers: {
-                            Accept:
-                                "application/json"
-                        },
-                        timeout: 15000
-                    }
-                );
-
-            if (
-                response.data === undefined ||
-                response.data === null
-            ) {
-
-                return res
-                    .status(response.status)
-                    .end();
-
-            }
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleApiError(
-                error,
-                res
-            );
-
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Picklist code is required."
+            });
         }
 
+        const response = await axios.get(
+            `${PICKLIST_API}/${encodeURIComponent(id)}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                },
+                httpsAgent: picklistHttpsAgent,
+                timeout: 15000
+            }
+        );
+
+        if (response.data == null) {
+            return res.status(response.status).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
     }
-);
+});
 
 /* =========================================================
    CREATE PICKLIST
-   POST /api/Picklist
+   NODE: POST /api/Picklist
+   DOTNET: POST /api/picklists
 ========================================================= */
 
-app.post(
-    "/api/Picklist",
-    async (req, res) => {
-
-        try {
-
-            const response =
-                await axios.post(
-                    PICKLIST_API,
-                    req.body,
-                    {
-                        headers: {
-                            Accept:
-                                "application/json",
-                            "Content-Type":
-                                "application/json"
-                        },
-                        timeout: 15000
-                    }
-                );
-
-            if (
-                response.data === undefined ||
-                response.data === null
-            ) {
-
-                return res
-                    .status(response.status)
-                    .end();
-
+app.post("/api/Picklist", async (req, res) => {
+    try {
+        const response = await axios.post(
+            PICKLIST_API,
+            req.body,
+            {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json"
+                },
+                httpsAgent: picklistHttpsAgent,
+                timeout: 15000
             }
+        );
 
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleApiError(
-                error,
-                res
-            );
-
+        if (response.data == null) {
+            return res.status(response.status).end();
         }
 
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
     }
-);
+});
 
 /* =========================================================
    UPDATE PICKLIST
-   PUT /api/Picklist/:id
+   NODE: PUT /api/Picklist/:id
+   DOTNET: PUT /api/picklists/{picklistCode}
 ========================================================= */
 
-app.put(
-    "/api/Picklist/:id",
-    async (req, res) => {
+app.put("/api/Picklist/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
 
-        try {
-
-            const { id } =
-                req.params;
-
-            if (!id) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Picklist ID is required."
-                });
-
-            }
-
-            const response =
-                await axios.put(
-                    `${PICKLIST_API}/${encodeURIComponent(id)}`,
-                    req.body,
-                    {
-                        headers: {
-                            Accept:
-                                "application/json",
-                            "Content-Type":
-                                "application/json"
-                        },
-                        timeout: 15000
-                    }
-                );
-
-            if (
-                response.data === undefined ||
-                response.data === null
-            ) {
-
-                return res
-                    .status(response.status)
-                    .end();
-
-            }
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleApiError(
-                error,
-                res
-            );
-
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Picklist code is required."
+            });
         }
 
+        const response = await axios.put(
+            `${PICKLIST_API}/${encodeURIComponent(id)}`,
+            req.body,
+            {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json"
+                },
+                httpsAgent: picklistHttpsAgent,
+                timeout: 15000
+            }
+        );
+
+        if (response.data == null) {
+            return res.status(response.status).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
     }
-);
+});
 
 /* =========================================================
    DELETE PICKLIST
-   DELETE /api/Picklist/:id
+   NODE: DELETE /api/Picklist/:id
+   DOTNET: DELETE /api/picklists/{picklistCode}
 ========================================================= */
 
-app.delete(
-    "/api/Picklist/:id",
-    async (req, res) => {
+app.delete("/api/Picklist/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
 
-        try {
-
-            const { id } =
-                req.params;
-
-            if (!id) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Picklist ID is required."
-                });
-
-            }
-
-            const response =
-                await axios.delete(
-                    `${PICKLIST_API}/${encodeURIComponent(id)}`,
-                    {
-                        headers: {
-                            Accept:
-                                "application/json"
-                        },
-                        timeout: 15000
-                    }
-                );
-
-            if (
-                response.data === undefined ||
-                response.data === null
-            ) {
-
-                return res
-                    .status(response.status)
-                    .end();
-
-            }
-
-            return res
-                .status(response.status)
-                .json(response.data);
-
-        }
-        catch (error) {
-
-            return handleApiError(
-                error,
-                res
-            );
-
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Picklist code is required."
+            });
         }
 
+        const response = await axios.delete(
+            `${PICKLIST_API}/${encodeURIComponent(id)}`,
+            {
+                headers: {
+                    Accept: "application/json"
+                },
+                httpsAgent: picklistHttpsAgent,
+                timeout: 15000
+            }
+        );
+
+        if (response.data == null) {
+            return res.status(response.status).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        return handleApiError(error, res);
     }
-);
+});
+
+
 
 /////////////////////manifest-packages-putaway/////////////////////
 // =====================================================

@@ -1490,46 +1490,11 @@ MANIFEST PACKAGES PUTAWAY ROUTES
 PICKLIST ROUTES
 ================================================= */}
 
-<Route
-path="picklists"
-element={<PicklistsList />}
-/>
-
-<Route
-path="picklists/create"
-element={<PicklistCreate />}
-/>
-
-<Route
-path="picklists/search"
-element={<PicklistSearch />}
-/>
-
-<Route
-path="picklists/filters"
-element={<PicklistFilters />}
-/>
-
-<Route
-path="picklists/statistics"
-element={<PicklistStatistics />}
-/>
-
-<Route
-path="picklists/details/:id"
-element={<PicklistDetails />}
-/>
-
-<Route
-path="picklists/view/:id"
-element={<PicklistView />}
-/>
-
-<Route
-path="picklists/:id/edit"
-element={<PicklistEdit />}
-/>
-
+<Route path="/picklists" element={<PicklistsList />} />
+<Route path="/picklists/create" element={<PicklistCreate />} />
+<Route path="/picklists/edit/:picklistCode" element={<PicklistEdit />} />
+<Route path="/picklists/view/:picklistCode" element={<PicklistView />} />
+<Route path="/picklists/details/:picklistCode" element={<PicklistDetails />} />
 
 
                 {/* =================================================

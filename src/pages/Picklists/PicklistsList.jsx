@@ -25,25 +25,20 @@ import {
     Refresh as RefreshIcon
 } from "@mui/icons-material";
 
-
 import PicklistTable from "./PicklistTable";
 
 /* =========================================================
    API CONFIGURATION
+   NODE PROXY ONLY
 ========================================================= */
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || "http://localhost:5000"
-).replace(/\/+$/, "");
-
-const MARKETPLACE_CUSTOMERS_API =
-    `${API_BASE_URL}/api/marketplace/customers`;
+const API_URL = "http://localhost:5000/api/Picklist";
 
 /* =========================================================
    RESPONSE HELPER
 ========================================================= */
 
-const extractCustomers = (response) => {
+const extractPicklists = (response) => {
     const data = response?.data;
 
     if (Array.isArray(data)) return data;
@@ -68,17 +63,20 @@ const getField = (item, name, fallback = "") => {
     return item[name] ?? item[pascalName] ?? fallback;
 };
 
-const getCustomerId = (item) =>
-    getField(item, "id", getField(item, "Id", ""));
+const getPicklistCode = (item) =>
+    getField(item, "picklistCode", "");
+
+const getPicklistId = (item) =>
+    getField(item, "picklistId", "");
 
 /* =========================================================
    COMPONENT
 ========================================================= */
 
-const MarketplaceCustomersList = () => {
+const PicklistsList = () => {
     const navigate = useNavigate();
 
-    const [customers, setCustomers] = useState([]);
+    const [picklists, setPicklists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
@@ -117,26 +115,25 @@ const MarketplaceCustomersList = () => {
     }, []);
 
     /* =====================================================
-       GET ALL MARKETPLACE CUSTOMERS
+       GET ALL PICKLISTS THROUGH NODE PROXY
+       GET http://localhost:5000/api/Picklist
     ===================================================== */
 
-    const fetchCustomers = useCallback(
+    const fetchPicklists = useCallback(
         async (signal) => {
             setLoading(true);
             setError("");
 
             try {
-                const response = await axios.get(
-                    `${MARKETPLACE_CUSTOMERS_API}/all`,
-                    {
-                        signal,
-                        headers: {
-                            Accept: "application/json"
-                        }
-                    }
-                );
+                const response = await axios.get(API_URL, {
+                    signal,
+                    headers: {
+                        Accept: "application/json"
+                    },
+                    timeout: 15000
+                });
 
-                setCustomers(extractCustomers(response));
+                setPicklists(extractPicklists(response));
             } catch (err) {
                 if (
                     err?.code === "ERR_CANCELED" ||
@@ -145,16 +142,13 @@ const MarketplaceCustomersList = () => {
                     return;
                 }
 
-                console.error(
-                    "GET MARKETPLACE CUSTOMERS ERROR:",
-                    err
-                );
+                console.error("GET PICKLISTS ERROR:", err);
 
                 const message =
                     err?.response?.data?.message ||
                     err?.response?.data?.title ||
                     err?.message ||
-                    "Unable to load marketplace customers.";
+                    "Unable to load picklists.";
 
                 setError(message);
                 showNotification(message, "error");
@@ -170,10 +164,10 @@ const MarketplaceCustomersList = () => {
     useEffect(() => {
         const controller = new AbortController();
 
-        fetchCustomers(controller.signal);
+        fetchPicklists(controller.signal);
 
         return () => controller.abort();
-    }, [fetchCustomers, refreshKey]);
+    }, [fetchPicklists, refreshKey]);
 
     /* =====================================================
        REFRESH
@@ -198,28 +192,23 @@ const MarketplaceCustomersList = () => {
     }, []);
 
     /* =====================================================
-       FILTER CUSTOMERS
+       FILTER PICKLISTS
     ===================================================== */
 
-    const filteredCustomers = useMemo(() => {
+    const filteredPicklists = useMemo(() => {
         const search = searchTerm.trim().toLowerCase();
 
-        if (!search) return customers;
+        if (!search) return picklists;
 
-        return customers.filter((item) => {
+        return picklists.filter((item) => {
             const searchableFields = [
-                getCustomerId(item),
+                getPicklistCode(item),
+                getPicklistId(item),
+                getField(item, "destination"),
+                getField(item, "shippingPackageCodes"),
                 getField(item, "sellerId"),
                 getField(item, "customerId"),
-                getField(item, "marketplaceName"),
-                getField(item, "marketplaceCustomerId"),
-                getField(item, "companyName"),
-                getField(item, "gstin"),
-                getField(item, "email"),
-                getField(item, "phone"),
-                getField(item, "city"),
-                getField(item, "state"),
-                getField(item, "pincode")
+                getField(item, "createdDate")
             ];
 
             return searchableFields.some((value) =>
@@ -228,31 +217,31 @@ const MarketplaceCustomersList = () => {
                     .includes(search)
             );
         });
-    }, [customers, searchTerm]);
+    }, [picklists, searchTerm]);
 
     /* =====================================================
        PAGINATION
     ===================================================== */
 
-    const paginatedCustomers = useMemo(() => {
+    const paginatedPicklists = useMemo(() => {
         const start = page * rowsPerPage;
 
-        return filteredCustomers.slice(
+        return filteredPicklists.slice(
             start,
             start + rowsPerPage
         );
-    }, [filteredCustomers, page, rowsPerPage]);
+    }, [filteredPicklists, page, rowsPerPage]);
 
     useEffect(() => {
         const lastPage = Math.max(
             0,
-            Math.ceil(filteredCustomers.length / rowsPerPage) - 1
+            Math.ceil(filteredPicklists.length / rowsPerPage) - 1
         );
 
         if (page > lastPage) {
             setPage(lastPage);
         }
-    }, [filteredCustomers.length, rowsPerPage, page]);
+    }, [filteredPicklists.length, rowsPerPage, page]);
 
     const handlePageChange = useCallback((event, newPage) => {
         setPage(newPage);
@@ -268,26 +257,27 @@ const MarketplaceCustomersList = () => {
     }, []);
 
     /* =====================================================
-       NAVIGATION ACTIONS
+       NAVIGATION
+       Uses picklistCode as the record identifier
     ===================================================== */
 
-    const navigateToCustomer = useCallback(
-        (action, customer) => {
-            const id = getCustomerId(customer);
+    const navigateToPicklist = useCallback(
+        (action, picklist) => {
+            const code = getPicklistCode(picklist);
 
-            if (id === "" || id === null || id === undefined) {
+            if (!code) {
                 showNotification(
-                    "Marketplace customer ID is missing.",
+                    "Picklist code is missing.",
                     "warning"
                 );
                 return;
             }
 
             navigate(
-                `/marketplace-customers/${action}/${encodeURIComponent(id)}`,
+                `/picklists/${action}/${encodeURIComponent(code)}`,
                 {
                     state: {
-                        customer
+                        picklist
                     }
                 }
             );
@@ -296,23 +286,23 @@ const MarketplaceCustomersList = () => {
     );
 
     const handleView = useCallback(
-        (customer) => navigateToCustomer("view", customer),
-        [navigateToCustomer]
+        (picklist) => navigateToPicklist("view", picklist),
+        [navigateToPicklist]
     );
 
     const handleDetails = useCallback(
-        (customer) => navigateToCustomer("details", customer),
-        [navigateToCustomer]
+        (picklist) => navigateToPicklist("details", picklist),
+        [navigateToPicklist]
     );
 
     const handleEdit = useCallback(
-        (customer) => navigateToCustomer("edit", customer),
-        [navigateToCustomer]
+        (picklist) => navigateToPicklist("edit", picklist),
+        [navigateToPicklist]
     );
 
     const handleDelete = useCallback(
-        (customer) => navigateToCustomer("delete", customer),
-        [navigateToCustomer]
+        (picklist) => navigateToPicklist("delete", picklist),
+        [navigateToPicklist]
     );
 
     /* =====================================================
@@ -323,7 +313,11 @@ const MarketplaceCustomersList = () => {
         <Box
             sx={{
                 width: "100%",
-                p: { xs: 1.5, sm: 2.5, md: 3 },
+                p: {
+                    xs: 1.5,
+                    sm: 2.5,
+                    md: 3
+                },
                 boxSizing: "border-box"
             }}
         >
@@ -343,7 +337,7 @@ const MarketplaceCustomersList = () => {
             >
                 <Box>
                     <Typography variant="h5" fontWeight={700}>
-                        Marketplace Customers
+                        Picklists
                     </Typography>
 
                     <Typography
@@ -351,16 +345,14 @@ const MarketplaceCustomersList = () => {
                         color="text.secondary"
                         sx={{ mt: 0.5 }}
                     >
-                        Manage your marketplace customer mappings.
+                        Manage shipping picklists, destinations,
+                        packages, sellers and customers.
                     </Typography>
 
-                    <Typography
-                        variant="body2"
-                        sx={{ mt: 1 }}
-                    >
-                        Total: {customers.length}
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                        Total: {picklists.length}
                         {" | "}
-                        Filtered: {filteredCustomers.length}
+                        Filtered: {filteredPicklists.length}
                     </Typography>
                 </Box>
 
@@ -383,11 +375,9 @@ const MarketplaceCustomersList = () => {
                     <Button
                         variant="contained"
                         startIcon={<AddIcon />}
-                        onClick={() =>
-                            navigate("/marketplace-customers/create")
-                        }
+                        onClick={() => navigate("/picklists/create")}
                     >
-                        Create Customer
+                        Create Picklist
                     </Button>
                 </Box>
             </Paper>
@@ -405,8 +395,8 @@ const MarketplaceCustomersList = () => {
                 >
                     <TextField
                         fullWidth
-                        label="Search Marketplace Customers"
-                        placeholder="Search company, marketplace, GSTIN, email, phone..."
+                        label="Search Picklists"
+                        placeholder="Search code, destination, package, seller or customer..."
                         value={searchTerm}
                         onChange={handleSearchChange}
                         sx={{ flex: "1 1 300px" }}
@@ -441,7 +431,7 @@ const MarketplaceCustomersList = () => {
                 </Alert>
             )}
 
-            {/* LOADING */}
+            {/* LOADING / TABLE */}
 
             {loading ? (
                 <Box
@@ -457,17 +447,17 @@ const MarketplaceCustomersList = () => {
                     <CircularProgress />
 
                     <Typography color="text.secondary">
-                        Loading marketplace customers...
+                        Loading picklists...
                     </Typography>
                 </Box>
             ) : (
-                <PicklistsTable
-                    customers={paginatedCustomers}
+                <PicklistTable
+                    picklists={paginatedPicklists}
                     page={page}
                     rowsPerPage={rowsPerPage}
                     onPageChange={handlePageChange}
                     onRowsPerPageChange={handleRowsPerPageChange}
-                    totalCount={filteredCustomers.length}
+                    totalCount={filteredPicklists.length}
                     onView={handleView}
                     onDetails={handleDetails}
                     onEdit={handleEdit}
@@ -499,4 +489,4 @@ const MarketplaceCustomersList = () => {
     );
 };
 
-export default MarketplaceCustomersList;
+export default PicklistsList;

@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
@@ -30,28 +31,23 @@ import {
     Refresh,
     Edit,
     Inventory2,
-    Assignment,
-    Warehouse,
     CalendarMonth,
     Numbers,
-    CheckCircle,
-    PendingActions,
     LocalShipping,
-    Cancel,
-    ShoppingCart
+    Person,
+    Business,
+    CheckCircle,
+    PendingActions
 } from "@mui/icons-material";
 
 /* =========================================================
-   API CONFIGURATION
+   NODE.JS PROXY API
 ========================================================= */
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
-const PICKLIST_ENDPOINT = `${API_BASE_URL}/api/Picklist`;
+const PICKLIST_API = "http://localhost:5000/api/Picklist";
 
 /* =========================================================
-   GET VALUE FROM MULTIPLE POSSIBLE FIELD NAMES
+   GET FIELD SUPPORTING CAMELCASE AND PASCALCASE
 ========================================================= */
 
 const getValue = (object, fields, fallback = "") => {
@@ -71,13 +67,45 @@ const getValue = (object, fields, fallback = "") => {
 };
 
 /* =========================================================
+   EXTRACT PICKLIST FROM RESPONSE
+========================================================= */
+
+const extractPicklist = (data) => {
+    let current = data;
+
+    for (let i = 0; i < 5; i += 1) {
+        if (
+            !current ||
+            typeof current !== "object" ||
+            Array.isArray(current)
+        ) {
+            return null;
+        }
+
+        const nested = getValue(
+            current,
+            ["data", "result", "item", "picklist", "Picklist"],
+            null
+        );
+
+        if (!nested || nested === current) {
+            return current;
+        }
+
+        current = nested;
+    }
+
+    return current && typeof current === "object" && !Array.isArray(current)
+        ? current
+        : null;
+};
+
+/* =========================================================
    FORMAT DATE
 ========================================================= */
 
 const formatDate = (value) => {
-    if (!value) {
-        return "—";
-    }
+    if (!value) return "—";
 
     const date = new Date(value);
 
@@ -85,173 +113,115 @@ const formatDate = (value) => {
         return String(value);
     }
 
-    return date.toLocaleDateString("en-IN", {
+    return date.toLocaleString("en-IN", {
         day: "2-digit",
         month: "short",
-        year: "numeric"
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
     });
 };
 
 /* =========================================================
-   FORMAT NUMBER
+   SHIPPING PACKAGE CODE PARSER
 ========================================================= */
 
-const formatNumber = (value) => {
-    const number = Number(value);
+const getPackageCodes = (value) => {
+    if (!value) return [];
 
-    if (!Number.isFinite(number)) {
-        return "0";
+    if (Array.isArray(value)) {
+        return value.map(String).filter(Boolean);
     }
 
-    return number.toLocaleString("en-IN", {
-        maximumFractionDigits: 2
-    });
+    const raw = String(value).trim();
+
+    if (!raw) return [];
+
+    try {
+        const parsed = JSON.parse(raw);
+
+        if (Array.isArray(parsed)) {
+            return parsed.map(String).filter(Boolean);
+        }
+
+        if (typeof parsed === "string" && parsed.trim()) {
+            return [parsed.trim()];
+        }
+    } catch {
+        // Existing database values may contain a plain package code.
+    }
+
+    return raw
+        .split(/[\n,]+/)
+        .map((code) => code.trim())
+        .filter(Boolean);
 };
 
 /* =========================================================
-   NORMALIZE STATUS
+   STATUS CHIP
 ========================================================= */
 
-const normalizeStatus = (status) => {
-    const value = String(status || "Pending")
+const StatusChip = ({ value }) => {
+    const normalized = String(value || "Created")
         .trim()
-        .toLowerCase()
-        .replace(/[_-]+/g, " ");
+        .toLowerCase();
 
-    if (["completed", "complete", "picked", "closed"].includes(value)) {
-        return "Completed";
+    if (
+        ["completed", "complete", "closed", "picked"].includes(normalized)
+    ) {
+        return (
+            <Chip
+                icon={<CheckCircle />}
+                label="Completed"
+                color="success"
+                variant="outlined"
+            />
+        );
     }
 
     if (
-        [
-            "in progress",
-            "processing",
-            "assigned",
-            "started"
-        ].includes(value)
+        ["cancelled", "canceled"].includes(normalized)
     ) {
-        return "In Progress";
-    }
-
-    if (["cancelled", "canceled"].includes(value)) {
-        return "Cancelled";
-    }
-
-    if (["pending", "created", "new"].includes(value)) {
-        return "Pending";
-    }
-
-    return status || "Pending";
-};
-
-/* =========================================================
-   STATUS CONFIGURATION
-========================================================= */
-
-const getStatusConfig = (status) => {
-    const normalized = normalizeStatus(status);
-
-    switch (normalized) {
-        case "Completed":
-            return {
-                label: normalized,
-                color: "success",
-                icon: <CheckCircle fontSize="small" />
-            };
-
-        case "In Progress":
-            return {
-                label: normalized,
-                color: "info",
-                icon: <LocalShipping fontSize="small" />
-            };
-
-        case "Cancelled":
-            return {
-                label: normalized,
-                color: "error",
-                icon: <Cancel fontSize="small" />
-            };
-
-        case "Pending":
-        default:
-            return {
-                label: normalized,
-                color: "warning",
-                icon: <PendingActions fontSize="small" />
-            };
-    }
-};
-
-/* =========================================================
-   EXTRACT API RESPONSE DATA
-========================================================= */
-
-const extractPicklist = (responseData) => {
-    let data = responseData;
-
-    // Handle common API response wrappers.
-    for (let index = 0; index < 3; index += 1) {
-        if (!data || typeof data !== "object" || Array.isArray(data)) {
-            break;
-        }
-
-        const nestedData = getValue(
-            data,
-            ["data", "result", "item", "picklist", "Picklist"],
-            null
+        return (
+            <Chip
+                label="Cancelled"
+                color="error"
+                variant="outlined"
+            />
         );
-
-        if (nestedData === null || nestedData === data) {
-            break;
-        }
-
-        data = nestedData;
     }
 
-    return data && typeof data === "object" && !Array.isArray(data)
-        ? data
-        : null;
-};
+    if (
+        ["in progress", "processing", "assigned"].includes(normalized)
+    ) {
+        return (
+            <Chip
+                icon={<LocalShipping />}
+                label="In Progress"
+                color="info"
+                variant="outlined"
+            />
+        );
+    }
 
-/* =========================================================
-   EXTRACT PICKLIST ITEMS
-========================================================= */
-
-const extractItems = (picklist) => {
-    const items = getValue(
-        picklist,
-        [
-            "items",
-            "Items",
-            "picklistItems",
-            "PicklistItems",
-            "pickListItems",
-            "PickListItems",
-            "details",
-            "Details"
-        ],
-        []
+    return (
+        <Chip
+            icon={<PendingActions />}
+            label={value || "Created"}
+            color="warning"
+            variant="outlined"
+        />
     );
-
-    return Array.isArray(items) ? items : [];
 };
 
 /* =========================================================
-   DETAIL FIELD COMPONENT
+   DETAIL FIELD
 ========================================================= */
 
 const DetailField = ({ label, value, icon }) => (
-    <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
+    <Stack direction="row" spacing={1.5} alignItems="flex-start">
         {icon && (
-            <Box
-                sx={{
-                    color: "primary.main",
-                    display: "flex",
-                    alignItems: "center",
-                    mt: 0.25
-                }}
-            >
+            <Box sx={{ color: "primary.main", mt: 0.25 }}>
                 {icon}
             </Box>
         )}
@@ -260,7 +230,8 @@ const DetailField = ({ label, value, icon }) => (
             <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ display: "block", mb: 0.5 }}
+                display="block"
+                sx={{ mb: 0.5 }}
             >
                 {label}
             </Typography>
@@ -268,26 +239,23 @@ const DetailField = ({ label, value, icon }) => (
             <Typography
                 variant="body1"
                 fontWeight={600}
-                sx={{
-                    overflowWrap: "anywhere",
-                    whiteSpace: "pre-wrap"
-                }}
+                sx={{ overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}
             >
                 {value === undefined || value === null || value === ""
                     ? "—"
                     : String(value)}
             </Typography>
         </Box>
-    </Box>
+    </Stack>
 );
 
 /* =========================================================
-   PICKLIST DETAILS
+   PICKLIST DETAILS COMPONENT
 ========================================================= */
 
 const PicklistDetails = ({
     picklistId: suppliedPicklistId,
-    apiUrl = PICKLIST_ENDPOINT,
+    apiUrl = PICKLIST_API,
     onEdit,
     onBack,
     onLoaded
@@ -295,10 +263,15 @@ const PicklistDetails = ({
     const params = useParams();
     const navigate = useNavigate();
 
-    const picklistId =
+    // The route may contain either :picklistCode or :picklistId.
+    const routeIdentifier =
+        params.picklistCode ??
+        params.id ??
+        params.picklistId;
+
+    const identifier =
         suppliedPicklistId ??
-        params.picklistId ??
-        params.id;
+        routeIdentifier;
 
     const [picklist, setPicklist] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -306,24 +279,24 @@ const PicklistDetails = ({
     const [error, setError] = useState("");
 
     /* =====================================================
-       LOAD PICKLIST DETAILS
+       FETCH PICKLIST
     ===================================================== */
 
     const fetchPicklist = useCallback(
-        async (isRetry = false, signal) => {
+        async (isRefresh = false, signal) => {
             if (
-                picklistId === undefined ||
-                picklistId === null ||
-                String(picklistId).trim() === ""
+                identifier === undefined ||
+                identifier === null ||
+                String(identifier).trim() === ""
             ) {
                 setPicklist(null);
-                setError("Picklist ID is missing.");
+                setError("Picklist code or ID is missing.");
                 setLoading(false);
                 setRefreshing(false);
                 return;
             }
 
-            if (isRetry) {
+            if (isRefresh) {
                 setRefreshing(true);
             } else {
                 setLoading(true);
@@ -333,15 +306,21 @@ const PicklistDetails = ({
 
             try {
                 const response = await axios.get(
-                    `${apiUrl}/${encodeURIComponent(String(picklistId))}`,
-                    { signal }
+                    `${apiUrl}/${encodeURIComponent(String(identifier))}`,
+                    {
+                        signal,
+                        headers: {
+                            Accept: "application/json"
+                        },
+                        timeout: 15000
+                    }
                 );
 
                 const result = extractPicklist(response.data);
 
                 if (!result) {
                     throw new Error(
-                        "The server returned an invalid picklist response."
+                        "The server returned an invalid Picklist response."
                     );
                 }
 
@@ -358,24 +337,31 @@ const PicklistDetails = ({
                     return;
                 }
 
-                const responseMessage =
-                    err.response?.data?.message ||
-                    err.response?.data?.title ||
-                    err.response?.data?.error;
+                console.error("GET PICKLIST DETAILS ERROR:", {
+                    identifier,
+                    url: `${apiUrl}/${encodeURIComponent(String(identifier))}`,
+                    status: err.response?.status,
+                    data: err.response?.data,
+                    message: err.message
+                });
 
                 if (err.response?.status === 404) {
-                    setError("Picklist not found.");
-                } else if (err.response?.status === 401) {
                     setError(
-                        "You are not authorized to view this picklist."
+                        `No picklist was found for "${identifier}". Verify that the Node proxy forwards this identifier to the correct ASP.NET endpoint.`
                     );
+                } else if (err.response?.status === 401) {
+                    setError("You are not authorized to view this picklist.");
                 } else if (err.response?.status === 403) {
+                    setError("You do not have permission to view this picklist.");
+                } else if (!err.response) {
                     setError(
-                        "You do not have permission to view this picklist."
+                        "Cannot connect to the Node proxy at http://localhost:5000."
                     );
                 } else {
                     setError(
-                        responseMessage ||
+                        err.response?.data?.message ||
+                        err.response?.data?.title ||
+                        err.response?.data?.error ||
                         err.message ||
                         "Unable to load picklist details."
                     );
@@ -383,11 +369,13 @@ const PicklistDetails = ({
 
                 setPicklist(null);
             } finally {
-                setLoading(false);
-                setRefreshing(false);
+                if (!signal?.aborted) {
+                    setLoading(false);
+                    setRefreshing(false);
+                }
             }
         },
-        [apiUrl, picklistId, onLoaded]
+        [apiUrl, identifier, onLoaded]
     );
 
     /* =====================================================
@@ -399,9 +387,7 @@ const PicklistDetails = ({
 
         fetchPicklist(false, controller.signal);
 
-        return () => {
-            controller.abort();
-        };
+        return () => controller.abort();
     }, [fetchPicklist]);
 
     /* =====================================================
@@ -414,11 +400,7 @@ const PicklistDetails = ({
             return;
         }
 
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            navigate("/picklists");
-        }
+        navigate("/picklists");
     };
 
     /* =====================================================
@@ -431,24 +413,20 @@ const PicklistDetails = ({
             return;
         }
 
-        const id = getValue(
+        const code = getValue(
             picklist,
-            [
-                "picklistId",
-                "PicklistId",
-                "pickListId",
-                "PickListId",
-                "id",
-                "Id"
-            ],
-            picklistId
+            ["picklistCode", "PicklistCode"],
+            identifier
         );
 
-        navigate(`/picklists/${encodeURIComponent(String(id))}/edit`);
+        navigate(
+            `/picklists/edit/${encodeURIComponent(String(code))}`,
+            { state: { picklist } }
+        );
     };
 
     /* =====================================================
-       LOADING STATE
+       LOADING
     ===================================================== */
 
     if (loading) {
@@ -474,7 +452,7 @@ const PicklistDetails = ({
     }
 
     /* =====================================================
-       ERROR STATE
+       ERROR
     ===================================================== */
 
     if (error && !picklist) {
@@ -482,14 +460,11 @@ const PicklistDetails = ({
             <Box sx={{ p: { xs: 2, md: 3 } }}>
                 <Stack
                     direction="row"
-                    alignItems="center"
                     spacing={1}
+                    alignItems="center"
                     sx={{ mb: 3 }}
                 >
-                    <IconButton
-                        onClick={handleBack}
-                        aria-label="Go back"
-                    >
+                    <IconButton onClick={handleBack} aria-label="Go back">
                         <ArrowBack />
                     </IconButton>
 
@@ -517,142 +492,58 @@ const PicklistDetails = ({
         );
     }
 
-    if (!picklist) {
-        return null;
-    }
+    if (!picklist) return null;
 
     /* =====================================================
-       PICKLIST FIELD MAPPING
+       ACTUAL PICKLIST MODEL FIELDS
     ===================================================== */
 
-    const id = getValue(
+    const picklistCode = getValue(
         picklist,
-        [
-            "picklistId",
-            "PicklistId",
-            "pickListId",
-            "PickListId",
-            "id",
-            "Id"
-        ],
-        picklistId
+        ["picklistCode", "PicklistCode"],
+        identifier
     );
 
-    const picklistNumber = getValue(
+    const picklistId = getValue(
         picklist,
-        [
-            "picklistNumber",
-            "PicklistNumber",
-            "pickListNumber",
-            "PickListNumber",
-            "picklistNo",
-            "PicklistNo",
-            "number",
-            "Number"
-        ],
-        `Picklist #${id}`
-    );
-
-    const orderNumber = getValue(
-        picklist,
-        [
-            "orderNumber",
-            "OrderNumber",
-            "salesOrderNumber",
-            "SalesOrderNumber",
-            "orderNo",
-            "OrderNo"
-        ],
+        ["picklistId", "PicklistId"],
         ""
     );
 
-    const orderId = getValue(
+    const destination = getValue(
         picklist,
-        [
-            "orderId",
-            "OrderId",
-            "salesOrderId",
-            "SalesOrderId"
-        ],
+        ["destination", "Destination"],
         ""
     );
 
-    const warehouseName = getValue(
+    const shippingPackageCodes = getValue(
         picklist,
-        [
-            "warehouseName",
-            "WarehouseName",
-            "warehouse",
-            "Warehouse",
-            "locationName",
-            "LocationName"
-        ],
+        ["shippingPackageCodes", "ShippingPackageCodes"],
         ""
     );
 
-    const warehouseId = getValue(
+    const sellerId = getValue(
         picklist,
-        [
-            "warehouseId",
-            "WarehouseId",
-            "locationId",
-            "LocationId"
-        ],
+        ["sellerId", "SellerId"],
         ""
     );
 
-    const status = getStatusConfig(
-        getValue(
-            picklist,
-            ["status", "Status", "picklistStatus", "PicklistStatus"],
-            "Pending"
-        )
-    );
-
-    const picklistDate = getValue(
+    const customerId = getValue(
         picklist,
-        [
-            "picklistDate",
-            "PicklistDate",
-            "createdDate",
-            "CreatedDate",
-            "createdAt",
-            "CreatedAt",
-            "date",
-            "Date"
-        ],
+        ["customerId", "CustomerId"],
         ""
     );
 
-    const items = extractItems(picklist);
-
-    const totalQuantity = items.reduce((total, item) => {
-        const quantity = Number(
-            getValue(
-                item,
-                [
-                    "quantity",
-                    "Quantity",
-                    "requestedQuantity",
-                    "RequestedQuantity",
-                    "pickQuantity",
-                    "PickQuantity"
-                ],
-                0
-            )
-        );
-
-        return total + (Number.isFinite(quantity) ? quantity : 0);
-    }, 0);
-
-    const itemCount = getValue(
+    const createdDate = getValue(
         picklist,
-        ["totalItems", "TotalItems", "itemCount", "ItemCount"],
-        items.length
+        ["createdDate", "CreatedDate"],
+        ""
     );
+
+    const packageCodes = getPackageCodes(shippingPackageCodes);
 
     /* =====================================================
-       RENDER DETAILS
+       RENDER
     ===================================================== */
 
     return (
@@ -666,12 +557,8 @@ const PicklistDetails = ({
                 spacing={2}
                 sx={{ mb: 3 }}
             >
-                <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={1.5}
-                >
-                    <Tooltip title="Go back">
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Tooltip title="Back to Picklists">
                         <IconButton
                             onClick={handleBack}
                             aria-label="Go back"
@@ -681,10 +568,7 @@ const PicklistDetails = ({
                     </Tooltip>
 
                     <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight={700}
-                        >
+                        <Typography variant="h5" fontWeight={700}>
                             Picklist Details
                         </Typography>
 
@@ -692,7 +576,7 @@ const PicklistDetails = ({
                             variant="body2"
                             color="text.secondary"
                         >
-                            View picklist information and items
+                            View shipping packages and picklist information.
                         </Typography>
                     </Box>
                 </Stack>
@@ -721,95 +605,82 @@ const PicklistDetails = ({
                 </Stack>
             </Stack>
 
-            {error && (
-                <Alert
-                    severity="warning"
-                    sx={{ mb: 2 }}
-                    onClose={() => setError("")}
-                >
-                    {error}
-                </Alert>
-            )}
-
-            {/* PICKLIST SUMMARY */}
+            {/* SUMMARY CARD */}
 
             <Card
                 variant="outlined"
                 sx={{ mb: 3, borderRadius: 2 }}
             >
                 <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-                    <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        justifyContent="space-between"
-                        alignItems={{ xs: "flex-start", sm: "center" }}
-                        spacing={2}
-                        sx={{ mb: 3 }}
+                    <Typography
+                        variant="overline"
+                        color="text.secondary"
                     >
-                        <Box>
-                            <Typography
-                                variant="overline"
-                                color="text.secondary"
-                            >
-                                Picklist Number
-                            </Typography>
+                        Picklist Code
+                    </Typography>
 
-                            <Typography
-                                variant="h5"
-                                fontWeight={700}
-                                sx={{ overflowWrap: "anywhere" }}
-                            >
-                                {String(picklistNumber)}
-                            </Typography>
+                    <Typography
+                        variant="h5"
+                        fontWeight={700}
+                        sx={{ overflowWrap: "anywhere", mb: 1.5 }}
+                    >
+                        {picklistCode}
+                    </Typography>
 
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mt: 0.5 }}
-                            >
-                                ID: {String(id)}
-                            </Typography>
-                        </Box>
+                    <Chip
+                        label="Picklist Loaded"
+                        color="success"
+                        variant="outlined"
+                        size="small"
+                    />
 
-                        <Chip
-                            icon={status.icon}
-                            label={status.label}
-                            color={status.color}
-                            variant="outlined"
-                            sx={{ fontWeight: 600 }}
-                        />
-                    </Stack>
-
-                    <Divider sx={{ mb: 3 }} />
+                    <Divider sx={{ my: 3 }} />
 
                     <Grid container spacing={3}>
                         <Grid item xs={12} sm={6} md={3}>
                             <DetailField
-                                label="Picklist Date"
-                                value={formatDate(picklistDate)}
+                                label="Picklist ID"
+                                value={picklistId}
+                                icon={<Numbers />}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <DetailField
+                                label="Destination"
+                                value={destination}
+                                icon={<LocalShipping />}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <DetailField
+                                label="Seller ID"
+                                value={sellerId}
+                                icon={<Business />}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <DetailField
+                                label="Customer ID"
+                                value={customerId}
+                                icon={<Person />}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <DetailField
+                                label="Created Date"
+                                value={formatDate(createdDate)}
                                 icon={<CalendarMonth />}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid item xs={12} sm={6}>
                             <DetailField
-                                label="Order Number"
-                                value={orderNumber || orderId || "—"}
-                                icon={<Assignment />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6} md={3}>
-                            <DetailField
-                                label="Warehouse"
-                                value={warehouseName || warehouseId || "—"}
-                                icon={<Warehouse />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6} md={3}>
-                            <DetailField
-                                label="Total Items"
-                                value={formatNumber(itemCount)}
+                                label="Package Count"
+                                value={packageCodes.length}
                                 icon={<Inventory2 />}
                             />
                         </Grid>
@@ -817,131 +688,7 @@ const PicklistDetails = ({
                 </CardContent>
             </Card>
 
-            {/* ITEM STATISTICS */}
-
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} sm={6} md={4}>
-                    <Card variant="outlined" sx={{ height: "100%" }}>
-                        <CardContent>
-                            <Stack
-                                direction="row"
-                                spacing={2}
-                                alignItems="center"
-                            >
-                                <Box
-                                    sx={{
-                                        p: 1.5,
-                                        borderRadius: 2,
-                                        bgcolor: "primary.50",
-                                        color: "primary.main",
-                                        display: "flex"
-                                    }}
-                                >
-                                    <ShoppingCart />
-                                </Box>
-
-                                <Box>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                    >
-                                        Number of Lines
-                                    </Typography>
-
-                                    <Typography
-                                        variant="h5"
-                                        fontWeight={700}
-                                    >
-                                        {formatNumber(items.length)}
-                                    </Typography>
-                                </Box>
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <Card variant="outlined" sx={{ height: "100%" }}>
-                        <CardContent>
-                            <Stack
-                                direction="row"
-                                spacing={2}
-                                alignItems="center"
-                            >
-                                <Box
-                                    sx={{
-                                        p: 1.5,
-                                        borderRadius: 2,
-                                        bgcolor: "success.50",
-                                        color: "success.main",
-                                        display: "flex"
-                                    }}
-                                >
-                                    <Numbers />
-                                </Box>
-
-                                <Box>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                    >
-                                        Total Quantity
-                                    </Typography>
-
-                                    <Typography
-                                        variant="h5"
-                                        fontWeight={700}
-                                    >
-                                        {formatNumber(totalQuantity)}
-                                    </Typography>
-                                </Box>
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                    <Card variant="outlined" sx={{ height: "100%" }}>
-                        <CardContent>
-                            <Stack
-                                direction="row"
-                                spacing={2}
-                                alignItems="center"
-                            >
-                                <Box
-                                    sx={{
-                                        p: 1.5,
-                                        borderRadius: 2,
-                                        bgcolor: "warning.50",
-                                        color: "warning.main",
-                                        display: "flex"
-                                    }}
-                                >
-                                    <PendingActions />
-                                </Box>
-
-                                <Box>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                    >
-                                        Current Status
-                                    </Typography>
-
-                                    <Typography
-                                        variant="h6"
-                                        fontWeight={700}
-                                    >
-                                        {status.label}
-                                    </Typography>
-                                </Box>
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
-
-            {/* ITEMS TABLE */}
+            {/* SHIPPING PACKAGES */}
 
             <Card variant="outlined" sx={{ borderRadius: 2 }}>
                 <CardContent sx={{ p: { xs: 2, md: 3 } }}>
@@ -954,26 +701,59 @@ const PicklistDetails = ({
                     >
                         <Box>
                             <Typography variant="h6" fontWeight={700}>
-                                Picklist Items
+                                Shipping Packages
                             </Typography>
 
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
                             >
-                                Products and quantities included in this picklist
+                                Packages assigned to this picklist.
                             </Typography>
                         </Box>
 
                         <Chip
-                            label={`${items.length} line${items.length === 1 ? "" : "s"}`}
+                            label={`${packageCodes.length} package${packageCodes.length === 1 ? "" : "s"}`}
                             variant="outlined"
                         />
                     </Stack>
 
                     <Divider sx={{ mb: 2 }} />
 
-                    {items.length === 0 ? (
+                    {packageCodes.length > 0 ? (
+                        <TableContainer component={Paper} variant="outlined">
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>
+                                            <strong>#</strong>
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <strong>Shipping Package Code</strong>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {packageCodes.map((code, index) => (
+                                        <TableRow key={`${code}-${index}`} hover>
+                                            <TableCell>{index + 1}</TableCell>
+
+                                            <TableCell>
+                                                <Typography
+                                                    fontWeight={600}
+                                                    sx={{ overflowWrap: "anywhere" }}
+                                                >
+                                                    {code}
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    ) : (
                         <Paper
                             variant="outlined"
                             sx={{
@@ -991,7 +771,7 @@ const PicklistDetails = ({
                             />
 
                             <Typography fontWeight={600}>
-                                No items found
+                                No shipping packages
                             </Typography>
 
                             <Typography
@@ -999,181 +779,14 @@ const PicklistDetails = ({
                                 color="text.secondary"
                                 sx={{ mt: 0.5 }}
                             >
-                                This picklist does not contain any item details.
+                                No package codes have been assigned to this picklist.
                             </Typography>
                         </Paper>
-                    ) : (
-                        <TableContainer component={Paper} variant="outlined">
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>
-                                            <strong>#</strong>
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <strong>Product</strong>
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <strong>Product Code</strong>
-                                        </TableCell>
-
-                                        <TableCell align="right">
-                                            <strong>Quantity</strong>
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <strong>Item Status</strong>
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHead>
-
-                                <TableBody>
-                                    {items.map((item, index) => {
-                                        const itemId = getValue(
-                                            item,
-                                            [
-                                                "picklistItemId",
-                                                "PicklistItemId",
-                                                "pickListItemId",
-                                                "PickListItemId",
-                                                "itemId",
-                                                "ItemId",
-                                                "id",
-                                                "Id"
-                                            ],
-                                            index
-                                        );
-
-                                        const productName = getValue(
-                                            item,
-                                            [
-                                                "productName",
-                                                "ProductName",
-                                                "itemName",
-                                                "ItemName",
-                                                "name",
-                                                "Name",
-                                                "description",
-                                                "Description"
-                                            ],
-                                            "Unnamed Product"
-                                        );
-
-                                        const productCode = getValue(
-                                            item,
-                                            [
-                                                "productCode",
-                                                "ProductCode",
-                                                "itemCode",
-                                                "ItemCode",
-                                                "sku",
-                                                "SKU",
-                                                "code",
-                                                "Code"
-                                            ],
-                                            "—"
-                                        );
-
-                                        const quantity = getValue(
-                                            item,
-                                            [
-                                                "quantity",
-                                                "Quantity",
-                                                "requestedQuantity",
-                                                "RequestedQuantity",
-                                                "pickQuantity",
-                                                "PickQuantity"
-                                            ],
-                                            0
-                                        );
-
-                                        const itemStatus = getValue(
-                                            item,
-                                            [
-                                                "status",
-                                                "Status",
-                                                "itemStatus",
-                                                "ItemStatus"
-                                            ],
-                                            ""
-                                        );
-
-                                        return (
-                                            <TableRow
-                                                key={itemId}
-                                                hover
-                                            >
-                                                <TableCell>
-                                                    {index + 1}
-                                                </TableCell>
-
-                                                <TableCell>
-                                                    <Typography
-                                                        variant="body2"
-                                                        fontWeight={600}
-                                                    >
-                                                        {String(productName)}
-                                                    </Typography>
-                                                </TableCell>
-
-                                                <TableCell>
-                                                    {String(productCode)}
-                                                </TableCell>
-
-                                                <TableCell align="right">
-                                                    {formatNumber(quantity)}
-                                                </TableCell>
-
-                                                <TableCell>
-                                                    {itemStatus ? (
-                                                        <Chip
-                                                            size="small"
-                                                            label={String(
-                                                                normalizeStatus(itemStatus)
-                                                            )}
-                                                            color={
-                                                                getStatusConfig(
-                                                                    itemStatus
-                                                                ).color
-                                                            }
-                                                            variant="outlined"
-                                                        />
-                                                    ) : (
-                                                        "—"
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={3}
-                                            align="right"
-                                        >
-                                            <Typography fontWeight={700}>
-                                                Total Quantity
-                                            </Typography>
-                                        </TableCell>
-
-                                        <TableCell align="right">
-                                            <Typography fontWeight={700}>
-                                                {formatNumber(totalQuantity)}
-                                            </Typography>
-                                        </TableCell>
-
-                                        <TableCell />
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
                     )}
                 </CardContent>
             </Card>
 
-            {/* ADDITIONAL INFORMATION */}
+            {/* RAW PACKAGE DATA */}
 
             <Card
                 variant="outlined"
@@ -1186,72 +799,31 @@ const PicklistDetails = ({
 
                     <Divider sx={{ mb: 2 }} />
 
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Picklist ID"
-                                value={id}
-                                icon={<Numbers />}
-                            />
-                        </Grid>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 1 }}
+                    >
+                        Stored shipping package codes
+                    </Typography>
 
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Order ID"
-                                value={orderId || "—"}
-                                icon={<Assignment />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Warehouse ID"
-                                value={warehouseId || "—"}
-                                icon={<Warehouse />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DetailField
-                                label="Created Date"
-                                value={formatDate(
-                                    getValue(
-                                        picklist,
-                                        [
-                                            "createdDate",
-                                            "CreatedDate",
-                                            "createdAt",
-                                            "CreatedAt"
-                                        ],
-                                        ""
-                                    )
-                                )}
-                                icon={<CalendarMonth />}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <DetailField
-                                label="Notes"
-                                value={getValue(
-                                    picklist,
-                                    [
-                                        "notes",
-                                        "Notes",
-                                        "remarks",
-                                        "Remarks",
-                                        "comments",
-                                        "Comments"
-                                    ],
-                                    "No additional notes."
-                                )}
-                            />
-                        </Grid>
-                    </Grid>
+                    <Paper
+                        variant="outlined"
+                        sx={{
+                            p: 2,
+                            bgcolor: "action.hover",
+                            overflowWrap: "anywhere",
+                            whiteSpace: "pre-wrap"
+                        }}
+                    >
+                        <Typography variant="body2">
+                            {shippingPackageCodes || "No package data"}
+                        </Typography>
+                    </Paper>
                 </CardContent>
             </Card>
 
-            {/* FOOTER ACTIONS */}
+            {/* FOOTER */}
 
             <Stack
                 direction="row"
@@ -1264,7 +836,7 @@ const PicklistDetails = ({
                     startIcon={<ArrowBack />}
                     onClick={handleBack}
                 >
-                    Back
+                    Back to Picklists
                 </Button>
 
                 <Button
@@ -1280,4 +852,3 @@ const PicklistDetails = ({
 };
 
 export default PicklistDetails;
-

@@ -8,12 +8,12 @@ import React, {
 } from "react";
 
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
     Alert,
     Box,
     CircularProgress,
-    Grid,
     Snackbar,
     Typography
 } from "@mui/material";
@@ -26,59 +26,68 @@ import PicklistPagination from "./PicklistPagination";
 
 /* =========================================================
    API CONFIGURATION
+   React -> Node.js proxy -> ASP.NET Core API
 ========================================================= */
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
-
-const PICKLIST_API_URL = `${API_BASE_URL}/api/Picklist`;
+const PICKLIST_API_URL = "http://localhost:5000/api/Picklist";
 
 /* =========================================================
    RESPONSE HELPERS
 ========================================================= */
 
-const getResponseData = (response) => {
-    const data = response?.data;
-
-    if (Array.isArray(data)) {
-        return data;
-    }
-
-    if (Array.isArray(data?.data)) {
-        return data.data;
-    }
-
-    if (Array.isArray(data?.items)) {
-        return data.items;
-    }
-
-    if (Array.isArray(data?.items?.data)) {
-        return data.items.data;
-    }
-
-    if (Array.isArray(data?.result)) {
-        return data.result;
-    }
-
-    if (Array.isArray(data?.results)) {
-        return data.results;
-    }
-
-    return [];
-};
-
 const getFieldValue = (item, fields, fallback = "") => {
-    for (const field of fields) {
-        const value = item?.[field];
+    if (!item || typeof item !== "object") {
+        return fallback;
+    }
 
-        if (value !== undefined && value !== null) {
-            return value;
+    for (const field of fields) {
+        if (item[field] !== undefined && item[field] !== null) {
+            return item[field];
         }
     }
 
     return fallback;
 };
+
+const getResponseData = (response) => {
+    let data = response?.data;
+
+    for (let i = 0; i < 4; i += 1) {
+        if (Array.isArray(data)) {
+            return data;
+        }
+
+        if (!data || typeof data !== "object") {
+            return [];
+        }
+
+        const nextData = getFieldValue(
+            data,
+            ["data", "items", "result", "results", "value"],
+            null
+        );
+
+        if (nextData === null || nextData === data) {
+            return [];
+        }
+
+        data = nextData;
+    }
+
+    return Array.isArray(data) ? data : [];
+};
+
+/* =========================================================
+   PICKLIST FIELDS
+========================================================= */
+
+const getPicklistCode = (picklist) =>
+    getFieldValue(picklist, [
+        "picklistCode",
+        "PicklistCode",
+        "pickListCode",
+        "PickListCode"
+    ]);
 
 const getPicklistId = (picklist) =>
     getFieldValue(picklist, [
@@ -90,16 +99,22 @@ const getPicklistId = (picklist) =>
         "Id"
     ]);
 
+const getPicklistIdentifier = (picklist) =>
+    getPicklistCode(picklist) || getPicklistId(picklist);
+
 const getPicklistNumber = (picklist) =>
+    getPicklistCode(picklist) ||
     getFieldValue(picklist, [
         "picklistNumber",
         "PicklistNumber",
-        "pickListNumber",
-        "PickListNumber",
         "picklistNo",
-        "PicklistNo",
-        "number",
-        "Number"
+        "PicklistNo"
+    ], "—");
+
+const getDestination = (picklist) =>
+    getFieldValue(picklist, [
+        "destination",
+        "Destination"
     ], "—");
 
 const getStatus = (picklist) =>
@@ -114,65 +129,66 @@ const getStatus = (picklist) =>
 
 const getDateValue = (picklist) =>
     getFieldValue(picklist, [
-        "picklistDate",
-        "PicklistDate",
         "createdDate",
         "CreatedDate",
+        "picklistDate",
+        "PicklistDate",
         "createdAt",
-        "CreatedAt",
-        "date",
-        "Date"
+        "CreatedAt"
     ]);
 
-const getOrderNumber = (picklist) =>
+const getSellerId = (picklist) =>
     getFieldValue(picklist, [
-        "orderNumber",
-        "OrderNumber",
-        "salesOrderNumber",
-        "SalesOrderNumber",
-        "orderNo",
-        "OrderNo"
+        "sellerId",
+        "SellerId"
     ], "—");
 
-const getWarehouseName = (picklist) =>
+const getCustomerId = (picklist) =>
     getFieldValue(picklist, [
-        "warehouseName",
-        "WarehouseName",
-        "warehouse",
-        "Warehouse",
-        "locationName",
-        "LocationName"
+        "customerId",
+        "CustomerId"
     ], "—");
 
-const getItemCount = (picklist) => {
-    const directCount = getFieldValue(picklist, [
-        "totalItems",
-        "TotalItems",
-        "itemCount",
-        "ItemCount",
-        "totalQuantity",
-        "TotalQuantity"
-    ]);
+const getPackageCodes = (picklist) => {
+    const value = getFieldValue(picklist, [
+        "shippingPackageCodes",
+        "ShippingPackageCodes"
+    ], "");
 
-    if (directCount !== "") {
-        const count = Number(directCount);
-
-        if (Number.isFinite(count)) {
-            return count;
-        }
+    if (!value) {
+        return [];
     }
 
-    const items = getFieldValue(picklist, [
-        "items",
-        "Items",
-        "picklistItems",
-        "PicklistItems",
-        "details",
-        "Details"
-    ]);
+    if (Array.isArray(value)) {
+        return value;
+    }
 
-    return Array.isArray(items) ? items.length : 0;
+    if (typeof value !== "string") {
+        return [String(value)];
+    }
+
+    try {
+        const parsed = JSON.parse(value);
+
+        if (Array.isArray(parsed)) {
+            return parsed;
+        }
+
+        if (parsed && typeof parsed === "object") {
+            return Object.values(parsed);
+        }
+
+        return parsed ? [String(parsed)] : [];
+    } catch {
+        return value
+            .split(/[,;\n]+/)
+            .map((code) => code.trim())
+            .filter(Boolean);
+    }
 };
+
+const getItemCount = (picklist) =>
+    getPackageCodes(picklist).length;
 
 const normalizeStatus = (status) =>
     String(status || "")
@@ -203,13 +219,39 @@ const formatDate = (value) => {
 };
 
 /* =========================================================
+   ERROR HELPER
+========================================================= */
+
+const getErrorMessage = (error, fallback) => {
+    const data = error?.response?.data;
+
+    if (typeof data === "string") {
+        return data;
+    }
+
+    return (
+        getFieldValue(data, [
+            "message",
+            "Message",
+            "title",
+            "Title",
+            "error",
+            "Error"
+        ], "") ||
+        error?.message ||
+        fallback
+    );
+};
+
+/* =========================================================
    MAIN COMPONENT
 ========================================================= */
 
 const PicklistView = () => {
-    const [picklists, setPicklists] = useState([]);
+    const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
+    const [picklists, setPicklists] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -227,7 +269,7 @@ const PicklistView = () => {
     });
 
     /* =====================================================
-       SHOW NOTIFICATION
+       NOTIFICATIONS
     ===================================================== */
 
     const showNotification = useCallback(
@@ -241,11 +283,24 @@ const PicklistView = () => {
         []
     );
 
+    const closeNotification = useCallback((event, reason) => {
+        if (reason === "clickaway") {
+            return;
+        }
+
+        setNotification((previous) => ({
+            ...previous,
+            open: false
+        }));
+    }, []);
+
     /* =====================================================
        GET ALL PICKLISTS
+       Node GET /api/Picklist
+       -> .NET GET /api/picklists/all
     ===================================================== */
 
-    const fetchPicklists = useCallback(async () => {
+    const fetchPicklists = useCallback(async (signal) => {
         setLoading(true);
         setError("");
 
@@ -253,6 +308,7 @@ const PicklistView = () => {
             const response = await axios.get(
                 PICKLIST_API_URL,
                 {
+                    signal,
                     headers: {
                         Accept: "application/json"
                     }
@@ -263,27 +319,42 @@ const PicklistView = () => {
 
             setPicklists(data);
         } catch (err) {
-            console.error(
-                "GET ALL PICKLISTS ERROR:",
-                err
+            if (
+                err?.name === "CanceledError" ||
+                err?.code === "ERR_CANCELED"
+            ) {
+                return;
+            }
+
+            console.error("GET ALL PICKLISTS ERROR:", {
+                url: PICKLIST_API_URL,
+                status: err?.response?.status,
+                data: err?.response?.data,
+                message: err?.message
+            });
+
+            const message = getErrorMessage(
+                err,
+                "Failed to fetch picklists. Check that the Node proxy and .NET API are running."
             );
 
-            const message =
-                err?.response?.data?.message ||
-                err?.response?.data?.title ||
-                err?.message ||
-                "Failed to fetch picklists.";
-
+            setPicklists([]);
             setError(message);
 
             showNotification(message, "error");
         } finally {
-            setLoading(false);
+            if (!signal?.aborted) {
+                setLoading(false);
+            }
         }
     }, [showNotification]);
 
     useEffect(() => {
-        fetchPicklists();
+        const controller = new AbortController();
+
+        fetchPicklists(controller.signal);
+
+        return () => controller.abort();
     }, [fetchPicklists, refreshKey]);
 
     /* =====================================================
@@ -295,7 +366,15 @@ const PicklistView = () => {
     }, []);
 
     /* =====================================================
-       SEARCH AND STATUS FILTERING
+       ADD PICKLIST
+    ===================================================== */
+
+    const handleAdd = useCallback(() => {
+        navigate("/picklists/create");
+    }, [navigate]);
+
+    /* =====================================================
+       SEARCH AND FILTER
     ===================================================== */
 
     const filteredPicklists = useMemo(() => {
@@ -303,21 +382,13 @@ const PicklistView = () => {
 
         return picklists.filter((picklist) => {
             const searchableValues = [
+                getPicklistCode(picklist),
                 getPicklistId(picklist),
-                getPicklistNumber(picklist),
-                getOrderNumber(picklist),
-                getWarehouseName(picklist),
+                getDestination(picklist),
                 getStatus(picklist),
-                getFieldValue(picklist, [
-                    "customerName",
-                    "CustomerName"
-                ]),
-                getFieldValue(picklist, [
-                    "assignedTo",
-                    "AssignedTo",
-                    "pickerName",
-                    "PickerName"
-                ])
+                getSellerId(picklist),
+                getCustomerId(picklist),
+                ...getPackageCodes(picklist)
             ];
 
             const matchesSearch =
@@ -358,9 +429,7 @@ const PicklistView = () => {
         };
 
         picklists.forEach((picklist) => {
-            const status = normalizeStatus(
-                getStatus(picklist)
-            );
+            const status = normalizeStatus(getStatus(picklist));
 
             if (
                 status === "pending" ||
@@ -423,7 +492,7 @@ const PicklistView = () => {
     }, []);
 
     /* =====================================================
-       STATUS FILTER HANDLER
+       STATUS HANDLER
     ===================================================== */
 
     const handleStatusChange = useCallback((value) => {
@@ -435,19 +504,17 @@ const PicklistView = () => {
     }, []);
 
     /* =====================================================
-       PAGE HANDLER
+       PAGINATION HANDLERS
     ===================================================== */
 
     const handlePageChange = useCallback((event, newPage) => {
         setPage(newPage);
     }, []);
 
-    /* =====================================================
-       ROWS PER PAGE HANDLER
-    ===================================================== */
-
     const handleRowsPerPageChange = useCallback((event) => {
-        const value = Number(event?.target?.value ?? event);
+        const value = Number(
+            event?.target?.value ?? event
+        );
 
         if (Number.isFinite(value) && value > 0) {
             setRowsPerPage(value);
@@ -460,61 +527,89 @@ const PicklistView = () => {
     ===================================================== */
 
     const handleView = useCallback((picklist) => {
-        const id = getPicklistId(picklist);
+        const identifier = getPicklistIdentifier(picklist);
 
-        if (id === "") {
+        if (
+            identifier === "" ||
+            identifier === null ||
+            identifier === undefined
+        ) {
             showNotification(
-                "Picklist ID is not available.",
+                "Picklist code is not available.",
                 "warning"
             );
-
             return;
         }
 
-        showNotification(
-            `Selected picklist ${getPicklistNumber(picklist)}.`,
-            "info"
+        navigate(
+            `/picklists/view/${encodeURIComponent(String(identifier))}`
         );
+    }, [navigate, showNotification]);
 
-        // Add navigation or a details dialog here if required.
-    }, [showNotification]);
+    /* =====================================================
+       PICKLIST DETAILS
+    ===================================================== */
+
+    const handleDetails = useCallback((picklist) => {
+        const identifier = getPicklistIdentifier(picklist);
+
+        if (
+            identifier === "" ||
+            identifier === null ||
+            identifier === undefined
+        ) {
+            showNotification(
+                "Picklist code is not available.",
+                "warning"
+            );
+            return;
+        }
+
+        navigate(
+            `/picklists/details/${encodeURIComponent(String(identifier))}`
+        );
+    }, [navigate, showNotification]);
 
     /* =====================================================
        EDIT PICKLIST
     ===================================================== */
 
     const handleEdit = useCallback((picklist) => {
-        const id = getPicklistId(picklist);
+        const identifier = getPicklistIdentifier(picklist);
 
-        if (id === "") {
+        if (
+            identifier === "" ||
+            identifier === null ||
+            identifier === undefined
+        ) {
             showNotification(
-                "Picklist ID is not available.",
+                "Picklist code is not available.",
                 "warning"
             );
-
             return;
         }
 
-        // Add edit navigation or an edit dialog here if required.
-        showNotification(
-            `Edit action selected for picklist ${getPicklistNumber(picklist)}.`,
-            "info"
+        navigate(
+            `/picklists/edit/${encodeURIComponent(String(identifier))}`
         );
-    }, [showNotification]);
+    }, [navigate, showNotification]);
 
     /* =====================================================
        DELETE PICKLIST
     ===================================================== */
 
     const handleDelete = useCallback(async (picklist) => {
-        const id = getPicklistId(picklist);
+        const identifier = getPicklistIdentifier(picklist);
 
-        if (id === "" || id === null || id === undefined) {
+        if (
+            identifier === "" ||
+            identifier === null ||
+            identifier === undefined
+        ) {
             showNotification(
-                "Picklist ID is not available.",
+                "Picklist code is not available.",
                 "warning"
             );
-
             return;
         }
 
@@ -528,13 +623,14 @@ const PicklistView = () => {
 
         try {
             await axios.delete(
-                `${PICKLIST_API_URL}/${encodeURIComponent(id)}`
+                `${PICKLIST_API_URL}/${encodeURIComponent(String(identifier))}`
             );
 
             setPicklists((previous) =>
                 previous.filter(
                     (item) =>
-                        String(getPicklistId(item)) !== String(id)
+                        String(getPicklistIdentifier(item)) !==
+                        String(identifier)
                 )
             );
 
@@ -543,38 +639,19 @@ const PicklistView = () => {
                 "success"
             );
         } catch (err) {
-            console.error(
-                "DELETE PICKLIST ERROR:",
-                err
-            );
+            console.error("DELETE PICKLIST ERROR:", {
+                identifier,
+                status: err?.response?.status,
+                data: err?.response?.data,
+                message: err?.message
+            });
 
             showNotification(
-                err?.response?.data?.message ||
-                err?.response?.data?.title ||
-                err?.message ||
-                "Failed to delete picklist.",
+                getErrorMessage(err, "Failed to delete picklist."),
                 "error"
             );
         }
     }, [showNotification]);
-
-    /* =====================================================
-       CLOSE NOTIFICATION
-    ===================================================== */
-
-    const handleCloseNotification = useCallback(
-        (event, reason) => {
-            if (reason === "clickaway") {
-                return;
-            }
-
-            setNotification((previous) => ({
-                ...previous,
-                open: false
-            }));
-        },
-        []
-    );
 
     /* =====================================================
        RENDER
@@ -630,12 +707,7 @@ const PicklistView = () => {
                 <PicklistToolbar
                     onRefresh={handleRefresh}
                     loading={loading}
-                    onAdd={() =>
-                        showNotification(
-                            "Connect your picklist creation form to enable this action.",
-                            "info"
-                        )
-                    }
+                    onAdd={handleAdd}
                 />
             </Box>
 
@@ -671,7 +743,7 @@ const PicklistView = () => {
                 />
             </Box>
 
-            {/* ERROR MESSAGE */}
+            {/* ERROR */}
 
             {error && !loading && (
                 <Alert
@@ -697,7 +769,7 @@ const PicklistView = () => {
                 </Alert>
             )}
 
-            {/* LOADING */}
+            {/* LOADING / TABLE */}
 
             {loading ? (
                 <Box
@@ -721,35 +793,45 @@ const PicklistView = () => {
                 </Box>
             ) : (
                 <>
-                    {/* TABLE */}
+                    {filteredPicklists.length > 0 ? (
+                        <>
+                            <Box
+                                sx={{
+                                    width: "100%",
+                                    overflowX: "auto"
+                                }}
+                            >
+                                <PicklistTable
+                                    picklists={paginatedPicklists}
+                                    data={paginatedPicklists}
+                                    loading={loading}
+                                    onView={handleView}
+                                    onDetails={handleDetails}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    getPicklistId={getPicklistId}
+                                    getPicklistCode={getPicklistCode}
+                                    getPicklistNumber={getPicklistNumber}
+                                    getDestination={getDestination}
+                                    getStatus={getStatus}
+                                    getDateValue={getDateValue}
+                                    getItemCount={getItemCount}
+                                    formatDate={formatDate}
+                                />
+                            </Box>
 
-                    <Box
-                        sx={{
-                            width: "100%",
-                            overflowX: "auto"
-                        }}
-                    >
-                        <PicklistTable
-                            picklists={paginatedPicklists}
-                            data={paginatedPicklists}
-                            loading={loading}
-                            onView={handleView}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            getPicklistId={getPicklistId}
-                            getPicklistNumber={getPicklistNumber}
-                            getOrderNumber={getOrderNumber}
-                            getWarehouseName={getWarehouseName}
-                            getStatus={getStatus}
-                            getDateValue={getDateValue}
-                            getItemCount={getItemCount}
-                            formatDate={formatDate}
-                        />
-                    </Box>
-
-                    {/* EMPTY STATE */}
-
-                    {filteredPicklists.length === 0 && (
+                            <Box sx={{ mt: 2 }}>
+                                <PicklistPagination
+                                    page={page}
+                                    count={filteredPicklists.length}
+                                    totalCount={filteredPicklists.length}
+                                    rowsPerPage={rowsPerPage}
+                                    onPageChange={handlePageChange}
+                                    onRowsPerPageChange={handleRowsPerPageChange}
+                                />
+                            </Box>
+                        </>
+                    ) : (
                         <Box
                             sx={{
                                 py: 5,
@@ -761,7 +843,9 @@ const PicklistView = () => {
                                 variant="h6"
                                 color="text.secondary"
                             >
-                                No picklists found
+                                {error
+                                    ? "Picklists could not be loaded"
+                                    : "No picklists found"}
                             </Typography>
 
                             <Typography
@@ -769,23 +853,10 @@ const PicklistView = () => {
                                 color="text.secondary"
                                 sx={{ mt: 1 }}
                             >
-                                Try changing your search or status filter.
+                                {error
+                                    ? "Check the Node.js proxy and .NET API, then retry."
+                                    : "Try changing your search or status filter."}
                             </Typography>
-                        </Box>
-                    )}
-
-                    {/* PAGINATION */}
-
-                    {filteredPicklists.length > 0 && (
-                        <Box sx={{ mt: 2 }}>
-                            <PicklistPagination
-                                page={page}
-                                count={filteredPicklists.length}
-                                totalCount={filteredPicklists.length}
-                                rowsPerPage={rowsPerPage}
-                                onPageChange={handlePageChange}
-                                onRowsPerPageChange={handleRowsPerPageChange}
-                            />
                         </Box>
                     )}
                 </>
@@ -796,14 +867,14 @@ const PicklistView = () => {
             <Snackbar
                 open={notification.open}
                 autoHideDuration={4000}
-                onClose={handleCloseNotification}
+                onClose={closeNotification}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
                 }}
             >
                 <Alert
-                    onClose={handleCloseNotification}
+                    onClose={closeNotification}
                     severity={notification.severity}
                     variant="filled"
                     sx={{ width: "100%" }}
@@ -816,4 +887,3 @@ const PicklistView = () => {
 };
 
 export default PicklistView;
-
