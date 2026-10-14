@@ -996,6 +996,7 @@ import MarketplaceOrderCreate from "./pages/MarketplaceOrder/MarketplaceOrderCre
 import MarketplaceOrderDetails from "./pages/MarketplaceOrder/MarketplaceOrderDetails";
 import MarketplaceOrderEdit from "./pages/MarketplaceOrder/MarketplaceOrderEdit";
 import MarketplaceOrderCardPage from "./pages/MarketplaceOrder/MarketplaceOrderCardPage";
+import MarketplaceOrderView from "./pages/MarketplaceOrder/MarketplaceOrderView";
 
 import DeleteInvoiceTaxDetailDialog from "./pages/InvoiceTaxDetails/DeleteInvoiceTaxDetailDialog";
 import InvoiceTaxDetailCard from "./pages/InvoiceTaxDetails/InvoiceTaxDetailCard";
@@ -2678,6 +2679,37 @@ VENDOR ITEM MASTERS ROUTES
                     path="orders/edit/:id"
                     element={<OrderEdit />}
                 />
+              {/* =================================================
+    MARKETPLACE ORDERS
+================================================= */}
+
+<Route
+    path="marketplace-orders"
+    element={<MarketplaceOrderList />}
+/>
+
+<Route
+    path="marketplace-orders/create"
+    element={<MarketplaceOrderCreate />}
+/>
+
+<Route
+    path="marketplace-orders/search"
+    element={<MarketplaceOrderSearch />}
+/>
+
+
+
+<Route
+    path="marketplace-orders/statistics"
+    element={<MarketplaceOrderStatistics />}
+/>
+
+<Route
+    path="marketplace-orders/view/:id"
+    element={<MarketplaceOrderView />}
+/>
+
 
 
                 {/* =================================================
@@ -3100,7 +3132,6 @@ VENDOR ITEM MASTERS ROUTES
 <Route path="putaways/create" element={<PutawayCreate />} />
 <Route path="putaways/:id/edit" element={<PutawayEdit />} />
 <Route path="putaways/view/:id" element={<PutawayView />} />
-// REDIRECTS - fix old /putaway links
 <Route path="putaway" element={<Navigate to="/putaways" replace />} />
 <Route path="putaway/*" element={<Navigate to="/putaways" replace />} />
 

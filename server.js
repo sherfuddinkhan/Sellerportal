@@ -36107,6 +36107,175 @@ app.get(
         }
     }
 );
+//////////////////////////////////////////////
+// =====================================================
+// ORDER ITEMS - ASP.NET API CONFIGURATION
+// =====================================================
+const ORDER_ITEMS_API = "https://localhost:7203/api/OrderItems";
+
+const orderItemsHttpsAgent = new https.Agent({
+    rejectUnauthorized: false
+});
+
+// =====================================================
+// GET ALL ORDER ITEMS
+// React: GET http://localhost:5000/api/OrderItem
+// ASP.NET: GET https://localhost:7203/api/OrderItems/all
+// =====================================================
+// =====================================================
+app.get("/api/OrderItem", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${ORDER_ITEMS_API}/all`,
+            { httpsAgent: orderItemsHttpsAgent, timeout: 15000 }
+        );
+        console.log("Backend OK:", response.status);
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("GET ORDER ITEMS ERROR:", {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+        res.status(error.response?.status || 500).json({
+            message: "Failed to fetch order items.",
+            backendStatus: error.response?.status || null,
+            backendResponse: error.response?.data || null
+        });
+    }
+});
+
+// =====================================================
+// GET ORDER ITEM BY ID
+// React: GET /api/OrderItem/1
+// ASP.NET: GET /api/OrderItems/1
+// =====================================================
+app.get("/api/OrderItem/:id", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${ORDER_ITEMS_API}/${req.params.id}`,
+            {
+                httpsAgent: orderItemsHttpsAgent,
+                timeout: 15000
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("GET ORDER ITEM BY ID ERROR:", {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        res.status(error.response?.status || 500).json({
+            message: "Failed to fetch order item.",
+            backendStatus: error.response?.status || null,
+            backendResponse: error.response?.data || null
+        });
+    }
+});
+
+// =====================================================
+// CREATE ORDER ITEM
+// React: POST /api/OrderItem
+// ASP.NET: POST /api/OrderItems
+// =====================================================
+app.post("/api/OrderItem", async (req, res) => {
+    try {
+        const response = await axios.post(
+            ORDER_ITEMS_API,
+            req.body,
+            {
+                httpsAgent: orderItemsHttpsAgent,
+                timeout: 15000,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("CREATE ORDER ITEM ERROR:", {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        res.status(error.response?.status || 500).json({
+            message: "Failed to create order item.",
+            backendStatus: error.response?.status || null,
+            backendResponse: error.response?.data || null
+        });
+    }
+});
+
+// =====================================================
+// UPDATE ORDER ITEM
+// React: PUT /api/OrderItem/1
+// ASP.NET: PUT /api/OrderItems/1
+// =====================================================
+app.put("/api/OrderItem/:id", async (req, res) => {
+    try {
+        const response = await axios.put(
+            `${ORDER_ITEMS_API}/${req.params.id}`,
+            req.body,
+            {
+                httpsAgent: orderItemsHttpsAgent,
+                timeout: 15000,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("UPDATE ORDER ITEM ERROR:", {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        res.status(error.response?.status || 500).json({
+            message: "Failed to update order item.",
+            backendStatus: error.response?.status || null,
+            backendResponse: error.response?.data || null
+        });
+    }
+});
+
+// =====================================================
+// DELETE ORDER ITEM
+// React: DELETE /api/OrderItem/1
+// ASP.NET: DELETE /api/OrderItems/1
+// =====================================================
+app.delete("/api/OrderItem/:id", async (req, res) => {
+    try {
+        const response = await axios.delete(
+            `${ORDER_ITEMS_API}/${req.params.id}`,
+            {
+                httpsAgent: orderItemsHttpsAgent,
+                timeout: 15000
+            }
+        );
+
+        if (response.status === 204 || !response.data) {
+            return res.status(response.status).end();
+        }
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("DELETE ORDER ITEM ERROR:", {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        res.status(error.response?.status || 500).json({
+            message: "Failed to delete order item.",
+            backendStatus: error.response?.status || null,
+            backendResponse: error.response?.data || null
+        });
+    }
+});
 
 
 

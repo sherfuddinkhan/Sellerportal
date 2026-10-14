@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
 
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-
 import {
-    Box
+    Alert,
+    Box,
+    CircularProgress,
+    Snackbar
 } from "@mui/material";
 
 import OrderItemToolbar from "./OrderItemToolbar";
@@ -15,494 +17,366 @@ import OrderItemModal from "./OrderItemModal";
 import OrderItemView from "./OrderItemView";
 import DeleteOrderItemDialog from "./DeleteOrderItemDialog";
 
-
-// =========================================================
-// Node Server
-// =========================================================
-
 const SERVER_URL = "http://localhost:5000";
-
-
-// =========================================================
-// Order Item List
-// =========================================================
+const API_URL = `${SERVER_URL}/api/OrderItem`;
 
 const OrderItemList = () => {
-
-    // =====================================================
-    // State
-    // =====================================================
-
     const [orderItems, setOrderItems] = useState([]);
-
     const [filteredItems, setFilteredItems] = useState([]);
-
     const [loading, setLoading] = useState(false);
-
     const [searchText, setSearchText] = useState("");
-
     const [selectedItem, setSelectedItem] = useState(null);
-
     const [modalOpen, setModalOpen] = useState(false);
-
     const [viewOpen, setViewOpen] = useState(false);
-
     const [deleteOpen, setDeleteOpen] = useState(false);
-
     const [page, setPage] = useState(1);
-
     const [pageSize, setPageSize] = useState(10);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
 
+    const showMessage = (message, severity = "success") => {
+        setSnackbar({ open: true, message, severity });
+    };
+    
+const loadOrderItems = useCallback(async () => {
+    setLoading(true);
 
-    // =====================================================
-    // Load Order Items
-    // =====================================================
+    try {
+        console.log("Loading OrderItems from:", API_URL);
 
-    const loadOrderItems = async () => {
+        const response = await axios.get(API_URL, {
+            timeout: 15000,
+            headers: {
+                Accept: "application/json"
+            }
+        });
 
-        try {
+        console.log("OrderItems HTTP status:", response.status);
+        console.log("OrderItems response:", response.data);
 
-            setLoading(true);
+        const data = Array.isArray(response.data)
+            ? response.data
+            : Array.isArray(response.data?.data)
+                ? response.data.data
+                : null;
 
-            const response = await axios.get(
-                `${SERVER_URL}/api/OrderItem`
-            );
-
-            const data = Array.isArray(response.data)
-                ? response.data
-                : [];
-
-            setOrderItems(data);
-
-            setFilteredItems(data);
-
-        }
-
-        catch (error) {
-
+        if (data === null) {
             console.error(
-                "LOAD ORDER ITEMS ERROR:",
-                error
+                "Unexpected OrderItems response format:",
+                response.data
             );
 
             setOrderItems([]);
-
-            setFilteredItems([]);
-
+            showMessage(
+                "The API did not return an order-items array.",
+                "error"
+            );
+            return;
         }
 
-        finally {
+        setOrderItems(data);
+    } catch (error) {
+        console.error("LOAD ORDER ITEMS FAILED");
+        console.error("Request URL:", API_URL);
+        console.error("Error message:", error.message);
+        console.error("HTTP status:", error.response?.status);
+        console.error("Response body:", error.response?.data);
 
-            setLoading(false);
+        setOrderItems([]);
 
-        }
+        const responseData = error.response?.data;
 
-    };
+        showMessage(
+            responseData?.backendResponse?.title ||
+            responseData?.backendResponse?.message ||
+            responseData?.message ||
+            error.message ||
+            "Failed to load order items.",
+            "error"
+        );
+    } finally {
+        setLoading(false);
+    }
+}, []);
 
-
-    // =====================================================
-    // Initial Load
-    // =====================================================
 
     useEffect(() => {
-
         loadOrderItems();
-
-    }, []);
-
-
-    // =====================================================
-    // Search / Filter
-    // =====================================================
+    }, [loadOrderItems]);
 
     useEffect(() => {
+        const search = searchText.trim().toLowerCase();
 
-        let result = [
-            ...orderItems
-        ];
+        const result = orderItems.filter((item) => {
+            if (!search) return true;
 
+            const orderId = String(
+                item.orderId ?? item.OrderId ?? ""
+            ).toLowerCase();
 
-        if (searchText.trim() !== "") {
+            const productId = String(
+                item.productId ?? item.ProductId ?? ""
+            ).toLowerCase();
 
-            const search =
-                searchText
-                    .toLowerCase()
-                    .trim();
+            const itemId = String(
+                item.orderItemId ?? item.OrderItemId ?? ""
+            ).toLowerCase();
 
-
-            result = result.filter((item) => {
-
-                const orderId = String(
-                    item.OrderId ??
-                    item.orderId ??
-                    ""
-                ).toLowerCase();
-
-
-                const productId = String(
-                    item.ProductId ??
-                    item.productId ??
-                    ""
-                ).toLowerCase();
-
-
-                const sku = String(
-                    item.Sku ??
-                    item.sku ??
-                    ""
-                ).toLowerCase();
-
-
-                return (
-                    orderId.includes(search) ||
-                    productId.includes(search) ||
-                    sku.includes(search)
-                );
-
-            });
-
-        }
-
+            return (
+                orderId.includes(search) ||
+                productId.includes(search) ||
+                itemId.includes(search)
+            );
+        });
 
         setFilteredItems(result);
-
         setPage(1);
-
-    }, [
-        orderItems,
-        searchText
-    ]);
-
-
-    // =====================================================
-    // Pagination
-    // =====================================================
+    }, [orderItems, searchText]);
 
     const totalPages = Math.max(
         1,
-        Math.ceil(
-            filteredItems.length / pageSize
-        )
+        Math.ceil(filteredItems.length / pageSize)
     );
-
 
     const pagedItems = filteredItems.slice(
         (page - 1) * pageSize,
         page * pageSize
     );
 
-
-    // =====================================================
-    // Save Order Item
-    // =====================================================
-
     const handleSave = async (data) => {
-
         try {
+            const id = data.orderItemId ?? data.OrderItemId;
 
-            const orderItemId =
-                data.OrderItemId ??
-                data.orderItemId;
+            const payload = {
+                orderId: Number(data.orderId ?? data.OrderId),
+                productId: Number(data.productId ?? data.ProductId),
+                quantity: Number(data.quantity ?? data.Quantity),
+                unitPrice: Number(data.unitPrice ?? data.UnitPrice)
+            };
 
-
-            // ---------------------------------------------
-            // UPDATE
-            // ---------------------------------------------
-
-            if (orderItemId) {
-
-                await axios.put(
-                    `${SERVER_URL}/api/OrderItem/${orderItemId}`,
-                    data
+            if (
+                !Number.isFinite(payload.orderId) ||
+                payload.orderId <= 0 ||
+                !Number.isFinite(payload.productId) ||
+                payload.productId <= 0 ||
+                !Number.isFinite(payload.quantity) ||
+                payload.quantity <= 0 ||
+                !Number.isFinite(payload.unitPrice) ||
+                payload.unitPrice <= 0
+            ) {
+                showMessage(
+                    "Enter valid Order ID, Product ID, Quantity, and Unit Price.",
+                    "error"
                 );
-
+                return;
             }
 
-            // ---------------------------------------------
-            // CREATE
-            // ---------------------------------------------
-
-            else {
-
-                await axios.post(
-                    `${SERVER_URL}/api/OrderItem`,
-                    data
-                );
-
+            if (id != null && id !== "") {
+                await axios.put(`${API_URL}/${id}`, payload);
+                showMessage("Order item updated successfully.");
+            } else {
+                await axios.post(API_URL, payload);
+                showMessage("Order item created successfully.");
             }
-
-
-            // Reload data
-
-            await loadOrderItems();
-
-
-            // Close modal
 
             setModalOpen(false);
-
             setSelectedItem(null);
-
-        }
-
-        catch (error) {
-
+            await loadOrderItems();
+        } catch (error) {
             console.error(
                 "SAVE ORDER ITEM ERROR:",
-                error
+                error.response?.data || error.message
             );
 
+            showMessage(
+                error.response?.data?.message ||
+                "Failed to save order item. Check the API response.",
+                "error"
+            );
         }
-
     };
 
-
-    // =====================================================
-    // Delete Order Item
-    // =====================================================
-
     const handleDelete = async (id) => {
-
         try {
+            await axios.delete(`${API_URL}/${id}`);
 
-            await axios.delete(
-                `${SERVER_URL}/api/OrderItem/${id}`
-            );
-
-
-            // Reload data
+            setDeleteOpen(false);
+            setSelectedItem(null);
 
             await loadOrderItems();
 
-
-            // Close delete dialog
-
-            setDeleteOpen(false);
-
-            setSelectedItem(null);
-
-        }
-
-        catch (error) {
-
+            showMessage("Order item deleted successfully.");
+        } catch (error) {
             console.error(
                 "DELETE ORDER ITEM ERROR:",
-                error
+                error.response?.data || error.message
             );
 
+            showMessage(
+                error.response?.data?.message ||
+                "Failed to delete order item.",
+                "error"
+            );
         }
-
     };
 
-
-    // =====================================================
-    // Render
-    // =====================================================
+    const getItemId = (item) =>
+        item?.orderItemId ?? item?.OrderItemId;
 
     return (
-
-        <Box
-            sx={{
-                p: 3
-            }}
-        >
-
-            {/* =================================================
-                Toolbar
-            ================================================= */}
-
+        <Box sx={{ p: 3 }}>
             <OrderItemToolbar
-
                 onAdd={() => {
-
                     setSelectedItem(null);
-
                     setModalOpen(true);
-
                 }}
-
                 onRefresh={loadOrderItems}
-
                 onExport={() => {
+                    const headers = [
+                        "OrderItemId",
+                        "OrderId",
+                        "ProductId",
+                        "Quantity",
+                        "UnitPrice",
+                        "TotalAmount"
+                    ];
 
-                    console.log(
-                        "Export Order Items"
-                    );
+                    const rows = orderItems.map((item) => [
+                        getItemId(item),
+                        item.orderId ?? item.OrderId,
+                        item.productId ?? item.ProductId,
+                        item.quantity ?? item.Quantity,
+                        item.unitPrice ?? item.UnitPrice,
+                        item.totalAmount ?? item.TotalAmount
+                    ]);
 
+                    const csv = [
+                        headers.join(","),
+                        ...rows.map((row) =>
+                            row.map((value) =>
+                                `"${String(value ?? "").replace(/"/g, '""')}"`
+                            ).join(",")
+                        )
+                    ].join("\n");
+
+                    const blob = new Blob([csv], {
+                        type: "text/csv;charset=utf-8;"
+                    });
+
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+
+                    link.href = url;
+                    link.download = "order-items.csv";
+                    link.click();
+
+                    URL.revokeObjectURL(url);
                 }}
-
             />
 
-
-            {/* =================================================
-                Statistics
-            ================================================= */}
-
-            <OrderItemStatistics
-                items={orderItems}
-            />
-
-
-            {/* =================================================
-                Search
-            ================================================= */}
+            <OrderItemStatistics items={orderItems} />
 
             <OrderItemSearch
-
                 searchText={searchText}
-
                 setSearchText={setSearchText}
-
             />
 
-
-            {/* =================================================
-                Table
-            ================================================= */}
-
-            <OrderItemTable
-
-                items={pagedItems}
-
-                loading={loading}
-
-
-                onView={(row) => {
-
-                    setSelectedItem(row);
-
-                    setViewOpen(true);
-
-                }}
-
-
-                onEdit={(row) => {
-
-                    setSelectedItem(row);
-
-                    setModalOpen(true);
-
-                }}
-
-
-                onDelete={(row) => {
-
-                    setSelectedItem(row);
-
-                    setDeleteOpen(true);
-
-                }}
-
-            />
-
-
-            {/* =================================================
-                Pagination
-            ================================================= */}
+            {loading && orderItems.length === 0 ? (
+                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <OrderItemTable
+                    items={pagedItems}
+                    loading={loading}
+                    onView={(row) => {
+                        setSelectedItem(row);
+                        setViewOpen(true);
+                    }}
+                    onEdit={(row) => {
+                        setSelectedItem(row);
+                        setModalOpen(true);
+                    }}
+                    onDelete={(row) => {
+                        setSelectedItem(row);
+                        setDeleteOpen(true);
+                    }}
+                />
+            )}
 
             <OrderItemPagination
-
                 page={page}
-
                 totalPages={totalPages}
-
                 pageSize={pageSize}
-
-                totalRecords={
-                    filteredItems.length
-                }
-
-
+                totalRecords={filteredItems.length}
                 onPageChange={setPage}
-
-
                 onPageSizeChange={(size) => {
-
                     setPageSize(size);
-
                     setPage(1);
-
                 }}
-
             />
-
-
-            {/* =================================================
-                Add / Edit Modal
-            ================================================= */}
 
             <OrderItemModal
-
                 open={modalOpen}
-
                 item={selectedItem}
-
-
                 onClose={() => {
-
                     setModalOpen(false);
-
                     setSelectedItem(null);
-
                 }}
-
-
                 onSave={handleSave}
-
             />
-
-
-            {/* =================================================
-                View Dialog
-            ================================================= */}
 
             <OrderItemView
-
                 open={viewOpen}
-
                 item={selectedItem}
-
-
                 onClose={() => {
-
                     setViewOpen(false);
-
                     setSelectedItem(null);
-
                 }}
-
             />
-
-
-            {/* =================================================
-                Delete Dialog
-            ================================================= */}
 
             <DeleteOrderItemDialog
-
                 open={deleteOpen}
-
                 item={selectedItem}
-
-
                 onClose={() => {
-
                     setDeleteOpen(false);
-
                     setSelectedItem(null);
-
                 }}
-
-
                 onDeleted={handleDelete}
-
             />
 
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={() =>
+                    setSnackbar((previous) => ({
+                        ...previous,
+                        open: false
+                    }))
+                }
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right"
+                }}
+            >
+                <Alert
+                    severity={snackbar.severity}
+                    variant="filled"
+                    onClose={() =>
+                        setSnackbar((previous) => ({
+                            ...previous,
+                            open: false
+                        }))
+                    }
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
-
     );
-
 };
-
 
 export default OrderItemList;

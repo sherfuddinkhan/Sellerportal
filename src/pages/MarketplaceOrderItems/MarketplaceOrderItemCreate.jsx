@@ -5,18 +5,20 @@ import {
     Typography,
     Alert,
     Button,
-    CircularProgress
+    CircularProgress,
+    TextField,
+    Paper,
+    Grid
 } from "@mui/material";
 
 import {
-    ArrowBack
+    ArrowBack,
+    Save
 } from "@mui/icons-material";
 
 import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
-
-import MarketplaceOrderItemModal from "./MarketplaceOrderItemModal";
 
 
 /* =========================================================
@@ -37,7 +39,30 @@ const MarketplaceOrderItemCreate = () => {
 
     const navigate = useNavigate();
 
-    const [modalOpen, setModalOpen] = useState(true);
+
+    /* =====================================================
+       FORM DATA
+    ===================================================== */
+
+    const [formData, setFormData] = useState({
+
+        marketplaceOrderId: "",
+        marketplaceOrderItemId: "",
+        orderItemId: "",
+        marketplace: "",
+        sku: "",
+        productName: "",
+        quantity: "",
+        unitPrice: "",
+        totalPrice: "",
+        status: ""
+
+    });
+
+
+    /* =====================================================
+       STATE
+    ===================================================== */
 
     const [loading, setLoading] = useState(false);
 
@@ -47,32 +72,122 @@ const MarketplaceOrderItemCreate = () => {
 
 
     /* =====================================================
+       HANDLE CHANGE
+    ===================================================== */
+
+    const handleChange = (event) => {
+
+        const {
+            name,
+            value
+        } = event.target;
+
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
+
+    };
+
+
+    /* =====================================================
        CREATE ITEM
     ===================================================== */
 
-    const handleCreate = async (data) => {
+    const handleCreate = async (event) => {
+
+        event.preventDefault();
 
         try {
 
             setLoading(true);
+
             setError("");
+
             setSuccess("");
+
+
+            /* =============================================
+               PREPARE DATA
+            ============================================= */
+
+            const data = {
+
+                marketplaceOrderId:
+                    formData.marketplaceOrderId
+                        ? Number(formData.marketplaceOrderId)
+                        : null,
+
+                marketplaceOrderItemId:
+                    formData.marketplaceOrderItemId
+                        ? formData.marketplaceOrderItemId
+                        : null,
+
+                orderItemId:
+                    formData.orderItemId
+                        ? Number(formData.orderItemId)
+                        : null,
+
+                marketplace:
+                    formData.marketplace || null,
+
+                sku:
+                    formData.sku || null,
+
+                productName:
+                    formData.productName || null,
+
+                quantity:
+                    formData.quantity
+                        ? Number(formData.quantity)
+                        : 0,
+
+                unitPrice:
+                    formData.unitPrice
+                        ? Number(formData.unitPrice)
+                        : 0,
+
+                totalPrice:
+                    formData.totalPrice
+                        ? Number(formData.totalPrice)
+                        : 0,
+
+                status:
+                    formData.status || null
+
+            };
+
+
+            console.log(
+                "CREATE MARKETPLACE ORDER ITEM REQUEST:",
+                data
+            );
+
+
+            /* =============================================
+               API CALL
+            ============================================= */
 
             const response = await axios.post(
                 API_URL,
                 data
             );
 
+
             console.log(
                 "CREATE MARKETPLACE ORDER ITEM RESPONSE:",
                 response.data
             );
 
+
             setSuccess(
                 "Marketplace Order Item created successfully."
             );
 
-            setModalOpen(false);
+
+            /* =============================================
+               REDIRECT TO LIST
+            ============================================= */
 
             setTimeout(() => {
 
@@ -82,6 +197,7 @@ const MarketplaceOrderItemCreate = () => {
 
             }, 800);
 
+
         } catch (error) {
 
             console.error(
@@ -89,10 +205,19 @@ const MarketplaceOrderItemCreate = () => {
                 error
             );
 
+
             setError(
+
                 error.response?.data?.message ||
+
                 error.response?.data?.title ||
-                "Failed to create Marketplace Order Item."
+
+                error.response?.data?.errors
+                    ? JSON.stringify(
+                        error.response.data.errors
+                    )
+                    : "Failed to create Marketplace Order Item."
+
             );
 
         } finally {
@@ -148,6 +273,7 @@ const MarketplaceOrderItemCreate = () => {
                     Back
                 </Button>
 
+
                 <Box>
 
                     <Typography
@@ -156,6 +282,7 @@ const MarketplaceOrderItemCreate = () => {
                     >
                         Create Marketplace Order Item
                     </Typography>
+
 
                     <Typography
                         variant="body2"
@@ -202,39 +329,333 @@ const MarketplaceOrderItemCreate = () => {
 
 
             {/* =================================================
-                LOADING
+                FORM
             ================================================= */}
 
-            {loading && (
+            <Paper
+                elevation={2}
+                sx={{
+                    p: 3
+                }}
+            >
 
                 <Box
-                    display="flex"
-                    alignItems="center"
-                    gap={2}
-                    mb={2}
+                    component="form"
+                    onSubmit={handleCreate}
                 >
 
-                    <CircularProgress size={24} />
+                    <Grid
+                        container
+                        spacing={3}
+                    >
 
-                    <Typography>
-                        Creating Marketplace Order Item...
-                    </Typography>
+                        {/* =====================================
+                            MARKETPLACE ORDER ID
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Marketplace Order ID"
+                                name="marketplaceOrderId"
+                                value={
+                                    formData.marketplaceOrderId
+                                }
+                                onChange={handleChange}
+                                type="number"
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            MARKETPLACE ORDER ITEM ID
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Marketplace Order Item ID"
+                                name="marketplaceOrderItemId"
+                                value={
+                                    formData.marketplaceOrderItemId
+                                }
+                                onChange={handleChange}
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            ORDER ITEM ID
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Order Item ID"
+                                name="orderItemId"
+                                value={
+                                    formData.orderItemId
+                                }
+                                onChange={handleChange}
+                                type="number"
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            MARKETPLACE
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Marketplace"
+                                name="marketplace"
+                                value={
+                                    formData.marketplace
+                                }
+                                onChange={handleChange}
+                                placeholder="Amazon / Flipkart / Meesho"
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            SKU
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="SKU"
+                                name="sku"
+                                value={
+                                    formData.sku
+                                }
+                                onChange={handleChange}
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            PRODUCT NAME
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Product Name"
+                                name="productName"
+                                value={
+                                    formData.productName
+                                }
+                                onChange={handleChange}
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            QUANTITY
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Quantity"
+                                name="quantity"
+                                value={
+                                    formData.quantity
+                                }
+                                onChange={handleChange}
+                                type="number"
+                                inputProps={{
+                                    min: 1
+                                }}
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            UNIT PRICE
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Unit Price"
+                                name="unitPrice"
+                                value={
+                                    formData.unitPrice
+                                }
+                                onChange={handleChange}
+                                type="number"
+                                inputProps={{
+                                    step: "0.01",
+                                    min: 0
+                                }}
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            TOTAL PRICE
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={4}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Total Price"
+                                name="totalPrice"
+                                value={
+                                    formData.totalPrice
+                                }
+                                onChange={handleChange}
+                                type="number"
+                                inputProps={{
+                                    step: "0.01",
+                                    min: 0
+                                }}
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            STATUS
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                        >
+
+                            <TextField
+                                fullWidth
+                                label="Status"
+                                name="status"
+                                value={
+                                    formData.status
+                                }
+                                onChange={handleChange}
+                                placeholder="Pending"
+                            />
+
+                        </Grid>
+
+
+                        {/* =====================================
+                            BUTTONS
+                        ===================================== */}
+
+                        <Grid
+                            item
+                            xs={12}
+                        >
+
+                            <Box
+                                display="flex"
+                                justifyContent="flex-end"
+                                gap={2}
+                                mt={2}
+                            >
+
+                                <Button
+                                    variant="outlined"
+                                    onClick={handleBack}
+                                    disabled={loading}
+                                >
+                                    Cancel
+                                </Button>
+
+
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    startIcon={
+                                        loading
+                                            ? (
+                                                <CircularProgress
+                                                    size={20}
+                                                    color="inherit"
+                                                />
+                                            )
+                                            : (
+                                                <Save />
+                                            )
+                                    }
+                                    disabled={loading}
+                                >
+
+                                    {loading
+                                        ? "Creating..."
+                                        : "Create Item"
+                                    }
+
+                                </Button>
+
+                            </Box>
+
+                        </Grid>
+
+                    </Grid>
 
                 </Box>
 
-            )}
-
-
-            {/* =================================================
-                CREATE MODAL
-            ================================================= */}
-
-            <MarketplaceOrderItemModal
-                open={modalOpen}
-                onClose={handleBack}
-                marketplaceOrderItem={null}
-                onSave={handleCreate}
-            />
+            </Paper>
 
         </Box>
 
@@ -244,4 +665,3 @@ const MarketplaceOrderItemCreate = () => {
 
 
 export default MarketplaceOrderItemCreate;
-

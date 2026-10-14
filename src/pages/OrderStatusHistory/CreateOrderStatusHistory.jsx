@@ -1,13 +1,10 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, { useState } from "react";
 
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    Box,
+    Paper,
+    Typography,
+    Alert,
     Button,
     TextField,
     Grid,
@@ -15,6 +12,13 @@ import {
     Divider,
     CircularProgress
 } from "@mui/material";
+
+import {
+    ArrowBack,
+    Save
+} from "@mui/icons-material";
+
+import { useNavigate } from "react-router-dom";
 
 
 /* =========================================================
@@ -49,12 +53,9 @@ const getCurrentDateTimeLocal = () => {
 
     const now = new Date();
 
-    const offset =
-        now.getTimezoneOffset() * 60000;
+    const offset = now.getTimezoneOffset() * 60000;
 
-    return new Date(
-        now.getTime() - offset
-    )
+    return new Date(now.getTime() - offset)
         .toISOString()
         .slice(0, 16);
 };
@@ -65,15 +66,13 @@ const getCurrentDateTimeLocal = () => {
 ========================================================= */
 
 const CreateOrderStatusHistory = ({
-    open,
-    onClose,
     onSave,
     loading = false
 }) => {
 
-    /* =====================================================
-       FORM STATE
-    ===================================================== */
+    const navigate = useNavigate();
+
+    const [error, setError] = useState("");
 
     const [formData, setFormData] = useState({
         sellerId: DEFAULT_SELLER_ID,
@@ -86,37 +85,12 @@ const CreateOrderStatusHistory = ({
 
 
     /* =====================================================
-       RESET FORM
-    ===================================================== */
-
-    useEffect(() => {
-
-        if (!open) {
-            return;
-        }
-
-        setFormData({
-            sellerId: DEFAULT_SELLER_ID,
-            customerId: DEFAULT_CUSTOMER_ID,
-            orderId: "",
-            status: "",
-            remarks: "",
-            changedOn: getCurrentDateTimeLocal()
-        });
-
-    }, [open]);
-
-
-    /* =====================================================
        HANDLE CHANGE
     ===================================================== */
 
     const handleChange = (event) => {
 
-        const {
-            name,
-            value
-        } = event.target;
+        const { name, value } = event.target;
 
         setFormData(previous => ({
             ...previous,
@@ -127,86 +101,86 @@ const CreateOrderStatusHistory = ({
 
 
     /* =====================================================
-       HANDLE SUBMIT
+       BACK
     ===================================================== */
 
-    const handleSubmit = () => {
-
-        const sellerId =
-            Number(formData.sellerId);
-
-        const customerId =
-            Number(formData.customerId);
-
-        const orderId =
-            Number(formData.orderId);
+    const handleBack = () => {
+        navigate("/order-status-history");
+    };
 
 
-        /* =================================================
-           VALIDATION
-        ================================================= */
+    /* =====================================================
+       SUBMIT
+    ===================================================== */
 
-        if (!sellerId) {
-            return;
-        }
+    const handleSubmit = async (event) => {
 
-        if (!customerId) {
-            return;
-        }
+        event.preventDefault();
 
-        if (!orderId) {
+        setError("");
+
+        const sellerId = Number(formData.sellerId);
+        const customerId = Number(formData.customerId);
+        const orderId = Number(formData.orderId);
+
+        if (!sellerId || !customerId || !orderId) {
+            setError(
+                "Seller ID, Customer ID, and Order ID are required."
+            );
             return;
         }
 
         if (!formData.status) {
+            setError("Please select an order status.");
             return;
         }
 
-
-        /* =================================================
-           PAYLOAD
-        ================================================= */
+        if (
+            !formData.changedOn ||
+            Number.isNaN(new Date(formData.changedOn).getTime())
+        ) {
+            setError("Please enter a valid Changed On date.");
+            return;
+        }
 
         const payload = {
-
             orderStatusHistoryId: 0,
-
-            sellerId: sellerId,
-
-            customerId: customerId,
-
-            orderId: orderId,
-
+            sellerId,
+            customerId,
+            orderId,
             status: formData.status,
-
-            remarks:
-                formData.remarks?.trim() || "",
-
-            changedOn:
+            remarks: formData.remarks.trim(),
+            changedOn: new Date(
                 formData.changedOn
-                    ? new Date(
-                        formData.changedOn
-                    ).toISOString()
-                    : new Date().toISOString()
+            ).toISOString()
         };
-
 
         console.log(
             "CREATE ORDER STATUS HISTORY PAYLOAD:",
             payload
         );
 
+        try {
 
-        /* =================================================
-           SAVE
-        ================================================= */
+            if (typeof onSave !== "function") {
+                setError(
+                    "Save handler is missing. Please check the parent component."
+                );
+                return;
+            }
 
-        if (typeof onSave === "function") {
+            await onSave(payload);
 
-            onSave(payload);
+        } catch (err) {
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Failed to create Order Status History."
+            );
 
         }
-
     };
 
 
@@ -216,249 +190,203 @@ const CreateOrderStatusHistory = ({
 
     return (
 
-        <Dialog
-            open={open}
-            onClose={
-                loading
-                    ? undefined
-                    : onClose
-            }
-            fullWidth
-            maxWidth="md"
-        >
+        <Box sx={{ p: 3 }}>
 
-            <DialogTitle
-                sx={{
-                    fontWeight: 700
-                }}
-            >
-                Create Order Status History
-            </DialogTitle>
+            {/* HEADER */}
 
-            <Divider />
-
-
-            <DialogContent
-                sx={{
-                    mt: 2
-                }}
+            <Box
+                display="flex"
+                alignItems="center"
+                gap={2}
+                mb={3}
             >
 
-                <Grid
-                    container
-                    spacing={2}
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBack />}
+                    onClick={handleBack}
+                    disabled={loading}
+                >
+                    Back
+                </Button>
+
+                <Box>
+
+                    <Typography
+                        variant="h5"
+                        fontWeight="bold"
+                    >
+                        Create Order Status History
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        Record a new order status update.
+                    </Typography>
+
+                </Box>
+
+            </Box>
+
+
+            {/* ERROR */}
+
+            {error && (
+                <Alert
+                    severity="error"
+                    sx={{ mb: 3 }}
+                >
+                    {error}
+                </Alert>
+            )}
+
+
+            {/* FULL-PAGE FORM */}
+
+            <Paper
+                elevation={2}
+                sx={{ p: 3 }}
+            >
+
+                <Box
+                    component="form"
+                    onSubmit={handleSubmit}
                 >
 
-                    {/* =================================================
-                        SELLER
-                    ================================================= */}
+                    <Grid container spacing={3}>
 
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Seller ID"
+                                name="sellerId"
+                                type="number"
+                                required
+                                value={formData.sellerId}
+                                onChange={handleChange}
+                            />
+                        </Grid>
 
-                        <TextField
-                            fullWidth
-                            label="Seller ID"
-                            name="sellerId"
-                            type="number"
-                            value={formData.sellerId}
-                            onChange={handleChange}
-                        />
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Customer ID"
+                                name="customerId"
+                                type="number"
+                                required
+                                value={formData.customerId}
+                                onChange={handleChange}
+                            />
+                        </Grid>
 
-                    </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Order ID"
+                                name="orderId"
+                                type="number"
+                                required
+                                value={formData.orderId}
+                                onChange={handleChange}
+                                inputProps={{ min: 1 }}
+                            />
+                        </Grid>
 
-
-                    {/* =================================================
-                        CUSTOMER
-                    ================================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <TextField
-                            fullWidth
-                            label="Customer ID"
-                            name="customerId"
-                            type="number"
-                            value={formData.customerId}
-                            onChange={handleChange}
-                        />
-
-                    </Grid>
-
-
-                    {/* =================================================
-                        ORDER
-                    ================================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <TextField
-                            fullWidth
-                            required
-                            label="Order ID"
-                            name="orderId"
-                            type="number"
-                            value={formData.orderId}
-                            onChange={handleChange}
-                            inputProps={{
-                                min: 1
-                            }}
-                        />
-
-                    </Grid>
-
-
-                    {/* =================================================
-                        STATUS
-                    ================================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <TextField
-                            fullWidth
-                            required
-                            select
-                            label="Status"
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                        >
-
-                            {STATUS_OPTIONS.map(
-                                status => (
-
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                select
+                                required
+                                label="Status"
+                                name="status"
+                                value={formData.status}
+                                onChange={handleChange}
+                            >
+                                {STATUS_OPTIONS.map(status => (
                                     <MenuItem
                                         key={status}
                                         value={status}
                                     >
                                         {status}
                                     </MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
 
-                                )
-                            )}
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={3}
+                                label="Remarks"
+                                name="remarks"
+                                value={formData.remarks}
+                                onChange={handleChange}
+                                placeholder="Enter remarks"
+                            />
+                        </Grid>
 
-                        </TextField>
-
-                    </Grid>
-
-
-                    {/* =================================================
-                        REMARKS
-                    ================================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                    >
-
-                        <TextField
-                            fullWidth
-                            multiline
-                            minRows={3}
-                            label="Remarks"
-                            name="remarks"
-                            value={formData.remarks}
-                            onChange={handleChange}
-                            placeholder="Enter remarks"
-                        />
-
-                    </Grid>
-
-
-                    {/* =================================================
-                        CHANGED ON
-                    ================================================= */}
-
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                    >
-
-                        <TextField
-                            fullWidth
-                            type="datetime-local"
-                            label="Changed On"
-                            name="changedOn"
-                            value={formData.changedOn}
-                            onChange={handleChange}
-                            InputLabelProps={{
-                                shrink: true
-                            }}
-                        />
-
-                    </Grid>
-
-                </Grid>
-
-            </DialogContent>
-
-
-            {/* =================================================
-                ACTIONS
-            ================================================= */}
-
-            <DialogActions
-                sx={{
-                    px: 3,
-                    pb: 2
-                }}
-            >
-
-                <Button
-                    variant="outlined"
-                    onClick={onClose}
-                    disabled={loading}
-                >
-                    Cancel
-                </Button>
-
-
-                <Button
-                    variant="contained"
-                    onClick={handleSubmit}
-                    disabled={loading}
-                >
-
-                    {loading ? (
-                        <>
-                            <CircularProgress
-                                size={20}
-                                sx={{
-                                    mr: 1
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                type="datetime-local"
+                                label="Changed On"
+                                name="changedOn"
+                                required
+                                value={formData.changedOn}
+                                onChange={handleChange}
+                                InputLabelProps={{
+                                    shrink: true
                                 }}
                             />
+                        </Grid>
 
-                            Saving...
-                        </>
-                    ) : (
-                        "Create"
-                    )}
+                    </Grid>
 
-                </Button>
+                    <Divider sx={{ my: 3 }} />
 
-            </DialogActions>
+                    <Box
+                        display="flex"
+                        justifyContent="flex-end"
+                        gap={2}
+                    >
 
-        </Dialog>
+                        <Button
+                            variant="outlined"
+                            onClick={handleBack}
+                            disabled={loading}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            startIcon={
+                                loading
+                                    ? <CircularProgress
+                                        size={18}
+                                        color="inherit"
+                                    />
+                                    : <Save />
+                            }
+                            disabled={loading}
+                        >
+                            {loading
+                                ? "Saving..."
+                                : "Create Status History"}
+                        </Button>
+
+                    </Box>
+
+                </Box>
+
+            </Paper>
+
+        </Box>
     );
 };
 
-
 export default CreateOrderStatusHistory;
-
-
