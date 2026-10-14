@@ -1,121 +1,86 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
     Alert,
     Box,
+    Breadcrumbs,
     Button,
     Checkbox,
     CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
     Divider,
-    FormControl,
     FormControlLabel,
     Grid,
-    InputLabel,
-    MenuItem,
-    Select,
+    Link,
+    Paper,
     Snackbar,
-    TextField
+    Stack,
+    TextField,
+    Typography
 } from "@mui/material";
 
 import {
+    ArrowBack,
     Save,
     Cancel
 } from "@mui/icons-material";
 
-/* =========================================================
-   DEFAULT FORM DATA
-========================================================= */
+const API_URL = "http://localhost:5000/api/vendor-item-custom-fields";
 
 const initialFormData = {
-    vendorId: "",
-    itemId: "",
+    vendorItemMasterId: "",
+    name: "",
+    value: "",
+    sellerId: "",
+    customerId: "",
     fieldName: "",
-    fieldLabel: "",
-    fieldKey: "",
-    fieldType: "Text",
     fieldValue: "",
-    defaultValue: "",
-    options: "",
-    description: "",
-    displayOrder: 0,
-    isRequired: false,
+    supplierId: "",
+    createdDate: "",
     isActive: true
 };
 
-/* =========================================================
-   GET FIELD VALUE
-   Supports camelCase and PascalCase
-========================================================= */
-
+// Read camelCase or PascalCase property names.
 const getField = (object, camelCase, pascalCase) => {
-    if (!object) return "";
+    if (!object || typeof object !== "object") return undefined;
 
-    return object[camelCase] ??
-        object[pascalCase] ??
-        "";
+    return object[camelCase] ?? object[pascalCase];
 };
 
-/* =========================================================
-   NORMALIZE API LIST RESPONSE
-========================================================= */
+// Handle common API response wrappers.
+const unwrapRecord = (responseData) => {
+    let result = responseData;
 
-const normalizeList = (data) => {
-    if (Array.isArray(data)) return data;
+    for (let i = 0; i < 3; i++) {
+        if (!result || typeof result !== "object") break;
 
-    if (Array.isArray(data?.data)) return data.data;
-    if (Array.isArray(data?.items)) return data.items;
-    if (Array.isArray(data?.$values)) return data.$values;
+        if (Array.isArray(result)) {
+            result = result[0];
+            continue;
+        }
 
-    return [];
+        const nested =
+            result.data ??
+            result.result ??
+            result.item;
+
+        if (nested === undefined || nested === result) break;
+
+        result = nested;
+    }
+
+    return result;
 };
 
-/* =========================================================
-   VENDOR ITEM CUSTOM FIELD EDIT
-========================================================= */
-
-const VendorItemCustomFieldEdit = ({
-    open = true,
-    onClose,
-    onSuccess,
-    vendorItemCustomField = null,
-    selectedVendorItemCustomField = null,
-    customField = null,
-    vendorItemCustomFieldId,
-    apiUrl = "http://localhost:5000/api/VendorItemCustomField",
-    vendorsApiUrl = "http://localhost:5000/api/Supplier",
-    itemsApiUrl = "http://localhost:5000/api/Item",
-    vendors: providedVendors,
-    items: providedItems
-}) => {
-    const selectedRecord =
-        vendorItemCustomField ||
-        selectedVendorItemCustomField ||
-        customField;
-
-    const recordId =
-        vendorItemCustomFieldId ??
-        getField(
-            selectedRecord,
-            "vendorItemCustomFieldId",
-            "VendorItemCustomFieldId"
-        ) ??
-        getField(selectedRecord, "id", "Id");
+const VendorItemCustomFieldEdit = () => {
+    const navigate = useNavigate();
+    const { id } = useParams();
 
     const [formData, setFormData] = useState(initialFormData);
-
-    const [vendors, setVendors] = useState(providedVendors || []);
-    const [items, setItems] = useState(providedItems || []);
-
-    const [loadingRecord, setLoadingRecord] = useState(false);
-    const [loadingVendors, setLoadingVendors] = useState(false);
-    const [loadingItems, setLoadingItems] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
+    const [error, setError] = useState("");
     const [errors, setErrors] = useState({});
 
     const [notification, setNotification] = useState({
@@ -124,173 +89,126 @@ const VendorItemCustomFieldEdit = ({
         severity: "success"
     });
 
-    /* =====================================================
-       POPULATE FORM
-    ===================================================== */
-
-    const populateForm = (record) => {
-        if (!record) {
-            setFormData(initialFormData);
-            return;
-        }
-
-        const options = getField(record, "options", "Options");
-
-        setFormData({
-            vendorId: String(
-                getField(record, "vendorId", "VendorId") ?? ""
-            ),
-            itemId: String(
-                getField(record, "itemId", "ItemId") ?? ""
-            ),
-            fieldName: getField(record, "fieldName", "FieldName") ?? "",
-            fieldLabel: getField(record, "fieldLabel", "FieldLabel") ?? "",
-            fieldKey: getField(record, "fieldKey", "FieldKey") ?? "",
-            fieldType:
-                getField(record, "fieldType", "FieldType") || "Text",
-            fieldValue:
-                getField(record, "fieldValue", "FieldValue") ?? "",
-            defaultValue:
-                getField(record, "defaultValue", "DefaultValue") ?? "",
-            options: Array.isArray(options)
-                ? options.join(", ")
-                : options ?? "",
-            description:
-                getField(record, "description", "Description") ?? "",
-            displayOrder: Number(
-                getField(record, "displayOrder", "DisplayOrder") ?? 0
-            ),
-            isRequired: Boolean(
-                getField(record, "isRequired", "IsRequired")
-            ),
-            isActive:
-                getField(record, "isActive", "IsActive") !== false
+    const showNotification = (message, severity = "success") => {
+        setNotification({
+            open: true,
+            message,
+            severity
         });
     };
 
-    /* =====================================================
-       FETCH RECORD BY ID
-    ===================================================== */
-
-    const fetchRecord = async () => {
-        if (selectedRecord) {
-            populateForm(selectedRecord);
-            return;
-        }
-
-        if (recordId === undefined || recordId === null || recordId === "") {
-            setNotification({
-                open: true,
-                message: "A custom field record or valid ID is required.",
-                severity: "error"
-            });
-            return;
-        }
-
-        setLoadingRecord(true);
-
-        try {
-            const response = await axios.get(`${apiUrl}/${recordId}`);
-
-            const data = response.data?.data ?? response.data;
-
-            populateForm(data);
-        } catch (error) {
-            console.error(
-                "GET VENDOR ITEM CUSTOM FIELD ERROR:",
-                error
-            );
-
-            setNotification({
-                open: true,
-                message:
-                    error.response?.data?.message ||
-                    "Unable to load the custom field details.",
-                severity: "error"
-            });
-        } finally {
-            setLoadingRecord(false);
-        }
+    const handleBack = () => {
+        navigate("/vendor-item-custom-fields");
     };
 
-    /* =====================================================
-       FETCH VENDORS
-    ===================================================== */
-
-    const fetchVendors = async () => {
-        if (providedVendors) {
-            setVendors(providedVendors);
-            return;
-        }
-
-        setLoadingVendors(true);
-
-        try {
-            const response = await axios.get(vendorsApiUrl);
-            setVendors(normalizeList(response.data));
-        } catch (error) {
-            console.error("GET VENDORS ERROR:", error);
-
-            setNotification({
-                open: true,
-                message: "Unable to load vendors.",
-                severity: "error"
-            });
-        } finally {
-            setLoadingVendors(false);
-        }
-    };
-
-    /* =====================================================
-       FETCH ITEMS
-    ===================================================== */
-
-    const fetchItems = async () => {
-        if (providedItems) {
-            setItems(providedItems);
-            return;
-        }
-
-        setLoadingItems(true);
-
-        try {
-            const response = await axios.get(itemsApiUrl);
-            setItems(normalizeList(response.data));
-        } catch (error) {
-            console.error("GET ITEMS ERROR:", error);
-
-            setNotification({
-                open: true,
-                message: "Unable to load items.",
-                severity: "error"
-            });
-        } finally {
-            setLoadingItems(false);
-        }
-    };
-
-    /* =====================================================
-       INITIALIZE EDIT FORM
-    ===================================================== */
-
+    // Load the selected record.
     useEffect(() => {
-        if (!open) return;
+        let cancelled = false;
+
+        const fetchRecord = async () => {
+            if (!id || !Number.isInteger(Number(id)) || Number(id) <= 0) {
+                setError("A valid custom field ID is required.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError("");
+
+                const response = await axios.get(
+                    `${API_URL}/${encodeURIComponent(id)}`
+                );
+
+                console.log("CUSTOM FIELD GET RESPONSE:", response.data);
+
+                const record = unwrapRecord(response.data);
+
+                if (!record || typeof record !== "object") {
+                    throw new Error(
+                        "The API returned no custom field record."
+                    );
+                }
+
+                const name =
+                    getField(record, "name", "Name") ?? "";
+
+                const value =
+                    getField(record, "value", "Value") ?? "";
+
+                if (!cancelled) {
+                    setFormData({
+                        vendorItemMasterId: String(
+                            getField(
+                                record,
+                                "vendorItemMasterId",
+                                "VendorItemMasterId"
+                            ) ?? ""
+                        ),
+
+                        name: String(name),
+                        value: String(value),
+
+                        sellerId: String(
+                            getField(record, "sellerId", "SellerId") ?? ""
+                        ),
+
+                        customerId: String(
+                            getField(record, "customerId", "CustomerId") ?? ""
+                        ),
+
+                        // These fallbacks display the database values
+                        // when the API does not return separate fields.
+                        fieldName: String(
+                            getField(record, "fieldName", "FieldName") ??
+                            name
+                        ),
+
+                        fieldValue: String(
+                            getField(record, "fieldValue", "FieldValue") ??
+                            value
+                        ),
+
+                        supplierId: String(
+                            getField(record, "supplierId", "SupplierId") ?? ""
+                        ),
+
+                        createdDate: String(
+                            getField(record, "createdDate", "CreatedDate") ??
+                            ""
+                        ),
+
+                        isActive:
+                            getField(record, "isActive", "IsActive") !== false
+                    });
+                }
+            } catch (err) {
+                console.error(
+                    "LOAD CUSTOM FIELD ERROR:",
+                    err.response?.data || err.message
+                );
+
+                if (!cancelled) {
+                    setError(
+                        err.response?.status === 404
+                            ? "Custom field not found. Verify the GET-by-ID API."
+                            : err.response?.data?.message ||
+                              err.response?.data?.title ||
+                              err.message ||
+                              "Unable to load the custom field."
+                    );
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        };
 
         fetchRecord();
-        fetchVendors();
-        fetchItems();
-    }, [
-        open,
-        recordId,
-        selectedRecord,
-        providedVendors,
-        providedItems,
-        apiUrl
-    ]);
 
-    /* =====================================================
-       HANDLE INPUT CHANGE
-    ===================================================== */
+        return () => {
+            cancelled = true;
+        };
+    }, [id]);
 
     const handleChange = (event) => {
         const { name, value, checked, type } = event.target;
@@ -306,476 +224,368 @@ const VendorItemCustomFieldEdit = ({
         }));
     };
 
-    /* =====================================================
-       VALIDATE FORM
-    ===================================================== */
-
     const validateForm = () => {
         const validationErrors = {};
 
-        if (!formData.vendorId) {
-            validationErrors.vendorId = "Vendor is required.";
-        }
-
-        if (!formData.itemId) {
-            validationErrors.itemId = "Item is required.";
-        }
-
-        if (!formData.fieldName.trim()) {
-            validationErrors.fieldName = "Field name is required.";
-        }
-
-        if (!formData.fieldLabel.trim()) {
-            validationErrors.fieldLabel = "Field label is required.";
-        }
-
-        if (!formData.fieldKey.trim()) {
-            validationErrors.fieldKey = "Field key is required.";
-        }
-
-        if (!formData.fieldType) {
-            validationErrors.fieldType = "Field type is required.";
+        if (!String(formData.name).trim()) {
+            validationErrors.name = "Name is required.";
         }
 
         if (
-            formData.displayOrder === "" ||
-            !Number.isFinite(Number(formData.displayOrder)) ||
-            Number(formData.displayOrder) < 0
+            !String(formData.value).trim() &&
+            !String(formData.fieldValue).trim()
         ) {
-            validationErrors.displayOrder =
-                "Display order must be zero or greater.";
+            validationErrors.value =
+                "Enter a value in Value or Field Value.";
         }
+
+        const positiveIntegerFields = [
+            ["vendorItemMasterId", "Vendor Item Master ID"],
+            ["sellerId", "Seller ID"],
+            ["customerId", "Customer ID"],
+            ["supplierId", "Supplier ID"]
+        ];
+
+        positiveIntegerFields.forEach(([field, label]) => {
+            const currentValue = formData[field];
+
+            if (
+                currentValue !== "" &&
+                (!Number.isInteger(Number(currentValue)) ||
+                    Number(currentValue) <= 0)
+            ) {
+                validationErrors[field] =
+                    `${label} must be a positive integer.`;
+            }
+        });
 
         setErrors(validationErrors);
 
         return Object.keys(validationErrors).length === 0;
     };
 
-    /* =====================================================
-       UPDATE CUSTOM FIELD
-    ===================================================== */
-
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (!validateForm()) return;
 
-        if (recordId === undefined || recordId === null || recordId === "") {
-            setNotification({
-                open: true,
-                message: "Cannot update without a valid custom field ID.",
-                severity: "error"
-            });
+        if (!id) {
+            showNotification("Cannot update without a valid ID.", "error");
             return;
         }
 
         setSaving(true);
 
+        // Send properties supported by the actual backend model.
         const payload = {
-            vendorItemCustomFieldId: Number(recordId),
-            vendorId: Number(formData.vendorId),
-            itemId: Number(formData.itemId),
-            fieldName: formData.fieldName.trim(),
-            fieldLabel: formData.fieldLabel.trim(),
-            fieldKey: formData.fieldKey.trim(),
-            fieldType: formData.fieldType,
-            fieldValue: formData.fieldValue,
-            defaultValue: formData.defaultValue,
-            options: formData.options
-                .split(",")
-                .map((option) => option.trim())
-                .filter(Boolean),
-            description: formData.description.trim(),
-            displayOrder: Number(formData.displayOrder),
-            isRequired: formData.isRequired,
-            isActive: formData.isActive
+            vendorItemMasterId:
+                formData.vendorItemMasterId === ""
+                    ? null
+                    : Number(formData.vendorItemMasterId),
+
+            name: formData.name.trim(),
+            value: formData.value,
+
+            sellerId:
+                formData.sellerId === ""
+                    ? null
+                    : Number(formData.sellerId),
+
+            customerId:
+                formData.customerId === ""
+                    ? null
+                    : Number(formData.customerId)
         };
 
+        // Include extra properties only if your API DTO supports them.
+        console.log("CUSTOM FIELD UPDATE PAYLOAD:", payload);
+
         try {
-            await axios.put(`${apiUrl}/${recordId}`, payload);
-
-            setNotification({
-                open: true,
-                message: "Custom field updated successfully.",
-                severity: "success"
-            });
-
-            if (onSuccess) {
-                await onSuccess();
-            }
-
-            if (onClose) {
-                onClose();
-            }
-        } catch (error) {
-            console.error(
-                "UPDATE VENDOR ITEM CUSTOM FIELD ERROR:",
-                error
+            await axios.put(
+                `${API_URL}/${encodeURIComponent(id)}`,
+                payload
             );
 
-            setNotification({
-                open: true,
-                message:
-                    error.response?.data?.message ||
-                    error.response?.data?.title ||
-                    error.response?.data?.detail ||
-                    "Unable to update the custom field.",
-                severity: "error"
+            showNotification(
+                "Custom field updated successfully.",
+                "success"
+            );
+
+            navigate("/vendor-item-custom-fields", {
+                state: {
+                    message: "Custom field updated successfully."
+                }
             });
+        } catch (err) {
+            console.error(
+                "UPDATE CUSTOM FIELD ERROR:",
+                err.response?.data || err.message
+            );
+
+            showNotification(
+                err.response?.data?.message ||
+                    err.response?.data?.title ||
+                    err.response?.data?.detail ||
+                    "Unable to update the custom field. Check the backend API.",
+                "error"
+            );
         } finally {
             setSaving(false);
         }
     };
 
-    /* =====================================================
-       RENDER
-    ===================================================== */
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    minHeight: "50vh",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}
+            >
+                <Stack alignItems="center" spacing={2}>
+                    <CircularProgress />
+                    <Typography color="text.secondary">
+                        Loading custom field...
+                    </Typography>
+                </Stack>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box sx={{ p: { xs: 2, md: 3 } }}>
+                <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        {error}
+                    </Alert>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back to Custom Fields
+                    </Button>
+                </Paper>
+            </Box>
+        );
+    }
 
     return (
-        <>
-            <Dialog
-                open={open}
-                onClose={saving ? undefined : onClose}
-                fullWidth
-                maxWidth="md"
-                scroll="paper"
-            >
-                <DialogTitle fontWeight={700}>
-                    Edit Vendor Item Custom Field
-                </DialogTitle>
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
+            <Breadcrumbs sx={{ mb: 2 }}>
+                <Link
+                    component="button"
+                    underline="hover"
+                    color="inherit"
+                    onClick={handleBack}
+                >
+                    Vendor Item Custom Fields
+                </Link>
 
-                <Divider />
+                <Typography color="text.primary">
+                    Edit Custom Field
+                </Typography>
+            </Breadcrumbs>
+
+            <Paper
+                variant="outlined"
+                sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}
+            >
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    spacing={2}
+                    sx={{ mb: 3 }}
+                >
+                    <Box>
+                        <Typography variant="h4" fontWeight={700}>
+                            Edit Vendor Item Custom Field
+                        </Typography>
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mt: 1 }}
+                        >
+                            Update the custom field information below.
+                        </Typography>
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mt: 1 }}
+                        >
+                            Record ID: {id}
+                        </Typography>
+                    </Box>
+
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                        disabled={saving}
+                    >
+                        Back to List
+                    </Button>
+                </Stack>
+
+                <Divider sx={{ mb: 3 }} />
 
                 <Box component="form" onSubmit={handleSubmit} noValidate>
-                    <DialogContent>
-                        {loadingRecord ? (
-                            <Box
-                                display="flex"
-                                justifyContent="center"
-                                alignItems="center"
-                                minHeight={250}
-                            >
-                                <CircularProgress />
-                            </Box>
-                        ) : (
-                            <Grid container spacing={2.5}>
-                                {/* VENDOR */}
+                    <Grid container spacing={2.5}>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                type="number"
+                                name="vendorItemMasterId"
+                                label="Vendor Item Master ID"
+                                value={formData.vendorItemMasterId}
+                                onChange={handleChange}
+                                error={Boolean(errors.vendorItemMasterId)}
+                                helperText={errors.vendorItemMasterId}
+                                inputProps={{ min: 1, step: 1 }}
+                                disabled={saving}
+                            />
+                        </Grid>
 
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl
-                                        fullWidth
-                                        required
-                                        error={Boolean(errors.vendorId)}
-                                        disabled={loadingVendors || saving}
-                                    >
-                                        <InputLabel id="edit-vendor-label">
-                                            Vendor
-                                        </InputLabel>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                required
+                                name="name"
+                                label="Name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                error={Boolean(errors.name)}
+                                helperText={errors.name}
+                                disabled={saving}
+                            />
+                        </Grid>
 
-                                        <Select
-                                            labelId="edit-vendor-label"
-                                            name="vendorId"
-                                            value={formData.vendorId}
-                                            label="Vendor"
-                                            onChange={handleChange}
-                                        >
-                                            <MenuItem value="">
-                                                Select Vendor
-                                            </MenuItem>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                name="value"
+                                label="Value"
+                                value={formData.value}
+                                onChange={handleChange}
+                                error={Boolean(errors.value)}
+                                helperText={errors.value}
+                                disabled={saving}
+                            />
+                        </Grid>
 
-                                            {vendors.map((vendor) => {
-                                                const id =
-                                                    getField(vendor, "vendorId", "VendorId") ||
-                                                    getField(vendor, "supplierId", "SupplierId") ||
-                                                    getField(vendor, "id", "Id");
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                name="fieldName"
+                                label="Field Name"
+                                value={formData.fieldName}
+                                onChange={handleChange}
+                                disabled={saving}
+                                helperText="Display fallback: Name"
+                            />
+                        </Grid>
 
-                                                const name =
-                                                    getField(vendor, "vendorName", "VendorName") ||
-                                                    getField(vendor, "supplierName", "SupplierName") ||
-                                                    getField(vendor, "name", "Name");
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                name="fieldValue"
+                                label="Field Value"
+                                value={formData.fieldValue}
+                                onChange={handleChange}
+                                disabled={saving}
+                                helperText="Display fallback: Value"
+                            />
+                        </Grid>
 
-                                                if (id === "") return null;
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                type="number"
+                                name="sellerId"
+                                label="Seller ID"
+                                value={formData.sellerId}
+                                onChange={handleChange}
+                                error={Boolean(errors.sellerId)}
+                                helperText={errors.sellerId}
+                                inputProps={{ min: 1, step: 1 }}
+                                disabled={saving}
+                            />
+                        </Grid>
 
-                                                return (
-                                                    <MenuItem
-                                                        key={id}
-                                                        value={String(id)}
-                                                    >
-                                                        {name || `Vendor ${id}`}
-                                                    </MenuItem>
-                                                );
-                                            })}
-                                        </Select>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                type="number"
+                                name="customerId"
+                                label="Customer ID"
+                                value={formData.customerId}
+                                onChange={handleChange}
+                                error={Boolean(errors.customerId)}
+                                helperText={errors.customerId}
+                                inputProps={{ min: 1, step: 1 }}
+                                disabled={saving}
+                            />
+                        </Grid>
 
-                                        {errors.vendorId && (
-                                            <Alert severity="error">
-                                                {errors.vendorId}
-                                            </Alert>
-                                        )}
-                                    </FormControl>
-                                </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                type="number"
+                                name="supplierId"
+                                label="Supplier ID"
+                                value={formData.supplierId}
+                                onChange={handleChange}
+                                error={Boolean(errors.supplierId)}
+                                helperText={errors.supplierId}
+                                inputProps={{ min: 1, step: 1 }}
+                                disabled={saving}
+                            />
+                        </Grid>
 
-                                {/* ITEM */}
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                label="Created Date"
+                                value={formData.createdDate || "N/A"}
+                                InputProps={{ readOnly: true }}
+                            />
+                        </Grid>
 
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl
-                                        fullWidth
-                                        required
-                                        error={Boolean(errors.itemId)}
-                                        disabled={loadingItems || saving}
-                                    >
-                                        <InputLabel id="edit-item-label">
-                                            Item
-                                        </InputLabel>
-
-                                        <Select
-                                            labelId="edit-item-label"
-                                            name="itemId"
-                                            value={formData.itemId}
-                                            label="Item"
-                                            onChange={handleChange}
-                                        >
-                                            <MenuItem value="">
-                                                Select Item
-                                            </MenuItem>
-
-                                            {items.map((item) => {
-                                                const id =
-                                                    getField(item, "itemId", "ItemId") ||
-                                                    getField(item, "id", "Id");
-
-                                                const name =
-                                                    getField(item, "itemName", "ItemName") ||
-                                                    getField(item, "name", "Name");
-
-                                                if (id === "") return null;
-
-                                                return (
-                                                    <MenuItem
-                                                        key={id}
-                                                        value={String(id)}
-                                                    >
-                                                        {name || `Item ${id}`}
-                                                    </MenuItem>
-                                                );
-                                            })}
-                                        </Select>
-
-                                        {errors.itemId && (
-                                            <Alert severity="error">
-                                                {errors.itemId}
-                                            </Alert>
-                                        )}
-                                    </FormControl>
-                                </Grid>
-
-                                {/* FIELD NAME */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        name="fieldName"
-                                        label="Field Name"
-                                        value={formData.fieldName}
-                                        onChange={handleChange}
-                                        error={Boolean(errors.fieldName)}
-                                        helperText={errors.fieldName}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* FIELD LABEL */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        name="fieldLabel"
-                                        label="Field Label"
-                                        value={formData.fieldLabel}
-                                        onChange={handleChange}
-                                        error={Boolean(errors.fieldLabel)}
-                                        helperText={errors.fieldLabel}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* FIELD KEY */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        name="fieldKey"
-                                        label="Field Key"
-                                        value={formData.fieldKey}
-                                        onChange={handleChange}
-                                        error={Boolean(errors.fieldKey)}
-                                        helperText={errors.fieldKey}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* FIELD TYPE */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth disabled={saving}>
-                                        <InputLabel id="edit-field-type-label">
-                                            Field Type
-                                        </InputLabel>
-
-                                        <Select
-                                            labelId="edit-field-type-label"
-                                            name="fieldType"
-                                            value={formData.fieldType}
-                                            label="Field Type"
-                                            onChange={handleChange}
-                                        >
-                                            {[
-                                                "Text",
-                                                "Number",
-                                                "Decimal",
-                                                "Date",
-                                                "DateTime",
-                                                "Boolean",
-                                                "Checkbox",
-                                                "Dropdown",
-                                                "Select",
-                                                "Textarea",
-                                                "Email",
-                                                "URL"
-                                            ].map((type) => (
-                                                <MenuItem
-                                                    key={type}
-                                                    value={type}
-                                                >
-                                                    {type}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-
-                                {/* FIELD VALUE */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        name="fieldValue"
-                                        label="Field Value"
-                                        value={formData.fieldValue}
+                        <Grid item xs={12}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="isActive"
+                                        checked={formData.isActive}
                                         onChange={handleChange}
                                         disabled={saving}
                                     />
-                                </Grid>
+                                }
+                                label="Active"
+                            />
+                        </Grid>
+                    </Grid>
 
-                                {/* DEFAULT VALUE */}
+                    <Divider sx={{ my: 3 }} />
 
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        name="defaultValue"
-                                        label="Default Value"
-                                        value={formData.defaultValue}
-                                        onChange={handleChange}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* OPTIONS */}
-
-                                {["Dropdown", "Select"].includes(
-                                    formData.fieldType
-                                ) && (
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            name="options"
-                                            label="Options"
-                                            value={formData.options}
-                                            onChange={handleChange}
-                                            helperText="Separate options with commas."
-                                            disabled={saving}
-                                        />
-                                    </Grid>
-                                )}
-
-                                {/* DISPLAY ORDER */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        type="number"
-                                        name="displayOrder"
-                                        label="Display Order"
-                                        value={formData.displayOrder}
-                                        onChange={handleChange}
-                                        error={Boolean(errors.displayOrder)}
-                                        helperText={errors.displayOrder}
-                                        inputProps={{ min: 0, step: 1 }}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* DESCRIPTION */}
-
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        multiline
-                                        minRows={3}
-                                        name="description"
-                                        label="Description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        disabled={saving}
-                                    />
-                                </Grid>
-
-                                {/* REQUIRED */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                name="isRequired"
-                                                checked={formData.isRequired}
-                                                onChange={handleChange}
-                                                disabled={saving}
-                                            />
-                                        }
-                                        label="Required Field"
-                                    />
-                                </Grid>
-
-                                {/* ACTIVE */}
-
-                                <Grid item xs={12} sm={6}>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                name="isActive"
-                                                checked={formData.isActive}
-                                                onChange={handleChange}
-                                                disabled={saving}
-                                            />
-                                        }
-                                        label="Active"
-                                    />
-                                </Grid>
-                            </Grid>
-                        )}
-                    </DialogContent>
-
-                    <Divider />
-
-                    <DialogActions sx={{ p: 2 }}>
+                    <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        justifyContent="flex-end"
+                        spacing={1.5}
+                    >
                         <Button
-                            onClick={onClose}
+                            variant="outlined"
                             color="inherit"
                             startIcon={<Cancel />}
+                            onClick={handleBack}
                             disabled={saving}
                         >
                             Cancel
@@ -794,15 +604,13 @@ const VendorItemCustomFieldEdit = ({
                                     <Save />
                                 )
                             }
-                            disabled={saving || loadingRecord}
+                            disabled={saving}
                         >
                             {saving ? "Updating..." : "Update Custom Field"}
                         </Button>
-                    </DialogActions>
+                    </Stack>
                 </Box>
-            </Dialog>
-
-            {/* NOTIFICATION */}
+            </Paper>
 
             <Snackbar
                 open={notification.open}
@@ -831,9 +639,8 @@ const VendorItemCustomFieldEdit = ({
                     {notification.message}
                 </Alert>
             </Snackbar>
-        </>
+        </Box>
     );
 };
 
 export default VendorItemCustomFieldEdit;
-

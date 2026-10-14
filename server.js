@@ -34239,140 +34239,147 @@ app.get("/api/Supplier/:id", async (req, res) => {
     }
 });
 
-/* =========================================================
-   VENDOR ITEM CUSTOM FIELD API
-========================================================= */
-
-const VENDOR_ITEM_CUSTOM_FIELD_API =
-    `${API_BASE_URL}/VendorItemCustomField`;
 
 
-/* =========================================================
-   GET ALL VENDOR ITEM CUSTOM FIELDS
-========================================================= */
+ // =========================================================
+ // VENDOR ITEM CUSTOM FIELDS
+ // Base URL: /api/vendor-item-custom-fields
+ // =========================================================
 
-app.get("/api/VendorItemCustomField", async (req, res) => {
+// GET ALL
+app.get("/api/vendor-item-custom-fields/all", async (req, res) => {
     try {
         const response = await axios.get(
-            VENDOR_ITEM_CUSTOM_FIELD_API,
-            {
-                params: req.query
-            }
+            `${DOTNET_API}/vendor-item-custom-fields/all`,
+            { httpsAgent }
         );
 
         return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "GET ALL VENDOR ITEM CUSTOM FIELDS ERROR:",
+            "GET ALL VENDOR ITEM CUSTOM FIELDS:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to retrieve vendor item custom fields."
+            }
+        );
     }
 });
 
-
-/* =========================================================
-   GET VENDOR ITEM CUSTOM FIELD BY ID
-========================================================= */
-
-app.get("/api/VendorItemCustomField/:id", async (req, res) => {
+// GET BY ID
+app.get("/api/vendor-item-custom-fields/:id", async (req, res) => {
     try {
         const response = await axios.get(
-            `${VENDOR_ITEM_CUSTOM_FIELD_API}/${req.params.id}`,
-            {
-                params: req.query
-            }
+            `${DOTNET_API}/vendor-item-custom-fields/${req.params.id}`,
+            { httpsAgent }
         );
 
         return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "GET VENDOR ITEM CUSTOM FIELD BY ID ERROR:",
+            "GET VENDOR ITEM CUSTOM FIELD:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to retrieve vendor item custom field."
+            }
+        );
     }
 });
 
-
-/* =========================================================
-   CREATE VENDOR ITEM CUSTOM FIELD
-========================================================= */
-
-app.post("/api/VendorItemCustomField", async (req, res) => {
+// CREATE
+app.post("/api/vendor-item-custom-fields", async (req, res) => {
     try {
         const response = await axios.post(
-            VENDOR_ITEM_CUSTOM_FIELD_API,
+            `${DOTNET_API}/vendor-item-custom-fields`,
             req.body,
             {
-                params: req.query
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
             }
         );
 
         return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "CREATE VENDOR ITEM CUSTOM FIELD ERROR:",
+            "CREATE VENDOR ITEM CUSTOM FIELD:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to create vendor item custom field."
+            }
+        );
     }
 });
 
-
-/* =========================================================
-   UPDATE VENDOR ITEM CUSTOM FIELD
-========================================================= */
-
-app.put("/api/VendorItemCustomField/:id", async (req, res) => {
+// UPDATE
+app.put("/api/vendor-item-custom-fields/:id", async (req, res) => {
     try {
         const response = await axios.put(
-            `${VENDOR_ITEM_CUSTOM_FIELD_API}/${req.params.id}`,
+            `${DOTNET_API}/vendor-item-custom-fields/${req.params.id}`,
             req.body,
             {
-                params: req.query
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
             }
         );
+
+        if (response.status === 204 || response.data == null) {
+            return res.status(response.status).end();
+        }
 
         return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "UPDATE VENDOR ITEM CUSTOM FIELD ERROR:",
+            "UPDATE VENDOR ITEM CUSTOM FIELD:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to update vendor item custom field."
+            }
+        );
     }
 });
 
-
-/* =========================================================
-   DELETE VENDOR ITEM CUSTOM FIELD
-========================================================= */
-
-app.delete("/api/VendorItemCustomField/:id", async (req, res) => {
+// DELETE
+app.delete("/api/vendor-item-custom-fields/:id", async (req, res) => {
     try {
         const response = await axios.delete(
-            `${VENDOR_ITEM_CUSTOM_FIELD_API}/${req.params.id}`,
-            {
-                params: req.query
-            }
+            `${DOTNET_API}/vendor-item-custom-fields/${req.params.id}`,
+            { httpsAgent }
         );
+
+        if (response.status === 204 || response.data == null) {
+            return res.status(response.status).end();
+        }
 
         return res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "DELETE VENDOR ITEM CUSTOM FIELD ERROR:",
+            "DELETE VENDOR ITEM CUSTOM FIELD:",
             error.response?.data || error.message
         );
 
-        return handleProxyError(res, error);
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to delete vendor item custom field."
+            }
+        );
     }
 });
-
 
 /////////////////////////////SHELFWISE INVENTORY API CONFIGURATION/////////////////
 // =========================================================

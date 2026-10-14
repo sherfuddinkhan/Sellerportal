@@ -1,23 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Typography,
+    Alert,
     Box,
-    Grid,
-    Paper,
+    Breadcrumbs,
+    Button,
     Chip,
+    CircularProgress,
     Divider,
-    IconButton,
-    Tooltip
+    Grid,
+    Link,
+    Paper,
+    Stack,
+    Typography
 } from "@mui/material";
 
 import {
-    Close,
+    ArrowBack,
+    Edit,
     Visibility,
     Inventory2,
     Business,
@@ -30,13 +32,14 @@ import {
     Tag
 } from "@mui/icons-material";
 
+const API_URL = "http://localhost:5000/api/vendor-item-custom-fields";
+
 /* =========================================================
    GET FIELD VALUE
-   Supports camelCase and PascalCase API responses
 ========================================================= */
 
 const getField = (object, ...keys) => {
-    if (!object) return "";
+    if (!object) return undefined;
 
     for (const key of keys) {
         if (
@@ -47,17 +50,14 @@ const getField = (object, ...keys) => {
         }
     }
 
-    return "";
+    return undefined;
 };
 
 /* =========================================================
    FORMAT TEXT
 ========================================================= */
 
-const formatText = (
-    value,
-    fallback = "Not provided"
-) => {
+const formatText = (value, fallback = "Not provided") => {
     if (
         value === undefined ||
         value === null ||
@@ -96,7 +96,7 @@ const formatDate = (value) => {
 ========================================================= */
 
 const formatFieldValue = (value) => {
-    if (value === null || value === undefined) {
+    if (value === undefined || value === null || value === "") {
         return "Not provided";
     }
 
@@ -112,10 +112,6 @@ const formatFieldValue = (value) => {
         }
     }
 
-    if (String(value).trim() === "") {
-        return "Not provided";
-    }
-
     return String(value);
 };
 
@@ -129,69 +125,225 @@ const DetailItem = ({
     value,
     multiline = false
 }) => (
-    <Box
-        sx={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 1.5,
-            minWidth: 0
-        }}
-    >
+    <Grid item xs={12} sm={6} md={4}>
         <Box
             sx={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "text.secondary",
-                mt: 0.25
+                alignItems: "flex-start",
+                gap: 1.5,
+                minWidth: 0
             }}
         >
-            {icon}
-        </Box>
-
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography
-                variant="caption"
-                color="text.secondary"
-                display="block"
-            >
-                {label}
-            </Typography>
-
-            <Typography
-                variant="body2"
-                fontWeight={500}
+            <Box
                 sx={{
-                    mt: 0.4,
-                    whiteSpace: multiline
-                        ? "pre-wrap"
-                        : "normal",
-                    overflowWrap: "anywhere"
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "text.secondary",
+                    mt: 0.25
                 }}
             >
-                {value}
-            </Typography>
+                {icon}
+            </Box>
+
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    fontWeight={700}
+                    sx={{
+                        textTransform: "uppercase",
+                        letterSpacing: 0.4
+                    }}
+                >
+                    {label}
+                </Typography>
+
+                <Typography
+                    variant="body2"
+                    fontWeight={500}
+                    sx={{
+                        mt: 0.5,
+                        whiteSpace: multiline ? "pre-wrap" : "normal",
+                        overflowWrap: "anywhere"
+                    }}
+                >
+                    {value}
+                </Typography>
+            </Box>
         </Box>
-    </Box>
+    </Grid>
 );
 
 /* =========================================================
-   VENDOR ITEM CUSTOM FIELD VIEW
+   SECTION TITLE
 ========================================================= */
 
-const VendorItemCustomFieldView = ({
-    open = false,
-    onClose,
-    vendorItemCustomField = null,
-    selectedVendorItemCustomField = null,
-    customField = null,
-    onEdit
-}) => {
-    const field =
-        vendorItemCustomField ||
-        selectedVendorItemCustomField ||
-        customField ||
-        {};
+const SectionTitle = ({ children }) => (
+    <Typography
+        variant="h6"
+        fontWeight={700}
+        sx={{ mb: 2.5 }}
+    >
+        {children}
+    </Typography>
+);
+
+/* =========================================================
+   VENDOR ITEM CUSTOM FIELD VIEW PAGE
+========================================================= */
+
+const VendorItemCustomFieldView = () => {
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+    const [field, setField] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    /* =====================================================
+       FETCH RECORD
+    ===================================================== */
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const fetchCustomField = async () => {
+            if (!id) {
+                setError("Custom field ID is missing.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError("");
+
+                const response = await axios.get(
+                    `${API_URL}/${encodeURIComponent(id)}`
+                );
+
+                const responseData = response.data?.data ?? response.data;
+
+                const record = Array.isArray(responseData)
+                    ? responseData[0]
+                    : responseData;
+
+                if (!record || typeof record !== "object") {
+                    throw new Error(
+                        "No custom field record was returned by the API."
+                    );
+                }
+
+                if (!cancelled) {
+                    setField(record);
+                }
+            } catch (err) {
+                console.error(
+                    "GET CUSTOM FIELD DETAILS ERROR:",
+                    err.response?.data || err.message
+                );
+
+                if (!cancelled) {
+                    setError(
+                        err.response?.status === 404
+                            ? "Custom field not found."
+                            : err.response?.data?.message ||
+                              err.response?.data?.title ||
+                              err.response?.data?.detail ||
+                              "Unable to load custom field details."
+                    );
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchCustomField();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [id]);
+
+    /* =====================================================
+       NAVIGATION
+    ===================================================== */
+
+    const handleBack = () => {
+        navigate("/vendor-item-custom-fields");
+    };
+
+    const handleEdit = () => {
+        const fieldId =
+            getField(
+                field,
+                "vendorItemCustomFieldId",
+                "VendorItemCustomFieldId",
+                "id",
+                "Id"
+            ) ?? id;
+
+        navigate(`/vendor-item-custom-fields/${fieldId}/edit`);
+    };
+
+    /* =====================================================
+       LOADING
+    ===================================================== */
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    minHeight: "50vh",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}
+            >
+                <Stack spacing={2} alignItems="center">
+                    <CircularProgress />
+
+                    <Typography color="text.secondary">
+                        Loading custom field details...
+                    </Typography>
+                </Stack>
+            </Box>
+        );
+    }
+
+    /* =====================================================
+       ERROR
+    ===================================================== */
+
+    if (error || !field) {
+        return (
+            <Box sx={{ p: { xs: 2, md: 3 } }}>
+                <Paper
+                    variant="outlined"
+                    sx={{ p: 3, borderRadius: 2 }}
+                >
+                    <Alert
+                        severity={error ? "error" : "info"}
+                        sx={{ mb: 3 }}
+                    >
+                        {error || "Custom field record is unavailable."}
+                    </Alert>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back to Custom Fields
+                    </Button>
+                </Paper>
+            </Box>
+        );
+    }
 
     /* =====================================================
        FIELD INFORMATION
@@ -207,16 +359,26 @@ const VendorItemCustomFieldView = ({
         "Id"
     );
 
+    const vendorItemMasterId = getField(
+        field,
+        "vendorItemMasterId",
+        "VendorItemMasterId"
+    );
+
     const vendorId = getField(
         field,
         "vendorId",
-        "VendorId"
+        "VendorId",
+        "supplierId",
+        "SupplierId"
     );
 
     const vendorName = getField(
         field,
         "vendorName",
-        "VendorName"
+        "VendorName",
+        "supplierName",
+        "SupplierName"
     );
 
     const itemId = getField(
@@ -234,6 +396,9 @@ const VendorItemCustomFieldView = ({
         "vendorItemName",
         "VendorItemName"
     );
+
+    const sellerId = getField(field, "sellerId", "SellerId");
+    const customerId = getField(field, "customerId", "CustomerId");
 
     const fieldName = getField(
         field,
@@ -289,21 +454,19 @@ const VendorItemCustomFieldView = ({
         "DefaultValue"
     );
 
-    const isRequired = Boolean(
-        getField(
-            field,
-            "isRequired",
-            "IsRequired",
-            "required",
-            "Required"
-        )
+    const options = getField(
+        field,
+        "options",
+        "Options",
+        "fieldOptions",
+        "FieldOptions"
     );
 
-    const isActive = getField(
+    const description = getField(
         field,
-        "isActive",
-        "IsActive"
-    ) !== false;
+        "description",
+        "Description"
+    );
 
     const displayOrder = getField(
         field,
@@ -313,19 +476,22 @@ const VendorItemCustomFieldView = ({
         "SortOrder"
     );
 
-    const description = getField(
+    const requiredValue = getField(
         field,
-        "description",
-        "Description"
+        "isRequired",
+        "IsRequired",
+        "required",
+        "Required"
     );
 
-    const options = getField(
+    const activeValue = getField(
         field,
-        "options",
-        "Options",
-        "fieldOptions",
-        "FieldOptions"
+        "isActive",
+        "IsActive"
     );
+
+    const isRequired = requiredValue === true;
+    const isActive = activeValue !== false;
 
     const createdAt = getField(
         field,
@@ -340,436 +506,357 @@ const VendorItemCustomFieldView = ({
         "updatedAt",
         "UpdatedAt",
         "modifiedAt",
-        "ModifiedAt"
+        "ModifiedAt",
+        "updatedDate",
+        "UpdatedDate"
     );
 
     /* =====================================================
-       ACTIONS
-    ===================================================== */
-
-    const handleClose = () => {
-        if (onClose) {
-            onClose();
-        }
-    };
-
-    const handleEdit = () => {
-        if (onEdit) {
-            onEdit(field);
-        }
-    };
-
-    /* =====================================================
-       RENDER
+       DETAILS PAGE
     ===================================================== */
 
     return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            fullWidth
-            maxWidth="md"
-            aria-labelledby="vendor-item-custom-field-title"
-        >
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
+            {/* BREADCRUMBS */}
+
+            <Breadcrumbs sx={{ mb: 2 }}>
+                <Link
+                    component="button"
+                    underline="hover"
+                    color="inherit"
+                    onClick={handleBack}
+                >
+                    Vendor Item Custom Fields
+                </Link>
+
+                <Typography color="text.primary">
+                    Custom Field Details
+                </Typography>
+            </Breadcrumbs>
+
             {/* HEADER */}
 
-            <DialogTitle
-                id="vendor-item-custom-field-title"
+            <Paper
+                variant="outlined"
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 2,
-                    pr: 2
+                    p: { xs: 2, md: 3 },
+                    mb: 3,
+                    borderRadius: 2
                 }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5,
-                        minWidth: 0
-                    }}
+                <Stack
+                    direction={{ xs: "column", md: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", md: "center" }}
+                    spacing={2}
                 >
-                    <Box
-                        sx={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 2,
-                            bgcolor: "primary.light",
-                            color: "primary.dark",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0
-                        }}
+                    <Stack
+                        direction="row"
+                        spacing={1.5}
+                        alignItems="center"
                     >
-                        <Visibility />
-                    </Box>
-
-                    <Box sx={{ minWidth: 0 }}>
-                        <Typography
-                            variant="h6"
-                            fontWeight={700}
+                        <Box
+                            sx={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: 2,
+                                bgcolor: "primary.light",
+                                color: "primary.dark",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                            }}
                         >
-                            Custom Field Details
-                        </Typography>
+                            <Visibility />
+                        </Box>
 
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ overflowWrap: "anywhere" }}
-                        >
-                            {formatText(
-                                fieldLabel || fieldName,
-                                "Vendor Item Custom Field"
-                            )}
-                        </Typography>
-                    </Box>
-                </Box>
-
-                <Tooltip title="Close">
-                    <IconButton
-                        onClick={handleClose}
-                        aria-label="Close dialog"
-                    >
-                        <Close />
-                    </IconButton>
-                </Tooltip>
-            </DialogTitle>
-
-            <Divider />
-
-            {/* CONTENT */}
-
-            <DialogContent
-                sx={{
-                    bgcolor: "background.default",
-                    p: { xs: 2, sm: 3 }
-                }}
-            >
-                {/* STATUS */}
-
-                <Paper
-                    variant="outlined"
-                    sx={{
-                        p: 2,
-                        mb: 3,
-                        borderRadius: 2,
-                        bgcolor: "background.paper"
-                    }}
-                >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            flexWrap: "wrap",
-                            gap: 1.5
-                        }}
-                    >
                         <Box>
-                            <Typography
-                                variant="subtitle1"
-                                fontWeight={700}
-                            >
-                                {formatText(
-                                    fieldLabel || fieldName,
-                                    "Unnamed Custom Field"
-                                )}
+                            <Typography variant="h4" fontWeight={700}>
+                                Custom Field Details
                             </Typography>
 
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
+                                sx={{ mt: 0.5 }}
                             >
                                 {formatText(
-                                    fieldKey,
-                                    "No field key"
+                                    fieldLabel || fieldName,
+                                    "Vendor Item Custom Field"
                                 )}
                             </Typography>
+
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                            >
+                                Record ID: {formatText(fieldId ?? id)}
+                            </Typography>
                         </Box>
+                    </Stack>
 
-                        <Box
-                            sx={{
-                                display: "flex",
-                                gap: 1,
-                                flexWrap: "wrap"
-                            }}
-                        >
-                            <Chip
-                                size="small"
-                                icon={
-                                    isActive
-                                        ? <CheckCircle />
-                                        : <Cancel />
-                                }
-                                label={
-                                    isActive
-                                        ? "Active"
-                                        : "Inactive"
-                                }
-                                color={
-                                    isActive
-                                        ? "success"
-                                        : "default"
-                                }
-                                variant="outlined"
-                            />
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        flexWrap="wrap"
+                        useFlexGap
+                    >
+                        <Chip
+                            icon={
+                                isActive
+                                    ? <CheckCircle />
+                                    : <Cancel />
+                            }
+                            label={isActive ? "Active" : "Inactive"}
+                            color={isActive ? "success" : "default"}
+                            variant="outlined"
+                        />
 
-                            <Chip
-                                size="small"
-                                label={
-                                    isRequired
-                                        ? "Required"
-                                        : "Optional"
-                                }
-                                color={
-                                    isRequired
-                                        ? "warning"
-                                        : "default"
-                                }
-                                variant="outlined"
-                            />
-                        </Box>
-                    </Box>
-                </Paper>
+                        <Chip
+                            label={isRequired ? "Required" : "Optional"}
+                            color={isRequired ? "warning" : "default"}
+                            variant="outlined"
+                        />
+                    </Stack>
+                </Stack>
 
-                {/* FIELD DETAILS */}
+                <Divider sx={{ my: 2.5 }} />
 
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                    sx={{ mb: 2 }}
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1.5}
                 >
-                    Field Information
-                </Typography>
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back to List
+                    </Button>
 
-                <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={handleEdit}
+                    >
+                        Edit Custom Field
+                    </Button>
+                </Stack>
+            </Paper>
+
+            <Stack spacing={3}>
+                {/* FIELD INFORMATION */}
+
+                <Paper
+                    variant="outlined"
+                    sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}
+                >
+                    <SectionTitle>Field Information</SectionTitle>
+
+                    <Grid container spacing={3}>
                         <DetailItem
                             icon={<Tag fontSize="small" />}
                             label="Custom Field ID"
-                            value={formatText(
-                                fieldId,
-                                "Not assigned"
-                            )}
+                            value={formatText(fieldId ?? id)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={<Label fontSize="small" />}
-                            label="Field Name"
+                            label="Field Name / Name"
                             value={formatText(fieldName)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={<Label fontSize="small" />}
                             label="Display Label"
                             value={formatText(fieldLabel)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={<DataObject fontSize="small" />}
                             label="Field Key"
                             value={formatText(fieldKey)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={<DataObject fontSize="small" />}
                             label="Field Type"
                             value={formatText(fieldType)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={<Tag fontSize="small" />}
                             label="Display Order"
-                            value={formatText(
-                                displayOrder,
-                                "Not specified"
-                            )}
+                            value={formatText(displayOrder)}
                         />
                     </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 3 }} />
+                </Paper>
 
                 {/* VENDOR AND ITEM */}
 
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                    sx={{ mb: 2 }}
+                <Paper
+                    variant="outlined"
+                    sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}
                 >
-                    Vendor and Item
-                </Typography>
+                    <SectionTitle>Vendor and Item</SectionTitle>
 
-                <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid container spacing={3}>
                         <DetailItem
                             icon={<Business fontSize="small" />}
                             label="Vendor Name"
                             value={formatText(vendorName)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={<Tag fontSize="small" />}
-                            label="Vendor ID"
-                            value={formatText(
-                                vendorId,
-                                "Not assigned"
-                            )}
+                            label="Vendor ID / Supplier ID"
+                            value={formatText(vendorId)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                        <DetailItem
+                            icon={<Inventory2 fontSize="small" />}
+                            label="Vendor Item Master ID"
+                            value={formatText(vendorItemMasterId)}
+                        />
+
                         <DetailItem
                             icon={<Inventory2 fontSize="small" />}
                             label="Item Name"
                             value={formatText(itemName)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={<Tag fontSize="small" />}
                             label="Item ID"
-                            value={formatText(
-                                itemId,
-                                "Not assigned"
-                            )}
+                            value={formatText(itemId)}
+                        />
+
+                        <DetailItem
+                            icon={<Business fontSize="small" />}
+                            label="Seller ID"
+                            value={formatText(sellerId)}
+                        />
+
+                        <DetailItem
+                            icon={<Business fontSize="small" />}
+                            label="Customer ID"
+                            value={formatText(customerId)}
                         />
                     </Grid>
-                </Grid>
+                </Paper>
 
-                <Divider sx={{ my: 3 }} />
+                {/* FIELD VALUE AND CONFIGURATION */}
 
-                {/* FIELD VALUE */}
-
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                    sx={{ mb: 2 }}
+                <Paper
+                    variant="outlined"
+                    sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}
                 >
-                    Field Value and Configuration
-                </Typography>
+                    <SectionTitle>
+                        Field Value and Configuration
+                    </SectionTitle>
 
-                <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid container spacing={3}>
                         <DetailItem
                             icon={<DataObject fontSize="small" />}
                             label="Current Value"
                             value={formatFieldValue(fieldValue)}
                             multiline
                         />
-                    </Grid>
 
-                    <Grid item xs={12}>
                         <DetailItem
                             icon={<DataObject fontSize="small" />}
                             label="Default Value"
                             value={formatFieldValue(defaultValue)}
                             multiline
                         />
-                    </Grid>
 
-                    {options !== "" && (
-                        <Grid item xs={12}>
-                            <DetailItem
-                                icon={<DataObject fontSize="small" />}
-                                label="Options"
-                                value={formatFieldValue(options)}
-                                multiline
-                            />
-                        </Grid>
-                    )}
-
-                    <Grid item xs={12}>
                         <DetailItem
-                            icon={<Notes fontSize="small" />}
-                            label="Description"
-                            value={formatText(description)}
+                            icon={<DataObject fontSize="small" />}
+                            label="Options"
+                            value={formatFieldValue(options)}
                             multiline
                         />
-                    </Grid>
-                </Grid>
 
-                <Divider sx={{ my: 3 }} />
+                        <DetailItem
+                            icon={<CheckCircle fontSize="small" />}
+                            label="Required Field"
+                            value={isRequired ? "Yes" : "No"}
+                        />
 
-                {/* AUDIT DETAILS */}
-
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                    sx={{ mb: 2 }}
-                >
-                    Audit Information
-                </Typography>
-
-                <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
                             icon={
-                                <CalendarToday fontSize="small" />
+                                isActive
+                                    ? <CheckCircle fontSize="small" />
+                                    : <Cancel fontSize="small" />
                             }
+                            label="Active Status"
+                            value={isActive ? "Active" : "Inactive"}
+                        />
+                    </Grid>
+                </Paper>
+
+                {/* DESCRIPTION */}
+
+                <Paper
+                    variant="outlined"
+                    sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}
+                >
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        sx={{ mb: 2 }}
+                    >
+                        <Notes color="primary" />
+
+                        <Typography variant="h6" fontWeight={700}>
+                            Description
+                        </Typography>
+                    </Stack>
+
+                    <Typography
+                        variant="body2"
+                        color={
+                            description
+                                ? "text.primary"
+                                : "text.secondary"
+                        }
+                        sx={{
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "anywhere"
+                        }}
+                    >
+                        {formatText(description)}
+                    </Typography>
+                </Paper>
+
+                {/* AUDIT INFORMATION */}
+
+                <Paper
+                    variant="outlined"
+                    sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}
+                >
+                    <SectionTitle>Audit Information</SectionTitle>
+
+                    <Grid container spacing={3}>
+                        <DetailItem
+                            icon={<CalendarToday fontSize="small" />}
                             label="Created At"
                             value={formatDate(createdAt)}
                         />
-                    </Grid>
 
-                    <Grid item xs={12} sm={6}>
                         <DetailItem
-                            icon={
-                                <CalendarToday fontSize="small" />
-                            }
+                            icon={<CalendarToday fontSize="small" />}
                             label="Last Updated"
                             value={formatDate(updatedAt)}
                         />
                     </Grid>
-                </Grid>
-            </DialogContent>
-
-            <Divider />
-
-            {/* ACTIONS */}
-
-            <DialogActions
-                sx={{
-                    p: 2.5,
-                    gap: 1
-                }}
-            >
-                <Button
-                    variant="outlined"
-                    color="inherit"
-                    onClick={handleClose}
-                >
-                    Close
-                </Button>
-
-                {onEdit && (
-                    <Button
-                        variant="contained"
-                        onClick={handleEdit}
-                    >
-                        Edit Custom Field
-                    </Button>
-                )}
-            </DialogActions>
-        </Dialog>
+                </Paper>
+            </Stack>
+        </Box>
     );
 };
 
 export default VendorItemCustomFieldView;
-

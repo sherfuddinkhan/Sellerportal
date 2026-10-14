@@ -1,32 +1,30 @@
 import React from "react";
 
 import {
+    Alert,
+    Box,
+    Chip,
+    CircularProgress,
+    IconButton,
+    Paper,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Paper,
-    IconButton,
     Tooltip,
-    Typography,
-    Box,
-    Chip,
-    Switch,
-    CircularProgress
+    Typography
 } from "@mui/material";
 
-import {
-    Visibility,
-    Edit,
-    Delete,
-    Inventory2,
-    Tune
-} from "@mui/icons-material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import TuneIcon from "@mui/icons-material/Tune";
 
 /* =========================================================
-   GET FIELD VALUE
+   FIELD VALUE HELPER
 ========================================================= */
 
 const getFieldValue = (object, ...keys) => {
@@ -43,64 +41,29 @@ const getFieldValue = (object, ...keys) => {
 };
 
 /* =========================================================
-   FORMAT DATE
+   RECORD ID
 ========================================================= */
 
-const formatDate = (value) => {
-    if (!value) {
-        return "-";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return "-";
-    }
-
-    return date.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
+const getRecordId = (field) => {
+    return getFieldValue(
+        field,
+        "vendorItemCustomFieldId",
+        "VendorItemCustomFieldId",
+        "id",
+        "Id"
+    );
 };
 
 /* =========================================================
-   FORMAT FIELD TYPE
+   BOOLEAN HELPER
 ========================================================= */
 
-const formatFieldType = (value) => {
-    if (!value) {
-        return "-";
-    }
-
-    return String(value)
-        .replace(/([a-z])([A-Z])/g, "$1 $2")
-        .replace(/[_-]/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-/* =========================================================
-   FORMAT FIELD VALUE
-========================================================= */
-
-const formatFieldValue = (value) => {
-    if (value === null || value === undefined || value === "") {
-        return "-";
-    }
-
-    if (typeof value === "boolean") {
-        return value ? "Yes" : "No";
-    }
-
-    if (typeof value === "object") {
-        try {
-            return JSON.stringify(value);
-        } catch {
-            return "-";
-        }
-    }
-
-    return String(value);
+const isTrue = (value) => {
+    return (
+        value === true ||
+        value === 1 ||
+        String(value).toLowerCase() === "true"
+    );
 };
 
 /* =========================================================
@@ -108,81 +71,147 @@ const formatFieldValue = (value) => {
 ========================================================= */
 
 const VendorItemCustomFieldTable = ({
-    vendorItemCustomFields = [],
-    customFields = [],
-    fields = [],
-
+    vendorItemCustomFields,
+    customFields,
+    fields,
     loading = false,
-
     onView,
     onEdit,
     onDelete,
     onToggleStatus,
-
     onViewField,
     onEditField,
     onDeleteField,
-    onToggleFieldStatus,
-
-    emptyMessage = "No custom fields found.",
-
-    showVendor = true,
-    showItem = true,
-    showValue = true,
-    showDisplayOrder = true,
-    showCreatedAt = false,
-    showActions = true
+    onToggleFieldStatus
 }) => {
-    /* =====================================================
-       NORMALIZE DATA
-    ===================================================== */
-
-    const rows =
-        vendorItemCustomFields?.length > 0
-            ? vendorItemCustomFields
-            : customFields?.length > 0
-                ? customFields
-                : fields;
+    const records =
+        vendorItemCustomFields ??
+        customFields ??
+        fields ??
+        [];
 
     /* =====================================================
        ACTION HANDLERS
     ===================================================== */
 
-    const handleView = (field) => {
-        const callback = onView || onViewField;
+    const handleView = (event, field) => {
+        event.preventDefault();
+        event.stopPropagation();
 
-        if (callback) {
-            callback(field);
+        const handler = onView || onViewField;
+
+        if (typeof handler === "function") {
+            handler(field);
         }
     };
 
-    const handleEdit = (field) => {
-        const callback = onEdit || onEditField;
+    const handleEdit = (event, field) => {
+        event.preventDefault();
+        event.stopPropagation();
 
-        if (callback) {
-            callback(field);
+        const handler = onEdit || onEditField;
+
+        if (typeof handler === "function") {
+            handler(field);
         }
     };
 
-    const handleDelete = (field) => {
-        const callback = onDelete || onDeleteField;
+    const handleDelete = (event, field) => {
+        event.preventDefault();
+        event.stopPropagation();
 
-        if (callback) {
-            callback(field);
+        console.log("Vendor custom field Delete icon clicked:", field);
+        console.log("Vendor custom field ID:", getRecordId(field));
+
+        const handler = onDelete || onDeleteField;
+
+        if (typeof handler !== "function") {
+            console.error(
+                "Delete handler is missing. Check the onDelete prop in VendorItemCustomFieldsList."
+            );
+            return;
         }
+
+        handler(field);
     };
 
-    const handleToggleStatus = (field) => {
-        const callback =
-            onToggleStatus || onToggleFieldStatus;
+    const handleToggleStatus = (event, field) => {
+        event.preventDefault();
+        event.stopPropagation();
 
-        if (callback) {
-            callback(field);
+        const handler = onToggleStatus || onToggleFieldStatus;
+
+        if (typeof handler === "function") {
+            handler(field);
         }
     };
 
     /* =====================================================
-       RENDER
+       LOADING
+    ===================================================== */
+
+    if (loading) {
+        return (
+            <Paper
+                elevation={0}
+                sx={{
+                    p: 5,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 2
+                }}
+            >
+                <CircularProgress size={28} />
+
+                <Typography variant="body2" color="text.secondary">
+                    Loading custom fields...
+                </Typography>
+            </Paper>
+        );
+    }
+
+    /* =====================================================
+       EMPTY STATE
+    ===================================================== */
+
+    if (!Array.isArray(records) || records.length === 0) {
+        return (
+            <Paper
+                elevation={0}
+                sx={{
+                    p: 4,
+                    textAlign: "center",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2
+                }}
+            >
+                <Inventory2Icon
+                    sx={{
+                        fontSize: 44,
+                        color: "text.secondary",
+                        mb: 1
+                    }}
+                />
+
+                <Typography variant="h6" fontWeight={600}>
+                    No custom fields found
+                </Typography>
+
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                >
+                    Create a vendor item custom field to see it here.
+                </Typography>
+            </Paper>
+        );
+    }
+
+    /* =====================================================
+       TABLE
     ===================================================== */
 
     return (
@@ -190,573 +219,274 @@ const VendorItemCustomFieldTable = ({
             component={Paper}
             elevation={0}
             sx={{
-                width: "100%",
-                overflowX: "auto",
                 border: "1px solid",
                 borderColor: "divider",
-                borderRadius: 2
+                borderRadius: 2,
+                width: "100%",
+                overflowX: "auto"
             }}
         >
-            <Table
-                stickyHeader
-                size="medium"
-                aria-label="Vendor item custom fields table"
-                sx={{
-                    minWidth: 1100,
-
-                    "& .MuiTableCell-root": {
-                        borderBottom: "1px solid",
-                        borderColor: "divider",
-                        py: 1.5
-                    },
-
-                    "& .MuiTableHead-root .MuiTableCell-root": {
-                        backgroundColor: "background.default",
-                        color: "text.secondary",
-                        fontWeight: 700,
-                        whiteSpace: "nowrap"
-                    },
-
-                    "& .MuiTableBody-root .MuiTableRow-root:hover": {
-                        backgroundColor: "action.hover"
-                    }
-                }}
-            >
-                {/* =========================================
-                    TABLE HEADER
-                ========================================= */}
-
+            <Table size="small" sx={{ minWidth: 1000 }}>
                 <TableHead>
-                    <TableRow>
-                        <TableCell>
-                            #
-                        </TableCell>
-
-                        <TableCell>
-                            Field Name
-                        </TableCell>
-
-                        <TableCell>
-                            Field Label
-                        </TableCell>
-
-                        <TableCell>
-                            Field Key
-                        </TableCell>
-
-                        <TableCell>
-                            Field Type
-                        </TableCell>
-
-                        {showVendor && (
-                            <TableCell>
-                                Vendor
-                            </TableCell>
-                        )}
-
-                        {showItem && (
-                            <TableCell>
-                                Item
-                            </TableCell>
-                        )}
-
-                        {showValue && (
-                            <TableCell>
-                                Field Value
-                            </TableCell>
-                        )}
-
-                        <TableCell>
-                            Required
-                        </TableCell>
-
-                        <TableCell>
-                            Status
-                        </TableCell>
-
-                        {showDisplayOrder && (
-                            <TableCell align="center">
-                                Display Order
-                            </TableCell>
-                        )}
-
-                        {showCreatedAt && (
-                            <TableCell>
-                                Created At
-                            </TableCell>
-                        )}
-
-                        {showActions && (
-                            <TableCell align="center">
-                                Actions
-                            </TableCell>
-                        )}
+                    <TableRow
+                        sx={{
+                            backgroundColor: "action.hover",
+                            "& th": {
+                                fontWeight: 700,
+                                whiteSpace: "nowrap"
+                            }
+                        }}
+                    >
+                        <TableCell>ID</TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Value</TableCell>
+                        <TableCell>Vendor Item Master ID</TableCell>
+                        <TableCell>Seller ID</TableCell>
+                        <TableCell>Customer ID</TableCell>
+                        <TableCell>Required</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell align="center">Actions</TableCell>
                     </TableRow>
                 </TableHead>
 
-                {/* =========================================
-                    TABLE BODY
-                ========================================= */}
-
                 <TableBody>
-                    {loading ? (
-                        <TableRow>
-                            <TableCell
-                                colSpan={
-                                    7 +
-                                    (showVendor ? 1 : 0) +
-                                    (showItem ? 1 : 0) +
-                                    (showValue ? 1 : 0) +
-                                    (showDisplayOrder ? 1 : 0) +
-                                    (showCreatedAt ? 1 : 0) +
-                                    (showActions ? 1 : 0)
-                                }
-                                align="center"
-                                sx={{ py: 6 }}
-                            >
-                                <CircularProgress size={30} />
+                    {records.map((field, index) => {
+                        const id = getRecordId(field);
 
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    sx={{ mt: 1 }}
-                                >
-                                    Loading custom fields...
-                                </Typography>
-                            </TableCell>
-                        </TableRow>
-                    ) : rows.length === 0 ? (
-                        <TableRow>
-                            <TableCell
-                                colSpan={
-                                    7 +
-                                    (showVendor ? 1 : 0) +
-                                    (showItem ? 1 : 0) +
-                                    (showValue ? 1 : 0) +
-                                    (showDisplayOrder ? 1 : 0) +
-                                    (showCreatedAt ? 1 : 0) +
-                                    (showActions ? 1 : 0)
-                                }
-                                align="center"
-                                sx={{ py: 7 }}
-                            >
-                                <Box
-                                    display="flex"
-                                    flexDirection="column"
-                                    alignItems="center"
-                                    gap={1}
-                                >
-                                    <Inventory2
-                                        sx={{
-                                            fontSize: 42,
-                                            color: "text.disabled"
-                                        }}
-                                    />
+                        const name = getFieldValue(
+                            field,
+                            "name",
+                            "Name",
+                            "fieldName",
+                            "FieldName",
+                            "fieldLabel",
+                            "FieldLabel"
+                        );
 
-                                    <Typography
-                                        variant="subtitle1"
-                                        fontWeight={600}
-                                    >
-                                        {emptyMessage}
-                                    </Typography>
+                        const value = getFieldValue(
+                            field,
+                            "value",
+                            "Value",
+                            "fieldValue",
+                            "FieldValue"
+                        );
 
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                    >
-                                        Custom field records will appear here.
-                                    </Typography>
-                                </Box>
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        rows.map((field, index) => {
-                            const id = getFieldValue(
-                                field,
-                                "vendorItemCustomFieldId",
-                                "VendorItemCustomFieldId",
-                                "id",
-                                "Id"
-                            );
+                        const vendorItemMasterId = getFieldValue(
+                            field,
+                            "vendorItemMasterId",
+                            "VendorItemMasterId"
+                        );
 
-                            const fieldName = getFieldValue(
-                                field,
-                                "fieldName",
-                                "FieldName"
-                            );
+                        const sellerId = getFieldValue(
+                            field,
+                            "sellerId",
+                            "SellerId"
+                        );
 
-                            const fieldLabel = getFieldValue(
-                                field,
-                                "fieldLabel",
-                                "FieldLabel"
-                            );
+                        const customerId = getFieldValue(
+                            field,
+                            "customerId",
+                            "CustomerId"
+                        );
 
-                            const fieldKey = getFieldValue(
-                                field,
-                                "fieldKey",
-                                "FieldKey"
-                            );
-
-                            const fieldType = getFieldValue(
-                                field,
-                                "fieldType",
-                                "FieldType"
-                            );
-
-                            const vendorName = getFieldValue(
-                                field,
-                                "vendorName",
-                                "VendorName"
-                            );
-
-                            const itemName = getFieldValue(
-                                field,
-                                "itemName",
-                                "ItemName",
-                                "productName",
-                                "ProductName"
-                            );
-
-                            const fieldValue = getFieldValue(
-                                field,
-                                "fieldValue",
-                                "FieldValue"
-                            );
-
-                            const isRequired = getFieldValue(
+                        const required = isTrue(
+                            getFieldValue(
                                 field,
                                 "isRequired",
                                 "IsRequired"
-                            );
+                            )
+                        );
 
-                            const isActive = getFieldValue(
-                                field,
-                                "isActive",
-                                "IsActive"
-                            );
+                        const activeValue = getFieldValue(
+                            field,
+                            "isActive",
+                            "IsActive",
+                            "enabled",
+                            "Enabled"
+                        );
 
-                            const displayOrder = getFieldValue(
-                                field,
-                                "displayOrder",
-                                "DisplayOrder"
-                            );
+                        const hasStatus =
+                            activeValue !== null &&
+                            activeValue !== undefined;
 
-                            const createdAt = getFieldValue(
-                                field,
-                                "createdAt",
-                                "CreatedAt"
-                            );
+                        const active = isTrue(activeValue);
 
-                            const active =
-                                isActive === true ||
-                                isActive === 1 ||
-                                String(isActive).toLowerCase() === "true";
+                        return (
+                            <TableRow
+                                key={id ?? `custom-field-${index}`}
+                                hover
+                                sx={{
+                                    "&:last-child td": {
+                                        borderBottom: 0
+                                    }
+                                }}
+                            >
+                                <TableCell>
+                                    {id ?? "—"}
+                                </TableCell>
 
-                            const required =
-                                isRequired === true ||
-                                isRequired === 1 ||
-                                String(isRequired).toLowerCase() === "true";
+                                <TableCell>
+                                    <Box
+                                        display="flex"
+                                        alignItems="center"
+                                        gap={1}
+                                    >
+                                        <TuneIcon
+                                            fontSize="small"
+                                            color="action"
+                                        />
 
-                            return (
-                                <TableRow
-                                    key={id ?? `${fieldName}-${index}`}
-                                    hover
-                                >
-                                    {/* ROW NUMBER */}
-
-                                    <TableCell>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                        >
-                                            {index + 1}
-                                        </Typography>
-                                    </TableCell>
-
-                                    {/* FIELD NAME */}
-
-                                    <TableCell>
                                         <Typography
                                             variant="body2"
                                             fontWeight={600}
-                                            sx={{
-                                                minWidth: 130,
-                                                overflowWrap: "anywhere"
-                                            }}
                                         >
-                                            {fieldName || "-"}
+                                            {name ?? "—"}
                                         </Typography>
-                                    </TableCell>
+                                    </Box>
+                                </TableCell>
 
-                                    {/* FIELD LABEL */}
+                                <TableCell>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            maxWidth: 220,
+                                            overflowWrap: "anywhere"
+                                        }}
+                                    >
+                                        {value ?? "—"}
+                                    </Typography>
+                                </TableCell>
 
-                                    <TableCell>
-                                        <Typography
-                                            variant="body2"
-                                            sx={{ minWidth: 120 }}
-                                        >
-                                            {fieldLabel || "-"}
-                                        </Typography>
-                                    </TableCell>
+                                <TableCell>
+                                    {vendorItemMasterId ?? "—"}
+                                </TableCell>
 
-                                    {/* FIELD KEY */}
+                                <TableCell>
+                                    {sellerId ?? "—"}
+                                </TableCell>
 
-                                    <TableCell>
+                                <TableCell>
+                                    {customerId ?? "—"}
+                                </TableCell>
+
+                                <TableCell>
+                                    <Chip
+                                        size="small"
+                                        label={required ? "Required" : "Optional"}
+                                        color={required ? "primary" : "default"}
+                                        variant={required ? "filled" : "outlined"}
+                                    />
+                                </TableCell>
+
+                                <TableCell>
+                                    {hasStatus ? (
                                         <Chip
-                                            label={fieldKey || "-"}
                                             size="small"
+                                            label={active ? "Active" : "Inactive"}
+                                            color={active ? "success" : "default"}
+                                            variant={active ? "filled" : "outlined"}
+                                        />
+                                    ) : (
+                                        <Chip
+                                            size="small"
+                                            label="Not configured"
                                             variant="outlined"
-                                            sx={{
-                                                maxWidth: 180,
-                                                "& .MuiChip-label": {
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis"
-                                                }
-                                            }}
                                         />
-                                    </TableCell>
-
-                                    {/* FIELD TYPE */}
-
-                                    <TableCell>
-                                        <Chip
-                                            icon={<Tune />}
-                                            label={formatFieldType(fieldType)}
-                                            size="small"
-                                            variant="outlined"
-                                            color="default"
-                                        />
-                                    </TableCell>
-
-                                    {/* VENDOR */}
-
-                                    {showVendor && (
-                                        <TableCell>
-                                            <Typography
-                                                variant="body2"
-                                                sx={{ minWidth: 120 }}
-                                            >
-                                                {vendorName ||
-                                                    getFieldValue(
-                                                        field,
-                                                        "vendorId",
-                                                        "VendorId"
-                                                    ) ||
-                                                    "-"}
-                                            </Typography>
-                                        </TableCell>
                                     )}
+                                </TableCell>
 
-                                    {/* ITEM */}
-
-                                    {showItem && (
-                                        <TableCell>
-                                            <Typography
-                                                variant="body2"
-                                                sx={{ minWidth: 120 }}
-                                            >
-                                                {itemName ||
-                                                    getFieldValue(
-                                                        field,
-                                                        "itemId",
-                                                        "ItemId"
-                                                    ) ||
-                                                    "-"}
-                                            </Typography>
-                                        </TableCell>
-                                    )}
-
-                                    {/* FIELD VALUE */}
-
-                                    {showValue && (
-                                        <TableCell>
-                                            <Tooltip
-                                                title={formatFieldValue(fieldValue)}
-                                                placement="top"
-                                            >
-                                                <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                        maxWidth: 180,
-                                                        overflow: "hidden",
-                                                        textOverflow: "ellipsis",
-                                                        whiteSpace: "nowrap"
-                                                    }}
-                                                >
-                                                    {formatFieldValue(fieldValue)}
-                                                </Typography>
-                                            </Tooltip>
-                                        </TableCell>
-                                    )}
-
-                                    {/* REQUIRED */}
-
-                                    <TableCell>
-                                        <Chip
-                                            label={
-                                                required
-                                                    ? "Required"
-                                                    : "Optional"
-                                            }
-                                            size="small"
-                                            color={
-                                                required
-                                                    ? "warning"
-                                                    : "default"
-                                            }
-                                            variant={
-                                                required
-                                                    ? "filled"
-                                                    : "outlined"
-                                            }
-                                        />
-                                    </TableCell>
-
-                                    {/* STATUS */}
-
-                                    <TableCell>
-                                        <Box
-                                            display="flex"
-                                            alignItems="center"
-                                            gap={0.5}
-                                        >
-                                            <Chip
-                                                label={
-                                                    active
-                                                        ? "Active"
-                                                        : "Inactive"
-                                                }
-                                                size="small"
-                                                color={
-                                                    active
-                                                        ? "success"
-                                                        : "default"
-                                                }
-                                            />
-
-                                            {onToggleStatus ||
-                                            onToggleFieldStatus ? (
-                                                <Tooltip
-                                                    title={
-                                                        active
-                                                            ? "Deactivate field"
-                                                            : "Activate field"
+                                <TableCell align="center">
+                                    <Box
+                                        display="flex"
+                                        justifyContent="center"
+                                        alignItems="center"
+                                        gap={0.25}
+                                    >
+                                        {(onView || onViewField) && (
+                                            <Tooltip title="View custom field">
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    aria-label="View custom field"
+                                                    onClick={(event) =>
+                                                        handleView(event, field)
                                                     }
                                                 >
-                                                    <Switch
-                                                        size="small"
-                                                        checked={active}
-                                                        onChange={() =>
-                                                            handleToggleStatus(field)
-                                                        }
-                                                        inputProps={{
-                                                            "aria-label":
-                                                                `Toggle status for ${fieldName || "custom field"}`
-                                                        }}
-                                                    />
-                                                </Tooltip>
-                                            ) : null}
-                                        </Box>
-                                    </TableCell>
+                                                    <VisibilityIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
 
-                                    {/* DISPLAY ORDER */}
+                                        {(onEdit || onEditField) && (
+                                            <Tooltip title="Edit custom field">
+                                                <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    aria-label="Edit custom field"
+                                                    onClick={(event) =>
+                                                        handleEdit(event, field)
+                                                    }
+                                                >
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
 
-                                    {showDisplayOrder && (
-                                        <TableCell align="center">
-                                            <Typography variant="body2">
-                                                {displayOrder ?? 0}
-                                            </Typography>
-                                        </TableCell>
-                                    )}
+                                        {(onDelete || onDeleteField) && (
+                                            <Tooltip title="Delete custom field">
+                                                <IconButton
+                                                    size="small"
+                                                    color="error"
+                                                    aria-label="Delete custom field"
+                                                    onClick={(event) =>
+                                                        handleDelete(event, field)
+                                                    }
+                                                >
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
 
-                                    {/* CREATED AT */}
-
-                                    {showCreatedAt && (
-                                        <TableCell>
-                                            <Typography
-                                                variant="body2"
-                                                sx={{ whiteSpace: "nowrap" }}
+                                        {(onToggleStatus || onToggleFieldStatus) && (
+                                            <Tooltip
+                                                title={
+                                                    active
+                                                        ? "Deactivate custom field"
+                                                        : "Activate custom field"
+                                                }
                                             >
-                                                {formatDate(createdAt)}
-                                            </Typography>
-                                        </TableCell>
-                                    )}
-
-                                    {/* ACTIONS */}
-
-                                    {showActions && (
-                                        <TableCell align="center">
-                                            <Box
-                                                display="flex"
-                                                justifyContent="center"
-                                                alignItems="center"
-                                                gap={0.5}
-                                            >
-                                                {(
-                                                    onView ||
-                                                    onViewField
-                                                ) && (
-                                                    <Tooltip title="View details">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="info"
-                                                            onClick={() =>
-                                                                handleView(field)
-                                                            }
-                                                            aria-label="View custom field"
-                                                        >
-                                                            <Visibility fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
-
-                                                {(
-                                                    onEdit ||
-                                                    onEditField
-                                                ) && (
-                                                    <Tooltip title="Edit custom field">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="primary"
-                                                            onClick={() =>
-                                                                handleEdit(field)
-                                                            }
-                                                            aria-label="Edit custom field"
-                                                        >
-                                                            <Edit fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
-
-                                                {(
-                                                    onDelete ||
-                                                    onDeleteField
-                                                ) && (
-                                                    <Tooltip title="Delete custom field">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="error"
-                                                            onClick={() =>
-                                                                handleDelete(field)
-                                                            }
-                                                            aria-label="Delete custom field"
-                                                        >
-                                                            <Delete fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
-                                            </Box>
-                                        </TableCell>
-                                    )}
-                                </TableRow>
-                            );
-                        })
-                    )}
+                                                <IconButton
+                                                    size="small"
+                                                    color={active ? "success" : "default"}
+                                                    aria-label="Toggle custom field status"
+                                                    onClick={(event) =>
+                                                        handleToggleStatus(event, field)
+                                                    }
+                                                >
+                                                    <TuneIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+                                    </Box>
+                                </TableCell>
+                            </TableRow>
+                        );
+                    })}
                 </TableBody>
             </Table>
+
+            <Alert
+                severity="info"
+                variant="outlined"
+                sx={{
+                    m: 1,
+                    display: "none"
+                }}
+            >
+                Custom fields loaded.
+            </Alert>
         </TableContainer>
     );
 };
 
 export default VendorItemCustomFieldTable;
-

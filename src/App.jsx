@@ -1976,16 +1976,52 @@ SUPPLIER CONTACTS ROUTES
 />
 
 {/* =================================================
-VENDOR ITEM CUSTOM FIELDS ROUTES
+    VENDOR ITEM CUSTOM FIELDS ROUTES
 ================================================= */}
-<Route path="vendor-item-custom-fields" element={<VendorItemCustomFieldsList />} />
-<Route path="vendor-item-custom-fields/create" element={<VendorItemCustomFieldCreate />} />
-<Route path="vendor-item-custom-fields/search" element={<VendorItemCustomFieldSearch />} />
-<Route path="vendor-item-custom-fields/filters" element={<VendorItemCustomFieldFilters />} />
-<Route path="vendor-item-custom-fields/statistics" element={<VendorItemCustomFieldStatistics />} />
-<Route path="vendor-item-custom-fields/details/:id" element={<VendorItemCustomFieldDetails />} />
-<Route path="vendor-item-custom-fields/view/:id" element={<VendorItemCustomFieldView />} />
-<Route path="vendor-item-custom-fields/:id/edit" element={<VendorItemCustomFieldEdit />} />
+
+<Route
+    path="vendor-item-custom-fields"
+    element={<VendorItemCustomFieldsList />}
+/>
+
+<Route
+    path="vendor-item-custom-fields/create"
+    element={<VendorItemCustomFieldCreate />}
+/>
+
+<Route
+    path="vendor-item-custom-fields/search"
+    element={<VendorItemCustomFieldSearch />}
+/>
+
+<Route
+    path="vendor-item-custom-fields/filters"
+    element={<VendorItemCustomFieldFilters />}
+/>
+
+<Route
+    path="vendor-item-custom-fields/statistics"
+    element={<VendorItemCustomFieldStatistics />}
+/>
+
+<Route
+    path="vendor-item-custom-fields/details/:id"
+    element={<VendorItemCustomFieldDetails />}
+/>
+
+<Route
+    path="vendor-item-custom-fields/:id/view"
+    element={<VendorItemCustomFieldView />}
+/>
+
+<Route
+    path="vendor-item-custom-fields/:id/edit"
+    element={<VendorItemCustomFieldEdit />}
+/>
+<Route
+    path="vendor-item-custom-fields/:id/delete"
+    element={<DeleteVendorItemCustomFieldDialog/>}
+/>
 
 {/* =================================================
 VENDOR ITEM MASTERS ROUTES
@@ -1999,10 +2035,7 @@ VENDOR ITEM MASTERS ROUTES
 <Route path="vendor-item-masters/details/:id" element={<VendorItemMasterDetails />} />
 <Route path="vendor-item-masters/view/:id" element={<VendorItemMasterView />} />
 <Route path="vendor-item-masters/:id/edit" element={<VendorItemMasterEdit />} />
-<Route
-    path="vendor-item-masters/:id/delete"
-    element={<DeleteVendorItemMasterDialog />}
-/>
+<Route path="vendor-item-masters/:id/delete" element={<DeleteVendorItemMasterDialog />}/>
 
                 {/* =================================================
                     PRODUCT ATTRIBUTES

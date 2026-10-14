@@ -6,30 +6,31 @@ import React, {
 } from "react";
 
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
-    Box,
-    Grid,
-    Typography,
-    CircularProgress,
-    Snackbar,
     Alert,
-    Paper
+    Box,
+    CircularProgress,
+    Grid,
+    Paper,
+    Snackbar,
+    Typography
 } from "@mui/material";
 
 import VendorItemCustomFieldToolbar from "./VendorItemCustomFieldToolbar";
 import VendorItemCustomFieldStatistics from "./VendorItemCustomFieldStatistics";
 import VendorItemCustomFieldTable from "./VendorItemCustomFieldTable";
 import VendorItemCustomFieldSearch from "./VendorItemCustomFieldSearch";
-import VendorItemCustomFieldView from "./VendorItemCustomFieldView";
 
 /* =========================================================
    API CONFIGURATION
 ========================================================= */
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL =
+    "http://localhost:5000/api/vendor-item-custom-fields";
 
-const API_URL = `${API_BASE_URL}/VendorItemCustomField`;
+const API_URL = `${API_BASE_URL}/all`;
 
 /* =========================================================
    GET FIELD VALUE
@@ -107,6 +108,18 @@ const getErrorMessage = (error) => {
 };
 
 /* =========================================================
+   BOOLEAN NORMALIZATION
+========================================================= */
+
+const isTrue = (value) => {
+    return (
+        value === true ||
+        value === 1 ||
+        String(value).toLowerCase() === "true"
+    );
+};
+
+/* =========================================================
    VENDOR ITEM CUSTOM FIELDS LIST
 ========================================================= */
 
@@ -122,6 +135,8 @@ const VendorItemCustomFieldsList = ({
     onManageFields,
     initialPageSize = 10
 }) => {
+    const navigate = useNavigate();
+
     /* =====================================================
        STATE
     ===================================================== */
@@ -131,7 +146,6 @@ const VendorItemCustomFieldsList = ({
 
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [deletingId, setDeletingId] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -140,9 +154,6 @@ const VendorItemCustomFieldsList = ({
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(initialPageSize);
 
-    const [selectedField, setSelectedField] = useState(null);
-    const [viewOpen, setViewOpen] = useState(false);
-
     const [alert, setAlert] = useState({
         open: false,
         message: "",
@@ -150,7 +161,7 @@ const VendorItemCustomFieldsList = ({
     });
 
     /* =====================================================
-       SHOW ALERT
+       ALERT
     ===================================================== */
 
     const showAlert = useCallback((message, severity = "info") => {
@@ -161,8 +172,15 @@ const VendorItemCustomFieldsList = ({
         });
     }, []);
 
+    const closeAlert = useCallback(() => {
+        setAlert((previous) => ({
+            ...previous,
+            open: false
+        }));
+    }, []);
+
     /* =====================================================
-       GET RECORD ID
+       RECORD ID
     ===================================================== */
 
     const getRecordId = useCallback((field) => {
@@ -176,7 +194,7 @@ const VendorItemCustomFieldsList = ({
     }, []);
 
     /* =====================================================
-       GET ALL CUSTOM FIELDS
+       LOAD CUSTOM FIELDS
     ===================================================== */
 
     const fetchVendorItemCustomFields = useCallback(
@@ -189,10 +207,7 @@ const VendorItemCustomFieldsList = ({
 
             try {
                 const response = await axios.get(apiUrl);
-
-                const records = normalizeListResponse(
-                    response.data
-                );
+                const records = normalizeListResponse(response.data);
 
                 setVendorItemCustomFields(records);
 
@@ -226,7 +241,7 @@ const VendorItemCustomFieldsList = ({
     }, [fetchVendorItemCustomFields]);
 
     /* =====================================================
-       OPTIONAL AUTO REFRESH
+       AUTO REFRESH
     ===================================================== */
 
     useEffect(() => {
@@ -239,23 +254,24 @@ const VendorItemCustomFieldsList = ({
         }, refreshInterval);
 
         return () => clearInterval(intervalId);
-    }, [
-        refreshInterval,
-        fetchVendorItemCustomFields
-    ]);
+    }, [refreshInterval, fetchVendorItemCustomFields]);
 
     /* =====================================================
        SEARCH AND FILTER
     ===================================================== */
 
     const filteredFields = useMemo(() => {
-        const normalizedSearch = searchTerm
-            .trim()
-            .toLowerCase();
+        const normalizedSearch = searchTerm.trim().toLowerCase();
 
         return vendorItemCustomFields.filter((field) => {
             const fieldName = String(
-                getFieldValue(field, "fieldName", "FieldName") ?? ""
+                getFieldValue(
+                    field,
+                    "fieldName",
+                    "FieldName",
+                    "name",
+                    "Name"
+                ) ?? ""
             ).toLowerCase();
 
             const fieldLabel = String(
@@ -268,6 +284,16 @@ const VendorItemCustomFieldsList = ({
 
             const fieldType = String(
                 getFieldValue(field, "fieldType", "FieldType") ?? ""
+            ).toLowerCase();
+
+            const fieldValue = String(
+                getFieldValue(
+                    field,
+                    "fieldValue",
+                    "FieldValue",
+                    "value",
+                    "Value"
+                ) ?? ""
             ).toLowerCase();
 
             const vendorName = String(
@@ -291,49 +317,36 @@ const VendorItemCustomFieldsList = ({
                     fieldLabel,
                     fieldKey,
                     fieldType,
+                    fieldValue,
                     vendorName,
                     itemName
-                ].some((value) =>
-                    value.includes(normalizedSearch)
-                );
+                ].some((value) => value.includes(normalizedSearch));
 
-            const isActiveValue = getFieldValue(
+            const activeValue = getFieldValue(
                 field,
                 "isActive",
-                "IsActive"
+                "IsActive",
+                "enabled",
+                "Enabled"
             );
 
-            const isActive =
-                isActiveValue === true ||
-                isActiveValue === 1 ||
-                String(isActiveValue).toLowerCase() === "true";
-
-            const isRequiredValue = getFieldValue(
+            const requiredValue = getFieldValue(
                 field,
                 "isRequired",
                 "IsRequired"
             );
 
-            const isRequired =
-                isRequiredValue === true ||
-                isRequiredValue === 1 ||
-                String(isRequiredValue).toLowerCase() === "true";
-
             const matchesStatus =
                 statusFilter === "all" ||
-                (statusFilter === "active" && isActive) ||
-                (statusFilter === "inactive" && !isActive);
+                (statusFilter === "active" && isTrue(activeValue)) ||
+                (statusFilter === "inactive" && !isTrue(activeValue));
 
             const matchesRequired =
                 requiredFilter === "all" ||
-                (requiredFilter === "required" && isRequired) ||
-                (requiredFilter === "optional" && !isRequired);
+                (requiredFilter === "required" && isTrue(requiredValue)) ||
+                (requiredFilter === "optional" && !isTrue(requiredValue));
 
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesRequired
-            );
+            return matchesSearch && matchesStatus && matchesRequired;
         });
     }, [
         vendorItemCustomFields,
@@ -367,23 +380,21 @@ const VendorItemCustomFieldsList = ({
     }, [totalPages]);
 
     /* =====================================================
-       FILTER COUNTS
+       STATISTICS
     ===================================================== */
 
     const activeFields = useMemo(() => {
-        return vendorItemCustomFields.filter((field) => {
-            const value = getFieldValue(
-                field,
-                "isActive",
-                "IsActive"
-            );
-
-            return (
-                value === true ||
-                value === 1 ||
-                String(value).toLowerCase() === "true"
-            );
-        }).length;
+        return vendorItemCustomFields.filter((field) =>
+            isTrue(
+                getFieldValue(
+                    field,
+                    "isActive",
+                    "IsActive",
+                    "enabled",
+                    "Enabled"
+                )
+            )
+        ).length;
     }, [vendorItemCustomFields]);
 
     const inactiveFields = Math.max(
@@ -395,242 +406,209 @@ const VendorItemCustomFieldsList = ({
        REFRESH
     ===================================================== */
 
-    const handleRefresh = async () => {
+    const handleRefresh = useCallback(async () => {
         await fetchVendorItemCustomFields(false);
-    };
+    }, [fetchVendorItemCustomFields]);
 
     /* =====================================================
-       RESET FILTERS
+       CLEAR FILTERS
     ===================================================== */
 
-    const handleClearFilters = () => {
+    const handleClearFilters = useCallback(() => {
         setSearchTerm("");
         setStatusFilter("all");
         setRequiredFilter("all");
         setPage(0);
-    };
+    }, []);
 
     /* =====================================================
-       OPEN VIEW DIALOG
+       CREATE PAGE
     ===================================================== */
 
-    const handleView = (field) => {
-        setSelectedField(field);
-        setViewOpen(true);
-
-        if (onView) {
-            onView(field);
-        }
-    };
-
-    /* =====================================================
-       CLOSE VIEW DIALOG
-    ===================================================== */
-
-    const handleCloseView = () => {
-        setViewOpen(false);
-        setSelectedField(null);
-    };
-
-    /* =====================================================
-       EDIT CUSTOM FIELD
-    ===================================================== */
-
-    const handleEdit = (field) => {
-        if (onEdit) {
-            onEdit(field);
-            return;
-        }
-
-        showAlert(
-            "Connect the edit form using the onEdit prop.",
-            "info"
-        );
-    };
-
-    /* =====================================================
-       ADD CUSTOM FIELD
-    ===================================================== */
-
-    const handleAdd = () => {
+    const handleAdd = useCallback(() => {
         if (onAdd) {
             onAdd();
             return;
         }
 
-        showAlert(
-            "Connect the create form using the onAdd prop.",
-            "info"
-        );
-    };
+        navigate("/vendor-item-custom-fields/create");
+    }, [onAdd, navigate]);
 
     /* =====================================================
-       DELETE CUSTOM FIELD
+       VIEW PAGE
     ===================================================== */
 
-    const handleDelete = async (field) => {
-        const id = getRecordId(field);
+    const handleView = useCallback(
+        (field) => {
+            const id = getRecordId(field);
 
-        if (id === null || id === undefined) {
-            showAlert(
-                "Cannot delete this field because its ID is missing.",
-                "error"
+            if (id === null || id === undefined || String(id).trim() === "") {
+                showAlert("Custom field ID is missing.", "error");
+                console.error("View failed: missing record ID.", field);
+                return;
+            }
+
+            if (onView) {
+                onView(field);
+                return;
+            }
+
+            navigate(
+                `/vendor-item-custom-fields/${encodeURIComponent(String(id))}/view`
             );
-            return;
-        }
+        },
+        [getRecordId, showAlert, onView, navigate]
+    );
 
-        const fieldName = getFieldValue(
-            field,
-            "fieldName",
-            "FieldName"
-        ) || "this custom field";
+    /* =====================================================
+       EDIT PAGE
+    ===================================================== */
 
-        const confirmed = window.confirm(
-            `Are you sure you want to delete "${fieldName}"?`
-        );
+    const handleEdit = useCallback(
+        (field) => {
+            const id = getRecordId(field);
 
-        if (!confirmed) {
-            return;
-        }
+            if (id === null || id === undefined || String(id).trim() === "") {
+                showAlert("Custom field ID is missing.", "error");
+                console.error("Edit failed: missing record ID.", field);
+                return;
+            }
 
-        setDeletingId(id);
+            if (onEdit) {
+                onEdit(field);
+                return;
+            }
 
-        try {
-            await axios.delete(`${apiUrl}/${id}`);
-
-            setVendorItemCustomFields((previous) =>
-                previous.filter(
-                    (item) => String(getRecordId(item)) !== String(id)
-                )
+            navigate(
+                `/vendor-item-custom-fields/${encodeURIComponent(String(id))}/edit`
             );
+        },
+        [getRecordId, showAlert, onEdit, navigate]
+    );
 
-            showAlert(
-                "Custom field deleted successfully.",
-                "success"
-            );
+    /* =====================================================
+       DELETE PAGE
+       Navigate to the standalone delete page.
+    ===================================================== */
+
+    const handleDelete = useCallback(
+        (field) => {
+            console.log("Delete button clicked. Record:", field);
+
+            const id = getRecordId(field);
+
+            if (id === null || id === undefined || String(id).trim() === "") {
+                console.error("Delete failed: missing record ID.", field);
+                showAlert("Custom field ID is missing.", "error");
+                return;
+            }
+
+            const deletePath =
+                `/vendor-item-custom-fields/${encodeURIComponent(String(id))}/delete`;
+
+            console.log("Delete record ID:", id);
+            console.log("Navigating to:", deletePath);
 
             if (onDelete) {
                 onDelete(field);
+                return;
             }
-        } catch (error) {
-            console.error(
-                "DELETE VENDOR ITEM CUSTOM FIELD ERROR:",
-                error
-            );
 
-            showAlert(
-                `Failed to delete custom field: ${getErrorMessage(error)}`,
-                "error"
-            );
-        } finally {
-            setDeletingId(null);
-        }
-    };
+            navigate(deletePath);
+        },
+        [getRecordId, showAlert, onDelete, navigate]
+    );
 
     /* =====================================================
        TOGGLE ACTIVE STATUS
-       Requires API support for PUT/PATCH.
     ===================================================== */
 
-    const handleToggleStatus = async (field) => {
-        const id = getRecordId(field);
+    const handleToggleStatus = useCallback(
+        async (field) => {
+            const id = getRecordId(field);
 
-        if (id === null || id === undefined) {
-            showAlert(
-                "Cannot update status because the field ID is missing.",
-                "error"
+            if (id === null || id === undefined || String(id).trim() === "") {
+                showAlert("Custom field ID is missing.", "error");
+                return;
+            }
+
+            const currentStatus = getFieldValue(
+                field,
+                "isActive",
+                "IsActive",
+                "enabled",
+                "Enabled"
             );
-            return;
-        }
 
-        const currentStatus = getFieldValue(
-            field,
-            "isActive",
-            "IsActive"
-        );
-
-        const currentlyActive =
-            currentStatus === true ||
-            currentStatus === 1 ||
-            String(currentStatus).toLowerCase() === "true";
-
-        const nextStatus = !currentlyActive;
-
-        const originalField = field;
-
-        setVendorItemCustomFields((previous) =>
-            previous.map((item) =>
-                String(getRecordId(item)) === String(id)
-                    ? {
-                        ...item,
-                        isActive: nextStatus,
-                        IsActive: nextStatus
-                    }
-                    : item
-            )
-        );
-
-        try {
-            /*
-             * Adjust this request to match your backend endpoint.
-             * This assumes PUT accepts the complete field object.
-             */
-            await axios.put(`${apiUrl}/${id}`, {
-                ...originalField,
-                isActive: nextStatus,
-                IsActive: nextStatus
-            });
-
-            showAlert(
-                `Custom field ${nextStatus ? "activated" : "deactivated"} successfully.`,
-                "success"
-            );
-        } catch (error) {
-            console.error(
-                "UPDATE CUSTOM FIELD STATUS ERROR:",
-                error
-            );
+            const nextStatus = !isTrue(currentStatus);
+            const originalField = field;
 
             setVendorItemCustomFields((previous) =>
                 previous.map((item) =>
                     String(getRecordId(item)) === String(id)
-                        ? originalField
+                        ? {
+                            ...item,
+                            isActive: nextStatus,
+                            IsActive: nextStatus
+                        }
                         : item
                 )
             );
 
-            showAlert(
-                `Failed to update status: ${getErrorMessage(error)}`,
-                "error"
-            );
-        }
-    };
+            try {
+                await axios.put(`${API_BASE_URL}/${id}`, {
+                    ...originalField,
+                    isActive: nextStatus,
+                    IsActive: nextStatus
+                });
+
+                showAlert(
+                    `Custom field ${nextStatus ? "activated" : "deactivated"} successfully.`,
+                    "success"
+                );
+            } catch (error) {
+                console.error("UPDATE CUSTOM FIELD STATUS ERROR:", error);
+
+                setVendorItemCustomFields((previous) =>
+                    previous.map((item) =>
+                        String(getRecordId(item)) === String(id)
+                            ? originalField
+                            : item
+                    )
+                );
+
+                showAlert(
+                    `Failed to update status: ${getErrorMessage(error)}`,
+                    "error"
+                );
+            }
+        },
+        [getRecordId, showAlert]
+    );
 
     /* =====================================================
        EXPORT CSV
     ===================================================== */
 
-    const handleExport = () => {
+    const handleExport = useCallback(() => {
         if (filteredFields.length === 0) {
-            showAlert(
-                "There are no custom fields to export.",
-                "warning"
-            );
+            showAlert("There are no custom fields to export.", "warning");
             return;
         }
 
         const headers = [
             "ID",
+            "Name",
             "Field Name",
             "Field Label",
             "Field Key",
             "Field Type",
-            "Vendor",
-            "Item",
             "Field Value",
+            "Seller ID",
+            "Customer ID",
+            "Vendor Item Master ID",
             "Required",
             "Active",
-            "Display Order",
             "Description"
         ];
 
@@ -641,18 +619,29 @@ const VendorItemCustomFieldsList = ({
 
         const csvRows = filteredFields.map((field) => [
             getRecordId(field),
+            getFieldValue(field, "name", "Name"),
             getFieldValue(field, "fieldName", "FieldName"),
             getFieldValue(field, "fieldLabel", "FieldLabel"),
             getFieldValue(field, "fieldKey", "FieldKey"),
             getFieldValue(field, "fieldType", "FieldType"),
-            getFieldValue(field, "vendorName", "VendorName") ??
-                getFieldValue(field, "vendorId", "VendorId"),
-            getFieldValue(field, "itemName", "ItemName") ??
-                getFieldValue(field, "itemId", "ItemId"),
-            getFieldValue(field, "fieldValue", "FieldValue"),
+            getFieldValue(
+                field,
+                "fieldValue",
+                "FieldValue",
+                "value",
+                "Value"
+            ),
+            getFieldValue(field, "sellerId", "SellerId"),
+            getFieldValue(field, "customerId", "CustomerId"),
+            getFieldValue(field, "vendorItemMasterId", "VendorItemMasterId"),
             getFieldValue(field, "isRequired", "IsRequired"),
-            getFieldValue(field, "isActive", "IsActive"),
-            getFieldValue(field, "displayOrder", "DisplayOrder"),
+            getFieldValue(
+                field,
+                "isActive",
+                "IsActive",
+                "enabled",
+                "Enabled"
+            ),
             getFieldValue(field, "description", "Description")
         ]);
 
@@ -678,38 +667,27 @@ const VendorItemCustomFieldsList = ({
 
         URL.revokeObjectURL(url);
 
-        showAlert(
-            "Custom fields exported successfully.",
-            "success"
-        );
-    };
+        showAlert("Custom fields exported successfully.", "success");
+    }, [filteredFields, getRecordId, showAlert]);
 
     /* =====================================================
-       SEARCH HANDLER
+       SEARCH HANDLERS
     ===================================================== */
 
-    const handleSearchChange = (value) => {
+    const handleSearchChange = useCallback((value) => {
         setSearchTerm(value);
         setPage(0);
-    };
+    }, []);
 
-    /* =====================================================
-       STATUS FILTER HANDLER
-    ===================================================== */
-
-    const handleStatusFilterChange = (value) => {
+    const handleStatusFilterChange = useCallback((value) => {
         setStatusFilter(value);
         setPage(0);
-    };
+    }, []);
 
-    /* =====================================================
-       REQUIRED FILTER HANDLER
-    ===================================================== */
-
-    const handleRequiredFilterChange = (value) => {
+    const handleRequiredFilterChange = useCallback((value) => {
         setRequiredFilter(value);
         setPage(0);
-    };
+    }, []);
 
     /* =====================================================
        RENDER
@@ -717,10 +695,6 @@ const VendorItemCustomFieldsList = ({
 
     return (
         <Box sx={{ width: "100%", p: { xs: 1, sm: 2, md: 3 } }}>
-            {/* =============================================
-                PAGE HEADER
-            ============================================= */}
-
             <Box
                 display="flex"
                 justifyContent="space-between"
@@ -730,26 +704,15 @@ const VendorItemCustomFieldsList = ({
                 sx={{ mb: 3 }}
             >
                 <Box>
-                    <Typography
-                        variant="h5"
-                        fontWeight={700}
-                        gutterBottom
-                    >
+                    <Typography variant="h5" fontWeight={700} gutterBottom>
                         {title}
                     </Typography>
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
+                    <Typography variant="body2" color="text.secondary">
                         {subtitle}
                     </Typography>
                 </Box>
             </Box>
-
-            {/* =============================================
-                TOOLBAR
-            ============================================= */}
 
             <Box sx={{ mb: 3 }}>
                 <VendorItemCustomFieldToolbar
@@ -771,20 +734,12 @@ const VendorItemCustomFieldsList = ({
                 />
             </Box>
 
-            {/* =============================================
-                STATISTICS
-            ============================================= */}
-
             <Box sx={{ mb: 3 }}>
                 <VendorItemCustomFieldStatistics
                     vendorItemCustomFields={vendorItemCustomFields}
                     loading={loading}
                 />
             </Box>
-
-            {/* =============================================
-                SEARCH
-            ============================================= */}
 
             <Paper
                 elevation={0}
@@ -809,10 +764,6 @@ const VendorItemCustomFieldsList = ({
                 />
             </Paper>
 
-            {/* =============================================
-                TABLE HEADER
-            ============================================= */}
-
             <Box
                 display="flex"
                 justifyContent="space-between"
@@ -821,34 +772,19 @@ const VendorItemCustomFieldsList = ({
                 gap={1}
                 sx={{ mb: 2 }}
             >
-                <Typography
-                    variant="h6"
-                    fontWeight={700}
-                >
+                <Typography variant="h6" fontWeight={700}>
                     Custom Fields
                 </Typography>
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
+                <Typography variant="body2" color="text.secondary">
                     Showing{" "}
-                    {filteredFields.length === 0
-                        ? 0
-                        : page * pageSize + 1}
+                    {filteredFields.length === 0 ? 0 : page * pageSize + 1}
                     {" - "}
-                    {Math.min(
-                        (page + 1) * pageSize,
-                        filteredFields.length
-                    )}
+                    {Math.min((page + 1) * pageSize, filteredFields.length)}
                     {" of "}
                     {filteredFields.length} records
                 </Typography>
             </Box>
-
-            {/* =============================================
-                TABLE
-            ============================================= */}
 
             {loading ? (
                 <Paper
@@ -885,10 +821,6 @@ const VendorItemCustomFieldsList = ({
                 />
             )}
 
-            {/* =============================================
-                PAGINATION
-            ============================================= */}
-
             <Paper
                 elevation={0}
                 sx={{
@@ -906,24 +838,15 @@ const VendorItemCustomFieldsList = ({
                     justifyContent="space-between"
                 >
                     <Grid item xs={12} sm={4}>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            gap={1}
-                        >
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                            >
+                        <Box display="flex" alignItems="center" gap={1}>
+                            <Typography variant="body2" color="text.secondary">
                                 Rows per page:
                             </Typography>
 
                             <select
                                 value={pageSize}
                                 onChange={(event) => {
-                                    setPageSize(
-                                        Number(event.target.value)
-                                    );
+                                    setPageSize(Number(event.target.value));
                                     setPage(0);
                                 }}
                                 style={{
@@ -984,10 +907,7 @@ const VendorItemCustomFieldsList = ({
                                 disabled={page >= totalPages - 1}
                                 onClick={() =>
                                     setPage((current) =>
-                                        Math.min(
-                                            current + 1,
-                                            totalPages - 1
-                                        )
+                                        Math.min(current + 1, totalPages - 1)
                                     )
                                 }
                             >
@@ -997,9 +917,7 @@ const VendorItemCustomFieldsList = ({
                             <button
                                 type="button"
                                 disabled={page >= totalPages - 1}
-                                onClick={() =>
-                                    setPage(totalPages - 1)
-                                }
+                                onClick={() => setPage(totalPages - 1)}
                             >
                                 Last
                             </button>
@@ -1008,35 +926,10 @@ const VendorItemCustomFieldsList = ({
                 </Grid>
             </Paper>
 
-            {/* =============================================
-                VIEW DIALOG
-            ============================================= */}
-
-            <VendorItemCustomFieldView
-                open={viewOpen}
-                onClose={handleCloseView}
-                vendorItemCustomField={selectedField}
-                selectedVendorItemCustomField={selectedField}
-                customField={selectedField}
-                onEdit={(field) => {
-                    handleCloseView();
-                    handleEdit(field);
-                }}
-            />
-
-            {/* =============================================
-                ALERT
-            ============================================= */}
-
             <Snackbar
                 open={alert.open}
                 autoHideDuration={5000}
-                onClose={() =>
-                    setAlert((previous) => ({
-                        ...previous,
-                        open: false
-                    }))
-                }
+                onClose={closeAlert}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
@@ -1045,12 +938,7 @@ const VendorItemCustomFieldsList = ({
                 <Alert
                     severity={alert.severity}
                     variant="filled"
-                    onClose={() =>
-                        setAlert((previous) => ({
-                            ...previous,
-                            open: false
-                        }))
-                    }
+                    onClose={closeAlert}
                     sx={{ width: "100%" }}
                 >
                     {alert.message}
@@ -1061,4 +949,3 @@ const VendorItemCustomFieldsList = ({
 };
 
 export default VendorItemCustomFieldsList;
-
