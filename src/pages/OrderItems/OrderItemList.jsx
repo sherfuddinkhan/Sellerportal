@@ -1,6 +1,7 @@
-
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
+
 import {
     Alert,
     Box,
@@ -13,105 +14,131 @@ import OrderItemStatistics from "./OrderItemStatistics";
 import OrderItemSearch from "./OrderItemSearch";
 import OrderItemTable from "./OrderItemTable";
 import OrderItemPagination from "./OrderItemPagination";
-import OrderItemModal from "./OrderItemModal";
-import OrderItemView from "./OrderItemView";
-import DeleteOrderItemDialog from "./DeleteOrderItemDialog";
 
 const SERVER_URL = "http://localhost:5000";
-const API_URL = `${SERVER_URL}/api/OrderItem`;
+const API_URL = `${SERVER_URL}/api/OrderItems`;
 
 const OrderItemList = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const [orderItems, setOrderItems] = useState([]);
     const [filteredItems, setFilteredItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [viewOpen, setViewOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
+
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: "",
         severity: "success"
     });
 
-    const showMessage = (message, severity = "success") => {
-        setSnackbar({ open: true, message, severity });
-    };
-    
-const loadOrderItems = useCallback(async () => {
-    setLoading(true);
-
-    try {
-        console.log("Loading OrderItems from:", API_URL);
-
-        const response = await axios.get(API_URL, {
-            timeout: 15000,
-            headers: {
-                Accept: "application/json"
-            }
+    const showMessage = useCallback((message, severity = "success") => {
+        setSnackbar({
+            open: true,
+            message,
+            severity
         });
+    }, []);
 
-        console.log("OrderItems HTTP status:", response.status);
-        console.log("OrderItems response:", response.data);
-
-        const data = Array.isArray(response.data)
-            ? response.data
-            : Array.isArray(response.data?.data)
-                ? response.data.data
-                : null;
-
-        if (data === null) {
-            console.error(
-                "Unexpected OrderItems response format:",
-                response.data
+    // Show messages returned by Create, Edit, or Delete pages.
+    useEffect(() => {
+        if (location.state?.message) {
+            showMessage(
+                location.state.message,
+                location.state.severity || "success"
             );
+
+            navigate(location.pathname, {
+                replace: true,
+                state: null
+            });
+        }
+    }, [
+        location.state,
+        location.pathname,
+        navigate,
+        showMessage
+    ]);
+
+    // Load all order items.
+    const loadOrderItems = useCallback(async () => {
+        setLoading(true);
+
+        try {
+            console.log("Loading OrderItems from:", API_URL);
+
+            const response = await axios.get(API_URL, {
+                timeout: 15000,
+                headers: {
+                    Accept: "application/json"
+                }
+            });
+
+            console.log("OrderItems HTTP status:", response.status);
+            console.log("OrderItems response:", response.data);
+
+            const data = Array.isArray(response.data)
+                ? response.data
+                : Array.isArray(response.data?.data)
+                    ? response.data.data
+                    : Array.isArray(response.data?.items)
+                        ? response.data.items
+                        : null;
+
+            if (data === null) {
+                console.error(
+                    "Unexpected OrderItems response format:",
+                    response.data
+                );
+
+                setOrderItems([]);
+
+                showMessage(
+                    "The API did not return an order-items array.",
+                    "error"
+                );
+
+                return;
+            }
+
+            setOrderItems(data);
+        } catch (error) {
+            console.error("LOAD ORDER ITEMS FAILED");
+            console.error("Request URL:", API_URL);
+            console.error("Error message:", error.message);
+            console.error("HTTP status:", error.response?.status);
+            console.error("Response body:", error.response?.data);
 
             setOrderItems([]);
+
             showMessage(
-                "The API did not return an order-items array.",
+                error.response?.data?.message ||
+                error.response?.data?.title ||
+                error.message ||
+                "Failed to load order items.",
                 "error"
             );
-            return;
+        } finally {
+            setLoading(false);
         }
-
-        setOrderItems(data);
-    } catch (error) {
-        console.error("LOAD ORDER ITEMS FAILED");
-        console.error("Request URL:", API_URL);
-        console.error("Error message:", error.message);
-        console.error("HTTP status:", error.response?.status);
-        console.error("Response body:", error.response?.data);
-
-        setOrderItems([]);
-
-        const responseData = error.response?.data;
-
-        showMessage(
-            responseData?.backendResponse?.title ||
-            responseData?.backendResponse?.message ||
-            responseData?.message ||
-            error.message ||
-            "Failed to load order items.",
-            "error"
-        );
-    } finally {
-        setLoading(false);
-    }
-}, []);
-
+    }, [showMessage]);
 
     useEffect(() => {
         loadOrderItems();
     }, [loadOrderItems]);
 
+    // Search by Order Item ID, Order ID, or Product ID.
     useEffect(() => {
         const search = searchText.trim().toLowerCase();
 
         const result = orderItems.filter((item) => {
-            if (!search) return true;
+            if (!search) {
+                return true;
+            }
 
             const orderId = String(
                 item.orderId ?? item.OrderId ?? ""
@@ -146,135 +173,114 @@ const loadOrderItems = useCallback(async () => {
         page * pageSize
     );
 
-    const handleSave = async (data) => {
-        try {
-            const id = data.orderItemId ?? data.OrderItemId;
-
-            const payload = {
-                orderId: Number(data.orderId ?? data.OrderId),
-                productId: Number(data.productId ?? data.ProductId),
-                quantity: Number(data.quantity ?? data.Quantity),
-                unitPrice: Number(data.unitPrice ?? data.UnitPrice)
-            };
-
-            if (
-                !Number.isFinite(payload.orderId) ||
-                payload.orderId <= 0 ||
-                !Number.isFinite(payload.productId) ||
-                payload.productId <= 0 ||
-                !Number.isFinite(payload.quantity) ||
-                payload.quantity <= 0 ||
-                !Number.isFinite(payload.unitPrice) ||
-                payload.unitPrice <= 0
-            ) {
-                showMessage(
-                    "Enter valid Order ID, Product ID, Quantity, and Unit Price.",
-                    "error"
-                );
-                return;
-            }
-
-            if (id != null && id !== "") {
-                await axios.put(`${API_URL}/${id}`, payload);
-                showMessage("Order item updated successfully.");
-            } else {
-                await axios.post(API_URL, payload);
-                showMessage("Order item created successfully.");
-            }
-
-            setModalOpen(false);
-            setSelectedItem(null);
-            await loadOrderItems();
-        } catch (error) {
-            console.error(
-                "SAVE ORDER ITEM ERROR:",
-                error.response?.data || error.message
-            );
-
-            showMessage(
-                error.response?.data?.message ||
-                "Failed to save order item. Check the API response.",
-                "error"
-            );
-        }
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`${API_URL}/${id}`);
-
-            setDeleteOpen(false);
-            setSelectedItem(null);
-
-            await loadOrderItems();
-
-            showMessage("Order item deleted successfully.");
-        } catch (error) {
-            console.error(
-                "DELETE ORDER ITEM ERROR:",
-                error.response?.data || error.message
-            );
-
-            showMessage(
-                error.response?.data?.message ||
-                "Failed to delete order item.",
-                "error"
-            );
-        }
-    };
-
     const getItemId = (item) =>
         item?.orderItemId ?? item?.OrderItemId;
+
+    // Navigate to the Create page.
+    const handleCreate = () => {
+        navigate("/order-items/create");
+    };
+
+    // Navigate to the View page.
+    const handleView = (item) => {
+        const id = getItemId(item);
+
+        if (id == null) {
+            showMessage("Order Item ID was not found.", "error");
+            return;
+        }
+
+        navigate(`/order-items/${id}/view`);
+    };
+
+    // Navigate to the Edit page.
+    const handleEdit = (item) => {
+        const id = getItemId(item);
+
+        if (id == null) {
+            showMessage("Order Item ID was not found.", "error");
+            return;
+        }
+
+        navigate(`/order-items/${id}/edit`);
+    };
+
+    // Navigate to the Delete confirmation page.
+    const handleDelete = (item) => {
+        const id = getItemId(item);
+
+        if (id == null) {
+            showMessage("Order Item ID was not found.", "error");
+            return;
+        }
+
+        navigate(`/order-items/${id}/delete`);
+    };
+
+    // Navigate to the Details page.
+    const handleDetails = (item) => {
+        const id = getItemId(item);
+
+        if (id == null) {
+            showMessage("Order Item ID was not found.", "error");
+            return;
+        }
+
+        navigate(`/order-items/${id}/details`);
+    };
+
+    // Export records to CSV.
+    const handleExport = () => {
+        const headers = [
+            "OrderItemId",
+            "OrderId",
+            "ProductId",
+            "Quantity",
+            "UnitPrice",
+            "TotalAmount"
+        ];
+
+        const rows = filteredItems.map((item) => [
+            getItemId(item),
+            item.orderId ?? item.OrderId,
+            item.productId ?? item.ProductId,
+            item.quantity ?? item.Quantity,
+            item.unitPrice ?? item.UnitPrice,
+            item.totalAmount ?? item.TotalAmount
+        ]);
+
+        const csv = [
+            headers.join(","),
+            ...rows.map((row) =>
+                row.map((value) =>
+                    `"${String(value ?? "").replace(/"/g, '""')}"`
+                ).join(",")
+            )
+        ].join("\n");
+
+        const blob = new Blob(
+            ["\uFEFF" + csv],
+            { type: "text/csv;charset=utf-8;" }
+        );
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "order-items.csv";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <Box sx={{ p: 3 }}>
             <OrderItemToolbar
-                onAdd={() => {
-                    setSelectedItem(null);
-                    setModalOpen(true);
-                }}
+                onAdd={handleCreate}
                 onRefresh={loadOrderItems}
-                onExport={() => {
-                    const headers = [
-                        "OrderItemId",
-                        "OrderId",
-                        "ProductId",
-                        "Quantity",
-                        "UnitPrice",
-                        "TotalAmount"
-                    ];
-
-                    const rows = orderItems.map((item) => [
-                        getItemId(item),
-                        item.orderId ?? item.OrderId,
-                        item.productId ?? item.ProductId,
-                        item.quantity ?? item.Quantity,
-                        item.unitPrice ?? item.UnitPrice,
-                        item.totalAmount ?? item.TotalAmount
-                    ]);
-
-                    const csv = [
-                        headers.join(","),
-                        ...rows.map((row) =>
-                            row.map((value) =>
-                                `"${String(value ?? "").replace(/"/g, '""')}"`
-                            ).join(",")
-                        )
-                    ].join("\n");
-
-                    const blob = new Blob([csv], {
-                        type: "text/csv;charset=utf-8;"
-                    });
-
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-
-                    link.href = url;
-                    link.download = "order-items.csv";
-                    link.click();
-
-                    URL.revokeObjectURL(url);
-                }}
+                onExport={handleExport}
             />
 
             <OrderItemStatistics items={orderItems} />
@@ -285,25 +291,23 @@ const loadOrderItems = useCallback(async () => {
             />
 
             {loading && orderItems.length === 0 ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        p: 4
+                    }}
+                >
                     <CircularProgress />
                 </Box>
             ) : (
                 <OrderItemTable
                     items={pagedItems}
                     loading={loading}
-                    onView={(row) => {
-                        setSelectedItem(row);
-                        setViewOpen(true);
-                    }}
-                    onEdit={(row) => {
-                        setSelectedItem(row);
-                        setModalOpen(true);
-                    }}
-                    onDelete={(row) => {
-                        setSelectedItem(row);
-                        setDeleteOpen(true);
-                    }}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onDetails={handleDetails}
                 />
             )}
 
@@ -317,35 +321,6 @@ const loadOrderItems = useCallback(async () => {
                     setPageSize(size);
                     setPage(1);
                 }}
-            />
-
-            <OrderItemModal
-                open={modalOpen}
-                item={selectedItem}
-                onClose={() => {
-                    setModalOpen(false);
-                    setSelectedItem(null);
-                }}
-                onSave={handleSave}
-            />
-
-            <OrderItemView
-                open={viewOpen}
-                item={selectedItem}
-                onClose={() => {
-                    setViewOpen(false);
-                    setSelectedItem(null);
-                }}
-            />
-
-            <DeleteOrderItemDialog
-                open={deleteOpen}
-                item={selectedItem}
-                onClose={() => {
-                    setDeleteOpen(false);
-                    setSelectedItem(null);
-                }}
-                onDeleted={handleDelete}
             />
 
             <Snackbar

@@ -2711,45 +2711,50 @@ VENDOR ITEM MASTERS ROUTES
 />
 
 
+{/* =================================================
+    ORDER ITEMS
+================================================= */}
 
-                {/* =================================================
-                    ORDER ITEMS
-                ================================================= */}
+<Route
+    path="order-items"
+    element={<OrderItemList />}
+/>
 
-                <Route
-                    path="order-items"
-                    element={<OrderItemList />}
-                />
+<Route
+    path="order-items/create"
+    element={<OrderItemCreate />}
+/>
 
-                <Route
-                    path="order-items/create"
-                    element={<OrderItemCreate />}
-                />
+<Route
+    path="order-items/search"
+    element={<OrderItemSearch />}
+/>
 
-                <Route
-                    path="order-items/search"
-                    element={<OrderItemSearch />}
-                />
+<Route
+    path="order-items/statistics"
+    element={<OrderItemStatistics />}
+/>
 
-                <Route
-                    path="order-items/statistics"
-                    element={<OrderItemStatistics />}
-                />
+<Route
+    path="order-items/:id/details"
+    element={<OrderItemDetails />}
+/>
 
-                <Route
-                    path="order-items/details/:id"
-                    element={<OrderItemDetails />}
-                />
+<Route
+    path="order-items/:id/edit"
+    element={<OrderItemEdit />}
+/>
 
-                <Route
-                    path="order-items/edit/:id"
-                    element={<OrderItemEdit />}
-                />
+<Route
+    path="order-items/:id/view"
+    element={<OrderItemView />}
+/>
 
-                <Route
-                    path="order-items/:id"
-                    element={<OrderItemView />}
-                />
+<Route
+    path="order-items/:id/delete"
+    element={<DeleteOrderItemDialog />}
+/>
+
 
 
                 {/* =================================================

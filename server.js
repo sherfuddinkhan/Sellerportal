@@ -36123,7 +36123,7 @@ const orderItemsHttpsAgent = new https.Agent({
 // ASP.NET: GET https://localhost:7203/api/OrderItems/all
 // =====================================================
 // =====================================================
-app.get("/api/OrderItem", async (req, res) => {
+app.get("/api/OrderItems", async (req, res) => {
     try {
         const response = await axios.get(
             `${ORDER_ITEMS_API}/all`,
@@ -36150,7 +36150,7 @@ app.get("/api/OrderItem", async (req, res) => {
 // React: GET /api/OrderItem/1
 // ASP.NET: GET /api/OrderItems/1
 // =====================================================
-app.get("/api/OrderItem/:id", async (req, res) => {
+app.get("/api/OrderItems/:id", async (req, res) => {
     try {
         const response = await axios.get(
             `${ORDER_ITEMS_API}/${req.params.id}`,
@@ -36181,7 +36181,7 @@ app.get("/api/OrderItem/:id", async (req, res) => {
 // React: POST /api/OrderItem
 // ASP.NET: POST /api/OrderItems
 // =====================================================
-app.post("/api/OrderItem", async (req, res) => {
+app.post("/api/OrderItems", async (req, res) => {
     try {
         const response = await axios.post(
             ORDER_ITEMS_API,
@@ -36214,7 +36214,7 @@ app.post("/api/OrderItem", async (req, res) => {
 // React: PUT /api/OrderItem/1
 // ASP.NET: PUT /api/OrderItems/1
 // =====================================================
-app.put("/api/OrderItem/:id", async (req, res) => {
+app.put("/api/OrderItems/:id", async (req, res) => {
     try {
         const response = await axios.put(
             `${ORDER_ITEMS_API}/${req.params.id}`,
@@ -36247,7 +36247,7 @@ app.put("/api/OrderItem/:id", async (req, res) => {
 // React: DELETE /api/OrderItem/1
 // ASP.NET: DELETE /api/OrderItems/1
 // =====================================================
-app.delete("/api/OrderItem/:id", async (req, res) => {
+app.delete("/api/OrderItems/:id", async (req, res) => {
     try {
         const response = await axios.delete(
             `${ORDER_ITEMS_API}/${req.params.id}`,

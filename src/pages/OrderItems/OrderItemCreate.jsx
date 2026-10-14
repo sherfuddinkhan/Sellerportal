@@ -1,359 +1,249 @@
-
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
+    Alert,
     Box,
-    Paper,
-    Typography,
-    TextField,
     Button,
-    Grid,
-    Divider,
-    Alert
+    Paper,
+    Stack,
+    TextField,
+    Typography
 } from "@mui/material";
 
-import {
-    ArrowBack,
-    Save
-} from "@mui/icons-material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SaveIcon from "@mui/icons-material/Save";
 
-import {
-    useNavigate
-} from "react-router-dom";
-
-import axios from "axios";
-
-const SERVER_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5000/api/OrderItems";
 
 const OrderItemCreate = () => {
-
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        OrderId: "",
-        ProductId: "",
-        Quantity: 1,
-        UnitPrice: 0,
-        TotalAmount: 0
+        orderId: "2",
+        productId: "6",
+        quantity: "2",
+        unitPrice: "1499"
     });
 
-    const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-
-    // =========================================================
-    // INPUT CHANGE
-    // =========================================================
-
     const handleChange = (event) => {
-
         const { name, value } = event.target;
 
-        setFormData((prev) => {
-
-            const updated = {
-                ...prev,
-                [name]: value
-            };
-
-            if (
-                name === "Quantity" ||
-                name === "UnitPrice"
-            ) {
-                const quantity =
-                    Number(updated.Quantity || 0);
-
-                const unitPrice =
-                    Number(updated.UnitPrice || 0);
-
-                updated.TotalAmount =
-                    quantity * unitPrice;
-            }
-
-            return updated;
-        });
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
     };
-
-
-    // =========================================================
-    // CREATE ORDER ITEM
-    // =========================================================
 
     const handleSubmit = async (event) => {
-
         event.preventDefault();
-
         setError("");
 
-        const orderId =
-            Number(formData.OrderId);
+        const payload = {
+            orderId: Number(formData.orderId),
+            productId: Number(formData.productId),
+            quantity: Number(formData.quantity),
+            unitPrice: Number(formData.unitPrice)
+        };
 
-        const productId =
-            Number(formData.ProductId);
-
-        const quantity =
-            Number(formData.Quantity || 0);
-
-        const unitPrice =
-            Number(formData.UnitPrice || 0);
-
-        const totalAmount =
-            quantity * unitPrice;
-
-
-        if (!orderId) {
-            setError("Order ID is required.");
+        if (
+            !Number.isInteger(payload.orderId) ||
+            payload.orderId <= 0 ||
+            !Number.isInteger(payload.productId) ||
+            payload.productId <= 0 ||
+            !Number.isFinite(payload.quantity) ||
+            payload.quantity <= 0 ||
+            !Number.isFinite(payload.unitPrice) ||
+            payload.unitPrice < 0
+        ) {
+            setError(
+                "Enter valid Order ID, Product ID, Quantity, and Unit Price."
+            );
             return;
         }
-
-        if (!productId) {
-            setError("Product ID is required.");
-            return;
-        }
-
-        if (quantity <= 0) {
-            setError("Quantity must be greater than 0.");
-            return;
-        }
-
-        if (unitPrice < 0) {
-            setError("Unit Price cannot be negative.");
-            return;
-        }
-
 
         try {
+            setLoading(true);
 
-            setSaving(true);
-
-            const payload = {
-                OrderId: orderId,
-                ProductId: productId,
-                Quantity: quantity,
-                UnitPrice: unitPrice,
-                TotalAmount: totalAmount
-            };
-
-            await axios.post(
-                `${SERVER_URL}/api/OrderItem`,
-                payload
+            // Log the exact values sent to the API.
+            console.log(
+                "CREATE ORDER ITEM PAYLOAD:",
+                JSON.stringify(payload, null, 2)
             );
 
-            navigate("/order-items");
+            console.log("CREATE ORDER ITEM URL:", API_URL);
 
+            const response = await axios.post(API_URL, payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                }
+            });
+
+            console.log(
+                "CREATE ORDER ITEM SUCCESS:",
+                response.status,
+                response.data
+            );
+
+            navigate("/order-items", {
+                replace: true,
+                state: {
+                    message: "Order item created successfully."
+                }
+            });
         } catch (err) {
+            const responseData = err.response?.data;
 
-            console.error(
-                "CREATE ORDER ITEM ERROR:",
-                err.response?.data || err.message
-            );
+            // Log full diagnostic details in the browser console.
+            console.error("CREATE ORDER ITEM FAILED");
+            console.error("HTTP STATUS:", err.response?.status);
+            console.error("REQUEST PAYLOAD:", payload);
+            console.error("API RESPONSE:", responseData);
+            console.error("ERROR MESSAGE:", err.message);
 
-            setError(
-                err.response?.data?.message ||
-                "Unable to create order item."
-            );
+            let errorMessage = "Failed to create order item.";
 
+            if (typeof responseData === "string") {
+                errorMessage = responseData;
+            } else if (responseData) {
+                errorMessage =
+                    responseData.message ||
+                    responseData.title ||
+                    responseData.detail ||
+                    JSON.stringify(responseData);
+            } else {
+                errorMessage = err.message;
+            }
+
+            setError(errorMessage);
         } finally {
-            setSaving(false);
+            setLoading(false);
         }
     };
 
-
     return (
-        <Box sx={{ p: 3 }}>
-
-            <Paper
-                elevation={3}
-                sx={{
-                    p: 3,
-                    maxWidth: 900,
-                    mx: "auto"
-                }}
+        <Box sx={{ p: { xs: 2, md: 3 }, maxWidth: 850, mx: "auto" }}>
+            <Stack
+                direction="row"
+                alignItems="center"
+                spacing={2}
+                sx={{ mb: 3 }}
             >
-
-                {/* Header */}
-
-                <Box
-                    display="flex"
-                    alignItems="center"
-                    gap={2}
-                    mb={2}
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate("/order-items")}
                 >
-                    <Button
-                        startIcon={<ArrowBack />}
-                        onClick={() =>
-                            navigate("/order-items")
-                        }
-                    >
-                        Back
-                    </Button>
+                    Back
+                </Button>
 
-                    <Typography
-                        variant="h5"
-                        fontWeight="bold"
-                    >
-                        Create Order Item
-                    </Typography>
-                </Box>
+                <Typography variant="h5" fontWeight={700}>
+                    Create Order Item
+                </Typography>
+            </Stack>
 
-                <Divider sx={{ mb: 3 }} />
-
-
+            <Paper elevation={2} sx={{ p: { xs: 2, md: 4 } }}>
                 {error && (
                     <Alert
                         severity="error"
-                        sx={{ mb: 3 }}
+                        sx={{ mb: 3, overflowWrap: "anywhere" }}
+                        onClose={() => setError("")}
                     >
                         {error}
                     </Alert>
                 )}
 
+                <Box component="form" onSubmit={handleSubmit}>
+                    <Stack spacing={3}>
+                        <TextField
+                            label="Order ID"
+                            name="orderId"
+                            type="number"
+                            value={formData.orderId}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            slotProps={{
+                                htmlInput: { min: 1, step: 1 }
+                            }}
+                        />
 
-                <Box
-                    component="form"
-                    onSubmit={handleSubmit}
-                >
+                        <TextField
+                            label="Product ID"
+                            name="productId"
+                            type="number"
+                            value={formData.productId}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            slotProps={{
+                                htmlInput: { min: 1, step: 1 }
+                            }}
+                        />
 
-                    <Grid
-                        container
-                        spacing={3}
-                    >
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Order ID"
-                                name="OrderId"
-                                type="number"
-                                value={formData.OrderId}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Product ID"
-                                name="ProductId"
-                                type="number"
-                                value={formData.ProductId}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Quantity"
-                                name="Quantity"
-                                type="number"
-                                value={formData.Quantity}
-                                onChange={handleChange}
-                                inputProps={{
+                        <TextField
+                            label="Quantity"
+                            name="quantity"
+                            type="number"
+                            value={formData.quantity}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            slotProps={{
+                                htmlInput: {
                                     min: 0.01,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
+                                    step: "any"
+                                }
+                            }}
+                        />
 
-
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Unit Price"
-                                name="UnitPrice"
-                                type="number"
-                                value={formData.UnitPrice}
-                                onChange={handleChange}
-                                inputProps={{
+                        <TextField
+                            label="Unit Price"
+                            name="unitPrice"
+                            type="number"
+                            value={formData.unitPrice}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            slotProps={{
+                                htmlInput: {
                                     min: 0,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
+                                    step: "any"
+                                }
+                            }}
+                        />
 
-
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                label="Total Amount"
-                                value={Number(
-                                    formData.TotalAmount || 0
-                                ).toLocaleString(
-                                    "en-IN",
-                                    {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    }
-                                )}
-                                InputProps={{
-                                    readOnly: true
-                                }}
-                            />
-                        </Grid>
-
-                    </Grid>
-
-
-                    <Box
-                        display="flex"
-                        justifyContent="flex-end"
-                        gap={2}
-                        mt={4}
-                    >
-
-                        <Button
-                            variant="outlined"
-                            onClick={() =>
-                                navigate("/order-items")
-                            }
-                            disabled={saving}
+                        <Stack
+                            direction="row"
+                            spacing={2}
+                            justifyContent="flex-end"
                         >
-                            Cancel
-                        </Button>
+                            <Button
+                                variant="outlined"
+                                onClick={() => navigate("/order-items")}
+                                disabled={loading}
+                            >
+                                Cancel
+                            </Button>
 
-
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            startIcon={
-                                saving ? (
-                                    <span>...</span>
-                                ) : (
-                                    <Save />
-                                )
-                            }
-                            disabled={saving}
-                        >
-                            {saving
-                                ? "Saving..."
-                                : "Save Order Item"
-                            }
-                        </Button>
-
-                    </Box>
-
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                startIcon={<SaveIcon />}
+                                disabled={loading}
+                            >
+                                {loading ? "Saving..." : "Create Order Item"}
+                            </Button>
+                        </Stack>
+                    </Stack>
                 </Box>
-
             </Paper>
-
         </Box>
     );
 };
 
 export default OrderItemCreate;
-
-
-
-
-
-
-
-
-

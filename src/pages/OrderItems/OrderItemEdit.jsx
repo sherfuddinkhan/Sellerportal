@@ -3,17 +3,23 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
+    Alert,
     Box,
-    Paper,
-    Typography,
-    TextField,
     Button,
     CircularProgress,
-    Alert,
-    Stack
+    Paper,
+    Stack,
+    TextField,
+    Typography
 } from "@mui/material";
 
+import {
+    ArrowBack,
+    Save
+} from "@mui/icons-material";
+
 const SERVER_URL = "http://localhost:5000";
+const API_URL = `${SERVER_URL}/api/OrderItems`;
 
 const OrderItemEdit = () => {
     const { id } = useParams();
@@ -31,100 +37,104 @@ const OrderItemEdit = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
 
     useEffect(() => {
-        if (!id || id === ":id") {
-            setError("Invalid Order Item ID.");
-            setLoading(false);
-            return;
-        }
+        let active = true;
+
+        const loadOrderItem = async () => {
+            if (!id || !/^\d+$/.test(id) || Number(id) <= 0) {
+                setError("Invalid Order Item ID.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError("");
+
+                const response = await axios.get(`${API_URL}/${id}`, {
+                    headers: {
+                        Accept: "application/json"
+                    }
+                });
+
+                const item = response.data;
+
+                if (!item || typeof item !== "object") {
+                    throw new Error("Order item was not found.");
+                }
+
+                const quantity = Number(
+                    item.quantity ?? item.Quantity ?? 0
+                );
+
+                const unitPrice = Number(
+                    item.unitPrice ?? item.UnitPrice ?? 0
+                );
+
+                if (active) {
+                    setFormData({
+                        OrderItemId:
+                            item.orderItemId ?? item.OrderItemId ?? id,
+                        OrderId:
+                            item.orderId ?? item.OrderId ?? "",
+                        ProductId:
+                            item.productId ?? item.ProductId ?? "",
+                        Quantity:
+                            item.quantity ?? item.Quantity ?? "",
+                        UnitPrice:
+                            item.unitPrice ?? item.UnitPrice ?? "",
+                        TotalAmount:
+                            item.totalAmount ??
+                            item.TotalAmount ??
+                            quantity * unitPrice
+                    });
+                }
+            } catch (err) {
+                console.error(
+                    "LOAD ORDER ITEM EDIT ERROR:",
+                    err.response?.data || err.message
+                );
+
+                if (active) {
+                    setError(
+                        err.response?.data?.message ||
+                        err.response?.data?.title ||
+                        err.message ||
+                        "Failed to load order item."
+                    );
+                }
+            } finally {
+                if (active) {
+                    setLoading(false);
+                }
+            }
+        };
 
         loadOrderItem();
+
+        return () => {
+            active = false;
+        };
     }, [id]);
 
-    const loadOrderItem = async () => {
-        try {
-            setLoading(true);
-            setError("");
+    const handleChange = (event) => {
+        const { name, value } = event.target;
 
-            console.log("Loading OrderItem ID:", id);
-
-            const response = await axios.get(
-                `${SERVER_URL}/api/OrderItem/${id}`
-            );
-
-            const item = response.data;
-
-            setFormData({
-                OrderItemId:
-                    item.OrderItemId ??
-                    item.orderItemId ??
-                    id,
-
-                OrderId:
-                    item.OrderId ??
-                    item.orderId ??
-                    "",
-
-                ProductId:
-                    item.ProductId ??
-                    item.productId ??
-                    "",
-
-                Quantity:
-                    item.Quantity ??
-                    item.quantity ??
-                    "",
-
-                UnitPrice:
-                    item.UnitPrice ??
-                    item.unitPrice ??
-                    "",
-
-                TotalAmount:
-                    item.TotalAmount ??
-                    item.totalAmount ??
-                    ""
-            });
-        } catch (err) {
-            console.error(
-                "LOAD ORDER ITEM EDIT ERROR:",
-                err.response?.data || err.message
-            );
-
-            setError(
-                err.response?.data?.message ||
-                "Failed to load order item."
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => {
+        setFormData((previous) => {
             const updated = {
-                ...prev,
+                ...previous,
                 [name]: value
             };
 
             if (name === "Quantity" || name === "UnitPrice") {
-                const quantity =
-                    Number(
-                        name === "Quantity"
-                            ? value
-                            : prev.Quantity
-                    ) || 0;
+                const quantity = Number(
+                    name === "Quantity" ? value : previous.Quantity
+                ) || 0;
 
-                const unitPrice =
-                    Number(
-                        name === "UnitPrice"
-                            ? value
-                            : prev.UnitPrice
-                    ) || 0;
+                const unitPrice = Number(
+                    name === "UnitPrice" ? value : previous.UnitPrice
+                ) || 0;
 
                 updated.TotalAmount = quantity * unitPrice;
             }
@@ -133,10 +143,11 @@ const OrderItemEdit = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setError("");
 
-        if (!id || id === ":id") {
+        if (!id || !/^\d+$/.test(id) || Number(id) <= 0) {
             setError("Invalid Order Item ID.");
             return;
         }
@@ -145,55 +156,52 @@ const OrderItemEdit = () => {
         const productId = Number(formData.ProductId);
         const quantity = Number(formData.Quantity);
         const unitPrice = Number(formData.UnitPrice);
-        const totalAmount = quantity * unitPrice;
 
-        if (!orderId) {
-            setError("Order ID is required.");
+        if (!Number.isInteger(orderId) || orderId <= 0) {
+            setError("Enter a valid Order ID.");
             return;
         }
 
-        if (!productId) {
-            setError("Product ID is required.");
+        if (!Number.isInteger(productId) || productId <= 0) {
+            setError("Enter a valid Product ID.");
             return;
         }
 
-        if (quantity <= 0) {
+        if (!Number.isFinite(quantity) || quantity <= 0) {
             setError("Quantity must be greater than 0.");
             return;
         }
 
-        if (unitPrice < 0) {
-            setError("Unit price cannot be negative.");
+        if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+            setError("Unit Price cannot be negative.");
             return;
         }
 
+        const payload = {
+            OrderItemId: Number(id),
+            OrderId: orderId,
+            ProductId: productId,
+            Quantity: quantity,
+            UnitPrice: unitPrice,
+            TotalAmount: quantity * unitPrice
+        };
+
         try {
             setSaving(true);
-            setError("");
-            setSuccess("");
 
-            const payload = {
-                OrderItemId: Number(id),
-                OrderId: orderId,
-                ProductId: productId,
-                Quantity: quantity,
-                UnitPrice: unitPrice,
-                TotalAmount: totalAmount
-            };
+            await axios.put(`${API_URL}/${id}`, payload, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                }
+            });
 
-            console.log("Updating OrderItem:", id);
-            console.log("Payload:", payload);
-
-            await axios.put(
-                `${SERVER_URL}/api/OrderItem/${id}`,
-                payload
-            );
-
-            setSuccess("Order item updated successfully.");
-
-            setTimeout(() => {
-                navigate("/order-items");
-            }, 800);
+            navigate("/order-items", {
+                replace: true,
+                state: {
+                    message: "Order item updated successfully."
+                }
+            });
         } catch (err) {
             console.error(
                 "UPDATE ORDER ITEM ERROR:",
@@ -202,6 +210,7 @@ const OrderItemEdit = () => {
 
             setError(
                 err.response?.data?.message ||
+                err.response?.data?.title ||
                 "Failed to update order item."
             );
         } finally {
@@ -225,39 +234,50 @@ const OrderItemEdit = () => {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Paper sx={{ p: 3 }}>
-                <Typography
-                    variant="h5"
-                    fontWeight={600}
-                    mb={3}
+        <Box
+            sx={{
+                p: { xs: 2, md: 3 },
+                maxWidth: 900,
+                mx: "auto"
+            }}
+        >
+            <Paper
+                elevation={3}
+                sx={{ p: { xs: 2, md: 4 } }}
+            >
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "stretch", sm: "center" }}
+                    spacing={2}
+                    sx={{ mb: 3 }}
                 >
-                    Edit Order Item
-                </Typography>
+                    <Typography variant="h5" fontWeight={700}>
+                        Edit Order Item
+                    </Typography>
+
+                    <Button
+                        startIcon={<ArrowBack />}
+                        variant="outlined"
+                        onClick={() => navigate("/order-items")}
+                        disabled={saving}
+                    >
+                        Back to List
+                    </Button>
+                </Stack>
 
                 {error && (
                     <Alert
                         severity="error"
-                        sx={{ mb: 2 }}
+                        sx={{ mb: 3 }}
+                        onClose={() => setError("")}
                     >
                         {error}
                     </Alert>
                 )}
 
-                {success && (
-                    <Alert
-                        severity="success"
-                        sx={{ mb: 2 }}
-                    >
-                        {success}
-                    </Alert>
-                )}
-
-                <Box
-                    component="form"
-                    onSubmit={handleSubmit}
-                >
-                    <Stack spacing={2}>
+                <Box component="form" onSubmit={handleSubmit}>
+                    <Stack spacing={3}>
                         <TextField
                             label="Order Item ID"
                             name="OrderItemId"
@@ -274,6 +294,9 @@ const OrderItemEdit = () => {
                             onChange={handleChange}
                             required
                             fullWidth
+                            slotProps={{
+                                htmlInput: { min: 1, step: 1 }
+                            }}
                         />
 
                         <TextField
@@ -284,6 +307,9 @@ const OrderItemEdit = () => {
                             onChange={handleChange}
                             required
                             fullWidth
+                            slotProps={{
+                                htmlInput: { min: 1, step: 1 }
+                            }}
                         />
 
                         <TextField
@@ -293,8 +319,13 @@ const OrderItemEdit = () => {
                             value={formData.Quantity}
                             onChange={handleChange}
                             required
-                            inputProps={{ min: 1 }}
                             fullWidth
+                            slotProps={{
+                                htmlInput: {
+                                    min: 0.01,
+                                    step: "any"
+                                }
+                            }}
                         />
 
                         <TextField
@@ -304,29 +335,32 @@ const OrderItemEdit = () => {
                             value={formData.UnitPrice}
                             onChange={handleChange}
                             required
-                            inputProps={{ min: 0, step: "0.01" }}
                             fullWidth
+                            slotProps={{
+                                htmlInput: {
+                                    min: 0,
+                                    step: "any"
+                                }
+                            }}
                         />
 
                         <TextField
                             label="Total Amount"
                             name="TotalAmount"
                             type="number"
-                            value={formData.TotalAmount}
+                            value={Number(formData.TotalAmount || 0).toFixed(2)}
                             disabled
                             fullWidth
                         />
 
                         <Stack
-                            direction="row"
+                            direction={{ xs: "column", sm: "row" }}
                             spacing={2}
                             justifyContent="flex-end"
                         >
                             <Button
                                 variant="outlined"
-                                onClick={() =>
-                                    navigate("/order-items")
-                                }
+                                onClick={() => navigate("/order-items")}
                                 disabled={saving}
                             >
                                 Cancel
@@ -335,11 +369,10 @@ const OrderItemEdit = () => {
                             <Button
                                 type="submit"
                                 variant="contained"
+                                startIcon={<Save />}
                                 disabled={saving}
                             >
-                                {saving
-                                    ? "Updating..."
-                                    : "Update Order Item"}
+                                {saving ? "Updating..." : "Update Order Item"}
                             </Button>
                         </Stack>
                     </Stack>
