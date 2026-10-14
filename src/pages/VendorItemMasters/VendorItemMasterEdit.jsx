@@ -1,8 +1,9 @@
 // =========================================================
 // VendorItemMasterEdit.jsx
+// Standalone Edit Page - No Modal
 // =========================================================
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -12,15 +13,13 @@ import {
     Button,
     CircularProgress,
     Divider,
-    FormControl,
     Grid,
-    InputLabel,
-    MenuItem,
     Paper,
-    Select,
     Snackbar,
     TextField,
-    Typography
+    Typography,
+    FormControlLabel,
+    Switch
 } from "@mui/material";
 
 import {
@@ -33,112 +32,120 @@ import {
 // API CONFIGURATION
 // =========================================================
 
-const API_BASE_URL = "http://localhost:5000";
-
-const VENDOR_ITEM_MASTER_API =
-    `${API_BASE_URL}/api/VendorItemMaster`;
+const API_URL = "http://localhost:5000/api/VendorItemMaster";
 
 // =========================================================
 // INITIAL FORM DATA
 // =========================================================
 
 const INITIAL_FORM_DATA = {
-    itemCode: "",
-    itemName: "",
     vendorId: "",
-    description: "",
-    unitOfMeasure: "",
+    sellerId: "",
+    customerId: "",
+    productId: "",
+    vendorSkuCode: "",
+    itemSkuCode: "",
+    itemCode: "",
+    itemSku: "",
+    sku: "",
+    vendorCode: "",
+    vendorItemCode: "",
+    costPrice: "",
     unitPrice: "",
-    taxRate: "",
-    status: "Active"
+    mrp: "",
+    sellingPrice: "",
+    inventory: "",
+    leadTime: "",
+    priority: "",
+    enabled: true,
+    isActive: true
 };
 
 // =========================================================
-// MAP API RESPONSE TO FORM
-// Supports common PascalCase and camelCase properties.
+// MAP API DATA TO FORM
 // =========================================================
 
 const mapItemToForm = (item) => ({
-    itemCode: item?.itemCode ?? item?.ItemCode ?? "",
-    itemName: item?.itemName ?? item?.ItemName ?? "",
-    vendorId: String(
-        item?.vendorId ?? item?.VendorId ?? ""
-    ),
-    description:
-        item?.description ?? item?.Description ?? "",
-    unitOfMeasure:
-        item?.unitOfMeasure ?? item?.UnitOfMeasure ?? "",
-    unitPrice: String(
-        item?.unitPrice ?? item?.UnitPrice ?? ""
-    ),
-    taxRate: String(
-        item?.taxRate ?? item?.TaxRate ?? ""
-    ),
-    status: item?.status ?? item?.Status ?? "Active"
+    vendorId: String(item.vendorId ?? item.VendorId ?? ""),
+    sellerId: String(item.sellerId ?? item.SellerId ?? ""),
+    customerId: String(item.customerId ?? item.CustomerId ?? ""),
+    productId: String(item.productId ?? item.ProductId ?? ""),
+    vendorSkuCode: item.vendorSkuCode ?? item.VendorSkuCode ?? "",
+    itemSkuCode: item.itemSkuCode ?? item.ItemSkuCode ?? "",
+    itemCode: item.itemCode ?? item.ItemCode ?? "",
+    itemSku: item.itemSku ?? item.ItemSku ?? "",
+    sku: item.sku ?? item.SKU ?? "",
+    vendorCode: item.vendorCode ?? item.VendorCode ?? "",
+    vendorItemCode: item.vendorItemCode ?? item.VendorItemCode ?? "",
+    costPrice: String(item.costPrice ?? item.CostPrice ?? ""),
+    unitPrice: String(item.unitPrice ?? item.UnitPrice ?? ""),
+    mrp: String(item.mrp ?? item.MRP ?? ""),
+    sellingPrice: String(item.sellingPrice ?? item.SellingPrice ?? ""),
+    inventory: String(item.inventory ?? item.Inventory ?? ""),
+    leadTime: String(item.leadTime ?? item.LeadTime ?? ""),
+    priority: String(item.priority ?? item.Priority ?? ""),
+    enabled: item.enabled ?? item.Enabled ?? true,
+    isActive: item.isActive ?? item.IsActive ?? true
 });
 
 // =========================================================
-// VENDOR ITEM MASTER EDIT
+// NUMBER VALIDATION HELPER
 // =========================================================
 
-const VendorItemMasterEdit = ({
-    itemId: itemIdProp,
-    item: itemProp,
-    onUpdated,
-    onClose
-}) => {
+const isNonNegativeNumber = (value) =>
+    value !== "" &&
+    Number.isFinite(Number(value)) &&
+    Number(value) >= 0;
+
+// =========================================================
+// EDIT COMPONENT
+// =========================================================
+
+const VendorItemMasterEdit = () => {
     const navigate = useNavigate();
-    const params = useParams();
+    const { id, itemId } = useParams();
 
-    const itemId =
-        itemIdProp ??
-        params.itemId ??
-        params.id;
+    const currentId = id ?? itemId;
 
-    const [formData, setFormData] = useState(
-        INITIAL_FORM_DATA
-    );
-
-    const [originalData, setOriginalData] = useState(
-        INITIAL_FORM_DATA
-    );
+    const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+    const [originalData, setOriginalData] = useState(INITIAL_FORM_DATA);
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [errors, setErrors] = useState({});
     const [loadError, setLoadError] = useState("");
+    const [errors, setErrors] = useState({});
 
     const [notification, setNotification] = useState({
         open: false,
-        severity: "success",
-        message: ""
+        message: "",
+        severity: "success"
     });
 
     // =====================================================
-    // SHOW NOTIFICATION
+    // NOTIFICATION
     // =====================================================
 
-    const showNotification = (
-        message,
-        severity = "success"
-    ) => {
+    const showNotification = (message, severity = "success") => {
         setNotification({
             open: true,
-            severity,
-            message
+            message,
+            severity
         });
     };
 
+    const closeNotification = () => {
+        setNotification((previous) => ({
+            ...previous,
+            open: false
+        }));
+    };
+
     // =====================================================
-    // LOAD ITEM DETAILS
+    // LOAD ITEM
     // =====================================================
 
-    const fetchItemDetails = async () => {
-        if (
-            itemId === null ||
-            itemId === undefined ||
-            itemId === ""
-        ) {
+    const fetchItemDetails = useCallback(async () => {
+        if (!currentId) {
             setLoadError("Vendor item ID was not provided.");
             setLoading(false);
             return;
@@ -148,40 +155,40 @@ const VendorItemMasterEdit = ({
             setLoading(true);
             setLoadError("");
 
-            let itemData = itemProp;
+            const response = await axios.get(`${API_URL}/all`);
 
-            if (!itemData) {
-                const response = await axios.get(
-                    `${VENDOR_ITEM_MASTER_API}/${encodeURIComponent(itemId)}`
-                );
+            const responseData = response.data;
 
-                const responseData = response.data;
+            const records = Array.isArray(responseData)
+                ? responseData
+                : Array.isArray(responseData?.data)
+                    ? responseData.data
+                    : Array.isArray(responseData?.items)
+                        ? responseData.items
+                        : [];
 
-                itemData =
-                    responseData?.data ??
-                    responseData?.item ??
-                    responseData;
-            }
+            const record = records.find((item) => {
+                const recordId =
+                    item.vendorItemMasterId ??
+                    item.VendorItemMasterId ??
+                    item.id ??
+                    item.Id;
 
-            if (
-                !itemData ||
-                typeof itemData !== "object" ||
-                Array.isArray(itemData)
-            ) {
+                return String(recordId) === String(currentId);
+            });
+
+            if (!record) {
                 throw new Error(
-                    "The API did not return valid item details."
+                    `Vendor item ID ${currentId} was not found.`
                 );
             }
 
-            const mappedData = mapItemToForm(itemData);
+            const mapped = mapItemToForm(record);
 
-            setFormData(mappedData);
-            setOriginalData(mappedData);
+            setFormData(mapped);
+            setOriginalData(mapped);
         } catch (error) {
-            console.error(
-                "GET VENDOR ITEM MASTER ERROR:",
-                error
-            );
+            console.error("LOAD VENDOR ITEM ERROR:", error);
 
             setLoadError(
                 error.response?.data?.message ||
@@ -193,21 +200,14 @@ const VendorItemMasterEdit = ({
         } finally {
             setLoading(false);
         }
-    };
-
-    // =====================================================
-    // INITIAL LOAD
-    // =====================================================
+    }, [currentId]);
 
     useEffect(() => {
         fetchItemDetails();
-
-        // Reload when the selected item ID changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [itemId, itemProp]);
+    }, [fetchItemDetails]);
 
     // =====================================================
-    // HANDLE INPUT CHANGE
+    // HANDLE TEXT INPUTS
     // =====================================================
 
     const handleChange = (event) => {
@@ -225,57 +225,90 @@ const VendorItemMasterEdit = ({
     };
 
     // =====================================================
-    // VALIDATE FORM
+    // HANDLE BOOLEAN INPUTS
+    // =====================================================
+
+    const handleBooleanChange = (event) => {
+        const { name, checked } = event.target;
+
+        setFormData((previous) => ({
+            ...previous,
+            [name]: checked
+        }));
+    };
+
+    // =====================================================
+    // VALIDATE
     // =====================================================
 
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.itemCode.trim()) {
-            newErrors.itemCode = "Item code is required.";
+        const requiredPositiveIntegers = [
+            ["vendorId", "Vendor ID"],
+            ["sellerId", "Seller ID"],
+            ["customerId", "Customer ID"]
+        ];
+
+        requiredPositiveIntegers.forEach(([field, label]) => {
+            const value = formData[field];
+
+            if (
+                value === "" ||
+                !Number.isInteger(Number(value)) ||
+                Number(value) <= 0
+            ) {
+                newErrors[field] = `${label} must be a positive integer.`;
+            }
+        });
+
+        if (!formData.vendorSkuCode.trim()) {
+            newErrors.vendorSkuCode = "Vendor SKU Code is required.";
         }
 
-        if (!formData.itemName.trim()) {
-            newErrors.itemName = "Item name is required.";
+        if (!formData.itemSkuCode.trim()) {
+            newErrors.itemSkuCode = "Item SKU Code is required.";
+        }
+
+        if (!isNonNegativeNumber(formData.costPrice)) {
+            newErrors.costPrice = "Enter a valid cost price.";
         }
 
         if (
-            formData.vendorId === "" ||
-            !Number.isInteger(Number(formData.vendorId)) ||
-            Number(formData.vendorId) <= 0
-        ) {
-            newErrors.vendorId = "Enter a valid vendor ID.";
-        }
-
-        if (!formData.unitOfMeasure.trim()) {
-            newErrors.unitOfMeasure =
-                "Unit of measure is required.";
-        }
-
-        if (
-            formData.unitPrice === "" ||
-            !Number.isFinite(Number(formData.unitPrice)) ||
-            Number(formData.unitPrice) < 0
-        ) {
-            newErrors.unitPrice =
-                "Enter a valid unit price.";
-        }
-
-        if (
-            formData.taxRate !== "" &&
+            formData.productId !== "" &&
             (
-                !Number.isFinite(Number(formData.taxRate)) ||
-                Number(formData.taxRate) < 0 ||
-                Number(formData.taxRate) > 100
+                !Number.isInteger(Number(formData.productId)) ||
+                Number(formData.productId) <= 0
             )
         ) {
-            newErrors.taxRate =
-                "Tax rate must be between 0 and 100.";
+            newErrors.productId = "Product ID must be a positive integer.";
         }
 
-        if (!formData.status) {
-            newErrors.status = "Select a status.";
-        }
+        const numericFields = [
+            ["unitPrice", "Unit Price"],
+            ["mrp", "MRP"],
+            ["sellingPrice", "Selling Price"],
+            ["inventory", "Inventory"],
+            ["leadTime", "Lead Time"],
+            ["priority", "Priority"]
+        ];
+
+        numericFields.forEach(([field, label]) => {
+            const value = formData[field];
+
+            if (value !== "" && !isNonNegativeNumber(value)) {
+                newErrors[field] = `${label} must be zero or greater.`;
+            }
+        });
+
+        ["inventory", "leadTime", "priority"].forEach((field) => {
+            if (
+                formData[field] !== "" &&
+                !Number.isInteger(Number(formData[field]))
+            ) {
+                newErrors[field] = "Enter a whole number.";
+            }
+        });
 
         setErrors(newErrors);
 
@@ -283,28 +316,25 @@ const VendorItemMasterEdit = ({
     };
 
     // =====================================================
-    // RESET FORM
+    // RESET
     // =====================================================
 
     const handleReset = () => {
-        setFormData(originalData);
+        setFormData({ ...originalData });
         setErrors({});
     };
 
     // =====================================================
-    // CLOSE FORM
+    // BACK
     // =====================================================
 
-    const handleClose = () => {
-        if (typeof onClose === "function") {
-            onClose();
-        } else {
-            navigate("/vendor-item-masters");
-        }
+    const handleBack = () => {
+        navigate("/vendor-item-masters");
     };
 
     // =====================================================
-    // UPDATE VENDOR ITEM MASTER
+    // UPDATE
+    // PUT /api/VendorItemMaster/{id}/seller/{sellerId}/customer/{customerId}
     // =====================================================
 
     const handleSubmit = async (event) => {
@@ -318,15 +348,8 @@ const VendorItemMasterEdit = ({
             return;
         }
 
-        if (
-            itemId === null ||
-            itemId === undefined ||
-            itemId === ""
-        ) {
-            showNotification(
-                "Cannot update: vendor item ID is missing.",
-                "error"
-            );
+        if (!currentId) {
+            showNotification("Vendor item ID is missing.", "error");
             return;
         }
 
@@ -334,22 +357,59 @@ const VendorItemMasterEdit = ({
             setSaving(true);
 
             const payload = {
-                itemCode: formData.itemCode.trim(),
-                itemName: formData.itemName.trim(),
+                vendorItemMasterId: Number(currentId),
                 vendorId: Number(formData.vendorId),
-                description: formData.description.trim(),
-                unitOfMeasure:
-                    formData.unitOfMeasure.trim(),
-                unitPrice: Number(formData.unitPrice),
-                taxRate:
-                    formData.taxRate === ""
+                sellerId: Number(formData.sellerId),
+                customerId: Number(formData.customerId),
+                productId:
+                    formData.productId === ""
+                        ? null
+                        : Number(formData.productId),
+
+                vendorSkuCode: formData.vendorSkuCode.trim(),
+                itemSkuCode: formData.itemSkuCode.trim(),
+                itemCode: formData.itemCode.trim() || null,
+                itemSku: formData.itemSku.trim() || null,
+                SKU: formData.sku.trim() || null,
+                vendorCode: formData.vendorCode.trim() || null,
+                vendorItemCode: formData.vendorItemCode.trim() || null,
+
+                costPrice: Number(formData.costPrice),
+                unitPrice:
+                    formData.unitPrice === ""
+                        ? null
+                        : Number(formData.unitPrice),
+                MRP:
+                    formData.mrp === ""
+                        ? null
+                        : Number(formData.mrp),
+                sellingPrice:
+                    formData.sellingPrice === ""
+                        ? null
+                        : Number(formData.sellingPrice),
+
+                inventory:
+                    formData.inventory === ""
+                        ? null
+                        : Number(formData.inventory),
+                leadTime:
+                    formData.leadTime === ""
                         ? 0
-                        : Number(formData.taxRate),
-                status: formData.status
+                        : Number(formData.leadTime),
+                priority:
+                    formData.priority === ""
+                        ? null
+                        : Number(formData.priority),
+
+                enabled: formData.enabled,
+                isActive: formData.isActive
             };
 
-            const response = await axios.put(
-                `${VENDOR_ITEM_MASTER_API}/${encodeURIComponent(itemId)}`,
+            const sellerId = Number(formData.sellerId);
+            const customerId = Number(formData.customerId);
+
+            await axios.put(
+                `${API_URL}/${encodeURIComponent(currentId)}/seller/${sellerId}/customer/${customerId}`,
                 payload,
                 {
                     headers: {
@@ -358,32 +418,15 @@ const VendorItemMasterEdit = ({
                 }
             );
 
-            const updatedItem =
-                response.data?.data ??
-                response.data?.item ??
-                response.data ??
-                {
-                    ...payload,
-                    id: itemId
-                };
-
             showNotification(
-                "Vendor item master updated successfully.",
-                "success"
+                "Vendor item master updated successfully."
             );
 
-            setOriginalData(formData);
+            setOriginalData({ ...formData });
 
-            if (typeof onUpdated === "function") {
-                onUpdated(updatedItem);
-            } else {
-                navigate("/vendor-item-masters");
-            }
+            navigate("/vendor-item-masters");
         } catch (error) {
-            console.error(
-                "UPDATE VENDOR ITEM MASTER ERROR:",
-                error
-            );
+            console.error("UPDATE VENDOR ITEM ERROR:", error);
 
             const message =
                 error.response?.data?.message ||
@@ -404,7 +447,7 @@ const VendorItemMasterEdit = ({
     };
 
     // =====================================================
-    // LOADING STATE
+    // LOADING
     // =====================================================
 
     if (loading) {
@@ -417,10 +460,7 @@ const VendorItemMasterEdit = ({
                 minHeight={300}
             >
                 <CircularProgress />
-
-                <Typography>
-                    Loading vendor item details...
-                </Typography>
+                <Typography>Loading vendor item details...</Typography>
             </Box>
         );
     }
@@ -432,26 +472,26 @@ const VendorItemMasterEdit = ({
     if (loadError) {
         return (
             <Box sx={{ p: 3 }}>
-                <Paper sx={{ p: 3 }}>
+                <Paper sx={{ p: 3, borderRadius: 2 }}>
                     <Alert severity="error" sx={{ mb: 2 }}>
                         {loadError}
                     </Alert>
 
-                    <Box display="flex" gap={2}>
+                    <Box display="flex" gap={2} flexWrap="wrap">
                         <Button
                             variant="contained"
-                            startIcon={<Refresh />}
                             onClick={fetchItemDetails}
+                            startIcon={<RestartAlt />}
                         >
                             Retry
                         </Button>
 
                         <Button
                             variant="outlined"
+                            onClick={handleBack}
                             startIcon={<ArrowBack />}
-                            onClick={handleClose}
                         >
-                            Back
+                            Back to List
                         </Button>
                     </Box>
                 </Paper>
@@ -460,24 +500,20 @@ const VendorItemMasterEdit = ({
     }
 
     // =====================================================
-    // RENDER
+    // EDIT FORM
     // =====================================================
 
     return (
         <Box sx={{ p: { xs: 2, md: 3 } }}>
             <Paper
-                elevation={3}
+                elevation={2}
                 sx={{
-                    maxWidth: 1100,
+                    maxWidth: 1200,
                     mx: "auto",
                     p: { xs: 2, md: 3 },
                     borderRadius: 2
                 }}
             >
-                {/* ========================================= */}
-                {/* HEADER */}
-                {/* ========================================= */}
-
                 <Box
                     display="flex"
                     justifyContent="space-between"
@@ -487,10 +523,7 @@ const VendorItemMasterEdit = ({
                     mb={2}
                 >
                     <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight="bold"
-                        >
+                        <Typography variant="h5" fontWeight={700}>
                             Edit Vendor Item Master
                         </Typography>
 
@@ -499,195 +532,314 @@ const VendorItemMasterEdit = ({
                             color="text.secondary"
                             sx={{ mt: 0.5 }}
                         >
-                            Update the existing vendor item details.
+                            Update vendor item, pricing and inventory details.
                         </Typography>
                     </Box>
 
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
-                        onClick={handleClose}
+                        onClick={handleBack}
                         disabled={saving}
                     >
-                        Back
+                        Back to List
                     </Button>
                 </Box>
 
                 <Divider sx={{ mb: 3 }} />
 
-                {/* ========================================= */}
-                {/* EDIT FORM */}
-                {/* ========================================= */}
-
-                <Box
-                    component="form"
-                    onSubmit={handleSubmit}
-                    noValidate
-                >
+                <Box component="form" onSubmit={handleSubmit} noValidate>
                     <Grid container spacing={2.5}>
-                        {/* ITEM CODE */}
+                        {/* IDENTIFIERS */}
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Item Code"
-                                name="itemCode"
-                                value={formData.itemCode}
-                                onChange={handleChange}
-                                error={Boolean(errors.itemCode)}
-                                helperText={errors.itemCode}
-                                disabled={saving}
-                                inputProps={{ maxLength: 100 }}
-                            />
+                        <Grid item xs={12}>
+                            <Typography variant="h6" fontWeight={700}>
+                                Identification
+                            </Typography>
                         </Grid>
 
-                        {/* ITEM NAME */}
-
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
-                                required
-                                label="Item Name"
-                                name="itemName"
-                                value={formData.itemName}
-                                onChange={handleChange}
-                                error={Boolean(errors.itemName)}
-                                helperText={errors.itemName}
-                                disabled={saving}
-                                inputProps={{ maxLength: 200 }}
-                            />
-                        </Grid>
-
-                        {/* VENDOR ID */}
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                type="number"
                                 label="Vendor ID"
                                 name="vendorId"
+                                type="number"
                                 value={formData.vendorId}
                                 onChange={handleChange}
                                 error={Boolean(errors.vendorId)}
                                 helperText={errors.vendorId}
-                                disabled={saving}
-                                inputProps={{
-                                    min: 1,
-                                    step: 1
-                                }}
+                                required
                             />
                         </Grid>
 
-                        {/* UNIT OF MEASURE */}
-
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
-                                required
-                                label="Unit of Measure"
-                                name="unitOfMeasure"
-                                value={formData.unitOfMeasure}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    errors.unitOfMeasure
-                                )}
-                                helperText={errors.unitOfMeasure}
-                                disabled={saving}
-                            />
-                        </Grid>
-
-                        {/* UNIT PRICE */}
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
+                                label="Seller ID"
+                                name="sellerId"
                                 type="number"
+                                value={formData.sellerId}
+                                onChange={handleChange}
+                                error={Boolean(errors.sellerId)}
+                                helperText={errors.sellerId}
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Customer ID"
+                                name="customerId"
+                                type="number"
+                                value={formData.customerId}
+                                onChange={handleChange}
+                                error={Boolean(errors.customerId)}
+                                helperText={errors.customerId}
+                                required
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Product ID"
+                                name="productId"
+                                type="number"
+                                value={formData.productId}
+                                onChange={handleChange}
+                                error={Boolean(errors.productId)}
+                                helperText={errors.productId}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Vendor SKU Code"
+                                name="vendorSkuCode"
+                                value={formData.vendorSkuCode}
+                                onChange={handleChange}
+                                error={Boolean(errors.vendorSkuCode)}
+                                helperText={errors.vendorSkuCode}
+                                required
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Item SKU Code"
+                                name="itemSkuCode"
+                                value={formData.itemSkuCode}
+                                onChange={handleChange}
+                                error={Boolean(errors.itemSkuCode)}
+                                helperText={errors.itemSkuCode}
+                                required
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Item Code"
+                                name="itemCode"
+                                value={formData.itemCode}
+                                onChange={handleChange}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Item SKU"
+                                name="itemSku"
+                                value={formData.itemSku}
+                                onChange={handleChange}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="SKU"
+                                name="sku"
+                                value={formData.sku}
+                                onChange={handleChange}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Vendor Code"
+                                name="vendorCode"
+                                value={formData.vendorCode}
+                                onChange={handleChange}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Vendor Item Code"
+                                name="vendorItemCode"
+                                value={formData.vendorItemCode}
+                                onChange={handleChange}
+                                inputProps={{ maxLength: 100 }}
+                            />
+                        </Grid>
+
+                        {/* PRICING */}
+
+                        <Grid item xs={12}>
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="h6" fontWeight={700}>
+                                Pricing
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <TextField
+                                fullWidth
+                                required
+                                label="Cost Price"
+                                name="costPrice"
+                                type="number"
+                                value={formData.costPrice}
+                                onChange={handleChange}
+                                error={Boolean(errors.costPrice)}
+                                helperText={errors.costPrice}
+                                inputProps={{ min: 0, step: "0.01" }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <TextField
+                                fullWidth
                                 label="Unit Price"
                                 name="unitPrice"
+                                type="number"
                                 value={formData.unitPrice}
                                 onChange={handleChange}
                                 error={Boolean(errors.unitPrice)}
                                 helperText={errors.unitPrice}
-                                disabled={saving}
-                                inputProps={{
-                                    min: 0,
-                                    step: "0.01"
-                                }}
+                                inputProps={{ min: 0, step: "0.01" }}
                             />
                         </Grid>
 
-                        {/* TAX RATE */}
-
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
+                                label="MRP"
+                                name="mrp"
                                 type="number"
-                                label="Tax Rate (%)"
-                                name="taxRate"
-                                value={formData.taxRate}
+                                value={formData.mrp}
                                 onChange={handleChange}
-                                error={Boolean(errors.taxRate)}
-                                helperText={errors.taxRate}
-                                disabled={saving}
-                                inputProps={{
-                                    min: 0,
-                                    max: 100,
-                                    step: "0.01"
-                                }}
+                                error={Boolean(errors.mrp)}
+                                helperText={errors.mrp}
+                                inputProps={{ min: 0, step: "0.01" }}
                             />
                         </Grid>
 
-                        {/* STATUS */}
-
-                        <Grid item xs={12} sm={6}>
-                            <FormControl
+                        <Grid item xs={12} sm={6} md={3}>
+                            <TextField
                                 fullWidth
-                                required
-                                error={Boolean(errors.status)}
-                                disabled={saving}
-                            >
-                                <InputLabel id="vendor-item-status-label">
-                                    Status
-                                </InputLabel>
-
-                                <Select
-                                    labelId="vendor-item-status-label"
-                                    label="Status"
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                >
-                                    <MenuItem value="Active">
-                                        Active
-                                    </MenuItem>
-
-                                    <MenuItem value="Inactive">
-                                        Inactive
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
+                                label="Selling Price"
+                                name="sellingPrice"
+                                type="number"
+                                value={formData.sellingPrice}
+                                onChange={handleChange}
+                                error={Boolean(errors.sellingPrice)}
+                                helperText={errors.sellingPrice}
+                                inputProps={{ min: 0, step: "0.01" }}
+                            />
                         </Grid>
 
-                        {/* DESCRIPTION */}
+                        {/* INVENTORY */}
 
                         <Grid item xs={12}>
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="h6" fontWeight={700}>
+                                Inventory and Settings
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
-                                multiline
-                                minRows={3}
-                                label="Description"
-                                name="description"
-                                value={formData.description}
+                                label="Inventory"
+                                name="inventory"
+                                type="number"
+                                value={formData.inventory}
                                 onChange={handleChange}
-                                disabled={saving}
-                                inputProps={{ maxLength: 1000 }}
+                                error={Boolean(errors.inventory)}
+                                helperText={errors.inventory}
+                                inputProps={{ min: 0, step: 1 }}
                             />
                         </Grid>
 
-                        {/* ACTION BUTTONS */}
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Lead Time (Days)"
+                                name="leadTime"
+                                type="number"
+                                value={formData.leadTime}
+                                onChange={handleChange}
+                                error={Boolean(errors.leadTime)}
+                                helperText={errors.leadTime}
+                                inputProps={{ min: 0, step: 1 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Priority"
+                                name="priority"
+                                type="number"
+                                value={formData.priority}
+                                onChange={handleChange}
+                                error={Boolean(errors.priority)}
+                                helperText={errors.priority}
+                                inputProps={{ min: 0, step: 1 }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={Boolean(formData.enabled)}
+                                        onChange={handleBooleanChange}
+                                        name="enabled"
+                                    />
+                                }
+                                label="Enabled"
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={Boolean(formData.isActive)}
+                                        onChange={handleBooleanChange}
+                                        name="isActive"
+                                    />
+                                }
+                                label="Active"
+                            />
+                        </Grid>
+
+                        {/* ACTIONS */}
 
                         <Grid item xs={12}>
                             <Divider sx={{ my: 1 }} />
@@ -701,7 +853,6 @@ const VendorItemMasterEdit = ({
                             >
                                 <Button
                                     variant="outlined"
-                                    color="inherit"
                                     startIcon={<RestartAlt />}
                                     onClick={handleReset}
                                     disabled={saving}
@@ -710,23 +861,25 @@ const VendorItemMasterEdit = ({
                                 </Button>
 
                                 <Button
+                                    variant="outlined"
+                                    startIcon={<ArrowBack />}
+                                    onClick={handleBack}
+                                    disabled={saving}
+                                >
+                                    Cancel
+                                </Button>
+
+                                <Button
                                     type="submit"
                                     variant="contained"
                                     startIcon={
                                         saving
-                                            ? (
-                                                <CircularProgress
-                                                    size={18}
-                                                    color="inherit"
-                                                />
-                                            )
+                                            ? <CircularProgress size={18} color="inherit" />
                                             : <Save />
                                     }
                                     disabled={saving}
                                 >
-                                    {saving
-                                        ? "Updating..."
-                                        : "Update Item"}
+                                    {saving ? "Updating..." : "Update Vendor Item"}
                                 </Button>
                             </Box>
                         </Grid>
@@ -734,35 +887,21 @@ const VendorItemMasterEdit = ({
                 </Box>
             </Paper>
 
-            {/* ============================================= */}
             {/* NOTIFICATION */}
-            {/* ============================================= */}
 
             <Snackbar
                 open={notification.open}
                 autoHideDuration={5000}
+                onClose={closeNotification}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
-                }}
-                onClose={(event, reason) => {
-                    if (reason === "clickaway") return;
-
-                    setNotification((previous) => ({
-                        ...previous,
-                        open: false
-                    }));
                 }}
             >
                 <Alert
                     severity={notification.severity}
                     variant="filled"
-                    onClose={() => {
-                        setNotification((previous) => ({
-                            ...previous,
-                            open: false
-                        }));
-                    }}
+                    onClose={closeNotification}
                     sx={{ width: "100%" }}
                 >
                     {notification.message}
@@ -772,9 +911,4 @@ const VendorItemMasterEdit = ({
     );
 };
 
-// =========================================================
-// DEFAULT EXPORT
-// =========================================================
-
 export default VendorItemMasterEdit;
-

@@ -1,5 +1,6 @@
 // =========================================================
 // VendorItemMastersList.jsx
+// Page-based navigation: Create / Review / Edit / Delete
 // =========================================================
 
 import React, {
@@ -10,6 +11,7 @@ import React, {
 } from "react";
 
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
     Alert,
@@ -29,7 +31,6 @@ import VendorItemMasterSearch from "./VendorItemMasterSearch";
 import VendorItemMasterFilters from "./VendorItemMasterFilters";
 import VendorItemMasterTable from "./VendorItemMasterTable";
 import VendorItemMasterPagination from "./VendorItemMasterPagination";
-import VendorItemMasterModal from "./VendorItemMasterModal";
 
 // =========================================================
 // API CONFIGURATION
@@ -52,6 +53,7 @@ const INITIAL_FILTERS = {
 // =========================================================
 
 const VendorItemMastersList = () => {
+    const navigate = useNavigate();
 
     // =====================================================
     // STATE
@@ -67,13 +69,6 @@ const VendorItemMastersList = () => {
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const [modalOpen, setModalOpen] = useState(false);
-    const [modalMode, setModalMode] = useState("create");
-    const [selectedItem, setSelectedItem] = useState(null);
-
-    const [saving, setSaving] = useState(false);
-    const [formError, setFormError] = useState("");
-
     const [notification, setNotification] = useState({
         open: false,
         message: "",
@@ -81,7 +76,7 @@ const VendorItemMastersList = () => {
     });
 
     // =====================================================
-    // SHOW NOTIFICATION
+    // NOTIFICATIONS
     // =====================================================
 
     const showNotification = useCallback(
@@ -94,6 +89,13 @@ const VendorItemMastersList = () => {
         },
         []
     );
+
+    const closeNotification = () => {
+        setNotification((previous) => ({
+            ...previous,
+            open: false
+        }));
+    };
 
     // =====================================================
     // GET ITEM ID
@@ -112,7 +114,7 @@ const VendorItemMastersList = () => {
     }, []);
 
     // =====================================================
-    // GET ALL VENDOR ITEMS
+    // FETCH ALL VENDOR ITEM MASTERS
     // =====================================================
 
     const fetchItems = useCallback(async () => {
@@ -120,7 +122,9 @@ const VendorItemMastersList = () => {
             setLoading(true);
             setError("");
 
-            const response = await axios.get(API_URL);
+            const response = await axios.get(
+                `${API_URL}/all`
+            );
 
             const responseData = response.data;
 
@@ -135,9 +139,19 @@ const VendorItemMastersList = () => {
                             : [];
 
             setItems(records);
+
+            // Keep the current page within the available range.
+            const totalPages = Math.max(
+                1,
+                Math.ceil(records.length / rowsPerPage)
+            );
+
+            setPage((currentPage) =>
+                Math.min(currentPage, totalPages)
+            );
         } catch (err) {
             console.error(
-                "GET ALL VENDOR ITEMS ERROR:",
+                "GET ALL VENDOR ITEM MASTERS ERROR:",
                 err
             );
 
@@ -145,7 +159,7 @@ const VendorItemMastersList = () => {
                 err.response?.data?.message ||
                 err.response?.data?.title ||
                 err.message ||
-                "Failed to load vendor item master records.";
+                "Failed to load vendor item masters.";
 
             setError(message);
 
@@ -153,7 +167,7 @@ const VendorItemMastersList = () => {
         } finally {
             setLoading(false);
         }
-    }, [showNotification]);
+    }, [rowsPerPage, showNotification]);
 
     // =====================================================
     // INITIAL LOAD
@@ -164,20 +178,90 @@ const VendorItemMastersList = () => {
     }, [fetchItems]);
 
     // =====================================================
-    // HANDLE SEARCH
+    // CREATE PAGE
+    // =====================================================
+
+    const handleCreate = () => {
+        navigate("/vendor-item-masters/create");
+    };
+
+    // =====================================================
+    // REVIEW / VIEW PAGE
+    // =====================================================
+
+    const handleView = (item) => {
+        const itemId = getItemId(item);
+
+        if (itemId == null) {
+            showNotification(
+                "Cannot review item: item ID was not found.",
+                "error"
+            );
+            return;
+        }
+
+        navigate(
+            `/vendor-item-masters/details/${itemId}`
+        );
+    };
+
+    // =====================================================
+    // EDIT PAGE
+    // =====================================================
+
+    const handleEdit = (item) => {
+        const itemId = getItemId(item);
+
+        if (itemId == null) {
+            showNotification(
+                "Cannot edit item: item ID was not found.",
+                "error"
+            );
+            return;
+        }
+
+        navigate(
+            `/vendor-item-masters/${itemId}/edit`
+        );
+    };
+
+    // =====================================================
+    // DELETE PAGE
+    // =====================================================
+
+    const handleDelete = (item) => {
+        const itemId = getItemId(item);
+
+        if (itemId == null) {
+            showNotification(
+                "Cannot delete item: item ID was not found.",
+                "error"
+            );
+            return;
+        }
+
+        navigate(
+            `/vendor-item-masters/${itemId}/delete`
+        );
+    };
+
+    // =====================================================
+    // SEARCH
     // =====================================================
 
     const handleSearchChange = (value) => {
         setSearch(value);
+
         setFilters((previous) => ({
             ...previous,
             search: value
         }));
+
         setPage(1);
     };
 
     // =====================================================
-    // HANDLE FILTER CHANGE
+    // FILTER CHANGES
     // =====================================================
 
     const handleFilterChange = (name, value) => {
@@ -199,7 +283,7 @@ const VendorItemMastersList = () => {
 
     const handleResetFilters = () => {
         setSearch("");
-        setFilters(INITIAL_FILTERS);
+        setFilters({ ...INITIAL_FILTERS });
         setPage(1);
     };
 
@@ -215,28 +299,40 @@ const VendorItemMastersList = () => {
             .toLowerCase();
 
         return items.filter((item) => {
-
             const itemCode = String(
                 item.itemCode ??
                 item.ItemCode ??
+                item.itemSkuCode ??
+                item.ItemSkuCode ??
                 ""
             ).toLowerCase();
 
             const itemName = String(
                 item.itemName ??
                 item.ItemName ??
+                item.itemSku ??
+                item.ItemSku ??
+                item.SKU ??
+                item.sku ??
                 ""
             ).toLowerCase();
 
             const description = String(
                 item.description ??
                 item.Description ??
+                item.vendorItemCode ??
+                item.VendorItemCode ??
                 ""
             ).toLowerCase();
 
             const vendorName = String(
                 item.vendorName ??
                 item.VendorName ??
+                item.vendorCode ??
+                item.vendorCode ??
+                item.VendorCode ??
+                item.vendorSkuCode ??
+                item.VendorSkuCode ??
                 ""
             ).toLowerCase();
 
@@ -249,7 +345,14 @@ const VendorItemMastersList = () => {
             const status = String(
                 item.status ??
                 item.Status ??
-                ""
+                (
+                    item.enabled === true ||
+                    item.Enabled === true ||
+                    item.isActive === true ||
+                    item.IsActive === true
+                        ? "Active"
+                        : "Inactive"
+                )
             ).toLowerCase();
 
             const matchesSearch =
@@ -292,169 +395,16 @@ const VendorItemMastersList = () => {
         Math.ceil(filteredItems.length / rowsPerPage)
     );
 
+    const safePage = Math.min(page, totalPages);
+
     const paginatedItems = useMemo(() => {
-        const startIndex = (page - 1) * rowsPerPage;
+        const startIndex = (safePage - 1) * rowsPerPage;
 
         return filteredItems.slice(
             startIndex,
             startIndex + rowsPerPage
         );
-    }, [filteredItems, page, rowsPerPage]);
-
-    // =====================================================
-    // OPEN CREATE MODAL
-    // =====================================================
-
-    const handleCreate = () => {
-        setSelectedItem(null);
-        setModalMode("create");
-        setFormError("");
-        setModalOpen(true);
-    };
-
-    // =====================================================
-    // OPEN VIEW MODAL
-    // =====================================================
-
-    const handleView = (item) => {
-        setSelectedItem(item);
-        setModalMode("view");
-        setFormError("");
-        setModalOpen(true);
-    };
-
-    // =====================================================
-    // OPEN EDIT MODAL
-    // =====================================================
-
-    const handleEdit = (item) => {
-        setSelectedItem(item);
-        setModalMode("edit");
-        setFormError("");
-        setModalOpen(true);
-    };
-
-    // =====================================================
-    // CLOSE MODAL
-    // =====================================================
-
-    const handleCloseModal = () => {
-        if (saving) return;
-
-        setModalOpen(false);
-        setSelectedItem(null);
-        setFormError("");
-    };
-
-    // =====================================================
-    // CREATE / UPDATE ITEM
-    // =====================================================
-
-    const handleSubmit = async (payload) => {
-        try {
-            setSaving(true);
-            setFormError("");
-
-            if (modalMode === "edit") {
-                const itemId = getItemId(selectedItem);
-
-                if (itemId == null) {
-                    throw new Error(
-                        "Cannot update item: item ID was not found."
-                    );
-                }
-
-                await axios.put(
-                    `${API_URL}/${itemId}`,
-                    payload
-                );
-
-                showNotification(
-                    "Vendor item updated successfully."
-                );
-            } else {
-                await axios.post(
-                    API_URL,
-                    payload
-                );
-
-                showNotification(
-                    "Vendor item created successfully."
-                );
-            }
-
-            setModalOpen(false);
-            setSelectedItem(null);
-
-            await fetchItems();
-        } catch (err) {
-            console.error(
-                "SAVE VENDOR ITEM ERROR:",
-                err
-            );
-
-            const message =
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                err.message ||
-                "Failed to save vendor item.";
-
-            setFormError(message);
-            showNotification(message, "error");
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    // =====================================================
-    // DELETE ITEM
-    // =====================================================
-
-    const handleDelete = async (item) => {
-        const itemId = getItemId(item);
-
-        if (itemId == null) {
-            showNotification(
-                "Cannot delete item: item ID was not found.",
-                "error"
-            );
-            return;
-        }
-
-        const confirmed = window.confirm(
-            "Are you sure you want to delete this vendor item?"
-        );
-
-        if (!confirmed) return;
-
-        try {
-            setLoading(true);
-
-            await axios.delete(
-                `${API_URL}/${itemId}`
-            );
-
-            showNotification(
-                "Vendor item deleted successfully."
-            );
-
-            await fetchItems();
-        } catch (err) {
-            console.error(
-                "DELETE VENDOR ITEM ERROR:",
-                err
-            );
-
-            showNotification(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                "Failed to delete vendor item.",
-                "error"
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [filteredItems, safePage, rowsPerPage]);
 
     // =====================================================
     // RENDER
@@ -463,9 +413,7 @@ const VendorItemMastersList = () => {
     return (
         <Box sx={{ p: { xs: 2, md: 3 } }}>
 
-            {/* ============================================= */}
             {/* PAGE HEADER */}
-            {/* ============================================= */}
 
             <Box
                 sx={{
@@ -490,7 +438,8 @@ const VendorItemMastersList = () => {
                         color="text.secondary"
                         sx={{ mt: 0.5 }}
                     >
-                        Manage vendor items, prices, units, and status.
+                        Manage vendor SKUs, item codes, prices,
+                        inventory, lead times, and status.
                     </Typography>
                 </Box>
 
@@ -520,37 +469,28 @@ const VendorItemMastersList = () => {
                 </Box>
             </Box>
 
-            {/* ============================================= */}
             {/* SEARCH */}
-            {/* ============================================= */}
 
             <Box sx={{ mb: 2 }}>
                 <VendorItemMasterSearch
                     value={search}
                     onChange={handleSearchChange}
-                    onSearch={(value) => {
-                        setSearch(value);
-                        setFilters((previous) => ({
-                            ...previous,
-                            search: value
-                        }));
-                        setPage(1);
-                    }}
+                    onSearch={handleSearchChange}
                     onClear={() => {
                         setSearch("");
+
                         setFilters((previous) => ({
                             ...previous,
                             search: ""
                         }));
+
                         setPage(1);
                     }}
                     loading={loading}
                 />
             </Box>
 
-            {/* ============================================= */}
             {/* FILTERS */}
-            {/* ============================================= */}
 
             <Box sx={{ mb: 3 }}>
                 <VendorItemMasterFilters
@@ -563,9 +503,7 @@ const VendorItemMastersList = () => {
                 />
             </Box>
 
-            {/* ============================================= */}
             {/* ERROR MESSAGE */}
-            {/* ============================================= */}
 
             {error && (
                 <Alert
@@ -576,6 +514,7 @@ const VendorItemMastersList = () => {
                             color="inherit"
                             size="small"
                             onClick={fetchItems}
+                            disabled={loading}
                         >
                             Retry
                         </Button>
@@ -585,9 +524,7 @@ const VendorItemMastersList = () => {
                 </Alert>
             )}
 
-            {/* ============================================= */}
             {/* TABLE */}
-            {/* ============================================= */}
 
             <Box
                 sx={{
@@ -608,7 +545,8 @@ const VendorItemMastersList = () => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            backgroundColor: "rgba(255,255,255,0.65)"
+                            backgroundColor:
+                                "rgba(255,255,255,0.65)"
                         }}
                     >
                         <CircularProgress />
@@ -624,63 +562,33 @@ const VendorItemMastersList = () => {
                 />
             </Box>
 
-            {/* ============================================= */}
             {/* PAGINATION */}
-            {/* ============================================= */}
 
             <VendorItemMasterPagination
-                page={Math.min(page, totalPages)}
+                page={safePage}
                 rowsPerPage={rowsPerPage}
                 totalItems={filteredItems.length}
                 onPageChange={setPage}
                 onRowsPerPageChange={(value) => {
-                    setRowsPerPage(value);
+                    setRowsPerPage(Number(value));
                     setPage(1);
                 }}
                 loading={loading}
             />
 
-            {/* ============================================= */}
-            {/* CREATE / VIEW / EDIT MODAL */}
-            {/* ============================================= */}
-
-            <VendorItemMasterModal
-                open={modalOpen}
-                mode={modalMode}
-                item={selectedItem}
-                itemId={getItemId(selectedItem)}
-                loading={saving}
-                error={formError}
-                onClose={handleCloseModal}
-                onSubmit={handleSubmit}
-                onEdit={handleEdit}
-            />
-
-            {/* ============================================= */}
-            {/* NOTIFICATION */}
-            {/* ============================================= */}
+            {/* NOTIFICATIONS */}
 
             <Snackbar
                 open={notification.open}
                 autoHideDuration={4000}
-                onClose={() => {
-                    setNotification((previous) => ({
-                        ...previous,
-                        open: false
-                    }));
-                }}
+                onClose={closeNotification}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
                 }}
             >
                 <Alert
-                    onClose={() => {
-                        setNotification((previous) => ({
-                            ...previous,
-                            open: false
-                        }));
-                    }}
+                    onClose={closeNotification}
                     severity={notification.severity}
                     variant="filled"
                     sx={{ width: "100%" }}
@@ -688,10 +596,8 @@ const VendorItemMastersList = () => {
                     {notification.message}
                 </Alert>
             </Snackbar>
-
         </Box>
     );
 };
 
 export default VendorItemMastersList;
-

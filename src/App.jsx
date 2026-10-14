@@ -1999,7 +1999,10 @@ VENDOR ITEM MASTERS ROUTES
 <Route path="vendor-item-masters/details/:id" element={<VendorItemMasterDetails />} />
 <Route path="vendor-item-masters/view/:id" element={<VendorItemMasterView />} />
 <Route path="vendor-item-masters/:id/edit" element={<VendorItemMasterEdit />} />
-
+<Route
+    path="vendor-item-masters/:id/delete"
+    element={<DeleteVendorItemMasterDialog />}
+/>
 
                 {/* =================================================
                     PRODUCT ATTRIBUTES

@@ -1,7 +1,3 @@
-// =========================================================
-// VendorItemMasterCreate.jsx
-// =========================================================
-
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -12,13 +8,11 @@ import {
     Button,
     CircularProgress,
     Divider,
-    FormControl,
     Grid,
-    InputLabel,
-    MenuItem,
     Paper,
-    Select,
     Snackbar,
+    Switch,
+    FormControlLabel,
     TextField,
     Typography
 } from "@mui/material";
@@ -29,45 +23,37 @@ import {
     RestartAlt
 } from "@mui/icons-material";
 
-// =========================================================
-// API CONFIGURATION
-// =========================================================
-
-const API_BASE_URL = "http://localhost:5000";
-
-const VENDOR_ITEM_MASTER_API =
-    `${API_BASE_URL}/api/VendorItemMaster`;
-
-// =========================================================
-// INITIAL FORM DATA
-// =========================================================
+const API_URL = "http://localhost:5000/api/VendorItemMaster";
 
 const INITIAL_FORM_DATA = {
+    vendorId: "1",
+    sellerId: "6",
+    customerId: "3",
+    productId: "6",
+    vendorSkuCode: "",
+    itemSkuCode: "",
     itemCode: "",
-    itemName: "",
-    vendorId: "",
-    description: "",
-    unitOfMeasure: "",
+    itemSku: "",
+    SKU: "",
+    vendorCode: "",
+    vendorItemCode: "",
+    costPrice: "",
     unitPrice: "",
-    taxRate: "",
-    status: "Active"
+    MRP: "",
+    sellingPrice: "",
+    inventory: "",
+    LeadTime: "0",
+    priority: "1",
+    enabled: true,
+    IsActive: true
 };
 
-// =========================================================
-// VENDOR ITEM MASTER CREATE
-// =========================================================
-
-const VendorItemMasterCreate = ({
-    onCreated,
-    onClose,
-    initialData
-}) => {
+const VendorItemMasterCreate = () => {
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState(() => ({
-        ...INITIAL_FORM_DATA,
-        ...(initialData || {})
-    }));
+    const [formData, setFormData] = useState({
+        ...INITIAL_FORM_DATA
+    });
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -78,16 +64,12 @@ const VendorItemMasterCreate = ({
         message: ""
     });
 
-    // =====================================================
-    // HANDLE INPUT CHANGE
-    // =====================================================
-
     const handleChange = (event) => {
-        const { name, value } = event.target;
+        const { name, value, checked, type } = event.target;
 
         setFormData((previous) => ({
             ...previous,
-            [name]: value
+            [name]: type === "checkbox" ? checked : value
         }));
 
         setErrors((previous) => ({
@@ -96,67 +78,85 @@ const VendorItemMasterCreate = ({
         }));
     };
 
-    // =====================================================
-    // VALIDATE FORM
-    // =====================================================
-
     const validateForm = () => {
-        const newErrors = {};
+        const nextErrors = {};
 
-        if (!formData.itemCode.trim()) {
-            newErrors.itemCode = "Item code is required.";
-        }
+        [
+            "vendorId",
+            "sellerId",
+            "customerId"
+        ].forEach((field) => {
+            const value = Number(formData[field]);
 
-        if (!formData.itemName.trim()) {
-            newErrors.itemName = "Item name is required.";
-        }
-
-        if (
-            formData.vendorId === "" ||
-            !Number.isInteger(Number(formData.vendorId)) ||
-            Number(formData.vendorId) <= 0
-        ) {
-            newErrors.vendorId = "Enter a valid vendor ID.";
-        }
-
-        if (!formData.unitOfMeasure.trim()) {
-            newErrors.unitOfMeasure =
-                "Unit of measure is required.";
-        }
+            if (
+                formData[field] === "" ||
+                !Number.isInteger(value) ||
+                value <= 0
+            ) {
+                nextErrors[field] = "Enter a valid positive ID.";
+            }
+        });
 
         if (
-            formData.unitPrice === "" ||
-            !Number.isFinite(Number(formData.unitPrice)) ||
-            Number(formData.unitPrice) < 0
+            formData.productId !== "" &&
+            (!Number.isInteger(Number(formData.productId)) ||
+                Number(formData.productId) <= 0)
         ) {
-            newErrors.unitPrice =
-                "Enter a valid unit price.";
+            nextErrors.productId = "Enter a valid product ID or leave blank.";
         }
+
+        if (!formData.vendorSkuCode.trim()) {
+            nextErrors.vendorSkuCode = "Vendor SKU code is required.";
+        }
+
+        if (!formData.itemSkuCode.trim()) {
+            nextErrors.itemSkuCode = "Item SKU code is required.";
+        }
+
+        [
+            "costPrice",
+            "unitPrice",
+            "MRP",
+            "sellingPrice"
+        ].forEach((field) => {
+            if (
+                formData[field] !== "" &&
+                (!Number.isFinite(Number(formData[field])) ||
+                    Number(formData[field]) < 0)
+            ) {
+                nextErrors[field] = "Enter a valid non-negative price.";
+            }
+        });
 
         if (
-            formData.taxRate !== "" &&
-            (
-                !Number.isFinite(Number(formData.taxRate)) ||
-                Number(formData.taxRate) < 0 ||
-                Number(formData.taxRate) > 100
-            )
+            formData.costPrice === "" ||
+            !Number.isFinite(Number(formData.costPrice)) ||
+            Number(formData.costPrice) < 0
         ) {
-            newErrors.taxRate =
-                "Tax rate must be between 0 and 100.";
+            nextErrors.costPrice = "Cost price is required and cannot be negative.";
         }
 
-        if (!formData.status) {
-            newErrors.status = "Select a status.";
+        [
+            "inventory",
+            "LeadTime",
+            "priority"
+        ].forEach((field) => {
+            if (
+                formData[field] !== "" &&
+                (!Number.isInteger(Number(formData[field])) ||
+                    Number(formData[field]) < 0)
+            ) {
+                nextErrors[field] = "Enter a non-negative whole number.";
+            }
+        });
+
+        if (formData.LeadTime === "") {
+            nextErrors.LeadTime = "Lead time is required.";
         }
 
-        setErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0;
+        setErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
     };
-
-    // =====================================================
-    // SHOW NOTIFICATION
-    // =====================================================
 
     const showNotification = (message, severity = "success") => {
         setNotification({
@@ -166,49 +166,89 @@ const VendorItemMasterCreate = ({
         });
     };
 
-    // =====================================================
-    // RESET FORM
-    // =====================================================
-
     const handleReset = () => {
-        setFormData(INITIAL_FORM_DATA);
+        setFormData({ ...INITIAL_FORM_DATA });
         setErrors({});
     };
 
-    // =====================================================
-    // CREATE VENDOR ITEM MASTER
-    // =====================================================
+    const getErrorMessage = (error) => {
+        const data = error.response?.data;
+
+        if (typeof data === "string") {
+            return data;
+        }
+
+        if (data?.errors) {
+            return Object.values(data.errors).flat().join(" ");
+        }
+
+        return (
+            data?.message ||
+            data?.title ||
+            data?.detail ||
+            error.message ||
+            "Unable to create vendor item master."
+        );
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (!validateForm()) {
-            showNotification(
-                "Please correct the highlighted fields.",
-                "error"
-            );
+            showNotification("Please correct the highlighted fields.", "error");
             return;
         }
+
+        const sellerId = Number(formData.sellerId);
+        const customerId = Number(formData.customerId);
+
+        const payload = {
+            vendorId: Number(formData.vendorId),
+            sellerId,
+            customerId,
+            productId:
+                formData.productId === ""
+                    ? null
+                    : Number(formData.productId),
+
+            vendorSkuCode: formData.vendorSkuCode.trim(),
+            itemSkuCode: formData.itemSkuCode.trim(),
+            itemCode: formData.itemCode.trim() || null,
+            itemSku: formData.itemSku.trim() || null,
+            SKU: formData.SKU.trim() || null,
+            vendorCode: formData.vendorCode.trim() || null,
+            VendorItemCode: formData.vendorItemCode.trim() || null,
+
+            CostPrice: Number(formData.costPrice),
+            unitPrice:
+                formData.unitPrice === ""
+                    ? null
+                    : Number(formData.unitPrice),
+            MRP: formData.MRP === "" ? null : Number(formData.MRP),
+            SellingPrice:
+                formData.sellingPrice === ""
+                    ? null
+                    : Number(formData.sellingPrice),
+
+            inventory:
+                formData.inventory === ""
+                    ? null
+                    : Number(formData.inventory),
+            LeadTime: Number(formData.LeadTime),
+            priority:
+                formData.priority === ""
+                    ? null
+                    : Number(formData.priority),
+
+            enabled: formData.enabled,
+            IsActive: formData.IsActive
+        };
 
         try {
             setLoading(true);
 
-            const payload = {
-                itemCode: formData.itemCode.trim(),
-                itemName: formData.itemName.trim(),
-                vendorId: Number(formData.vendorId),
-                description: formData.description.trim(),
-                unitOfMeasure: formData.unitOfMeasure.trim(),
-                unitPrice: Number(formData.unitPrice),
-                taxRate:
-                    formData.taxRate === ""
-                        ? 0
-                        : Number(formData.taxRate),
-                status: formData.status
-            };
-
             const response = await axios.post(
-                VENDOR_ITEM_MASTER_API,
+                `${API_URL}/seller/${sellerId}/customer/${customerId}`,
                 payload,
                 {
                     headers: {
@@ -217,45 +257,55 @@ const VendorItemMasterCreate = ({
                 }
             );
 
-            const createdItem = response.data;
-
             showNotification(
                 "Vendor item master created successfully.",
                 "success"
             );
 
-            if (typeof onCreated === "function") {
-                onCreated(createdItem);
-            } else if (typeof onClose === "function") {
-                onClose();
-            } else {
-                navigate("/vendor-item-masters");
-            }
+            // Redirect to the list page after a successful create.
+            navigate("/vendor-item-masters", {
+                replace: true,
+                state: {
+                    successMessage:
+                        "Vendor item master created successfully.",
+                    createdItem: response.data
+                }
+            });
         } catch (error) {
             console.error(
                 "CREATE VENDOR ITEM MASTER ERROR:",
-                error
+                error.response?.data || error
             );
 
-            const message =
-                error.response?.data?.message ||
-                error.response?.data?.title ||
-                error.response?.data?.detail ||
-                (typeof error.response?.data === "string"
-                    ? error.response.data
-                    : null) ||
-                error.message ||
-                "Unable to create vendor item master.";
-
-            showNotification(message, "error");
+            showNotification(getErrorMessage(error), "error");
         } finally {
             setLoading(false);
         }
     };
 
-    // =====================================================
-    // RENDER
-    // =====================================================
+    const renderTextField = (
+        name,
+        label,
+        options = {}
+    ) => (
+        <Grid item xs={12} sm={6} key={name}>
+            <TextField
+                fullWidth
+                name={name}
+                label={label}
+                value={formData[name]}
+                onChange={handleChange}
+                error={Boolean(errors[name])}
+                helperText={errors[name] || options.helperText || ""}
+                disabled={loading}
+                required={Boolean(options.required)}
+                type={options.type || "text"}
+                inputProps={options.inputProps}
+                multiline={options.multiline || false}
+                minRows={options.minRows}
+            />
+        </Grid>
+    );
 
     return (
         <Box sx={{ p: { xs: 2, md: 3 } }}>
@@ -268,10 +318,6 @@ const VendorItemMasterCreate = ({
                     borderRadius: 2
                 }}
             >
-                {/* ========================================= */}
-                {/* HEADER */}
-                {/* ========================================= */}
-
                 <Box
                     display="flex"
                     justifyContent="space-between"
@@ -281,10 +327,7 @@ const VendorItemMasterCreate = ({
                     mb={2}
                 >
                     <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight="bold"
-                        >
+                        <Typography variant="h5" fontWeight="bold">
                             Create Vendor Item Master
                         </Typography>
 
@@ -293,216 +336,166 @@ const VendorItemMasterCreate = ({
                             color="text.secondary"
                             sx={{ mt: 0.5 }}
                         >
-                            Enter the vendor item details below.
+                            Enter vendor, seller, customer, SKU and pricing details.
                         </Typography>
                     </Box>
 
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
-                        onClick={() => {
-                            if (typeof onClose === "function") {
-                                onClose();
-                            } else {
-                                navigate("/vendor-item-masters");
-                            }
-                        }}
+                        onClick={() => navigate("/vendor-item-masters")}
                         disabled={loading}
                     >
-                        Back
+                        Back to List
                     </Button>
                 </Box>
 
                 <Divider sx={{ mb: 3 }} />
 
-                {/* ========================================= */}
-                {/* FORM */}
-                {/* ========================================= */}
+                <Box component="form" onSubmit={handleSubmit} noValidate>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                        Ownership and Product
+                    </Typography>
 
-                <Box
-                    component="form"
-                    onSubmit={handleSubmit}
-                    noValidate
-                >
                     <Grid container spacing={2.5}>
-                        {/* ITEM CODE */}
+                        {renderTextField("vendorId", "Vendor ID", {
+                            required: true,
+                            type: "number",
+                            inputProps: { min: 1, step: 1 }
+                        })}
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Item Code"
-                                name="itemCode"
-                                value={formData.itemCode}
-                                onChange={handleChange}
-                                error={Boolean(errors.itemCode)}
-                                helperText={errors.itemCode}
-                                disabled={loading}
-                                inputProps={{
-                                    maxLength: 100
-                                }}
-                            />
-                        </Grid>
+                        {renderTextField("sellerId", "Seller ID", {
+                            required: true,
+                            type: "number",
+                            inputProps: { min: 1, step: 1 }
+                        })}
 
-                        {/* ITEM NAME */}
+                        {renderTextField("customerId", "Customer ID", {
+                            required: true,
+                            type: "number",
+                            inputProps: { min: 1, step: 1 }
+                        })}
 
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Item Name"
-                                name="itemName"
-                                value={formData.itemName}
-                                onChange={handleChange}
-                                error={Boolean(errors.itemName)}
-                                helperText={errors.itemName}
-                                disabled={loading}
-                                inputProps={{
-                                    maxLength: 200
-                                }}
-                            />
-                        </Grid>
-
-                        {/* VENDOR ID */}
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                type="number"
-                                label="Vendor ID"
-                                name="vendorId"
-                                value={formData.vendorId}
-                                onChange={handleChange}
-                                error={Boolean(errors.vendorId)}
-                                helperText={
-                                    errors.vendorId ||
-                                    "Enter the existing vendor ID."
-                                }
-                                disabled={loading}
-                                inputProps={{
-                                    min: 1,
-                                    step: 1
-                                }}
-                            />
-                        </Grid>
-
-                        {/* UNIT OF MEASURE */}
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Unit of Measure"
-                                name="unitOfMeasure"
-                                placeholder="e.g. PCS, KG, LTR"
-                                value={formData.unitOfMeasure}
-                                onChange={handleChange}
-                                error={Boolean(
-                                    errors.unitOfMeasure
-                                )}
-                                helperText={errors.unitOfMeasure}
-                                disabled={loading}
-                            />
-                        </Grid>
-
-                        {/* UNIT PRICE */}
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                type="number"
-                                label="Unit Price"
-                                name="unitPrice"
-                                value={formData.unitPrice}
-                                onChange={handleChange}
-                                error={Boolean(errors.unitPrice)}
-                                helperText={errors.unitPrice}
-                                disabled={loading}
-                                inputProps={{
-                                    min: 0,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
-
-                        {/* TAX RATE */}
-
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                type="number"
-                                label="Tax Rate (%)"
-                                name="taxRate"
-                                value={formData.taxRate}
-                                onChange={handleChange}
-                                error={Boolean(errors.taxRate)}
-                                helperText={
-                                    errors.taxRate ||
-                                    "Enter a percentage from 0 to 100."
-                                }
-                                disabled={loading}
-                                inputProps={{
-                                    min: 0,
-                                    max: 100,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
-
-                        {/* STATUS */}
-
-                        <Grid item xs={12} sm={6}>
-                            <FormControl
-                                fullWidth
-                                required
-                                error={Boolean(errors.status)}
-                                disabled={loading}
-                            >
-                                <InputLabel id="vendor-item-status-label">
-                                    Status
-                                </InputLabel>
-
-                                <Select
-                                    labelId="vendor-item-status-label"
-                                    label="Status"
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                >
-                                    <MenuItem value="Active">
-                                        Active
-                                    </MenuItem>
-
-                                    <MenuItem value="Inactive">
-                                        Inactive
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-
-                        {/* DESCRIPTION */}
+                        {renderTextField("productId", "Product ID (optional)", {
+                            type: "number",
+                            inputProps: { min: 1, step: 1 }
+                        })}
 
                         <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={3}
-                                label="Description"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                disabled={loading}
-                                inputProps={{
-                                    maxLength: 1000
-                                }}
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="h6" sx={{ mb: 1 }}>
+                                SKU and Item Codes
+                            </Typography>
+                        </Grid>
+
+                        {renderTextField("vendorSkuCode", "Vendor SKU Code", {
+                            required: true,
+                            inputProps: { maxLength: 100 }
+                        })}
+
+                        {renderTextField("itemSkuCode", "Item SKU Code", {
+                            required: true,
+                            inputProps: { maxLength: 100 }
+                        })}
+
+                        {renderTextField("itemCode", "Item Code", {
+                            inputProps: { maxLength: 100 }
+                        })}
+
+                        {renderTextField("itemSku", "Item SKU", {
+                            inputProps: { maxLength: 100 }
+                        })}
+
+                        {renderTextField("SKU", "SKU", {
+                            inputProps: { maxLength: 100 }
+                        })}
+
+                        {renderTextField("vendorCode", "Vendor Code", {
+                            inputProps: { maxLength: 100 }
+                        })}
+
+                        {renderTextField("vendorItemCode", "Vendor Item Code", {
+                            inputProps: { maxLength: 100 }
+                        })}
+
+                        <Grid item xs={12}>
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="h6" sx={{ mb: 1 }}>
+                                Pricing
+                            </Typography>
+                        </Grid>
+
+                        {renderTextField("costPrice", "Cost Price", {
+                            required: true,
+                            type: "number",
+                            inputProps: { min: 0, step: "0.01" }
+                        })}
+
+                        {renderTextField("unitPrice", "Unit Price", {
+                            type: "number",
+                            inputProps: { min: 0, step: "0.01" }
+                        })}
+
+                        {renderTextField("MRP", "MRP", {
+                            type: "number",
+                            inputProps: { min: 0, step: "0.01" }
+                        })}
+
+                        {renderTextField("sellingPrice", "Selling Price", {
+                            type: "number",
+                            inputProps: { min: 0, step: "0.01" }
+                        })}
+
+                        <Grid item xs={12}>
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="h6" sx={{ mb: 1 }}>
+                                Inventory and Status
+                            </Typography>
+                        </Grid>
+
+                        {renderTextField("inventory", "Inventory Quantity", {
+                            type: "number",
+                            inputProps: { min: 0, step: 1 }
+                        })}
+
+                        {renderTextField("LeadTime", "Lead Time (days)", {
+                            required: true,
+                            type: "number",
+                            inputProps: { min: 0, step: 1 }
+                        })}
+
+                        {renderTextField("priority", "Priority", {
+                            type: "number",
+                            inputProps: { min: 0, step: 1 }
+                        })}
+
+                        <Grid item xs={12} sm={6}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        name="enabled"
+                                        checked={Boolean(formData.enabled)}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                    />
+                                }
+                                label="Enabled"
                             />
                         </Grid>
 
-                        {/* ================================= */}
-                        {/* ACTION BUTTONS */}
-                        {/* ================================= */}
+                        <Grid item xs={12} sm={6}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        name="IsActive"
+                                        checked={Boolean(formData.IsActive)}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                    />
+                                }
+                                label="Active"
+                            />
+                        </Grid>
 
                         <Grid item xs={12}>
                             <Divider sx={{ my: 1 }} />
@@ -537,9 +530,7 @@ const VendorItemMasterCreate = ({
                                     }
                                     disabled={loading}
                                 >
-                                    {loading
-                                        ? "Saving..."
-                                        : "Create Item"}
+                                    {loading ? "Saving..." : "Create Item"}
                                 </Button>
                             </Box>
                         </Grid>
@@ -547,37 +538,29 @@ const VendorItemMasterCreate = ({
                 </Box>
             </Paper>
 
-            {/* ============================================= */}
-            {/* NOTIFICATION */}
-            {/* ============================================= */}
-
             <Snackbar
                 open={notification.open}
-                autoHideDuration={5000}
+                autoHideDuration={6000}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
                 }}
-                onClose={(event, reason) => {
-                    if (reason === "clickaway") {
-                        return;
-                    }
-
+                onClose={() =>
                     setNotification((previous) => ({
                         ...previous,
                         open: false
-                    }));
-                }}
+                    }))
+                }
             >
                 <Alert
                     severity={notification.severity}
                     variant="filled"
-                    onClose={() => {
+                    onClose={() =>
                         setNotification((previous) => ({
                             ...previous,
                             open: false
-                        }));
-                    }}
+                        }))
+                    }
                     sx={{ width: "100%" }}
                 >
                     {notification.message}
@@ -587,9 +570,4 @@ const VendorItemMasterCreate = ({
     );
 };
 
-// =========================================================
-// DEFAULT EXPORT
-// =========================================================
-
 export default VendorItemMasterCreate;
-

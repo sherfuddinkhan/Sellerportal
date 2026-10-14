@@ -1,8 +1,9 @@
 // =========================================================
 // VendorItemMasterDetails.jsx
+// Standalone Review / Details Page - No Modal
 // =========================================================
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -29,10 +30,7 @@ import {
 // API CONFIGURATION
 // =========================================================
 
-const API_BASE_URL = "http://localhost:5000";
-
-const VENDOR_ITEM_MASTER_API =
-    `${API_BASE_URL}/api/VendorItemMaster`;
+const API_URL = "http://localhost:5000/api/VendorItemMaster";
 
 // =========================================================
 // FORMAT VALUE
@@ -51,11 +49,11 @@ const formatValue = (value) => {
 // =========================================================
 
 const formatCurrency = (value) => {
-    const amount = Number(value);
-
     if (value === null || value === undefined || value === "") {
         return "—";
     }
+
+    const amount = Number(value);
 
     if (!Number.isFinite(amount)) {
         return "—";
@@ -73,7 +71,7 @@ const formatCurrency = (value) => {
 // DETAIL FIELD
 // =========================================================
 
-const DetailField = ({ label, value }) => (
+const DetailField = ({ label, value, currency = false }) => (
     <Box sx={{ mb: 1 }}>
         <Typography
             variant="caption"
@@ -86,13 +84,13 @@ const DetailField = ({ label, value }) => (
 
         <Typography
             variant="body1"
+            fontWeight={500}
             sx={{
-                fontWeight: 500,
                 overflowWrap: "anywhere",
                 whiteSpace: "pre-wrap"
             }}
         >
-            {formatValue(value)}
+            {currency ? formatCurrency(value) : formatValue(value)}
         </Typography>
     </Box>
 );
@@ -101,21 +99,13 @@ const DetailField = ({ label, value }) => (
 // VENDOR ITEM MASTER DETAILS
 // =========================================================
 
-const VendorItemMasterDetails = ({
-    itemId: itemIdProp,
-    item: itemProp,
-    onClose,
-    onEdit
-}) => {
+const VendorItemMasterDetails = () => {
     const navigate = useNavigate();
-    const params = useParams();
+    const { id, itemId } = useParams();
 
-    const itemId =
-        itemIdProp ??
-        params.itemId ??
-        params.id;
+    const currentId = id ?? itemId;
 
-    const [item, setItem] = useState(itemProp || null);
+    const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -126,23 +116,33 @@ const VendorItemMasterDetails = ({
     });
 
     // =====================================================
-    // FETCH ITEM DETAILS
+    // NOTIFICATION
     // =====================================================
 
-    const fetchItemDetails = async () => {
-        if (itemProp) {
-            setItem(itemProp);
-            setError("");
-            return;
-        }
+    const showNotification = (message, severity = "success") => {
+        setNotification({
+            open: true,
+            message,
+            severity
+        });
+    };
 
-        if (
-            itemId === null ||
-            itemId === undefined ||
-            itemId === ""
-        ) {
-            setError("Vendor item ID was not provided.");
+    const closeNotification = () => {
+        setNotification((previous) => ({
+            ...previous,
+            open: false
+        }));
+    };
+
+    // =====================================================
+    // FETCH ITEM DETAILS
+    // API: GET /api/VendorItemMaster/{id}/seller/{sellerId}/customer/{customerId}
+    // =====================================================
+
+    const fetchItemDetails = useCallback(async () => {
+        if (!currentId) {
             setItem(null);
+            setError("Vendor item ID was not provided.");
             return;
         }
 
@@ -150,33 +150,42 @@ const VendorItemMasterDetails = ({
             setLoading(true);
             setError("");
 
+            // The current model uses sellerId/customerId to scope
+            // item details. Supply these from the saved app context
+            // or change the URL if your API has an ID-only GET route.
             const response = await axios.get(
-                `${VENDOR_ITEM_MASTER_API}/${encodeURIComponent(itemId)}`
+                `${API_URL}/all`
             );
 
             const responseData = response.data;
 
-            const fetchedItem =
-                responseData?.data ??
-                responseData?.item ??
-                responseData;
+            const records = Array.isArray(responseData)
+                ? responseData
+                : Array.isArray(responseData?.data)
+                    ? responseData.data
+                    : Array.isArray(responseData?.items)
+                        ? responseData.items
+                        : [];
 
-            if (
-                !fetchedItem ||
-                typeof fetchedItem !== "object" ||
-                Array.isArray(fetchedItem)
-            ) {
-                throw new Error(
-                    "The API did not return a valid vendor item."
-                );
+            const foundItem = records.find((record) => {
+                const recordId =
+                    record.vendorItemMasterId ??
+                    record.VendorItemMasterId ??
+                    record.id ??
+                    record.Id;
+
+                return String(recordId) === String(currentId);
+            });
+
+            if (!foundItem) {
+                setItem(null);
+                setError(`Vendor item with ID ${currentId} was not found.`);
+                return;
             }
 
-            setItem(fetchedItem);
+            setItem(foundItem);
         } catch (err) {
-            console.error(
-                "GET VENDOR ITEM MASTER DETAILS ERROR:",
-                err
-            );
+            console.error("GET VENDOR ITEM DETAILS ERROR:", err);
 
             setItem(null);
 
@@ -184,73 +193,60 @@ const VendorItemMasterDetails = ({
                 err.response?.data?.message ||
                 err.response?.data?.title ||
                 err.response?.data?.detail ||
+                err.message ||
                 "Unable to load vendor item details."
             );
         } finally {
             setLoading(false);
         }
-    };
-
-    // =====================================================
-    // EFFECT
-    // =====================================================
+    }, [currentId]);
 
     useEffect(() => {
         fetchItemDetails();
-
-        // Fetch again when the selected item ID changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [itemId, itemProp]);
+    }, [fetchItemDetails]);
 
     // =====================================================
-    // CLOSE DETAILS
+    // NAVIGATION
     // =====================================================
 
-    const handleClose = () => {
-        if (typeof onClose === "function") {
-            onClose();
-        } else {
-            navigate("/vendor-item-masters");
-        }
+    const handleBack = () => {
+        navigate("/vendor-item-masters");
     };
-
-    // =====================================================
-    // EDIT ITEM
-    // =====================================================
 
     const handleEdit = () => {
-        if (typeof onEdit === "function") {
-            onEdit(item);
-        } else {
-            const id =
-                item?.vendorItemMasterId ??
-                item?.VendorItemMasterId ??
-                item?.itemId ??
-                item?.ItemId ??
-                item?.id ??
-                item?.Id ??
-                itemId;
-
-            if (id !== null && id !== undefined && id !== "") {
-                navigate(`/vendor-item-masters/edit/${id}`);
-            } else {
-                setNotification({
-                    open: true,
-                    severity: "error",
-                    message: "Cannot edit: item ID is unavailable."
-                });
-            }
+        if (!currentId) {
+            showNotification("Vendor item ID is unavailable.", "error");
+            return;
         }
+
+        navigate(`/vendor-item-masters/${currentId}/edit`);
     };
 
     // =====================================================
-    // STATUS DISPLAY
+    // ITEM FIELDS
     // =====================================================
 
-    const status = item?.status ?? item?.Status ?? "Unknown";
+    const getValue = (...values) =>
+        values.find((value) => value !== undefined && value !== null);
 
-    const isActive =
-        String(status).toLowerCase() === "active";
+    const itemStatus = getValue(
+        item?.status,
+        item?.Status,
+        item?.enabled === true || item?.enabled === 1 ||
+        item?.Enabled === true || item?.Enabled === 1
+            ? "Enabled"
+            : item?.enabled === false || item?.enabled === 0 ||
+              item?.Enabled === false || item?.Enabled === 0
+                ? "Disabled"
+                : item?.isActive ?? item?.IsActive
+                    ? "Active"
+                    : "Inactive"
+    );
+
+    const active =
+        String(itemStatus).toLowerCase() === "active" ||
+        String(itemStatus).toLowerCase() === "enabled" ||
+        itemStatus === true;
 
     // =====================================================
     // LOADING STATE
@@ -262,29 +258,23 @@ const VendorItemMasterDetails = ({
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
-                minHeight={300}
                 gap={2}
+                minHeight={300}
             >
                 <CircularProgress />
-
-                <Typography>
-                    Loading vendor item details...
-                </Typography>
+                <Typography>Loading vendor item details...</Typography>
             </Box>
         );
     }
 
     // =====================================================
-    // ERROR STATE
+    // ERROR / NOT FOUND
     // =====================================================
 
     if (error && !item) {
         return (
-            <Box sx={{ p: 3 }}>
-                <Paper
-                    elevation={2}
-                    sx={{ p: 3, borderRadius: 2 }}
-                >
+            <Box sx={{ p: { xs: 2, md: 3 } }}>
+                <Paper sx={{ p: 3, borderRadius: 2 }}>
                     <Alert severity="error" sx={{ mb: 2 }}>
                         {error}
                     </Alert>
@@ -302,9 +292,9 @@ const VendorItemMasterDetails = ({
                         <Button
                             variant="outlined"
                             startIcon={<ArrowBack />}
-                            onClick={handleClose}
+                            onClick={handleBack}
                         >
-                            Back
+                            Back to List
                         </Button>
                     </Box>
                 </Paper>
@@ -312,46 +302,26 @@ const VendorItemMasterDetails = ({
         );
     }
 
-    // =====================================================
-    // NO DATA STATE
-    // =====================================================
-
     if (!item) {
-        return (
-            <Box sx={{ p: 3 }}>
-                <Alert severity="info" sx={{ mb: 2 }}>
-                    No vendor item details are available.
-                </Alert>
-
-                <Button
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={handleClose}
-                >
-                    Back
-                </Button>
-            </Box>
-        );
+        return null;
     }
 
     // =====================================================
-    // RENDER DETAILS
+    // DETAILS PAGE
     // =====================================================
 
     return (
         <Box sx={{ p: { xs: 2, md: 3 } }}>
             <Paper
-                elevation={3}
+                elevation={2}
                 sx={{
-                    maxWidth: 1100,
+                    maxWidth: 1200,
                     mx: "auto",
                     p: { xs: 2, md: 3 },
                     borderRadius: 2
                 }}
             >
-                {/* ========================================= */}
                 {/* HEADER */}
-                {/* ========================================= */}
 
                 <Box
                     display="flex"
@@ -362,10 +332,7 @@ const VendorItemMasterDetails = ({
                     mb={2}
                 >
                     <Box>
-                        <Typography
-                            variant="h5"
-                            fontWeight="bold"
-                        >
+                        <Typography variant="h5" fontWeight={700}>
                             Vendor Item Master Details
                         </Typography>
 
@@ -374,167 +341,228 @@ const VendorItemMasterDetails = ({
                             color="text.secondary"
                             sx={{ mt: 0.5 }}
                         >
-                            View vendor item information.
+                            Review vendor SKU, product mapping,
+                            prices, inventory and status.
                         </Typography>
                     </Box>
 
                     <Chip
-                        label={formatValue(status)}
-                        color={isActive ? "success" : "default"}
+                        label={formatValue(itemStatus)}
+                        color={active ? "success" : "default"}
                         variant="outlined"
                     />
                 </Box>
 
                 <Divider sx={{ mb: 3 }} />
 
-                {/* ========================================= */}
-                {/* ITEM INFORMATION */}
-                {/* ========================================= */}
+                {/* IDENTIFICATION */}
 
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ mb: 2 }}
-                >
-                    Basic Information
+                <Typography variant="h6" fontWeight={700} mb={2}>
+                    Identification
                 </Typography>
 
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={6} md={4}>
                         <DetailField
-                            label="Item ID"
-                            value={
-                                item.vendorItemMasterId ??
-                                item.VendorItemMasterId ??
-                                item.itemId ??
-                                item.ItemId ??
-                                item.id ??
-                                item.Id ??
-                                itemId
-                            }
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DetailField
-                            label="Item Code"
-                            value={
-                                item.itemCode ??
-                                item.ItemCode
-                            }
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DetailField
-                            label="Item Name"
-                            value={
-                                item.itemName ??
-                                item.ItemName
-                            }
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DetailField
-                            label="Vendor ID"
-                            value={
-                                item.vendorId ??
-                                item.VendorId
-                            }
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DetailField
-                            label="Unit of Measure"
-                            value={
-                                item.unitOfMeasure ??
-                                item.UnitOfMeasure
-                            }
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DetailField
-                            label="Status"
-                            value={status}
-                        />
-                    </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 3 }} />
-
-                {/* ========================================= */}
-                {/* PRICING INFORMATION */}
-                {/* ========================================= */}
-
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ mb: 2 }}
-                >
-                    Pricing Information
-                </Typography>
-
-                <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DetailField
-                            label="Unit Price"
-                            value={formatCurrency(
-                                item.unitPrice ??
-                                item.UnitPrice
+                            label="Vendor Item Master ID"
+                            value={getValue(
+                                item.vendorItemMasterId,
+                                item.VendorItemMasterId,
+                                currentId
                             )}
                         />
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={4}>
                         <DetailField
-                            label="Tax Rate (%)"
-                            value={
-                                item.taxRate ??
-                                item.TaxRate
-                            }
+                            label="Vendor ID"
+                            value={getValue(item.vendorId, item.VendorId)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Seller ID"
+                            value={getValue(item.sellerId, item.SellerId)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Customer ID"
+                            value={getValue(item.customerId, item.CustomerId)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Product ID"
+                            value={getValue(item.productId, item.ProductId)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Vendor SKU Code"
+                            value={getValue(item.vendorSkuCode, item.VendorSkuCode)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Item SKU Code"
+                            value={getValue(item.itemSkuCode, item.ItemSkuCode)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Item Code"
+                            value={getValue(item.itemCode, item.ItemCode)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Item SKU"
+                            value={getValue(item.itemSku, item.ItemSku)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="SKU"
+                            value={getValue(item.sku, item.SKU)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Vendor Code"
+                            value={getValue(item.vendorCode, item.VendorCode)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Vendor Item Code"
+                            value={getValue(item.vendorItemCode, item.VendorItemCode)}
                         />
                     </Grid>
                 </Grid>
 
                 <Divider sx={{ my: 3 }} />
 
-                {/* ========================================= */}
-                {/* DESCRIPTION */}
-                {/* ========================================= */}
+                {/* PRICING */}
 
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ mb: 2 }}
-                >
-                    Description
+                <Typography variant="h6" fontWeight={700} mb={2}>
+                    Pricing Information
                 </Typography>
 
-                <Paper
-                    variant="outlined"
-                    sx={{
-                        p: 2,
-                        minHeight: 80,
-                        bgcolor: "background.default"
-                    }}
-                >
-                    <Typography
-                        variant="body1"
-                        sx={{ whiteSpace: "pre-wrap" }}
-                    >
-                        {formatValue(
-                            item.description ??
-                            item.Description
-                        )}
-                    </Typography>
-                </Paper>
+                <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Cost Price"
+                            value={getValue(item.costPrice, item.CostPrice)}
+                            currency
+                        />
+                    </Grid>
 
-                {/* ========================================= */}
-                {/* ACTION BUTTONS */}
-                {/* ========================================= */}
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Unit Price"
+                            value={getValue(item.unitPrice, item.UnitPrice)}
+                            currency
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="MRP"
+                            value={getValue(item.mrp, item.MRP)}
+                            currency
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Selling Price"
+                            value={getValue(item.sellingPrice, item.SellingPrice)}
+                            currency
+                        />
+                    </Grid>
+                </Grid>
+
+                <Divider sx={{ my: 3 }} />
+
+                {/* INVENTORY AND SETTINGS */}
+
+                <Typography variant="h6" fontWeight={700} mb={2}>
+                    Inventory and Settings
+                </Typography>
+
+                <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Inventory"
+                            value={getValue(item.inventory, item.Inventory)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Lead Time (Days)"
+                            value={getValue(item.leadTime, item.LeadTime)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Priority"
+                            value={getValue(item.priority, item.Priority)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Enabled"
+                            value={getValue(item.enabled, item.Enabled)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Active"
+                            value={getValue(item.isActive, item.IsActive)}
+                        />
+                    </Grid>
+                </Grid>
+
+                <Divider sx={{ my: 3 }} />
+
+                {/* AUDIT INFORMATION */}
+
+                <Typography variant="h6" fontWeight={700} mb={2}>
+                    Audit Information
+                </Typography>
+
+                <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Created Date"
+                            value={getValue(item.createdDate, item.CreatedDate)}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Updated Date"
+                            value={getValue(item.updatedDate, item.UpdatedDate)}
+                        />
+                    </Grid>
+                </Grid>
+
+                {/* ACTIONS */}
 
                 <Divider sx={{ my: 3 }} />
 
@@ -564,40 +592,28 @@ const VendorItemMasterDetails = ({
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBack />}
-                        onClick={handleClose}
+                        onClick={handleBack}
                     >
-                        Back
+                        Back to List
                     </Button>
                 </Box>
             </Paper>
 
-            {/* ============================================= */}
             {/* NOTIFICATION */}
-            {/* ============================================= */}
 
             <Snackbar
                 open={notification.open}
-                autoHideDuration={5000}
+                autoHideDuration={4000}
+                onClose={closeNotification}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right"
-                }}
-                onClose={() => {
-                    setNotification((previous) => ({
-                        ...previous,
-                        open: false
-                    }));
                 }}
             >
                 <Alert
                     severity={notification.severity}
                     variant="filled"
-                    onClose={() => {
-                        setNotification((previous) => ({
-                            ...previous,
-                            open: false
-                        }));
-                    }}
+                    onClose={closeNotification}
                     sx={{ width: "100%" }}
                 >
                     {notification.message}
@@ -607,9 +623,4 @@ const VendorItemMasterDetails = ({
     );
 };
 
-// =========================================================
-// DEFAULT EXPORT
-// =========================================================
-
 export default VendorItemMasterDetails;
-

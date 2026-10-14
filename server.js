@@ -36923,142 +36923,233 @@ app.delete(
 // GET ALL VENDOR ITEMS
 // =========================================================
 
-app.get("/api/VendorItemMaster", async (req, res) => {
+/* =========================================================
+   VENDOR ITEM MASTER
+   ========================================================= */
+
+// GET: /api/VendorItemMaster/all
+app.get("/api/VendorItemMaster/all", async (req, res) => {
     try {
         const response = await axios.get(
-            "http://localhost:5000/api/VendorItemMaster",
+            `${DOTNET_API}/VendorItemMaster/all`,
             {
-                params: req.query
+                params: req.query,
+                httpsAgent
             }
         );
 
-        return res.status(response.status).json(response.data);
-
+        res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "GET VENDOR ITEMS ERROR:",
-            error.message
+            "GET VendorItemMaster/all:",
+            error.response?.data || error.message
         );
 
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve vendor items."
-        });
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to fetch all vendor item masters",
+                error: error.message
+            }
+        );
     }
 });
 
-// =========================================================
-// GET VENDOR ITEM BY ID
-// =========================================================
 
-app.get("/api/VendorItemMaster/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
+// GET: /api/VendorItemMaster/seller/:sellerId/customer/:customerId
+app.get(
+    "/api/VendorItemMaster/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
 
-        const response = await axios.get(
-            `http://localhost:5000/api/VendorItemMaster/${id}`
-        );
+            const response = await axios.get(
+                `${DOTNET_API}/VendorItemMaster/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
 
-        return res.status(response.status).json(response.data);
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET VendorItemMaster by seller/customer:",
+                error.response?.data || error.message
+            );
 
-    } catch (error) {
-        console.error(
-            "GET VENDOR ITEM ERROR:",
-            error.message
-        );
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to retrieve vendor item."
-        });
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to fetch vendor item masters",
+                    error: error.message
+                }
+            );
+        }
     }
-});
+);
 
-// =========================================================
-// CREATE VENDOR ITEM
-// =========================================================
 
-app.post("/api/VendorItemMaster", async (req, res) => {
+// POST: /api/VendorItemMaster/seller/:sellerId/customer/:customerId
+app.post(
+    "/api/VendorItemMaster/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { sellerId, customerId } = req.params;
+
+            const response = await axios.post(
+                `${DOTNET_API}/VendorItemMaster/seller/${sellerId}/customer/${customerId}`,
+                req.body,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "POST VendorItemMaster by seller/customer:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to create vendor item master",
+                    error: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// POST: /api/VendorItemMaster/list
+app.post("/api/VendorItemMaster/list", async (req, res) => {
     try {
         const response = await axios.post(
-            "http://localhost:5000/api/VendorItemMaster",
-            req.body
-        );
-
-        return res.status(response.status).json(response.data);
-
-    } catch (error) {
-        console.error(
-            "CREATE VENDOR ITEM ERROR:",
-            error.message
-        );
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to create vendor item."
-        });
-    }
-});
-
-// =========================================================
-// UPDATE VENDOR ITEM
-// =========================================================
-
-app.put("/api/VendorItemMaster/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const response = await axios.put(
-            `http://localhost:5000/api/VendorItemMaster/${id}`,
-            req.body
-        );
-
-        return res.status(response.status).json(response.data);
-
-    } catch (error) {
-        console.error(
-            "UPDATE VENDOR ITEM ERROR:",
-            error.message
-        );
-
-        return res.status(500).json({
-            success: false,
-            message: "Failed to update vendor item."
-        });
-    }
-});
-
-// =========================================================
-// DELETE VENDOR ITEM
-// =========================================================
-
-app.delete("/api/VendorItemMaster/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const response = await axios.delete(
-            `http://localhost:5000/api/VendorItemMaster/${id}`
-        );
-
-        return res.status(response.status).json(
-            response.data ?? {
-                success: true,
-                message: "Vendor item deleted successfully."
+            `${DOTNET_API}/VendorItemMaster/list`,
+            req.body,
+            {
+                params: req.query,
+                httpsAgent
             }
         );
 
+        res.status(response.status).json(response.data);
     } catch (error) {
         console.error(
-            "DELETE VENDOR ITEM ERROR:",
-            error.message
+            "POST VendorItemMaster/list:",
+            error.response?.data || error.message
         );
 
-        return res.status(500).json({
-            success: false,
-            message: "Failed to delete vendor item."
-        });
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to fetch vendor item master list",
+                error: error.message
+            }
+        );
     }
 });
+
+
+// GET: /api/VendorItemMaster/:id/seller/:sellerId/customer/:customerId
+app.get(
+    "/api/VendorItemMaster/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.get(
+                `${DOTNET_API}/VendorItemMaster/${id}/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "GET VendorItemMaster by ID:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to fetch vendor item master",
+                    error: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// PUT: /api/VendorItemMaster/:id/seller/:sellerId/customer/:customerId
+app.put(
+    "/api/VendorItemMaster/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.put(
+                `${DOTNET_API}/VendorItemMaster/${id}/seller/${sellerId}/customer/${customerId}`,
+                req.body,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "PUT VendorItemMaster:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to update vendor item master",
+                    error: error.message
+                }
+            );
+        }
+    }
+);
+
+
+// DELETE: /api/VendorItemMaster/:id/seller/:sellerId/customer/:customerId
+app.delete(
+    "/api/VendorItemMaster/:id/seller/:sellerId/customer/:customerId",
+    async (req, res) => {
+        try {
+            const { id, sellerId, customerId } = req.params;
+
+            const response = await axios.delete(
+                `${DOTNET_API}/VendorItemMaster/${id}/seller/${sellerId}/customer/${customerId}`,
+                {
+                    params: req.query,
+                    httpsAgent
+                }
+            );
+
+            res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error(
+                "DELETE VendorItemMaster:",
+                error.response?.data || error.message
+            );
+
+            res.status(error.response?.status || 500).json(
+                error.response?.data || {
+                    message: "Failed to delete vendor item master",
+                    error: error.message
+                }
+            );
+        }
+    }
+);
+
 
 
 
