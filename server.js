@@ -34380,6 +34380,195 @@ app.delete("/api/vendor-item-custom-fields/:id", async (req, res) => {
         );
     }
 });
+//////////////////////////shipping Manfiestation/////////////////
+// =====================================================
+// GET ALL SHIPPING MANIFESTS
+// GET http://localhost:5000/api/shipping-manifests/all
+// =====================================================
+
+app.get("/api/shipping-manifests/all", async (req, res) => {
+    const backendUrl = `${BASE_URL}/shipping-manifests/all`;
+
+    try {
+        console.log("GET SHIPPING MANIFESTS:", backendUrl);
+
+        const response = await axios.get(backendUrl, {
+            httpsAgent,
+            params: req.query
+        });
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("GET SHIPPING MANIFESTS ERROR:", {
+            backendUrl,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to get shipping manifests.",
+                details: error.message
+            }
+        );
+    }
+});
+
+// =====================================================
+// GET SHIPPING MANIFEST BY ID OR CODE
+// GET /api/shipping-manifests/:id
+// =====================================================
+
+// in server.js - add this route
+// =====================================================
+// GET BY ID OR CODE - MAN-001, SM-... - AFTER /all
+// =====================================================
+app.get("/api/shipping-manifests/:id", async (req, res) => {
+    const id = String(req.params.id || "").trim();
+    if (!id) return res.status(400).json({ message: "Manifest ID required" });
+
+    // Don't let "all" be treated as id
+    if (id.toLowerCase() === "all") {
+        return res.redirect("/api/shipping-manifests/all");
+    }
+
+    const backendUrl = `${BASE_URL}/shipping-manifests/${encodeURIComponent(id)}`;
+
+    try {
+        console.log("GET BY ID:", backendUrl);
+        const response = await axios.get(backendUrl, { httpsAgent });
+        console.log("FOUND:", response.data?.shippingManifestCode);
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        // Fallback: filter from all - works for MAN-001, SM-...
+        console.log("Direct fetch failed, trying fallback filter for:", id);
+        try {
+            const allUrl = `${BASE_URL}/shipping-manifests/all`;
+            const allRes = await axios.get(allUrl, { httpsAgent });
+            const list = Array.isArray(allRes.data) ? allRes.data : allRes.data?.data || [];
+            const found = list.find(x => 
+                String(x.shippingManifestCode).toLowerCase() === id.toLowerCase() ||
+                String(x.shippingManifestId).toLowerCase() === id.toLowerCase() ||
+                String(x.manifestNumber).toLowerCase() === id.toLowerCase()
+            );
+            if (found) {
+                console.log("FOUND via fallback:", found.shippingManifestCode);
+                return res.json(found);
+            }
+        } catch (e) {
+            console.error("Fallback also failed:", e.message);
+        }
+
+        return res.status(error.response?.status || 404).json({
+            message: `Manifest ${id} not found`,
+            details: error.response?.data || error.message
+        });
+    }
+});
+
+// =====================================================
+// CREATE SHIPPING MANIFEST
+// POST /api/shipping-manifests
+// =====================================================
+
+app.post("/api/shipping-manifests", async (req, res) => {
+    const backendUrl = `${BASE_URL}/shipping-manifests`;
+
+    try {
+        console.log("CREATE SHIPPING MANIFEST:", backendUrl);
+        console.log("REQUEST BODY:", req.body);
+
+        const response = await axios.post(
+            backendUrl,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                timeout: 30000
+            }
+        );
+
+        console.log(
+            "SHIPPING MANIFEST CREATED:",
+            response.status
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("CREATE SHIPPING MANIFEST ERROR:", {
+            backendUrl,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to create shipping manifest.",
+                details: error.message
+            }
+        );
+    }
+});
+
+// =====================================================
+// UPDATE SHIPPING MANIFEST
+// PUT /api/shipping-manifests/:id
+// =====================================================
+
+app.put("/api/shipping-manifests/:id", async (req, res) => {
+    const id = req.params.id;
+    const backendUrl = `${BASE_URL}/shipping-manifests/${encodeURIComponent(id)}`;
+    try {
+        console.log("UPDATE:", backendUrl, req.body);
+        const response = await axios.put(backendUrl, req.body, {
+            httpsAgent,
+            headers: { "Content-Type": "application/json" }
+        });
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("UPDATE ERROR:", error.response?.data || error.message);
+        return res.status(error.response?.status || 500).json(error.response?.data || { message: "Failed to update" });
+    }
+});
+// =====================================================
+// DELETE SHIPPING MANIFEST
+// DELETE /api/shipping-manifests/:id
+// =====================================================
+
+app.delete("/api/shipping-manifests/:id", async (req, res) => {
+    const id = req.params.id;
+    const backendUrl =
+        `${BASE_URL}/shipping-manifests/${encodeURIComponent(id)}`;
+
+    try {
+        console.log("DELETE SHIPPING MANIFEST:", backendUrl);
+
+        const response = await axios.delete(backendUrl, {
+            httpsAgent
+        });
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("DELETE SHIPPING MANIFEST ERROR:", {
+            backendUrl,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+
+        return res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                message: "Failed to delete shipping manifest.",
+                details: error.message
+            }
+        );
+    }
+});
 
 /////////////////////////////SHELFWISE INVENTORY API CONFIGURATION/////////////////
 // =========================================================

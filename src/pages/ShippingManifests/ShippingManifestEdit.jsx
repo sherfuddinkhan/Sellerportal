@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 import {
     Box,
@@ -20,63 +22,381 @@ import {
 
 import ShippingManifestForm from "./ShippingManifestForm";
 
-/* =========================================================
-   API CONFIGURATION
-========================================================= */
-
-const API_URL = "/api/ShippingManifest";
+const API_URL = "http://localhost:5000/api/shipping-manifests";
 
 /* =========================================================
-   RESPONSE HELPERS
+   GET FIELD - SUPPORT CAMEL CASE AND PASCAL CASE
 ========================================================= */
 
-const extractManifest = (responseData) => {
-    if (!responseData) return null;
-
-    if (Array.isArray(responseData)) {
+const getField = (record, ...keys) => {
+    if (!record || typeof record !== "object") {
         return null;
     }
 
-    if (responseData.data && !Array.isArray(responseData.data)) {
-        return responseData.data;
+    for (const key of keys) {
+        const value = record[key];
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ) {
+            return value;
+        }
     }
 
-    if (responseData.Data && !Array.isArray(responseData.Data)) {
-        return responseData.Data;
+    return null;
+};
+
+/* =========================================================
+   NORMALIZE ID
+========================================================= */
+
+const normalizeId = (value) => {
+    if (value === undefined || value === null) {
+        return "";
     }
 
-    if (responseData.manifest) {
-        return responseData.manifest;
+    return String(value).trim().toLowerCase();
+};
+
+/* =========================================================
+   GET MANIFEST IDENTIFIER
+========================================================= */
+
+
+const getManifestId = (manifest) =>
+    getField(
+        manifest,
+        "shippingManifestCode",
+        "ShippingManifestCode",
+        "shippingManifestId",
+        "ShippingManifestId",
+        "manifestNumber",
+        "ManifestNumber",
+        "manifestCode",
+        "ManifestCode",
+        "id",
+        "Id"
+    );
+
+/* =========================================================
+   VALIDATE IDENTIFIER
+========================================================= */
+
+const isValidManifestId = (value) => {
+    if (value === undefined || value === null) {
+        return false;
     }
 
-    if (responseData.Manifest) {
-        return responseData.Manifest;
+    const id = String(value).trim();
+
+    if (!id) {
+        return false;
     }
 
-    if (responseData.result && !Array.isArray(responseData.result)) {
-        return responseData.result;
+    // Reject negative or zero numeric IDs.
+    if (/^-?\d+$/.test(id)) {
+        const number = Number(id);
+
+        return Number.isSafeInteger(number) && number > 0;
     }
 
-    if (responseData.Result && !Array.isArray(responseData.Result)) {
-        return responseData.Result;
+    return id.length >= 2;
+};
+
+/* =========================================================
+   EXTRACT SINGLE MANIFEST
+========================================================= */
+
+const extractManifest = (responseData) => {
+    if (
+        !responseData ||
+        typeof responseData !== "object" ||
+        Array.isArray(responseData)
+    ) {
+        return null;
+    }
+
+    const candidates = [
+        responseData.data,
+        responseData.Data,
+        responseData.manifest,
+        responseData.Manifest,
+        responseData.item,
+        responseData.Item,
+        responseData.result,
+        responseData.Result
+    ];
+
+    for (const candidate of candidates) {
+        if (
+            candidate &&
+            typeof candidate === "object" &&
+            !Array.isArray(candidate)
+        ) {
+            // Handle { data: { data: { ... } } }.
+            const nested = extractManifest(candidate);
+
+            if (nested) {
+                return nested;
+            }
+        }
+    }
+
+    // Avoid treating a wrapper containing only an array as a manifest.
+    const hasList = [
+        responseData.data,
+        responseData.Data,
+        responseData.items,
+        responseData.Items,
+        responseData.manifests,
+        responseData.Manifests,
+        responseData.results,
+        responseData.Results
+    ].some(Array.isArray);
+
+    if (hasList) {
+        return null;
     }
 
     return responseData;
 };
 
-const getManifestId = (manifest) =>
-    manifest?.shippingManifestId ??
-    manifest?.ShippingManifestId ??
-    manifest?.manifestId ??
-    manifest?.ManifestId ??
-    manifest?.id ??
-    manifest?.Id ??
-    manifest?.shippingManifestID ??
-    manifest?.ShippingManifestID ??
-    null;
+/* =========================================================
+   EXTRACT MANIFEST LIST
+========================================================= */
+
+const extractManifestList = (responseData, depth = 0) => {
+    if (depth > 6 || responseData == null) {
+        return [];
+    }
+
+    if (Array.isArray(responseData)) {
+        return responseData;
+    }
+
+    if (typeof responseData !== "object") {
+        return [];
+    }
+
+    const listKeys = [
+        "data",
+        "Data",
+        "items",
+        "Items",
+        "manifests",
+        "Manifests",
+        "results",
+        "Results",
+        "records",
+        "Records",
+        "result",
+        "Result"
+    ];
+
+    for (const key of listKeys) {
+        const value = responseData[key];
+
+        if (Array.isArray(value)) {
+            return value;
+        }
+    }
+
+    for (const key of listKeys) {
+        const value = responseData[key];
+
+        if (value && typeof value === "object") {
+            const nested = extractManifestList(value, depth + 1);
+
+            if (nested.length > 0) {
+                return nested;
+            }
+        }
+    }
+
+    // Some APIs return one record rather than a list.
+    if (
+        getField(
+            responseData,
+            "shippingManifestCode",
+            "ShippingManifestCode",
+            "manifestCode",
+            "ManifestCode"
+        ) !== null
+    ) {
+        return [responseData];
+    }
+
+    return [];
+};
 
 /* =========================================================
-   COMPONENT
+   FIND MANIFEST BY CODE OR DATABASE ID
+========================================================= */
+
+
+const findManifest = (list, requestedId) => {
+    const target = normalizeId(requestedId);
+
+    return list.find((record) => {
+        const identifiers = [
+            getField(record, "shippingManifestCode", "ShippingManifestCode"),
+            getField(record, "shippingManifestId", "ShippingManifestId"),
+            getField(record, "manifestNumber", "ManifestNumber"),
+            getField(record, "manifestCode", "ManifestCode"),
+            getField(record, "id", "Id")
+        ];
+
+        return identifiers.some(
+            (value) => normalizeId(value) === target
+        );
+    });
+};
+
+/* =========================================================
+   BUILD UPDATE PAYLOAD
+========================================================= */
+
+const buildUpdatePayload = (formData) => {
+    let createdDate =
+        formData?.createdDate ??
+        formData?.CreatedDate ??
+        "";
+
+    if (createdDate) {
+        const date = new Date(createdDate);
+
+        if (!Number.isNaN(date.getTime())) {
+            createdDate = date.toISOString();
+        }
+    } else {
+        createdDate = new Date().toISOString();
+    }
+
+    const toNullableNumber = (value) => {
+        if (
+            value === "" ||
+            value === null ||
+            value === undefined
+        ) {
+            return null;
+        }
+
+        const number = Number(value);
+
+        return Number.isFinite(number) ? number : null;
+    };
+
+    const thirdPartyShipping =
+        formData?.thirdPartyShipping ??
+        formData?.ThirdPartyShipping;
+
+    return {
+        shippingManifestCode:
+            formData?.shippingManifestCode ??
+            formData?.ShippingManifestCode ??
+            "",
+
+        channel:
+            formData?.channel ??
+            formData?.Channel ??
+            "",
+
+        shippingProviderCode:
+            formData?.shippingProviderCode ??
+            formData?.ShippingProviderCode ??
+            "",
+
+        shippingProviderName:
+            formData?.shippingProviderName ??
+            formData?.ShippingProviderName ??
+            "",
+
+        shippingMethodCode:
+            formData?.shippingMethodCode ??
+            formData?.ShippingMethodCode ??
+            "",
+
+        comments:
+            formData?.comments ??
+            formData?.Comments ??
+            "",
+
+        status:
+            formData?.status ??
+            formData?.Status ??
+            "Pending",
+
+        createdDate,
+
+        thirdPartyShipping:
+            thirdPartyShipping === true ||
+            thirdPartyShipping === "true" ||
+            thirdPartyShipping === 1 ||
+            thirdPartyShipping === "1",
+
+        sellerId: toNullableNumber(
+            formData?.sellerId ??
+            formData?.SellerId
+        ),
+
+        customerId: toNullableNumber(
+            formData?.customerId ??
+            formData?.CustomerId
+        ),
+
+        courierCode:
+            formData?.courierCode ??
+            formData?.CourierCode ??
+            "",
+
+        trackingNumber:
+            formData?.trackingNumber ??
+            formData?.TrackingNumber ??
+            "",
+
+        manifestType:
+            formData?.manifestType ??
+            formData?.ManifestType ??
+            ""
+    };
+};
+
+/* =========================================================
+   ERROR MESSAGE
+========================================================= */
+
+const getErrorMessage = (error) => {
+    const data = error?.response?.data;
+
+    if (typeof data === "string") {
+        return data;
+    }
+
+    if (data?.errors) {
+        return Object.entries(data.errors)
+            .map(([key, value]) => {
+                const message = Array.isArray(value)
+                    ? value.join(", ")
+                    : String(value);
+
+                return `${key}: ${message}`;
+            })
+            .join(" | ");
+    }
+
+    return (
+        data?.message ||
+        data?.Message ||
+        data?.title ||
+        error?.message ||
+        "An unexpected error occurred."
+    );
+};
+
+/* =========================================================
+   SHIPPING MANIFEST EDIT
 ========================================================= */
 
 const ShippingManifestEdit = ({
@@ -88,21 +408,25 @@ const ShippingManifestEdit = ({
     apiUrl = API_URL,
     embedded = false
 }) => {
-    const requestedId = id ?? manifestId ?? getManifestId(initialManifest);
+    const params = useParams();
+    const navigate = useNavigate();
+
+    const requestedId =
+        id ??
+        manifestId ??
+        params.id ??
+        getManifestId(initialManifest);
 
     const [manifest, setManifest] = useState(initialManifest);
     const [loading, setLoading] = useState(!initialManifest);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
+
     const [notice, setNotice] = useState({
         open: false,
         message: "",
         severity: "success"
     });
-
-    /* =====================================================
-       NOTIFICATION
-    ===================================================== */
 
     const showNotice = (message, severity = "success") => {
         setNotice({
@@ -123,76 +447,142 @@ const ShippingManifestEdit = ({
        FETCH MANIFEST
     ===================================================== */
 
-    const fetchManifest = async () => {
-        if (requestedId === null || requestedId === undefined || requestedId === "") {
-            setError("A valid shipping manifest ID is required.");
-            setLoading(false);
-            return;
-        }
+ 
 
-        try {
-            setLoading(true);
-            setError("");
+const fetchManifest = useCallback(async () => {
+    if (!isValidManifestId(requestedId)) {
+        setManifest(null);
+        setError(
+            `Invalid shipping manifest ID: ${requestedId ?? "missing"}`
+        );
+        setLoading(false);
+        return;
+    }
 
-            const response = await axios.get(
-                `${apiUrl}/${encodeURIComponent(requestedId)}`
-            );
+    const targetId = String(requestedId).trim();
 
-            const result = extractManifest(response.data);
+    setLoading(true);
+    setError("");
 
-            if (!result || typeof result !== "object") {
-                throw new Error("Shipping manifest was not found.");
-            }
+    const matchesId = (record) => {
+        const identifiers = [
+            getField(record, "shippingManifestCode", "ShippingManifestCode"),
+            getField(record, "shippingManifestId", "ShippingManifestId"),
+            getField(record, "manifestNumber", "ManifestNumber"),
+            getField(record, "manifestCode", "ManifestCode"),
+            getField(record, "id", "Id")
+        ];
 
-            setManifest(result);
-        } catch (err) {
-            console.error(
-                "GET SHIPPING MANIFEST ERROR:",
-                err.response?.data || err.message
-            );
-
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.Message ||
-                err.response?.data?.title ||
-                err.message ||
-                "Failed to load shipping manifest."
-            );
-        } finally {
-            setLoading(false);
-        }
+        return identifiers.some(
+            (value) =>
+                value !== null &&
+                normalizeId(value) === normalizeId(targetId)
+        );
     };
+
+    try {
+        let found = null;
+
+        // First: fetch the specific manifest.
+        try {
+            const directUrl =
+                `${apiUrl}/${encodeURIComponent(targetId)}`;
+
+            console.log("GET MANIFEST:", directUrl);
+
+            const response = await axios.get(directUrl);
+            const record = extractManifest(response.data);
+
+            console.log("DIRECT API RESPONSE:", response.data);
+
+            if (record && matchesId(record)) {
+                found = record;
+            }
+        } catch (directError) {
+            console.warn(
+                "Direct manifest request failed:",
+                directError.response?.status,
+                directError.message
+            );
+        }
+
+        // Second: search the complete list if direct lookup did not match.
+        if (!found) {
+            const allUrl = `${apiUrl}/all`;
+
+            console.log("GET ALL MANIFESTS:", allUrl);
+
+            const response = await axios.get(allUrl);
+
+            console.log("ALL API RESPONSE:", response.data);
+
+            const list = Array.isArray(response.data)
+                ? response.data
+                : extractManifestList(response.data);
+
+            console.log("MANIFEST COUNT:", list.length);
+
+            found = findManifest(list, targetId);
+
+            console.log("MATCHED MANIFEST:", found);
+        }
+
+        if (!found) {
+            throw new Error(
+                `Shipping manifest "${targetId}" was not found. ` +
+                "Check the browser console and Network response."
+            );
+        }
+
+        setManifest(found);
+        setError("");
+    } catch (fetchError) {
+        console.error("FETCH MANIFEST ERROR:", fetchError);
+
+        setManifest(null);
+        setError(getErrorMessage(fetchError));
+    } finally {
+        setLoading(false);
+    }
+}, [requestedId, apiUrl]);
+
+
+    /* =====================================================
+       INITIAL LOAD
+    ===================================================== */
 
     useEffect(() => {
         if (initialManifest) {
             setManifest(initialManifest);
-            setLoading(false);
             setError("");
+            setLoading(false);
             return;
         }
 
         fetchManifest();
-
-        // Fetch again when the requested ID or endpoint changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [requestedId, apiUrl, initialManifest]);
+    }, [initialManifest, fetchManifest]);
 
     /* =====================================================
        UPDATE MANIFEST
     ===================================================== */
 
     const handleUpdate = async (formData) => {
-        const currentId = getManifestId(manifest) ?? requestedId;
+        const currentId =
+            getManifestId(manifest) ??
+            requestedId;
 
-        if (
-            currentId === null ||
-            currentId === undefined ||
-            currentId === ""
-        ) {
-            showNotice(
-                "Cannot update: shipping manifest ID is missing.",
-                "error"
-            );
+        if (!isValidManifestId(currentId)) {
+            showNotice("A valid manifest ID is required.", "error");
+            return;
+        }
+
+        const code =
+            formData?.shippingManifestCode ??
+            formData?.ShippingManifestCode ??
+            "";
+
+        if (!String(code).trim()) {
+            showNotice("Manifest code is required.", "error");
             return;
         }
 
@@ -200,24 +590,35 @@ const ShippingManifestEdit = ({
             setSaving(true);
             setError("");
 
-            const payload = {
-                ...manifest,
-                ...formData
-            };
+            const payload = buildUpdatePayload(formData);
+
+            const requestUrl =
+                `${apiUrl}/${encodeURIComponent(String(currentId))}`;
+
+            console.log("UPDATE MANIFEST URL:", requestUrl);
+            console.log("UPDATE MANIFEST PAYLOAD:", payload);
 
             const response = await axios.put(
-                `${apiUrl}/${encodeURIComponent(currentId)}`,
+                requestUrl,
                 payload
             );
 
-            const updatedManifest =
-                response.data && typeof response.data === "object"
-                    ? extractManifest(response.data)
-                    : null;
+            console.log(
+                "UPDATE MANIFEST RESPONSE:",
+                response.data
+            );
 
-            const result = updatedManifest
-                ? { ...payload, ...updatedManifest }
-                : payload;
+            const updatedManifest = extractManifest(response.data);
+
+            const result = {
+                ...(manifest || {}),
+                ...payload,
+                ...(updatedManifest || {})
+            };
+
+            if (!getManifestId(result)) {
+                result.shippingManifestCode = String(currentId);
+            }
 
             setManifest(result);
 
@@ -226,27 +627,33 @@ const ShippingManifestEdit = ({
                 "success"
             );
 
-            if (typeof onUpdated === "function") {
+            if (onUpdated) {
                 onUpdated(result);
             }
-        } catch (err) {
+        } catch (updateError) {
             console.error(
                 "UPDATE SHIPPING MANIFEST ERROR:",
-                err.response?.data || err.message
+                updateError
             );
 
-            const message =
-                err.response?.data?.message ||
-                err.response?.data?.Message ||
-                err.response?.data?.title ||
-                err.message ||
-                "Failed to update shipping manifest.";
+            const message = getErrorMessage(updateError);
 
             setError(message);
-
             showNotice(message, "error");
         } finally {
             setSaving(false);
+        }
+    };
+
+    /* =====================================================
+       NAVIGATION
+    ===================================================== */
+
+    const handleBack = () => {
+        if (onCancel) {
+            onCancel();
+        } else {
+            navigate("/shipping-manifests");
         }
     };
 
@@ -281,44 +688,68 @@ const ShippingManifestEdit = ({
 
     if (error && !manifest) {
         return (
-            <Paper
-                elevation={0}
+            <Box
                 sx={{
-                    p: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 2
+                    width: "100%",
+                    p: { xs: 1, sm: 2, md: 3 }
                 }}
             >
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                </Alert>
-
-                <Stack direction="row" spacing={1}>
-                    <Button
-                        variant="contained"
-                        startIcon={<Refresh />}
-                        onClick={fetchManifest}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: 3,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2
+                    }}
+                >
+                    <Typography
+                        variant="h5"
+                        fontWeight={700}
+                        sx={{ mb: 2 }}
                     >
-                        Retry
-                    </Button>
+                        Edit Shipping Manifest
+                    </Typography>
 
-                    {onCancel && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Alert>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 2 }}
+                    >
+                        Requested ID: {String(requestedId ?? "Missing")}
+                    </Typography>
+
+                    <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={1}
+                    >
+                        <Button
+                            variant="contained"
+                            startIcon={<Refresh />}
+                            onClick={fetchManifest}
+                        >
+                            Retry
+                        </Button>
+
                         <Button
                             variant="outlined"
                             startIcon={<ArrowBack />}
-                            onClick={onCancel}
+                            onClick={handleBack}
                         >
-                            Back
+                            Back to List
                         </Button>
-                    )}
-                </Stack>
-            </Paper>
+                    </Stack>
+                </Paper>
+            </Box>
         );
     }
 
     /* =====================================================
-       MAIN RENDER
+       MAIN CONTENT
     ===================================================== */
 
     const content = (
@@ -353,7 +784,8 @@ const ShippingManifestEdit = ({
                                 variant="body2"
                                 color="text.secondary"
                             >
-                                Update shipment and delivery details.
+                                Update details for{" "}
+                                {String(requestedId)}
                             </Typography>
                         </Box>
                     </Stack>
@@ -368,17 +800,14 @@ const ShippingManifestEdit = ({
                             Refresh
                         </Button>
 
-                        {onCancel && (
-                            <Button
-                                variant="outlined"
-                                color="inherit"
-                                startIcon={<ArrowBack />}
-                                onClick={onCancel}
-                                disabled={saving}
-                            >
-                                Back
-                            </Button>
-                        )}
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={handleBack}
+                            disabled={saving}
+                        >
+                            Back
+                        </Button>
                     </Stack>
                 </Box>
             )}
@@ -394,13 +823,15 @@ const ShippingManifestEdit = ({
             )}
 
             <ShippingManifestForm
-                key={String(getManifestId(manifest) ?? requestedId)}
+                key={String(
+                    getManifestId(manifest) ?? requestedId
+                )}
                 manifest={manifest}
                 mode="edit"
                 loading={false}
                 saving={saving}
                 onSubmit={handleUpdate}
-                onCancel={onCancel}
+                onCancel={handleBack}
                 submitLabel="Update Manifest"
                 showReset
             />
@@ -418,7 +849,6 @@ const ShippingManifestEdit = ({
                     onClose={closeNotice}
                     severity={notice.severity}
                     variant="filled"
-                    sx={{ width: "100%" }}
                 >
                     {notice.message}
                 </Alert>
@@ -426,11 +856,9 @@ const ShippingManifestEdit = ({
         </>
     );
 
-    if (embedded) {
-        return content;
-    }
-
-    return (
+    return embedded ? (
+        content
+    ) : (
         <Box
             sx={{
                 width: "100%",
@@ -443,4 +871,3 @@ const ShippingManifestEdit = ({
 };
 
 export default ShippingManifestEdit;
-

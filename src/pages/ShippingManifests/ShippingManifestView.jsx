@@ -1,620 +1,341 @@
-// =========================================================
-// ShippingManifestView.jsx
-// =========================================================
-
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Grid,
-    Typography,
+    Alert,
     Box,
-    Divider,
+    Button,
     Chip,
-    IconButton,
-    CircularProgress
+    CircularProgress,
+    Divider,
+    Grid,
+    Paper,
+    Stack,
+    Typography
 } from "@mui/material";
 
 import {
-    Close,
+    ArrowBack,
+    CalendarMonth,
+    CheckCircle,
+    Cancel,
+    Description,
+    Inventory2,
     LocalShipping,
-    Inventory2
+    LocationOn,
+    Numbers,
+    Payments,
+    PendingActions,
+    Person,
+    Refresh,
+    Scale,
+    Edit
 } from "@mui/icons-material";
 
-// =========================================================
-// SAFE FIELD ACCESS
-// =========================================================
-
-const getField = (record, ...keys) => {
-    if (!record) return null;
-
+const API_URL = "http://localhost:5000/api/shipping-manifests";
+const getField = (record,...keys) => {
+    if (!record) return "";
     for (const key of keys) {
         const value = record[key];
-
-        if (
-            value !== undefined &&
-            value !== null &&
-            value !== ""
-        ) {
+        if (value!== undefined && value!== null && value!== "") {
             return value;
+        }
+    }
+    return "";
+};
+
+const hasValue = (value) => value!== "" && value!== null && value!== undefined;
+
+const getManifestId = (manifest) => {
+    if (!manifest || typeof manifest !== "object") {
+        return null;
+    }
+
+    return (
+        manifest.shippingManifestId ??
+        manifest.ShippingManifestId ??
+        manifest.shippingManifestCode ??
+        manifest.ShippingManifestCode ??
+        manifest.manifestNumber ??
+        manifest.ManifestNumber ??
+        manifest.manifestId ??
+        manifest.ManifestId ??
+        manifest.id ??
+        manifest.Id ??
+        null
+    );
+};
+
+const unwrapManifest = (responseData, requestedId) => {
+    if (!responseData) {
+        return null;
+    }
+
+    // Handle APIs that return an array of manifests.
+    if (Array.isArray(responseData)) {
+        const matchingManifest = responseData.find((item) => {
+            const itemId = getManifestId(item);
+
+            return itemId != null &&
+                String(itemId).trim().toLowerCase() ===
+                String(requestedId).trim().toLowerCase();
+        });
+
+        return matchingManifest ?? null;
+    }
+
+    if (typeof responseData !== "object") {
+        return null;
+    }
+
+    // Direct manifest object.
+    if (getManifestId(responseData) != null) {
+        return responseData;
+    }
+
+    // Handle common API response wrappers.
+    const possibleKeys = [
+        "manifest",
+        "Manifest",
+        "data",
+        "Data",
+        "result",
+        "Result",
+        "item",
+        "Item",
+        "value",
+        "Value",
+        "items",
+        "Items"
+    ];
+
+    for (const key of possibleKeys) {
+        if (responseData[key] !== undefined &&
+            responseData[key] !== null) {
+            const result = unwrapManifest(
+                responseData[key],
+                requestedId
+            );
+
+            if (result) {
+                return result;
+            }
         }
     }
 
     return null;
 };
 
-// =========================================================
-// FORMAT DATE
-// =========================================================
+
+
+// FIXED: Allow SM-..., MAN-001, etc. Both id and code same value
+const isValidId = (value) => {
+    const id = String(value?? "").trim();
+    return id.length > 0 && id.length <= 50 && /^[A-Za-z0-9\-_]+$/.test(id);
+};
+
+
 
 const formatDate = (value) => {
-    if (!value) return "—";
-
+    if (!hasValue(value)) return "—";
     const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
-    }
-
-    return date.toLocaleDateString("en-IN", {
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString("en-IN", {
         day: "2-digit",
         month: "short",
-        year: "numeric"
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
     });
 };
 
-// =========================================================
-// FORMAT NUMBER
-// =========================================================
-
-const formatNumber = (value) => {
-    if (value === null || value === undefined || value === "") {
-        return "—";
-    }
-
+const formatNumber = (value, decimals = 2) => {
+    if (!hasValue(value)) return "—";
     const number = Number(value);
-
     return Number.isFinite(number)
-        ? number.toLocaleString("en-IN")
+       ? number.toLocaleString("en-IN", { maximumFractionDigits: decimals })
         : String(value);
 };
 
-// =========================================================
-// FORMAT CURRENCY
-// =========================================================
-
 const formatCurrency = (value) => {
-    if (value === null || value === undefined || value === "") {
-        return "—";
-    }
-
-    const amount = Number(value);
-
-    if (!Number.isFinite(amount)) {
-        return String(value);
-    }
-
-    return amount.toLocaleString("en-IN", {
-        style: "currency",
-        currency: "INR",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
+    if (!hasValue(value)) return "—";
+    const number = Number(value);
+    return Number.isFinite(number)
+       ? `₹ ${number.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+        : String(value);
 };
 
-// =========================================================
-// STATUS COLOR
-// =========================================================
-
-const getStatusColor = (status) => {
-    const normalized = String(status || "")
-        .trim()
-        .toLowerCase();
-
-    if (["delivered", "completed"].includes(normalized)) {
-        return "success";
-    }
-
-    if (["shipped", "in transit"].includes(normalized)) {
-        return "info";
-    }
-
-    if (["cancelled", "canceled", "failed", "rejected"].includes(normalized)) {
-        return "error";
-    }
-
-    if (["processing", "ready", "packed"].includes(normalized)) {
-        return "warning";
-    }
-
-    return "default";
+const getStatusConfig = (status) => {
+    const normalized = String(status || "Pending").trim().toLowerCase();
+    if (normalized === "delivered") return { label: "Delivered", color: "success", icon: <CheckCircle fontSize="small" /> };
+    if (normalized === "shipped" || normalized === "in transit") return { label: normalized === "shipped"? "Shipped" : "In Transit", color: "info", icon: <LocalShipping fontSize="small" /> };
+    if (normalized === "cancelled" || normalized === "canceled") return { label: "Cancelled", color: "error", icon: <Cancel fontSize="small" /> };
+    if (normalized === "processing") return { label: "Processing", color: "warning", icon: <PendingActions fontSize="small" /> };
+    if (normalized === "packed" || normalized === "ready") return { label: normalized === "packed"? "Packed" : "Ready", color: "secondary", icon: <Inventory2 fontSize="small" /> };
+    return { label: status || "Pending", color: "default", icon: <PendingActions fontSize="small" /> };
 };
 
-// =========================================================
-// INFORMATION FIELD
-// =========================================================
-
-const InfoField = ({ label, value }) => (
-    <Grid item xs={12} sm={6}>
-        <Box
-            sx={{
-                p: 1.5,
-                height: "100%",
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 1.5
-            }}
-        >
-            <Typography
-                variant="caption"
-                color="text.secondary"
-                display="block"
-                sx={{ mb: 0.5 }}
-            >
-                {label}
-            </Typography>
-
-            <Typography
-                variant="body2"
-                fontWeight={600}
-                sx={{
-                    overflowWrap: "anywhere",
-                    whiteSpace: "pre-wrap"
-                }}
-            >
-                {value === null ||
-                value === undefined ||
-                value === ""
-                    ? "—"
-                    : String(value)}
-            </Typography>
+const DetailField = ({ label, value, icon, fullWidth = false }) => (
+    <Grid item xs={12} sm={fullWidth? 12 : 6} md={fullWidth? 12 : 4}>
+        <Box sx={{ display: "flex", gap: 1.25, py: 1, minWidth: 0 }}>
+            {icon && <Box sx={{ color: "text.secondary", mt: 0.25 }}>{icon}</Box>}
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography variant="caption" color="text.secondary" display="block">{label}</Typography>
+                <Typography variant="body2" fontWeight={500} sx={{ overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}>
+                    {hasValue(value)? String(value) : "—"}
+                </Typography>
+            </Box>
         </Box>
     </Grid>
 );
 
-// =========================================================
-// SHIPPING MANIFEST VIEW
-// =========================================================
+const SectionHeader = ({ icon, title }) => (
+    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+        <Box sx={{ display: "flex", color: "primary.main" }}>{icon}</Box>
+        <Typography variant="subtitle1" fontWeight={700}>{title}</Typography>
+    </Stack>
+);
 
-const ShippingManifestView = ({
-    open = false,
-    onClose,
-    manifest = null
-}) => {
-    if (!manifest && !open) {
-        return null;
+const ShippingManifestView = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [manifest, setManifest] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+  
+const loadManifest = useCallback(async () => {
+    setManifest(null);
+    setError("");
+
+    console.log("ID from URL:", id);
+
+    if (!isValidId(id)) {
+        setLoading(false);
+        setError(`Invalid shipping manifest ID: "${id ?? ""}".`);
+        return;
     }
 
-    const manifestNumber = getField(
-        manifest,
-        "manifestNumber",
-        "ManifestNumber",
-        "shippingManifestNumber",
-        "ShippingManifestNumber"
-    );
+    setLoading(true);
 
-    const manifestId = getField(
-        manifest,
-        "shippingManifestId",
-        "ShippingManifestId",
-        "manifestId",
-        "ManifestId",
-        "id",
-        "Id"
-    );
+    try {
+        const url = `${API_URL}/${encodeURIComponent(id)}`;
 
-    const status = getField(
-        manifest,
-        "status",
-        "Status",
-        "manifestStatus",
-        "ManifestStatus"
-    );
+        console.log("Fetching through Node proxy:", url);
 
-    const quantity = getField(
-        manifest,
-        "totalQuantity",
-        "TotalQuantity",
-        "quantity",
-        "Quantity"
-    );
+        const response = await axios.get(url);
 
-    const weight = getField(
-        manifest,
-        "totalWeight",
-        "TotalWeight"
-    );
+        console.log("Response status:", response.status);
+        console.log("Response data:", response.data);
 
-    const weightUnit = getField(
-        manifest,
-        "weightUnit",
-        "WeightUnit"
-    );
+        const record = unwrapManifest(response.data);
 
-    const notes = getField(
-        manifest,
-        "notes",
-        "Notes",
-        "remarks",
-        "Remarks"
-    );
+        if (!record || !getManifestId(record)) {
+            throw new Error(
+                `No shipping manifest was returned for ID "${id}".`
+            );
+        }
+
+        const returnedId = String(getManifestId(record)).trim();
+        const requestedId = String(id).trim();
+
+        if (returnedId.toLowerCase() !== requestedId.toLowerCase()) {
+            throw new Error(
+                `Requested manifest "${requestedId}", but the API returned "${returnedId}".`
+            );
+        }
+
+        setManifest(record);
+    } catch (err) {
+        console.error("LOAD SHIPPING MANIFEST ERROR:", {
+            message: err.message,
+            status: err.response?.status,
+            data: err.response?.data,
+            url: `${API_URL}/${encodeURIComponent(id ?? "")}`
+        });
+
+        setError(
+            err.response?.data?.message ||
+            err.response?.data?.Message ||
+            err.response?.data?.title ||
+            err.message ||
+            "Failed to load shipping manifest."
+        );
+    } finally {
+        setLoading(false);
+    }
+}, [id]);
+
+
+    useEffect(() => { loadManifest(); }, [loadManifest]);
+
+    const handleEdit = () => {
+        if (!isValidId(id)) return;
+        navigate(`/shipping-manifests/${id}/edit`);
+    };
+
+    const status = getField(manifest, "status", "Status") || "Pending";
+    const statusConfig = getStatusConfig(status);
 
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            fullWidth
-            maxWidth="md"
-            scroll="paper"
-        >
-            {/* HEADER */}
-
-            <DialogTitle
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 2
-                }}
-            >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5,
-                        minWidth: 0
-                    }}
-                >
-                    <Inventory2
-                        color="primary"
-                        sx={{ fontSize: 30 }}
-                    />
-
-                    <Box sx={{ minWidth: 0 }}>
-                        <Typography variant="h6" fontWeight={700}>
-                            Shipping Manifest Details
-                        </Typography>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ overflowWrap: "anywhere" }}
-                        >
-                            {manifestNumber ||
-                                (manifestId !== null
-                                    ? `Manifest #${manifestId}`
-                                    : "Manifest information")}
-                        </Typography>
-                    </Box>
+        <Box sx={{ p: { xs: 2, md: 3 }, maxWidth: 1400, mx: "auto" }}>
+            <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "stretch", sm: "center" }} spacing={2} sx={{ mb: 3 }}>
+                <Box>
+                    <Typography variant="h5" fontWeight={700}>Shipping Manifest Details</Typography>
+                    <Typography variant="body2" color="text.secondary">View shipping, delivery, carrier, and package information.</Typography>
                 </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                    <Button variant="outlined" startIcon={<ArrowBack />} onClick={() => navigate(-1)}>Back</Button>
+                    <Button variant="outlined" startIcon={<Refresh />} onClick={loadManifest} disabled={loading}>Refresh</Button>
+                    <Button variant="contained" startIcon={<Edit />} onClick={handleEdit} disabled={!manifest ||!isValidId(id)}>Edit Manifest</Button>
+                </Stack>
+            </Stack>
 
-                <IconButton
-                    onClick={onClose}
-                    aria-label="Close manifest details"
-                >
-                    <Close />
-                </IconButton>
-            </DialogTitle>
+            {loading && <Paper sx={{ p: 6, textAlign: "center" }}><CircularProgress /><Typography color="text.secondary" sx={{ mt: 2 }}>Loading shipping manifest details...</Typography></Paper>}
+            {!loading && error && <Alert severity="error" action={<Button color="inherit" size="small" onClick={loadManifest}>Retry</Button>} sx={{ mb: 2 }}>{error}</Alert>}
+            {!loading &&!error && manifest && (
+                <>
+                    <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, mb: 3, borderRadius: 2 }}>
+                        <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ xs: "flex-start", sm: "center" }} justifyContent="space-between" spacing={2}>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <Box sx={{ width: 54, height: 54, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 2, bgcolor: "primary.main", color: "primary.contrastText" }}><LocalShipping fontSize="large" /></Box>
+                                <Box sx={{ minWidth: 0 }}>
+                                    <Typography variant="h6" fontWeight={700} sx={{ overflowWrap: "anywhere" }}>{getField(manifest, "manifestNumber", "ManifestNumber", "shippingManifestCode", "ShippingManifestCode") || `Manifest #${id}`}</Typography>
+                                    <Typography variant="body2" color="text.secondary">Order Number: {getField(manifest, "orderNumber", "OrderNumber") || "—"}</Typography>
+                                    <Typography variant="caption" color="text.secondary">Record ID: {id}</Typography>
+                                </Box>
+                            </Stack>
+                            <Chip icon={statusConfig.icon} label={statusConfig.label} color={statusConfig.color} variant="outlined" />
+                        </Stack>
+                    </Paper>
 
-            <Divider />
-
-            {/* CONTENT */}
-
-            <DialogContent sx={{ pt: 3 }}>
-                {!manifest ? (
-                    <Box
-                        sx={{
-                            py: 5,
-                            display: "flex",
-                            justifyContent: "center"
-                        }}
-                    >
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    <>
-                        {/* STATUS */}
-
-                        <Box
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                flexWrap: "wrap",
-                                gap: 1,
-                                mb: 3
-                            }}
-                        >
-                            <Chip
-                                label={status || "Unknown"}
-                                color={getStatusColor(status)}
-                                size="medium"
-                            />
-
-                            {manifestId !== null && (
-                                <Chip
-                                    label={`ID: ${manifestId}`}
-                                    variant="outlined"
-                                    size="medium"
-                                />
-                            )}
-                        </Box>
-
-                        {/* MANIFEST INFORMATION */}
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 1.5 }}
-                        >
-                            Manifest Information
-                        </Typography>
-
-                        <Grid container spacing={1.5}>
-                            <InfoField
-                                label="Manifest Number"
-                                value={manifestNumber}
-                            />
-
-                            <InfoField
-                                label="Order Number"
-                                value={getField(
-                                    manifest,
-                                    "orderNumber",
-                                    "OrderNumber",
-                                    "salesOrderNumber",
-                                    "SalesOrderNumber"
-                                )}
-                            />
-
-                            <InfoField
-                                label="Customer / Consignee"
-                                value={getField(
-                                    manifest,
-                                    "customerName",
-                                    "CustomerName",
-                                    "consigneeName",
-                                    "ConsigneeName"
-                                )}
-                            />
-
-                            <InfoField
-                                label="Carrier / Transporter"
-                                value={getField(
-                                    manifest,
-                                    "carrierName",
-                                    "CarrierName",
-                                    "shippingCarrier",
-                                    "ShippingCarrier",
-                                    "transportName",
-                                    "TransportName"
-                                )}
-                            />
-
-                            <InfoField
-                                label="Tracking Number"
-                                value={getField(
-                                    manifest,
-                                    "trackingNumber",
-                                    "TrackingNumber",
-                                    "trackingId",
-                                    "TrackingId"
-                                )}
-                            />
-
-                            <InfoField
-                                label="Vehicle Number"
-                                value={getField(
-                                    manifest,
-                                    "vehicleNumber",
-                                    "VehicleNumber"
-                                )}
-                            />
-
-                            <InfoField
-                                label="Driver Name"
-                                value={getField(
-                                    manifest,
-                                    "driverName",
-                                    "DriverName"
-                                )}
-                            />
-
-                            <InfoField
-                                label="Driver Contact"
-                                value={getField(
-                                    manifest,
-                                    "driverContact",
-                                    "DriverContact"
-                                )}
-                            />
+                    <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, mb: 3, borderRadius: 2 }}>
+                        <SectionHeader icon={<Person />} title="Customer and Carrier" />
+                        <Grid container spacing={1}>
+                            <DetailField label="Customer / Consignee" value={getField(manifest, "customerName", "CustomerName")} icon={<Person fontSize="small" />} />
+                            <DetailField label="Carrier" value={getField(manifest, "carrierName", "CarrierName", "shippingProviderName", "ShippingProviderName")} icon={<LocalShipping fontSize="small" />} />
+                            <DetailField label="Tracking Number" value={getField(manifest, "trackingNumber", "TrackingNumber")} />
+                            <DetailField label="Manifest Code" value={getField(manifest, "shippingManifestCode", "ShippingManifestCode")} icon={<Numbers fontSize="small" />} />
                         </Grid>
+                    </Paper>
 
-                        <Divider sx={{ my: 3 }} />
-
-                        {/* DELIVERY INFORMATION */}
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 1.5 }}
-                        >
-                            Shipment and Delivery
-                        </Typography>
-
-                        <Grid container spacing={1.5}>
-                            <InfoField
-                                label="Shipment Date"
-                                value={formatDate(
-                                    getField(
-                                        manifest,
-                                        "shipmentDate",
-                                        "ShipmentDate"
-                                    )
-                                )}
-                            />
-
-                            <InfoField
-                                label="Expected Delivery Date"
-                                value={formatDate(
-                                    getField(
-                                        manifest,
-                                        "expectedDeliveryDate",
-                                        "ExpectedDeliveryDate"
-                                    )
-                                )}
-                            />
-
-                            <InfoField
-                                label="Actual Delivery Date"
-                                value={formatDate(
-                                    getField(
-                                        manifest,
-                                        "actualDeliveryDate",
-                                        "ActualDeliveryDate"
-                                    )
-                                )}
-                            />
-
-                            <InfoField
-                                label="Origin / Dispatch Location"
-                                value={getField(
-                                    manifest,
-                                    "origin",
-                                    "Origin"
-                                )}
-                            />
-
-                            <InfoField
-                                label="Destination / Delivery Location"
-                                value={getField(
-                                    manifest,
-                                    "destination",
-                                    "Destination"
-                                )}
-                            />
+                    <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, mb: 3, borderRadius: 2 }}>
+                        <SectionHeader icon={<CalendarMonth />} title="Dates" />
+                        <Grid container spacing={1}>
+                            <DetailField label="Created Date" value={formatDate(getField(manifest, "createdDate", "CreatedDate", "createdAt", "CreatedAt"))} icon={<CalendarMonth fontSize="small" />} />
+                            <DetailField label="Status" value={getField(manifest, "status", "Status")} />
                         </Grid>
+                    </Paper>
 
-                        <Divider sx={{ my: 3 }} />
-
-                        {/* QUANTITY AND COST */}
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 1.5 }}
-                        >
-                            Quantity, Weight and Cost
-                        </Typography>
-
-                        <Grid container spacing={1.5}>
-                            <InfoField
-                                label="Total Items"
-                                value={formatNumber(
-                                    getField(
-                                        manifest,
-                                        "totalItems",
-                                        "TotalItems"
-                                    )
-                                )}
-                            />
-
-                            <InfoField
-                                label="Total Quantity"
-                                value={formatNumber(quantity)}
-                            />
-
-                            <InfoField
-                                label="Total Packages"
-                                value={formatNumber(
-                                    getField(
-                                        manifest,
-                                        "totalPackages",
-                                        "TotalPackages"
-                                    )
-                                )}
-                            />
-
-                            <InfoField
-                                label="Total Weight"
-                                value={
-                                    weight === null
-                                        ? "—"
-                                        : `${formatNumber(weight)}${
-                                              weightUnit
-                                                  ? ` ${weightUnit}`
-                                                  : ""
-                                          }`
-                                }
-                            />
-
-                            <InfoField
-                                label="Shipping Cost"
-                                value={formatCurrency(
-                                    getField(
-                                        manifest,
-                                        "shippingCost",
-                                        "ShippingCost"
-                                    )
-                                )}
-                            />
-                        </Grid>
-
-                        {/* NOTES */}
-
-                        <Divider sx={{ my: 3 }} />
-
-                        <Typography
-                            variant="subtitle1"
-                            fontWeight={700}
-                            sx={{ mb: 1.5 }}
-                        >
-                            Notes / Remarks
-                        </Typography>
-
-                        <Box
-                            sx={{
-                                p: 2,
-                                border: "1px solid",
-                                borderColor: "divider",
-                                borderRadius: 1.5,
-                                minHeight: 65
-                            }}
-                        >
-                            <Typography
-                                variant="body2"
-                                sx={{ whiteSpace: "pre-wrap" }}
-                            >
-                                {notes || "No notes available."}
-                            </Typography>
-                        </Box>
-                    </>
-                )}
-            </DialogContent>
-
-            <Divider />
-
-            {/* ACTIONS */}
-
-            <DialogActions sx={{ p: 2 }}>
-                <Button
-                    variant="contained"
-                    startIcon={<Close />}
-                    onClick={onClose}
-                >
-                    Close
-                </Button>
-            </DialogActions>
-        </Dialog>
+                    <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, mb: 3, borderRadius: 2 }}>
+                        <SectionHeader icon={<Description />} title="Notes" />
+                        <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{getField(manifest, "comments", "Comments", "notes", "Notes") || "No additional notes."}</Typography>
+                    </Paper>
+                </>
+            )}
+        </Box>
     );
 };
 
-// =========================================================
-// DEFAULT EXPORT
-// =========================================================
-
 export default ShippingManifestView;
-

@@ -1,3 +1,7 @@
+// =========================================================
+// ShippingManifestTable.jsx
+// =========================================================
+
 import React from "react";
 
 import {
@@ -14,7 +18,8 @@ import {
     Box,
     Chip,
     CircularProgress,
-    Stack
+    Stack,
+    Alert
 } from "@mui/material";
 
 import {
@@ -25,9 +30,9 @@ import {
     Inventory2
 } from "@mui/icons-material";
 
-/* =========================================================
-   SAFE FIELD ACCESS
-========================================================= */
+// =========================================================
+// SAFE FIELD ACCESS
+// =========================================================
 
 const getField = (record, ...keys) => {
     if (!record) return null;
@@ -35,11 +40,7 @@ const getField = (record, ...keys) => {
     for (const key of keys) {
         const value = record[key];
 
-        if (
-            value !== undefined &&
-            value !== null &&
-            value !== ""
-        ) {
+        if (value !== undefined && value !== null && value !== "") {
             return value;
         }
     }
@@ -47,9 +48,24 @@ const getField = (record, ...keys) => {
     return null;
 };
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+// =========================================================
+// GET MANIFEST ID
+// =========================================================
+
+const getManifestId = (manifest) =>
+    getField(
+        manifest,
+        "shippingManifestId",
+        "ShippingManifestId",
+        "manifestId",
+        "ManifestId",
+        "id",
+        "Id"
+    );
+
+// =========================================================
+// FORMAT DATE
+// =========================================================
 
 const formatDate = (value) => {
     if (!value) return "—";
@@ -67,16 +83,12 @@ const formatDate = (value) => {
     });
 };
 
-/* =========================================================
-   FORMAT NUMBER
-========================================================= */
+// =========================================================
+// FORMAT NUMBER
+// =========================================================
 
 const formatNumber = (value) => {
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
+    if (value === null || value === undefined || value === "") {
         return "—";
     }
 
@@ -89,9 +101,9 @@ const formatNumber = (value) => {
     return number.toLocaleString("en-IN");
 };
 
-/* =========================================================
-   STATUS COLOR
-========================================================= */
+// =========================================================
+// STATUS COLOR
+// =========================================================
 
 const getStatusColor = (status) => {
     const normalizedStatus = String(status || "")
@@ -126,9 +138,9 @@ const getStatusColor = (status) => {
     }
 };
 
-/* =========================================================
-   SHIPPING MANIFEST TABLE
-========================================================= */
+// =========================================================
+// SHIPPING MANIFEST TABLE
+// =========================================================
 
 const ShippingManifestTable = ({
     manifests,
@@ -144,9 +156,46 @@ const ShippingManifestTable = ({
             ? data
             : [];
 
-    /* =====================================================
-       LOADING STATE
-    ===================================================== */
+    // =====================================================
+    // ACTION HANDLERS
+    // =====================================================
+
+    const handleView = (manifest) => {
+        if (typeof onView !== "function") {
+            console.error(
+                "ShippingManifestTable: onView handler was not provided by the parent."
+            );
+            return;
+        }
+
+        onView(manifest);
+    };
+
+    const handleEdit = (manifest) => {
+        if (typeof onEdit !== "function") {
+            console.error(
+                "ShippingManifestTable: onEdit handler was not provided by the parent."
+            );
+            return;
+        }
+
+        onEdit(manifest);
+    };
+
+    const handleDelete = (manifest) => {
+        if (typeof onDelete !== "function") {
+            console.error(
+                "ShippingManifestTable: onDelete handler was not provided by the parent."
+            );
+            return;
+        }
+
+        onDelete(manifest);
+    };
+
+    // =====================================================
+    // LOADING STATE
+    // =====================================================
 
     if (loading) {
         return (
@@ -169,10 +218,7 @@ const ShippingManifestTable = ({
                 >
                     <CircularProgress />
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
+                    <Typography variant="body2" color="text.secondary">
                         Loading shipping manifests...
                     </Typography>
                 </Box>
@@ -180,9 +226,9 @@ const ShippingManifestTable = ({
         );
     }
 
-    /* =====================================================
-       EMPTY STATE
-    ===================================================== */
+    // =====================================================
+    // EMPTY STATE
+    // =====================================================
 
     if (manifestList.length === 0) {
         return (
@@ -204,27 +250,20 @@ const ShippingManifestTable = ({
                     }}
                 />
 
-                <Typography
-                    variant="h6"
-                    fontWeight={600}
-                    gutterBottom
-                >
+                <Typography variant="h6" fontWeight={600} gutterBottom>
                     No Shipping Manifests Found
                 </Typography>
 
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                >
+                <Typography variant="body2" color="text.secondary">
                     No shipping manifest records are available.
                 </Typography>
             </Paper>
         );
     }
 
-    /* =====================================================
-       TABLE
-    ===================================================== */
+    // =====================================================
+    // TABLE
+    // =====================================================
 
     return (
         <TableContainer
@@ -241,8 +280,6 @@ const ShippingManifestTable = ({
                 sx={{ minWidth: 1050 }}
                 aria-label="Shipping manifests table"
             >
-                {/* TABLE HEADER */}
-
                 <TableHead>
                     <TableRow
                         sx={{
@@ -267,26 +304,18 @@ const ShippingManifestTable = ({
                     </TableRow>
                 </TableHead>
 
-                {/* TABLE BODY */}
-
                 <TableBody>
                     {manifestList.map((manifest, index) => {
-                        const id = getField(
-                            manifest,
-                            "shippingManifestId",
-                            "ShippingManifestId",
-                            "manifestId",
-                            "ManifestId",
-                            "id",
-                            "Id"
-                        );
+                        const id = getManifestId(manifest);
 
                         const manifestNumber = getField(
                             manifest,
                             "manifestNumber",
                             "ManifestNumber",
                             "shippingManifestNumber",
-                            "ShippingManifestNumber"
+                            "ShippingManifestNumber",
+                            "shippingManifestCode",
+                            "ShippingManifestCode"
                         );
 
                         const orderNumber = getField(
@@ -313,6 +342,8 @@ const ShippingManifestTable = ({
                             "CarrierName",
                             "shippingCarrier",
                             "ShippingCarrier",
+                            "shippingProviderName",
+                            "ShippingProviderName",
                             "transportName",
                             "TransportName"
                         );
@@ -330,7 +361,9 @@ const ShippingManifestTable = ({
                             "shipmentDate",
                             "ShipmentDate",
                             "shippingDate",
-                            "ShippingDate"
+                            "ShippingDate",
+                            "createdDate",
+                            "CreatedDate"
                         );
 
                         const deliveryDate = getField(
@@ -399,17 +432,15 @@ const ShippingManifestTable = ({
                                             <Typography
                                                 variant="body2"
                                                 fontWeight={700}
-                                                sx={{
-                                                    overflowWrap: "anywhere"
-                                                }}
+                                                sx={{ overflowWrap: "anywhere" }}
                                             >
-                                                {manifestNumber ||
-                                                    (id !== null
+                                                {manifestNumber ??
+                                                    (id != null
                                                         ? `Manifest #${id}`
                                                         : "—")}
                                             </Typography>
 
-                                            {id !== null && (
+                                            {id != null && (
                                                 <Typography
                                                     variant="caption"
                                                     color="text.secondary"
@@ -424,12 +455,7 @@ const ShippingManifestTable = ({
                                 {/* ORDER NUMBER */}
 
                                 <TableCell>
-                                    <Typography
-                                        variant="body2"
-                                        fontWeight={500}
-                                    >
-                                        {orderNumber || "—"}
-                                    </Typography>
+                                    {orderNumber ?? "—"}
                                 </TableCell>
 
                                 {/* CUSTOMER */}
@@ -442,7 +468,7 @@ const ShippingManifestTable = ({
                                             overflowWrap: "anywhere"
                                         }}
                                     >
-                                        {customerName || "—"}
+                                        {customerName ?? "—"}
                                     </Typography>
                                 </TableCell>
 
@@ -456,7 +482,7 @@ const ShippingManifestTable = ({
                                             overflowWrap: "anywhere"
                                         }}
                                     >
-                                        {carrierName || "—"}
+                                        {carrierName ?? "—"}
                                     </Typography>
                                 </TableCell>
 
@@ -470,39 +496,26 @@ const ShippingManifestTable = ({
                                             overflowWrap: "anywhere"
                                         }}
                                     >
-                                        {trackingNumber || "—"}
+                                        {trackingNumber ?? "—"}
                                     </Typography>
                                 </TableCell>
 
                                 {/* SHIPMENT DATE */}
 
-                                <TableCell>
-                                    <Typography
-                                        variant="body2"
-                                        sx={{ whiteSpace: "nowrap" }}
-                                    >
-                                        {formatDate(shipmentDate)}
-                                    </Typography>
+                                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                    {formatDate(shipmentDate)}
                                 </TableCell>
 
                                 {/* DELIVERY DATE */}
 
-                                <TableCell>
-                                    <Typography
-                                        variant="body2"
-                                        sx={{ whiteSpace: "nowrap" }}
-                                    >
-                                        {formatDate(deliveryDate)}
-                                    </Typography>
+                                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                    {formatDate(deliveryDate)}
                                 </TableCell>
 
                                 {/* QUANTITY */}
 
                                 <TableCell align="right">
-                                    <Typography
-                                        variant="body2"
-                                        fontWeight={600}
-                                    >
+                                    <Typography variant="body2" fontWeight={600}>
                                         {formatNumber(quantity)}
                                     </Typography>
                                 </TableCell>
@@ -511,7 +524,7 @@ const ShippingManifestTable = ({
 
                                 <TableCell>
                                     <Chip
-                                        label={status || "Unknown"}
+                                        label={status ?? "Unknown"}
                                         color={getStatusColor(status)}
                                         size="small"
                                         variant="outlined"
@@ -531,9 +544,7 @@ const ShippingManifestTable = ({
                                                 size="small"
                                                 color="info"
                                                 aria-label="View manifest"
-                                                onClick={() =>
-                                                    onView?.(manifest)
-                                                }
+                                                onClick={() => handleView(manifest)}
                                             >
                                                 <Visibility fontSize="small" />
                                             </IconButton>
@@ -544,9 +555,7 @@ const ShippingManifestTable = ({
                                                 size="small"
                                                 color="primary"
                                                 aria-label="Edit manifest"
-                                                onClick={() =>
-                                                    onEdit?.(manifest)
-                                                }
+                                                onClick={() => handleEdit(manifest)}
                                             >
                                                 <Edit fontSize="small" />
                                             </IconButton>
@@ -557,9 +566,7 @@ const ShippingManifestTable = ({
                                                 size="small"
                                                 color="error"
                                                 aria-label="Delete manifest"
-                                                onClick={() =>
-                                                    onDelete?.(manifest)
-                                                }
+                                                onClick={() => handleDelete(manifest)}
                                             >
                                                 <Delete fontSize="small" />
                                             </IconButton>
@@ -576,4 +583,3 @@ const ShippingManifestTable = ({
 };
 
 export default ShippingManifestTable;
-

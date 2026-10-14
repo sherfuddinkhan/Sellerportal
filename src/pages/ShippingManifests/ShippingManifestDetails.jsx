@@ -1,20 +1,24 @@
-import React from "react";
+
+import React, { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
+    Alert,
+    Box,
+    Button,
+    CircularProgress,
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
-    Button,
-    Box,
-    Grid,
-    Typography,
-    Paper,
     Divider,
+    Grid,
+    IconButton,
+    Paper,
     Chip,
     Stack,
-    IconButton,
-    CircularProgress
+    Typography
 } from "@mui/material";
 
 import {
@@ -24,7 +28,6 @@ import {
     Person,
     LocationOn,
     CalendarMonth,
-    ReceiptLong,
     Payments,
     Scale,
     Numbers,
@@ -32,39 +35,73 @@ import {
     PendingActions,
     Cancel,
     Edit,
-    Description
+    Description,
+    ArrowBack,
+    Refresh
 } from "@mui/icons-material";
 
+const API_URL = "/api/shipping-manifests";
+
 /* =========================================================
-   FIELD HELPER
+   FIELD HELPERS
 ========================================================= */
 
 const getField = (record, ...keys) => {
     if (!record) return "";
 
     for (const key of keys) {
-        const value = record[key];
-
-        if (value !== undefined && value !== null) {
-            return value;
+        if (record[key] !== undefined && record[key] !== null) {
+            return record[key];
         }
     }
 
     return "";
 };
 
-/* =========================================================
-   DATE FORMATTER
-========================================================= */
+const hasValue = (value) =>
+    value !== "" && value !== null && value !== undefined;
+
+const getManifestId = (record) =>
+    getField(
+        record,
+        "shippingManifestId",
+        "ShippingManifestId",
+        "shippingManifestsId",
+        "ShippingManifestsId",
+        "manifestId",
+        "ManifestId",
+        "id",
+        "Id"
+    );
+
+const isValidId = (id) =>
+    /^\d+$/.test(String(id ?? "").trim()) &&
+    Number.isSafeInteger(Number(id)) &&
+    Number(id) > 0;
+
+const unwrapManifest = (responseData) => {
+    if (!responseData) return null;
+
+    let result =
+        responseData.manifest ??
+        responseData.Manifest ??
+        responseData.data ??
+        responseData.Data ??
+        responseData;
+
+    if (Array.isArray(result)) {
+        result = result[0] ?? null;
+    }
+
+    return result && typeof result === "object" ? result : null;
+};
 
 const formatDate = (value) => {
-    if (!value) return "—";
+    if (!hasValue(value)) return "—";
 
     const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
-    }
+    if (Number.isNaN(date.getTime())) return String(value);
 
     return date.toLocaleDateString("en-IN", {
         day: "2-digit",
@@ -73,63 +110,37 @@ const formatDate = (value) => {
     });
 };
 
-/* =========================================================
-   NUMBER FORMATTER
-========================================================= */
-
 const formatNumber = (value, decimals = 2) => {
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-        return "—";
-    }
+    if (!hasValue(value)) return "—";
 
     const number = Number(value);
 
-    if (!Number.isFinite(number)) {
-        return String(value);
-    }
-
-    return number.toLocaleString("en-IN", {
-        maximumFractionDigits: decimals
-    });
+    return Number.isFinite(number)
+        ? number.toLocaleString("en-IN", {
+              maximumFractionDigits: decimals
+          })
+        : String(value);
 };
-
-/* =========================================================
-   CURRENCY FORMATTER
-========================================================= */
 
 const formatCurrency = (value) => {
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-        return "—";
-    }
+    if (!hasValue(value)) return "—";
 
-    const amount = Number(value);
+    const number = Number(value);
 
-    if (!Number.isFinite(amount)) {
-        return String(value);
-    }
-
-    return `₹ ${amount.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}`;
+    return Number.isFinite(number)
+        ? `₹ ${number.toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+          })}`
+        : String(value);
 };
 
 /* =========================================================
-   STATUS CONFIGURATION
+   STATUS
 ========================================================= */
 
 const getStatusConfig = (status) => {
-    const normalized = String(status || "Pending")
-        .trim()
-        .toLowerCase();
+    const normalized = String(status || "Pending").toLowerCase().trim();
 
     if (normalized === "delivered") {
         return {
@@ -139,20 +150,15 @@ const getStatusConfig = (status) => {
         };
     }
 
-    if (
-        normalized === "shipped" ||
-        normalized === "in transit"
-    ) {
+    if (normalized === "shipped" || normalized === "in transit") {
         return {
-            label: normalized === "shipped"
-                ? "Shipped"
-                : "In Transit",
+            label: normalized === "shipped" ? "Shipped" : "In Transit",
             color: "info",
             icon: <LocalShipping fontSize="small" />
         };
     }
 
-    if (normalized === "cancelled") {
+    if (normalized === "cancelled" || normalized === "canceled") {
         return {
             label: "Cancelled",
             color: "error",
@@ -160,9 +166,9 @@ const getStatusConfig = (status) => {
         };
     }
 
-    if (normalized === "ready" || normalized === "packed") {
+    if (normalized === "packed" || normalized === "ready") {
         return {
-            label: normalized === "ready" ? "Ready" : "Packed",
+            label: normalized === "packed" ? "Packed" : "Ready",
             color: "secondary",
             icon: <Inventory2 fontSize="small" />
         };
@@ -184,94 +190,39 @@ const getStatusConfig = (status) => {
 };
 
 /* =========================================================
-   DETAIL FIELD
+   REUSABLE DETAILS FIELD
 ========================================================= */
 
-const DetailField = ({
-    label,
-    value,
-    icon,
-    fullWidth = false
-}) => (
-    <Grid
-        item
-        xs={12}
-        sm={fullWidth ? 12 : 6}
-        md={fullWidth ? 12 : 4}
-    >
-        <Box
-            sx={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 1.25,
-                minWidth: 0,
-                py: 0.75
-            }}
-        >
+const DetailField = ({ label, value, icon, fullWidth = false }) => (
+    <Grid item xs={12} sm={fullWidth ? 12 : 6} md={fullWidth ? 12 : 4}>
+        <Box sx={{ display: "flex", gap: 1.25, py: 0.75, minWidth: 0 }}>
             {icon && (
-                <Box
-                    sx={{
-                        color: "text.secondary",
-                        display: "flex",
-                        mt: 0.25
-                    }}
-                >
+                <Box sx={{ color: "text.secondary", display: "flex", mt: 0.25 }}>
                     {icon}
                 </Box>
             )}
 
             <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                >
+                <Typography variant="caption" color="text.secondary" display="block">
                     {label}
                 </Typography>
 
                 <Typography
                     variant="body2"
                     fontWeight={500}
-                    sx={{
-                        overflowWrap: "anywhere",
-                        whiteSpace: "pre-wrap"
-                    }}
+                    sx={{ overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}
                 >
-                    {value === "" ||
-                    value === null ||
-                    value === undefined
-                        ? "—"
-                        : String(value)}
+                    {hasValue(value) ? String(value) : "—"}
                 </Typography>
             </Box>
         </Box>
     </Grid>
 );
 
-/* =========================================================
-   SECTION HEADER
-========================================================= */
-
 const SectionHeader = ({ icon, title }) => (
-    <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        sx={{ mb: 2 }}
-    >
-        <Box
-            sx={{
-                display: "flex",
-                color: "primary.main"
-            }}
-        >
-            {icon}
-        </Box>
-
-        <Typography
-            variant="subtitle1"
-            fontWeight={700}
-        >
+    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+        <Box sx={{ display: "flex", color: "primary.main" }}>{icon}</Box>
+        <Typography variant="subtitle1" fontWeight={700}>
             {title}
         </Typography>
     </Stack>
@@ -284,71 +235,190 @@ const SectionHeader = ({ icon, title }) => (
 const ShippingManifestDetails = ({
     open = true,
     onClose,
-    manifest = null,
+    manifest: suppliedManifest = null,
     record = null,
     data = null,
-    loading = false,
+    loading: suppliedLoading = false,
     onEdit,
     embedded = false
 }) => {
-    const item = manifest || record || data;
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-    if (!embedded && !open) {
-        return null;
-    }
+    const providedRecord = suppliedManifest || record || data || null;
+
+    const [fetchedManifest, setFetchedManifest] = useState(null);
+    const [fetchLoading, setFetchLoading] = useState(false);
+    const [fetchError, setFetchError] = useState("");
+
+    /*
+      Full-page mode fetches the record from the URL.
+      Dialog mode continues to use the manifest passed by its parent.
+    */
+    const loadManifest = useCallback(async () => {
+        if (!embedded || providedRecord) return;
+
+        setFetchedManifest(null);
+        setFetchError("");
+
+        if (!isValidId(id)) {
+            setFetchLoading(false);
+            setFetchError(
+                `Invalid shipping manifest ID "${id ?? ""}". Please open a manifest using its actual database ID.`
+            );
+            return;
+        }
+
+        setFetchLoading(true);
+
+        try {
+            const response = await axios.get(
+                `${API_URL}/${encodeURIComponent(id)}`
+            );
+
+            const result = unwrapManifest(response.data);
+
+            if (!result || Object.keys(result).length === 0) {
+                throw new Error("The API returned no shipping manifest record.");
+            }
+
+            setFetchedManifest(result);
+        } catch (error) {
+            console.error("Shipping manifest fetch failed:", error);
+
+            setFetchError(
+                error.response?.data?.message ||
+                error.response?.data?.title ||
+                (error.response?.status === 404
+                    ? "Shipping manifest not found. Check the ID and API endpoint."
+                    : error.message || "Failed to load shipping manifest.")
+            );
+        } finally {
+            setFetchLoading(false);
+        }
+    }, [embedded, id, providedRecord]);
+
+    useEffect(() => {
+        if (embedded && !providedRecord) {
+            loadManifest();
+        }
+    }, [embedded, providedRecord, loadManifest]);
+
+    const item = providedRecord || fetchedManifest;
+    const loading = suppliedLoading || (embedded && !providedRecord && fetchLoading);
+    const error = embedded && !providedRecord ? fetchError : "";
+
+    if (!embedded && !open) return null;
+
+    const handleClose = () => {
+        if (onClose) {
+            onClose();
+        } else {
+            navigate(-1);
+        }
+    };
+
+    const handleEdit = () => {
+        const recordId = getManifestId(item) || id;
+
+        if (!isValidId(recordId)) {
+            console.error("Invalid shipping manifest ID:", item);
+            return;
+        }
+
+        if (onEdit) {
+            onEdit(item);
+        } else {
+            navigate(`/shipping-manifests/${recordId}/edit`);
+        }
+    };
+
+    /* =====================================================
+       LOADING STATE
+    ===================================================== */
+
+    const loader = (
+        <Box sx={{ py: 7, textAlign: "center" }}>
+            <CircularProgress />
+
+            <Typography color="text.secondary" sx={{ mt: 2 }}>
+                Loading shipping manifest details...
+            </Typography>
+        </Box>
+    );
 
     if (loading) {
-        const loader = (
-            <Box
-                sx={{
-                    minHeight: 260,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                    gap: 2
-                }}
-            >
-                <CircularProgress />
-
-                <Typography color="text.secondary">
-                    Loading shipping manifest details...
-                </Typography>
-            </Box>
-        );
-
-        return embedded ? loader : (
-            <Dialog
-                open={open}
-                onClose={onClose}
-                fullWidth
-                maxWidth="md"
-            >
+        return embedded ? (
+            <Box sx={{ p: 3 }}>{loader}</Box>
+        ) : (
+            <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
                 <DialogContent>{loader}</DialogContent>
             </Dialog>
         );
     }
 
-    if (!item) {
+    /* =====================================================
+       ERROR / EMPTY STATE
+    ===================================================== */
+
+    if (error || !item) {
         const emptyContent = (
-            <AlertFallback />
+            <Box sx={{ py: 5, textAlign: "center" }}>
+                {error ? (
+                    <Alert severity="error" sx={{ textAlign: "left", mb: 2 }}>
+                        {error}
+                    </Alert>
+                ) : (
+                    <>
+                        <LocalShipping
+                            sx={{ fontSize: 48, color: "text.disabled", mb: 1 }}
+                        />
+
+                        <Typography variant="h6" fontWeight={600}>
+                            No Manifest Selected
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
+                            No shipping manifest record was provided.
+                        </Typography>
+                    </>
+                )}
+
+                {embedded && (
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="center"
+                        sx={{ mt: 2 }}
+                    >
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={() => navigate(-1)}
+                        >
+                            Back
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            startIcon={<Refresh />}
+                            onClick={loadManifest}
+                            disabled={!isValidId(id)}
+                        >
+                            Retry
+                        </Button>
+                    </Stack>
+                )}
+            </Box>
         );
 
-        return embedded ? emptyContent : (
-            <Dialog
-                open={open}
-                onClose={onClose}
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogContent>
-                    {emptyContent}
-                </DialogContent>
-
+        return embedded ? (
+            <Box sx={{ p: 3 }}>{emptyContent}</Box>
+        ) : (
+            <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+                <DialogContent>{emptyContent}</DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose}>
-                        Close
-                    </Button>
+                    <Button onClick={handleClose}>Close</Button>
                 </DialogActions>
             </Dialog>
         );
@@ -358,148 +428,72 @@ const ShippingManifestDetails = ({
        MANIFEST VALUES
     ===================================================== */
 
+    const manifestId = getManifestId(item);
+
     const manifestNumber = getField(
-        item,
-        "manifestNumber",
-        "ManifestNumber",
-        "manifestNo",
-        "ManifestNo"
+        item, "manifestNumber", "ManifestNumber", "manifestNo", "ManifestNo"
     );
 
     const orderNumber = getField(
-        item,
-        "orderNumber",
-        "OrderNumber",
-        "orderNo",
-        "OrderNo"
+        item, "orderNumber", "OrderNumber", "orderNo", "OrderNo"
     );
 
     const status = getField(item, "status", "Status") || "Pending";
-
     const statusConfig = getStatusConfig(status);
 
     const customerName = getField(
-        item,
-        "customerName",
-        "CustomerName",
-        "consigneeName",
-        "ConsigneeName"
+        item, "customerName", "CustomerName", "consigneeName", "ConsigneeName"
     );
 
     const carrierName = getField(
-        item,
-        "carrierName",
-        "CarrierName"
+        item, "carrierName", "CarrierName", "shippingProvider", "ShippingProvider"
     );
 
-    const trackingNumber = getField(
-        item,
-        "trackingNumber",
-        "TrackingNumber"
-    );
-
-    const vehicleNumber = getField(
-        item,
-        "vehicleNumber",
-        "VehicleNumber"
-    );
-
-    const driverName = getField(
-        item,
-        "driverName",
-        "DriverName"
-    );
-
-    const driverContact = getField(
-        item,
-        "driverContact",
-        "DriverContact"
-    );
+    const trackingNumber = getField(item, "trackingNumber", "TrackingNumber");
+    const vehicleNumber = getField(item, "vehicleNumber", "VehicleNumber");
+    const driverName = getField(item, "driverName", "DriverName");
+    const driverContact = getField(item, "driverContact", "DriverContact");
 
     const shipmentDate = getField(
-        item,
-        "shipmentDate",
-        "ShipmentDate"
+        item, "shipmentDate", "ShipmentDate", "shippingDate", "ShippingDate"
     );
 
     const expectedDeliveryDate = getField(
-        item,
-        "expectedDeliveryDate",
-        "ExpectedDeliveryDate"
+        item, "expectedDeliveryDate", "ExpectedDeliveryDate"
     );
 
     const actualDeliveryDate = getField(
-        item,
-        "actualDeliveryDate",
-        "ActualDeliveryDate"
+        item, "actualDeliveryDate", "ActualDeliveryDate"
     );
 
-    const origin = getField(item, "origin", "Origin");
+    const origin = getField(
+        item, "origin", "Origin", "sourceAddress", "SourceAddress"
+    );
 
     const destination = getField(
-        item,
-        "destination",
-        "Destination"
+        item, "destination", "Destination", "destinationAddress", "DestinationAddress"
     );
 
-    const totalItems = getField(
-        item,
-        "totalItems",
-        "TotalItems"
-    );
+    const totalItems = getField(item, "totalItems", "TotalItems");
+    const totalQuantity = getField(item, "totalQuantity", "TotalQuantity");
+    const totalPackages = getField(item, "totalPackages", "TotalPackages");
+    const totalWeight = getField(item, "totalWeight", "TotalWeight");
 
-    const totalQuantity = getField(
-        item,
-        "totalQuantity",
-        "TotalQuantity"
-    );
+    const weightUnit =
+        getField(item, "weightUnit", "WeightUnit") || "kg";
 
-    const totalPackages = getField(
-        item,
-        "totalPackages",
-        "TotalPackages"
-    );
-
-    const totalWeight = getField(
-        item,
-        "totalWeight",
-        "TotalWeight"
-    );
-
-    const weightUnit = getField(
-        item,
-        "weightUnit",
-        "WeightUnit"
-    ) || "kg";
-
-    const shippingCost = getField(
-        item,
-        "shippingCost",
-        "ShippingCost"
-    );
+    const shippingCost = getField(item, "shippingCost", "ShippingCost");
 
     const notes = getField(
-        item,
-        "notes",
-        "Notes",
-        "remarks",
-        "Remarks"
+        item, "notes", "Notes", "remarks", "Remarks"
     );
 
     const createdAt = getField(
-        item,
-        "createdAt",
-        "CreatedAt",
-        "createdDate",
-        "CreatedDate"
+        item, "createdAt", "CreatedAt", "createdDate", "CreatedDate"
     );
 
     const updatedAt = getField(
-        item,
-        "updatedAt",
-        "UpdatedAt",
-        "modifiedAt",
-        "ModifiedAt"
+        item, "updatedAt", "UpdatedAt", "modifiedAt", "ModifiedAt"
     );
 
     /* =====================================================
@@ -508,18 +502,9 @@ const ShippingManifestDetails = ({
 
     const content = (
         <Box>
-            {/* SUMMARY */}
-
             <Paper
-                elevation={0}
-                sx={{
-                    p: 2.5,
-                    mb: 3,
-                    borderRadius: 2,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    bgcolor: "background.default"
-                }}
+                variant="outlined"
+                sx={{ p: 2.5, mb: 3, borderRadius: 2 }}
             >
                 <Stack
                     direction={{ xs: "column", sm: "row" }}
@@ -527,11 +512,7 @@ const ShippingManifestDetails = ({
                     justifyContent="space-between"
                     spacing={2}
                 >
-                    <Stack
-                        direction="row"
-                        spacing={1.5}
-                        alignItems="center"
-                    >
+                    <Stack direction="row" spacing={1.5} alignItems="center">
                         <Box
                             sx={{
                                 width: 48,
@@ -547,19 +528,22 @@ const ShippingManifestDetails = ({
                             <LocalShipping />
                         </Box>
 
-                        <Box>
+                        <Box sx={{ minWidth: 0 }}>
                             <Typography
                                 variant="h6"
                                 fontWeight={700}
+                                sx={{ overflowWrap: "anywhere" }}
                             >
-                                {manifestNumber || "Shipping Manifest"}
+                                {manifestNumber ||
+                                    `Manifest #${manifestId || id}`}
                             </Typography>
 
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                            >
-                                Order: {orderNumber || "—"}
+                            <Typography variant="body2" color="text.secondary">
+                                Order Number: {orderNumber || "—"}
+                            </Typography>
+
+                            <Typography variant="caption" color="text.secondary">
+                                Record ID: {manifestId || id || "—"}
                             </Typography>
                         </Box>
                     </Stack>
@@ -572,8 +556,6 @@ const ShippingManifestDetails = ({
                     />
                 </Stack>
             </Paper>
-
-            {/* CUSTOMER AND CARRIER */}
 
             <Box sx={{ mb: 3 }}>
                 <SectionHeader
@@ -594,31 +576,14 @@ const ShippingManifestDetails = ({
                         icon={<LocalShipping fontSize="small" />}
                     />
 
-                    <DetailField
-                        label="Tracking Number"
-                        value={trackingNumber}
-                    />
-
-                    <DetailField
-                        label="Vehicle Number"
-                        value={vehicleNumber}
-                    />
-
-                    <DetailField
-                        label="Driver Name"
-                        value={driverName}
-                    />
-
-                    <DetailField
-                        label="Driver Contact"
-                        value={driverContact}
-                    />
+                    <DetailField label="Tracking Number" value={trackingNumber} />
+                    <DetailField label="Vehicle Number" value={vehicleNumber} />
+                    <DetailField label="Driver Name" value={driverName} />
+                    <DetailField label="Driver Contact" value={driverContact} />
                 </Grid>
             </Box>
 
             <Divider sx={{ mb: 3 }} />
-
-            {/* DATES */}
 
             <Box sx={{ mb: 3 }}>
                 <SectionHeader
@@ -646,8 +611,6 @@ const ShippingManifestDetails = ({
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* LOCATIONS */}
-
             <Box sx={{ mb: 3 }}>
                 <SectionHeader
                     icon={<LocationOn />}
@@ -670,8 +633,6 @@ const ShippingManifestDetails = ({
             </Box>
 
             <Divider sx={{ mb: 3 }} />
-
-            {/* PACKAGE INFORMATION */}
 
             <Box sx={{ mb: 3 }}>
                 <SectionHeader
@@ -699,9 +660,9 @@ const ShippingManifestDetails = ({
                     <DetailField
                         label="Total Weight"
                         value={
-                            totalWeight === ""
-                                ? "—"
-                                : `${formatNumber(totalWeight)} ${weightUnit}`
+                            hasValue(totalWeight)
+                                ? `${formatNumber(totalWeight)} ${weightUnit}`
+                                : "—"
                         }
                         icon={<Scale fontSize="small" />}
                     />
@@ -716,8 +677,6 @@ const ShippingManifestDetails = ({
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* NOTES */}
-
             <Box sx={{ mb: 3 }}>
                 <SectionHeader
                     icon={<Description />}
@@ -725,67 +684,98 @@ const ShippingManifestDetails = ({
                 />
 
                 <Paper
-                    elevation={0}
-                    sx={{
-                        p: 2,
-                        bgcolor: "background.default",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 2
-                    }}
+                    variant="outlined"
+                    sx={{ p: 2, borderRadius: 2 }}
                 >
                     <Typography
                         variant="body2"
                         sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
                     >
-                        {notes || "No additional notes available."}
+                        {hasValue(notes) ? notes : "No additional notes available."}
                     </Typography>
                 </Paper>
             </Box>
 
-            {/* AUDIT INFORMATION */}
-
-            {(createdAt || updatedAt) && (
+            {(hasValue(createdAt) || hasValue(updatedAt)) && (
                 <>
                     <Divider sx={{ mb: 2 }} />
 
-                    <Box>
-                        <Typography
-                            variant="subtitle2"
-                            fontWeight={700}
-                            sx={{ mb: 1 }}
-                        >
-                            Record Information
-                        </Typography>
+                    <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+                        Record Information
+                    </Typography>
 
-                        <Grid container spacing={1}>
-                            {createdAt && (
-                                <DetailField
-                                    label="Created At"
-                                    value={formatDate(createdAt)}
-                                />
-                            )}
+                    <Grid container spacing={1}>
+                        {hasValue(createdAt) && (
+                            <DetailField
+                                label="Created At"
+                                value={formatDate(createdAt)}
+                            />
+                        )}
 
-                            {updatedAt && (
-                                <DetailField
-                                    label="Last Updated"
-                                    value={formatDate(updatedAt)}
-                                />
-                            )}
-                        </Grid>
-                    </Box>
+                        {hasValue(updatedAt) && (
+                            <DetailField
+                                label="Last Updated"
+                                value={formatDate(updatedAt)}
+                            />
+                        )}
+                    </Grid>
                 </>
             )}
         </Box>
     );
 
     /* =====================================================
-       EMBEDDED MODE
+       FULL PAGE MODE
     ===================================================== */
 
     if (embedded) {
         return (
-            <Box sx={{ width: "100%" }}>
+            <Box sx={{ width: "100%", maxWidth: 1400, mx: "auto", p: { xs: 2, md: 3 } }}>
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "stretch", sm: "center" }}
+                    spacing={2}
+                    sx={{ mb: 3 }}
+                >
+                    <Box>
+                        <Typography variant="h5" fontWeight={700}>
+                            Shipping Manifest Details
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
+                            View shipment, carrier, package, and delivery information.
+                        </Typography>
+                    </Box>
+
+                    <Stack direction="row" spacing={1} flexWrap="wrap">
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBack />}
+                            onClick={() => navigate(-1)}
+                        >
+                            Back
+                        </Button>
+
+                        <Button
+                            variant="outlined"
+                            startIcon={<Refresh />}
+                            onClick={loadManifest}
+                            disabled={fetchLoading || !isValidId(id)}
+                        >
+                            Refresh
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            startIcon={<Edit />}
+                            onClick={handleEdit}
+                        >
+                            Edit Manifest
+                        </Button>
+                    </Stack>
+                </Stack>
+
                 {content}
             </Box>
         );
@@ -798,14 +788,12 @@ const ShippingManifestDetails = ({
     return (
         <Dialog
             open={open}
-            onClose={onClose}
+            onClose={handleClose}
             fullWidth
             maxWidth="md"
             scroll="paper"
-            aria-labelledby="shipping-manifest-details-title"
         >
             <DialogTitle
-                id="shipping-manifest-details-title"
                 sx={{
                     display: "flex",
                     alignItems: "center",
@@ -813,25 +801,14 @@ const ShippingManifestDetails = ({
                     gap: 2
                 }}
             >
-                <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                >
+                <Stack direction="row" spacing={1} alignItems="center">
                     <LocalShipping color="primary" />
-
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                    >
+                    <Typography variant="h6" fontWeight={700}>
                         Shipping Manifest Details
                     </Typography>
                 </Stack>
 
-                <IconButton
-                    onClick={onClose}
-                    aria-label="Close details"
-                >
+                <IconButton onClick={handleClose} aria-label="Close">
                     <Close />
                 </IconButton>
             </DialogTitle>
@@ -844,22 +821,16 @@ const ShippingManifestDetails = ({
 
             <Divider />
 
-            <DialogActions sx={{ px: 3, py: 2 }}>
-                {typeof onEdit === "function" && (
-                    <Button
-                        variant="contained"
-                        startIcon={<Edit />}
-                        onClick={() => onEdit(item)}
-                    >
-                        Edit Manifest
-                    </Button>
-                )}
-
+            <DialogActions sx={{ p: 2 }}>
                 <Button
-                    variant="outlined"
-                    color="inherit"
-                    onClick={onClose}
+                    variant="contained"
+                    startIcon={<Edit />}
+                    onClick={handleEdit}
                 >
+                    Edit Manifest
+                </Button>
+
+                <Button variant="outlined" onClick={handleClose}>
                     Close
                 </Button>
             </DialogActions>
@@ -867,32 +838,4 @@ const ShippingManifestDetails = ({
     );
 };
 
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-const AlertFallback = () => (
-    <Box sx={{ py: 4, textAlign: "center" }}>
-        <LocalShipping
-            sx={{
-                fontSize: 48,
-                color: "text.disabled",
-                mb: 1
-            }}
-        />
-
-        <Typography variant="h6" fontWeight={600}>
-            No Manifest Selected
-        </Typography>
-
-        <Typography
-            variant="body2"
-            color="text.secondary"
-        >
-            Select a shipping manifest to view its details.
-        </Typography>
-    </Box>
-);
-
 export default ShippingManifestDetails;
-

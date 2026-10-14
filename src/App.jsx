@@ -1856,15 +1856,30 @@ SHELFWISE INVENTORIES ROUTES
 {/* =================================================
 SHIPPING MANIFESTS ROUTES
 ================================================= */}
+<Route
+    path="/shipping-manifests"
+    element={<ShippingManifestsList />}
+/>
 
-<Route path="shipping-manifests" element={<ShippingManifestsList />} />
-<Route path="shipping-manifests/create" element={<ShippingManifestCreate />} />
-<Route path="shipping-manifests/search" element={<ShippingManifestSearch />} />
-<Route path="shipping-manifests/filters" element={<ShippingManifestFilters />} />
-<Route path="shipping-manifests/statistics" element={<ShippingManifestStatistics />} />
-<Route path="shipping-manifests/details/:id" element={<ShippingManifestDetails />} />
-<Route path="shipping-manifests/view/:id" element={<ShippingManifestView />} />
-<Route path="shipping-manifests/:id/edit" element={<ShippingManifestEdit />} />
+<Route
+    path="/shipping-manifests/create"
+    element={<ShippingManifestCreate />}
+/>
+
+<Route
+    path="/shipping-manifests/view/:id"
+    element={<ShippingManifestView />}
+/>
+
+<Route
+    path="/shipping-manifests/:id/edit"
+    element={<ShippingManifestEdit />}
+/>
+
+<Route
+    path="/shipping-manifests/:id/delete"
+    element={<DeleteShippingManifestDialog/>}
+/>
 
 {/* =================================================
 FACILITY CHANNEL ROUTES
