@@ -1087,8 +1087,8 @@ function App() {
 
         <Route path="stock-ledger" element={<StockLedgerList />} />
         <Route path="stock-ledger/create" element={<StockLedgerCreate />} />
-        <Route path="stock-ledger/search" element={<StockLedgerList />} />
-        <Route path="stock-ledger/filters" element={<StockLedgerList />} />
+        <Route path="stock-ledger/search" element={<StockLedgerSearch />} />
+        <Route path="stock-ledger/filters" element={< StockLedgerFilters/>} />
         <Route path="stock-ledger/view/:id" element={<StockLedgerDetails />} />
         <Route path="stock-ledger/edit/:id" element={<StockLedgerEdit />} />
 
@@ -1096,6 +1096,7 @@ function App() {
         <Route path="stock-movements/create" element={<StockMovementCreate />} />
         <Route path="stock-movements/details/:id" element={<StockMovementDetails />} />
         <Route path="stock-movements/edit/:id" element={<StockMovementEdit />} />
+        <Route path="stock-movements/view/:id" element={<StockMovementDetails />} />
 
         <Route path="shelfwise-inventories" element={<ShelfwiseInventoriesList />} />
         <Route path="shelfwise-inventories/create" element={<ShelfwiseInventoryCreate />} />
