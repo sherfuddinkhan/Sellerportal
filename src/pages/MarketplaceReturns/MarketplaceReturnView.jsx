@@ -55,7 +55,7 @@ const MarketplaceReturnView = ({
                     spacing={3}
                 >
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Divider sx={{ mb: 2 }}>
 
@@ -72,7 +72,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 
@@ -88,7 +88,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 
@@ -104,7 +104,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 
@@ -120,7 +120,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 
@@ -136,7 +136,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 
@@ -152,7 +152,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 
@@ -173,7 +173,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Divider sx={{ my: 2 }}>
 
@@ -190,7 +190,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Typography variant="subtitle2">
 
@@ -206,7 +206,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 
@@ -224,7 +224,7 @@ const MarketplaceReturnView = ({
 
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography variant="subtitle2">
 

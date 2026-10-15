@@ -385,7 +385,7 @@ return (
             >
                 <Grid container spacing={2.5}>
                     {/* 1. Party Contact ID */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -398,7 +398,7 @@ return (
                     </Grid>
 
                     {/* 2. Supplier ID */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -411,7 +411,7 @@ return (
                     </Grid>
 
                     {/* 3. Contact Type */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <FormControl
                             fullWidth
                             required
@@ -455,7 +455,7 @@ return (
                     </Grid>
 
                     {/* 4. Name */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             label="Name"
@@ -469,7 +469,7 @@ return (
                     </Grid>
 
                     {/* 5. Contact Name */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             label="Contact Name"
@@ -483,7 +483,7 @@ return (
                     </Grid>
 
                     {/* 6. Email */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="email"
@@ -498,7 +498,7 @@ return (
                     </Grid>
 
                     {/* 7. Phone */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             label="Phone Number"
@@ -512,7 +512,7 @@ return (
                     </Grid>
 
                     {/* 8. Seller ID */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -528,7 +528,7 @@ return (
                     </Grid>
 
                     {/* 9. Customer ID */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -544,7 +544,7 @@ return (
                     </Grid>
 
                     {/* 10. Created Date */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             label="Created Date"
@@ -558,7 +558,7 @@ return (
                     </Grid>
 
                     {/* 11. Supplier Contact ID */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -571,7 +571,7 @@ return (
                     </Grid>
 
                     {/* Action Buttons */}
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider sx={{ my: 1 }} />
 
                         <Box

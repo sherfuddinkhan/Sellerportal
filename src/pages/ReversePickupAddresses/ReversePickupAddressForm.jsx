@@ -550,7 +550,7 @@ const ReversePickupAddressForm = ({
             </Stack>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "contactName",
                         label: "Contact Name",
@@ -560,7 +560,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "contactPerson",
                         label: "Contact Person",
@@ -568,7 +568,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "phoneNumber",
                         label: "Phone Number",
@@ -578,7 +578,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "alternatePhoneNumber",
                         label: "Alternate Phone Number",
@@ -586,7 +586,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     {renderTextField({
                         name: "email",
                         label: "Email Address",
@@ -610,7 +610,7 @@ const ReversePickupAddressForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     {renderTextField({
                         name: "addressLine1",
                         label: "Address Line 1",
@@ -620,7 +620,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     {renderTextField({
                         name: "addressLine2",
                         label: "Address Line 2",
@@ -629,7 +629,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "landmark",
                         label: "Landmark",
@@ -637,7 +637,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "city",
                         label: "City",
@@ -646,7 +646,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "state",
                         label: "State / Province",
@@ -655,7 +655,7 @@ const ReversePickupAddressForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "postalCode",
                         label: "Postal / ZIP Code",
@@ -667,7 +667,7 @@ const ReversePickupAddressForm = ({
 
                 {/* COUNTRY DROPDOWN */}
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         select
                         fullWidth
@@ -694,7 +694,7 @@ const ReversePickupAddressForm = ({
 
                 {/* ADDRESS TYPE DROPDOWN */}
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         select
                         fullWidth

@@ -379,7 +379,7 @@ const StockLedgerReportModal = ({
 
             <Grid container spacing={2}>
               {/* Date */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
@@ -404,7 +404,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Voucher Number */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
@@ -427,7 +427,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Voucher Type */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
@@ -450,7 +450,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Transaction Type */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 {isEditMode ? (
                   <TextField
                     fullWidth
@@ -487,7 +487,7 @@ const StockLedgerReportModal = ({
 
             <Grid container spacing={2}>
               {/* Stock Item */}
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Stock Item
@@ -501,7 +501,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Warehouse */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Warehouse
@@ -513,7 +513,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Godown */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Godown
@@ -525,7 +525,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Inward */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Inward Quantity
@@ -537,7 +537,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Outward */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Outward Quantity
@@ -549,7 +549,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Closing */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Closing Quantity
@@ -564,7 +564,7 @@ const StockLedgerReportModal = ({
               </Grid>
 
               {/* Unit */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid xs={12} sm={6} md={3}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Unit
@@ -589,7 +589,7 @@ const StockLedgerReportModal = ({
             </Typography>
 
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 {isEditMode ? (
                   <TextField
                     fullWidth

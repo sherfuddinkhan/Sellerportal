@@ -387,7 +387,7 @@ const ManifestPackagesPutawayModal = ({
                     <Grid container spacing={2.5}>
                         {/* MANIFEST ID */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -405,7 +405,7 @@ const ManifestPackagesPutawayModal = ({
 
                         {/* PACKAGE ID */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -423,7 +423,7 @@ const ManifestPackagesPutawayModal = ({
 
                         {/* PUTAWAY LOCATION */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -445,7 +445,7 @@ const ManifestPackagesPutawayModal = ({
 
                         {/* QUANTITY */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -466,7 +466,7 @@ const ManifestPackagesPutawayModal = ({
 
                         {/* STATUS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 required
@@ -493,7 +493,7 @@ const ManifestPackagesPutawayModal = ({
                         {/* VIEW MODE INFORMATION */}
 
                         {isViewMode && (
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <Alert severity="info">
                                     This record is read-only.
                                 </Alert>

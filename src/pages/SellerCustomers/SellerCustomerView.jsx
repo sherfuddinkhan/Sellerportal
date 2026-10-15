@@ -98,7 +98,7 @@ const getSellerId = (customer) =>
 // =========================================================
 
 const Field = ({ label, value }) => (
-    <Grid item xs={12} sm={6}>
+    <Grid xs={12} sm={6}>
         <Typography
             variant="caption"
             color="text.secondary"
@@ -558,7 +558,7 @@ const SellerCustomerView = () => {
                     value={formatCurrency(CreditLimit)}
                 />
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <Typography
                         variant="caption"
                         color="text.secondary"

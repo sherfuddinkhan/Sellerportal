@@ -207,7 +207,7 @@ export default function PutawayView({
 
                         <Grid container spacing={3}>
                             {fields.map(([label, key]) => (
-                                <Grid item xs={12} sm={6} md={4} key={key}>
+                                <Grid xs={12} sm={6} md={4} key={key}>
                                     <Typography
                                         variant="caption"
                                         color="text.secondary"

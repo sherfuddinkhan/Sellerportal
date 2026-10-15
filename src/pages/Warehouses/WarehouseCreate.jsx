@@ -290,7 +290,7 @@ const WarehouseCreate = () => {
 
                         {/* Seller ID */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -304,7 +304,7 @@ const WarehouseCreate = () => {
 
                         {/* Customer ID */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -318,7 +318,7 @@ const WarehouseCreate = () => {
 
                         {/* Warehouse Code */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -331,7 +331,7 @@ const WarehouseCreate = () => {
 
                         {/* Warehouse Name */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -344,7 +344,7 @@ const WarehouseCreate = () => {
 
                         {/* Address Line 1 */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Address Line 1"
@@ -356,7 +356,7 @@ const WarehouseCreate = () => {
 
                         {/* Address Line 2 */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Address Line 2"
@@ -368,7 +368,7 @@ const WarehouseCreate = () => {
 
                         {/* City */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="City"
@@ -380,7 +380,7 @@ const WarehouseCreate = () => {
 
                         {/* State */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="State"
@@ -392,7 +392,7 @@ const WarehouseCreate = () => {
 
                         {/* Country */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Country"
@@ -404,7 +404,7 @@ const WarehouseCreate = () => {
 
                         {/* Postal Code */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Postal Code"
@@ -416,7 +416,7 @@ const WarehouseCreate = () => {
 
                         {/* Contact Person */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Contact Person"
@@ -428,7 +428,7 @@ const WarehouseCreate = () => {
 
                         {/* Phone */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Phone"
@@ -440,7 +440,7 @@ const WarehouseCreate = () => {
 
                         {/* Email */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 type="email"
@@ -453,7 +453,7 @@ const WarehouseCreate = () => {
 
                         {/* Status */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <FormControlLabel
                                 control={
@@ -474,7 +474,7 @@ const WarehouseCreate = () => {
 
                         {/* Submit */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <Box
                                 display="flex"

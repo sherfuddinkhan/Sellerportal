@@ -367,7 +367,7 @@ return (
                 <Grid container spacing={2.5}>
                     {/* INVOICE ID */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -385,7 +385,7 @@ return (
 
                     {/* TAX NAME */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -402,7 +402,7 @@ return (
 
                     {/* TAX CODE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             label="Tax Code"
@@ -416,7 +416,7 @@ return (
 
                     {/* TAX RATE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -437,7 +437,7 @@ return (
 
                     {/* TAXABLE AMOUNT */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -462,7 +462,7 @@ return (
 
                     {/* TAX AMOUNT */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             label="Tax Amount (₹)"
@@ -485,7 +485,7 @@ return (
 
                     {/* STATUS */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             select
                             fullWidth

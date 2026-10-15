@@ -223,7 +223,7 @@ const SellerCustomerCreate = () => {
                         noValidate
                     >
                         <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -237,7 +237,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -250,7 +250,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -263,7 +263,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Contact Person"
@@ -274,7 +274,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     type="email"
@@ -286,7 +286,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Phone"
@@ -297,7 +297,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="GSTIN"
@@ -308,7 +308,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -321,7 +321,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     label="Address Line 1"
@@ -332,7 +332,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     label="Address Line 2"
@@ -343,7 +343,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="City"
@@ -354,7 +354,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="State"
@@ -365,7 +365,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="Country"
@@ -376,7 +376,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Postal Code"
@@ -387,7 +387,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <FormControlLabel
                                     control={
                                         <Switch
@@ -400,7 +400,7 @@ const SellerCustomerCreate = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <Box
                                     sx={{
                                         display: "flex",

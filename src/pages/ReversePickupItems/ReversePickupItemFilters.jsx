@@ -399,7 +399,7 @@ const ReversePickupItemFilters = ({
             <Grid container spacing={2}>
                 {/* STATUS */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <TextField
                         select
                         fullWidth
@@ -428,7 +428,7 @@ const ReversePickupItemFilters = ({
                 {/* MINIMUM QUANTITY */}
 
                 {showQuantityFilters && (
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -450,7 +450,7 @@ const ReversePickupItemFilters = ({
                 {/* MAXIMUM QUANTITY */}
 
                 {showQuantityFilters && (
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -472,7 +472,7 @@ const ReversePickupItemFilters = ({
                 {/* MINIMUM PICKUP COST */}
 
                 {showCostFilters && (
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -504,7 +504,7 @@ const ReversePickupItemFilters = ({
                 {/* MAXIMUM PICKUP COST */}
 
                 {showCostFilters && (
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -536,7 +536,7 @@ const ReversePickupItemFilters = ({
                 {/* REASON FILTER */}
 
                 {showReasonFilter && (
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"

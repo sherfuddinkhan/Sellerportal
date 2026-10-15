@@ -333,7 +333,7 @@ const StockMovementEdit = () => {
                             spacing={2}
                         >
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -344,7 +344,7 @@ const StockMovementEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -355,7 +355,7 @@ const StockMovementEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -366,7 +366,7 @@ const StockMovementEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -377,7 +377,7 @@ const StockMovementEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
 
                                 <TextField
                                     fullWidth
@@ -412,7 +412,7 @@ const StockMovementEdit = () => {
 
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
 
                                 <TextField
                                     fullWidth
@@ -425,7 +425,7 @@ const StockMovementEdit = () => {
 
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
 
                                 <TextField
                                     fullWidth
@@ -437,7 +437,7 @@ const StockMovementEdit = () => {
 
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
 
                                 <TextField
                                     fullWidth
@@ -453,7 +453,7 @@ const StockMovementEdit = () => {
 
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
 
                                 <Stack
                                     direction="row"

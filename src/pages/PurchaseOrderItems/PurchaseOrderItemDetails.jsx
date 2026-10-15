@@ -562,7 +562,7 @@ return (
                 </SectionTitle>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Purchase Order Item ID"
                         value={
@@ -572,7 +572,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Purchase Order ID"
                         value={
@@ -582,7 +582,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Seller ID"
                         value={
@@ -592,7 +592,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Customer ID"
                         value={
@@ -602,7 +602,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Product ID"
                         value={
@@ -612,7 +612,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Quantity"
                         value={
@@ -623,7 +623,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Unit Price"
                         value={
@@ -634,7 +634,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Discount"
                         value={
@@ -645,7 +645,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Tax Amount"
                         value={
@@ -656,7 +656,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
 
                     <Box>
 
@@ -713,7 +713,7 @@ return (
                 </SectionTitle>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Purchase Order ID"
                         value={
@@ -723,7 +723,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Purchase Order Number"
                         value={
@@ -733,7 +733,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Seller ID"
                         value={
@@ -743,7 +743,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Supplier ID"
                         value={
@@ -753,7 +753,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Customer ID"
                         value={
@@ -763,7 +763,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Order Date"
                         value={
@@ -775,7 +775,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Expected Delivery Date"
                         value={
@@ -787,7 +787,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
 
                     <Box>
 
@@ -824,7 +824,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Purchase Order Total Amount"
                         value={
@@ -835,7 +835,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <DetailField
                         label="Remarks"
                         value={
@@ -845,7 +845,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <DetailField
                         label="Created Date"
                         value={
@@ -857,7 +857,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <DetailField
                         label="Updated Date"
                         value={
@@ -898,7 +898,7 @@ return (
                 </SectionTitle>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Product ID"
                         value={
@@ -908,7 +908,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="SKU"
                         value={
@@ -918,7 +918,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} md={8}>
+                <Grid xs={12} md={8}>
                     <DetailField
                         label="Product Name"
                         value={
@@ -928,7 +928,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Seller ID"
                         value={
@@ -938,7 +938,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Customer ID"
                         value={
@@ -948,7 +948,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Brand ID"
                         value={
@@ -958,7 +958,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Category ID"
                         value={
@@ -968,7 +968,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Product Type ID"
                         value={
@@ -978,7 +978,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Barcode"
                         value={
@@ -988,7 +988,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="HSN Code"
                         value={
@@ -998,7 +998,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Unit of Measure"
                         value={
@@ -1008,7 +1008,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Weight"
                         value={
@@ -1019,7 +1019,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Length"
                         value={
@@ -1030,7 +1030,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Width"
                         value={
@@ -1041,7 +1041,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Height"
                         value={
@@ -1052,7 +1052,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
 
                     <Box>
 
@@ -1093,7 +1093,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <DetailField
                         label="Active"
                         value={
@@ -1105,7 +1105,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <DetailField
                         label="Description"
                         value={
@@ -1115,7 +1115,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <DetailField
                         label="Product Created Date"
                         value={
@@ -1127,7 +1127,7 @@ return (
                 </Grid>
 
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <DetailField
                         label="Product Updated Date"
                         value={

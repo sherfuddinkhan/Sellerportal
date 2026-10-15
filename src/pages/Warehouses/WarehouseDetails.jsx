@@ -236,35 +236,35 @@ const WarehouseDetails = ({
                 spacing={2}
             >
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <DetailItem
                         label="Warehouse ID"
                         value={warehouseId}
                     />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <DetailItem
                         label="Seller ID"
                         value={sellerId}
                     />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <DetailItem
                         label="Customer ID"
                         value={customerId}
                     />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <DetailItem
                         label="Warehouse Code"
                         value={warehouseCode}
                     />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <DetailItem
                         label="Warehouse Name"
                         value={warehouseName}
@@ -300,7 +300,7 @@ const WarehouseDetails = ({
                 spacing={2}
             >
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <DetailItem
                         label="Address Line 1"
                         value={addressLine1}
@@ -308,7 +308,7 @@ const WarehouseDetails = ({
                 </Grid>
 
                 {addressLine2 && (
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <DetailItem
                             label="Address Line 2"
                             value={addressLine2}
@@ -316,28 +316,28 @@ const WarehouseDetails = ({
                     </Grid>
                 )}
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <DetailItem
                         label="City"
                         value={city}
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <DetailItem
                         label="State"
                         value={state}
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <DetailItem
                         label="Country"
                         value={country}
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <DetailItem
                         label="Postal Code"
                         value={postalCode}
@@ -373,7 +373,7 @@ const WarehouseDetails = ({
                 spacing={2}
             >
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <DetailItem
                         label="Contact Person"
                         value={contactPerson}
@@ -381,7 +381,7 @@ const WarehouseDetails = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <DetailItem
                         label="Phone"
                         value={phone}
@@ -389,7 +389,7 @@ const WarehouseDetails = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                     <DetailItem
                         label="Email"
                         value={email}
@@ -426,14 +426,14 @@ const WarehouseDetails = ({
                 spacing={2}
             >
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <DetailItem
                         label="Created Date"
                         value={formatDate(createdDate)}
                     />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <DetailItem
                         label="Updated Date"
                         value={formatDate(updatedDate)}

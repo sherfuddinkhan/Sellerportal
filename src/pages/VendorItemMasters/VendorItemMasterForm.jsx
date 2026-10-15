@@ -311,7 +311,7 @@ const VendorItemMasterForm = ({
                 <Grid container spacing={2.5}>
                     {/* ITEM CODE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -328,7 +328,7 @@ const VendorItemMasterForm = ({
 
                     {/* ITEM NAME */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -345,7 +345,7 @@ const VendorItemMasterForm = ({
 
                     {/* VENDOR ID */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -366,7 +366,7 @@ const VendorItemMasterForm = ({
 
                     {/* UNIT OF MEASURE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -385,7 +385,7 @@ const VendorItemMasterForm = ({
 
                     {/* UNIT PRICE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -406,7 +406,7 @@ const VendorItemMasterForm = ({
 
                     {/* TAX RATE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -430,7 +430,7 @@ const VendorItemMasterForm = ({
 
                     {/* STATUS */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <FormControl
                             fullWidth
                             required
@@ -467,7 +467,7 @@ const VendorItemMasterForm = ({
 
                     {/* DESCRIPTION */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <TextField
                             fullWidth
                             multiline
@@ -483,7 +483,7 @@ const VendorItemMasterForm = ({
 
                     {/* ACTION BUTTONS */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider sx={{ my: 1 }} />
 
                         <Box

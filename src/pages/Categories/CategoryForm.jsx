@@ -494,7 +494,7 @@ return (
         ======================================================= */}
         <Section title="BASIC INFORMATION">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               required
@@ -506,7 +506,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -517,7 +517,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -528,7 +528,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -539,7 +539,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -550,7 +550,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -561,7 +561,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -572,7 +572,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -583,7 +583,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -594,7 +594,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <TextField
               fullWidth
               multiline
@@ -615,7 +615,7 @@ return (
         ======================================================= */}
         <Section title="CATEGORY / BRAND / TYPE MAPPING">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -627,7 +627,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -639,7 +639,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -651,7 +651,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -662,7 +662,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -673,7 +673,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -684,7 +684,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -695,7 +695,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -706,7 +706,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -717,7 +717,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -728,7 +728,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -739,7 +739,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -750,7 +750,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -769,7 +769,7 @@ return (
         ======================================================= */}
         <Section title="VARIANT & PHYSICAL ATTRIBUTES">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -780,7 +780,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -791,7 +791,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -802,7 +802,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -813,7 +813,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -824,7 +824,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -835,7 +835,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -847,7 +847,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -859,7 +859,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -871,7 +871,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -883,7 +883,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -895,7 +895,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -907,7 +907,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -927,152 +927,152 @@ return (
         ======================================================= */}
         <Section title="PRICING & TAX">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Cost Price"
               name="costPrice" type="number"
               value={formData.costPrice} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="MRP"
               name="mrp" type="number"
               value={formData.mrp} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Selling Price"
               name="sellingPrice" type="number"
               value={formData.sellingPrice} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="SellingPriceVal"
               name="sellingPriceVal" type="number"
               value={formData.sellingPriceVal} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="MRP Price"
               name="mrpPrice" type="number"
               value={formData.mrpPrice} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Offer Price"
               name="offerPrice" type="number"
               value={formData.offerPrice} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="GST %"
               name="gstPercentage" type="number"
               value={formData.gstPercentage} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Tax %"
               name="taxPercentage" type="number"
               value={formData.taxPercentage} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="HSN Code"
               name="hsnCode"
               value={formData.hsnCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Tax Category"
               name="taxCategory"
               value={formData.taxCategory} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Tax Type Code"
               name="taxTypeCode"
               value={formData.taxTypeCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Currency"
               name="currencyCode"
               value={formData.currencyCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Quantity Amount"
               name="quantityAmount" type="number"
               value={formData.quantityAmount} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Total Amount"
               name="totalAmount" type="number"
               value={formData.totalAmount} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="After GST Amount"
               name="afterGSTAmount" type="number"
               value={formData.afterGSTAmount} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Excise Duty In Words"
               name="exciseDutyTotalInWords"
               value={formData.exciseDutyTotalInWords}
               onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="GST Per"
               name="gstPer" type="number"
               value={formData.gstPer} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="SGST Per"
               name="sgstPer" type="number"
               value={formData.sgstPer} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="SGST Amount"
               name="sgstAmount" type="number"
               value={formData.sgstAmount} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="CGST Per"
               name="cgstPer" type="number"
               value={formData.cgstPer} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="CGST Amount"
               name="cgstAmount" type="number"
               value={formData.cgstAmount} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="IGST Per"
               name="igstPer" type="number"
               value={formData.igstPer} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="IGST Amount"
               name="igstAmount" type="number"
               value={formData.igstAmount} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Tax Type"
               name="taxType"
               value={formData.taxType} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -1091,61 +1091,61 @@ return (
         ======================================================= */}
         <Section title="INVENTORY & WAREHOUSE">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Inventory Qty"
               name="inventoryQuantity" type="number"
               value={formData.inventoryQuantity} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Reserved Qty"
               name="reservedQuantity" type="number"
               value={formData.reservedQuantity} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Damaged Qty"
               name="damagedQuantity" type="number"
               value={formData.damagedQuantity} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Sellable"
               name="sellableInventory" type="number"
               value={formData.sellableInventory} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Primary Warehouse ID"
               name="primaryWarehouseId" type="number"
               value={formData.primaryWarehouseId} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Primary Warehouse Code"
               name="primaryWarehouseCode"
               value={formData.primaryWarehouseCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Vendor Code"
               name="vendorCode"
               value={formData.vendorCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Vendor SKU Code"
               name="vendorSkuCode"
               value={formData.vendorSkuCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Facility Code"
               name="facilityCode"
               value={formData.facilityCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Min Order Size"
               name="minOrderSize" type="number"
               value={formData.minOrderSize} onChange={handleChange} />
@@ -1159,7 +1159,7 @@ return (
         ======================================================= */}
         <Section title="FULFILLMENT & SHIPPING">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <FormControl fullWidth size="small">
               <InputLabel>Visibility Status</InputLabel>
               <Select
@@ -1175,7 +1175,7 @@ return (
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <FormControl fullWidth size="small">
               <InputLabel>Fulfillment Type</InputLabel>
               <Select
@@ -1191,37 +1191,37 @@ return (
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Carrier Type"
               name="carrierType"
               value={formData.carrierType} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Ready To Dispatch Days"
               name="readyToDispatchDays" type="number"
               value={formData.readyToDispatchDays} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shipping Local"
               name="shippingChargeLocal" type="number"
               value={formData.shippingChargeLocal} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shipping Regional"
               name="shippingChargeRegional" type="number"
               value={formData.shippingChargeRegional} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shipping National"
               name="shippingChargeNational" type="number"
               value={formData.shippingChargeNational} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Listing Status"
               name="listingStatus"
               value={formData.listingStatus} onChange={handleChange} />
@@ -1235,31 +1235,31 @@ return (
         ======================================================= */}
         <Section title="SHELF LIFE / MANUFACTURING">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shelf Life Days"
               name="shelfLifeDays" type="number"
               value={formData.shelfLifeDays} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shelf Life"
               name="shelfLife" type="number"
               value={formData.shelfLife} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shelf Life Type"
               name="shelfLifeType"
               value={formData.shelfLifeType} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shelf Life Seconds"
               name="shelfLifeSeconds" type="number"
               value={formData.shelfLifeSeconds} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -1272,7 +1272,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -1285,19 +1285,19 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Warranty Period"
               name="warrantyPeriod"
               value={formData.warrantyPeriod} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Country Of Origin"
               name="countryOfOrigin"
               value={formData.countryOfOrigin} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Item Type Status"
               name="itemTypeStatus"
               value={formData.itemTypeStatus} onChange={handleChange} />
@@ -1311,49 +1311,49 @@ return (
         ======================================================= */}
         <Section title="EXTERNAL CHANNELS & SYNC">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="External Product ID"
               name="externalProductId"
               value={formData.externalProductId} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="External System Code"
               name="externalSystemCode"
               value={formData.externalSystemCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Channel Code"
               name="channelCode"
               value={formData.channelCode} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Channel Sync Status"
               name="channelSyncStatus"
               value={formData.channelSyncStatus} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Channel Item ID"
               name="channelItemId"
               value={formData.channelItemId} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Channel Product ID"
               name="channelProductId"
               value={formData.channelProductId} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Flipkart FSN"
               name="flipkartFsn"
               value={formData.flipkartFsn} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Status"
               name="status"
               value={formData.status} onChange={handleChange} />
@@ -1367,49 +1367,49 @@ return (
         ======================================================= */}
         <Section title="BARCODE / BATCH / BULK">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Barcode Image URL"
               name="barcodeImageUrl"
               value={formData.barcodeImageUrl} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Barcode Type"
               name="barcodeType"
               value={formData.barcodeType} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Barcode Details JSON"
               name="barcodeDetailsJson"
               value={formData.barcodeDetailsJson} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Batch ID"
               name="batchId"
               value={formData.batchId} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Bulk Row Number"
               name="bulkUploadRowNumber" type="number"
               value={formData.bulkUploadRowNumber} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Bulk Upload Status"
               name="bulkUploadStatus"
               value={formData.bulkUploadStatus} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Bulk Upload Error"
               name="bulkUploadError"
               value={formData.bulkUploadError} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Product Page URL"
               name="productPageUrl"
               value={formData.productPageUrl} onChange={handleChange} />
@@ -1423,43 +1423,43 @@ return (
         ======================================================= */}
         <Section title="ADDITIONAL METADATA">
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Product XID"
               name="productXID"
               value={formData.productXID} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Brand XID"
               name="brandXID"
               value={formData.brandXID} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Item XID"
               name="itemXID"
               value={formData.itemXID} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Fulfillment Profile"
               name="fulfillmentProfile"
               value={formData.fulfillmentProfile} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Shipping Provider"
               name="shippingProvider"
               value={formData.shippingProvider} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField fullWidth size="small" label="Procurement Type"
               name="procurementType"
               value={formData.procurementType} onChange={handleChange} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -1471,7 +1471,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -1482,7 +1482,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -1493,7 +1493,7 @@ return (
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <TextField
               fullWidth
               size="small"
@@ -1508,7 +1508,7 @@ return (
           {/* =====================================================
               CONFIGURATION FLAGS
           ===================================================== */}
-          <Grid item xs={12} sx={{ mt: 3 }}>
+          <Grid xs={12} sx={{ mt: 3 }}>
             <Typography
               variant="subtitle2"
               color="text.secondary"
@@ -1566,7 +1566,7 @@ return (
         {/* =======================================================
             ACTIONS
         ======================================================= */}
-        <Grid item xs={12} sx={{ mt: 3 }}>
+        <Grid xs={12} sx={{ mt: 3 }}>
           <Divider sx={{ mb: 2 }} />
 
           <Stack

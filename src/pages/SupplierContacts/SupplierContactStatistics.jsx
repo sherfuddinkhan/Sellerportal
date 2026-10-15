@@ -258,7 +258,7 @@ const SupplierContactStatistics = ({
             <Grid container spacing={2}>
                 {/* TOTAL CONTACTS */}
 
-                <Grid item xs={12} sm={6} md={4} lg={2.4}>
+                <Grid xs={12} sm={6} md={4} lg={2.4}>
                     <StatisticsCard
                         title="Total Contacts"
                         value={loading ? "—" : total}
@@ -270,7 +270,7 @@ const SupplierContactStatistics = ({
 
                 {/* ACTIVE CONTACTS */}
 
-                <Grid item xs={12} sm={6} md={4} lg={2.4}>
+                <Grid xs={12} sm={6} md={4} lg={2.4}>
                     <StatisticsCard
                         title="Active Contacts"
                         value={loading ? "—" : active}
@@ -283,7 +283,7 @@ const SupplierContactStatistics = ({
 
                 {/* INACTIVE CONTACTS */}
 
-                <Grid item xs={12} sm={6} md={4} lg={2.4}>
+                <Grid xs={12} sm={6} md={4} lg={2.4}>
                     <StatisticsCard
                         title="Inactive Contacts"
                         value={loading ? "—" : inactive}
@@ -295,7 +295,7 @@ const SupplierContactStatistics = ({
 
                 {/* PRIMARY CONTACTS */}
 
-                <Grid item xs={12} sm={6} md={4} lg={2.4}>
+                <Grid xs={12} sm={6} md={4} lg={2.4}>
                     <StatisticsCard
                         title="Primary Contacts"
                         value={loading ? "—" : primary}
@@ -308,7 +308,7 @@ const SupplierContactStatistics = ({
 
                 {/* SUPPLIERS */}
 
-                <Grid item xs={12} sm={6} md={4} lg={2.4}>
+                <Grid xs={12} sm={6} md={4} lg={2.4}>
                     <StatisticsCard
                         title="Suppliers"
                         value={loading ? "—" : suppliers}

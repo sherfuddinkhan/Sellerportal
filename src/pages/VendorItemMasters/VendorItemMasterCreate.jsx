@@ -288,7 +288,7 @@ const VendorItemMasterCreate = () => {
         label,
         options = {}
     ) => (
-        <Grid item xs={12} sm={6} key={name}>
+        <Grid xs={12} sm={6} key={name}>
             <TextField
                 fullWidth
                 name={name}
@@ -381,7 +381,7 @@ const VendorItemMasterCreate = () => {
                             inputProps: { min: 1, step: 1 }
                         })}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="h6" sx={{ mb: 1 }}>
                                 SKU and Item Codes
@@ -418,7 +418,7 @@ const VendorItemMasterCreate = () => {
                             inputProps: { maxLength: 100 }
                         })}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="h6" sx={{ mb: 1 }}>
                                 Pricing
@@ -446,7 +446,7 @@ const VendorItemMasterCreate = () => {
                             inputProps: { min: 0, step: "0.01" }
                         })}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="h6" sx={{ mb: 1 }}>
                                 Inventory and Status
@@ -469,7 +469,7 @@ const VendorItemMasterCreate = () => {
                             inputProps: { min: 0, step: 1 }
                         })}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -483,7 +483,7 @@ const VendorItemMasterCreate = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -497,7 +497,7 @@ const VendorItemMasterCreate = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Box

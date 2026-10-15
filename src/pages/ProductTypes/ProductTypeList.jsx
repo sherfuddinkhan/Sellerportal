@@ -658,7 +658,7 @@ const ProductTypeList = () => {
                     STATISTICS
                 ================================================= */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
 
                     <ProductTypeStatistics
                         productTypes={

@@ -224,7 +224,7 @@ const SalesOrderEdit = ({
 
                         {/* Sales Order ID */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -240,7 +240,7 @@ const SalesOrderEdit = ({
 
                         {/* Sales Order Number */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -258,7 +258,7 @@ const SalesOrderEdit = ({
 
                         {/* Seller ID */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -278,7 +278,7 @@ const SalesOrderEdit = ({
 
                         {/* Customer ID */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -298,7 +298,7 @@ const SalesOrderEdit = ({
 
                         {/* Order Date */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -318,7 +318,7 @@ const SalesOrderEdit = ({
 
                         {/* Status */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 select
@@ -352,7 +352,7 @@ const SalesOrderEdit = ({
 
                         {/* Total Amount */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -373,7 +373,7 @@ const SalesOrderEdit = ({
 
                         {/* Remarks */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <TextField
                                 fullWidth

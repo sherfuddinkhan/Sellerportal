@@ -58,7 +58,7 @@ const ShelfwiseInventoryView = () => {
 
             <Grid container spacing={2}>
                 {/* STOCK SUMMARY TABLE */}
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
                         <Box sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
                             <Typography fontWeight={700}>Stock Summary</Typography>
@@ -77,7 +77,7 @@ const ShelfwiseInventoryView = () => {
                 </Grid>
 
                 {/* ITEM DETAILS TABLE */}
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
                         <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}>
                             <Typography fontWeight={700}>Item Details</Typography>
@@ -96,7 +96,7 @@ const ShelfwiseInventoryView = () => {
                 </Grid>
 
                 {/* WAREHOUSE & SHELF TABLE */}
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
                         <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}>
                             <Typography fontWeight={700}>Warehouse & Shelf Details</Typography>

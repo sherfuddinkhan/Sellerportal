@@ -207,7 +207,7 @@ const GatepassFilters = ({
 
                         {/* STATUS */}
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 select
                                 fullWidth
@@ -246,7 +246,7 @@ const GatepassFilters = ({
 
                         {/* VEHICLE NUMBER */}
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -264,7 +264,7 @@ const GatepassFilters = ({
 
                         {/* DRIVER NAME */}
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -282,7 +282,7 @@ const GatepassFilters = ({
 
                         {/* FROM DATE */}
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 type="date"
@@ -309,7 +309,7 @@ const GatepassFilters = ({
 
                         {/* TO DATE */}
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 type="date"

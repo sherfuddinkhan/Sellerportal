@@ -414,7 +414,7 @@ const ProductTypeDetails = () => {
                     }}
                 >
 
-                    <Grid item>
+                    <Grid>
 
                         <Typography
                             variant="h5"
@@ -432,7 +432,7 @@ const ProductTypeDetails = () => {
                         ACTIONS
                     ===================================== */}
 
-                    <Grid item>
+                    <Grid>
 
                         <Box
                             sx={{

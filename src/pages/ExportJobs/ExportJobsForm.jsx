@@ -103,46 +103,46 @@ const ExportJobsForm = ({
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
       <Grid container spacing={2.5}>
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <TextField fullWidth required label="Job Name" name="jobName" value={formData.jobName?? ""} onChange={handleChange} disabled={loading} error={Boolean(formErrors.jobName)} helperText={formErrors.jobName} placeholder="Enter export job name" />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid xs={12} sm={6}>
           <TextField fullWidth required select label="Export Type" name="exportType" value={formData.exportType?? ""} onChange={handleChange} disabled={loading} error={Boolean(formErrors.exportType)} helperText={formErrors.exportType}>
             <MenuItem value="Products">Products</MenuItem><MenuItem value="Orders">Orders</MenuItem><MenuItem value="Customers">Customers</MenuItem><MenuItem value="Inventory">Inventory</MenuItem><MenuItem value="Sales">Sales</MenuItem>
           </TextField>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid xs={12} sm={6}>
           <TextField fullWidth required select label="File Format" name="fileFormat" value={formData.fileFormat?? "CSV"} onChange={handleChange} disabled={loading} error={Boolean(formErrors.fileFormat)} helperText={formErrors.fileFormat}>
             <MenuItem value="CSV">CSV</MenuItem><MenuItem value="Excel">Excel</MenuItem><MenuItem value="JSON">JSON</MenuItem><MenuItem value="XML">XML</MenuItem><MenuItem value="PDF">PDF</MenuItem>
           </TextField>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid xs={12} sm={6}>
           <TextField fullWidth select label="Status" name="status" value={formData.status?? "Pending"} onChange={handleChange} disabled={loading}>
             <MenuItem value="Pending">Pending</MenuItem><MenuItem value="Processing">Processing</MenuItem><MenuItem value="Completed">Completed</MenuItem><MenuItem value="Failed">Failed</MenuItem><MenuItem value="Cancelled">Cancelled</MenuItem>
           </TextField>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid xs={12} sm={6}>
           <TextField fullWidth label="Records Count" name="recordsCount" type="number" value={formData.recordsCount?? ""} onChange={handleChange} disabled={loading} placeholder="e.g. 1000" />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid xs={12} sm={6}>
           <TextField fullWidth label="File Name" name="fileName" value={formData.fileName?? ""} onChange={handleChange} disabled={loading} placeholder="products_export.csv" />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid xs={12} sm={6}>
           <TextField fullWidth label="Requested By" name="requestedBy" value={formData.requestedBy?? ""} onChange={handleChange} disabled={loading} placeholder="admin@company.com" />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <TextField fullWidth label="File Path" name="filePath" value={formData.filePath?? ""} onChange={handleChange} disabled={loading} placeholder="/exports/products_export.csv" />
         </Grid>
 
         {isEditMode && (
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <TextField fullWidth multiline minRows={2} label="Error Message" name="errorMessage" value={formData.errorMessage?? ""} onChange={handleChange} disabled={loading} />
           </Grid>
         )}

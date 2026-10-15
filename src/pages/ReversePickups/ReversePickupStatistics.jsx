@@ -294,7 +294,7 @@ const ReversePickupStatistics = ({
         const percentage = getPercentage(value);
 
         return (
-            <Grid item xs={12} sm={6} md={4} lg={2}>
+            <Grid xs={12} sm={6} md={4} lg={2}>
                 <Card
                     variant="outlined"
                     sx={{

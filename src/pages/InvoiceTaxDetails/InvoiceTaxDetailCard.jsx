@@ -254,21 +254,21 @@ const InvoiceTaxDetailCard = ({
                 {/* TAX INFORMATION */}
 
                 <Grid container spacing={2}>
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
                         <DetailItem
                             label="Invoice ID"
                             value={invoiceId}
                         />
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
                         <DetailItem
                             label="Tax Code"
                             value={taxCode}
                         />
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
                         <Box
                             display="flex"
                             alignItems="center"
@@ -292,7 +292,7 @@ const InvoiceTaxDetailCard = ({
                         </Box>
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
                         <Box
                             display="flex"
                             alignItems="center"

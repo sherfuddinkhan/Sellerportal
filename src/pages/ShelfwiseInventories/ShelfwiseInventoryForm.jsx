@@ -488,7 +488,7 @@ const ShelfwiseInventoryForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "itemName",
                         label: "Item Name",
@@ -496,7 +496,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "itemCode",
                         label: "Item Code",
@@ -504,7 +504,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "itemId",
                         label: "Item ID",
@@ -512,7 +512,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "categoryName",
                         label: "Category"
@@ -533,7 +533,7 @@ const ShelfwiseInventoryForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "warehouseName",
                         label: "Warehouse Name",
@@ -541,7 +541,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "warehouseId",
                         label: "Warehouse ID",
@@ -549,7 +549,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "shelfName",
                         label: "Shelf Name",
@@ -557,14 +557,14 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "shelfCode",
                         label: "Shelf Code"
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "shelfId",
                         label: "Shelf ID",
@@ -586,7 +586,7 @@ const ShelfwiseInventoryForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "quantity",
                         label: "Total Quantity",
@@ -595,7 +595,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "availableQuantity",
                         label: "Available Quantity",
@@ -604,7 +604,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "reservedQuantity",
                         label: "Reserved Quantity",
@@ -613,7 +613,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "unit",
                         label: "Unit",
@@ -621,7 +621,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "minimumStock",
                         label: "Minimum Stock",
@@ -629,7 +629,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "maximumStock",
                         label: "Maximum Stock",
@@ -637,7 +637,7 @@ const ShelfwiseInventoryForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "status",
                         label: "Status",
@@ -681,7 +681,7 @@ const ShelfwiseInventoryForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     {renderTextField({
                         name: "description",
                         label: "Description",

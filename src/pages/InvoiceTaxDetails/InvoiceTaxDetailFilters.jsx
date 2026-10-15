@@ -138,7 +138,7 @@ return (
         <Grid container spacing={2}>
             {/* INVOICE ID */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     fullWidth
                     size="small"
@@ -172,7 +172,7 @@ return (
 
             {/* TAX NAME */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     fullWidth
                     size="small"
@@ -205,7 +205,7 @@ return (
 
             {/* TAX CODE */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     fullWidth
                     size="small"
@@ -238,7 +238,7 @@ return (
 
             {/* STATUS */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     select
                     fullWidth
@@ -268,7 +268,7 @@ return (
 
             {/* MIN TAX RATE */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     fullWidth
                     size="small"
@@ -286,7 +286,7 @@ return (
 
             {/* MAX TAX RATE */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     fullWidth
                     size="small"
@@ -304,7 +304,7 @@ return (
 
             {/* MIN TAX AMOUNT */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     fullWidth
                     size="small"
@@ -322,7 +322,7 @@ return (
 
             {/* MAX TAX AMOUNT */}
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid xs={12} sm={6} md={3}>
                 <TextField
                     fullWidth
                     size="small"

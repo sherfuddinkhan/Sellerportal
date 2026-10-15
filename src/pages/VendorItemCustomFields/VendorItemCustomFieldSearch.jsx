@@ -135,7 +135,7 @@ const VendorItemCustomFieldSearch = ({
                     SEARCH INPUT
                 ========================================= */}
 
-                <Grid item xs={12} md={6} lg={6}>
+                <Grid xs={12} md={6} lg={6}>
                     <TextField
                         fullWidth
                         size="small"
@@ -191,7 +191,7 @@ const VendorItemCustomFieldSearch = ({
                 ========================================= */}
 
                 {showStatusFilter && (
-                    <Grid item xs={12} sm={6} md={2}>
+                    <Grid xs={12} sm={6} md={2}>
                         <TextField
                             select
                             fullWidth
@@ -233,7 +233,7 @@ const VendorItemCustomFieldSearch = ({
                 ========================================= */}
 
                 {showRequiredFilter && (
-                    <Grid item xs={12} sm={6} md={2}>
+                    <Grid xs={12} sm={6} md={2}>
                         <TextField
                             select
                             fullWidth
@@ -268,7 +268,7 @@ const VendorItemCustomFieldSearch = ({
                 ========================================= */}
 
                 {showClearButton && (
-                    <Grid item xs={12} md={2}>
+                    <Grid xs={12} md={2}>
                         <Button
                             fullWidth
                             variant="outlined"

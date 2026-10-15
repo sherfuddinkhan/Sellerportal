@@ -25,7 +25,7 @@ const OrderView = ({
         label,
         value
     }) => (
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
             <Typography
                 variant="caption"
                 color="text.secondary"

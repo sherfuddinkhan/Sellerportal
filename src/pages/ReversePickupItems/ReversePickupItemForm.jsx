@@ -618,7 +618,7 @@ const ReversePickupItemForm = ({
             <Grid container spacing={2.5}>
                 {/* REVERSE PICKUP DETAILS */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Typography
                         variant="subtitle1"
                         fontWeight={700}
@@ -627,7 +627,7 @@ const ReversePickupItemForm = ({
                     </Typography>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         size="small"
@@ -649,7 +649,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         size="small"
@@ -670,7 +670,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         size="small"
@@ -682,7 +682,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         size="small"
@@ -694,13 +694,13 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Divider />
                 </Grid>
 
                 {/* ITEM DETAILS */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Typography
                         variant="subtitle1"
                         fontWeight={700}
@@ -709,7 +709,7 @@ const ReversePickupItemForm = ({
                     </Typography>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         size="small"
@@ -721,7 +721,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         required
@@ -736,7 +736,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         required
@@ -751,7 +751,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         required
@@ -771,13 +771,13 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Divider />
                 </Grid>
 
                 {/* STATUS AND COST */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Typography
                         variant="subtitle1"
                         fontWeight={700}
@@ -786,7 +786,7 @@ const ReversePickupItemForm = ({
                     </Typography>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         select
                         fullWidth
@@ -846,7 +846,7 @@ const ReversePickupItemForm = ({
                     </TextField>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField
                         fullWidth
                         type="number"
@@ -872,7 +872,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <TextField
                         fullWidth
                         size="small"
@@ -884,13 +884,13 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Divider />
                 </Grid>
 
                 {/* REASON AND NOTES */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Typography
                         variant="subtitle1"
                         fontWeight={700}
@@ -899,7 +899,7 @@ const ReversePickupItemForm = ({
                     </Typography>
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <TextField
                         fullWidth
                         size="small"
@@ -913,7 +913,7 @@ const ReversePickupItemForm = ({
                     />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <TextField
                         fullWidth
                         size="small"

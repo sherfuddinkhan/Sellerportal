@@ -389,7 +389,7 @@ const FacilityChannelEdit = () => {
                 }}
             >
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -403,7 +403,7 @@ const FacilityChannelEdit = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -417,7 +417,7 @@ const FacilityChannelEdit = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -431,7 +431,7 @@ const FacilityChannelEdit = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -443,7 +443,7 @@ const FacilityChannelEdit = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -455,7 +455,7 @@ const FacilityChannelEdit = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -467,7 +467,7 @@ const FacilityChannelEdit = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required

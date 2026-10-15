@@ -417,7 +417,7 @@ const SupplierAddressCard = ({
                 {/* SUPPLIER DETAILS */}
 
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Business fontSize="small" />}
                             label="Supplier ID"
@@ -425,7 +425,7 @@ const SupplierAddressCard = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<LocationCity fontSize="small" />}
                             label="City"
@@ -433,7 +433,7 @@ const SupplierAddressCard = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Person fontSize="small" />}
                             label="Contact Person"
@@ -441,7 +441,7 @@ const SupplierAddressCard = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Phone fontSize="small" />}
                             label="Phone Number"
@@ -449,7 +449,7 @@ const SupplierAddressCard = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <DetailItem
                             icon={<Email fontSize="small" />}
                             label="Email Address"

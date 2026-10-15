@@ -224,7 +224,7 @@ const WishlistItemModal = ({
                            WISHLIST
                         ================================================= */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             {wishlistOptions.length > 0 ? (
 
@@ -284,7 +284,7 @@ const WishlistItemModal = ({
                            PRODUCT
                         ================================================= */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             {productOptions.length > 0 ? (
 
@@ -345,7 +345,7 @@ const WishlistItemModal = ({
                            QUANTITY
                         ================================================= */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -367,7 +367,7 @@ const WishlistItemModal = ({
                            PRICE
                         ================================================= */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -389,7 +389,7 @@ const WishlistItemModal = ({
                            STATUS
                         ================================================= */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <TextField
                                 fullWidth

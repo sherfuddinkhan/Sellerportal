@@ -443,7 +443,7 @@ const MarketplaceOrderDetails = () => {
                     spacing={2}
                 >
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -463,7 +463,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -483,7 +483,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -502,7 +502,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -558,7 +558,7 @@ const MarketplaceOrderDetails = () => {
                     spacing={3}
                 >
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -578,7 +578,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -598,7 +598,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -618,7 +618,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -638,7 +638,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -658,7 +658,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -678,7 +678,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -734,7 +734,7 @@ const MarketplaceOrderDetails = () => {
                     spacing={3}
                 >
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -754,7 +754,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -810,7 +810,7 @@ const MarketplaceOrderDetails = () => {
                     spacing={3}
                 >
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -830,7 +830,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"
@@ -850,7 +850,7 @@ const MarketplaceOrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
 
                         <Typography
                             variant="caption"

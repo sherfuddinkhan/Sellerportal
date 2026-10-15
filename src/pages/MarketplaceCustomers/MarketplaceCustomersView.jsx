@@ -49,7 +49,7 @@ function MarketplaceCustomersView({ open, customer, onClose }) {
             <DialogContent dividers>
                 <Grid container spacing={2}>
                     {fields.map(([label, name]) => (
-                        <Grid item xs={12} sm={6} key={name}>
+                        <Grid xs={12} sm={6} key={name}>
                             <Typography
                                 variant="caption"
                                 color="text.secondary"

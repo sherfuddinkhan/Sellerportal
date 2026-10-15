@@ -205,7 +205,7 @@ const DeliveryChallanItemModal = ({
                         spacing={2}
                     >
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -218,7 +218,7 @@ const DeliveryChallanItemModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -231,7 +231,7 @@ const DeliveryChallanItemModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -245,7 +245,7 @@ const DeliveryChallanItemModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -259,7 +259,7 @@ const DeliveryChallanItemModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -272,7 +272,7 @@ const DeliveryChallanItemModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -285,7 +285,7 @@ const DeliveryChallanItemModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -299,7 +299,7 @@ const DeliveryChallanItemModal = ({
 
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <TextField
                                 fullWidth

@@ -499,7 +499,7 @@ const WarehouseEdit = () => {
 
                         {/* Warehouse ID */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Warehouse ID"
@@ -512,7 +512,7 @@ const WarehouseEdit = () => {
 
                         {/* Seller ID */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -526,7 +526,7 @@ const WarehouseEdit = () => {
 
                         {/* Customer ID */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -540,7 +540,7 @@ const WarehouseEdit = () => {
 
                         {/* Warehouse Code */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -555,7 +555,7 @@ const WarehouseEdit = () => {
 
                         {/* Warehouse Name */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -570,7 +570,7 @@ const WarehouseEdit = () => {
 
                         {/* Address Line 1 */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Address Line 1"
@@ -584,7 +584,7 @@ const WarehouseEdit = () => {
 
                         {/* Address Line 2 */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Address Line 2"
@@ -598,7 +598,7 @@ const WarehouseEdit = () => {
 
                         {/* City */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="City"
@@ -610,7 +610,7 @@ const WarehouseEdit = () => {
 
                         {/* State */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="State"
@@ -622,7 +622,7 @@ const WarehouseEdit = () => {
 
                         {/* Country */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Country"
@@ -634,7 +634,7 @@ const WarehouseEdit = () => {
 
                         {/* Postal Code */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Postal Code"
@@ -648,7 +648,7 @@ const WarehouseEdit = () => {
 
                         {/* Contact Person */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Contact Person"
@@ -662,7 +662,7 @@ const WarehouseEdit = () => {
 
                         {/* Phone */}
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 label="Phone"
@@ -674,7 +674,7 @@ const WarehouseEdit = () => {
 
                         {/* Email */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 type="email"
@@ -687,7 +687,7 @@ const WarehouseEdit = () => {
 
                         {/* Status */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <FormControlLabel
                                 control={
@@ -708,7 +708,7 @@ const WarehouseEdit = () => {
 
                         {/* Buttons */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <Box
                                 display="flex"

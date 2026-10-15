@@ -596,7 +596,7 @@ const ManifestPackagesPutawayView = ({
             {/* STATISTICS */}
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Total Records"
                         value={statistics.total}
@@ -605,7 +605,7 @@ const ManifestPackagesPutawayView = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Completed"
                         value={statistics.completed}
@@ -614,7 +614,7 @@ const ManifestPackagesPutawayView = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Pending"
                         value={statistics.pending}
@@ -623,7 +623,7 @@ const ManifestPackagesPutawayView = ({
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Total Quantity"
                         value={statistics.totalQuantity}
@@ -644,7 +644,7 @@ const ManifestPackagesPutawayView = ({
                 }}
             >
                 <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} md={7}>
+                    <Grid xs={12} md={7}>
                         <TextField
                             fullWidth
                             size="small"
@@ -676,7 +676,7 @@ const ManifestPackagesPutawayView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
                         <TextField
                             select
                             fullWidth
@@ -705,7 +705,7 @@ const ManifestPackagesPutawayView = ({
                         </TextField>
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={2}>
+                    <Grid xs={12} sm={6} md={2}>
                         <Button
                             fullWidth
                             variant="outlined"

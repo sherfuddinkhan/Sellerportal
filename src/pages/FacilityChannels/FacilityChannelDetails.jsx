@@ -444,16 +444,16 @@ const FacilityChannelDetails = ({
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <DetailItem icon={<Person />} label="Seller ID" value={facilityChannel.sellerId} />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <DetailItem icon={<Person />} label="Customer ID" value={facilityChannel.customerId} />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <DetailItem icon={<ShoppingBag />} label="Product ID" value={facilityChannel.productId} />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <DetailItem icon={<Tag />} label="SKU Code" value={facilityChannel.skuCode} />
                     </Grid>
                 </Grid>
@@ -465,10 +465,10 @@ const FacilityChannelDetails = ({
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <DetailItem icon={<Business />} label="Facility Code" value={facilityChannel.facilityCode} />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <DetailItem icon={<Hub />} label="Channel Code" value={facilityChannel.channelCode} />
                     </Grid>
                 </Grid>
@@ -480,7 +480,7 @@ const FacilityChannelDetails = ({
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <DetailItem
                             icon={<Inventory2 />}
                             label="Sellable Quantity"

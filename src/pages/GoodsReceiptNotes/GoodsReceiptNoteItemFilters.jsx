@@ -333,7 +333,7 @@ const GoodsReceiptNoteItemFilters = ({
                     sx={{ mb: 3 }}
                 >
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -346,7 +346,7 @@ const GoodsReceiptNoteItemFilters = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -359,7 +359,7 @@ const GoodsReceiptNoteItemFilters = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -392,7 +392,7 @@ const GoodsReceiptNoteItemFilters = ({
                     sx={{ mb: 3 }}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -408,7 +408,7 @@ const GoodsReceiptNoteItemFilters = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -444,7 +444,7 @@ const GoodsReceiptNoteItemFilters = ({
                     sx={{ mb: 3 }}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -460,7 +460,7 @@ const GoodsReceiptNoteItemFilters = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -496,7 +496,7 @@ const GoodsReceiptNoteItemFilters = ({
                     sx={{ mb: 3 }}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -512,7 +512,7 @@ const GoodsReceiptNoteItemFilters = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -548,7 +548,7 @@ const GoodsReceiptNoteItemFilters = ({
                     sx={{ mb: 3 }}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -565,7 +565,7 @@ const GoodsReceiptNoteItemFilters = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -602,7 +602,7 @@ const GoodsReceiptNoteItemFilters = ({
                     sx={{ mb: 3 }}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"
@@ -619,7 +619,7 @@ const GoodsReceiptNoteItemFilters = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             size="small"

@@ -303,7 +303,7 @@ const ReversePickupAddressFilters = ({
             <Grid container spacing={2}>
                 {/* CITY */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     {cities.length > 0
                         ? renderSelect({
                             name: "city",
@@ -333,7 +333,7 @@ const ReversePickupAddressFilters = ({
 
                 {/* STATE */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     {states.length > 0
                         ? renderSelect({
                             name: "state",
@@ -363,7 +363,7 @@ const ReversePickupAddressFilters = ({
 
                 {/* COUNTRY */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     {renderSelect({
                         name: "country",
                         label: "Country",
@@ -374,7 +374,7 @@ const ReversePickupAddressFilters = ({
 
                 {/* ADDRESS TYPE */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     {renderSelect({
                         name: "addressType",
                         label: "Address Type",
@@ -385,7 +385,7 @@ const ReversePickupAddressFilters = ({
 
                 {/* STATUS */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     {renderSelect({
                         name: "status",
                         label: "Address Status",
@@ -407,7 +407,7 @@ const ReversePickupAddressFilters = ({
 
                 {/* DEFAULT ADDRESS */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     {renderSelect({
                         name: "isDefault",
                         label: "Default Address",

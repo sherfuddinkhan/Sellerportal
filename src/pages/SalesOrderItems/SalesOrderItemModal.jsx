@@ -327,7 +327,7 @@ const SalesOrderItemModal = ({
                         SALES ORDER ID
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -357,7 +357,7 @@ const SalesOrderItemModal = ({
                         PRODUCT ID
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -387,7 +387,7 @@ const SalesOrderItemModal = ({
                         LINE NUMBER
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -409,7 +409,7 @@ const SalesOrderItemModal = ({
                         QUANTITY
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -440,7 +440,7 @@ const SalesOrderItemModal = ({
                         UNIT PRICE
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -471,7 +471,7 @@ const SalesOrderItemModal = ({
                         DISCOUNT
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -502,7 +502,7 @@ const SalesOrderItemModal = ({
                         TAX AMOUNT
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -533,7 +533,7 @@ const SalesOrderItemModal = ({
                         TOTAL AMOUNT
                     ===================================== */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -564,7 +564,7 @@ const SalesOrderItemModal = ({
                         REMARKS
                     ===================================== */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <TextField
                             fullWidth

@@ -404,7 +404,7 @@ const ShelfwiseInventoryCard = ({
                     {/* Warehouse and shelf */}
 
                     <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Stack
                                 direction="row"
                                 spacing={1}
@@ -437,7 +437,7 @@ const ShelfwiseInventoryCard = ({
                             </Stack>
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Stack
                                 direction="row"
                                 spacing={1}
@@ -513,7 +513,7 @@ const ShelfwiseInventoryCard = ({
                     {/* Quantity summary */}
 
                     <Grid container spacing={1.5}>
-                        <Grid item xs={4}>
+                        <Grid xs={4}>
                             <Box
                                 sx={{
                                     p: 1.25,
@@ -546,7 +546,7 @@ const ShelfwiseInventoryCard = ({
                             </Box>
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid xs={4}>
                             <Box
                                 sx={{
                                     p: 1.25,
@@ -578,7 +578,7 @@ const ShelfwiseInventoryCard = ({
                             </Box>
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid xs={4}>
                             <Box
                                 sx={{
                                     p: 1.25,
@@ -658,7 +658,7 @@ const ShelfwiseInventoryCard = ({
                     {/* Minimum and maximum stock */}
 
                     <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
@@ -674,7 +674,7 @@ const ShelfwiseInventoryCard = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Typography
                                 variant="caption"
                                 color="text.secondary"

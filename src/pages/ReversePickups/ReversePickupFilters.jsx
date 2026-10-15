@@ -371,7 +371,7 @@ const ReversePickupFilters = ({
                     <Grid container spacing={2}>
                         {/* STATUS */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 select
@@ -410,7 +410,7 @@ const ReversePickupFilters = ({
 
                         {/* CARRIER */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 select
@@ -438,7 +438,7 @@ const ReversePickupFilters = ({
 
                         {/* PICKUP DATE FROM */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -459,7 +459,7 @@ const ReversePickupFilters = ({
 
                         {/* PICKUP DATE TO */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -486,7 +486,7 @@ const ReversePickupFilters = ({
 
                         {/* MIN QUANTITY */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -506,7 +506,7 @@ const ReversePickupFilters = ({
 
                         {/* MAX QUANTITY */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -526,7 +526,7 @@ const ReversePickupFilters = ({
 
                         {/* MIN COST */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -546,7 +546,7 @@ const ReversePickupFilters = ({
 
                         {/* MAX COST */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"

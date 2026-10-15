@@ -286,7 +286,7 @@ const SellerCustomerModal = ({
                 >
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -310,7 +310,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -332,7 +332,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -354,7 +354,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -376,7 +376,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -400,7 +400,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -422,7 +422,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -444,7 +444,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
 
                         <TextField
@@ -466,7 +466,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
 
                         <TextField
@@ -488,7 +488,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -510,7 +510,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -532,7 +532,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -554,7 +554,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -576,7 +576,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -600,7 +600,7 @@ const SellerCustomerModal = ({
 
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
 
                         <FormControlLabel

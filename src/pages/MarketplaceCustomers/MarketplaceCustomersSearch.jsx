@@ -23,7 +23,7 @@ import { Search, Refresh } from "@mui/icons-material";
     return (
         <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <TextField
                         fullWidth
                         label="Search"
@@ -34,7 +34,7 @@ import { Search, Refresh } from "@mui/icons-material";
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         label="Seller ID"
@@ -45,7 +45,7 @@ import { Search, Refresh } from "@mui/icons-material";
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         label="Customer ID"
@@ -56,7 +56,7 @@ import { Search, Refresh } from "@mui/icons-material";
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         label="Marketplace"
@@ -67,7 +67,7 @@ import { Search, Refresh } from "@mui/icons-material";
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <Button
                         variant="contained"
                         startIcon={<Search />}

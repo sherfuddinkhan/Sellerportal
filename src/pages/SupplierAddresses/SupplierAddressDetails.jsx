@@ -84,26 +84,26 @@ const SupplierAddressDetails = ({ open, onClose, supplierAddress, onEdit }) => {
                 <Box sx={{ mb: 3 }}>
                     <SectionHeader title="Address Information" />
                     <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6}><DetailItem icon={<LocationOn fontSize="small" />} label="Address Type" value={addressType} /></Grid>
-                        <Grid item xs={12} sm={6}><DetailItem icon={<LocationCity fontSize="small" />} label="City" value={city} /></Grid>
-                        <Grid item xs={12}><DetailItem icon={<LocationOn fontSize="small" />} label="Address Line 1" value={addressLine1} /></Grid>
-                        <Grid item xs={12}><DetailItem icon={<LocationOn fontSize="small" />} label="Address Line 2" value={addressLine2} /></Grid>
-                        <Grid item xs={12} sm={4}><DetailItem icon={<Public fontSize="small" />} label="Country Code" value={countryCode} /></Grid>
-                        <Grid item xs={12} sm={4}><DetailItem icon={<LocationCity fontSize="small" />} label="State Code" value={stateCode} /></Grid>
-                        <Grid item xs={12} sm={4}><DetailItem icon={<Numbers fontSize="small" />} label="Pincode" value={pincode} /></Grid>
-                        <Grid item xs={12}><DetailItem icon={<LocationOn fontSize="small" />} label="Complete Address" value={fullAddress} /></Grid>
+                        <Grid xs={12} sm={6}><DetailItem icon={<LocationOn fontSize="small" />} label="Address Type" value={addressType} /></Grid>
+                        <Grid xs={12} sm={6}><DetailItem icon={<LocationCity fontSize="small" />} label="City" value={city} /></Grid>
+                        <Grid xs={12}><DetailItem icon={<LocationOn fontSize="small" />} label="Address Line 1" value={addressLine1} /></Grid>
+                        <Grid xs={12}><DetailItem icon={<LocationOn fontSize="small" />} label="Address Line 2" value={addressLine2} /></Grid>
+                        <Grid xs={12} sm={4}><DetailItem icon={<Public fontSize="small" />} label="Country Code" value={countryCode} /></Grid>
+                        <Grid xs={12} sm={4}><DetailItem icon={<LocationCity fontSize="small" />} label="State Code" value={stateCode} /></Grid>
+                        <Grid xs={12} sm={4}><DetailItem icon={<Numbers fontSize="small" />} label="Pincode" value={pincode} /></Grid>
+                        <Grid xs={12}><DetailItem icon={<LocationOn fontSize="small" />} label="Complete Address" value={fullAddress} /></Grid>
                     </Grid>
                 </Box>
 
                 <Box sx={{ mb: 3 }}>
                     <SectionHeader title="Contact & Location" />
                     <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6}><DetailItem icon={<Phone fontSize="small" />} label="Phone" value={phone} /></Grid>
-                        <Grid item xs={12} sm={3}><DetailItem icon={<MyLocation fontSize="small" />} label="Latitude" value={latitude} /></Grid>
-                        <Grid item xs={12} sm={3}><DetailItem icon={<MyLocation fontSize="small" />} label="Longitude" value={longitude} /></Grid>
-                        <Grid item xs={12} sm={6}><DetailItem icon={<Business fontSize="small" />} label="Seller ID" value={sellerId} /></Grid>
-                        <Grid item xs={12} sm={6}><DetailItem icon={<Business fontSize="small" />} label="Customer ID" value={customerId} /></Grid>
-                        {createdDate && <Grid item xs={12} sm={6}><DetailItem icon={<Numbers fontSize="small" />} label="Created Date" value={new Date(createdDate).toLocaleString()} /></Grid>}
+                        <Grid xs={12} sm={6}><DetailItem icon={<Phone fontSize="small" />} label="Phone" value={phone} /></Grid>
+                        <Grid xs={12} sm={3}><DetailItem icon={<MyLocation fontSize="small" />} label="Latitude" value={latitude} /></Grid>
+                        <Grid xs={12} sm={3}><DetailItem icon={<MyLocation fontSize="small" />} label="Longitude" value={longitude} /></Grid>
+                        <Grid xs={12} sm={6}><DetailItem icon={<Business fontSize="small" />} label="Seller ID" value={sellerId} /></Grid>
+                        <Grid xs={12} sm={6}><DetailItem icon={<Business fontSize="small" />} label="Customer ID" value={customerId} /></Grid>
+                        {createdDate && <Grid xs={12} sm={6}><DetailItem icon={<Numbers fontSize="small" />} label="Created Date" value={new Date(createdDate).toLocaleString()} /></Grid>}
                     </Grid>
                 </Box>
 

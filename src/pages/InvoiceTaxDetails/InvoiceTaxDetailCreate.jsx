@@ -142,7 +142,7 @@ const InvoiceTaxDetailCreate = ({ onCreated, onCancel }) => {
     };
 
     const numberField = (name, label, required = false) => (
-        <Grid item xs={12} sm={6} md={4} key={name}>
+        <Grid xs={12} sm={6} md={4} key={name}>
             <TextField
                 fullWidth
                 name={name}
@@ -212,7 +212,7 @@ const InvoiceTaxDetailCreate = ({ onCreated, onCancel }) => {
                 <Grid container spacing={3}>
                     {numberField("salesInvoiceId", "Sales Invoice ID", true)}
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             name="channelProductId"

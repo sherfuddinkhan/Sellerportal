@@ -177,7 +177,7 @@ const getStatusConfig = (status) => {
 };
 
 const DetailField = ({ label, value, icon, fullWidth = false }) => (
-    <Grid item xs={12} sm={fullWidth? 12 : 6} md={fullWidth? 12 : 4}>
+    <Grid xs={12} sm={fullWidth? 12 : 6} md={fullWidth? 12 : 4}>
         <Box sx={{ display: "flex", gap: 1.25, py: 1, minWidth: 0 }}>
             {icon && <Box sx={{ color: "text.secondary", mt: 0.25 }}>{icon}</Box>}
             <Box sx={{ minWidth: 0, flex: 1 }}>

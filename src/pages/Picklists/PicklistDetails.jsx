@@ -637,7 +637,7 @@ const PicklistDetails = ({
                     <Divider sx={{ my: 3 }} />
 
                     <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <DetailField
                                 label="Picklist ID"
                                 value={picklistId}
@@ -645,7 +645,7 @@ const PicklistDetails = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <DetailField
                                 label="Destination"
                                 value={destination}
@@ -653,7 +653,7 @@ const PicklistDetails = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <DetailField
                                 label="Seller ID"
                                 value={sellerId}
@@ -661,7 +661,7 @@ const PicklistDetails = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <DetailField
                                 label="Customer ID"
                                 value={customerId}
@@ -669,7 +669,7 @@ const PicklistDetails = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Created Date"
                                 value={formatDate(createdDate)}
@@ -677,7 +677,7 @@ const PicklistDetails = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Package Count"
                                 value={packageCodes.length}

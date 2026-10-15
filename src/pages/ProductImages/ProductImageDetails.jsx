@@ -294,7 +294,7 @@ const ProductImageDetails = () => {
     // =====================================================
 
     const Field = ({ label, value }) => (
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
             <Typography variant="caption" color="text.secondary">
                 {label}
             </Typography>
@@ -420,7 +420,7 @@ const ProductImageDetails = () => {
                         <Field label="Image Size" value={formatImageSize(imageSize)} />
                         <Field label="Display Order" value={displayOrder} />
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography variant="caption" color="text.secondary">
                                 Image URL
                             </Typography>
@@ -443,7 +443,7 @@ const ProductImageDetails = () => {
                     <Divider sx={{ mb: 3 }} />
 
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <Typography variant="caption" color="text.secondary">
                                 Primary Image
                             </Typography>
@@ -456,7 +456,7 @@ const ProductImageDetails = () => {
                             </Box>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <Typography variant="caption" color="text.secondary">
                                 Status
                             </Typography>

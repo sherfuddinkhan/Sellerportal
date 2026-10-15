@@ -91,7 +91,7 @@ const CatalogStatistics = ({
       spacing={2}
       mb={3}
     >
-      <Grid item xs={12} sm={6} md={2}>
+      <Grid xs={12} sm={6} md={2}>
         <StatCard
           title="Total Catalogs"
           value={totalCatalogs}
@@ -100,7 +100,7 @@ const CatalogStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={2}>
+      <Grid xs={12} sm={6} md={2}>
         <StatCard
           title="Active"
           value={activeCatalogs}
@@ -109,7 +109,7 @@ const CatalogStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={2}>
+      <Grid xs={12} sm={6} md={2}>
         <StatCard
           title="Categories"
           value={totalCategories}
@@ -118,7 +118,7 @@ const CatalogStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={2}>
+      <Grid xs={12} sm={6} md={2}>
         <StatCard
           title="Visible"
           value={visibleCatalogs}
@@ -127,7 +127,7 @@ const CatalogStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={2}>
+      <Grid xs={12} sm={6} md={2}>
         <StatCard
           title="Featured"
           value={featuredCatalogs}
@@ -136,7 +136,7 @@ const CatalogStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={2}>
+      <Grid xs={12} sm={6} md={2}>
         <StatCard
           title="Variants"
           value={totalVariants}

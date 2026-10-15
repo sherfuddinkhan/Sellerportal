@@ -555,7 +555,7 @@ const SectionHeader = ({ icon, title }) => (
                 {/* SUMMARY CARDS */}
 
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid item xs={12} sm={4}>
+                    <Grid xs={12} sm={4}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -593,7 +593,7 @@ const SectionHeader = ({ icon, title }) => (
                         </Paper>
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid xs={12} sm={4}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -627,7 +627,7 @@ const SectionHeader = ({ icon, title }) => (
                         </Paper>
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid xs={12} sm={4}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -682,7 +682,7 @@ const SectionHeader = ({ icon, title }) => (
                     />
 
                     <Grid container spacing={2.5}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Item ID"
                                 value={itemId}
@@ -690,7 +690,7 @@ const SectionHeader = ({ icon, title }) => (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Reverse Pickup ID"
                                 value={reversePickupId}
@@ -698,7 +698,7 @@ const SectionHeader = ({ icon, title }) => (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Seller ID"
                                 value={sellerId}
@@ -706,7 +706,7 @@ const SectionHeader = ({ icon, title }) => (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Customer ID"
                                 value={customerId}
@@ -714,7 +714,7 @@ const SectionHeader = ({ icon, title }) => (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Sale Order Item Code"
                                 value={saleOrderItemCode}
@@ -722,7 +722,7 @@ const SectionHeader = ({ icon, title }) => (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Item SKU"
                                 value={itemSku}
@@ -730,7 +730,7 @@ const SectionHeader = ({ icon, title }) => (
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <DetailField
                                 label="Return Reason"
                                 value={reason}
@@ -757,21 +757,21 @@ const SectionHeader = ({ icon, title }) => (
                     />
 
                     <Grid container spacing={2.5}>
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <DetailField
                                 label="Total Price"
                                 value={formatCurrency(totalPrice)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <DetailField
                                 label="Selling Price"
                                 value={formatCurrency(sellingPrice)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <DetailField
                                 label="Discount"
                                 value={formatCurrency(discount)}
@@ -807,7 +807,7 @@ const SectionHeader = ({ icon, title }) => (
                         />
 
                         <Grid container spacing={2.5}>
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Pickup Number"
                                     value={pickupNumber}
@@ -815,14 +815,14 @@ const SectionHeader = ({ icon, title }) => (
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Order Number"
                                     value={orderNumber}
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Customer Name"
                                     value={customerName}
@@ -830,7 +830,7 @@ const SectionHeader = ({ icon, title }) => (
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Customer Email"
                                     value={customerEmail}
@@ -838,7 +838,7 @@ const SectionHeader = ({ icon, title }) => (
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Pickup Date"
                                     value={formatDate(pickupDate)}
@@ -846,14 +846,14 @@ const SectionHeader = ({ icon, title }) => (
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Item Name"
                                     value={itemName}
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Quantity"
                                     value={
@@ -864,7 +864,7 @@ const SectionHeader = ({ icon, title }) => (
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Pickup Cost"
                                     value={
@@ -875,7 +875,7 @@ const SectionHeader = ({ icon, title }) => (
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Carrier Name"
                                     value={carrierName}
@@ -883,14 +883,14 @@ const SectionHeader = ({ icon, title }) => (
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <DetailField
                                     label="Tracking Number"
                                     value={trackingNumber}
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <DetailField
                                     label="Pickup Address"
                                     value={pickupAddress}
@@ -918,7 +918,7 @@ const SectionHeader = ({ icon, title }) => (
                     />
 
                     <Grid container spacing={2.5}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Status"
                                 value={status}
@@ -933,14 +933,14 @@ const SectionHeader = ({ icon, title }) => (
                             </Box>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Created At"
                                 value={formatDateTime(createdAt)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Last Updated"
                                 value={formatDateTime(updatedAt)}

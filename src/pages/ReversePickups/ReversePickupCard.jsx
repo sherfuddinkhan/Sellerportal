@@ -494,7 +494,7 @@ const ReversePickupCard = ({
                 </Typography>
 
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <InfoRow
                             icon={<ShoppingBag fontSize="small" />}
                             label="Item Name"
@@ -502,7 +502,7 @@ const ReversePickupCard = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <InfoRow
                             icon={<Numbers fontSize="small" />}
                             label="SKU"
@@ -510,7 +510,7 @@ const ReversePickupCard = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <InfoRow
                             icon={<Numbers fontSize="small" />}
                             label="Quantity"
@@ -518,7 +518,7 @@ const ReversePickupCard = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <InfoRow
                             icon={<Payments fontSize="small" />}
                             label="Pickup Cost"

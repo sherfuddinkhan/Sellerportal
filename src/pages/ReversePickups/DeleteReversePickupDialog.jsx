@@ -430,14 +430,14 @@ const DeleteReversePickupDialog = ({
                     </Box>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Reverse Pickup ID"
                                 value={pickupId}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Order Number"
                                 value={
@@ -447,7 +447,7 @@ const DeleteReversePickupDialog = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <Box
                                 sx={{
                                     display: "flex",
@@ -473,7 +473,7 @@ const DeleteReversePickupDialog = ({
                             </Box>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <Box
                                 sx={{
                                     display: "flex",
@@ -499,7 +499,7 @@ const DeleteReversePickupDialog = ({
                             </Box>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="SKU"
                                 value={
@@ -509,7 +509,7 @@ const DeleteReversePickupDialog = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Quantity"
                                 value={formatNumber(
@@ -519,7 +519,7 @@ const DeleteReversePickupDialog = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <Box
                                 sx={{
                                     display: "flex",
@@ -545,7 +545,7 @@ const DeleteReversePickupDialog = ({
                             </Box>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Pickup Cost"
                                 value={formatCurrency(
@@ -555,7 +555,7 @@ const DeleteReversePickupDialog = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Carrier"
                                 value={
@@ -565,7 +565,7 @@ const DeleteReversePickupDialog = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Tracking Number"
                                 value={
@@ -575,7 +575,7 @@ const DeleteReversePickupDialog = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Box
                                 sx={{
                                     display: "flex",

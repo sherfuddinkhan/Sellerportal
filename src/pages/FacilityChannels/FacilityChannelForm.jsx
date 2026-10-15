@@ -335,7 +335,7 @@ const FacilityChannelForm = ({
                     </Typography>
 
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -353,7 +353,7 @@ const FacilityChannelForm = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -371,7 +371,7 @@ const FacilityChannelForm = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -389,7 +389,7 @@ const FacilityChannelForm = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 required
@@ -419,7 +419,7 @@ const FacilityChannelForm = ({
                     </Typography>
 
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -438,7 +438,7 @@ const FacilityChannelForm = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -457,7 +457,7 @@ const FacilityChannelForm = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required

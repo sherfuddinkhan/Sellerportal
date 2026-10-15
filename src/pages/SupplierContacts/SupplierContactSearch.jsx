@@ -91,7 +91,7 @@ const SupplierContactSearch = ({
             <Grid container spacing={2} alignItems="center">
 
                 {/* SEARCH INPUT */}
-                <Grid item xs={12} md={5}>
+                <Grid xs={12} md={5}>
                     <TextField
                         fullWidth
                         size="small"
@@ -131,7 +131,7 @@ const SupplierContactSearch = ({
                 </Grid>
 
                 {/* STATUS FILTER */}
-                <Grid item xs={12} sm={6} md={2.5}>
+                <Grid xs={12} sm={6} md={2.5}>
                     <FormControl fullWidth size="small">
                         <InputLabel id="contact-status-filter-label">
                             Status
@@ -154,7 +154,7 @@ const SupplierContactSearch = ({
                 </Grid>
 
                 {/* SUPPLIER FILTER */}
-                <Grid item xs={12} sm={6} md={2.5}>
+                <Grid xs={12} sm={6} md={2.5}>
                     <FormControl fullWidth size="small">
                         <InputLabel id="contact-supplier-filter-label">
                             Supplier
@@ -194,7 +194,7 @@ const SupplierContactSearch = ({
                 </Grid>
 
                 {/* ACTIONS */}
-                <Grid item xs={12} md={2}>
+                <Grid xs={12} md={2}>
                     <Box
                         sx={{
                             display: "flex",

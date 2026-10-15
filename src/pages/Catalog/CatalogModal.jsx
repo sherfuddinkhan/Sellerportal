@@ -171,7 +171,7 @@ const CatalogModal = ({
                 <Grid container spacing={2} sx={{ mt: 0.5 }}>
 
                     {/* Product */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             select
@@ -197,7 +197,7 @@ const CatalogModal = ({
                     </Grid>
 
                     {/* Catalog Name */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             label="Catalog Name"
@@ -209,7 +209,7 @@ const CatalogModal = ({
                     </Grid>
 
                     {/* Category */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             select
@@ -234,7 +234,7 @@ const CatalogModal = ({
                     </Grid>
 
                     {/* Brand */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             select
@@ -259,7 +259,7 @@ const CatalogModal = ({
                     </Grid>
 
                     {/* Price */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -275,7 +275,7 @@ const CatalogModal = ({
                     </Grid>
 
                     {/* Stock */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             type="number"
@@ -290,7 +290,7 @@ const CatalogModal = ({
                     </Grid>
 
                     {/* Description */}
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <TextField
                             fullWidth
                             multiline
@@ -303,7 +303,7 @@ const CatalogModal = ({
                     </Grid>
 
                     {/* Active */}
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <FormControlLabel
                             control={
                                 <Switch

@@ -386,7 +386,7 @@ const handleDelete = async (item) => {
 
                 {/* PAGE HEADING */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Box
                         sx={{
                             display: "flex",
@@ -442,7 +442,7 @@ const handleDelete = async (item) => {
 
                 {/* TOOLBAR */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <InvoiceTaxDetailToolbar
                         onCreate={handleCreate}
                         onRefresh={handleRefresh}
@@ -451,7 +451,7 @@ const handleDelete = async (item) => {
 
                 {/* STATISTICS */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <InvoiceTaxDetailStatistics
                         data={taxDetails}
                         loading={loading}
@@ -460,7 +460,7 @@ const handleDelete = async (item) => {
 
                 {/* SEARCH */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <InvoiceTaxDetailSearch
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
@@ -472,7 +472,7 @@ const handleDelete = async (item) => {
                 {/* LOADING INDICATOR */}
 
                 {loading && (
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -494,7 +494,7 @@ const handleDelete = async (item) => {
 
                 {/* TABLE */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     {error && taxDetails.length === 0 ? (
                         <Alert
                             severity="error"
@@ -532,7 +532,7 @@ const handleDelete = async (item) => {
                 {!loading &&
                     !error &&
                     filteredTaxDetails.length === 0 && (
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Alert severity="info">
                                 {searchTerm
                                     ? "No invoice tax details match your search."

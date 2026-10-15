@@ -148,7 +148,7 @@ const DetailItem = ({
     icon,
     valueNode
 }) => (
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid xs={12} sm={6} md={4}>
         <Stack
             direction="row"
             spacing={1.5}

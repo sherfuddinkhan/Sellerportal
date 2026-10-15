@@ -125,7 +125,7 @@ const DetailItem = ({
     value,
     multiline = false
 }) => (
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid xs={12} sm={6} md={4}>
         <Box
             sx={{
                 display: "flex",

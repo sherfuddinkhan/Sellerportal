@@ -436,7 +436,7 @@ const SupplierContactDetails = ({
             <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
                 <Grid container spacing={2.5}>
                     {/* CONTACT INFORMATION */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -491,7 +491,7 @@ const SupplierContactDetails = ({
                     </Grid>
 
                     {/* SUPPLIER INFORMATION */}
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -540,7 +540,7 @@ const SupplierContactDetails = ({
                     </Grid>
 
                     {/* NOTES */}
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -568,7 +568,7 @@ const SupplierContactDetails = ({
                     </Grid>
 
                     {/* AUDIT INFORMATION */}
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -585,7 +585,7 @@ const SupplierContactDetails = ({
                             </Typography>
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <DetailItem
                                         icon={<CheckCircle fontSize="small" />}
                                         label="Created At"
@@ -593,7 +593,7 @@ const SupplierContactDetails = ({
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <DetailItem
                                         icon={<Edit fontSize="small" />}
                                         label="Last Updated"

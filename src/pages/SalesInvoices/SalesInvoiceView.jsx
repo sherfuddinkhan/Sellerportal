@@ -165,7 +165,7 @@ const SectionTitle = ({
 }) => {
 
     return (
-        <Grid item xs={12}>
+        <Grid xs={12}>
 
             <Typography
                 variant="subtitle1"
@@ -709,7 +709,7 @@ const SalesInvoiceView = ({
                     />
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider />
                     </Grid>
 
@@ -764,7 +764,7 @@ const SalesInvoiceView = ({
                     />
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider />
                     </Grid>
 
@@ -834,7 +834,7 @@ const SalesInvoiceView = ({
                     />
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider />
                     </Grid>
 
@@ -878,7 +878,7 @@ const SalesInvoiceView = ({
                     />
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider />
                     </Grid>
 
@@ -962,7 +962,7 @@ const SalesInvoiceView = ({
                     />
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider />
                     </Grid>
 
@@ -1114,7 +1114,7 @@ const SalesInvoiceView = ({
                     />
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider />
                     </Grid>
 
@@ -1184,7 +1184,7 @@ const SalesInvoiceView = ({
                        REMARKS
                     ================================================= */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Typography
                             variant="subtitle2"
@@ -1213,7 +1213,7 @@ const SalesInvoiceView = ({
                     </Grid>
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider />
                     </Grid>
 

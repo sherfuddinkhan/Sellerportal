@@ -140,7 +140,7 @@ export default function PutawayForm({
                 )}
 
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             label="Seller ID"
@@ -149,7 +149,7 @@ export default function PutawayForm({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             label="Customer ID"
@@ -159,7 +159,7 @@ export default function PutawayForm({
                     </Grid>
 
                     {fields.map((field) => (
-                        <Grid item xs={12} sm={6} md={4} key={field.name}>
+                        <Grid xs={12} sm={6} md={4} key={field.name}>
                             <TextField
                                 fullWidth
                                 name={field.name}
@@ -178,7 +178,7 @@ export default function PutawayForm({
                         </Grid>
                     ))}
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             select
                             fullWidth

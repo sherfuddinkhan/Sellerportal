@@ -346,7 +346,7 @@ const MarketplaceOrderModal = ({
                         spacing={2}
                     >
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -366,7 +366,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -386,7 +386,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -406,7 +406,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -426,7 +426,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -446,7 +446,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -466,7 +466,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -486,7 +486,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -506,7 +506,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -553,7 +553,7 @@ const MarketplaceOrderModal = ({
                         spacing={2}
                     >
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -573,7 +573,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <Typography
                                 variant="caption"
@@ -620,7 +620,7 @@ const MarketplaceOrderModal = ({
                         spacing={2}
                     >
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
 
                             <Typography
                                 variant="caption"
@@ -640,7 +640,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
 
                             <Typography
                                 variant="caption"
@@ -660,7 +660,7 @@ const MarketplaceOrderModal = ({
                         </Grid>
 
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
 
                             <Typography
                                 variant="caption"

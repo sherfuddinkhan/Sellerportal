@@ -99,7 +99,7 @@ const SupplierAddressModal = ({ open, onClose, onSubmit, selectedSupplierAddress
     };
 
     const renderField = ({ name, label, required = false, type = "text" }) => (
-        <Grid item xs={12} sm={6} key={name}>
+        <Grid xs={12} sm={6} key={name}>
             <TextField fullWidth name={name} label={label} type={type} value={formData[name]?? ""} onChange={handleChange} required={required} error={Boolean(errors[name])} helperText={errors[name] || ""} disabled={loading} size="small" />
         </Grid>
     );
@@ -111,8 +111,8 @@ const SupplierAddressModal = ({ open, onClose, onSubmit, selectedSupplierAddress
                 <Divider />
                 <DialogContent dividers>
                     <Grid container spacing={2}>
-                        <Grid item xs={12}><Typography variant="subtitle1" fontWeight={700}>Supplier Information</Typography></Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12}><Typography variant="subtitle1" fontWeight={700}>Supplier Information</Typography></Grid>
+                        <Grid xs={12} sm={6}>
                             <TextField select fullWidth size="small" name="supplierId" label="Supplier" value={formData.supplierId?? ""} onChange={(e) => {
                                 const supplierId = e.target.value;
                                 const supplier = suppliers.find(item => String(item.supplierId?? item.SupplierId?? item.id) === String(supplierId));
@@ -126,7 +126,7 @@ const SupplierAddressModal = ({ open, onClose, onSubmit, selectedSupplierAddress
                                 })}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField select fullWidth size="small" name="addressType" label="Address Type" value={formData.addressType} onChange={handleChange} disabled={loading}>
                                 <MenuItem value="Billing">Billing</MenuItem>
                                 <MenuItem value="Shipping">Shipping</MenuItem>
@@ -135,7 +135,7 @@ const SupplierAddressModal = ({ open, onClose, onSubmit, selectedSupplierAddress
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Address Details</Typography></Grid>
+                        <Grid xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Address Details</Typography></Grid>
                         {renderField({ name: "addressLine1", label: "Address Line 1", required: true })}
                         {renderField({ name: "addressLine2", label: "Address Line 2" })}
                         {renderField({ name: "countryCode", label: "Country Code (IN)", required: true })}
@@ -144,7 +144,7 @@ const SupplierAddressModal = ({ open, onClose, onSubmit, selectedSupplierAddress
                         {renderField({ name: "pincode", label: "Pincode", required: true })}
                         {renderField({ name: "phone", label: "Phone", required: true })}
 
-                        <Grid item xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Location & Mapping</Typography></Grid>
+                        <Grid xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Location & Mapping</Typography></Grid>
                         {renderField({ name: "latitude", label: "Latitude (17.4485)" })}
                         {renderField({ name: "longitude", label: "Longitude (78.3908)" })}
                         {renderField({ name: "sellerId", label: "Seller ID", type: "number" })}

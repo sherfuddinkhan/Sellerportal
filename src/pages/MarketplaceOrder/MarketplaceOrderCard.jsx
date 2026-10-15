@@ -228,7 +228,7 @@ const MarketplaceOrderCard = ({
                     </Typography>
 
                     <Grid container spacing={1.5}>
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
@@ -247,7 +247,7 @@ const MarketplaceOrderCard = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
@@ -266,7 +266,7 @@ const MarketplaceOrderCard = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
@@ -282,7 +282,7 @@ const MarketplaceOrderCard = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
@@ -298,7 +298,7 @@ const MarketplaceOrderCard = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid xs={6}>
                             <Typography
                                 variant="body2"
                                 color="text.secondary"

@@ -299,7 +299,7 @@ const ExportJobsModal = ({
                         {/* JOB ID */}
 
                         {formData.id !== "" && (
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Job ID"
@@ -311,7 +311,7 @@ const ExportJobsModal = ({
 
                         {/* JOB NAME */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 required
@@ -328,7 +328,7 @@ const ExportJobsModal = ({
 
                         {/* EXPORT TYPE */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -365,7 +365,7 @@ const ExportJobsModal = ({
 
                         {/* EXPORT FORMAT */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -389,7 +389,7 @@ const ExportJobsModal = ({
                         {/* STATUS */}
 
                         {isViewMode && (
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <Box>
                                     <Typography
                                         variant="body2"
@@ -410,7 +410,7 @@ const ExportJobsModal = ({
 
                         {/* DESCRIPTION */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 multiline

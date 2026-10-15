@@ -172,7 +172,7 @@ const ExportJobsFilters = ({
 
                 {/* STATUS */}
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         select
@@ -209,7 +209,7 @@ const ExportJobsFilters = ({
 
                 {/* EXPORT TYPE */}
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         select
@@ -250,7 +250,7 @@ const ExportJobsFilters = ({
 
                 {/* FORMAT */}
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         select
@@ -291,7 +291,7 @@ const ExportJobsFilters = ({
 
                 {/* START DATE */}
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         size="small"
@@ -314,7 +314,7 @@ const ExportJobsFilters = ({
 
                 {/* END DATE */}
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         size="small"
@@ -339,7 +339,7 @@ const ExportJobsFilters = ({
 
                 {/* ACTIONS */}
 
-                <Grid item xs={12} md={2}>
+                <Grid xs={12} md={2}>
                     <Box
                         sx={{
                             display: "flex",

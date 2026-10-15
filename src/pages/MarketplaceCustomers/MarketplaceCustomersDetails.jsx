@@ -248,7 +248,7 @@ function MarketplaceCustomersDetails() {
 
             <Grid container spacing={3}>
                 {sections.map((section) => (
-                    <Grid item xs={12} key={section.title}>
+                    <Grid xs={12} key={section.title}>
                         <Card variant="outlined" sx={{ borderRadius: 2 }}>
                             <CardContent sx={{ p: 3 }}>
                                 <Box

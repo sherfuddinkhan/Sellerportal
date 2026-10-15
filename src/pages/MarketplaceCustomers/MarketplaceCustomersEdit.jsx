@@ -378,7 +378,7 @@ function MarketplaceCustomersEdit() {
 
                     <Box component="form" onSubmit={handleSubmit}>
                         <Grid container spacing={2.5}>
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -391,7 +391,7 @@ function MarketplaceCustomersEdit() {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     required

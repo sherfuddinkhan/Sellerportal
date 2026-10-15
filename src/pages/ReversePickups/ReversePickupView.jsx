@@ -86,7 +86,7 @@ const ReversePickupView = () => {
       </Stack>
 
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
             <Box sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
               <Typography fontWeight={700}>Pickup Summary</Typography>
@@ -105,7 +105,7 @@ const ReversePickupView = () => {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
             <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}><Typography fontWeight={700}>Order Details</Typography></Box>
             <TableContainer>
@@ -121,7 +121,7 @@ const ReversePickupView = () => {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
             <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}><Typography fontWeight={700}>Logistics & IDs</Typography></Box>
             <TableContainer>
@@ -139,7 +139,7 @@ const ReversePickupView = () => {
           </Paper>
         </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
             <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}><Typography fontWeight={700}>Logistics & IDs</Typography></Box>
             <TableContainer>

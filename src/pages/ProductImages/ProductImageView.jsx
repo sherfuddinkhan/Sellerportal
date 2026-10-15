@@ -189,7 +189,7 @@ const ProductImageView = ({
     // =====================================================
 
     const Field = ({ label, value }) => (
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
             <Typography
                 variant="caption"
                 color="text.secondary"
@@ -216,7 +216,7 @@ const ProductImageView = ({
 
     const detailsContent = image && (
         <Grid container spacing={3}>
-            <Grid item xs={12}>
+            <Grid xs={12}>
                 <Typography
                     variant="caption"
                     color="text.secondary"
@@ -282,7 +282,7 @@ const ProductImageView = ({
             <Field label="Image Size" value={formatImageSize(imageSize)} />
             <Field label="Display Order" value={displayOrder} />
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
                 <Typography
                     variant="caption"
                     color="text.secondary"
@@ -306,7 +306,7 @@ const ProductImageView = ({
                 )}
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
                 <Typography variant="caption" color="text.secondary">
                     Primary Image
                 </Typography>
@@ -319,7 +319,7 @@ const ProductImageView = ({
                 </Box>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
                 <Typography variant="caption" color="text.secondary">
                     Status
                 </Typography>

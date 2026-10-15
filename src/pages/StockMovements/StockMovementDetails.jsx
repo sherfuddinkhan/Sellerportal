@@ -214,7 +214,7 @@ const StockMovementDetails = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -232,7 +232,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -250,7 +250,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -268,7 +268,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -286,7 +286,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -304,7 +304,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -322,7 +322,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -340,7 +340,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -358,7 +358,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"
@@ -387,7 +387,7 @@ const StockMovementDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <Typography
                                 color="text.secondary"

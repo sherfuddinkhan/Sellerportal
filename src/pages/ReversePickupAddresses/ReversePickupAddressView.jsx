@@ -160,7 +160,7 @@ const DetailField = ({
     icon: Icon,
     fullWidth = false
 }) => (
-    <Grid item xs={12} sm={fullWidth ? 12 : 6}>
+    <Grid xs={12} sm={fullWidth ? 12 : 6}>
         <Box
             sx={{
                 display: "flex",

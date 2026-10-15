@@ -180,7 +180,7 @@ const ReversePickupAddressSearch = ({
 
             <Grid container spacing={2} alignItems="center">
 
-                <Grid item xs={12} md={showFilters ? 6 : 10}>
+                <Grid xs={12} md={showFilters ? 6 : 10}>
                     <TextField
                         fullWidth
                         size="small"
@@ -218,7 +218,7 @@ const ReversePickupAddressSearch = ({
 
                 {showFilters && (
                     <>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -237,7 +237,7 @@ const ReversePickupAddressSearch = ({
 
                         {/* STATE */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -256,7 +256,7 @@ const ReversePickupAddressSearch = ({
 
                         {/* ADDRESS TYPE */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 select
                                 fullWidth
@@ -288,7 +288,7 @@ const ReversePickupAddressSearch = ({
 
                         {/* STATUS */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 select
                                 fullWidth
@@ -319,7 +319,7 @@ const ReversePickupAddressSearch = ({
 
                         {/* DEFAULT ADDRESS */}
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 select
                                 fullWidth
@@ -352,7 +352,7 @@ const ReversePickupAddressSearch = ({
 
                 {/* ACTIONS */}
 
-                <Grid item xs={12} md={showFilters ? 6 : 2}>
+                <Grid xs={12} md={showFilters ? 6 : 2}>
                     <Stack
                         direction="row"
                         justifyContent={{ xs: "flex-start", md: "flex-end" }}

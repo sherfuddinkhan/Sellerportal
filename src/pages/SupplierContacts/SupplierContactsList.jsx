@@ -1526,7 +1526,7 @@ const handleViewContact = (contact) => {
 
                             {/* BASIC INFORMATION */}
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <Typography
                                     variant="subtitle1"
                                     fontWeight={700}
@@ -1681,7 +1681,7 @@ const handleViewContact = (contact) => {
 
                             {/* CONTACT DETAILS */}
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
 
                                 <Divider
                                     sx={{
@@ -1767,7 +1767,7 @@ const handleViewContact = (contact) => {
 
                             {/* NOTES */}
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     multiline
@@ -1785,7 +1785,7 @@ const handleViewContact = (contact) => {
 
                             {/* SWITCHES */}
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
 
                                 <Divider
                                     sx={{

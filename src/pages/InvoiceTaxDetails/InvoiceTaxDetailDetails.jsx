@@ -81,7 +81,7 @@ const DetailField = ({ label, value }) => {
             : value;
 
     return (
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid xs={12} sm={6} md={4}>
             <Box>
                 <Typography
                     variant="body2"

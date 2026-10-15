@@ -362,7 +362,7 @@ const VendorItemMasterDetails = () => {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Vendor Item Master ID"
                             value={getValue(
@@ -373,77 +373,77 @@ const VendorItemMasterDetails = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Vendor ID"
                             value={getValue(item.vendorId, item.VendorId)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Seller ID"
                             value={getValue(item.sellerId, item.SellerId)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Customer ID"
                             value={getValue(item.customerId, item.CustomerId)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Product ID"
                             value={getValue(item.productId, item.ProductId)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Vendor SKU Code"
                             value={getValue(item.vendorSkuCode, item.VendorSkuCode)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Item SKU Code"
                             value={getValue(item.itemSkuCode, item.ItemSkuCode)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Item Code"
                             value={getValue(item.itemCode, item.ItemCode)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Item SKU"
                             value={getValue(item.itemSku, item.ItemSku)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="SKU"
                             value={getValue(item.sku, item.SKU)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Vendor Code"
                             value={getValue(item.vendorCode, item.VendorCode)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Vendor Item Code"
                             value={getValue(item.vendorItemCode, item.VendorItemCode)}
@@ -460,7 +460,7 @@ const VendorItemMasterDetails = () => {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Cost Price"
                             value={getValue(item.costPrice, item.CostPrice)}
@@ -468,7 +468,7 @@ const VendorItemMasterDetails = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Unit Price"
                             value={getValue(item.unitPrice, item.UnitPrice)}
@@ -476,7 +476,7 @@ const VendorItemMasterDetails = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="MRP"
                             value={getValue(item.mrp, item.MRP)}
@@ -484,7 +484,7 @@ const VendorItemMasterDetails = () => {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Selling Price"
                             value={getValue(item.sellingPrice, item.SellingPrice)}
@@ -502,35 +502,35 @@ const VendorItemMasterDetails = () => {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Inventory"
                             value={getValue(item.inventory, item.Inventory)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Lead Time (Days)"
                             value={getValue(item.leadTime, item.LeadTime)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Priority"
                             value={getValue(item.priority, item.Priority)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Enabled"
                             value={getValue(item.enabled, item.Enabled)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Active"
                             value={getValue(item.isActive, item.IsActive)}
@@ -547,14 +547,14 @@ const VendorItemMasterDetails = () => {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Created Date"
                             value={getValue(item.createdDate, item.CreatedDate)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Updated Date"
                             value={getValue(item.updatedDate, item.UpdatedDate)}

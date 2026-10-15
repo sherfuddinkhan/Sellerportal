@@ -344,7 +344,7 @@ const ProductPriceDetails = () => {
                 mb={3}
             >
 
-                <Grid item>
+                <Grid>
 
                     <Typography
                         variant="h5"
@@ -363,7 +363,7 @@ const ProductPriceDetails = () => {
 
                 </Grid>
 
-                <Grid item>
+                <Grid>
 
                     <Box
                         display="flex"
@@ -411,7 +411,7 @@ const ProductPriceDetails = () => {
 
                 {/* PRODUCT PRICE ID */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -431,7 +431,7 @@ const ProductPriceDetails = () => {
 
                 {/* PRODUCT */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -457,7 +457,7 @@ const ProductPriceDetails = () => {
 
                 {/* SKU */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -474,7 +474,7 @@ const ProductPriceDetails = () => {
 
                 {/* SELLER ID */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -491,7 +491,7 @@ const ProductPriceDetails = () => {
 
                 {/* PRICE TYPE */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -508,7 +508,7 @@ const ProductPriceDetails = () => {
 
                 {/* PRICE */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -529,7 +529,7 @@ const ProductPriceDetails = () => {
 
                 {/* CURRENCY */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -546,7 +546,7 @@ const ProductPriceDetails = () => {
 
                 {/* EFFECTIVE FROM */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -563,7 +563,7 @@ const ProductPriceDetails = () => {
 
                 {/* EFFECTIVE TO */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -580,7 +580,7 @@ const ProductPriceDetails = () => {
 
                 {/* STATUS */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -608,7 +608,7 @@ const ProductPriceDetails = () => {
 
                 {/* CREATED DATE */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"
@@ -625,7 +625,7 @@ const ProductPriceDetails = () => {
 
                 {/* UPDATED DATE */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
 
                     <Typography
                         color="text.secondary"

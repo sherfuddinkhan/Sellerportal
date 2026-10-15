@@ -861,7 +861,7 @@ const VendorItemCustomFieldModal = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -917,7 +917,7 @@ const VendorItemCustomFieldModal = ({
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -989,7 +989,7 @@ const VendorItemCustomFieldModal = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -1004,7 +1004,7 @@ const VendorItemCustomFieldModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -1019,7 +1019,7 @@ const VendorItemCustomFieldModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -1037,7 +1037,7 @@ const VendorItemCustomFieldModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -1062,7 +1062,7 @@ const VendorItemCustomFieldModal = ({
                         </Grid>
 
                         {showOptions && (
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     required
@@ -1097,7 +1097,7 @@ const VendorItemCustomFieldModal = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 name="defaultValue"
@@ -1109,7 +1109,7 @@ const VendorItemCustomFieldModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 name="fieldValue"
@@ -1121,7 +1121,7 @@ const VendorItemCustomFieldModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 multiline
@@ -1151,7 +1151,7 @@ const VendorItemCustomFieldModal = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -1169,7 +1169,7 @@ const VendorItemCustomFieldModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Box
                                 sx={{
                                     p: 2,

@@ -87,22 +87,22 @@ export default function ShippingManifestForm({
         </Box>
         <Divider sx={{ mb: 3 }} />
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingManifestCode" label="Manifest Code *" value={formData.shippingManifestCode} onChange={handleChange} required inputProps={{ maxLength: 100 }} /></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" select name="channel" label="Channel" value={formData.channel} onChange={handleChange}><MenuItem value="CUSTOM">CUSTOM</MenuItem><MenuItem value="AMAZON">AMAZON</MenuItem><MenuItem value="FLIPKART">FLIPKART</MenuItem></TextField></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" select name="status" label="Status" value={formData.status} onChange={handleChange}><MenuItem value="CREATED">CREATED</MenuItem><MenuItem value="SHIPPED">SHIPPED</MenuItem><MenuItem value="DELIVERED">DELIVERED</MenuItem><MenuItem value="CANCELLED">CANCELLED</MenuItem></TextField></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingProviderCode" label="Provider Code" value={formData.shippingProviderCode} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingManifestCode" label="Manifest Code *" value={formData.shippingManifestCode} onChange={handleChange} required inputProps={{ maxLength: 100 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" select name="channel" label="Channel" value={formData.channel} onChange={handleChange}><MenuItem value="CUSTOM">CUSTOM</MenuItem><MenuItem value="AMAZON">AMAZON</MenuItem><MenuItem value="FLIPKART">FLIPKART</MenuItem></TextField></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" select name="status" label="Status" value={formData.status} onChange={handleChange}><MenuItem value="CREATED">CREATED</MenuItem><MenuItem value="SHIPPED">SHIPPED</MenuItem><MenuItem value="DELIVERED">DELIVERED</MenuItem><MenuItem value="CANCELLED">CANCELLED</MenuItem></TextField></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingProviderCode" label="Provider Code" value={formData.shippingProviderCode} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
 
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingProviderName" label="Provider Name" value={formData.shippingProviderName} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingMethodCode" label="Method Code" value={formData.shippingMethodCode} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="courierCode" label="Courier Code" value={formData.courierCode} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="trackingNumber" label="Tracking Number" value={formData.trackingNumber} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingProviderName" label="Provider Name" value={formData.shippingProviderName} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="shippingMethodCode" label="Method Code" value={formData.shippingMethodCode} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="courierCode" label="Courier Code" value={formData.courierCode} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="trackingNumber" label="Tracking Number" value={formData.trackingNumber} onChange={handleChange} inputProps={{ maxLength: 500 }} /></Grid>
 
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" select name="manifestType" label="Manifest Type" value={formData.manifestType} onChange={handleChange}><MenuItem value="OUTBOUND">OUTBOUND</MenuItem><MenuItem value="INBOUND">INBOUND</MenuItem><MenuItem value="RETURN">RETURN</MenuItem></TextField></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="sellerId" label="Seller ID *" value={formData.sellerId} onChange={handleChange} required inputProps={{ inputMode: 'numeric', maxLength: 20 }} /></Grid>
-          <Grid item xs={12} sm={6} md={3}><TextField fullWidth size="small" name="customerId" label="Customer ID *" value={formData.customerId} onChange={handleChange} required inputProps={{ inputMode: 'numeric', maxLength: 20 }} /></Grid>
-          <Grid item xs={12} sm={6} md={3}><FormControlLabel control={<Checkbox name="thirdPartyShipping" checked={formData.thirdPartyShipping} onChange={handleChange} />} label="Third Party Shipping" /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" select name="manifestType" label="Manifest Type" value={formData.manifestType} onChange={handleChange}><MenuItem value="OUTBOUND">OUTBOUND</MenuItem><MenuItem value="INBOUND">INBOUND</MenuItem><MenuItem value="RETURN">RETURN</MenuItem></TextField></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="sellerId" label="Seller ID *" value={formData.sellerId} onChange={handleChange} required inputProps={{ inputMode: 'numeric', maxLength: 20 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><TextField fullWidth size="small" name="customerId" label="Customer ID *" value={formData.customerId} onChange={handleChange} required inputProps={{ inputMode: 'numeric', maxLength: 20 }} /></Grid>
+          <Grid xs={12} sm={6} md={3}><FormControlLabel control={<Checkbox name="thirdPartyShipping" checked={formData.thirdPartyShipping} onChange={handleChange} />} label="Third Party Shipping" /></Grid>
 
-          <Grid item xs={12}><TextField fullWidth size="small" multiline minRows={3} name="comments" label="Comments" value={formData.comments} onChange={handleChange} inputProps={{ maxLength: 2000 }} /></Grid>
+          <Grid xs={12}><TextField fullWidth size="small" multiline minRows={3} name="comments" label="Comments" value={formData.comments} onChange={handleChange} inputProps={{ maxLength: 2000 }} /></Grid>
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
           {showReset && <Button startIcon={<RestartAlt />} onClick={() => setFormData({...initialFormData, shippingManifestCode: `SM-${Date.now()}`})}>Reset</Button>}

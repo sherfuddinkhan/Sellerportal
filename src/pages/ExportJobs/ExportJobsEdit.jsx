@@ -345,7 +345,7 @@ const ExportJobsEdit = ({
 
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <Grid container spacing={2.5}>
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               required
@@ -357,7 +357,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               required
@@ -370,7 +370,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <TextField
               fullWidth
               required
@@ -382,7 +382,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <TextField
               fullWidth
               multiline
@@ -396,7 +396,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <TextField
               fullWidth
               multiline
@@ -410,7 +410,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               type="datetime-local"
@@ -425,7 +425,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               label="Notification Email"
@@ -437,7 +437,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               label="Seller ID"
@@ -450,7 +450,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               label="Customer ID"
@@ -463,7 +463,7 @@ const ExportJobsEdit = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               select
@@ -481,7 +481,7 @@ const ExportJobsEdit = ({
             </TextField>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               fullWidth
               select

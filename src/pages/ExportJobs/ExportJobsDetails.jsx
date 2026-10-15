@@ -661,7 +661,7 @@ const ExportJobsDetails = ({
 
                 <Grid container spacing={3}>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Job ID"
                             value={jobId}
@@ -669,7 +669,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Job Name"
                             value={jobName}
@@ -677,7 +677,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Export Type"
                             value={exportType}
@@ -685,7 +685,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Export Format"
                             value={exportJob.format ?? exportJob.fileFormat}
@@ -693,7 +693,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="File Name"
                             value={fileName}
@@ -701,7 +701,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Record Count"
                             value={
@@ -712,7 +712,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <DetailItem
                             label="Description"
                             value={exportJob.description}
@@ -747,7 +747,7 @@ const ExportJobsDetails = ({
 
                 <Grid container spacing={3}>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Created At"
                             value={formatDate(createdAt)}
@@ -755,7 +755,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Last Updated"
                             value={formatDate(updatedAt)}
@@ -763,7 +763,7 @@ const ExportJobsDetails = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailItem
                             label="Completed At"
                             value={formatDate(completedAt)}

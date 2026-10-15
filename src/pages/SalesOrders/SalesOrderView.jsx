@@ -242,7 +242,7 @@ const SalesOrderView = ({
                         DIVIDER
                     ================================================= */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Divider />
 
@@ -253,7 +253,7 @@ const SalesOrderView = ({
                         REMARKS
                     ================================================= */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Typography
                             variant="subtitle2"

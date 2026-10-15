@@ -524,49 +524,49 @@ const VendorItemMasterView = ({
                     <Divider sx={{ mb: 2 }} />
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <DetailField
                                 label="Vendor Item ID"
                                 value={itemIdValue}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <DetailField
                                 label="Item Code"
                                 value={itemCode}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <DetailField
                                 label="Item Name"
                                 value={itemName}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <DetailField
                                 label="Vendor"
                                 value={vendorName}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <DetailField
                                 label="Unit of Measure"
                                 value={unitOfMeasure}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <DetailField
                                 label="Status"
                                 value={rawStatus}
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <DetailField
                                 label="Description"
                                 value={description}
@@ -600,14 +600,14 @@ const VendorItemMasterView = ({
                     <Divider sx={{ mb: 2 }} />
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Unit Price"
                                 value={formatCurrency(unitPrice)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <DetailField
                                 label="Tax Rate"
                                 value={`${taxRate}%`}

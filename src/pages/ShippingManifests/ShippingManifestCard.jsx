@@ -549,7 +549,7 @@ const ShippingManifestCard = ({
                     {/* CUSTOMER AND CARRIER */}
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <InfoRow
                                 icon={<Person fontSize="small" />}
                                 label="Customer / Recipient"
@@ -557,7 +557,7 @@ const ShippingManifestCard = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <InfoRow
                                 icon={
                                     <LocalShipping fontSize="small" />
@@ -600,7 +600,7 @@ const ShippingManifestCard = ({
                             {/* DELIVERY ROUTE */}
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <InfoRow
                                         icon={
                                             <LocationOn fontSize="small" />
@@ -610,7 +610,7 @@ const ShippingManifestCard = ({
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <InfoRow
                                         icon={
                                             <LocationOn fontSize="small" />
@@ -626,7 +626,7 @@ const ShippingManifestCard = ({
                             {/* DATES */}
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <InfoRow
                                         icon={
                                             <CalendarMonth fontSize="small" />
@@ -636,7 +636,7 @@ const ShippingManifestCard = ({
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <InfoRow
                                         icon={
                                             <CalendarMonth fontSize="small" />
@@ -666,7 +666,7 @@ const ShippingManifestCard = ({
                             {/* PACKAGE SUMMARY */}
 
                             <Grid container spacing={2}>
-                                <Grid item xs={4}>
+                                <Grid xs={4}>
                                     <InfoRow
                                         icon={
                                             <Inventory2 fontSize="small" />
@@ -680,7 +680,7 @@ const ShippingManifestCard = ({
                                     />
                                 </Grid>
 
-                                <Grid item xs={4}>
+                                <Grid xs={4}>
                                     <InfoRow
                                         icon={
                                             <Inventory2 fontSize="small" />
@@ -694,7 +694,7 @@ const ShippingManifestCard = ({
                                     />
                                 </Grid>
 
-                                <Grid item xs={4}>
+                                <Grid xs={4}>
                                     <InfoRow
                                         icon={
                                             <Scale fontSize="small" />
@@ -729,7 +729,7 @@ const ShippingManifestCard = ({
 
                                     <Grid container spacing={2}>
                                         {vehicleNumber && (
-                                            <Grid item xs={12} sm={6}>
+                                            <Grid xs={12} sm={6}>
                                                 <InfoRow
                                                     icon={
                                                         <LocalShipping
@@ -743,7 +743,7 @@ const ShippingManifestCard = ({
                                         )}
 
                                         {driverName && (
-                                            <Grid item xs={12} sm={6}>
+                                            <Grid xs={12} sm={6}>
                                                 <InfoRow
                                                     icon={
                                                         <Person

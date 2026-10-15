@@ -383,7 +383,7 @@ const FacilityChannelsList = ({ apiBaseUrl = API_BASE_URL }) => {
                     }}
                 >
                     <Grid container spacing={2}>
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -404,7 +404,7 @@ const FacilityChannelsList = ({ apiBaseUrl = API_BASE_URL }) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={2}>
+                        <Grid xs={12} sm={6} md={2}>
                             <TextField
                                 fullWidth
                                 select
@@ -426,7 +426,7 @@ const FacilityChannelsList = ({ apiBaseUrl = API_BASE_URL }) => {
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={2}>
+                        <Grid xs={12} sm={6} md={2}>
                             <TextField
                                 fullWidth
                                 select
@@ -448,7 +448,7 @@ const FacilityChannelsList = ({ apiBaseUrl = API_BASE_URL }) => {
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} md={2}>
+                        <Grid xs={12} md={2}>
                             <TextField
                                 fullWidth
                                 select

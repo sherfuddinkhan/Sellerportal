@@ -366,7 +366,7 @@ const PicklistForm = ({
 
                     <Grid container spacing={2.5}>
                         {showPicklistNumber && (
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     required={!isEditMode}
@@ -389,7 +389,7 @@ const PicklistForm = ({
                             </Grid>
                         )}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -431,7 +431,7 @@ const PicklistForm = ({
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -445,7 +445,7 @@ const PicklistForm = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required

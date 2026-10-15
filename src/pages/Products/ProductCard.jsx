@@ -64,7 +64,7 @@ const ProductCard = ({ product }) => {
 
                 <Grid container spacing={2}>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -83,7 +83,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -102,7 +102,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -129,7 +129,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -156,7 +156,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -183,7 +183,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -202,7 +202,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -221,7 +221,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -240,7 +240,7 @@ const ProductCard = ({ product }) => {
 
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Typography
                             variant="caption"

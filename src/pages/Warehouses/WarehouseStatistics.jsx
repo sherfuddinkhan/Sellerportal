@@ -165,7 +165,7 @@ const WarehouseStatistics = ({
                                         VALUE
                                     ================================= */}
 
-                                    <Grid item>
+                                    <Grid>
 
                                         <Typography
                                             variant="subtitle2"

@@ -465,7 +465,7 @@ const SupplierDetails = () => {
                             DIVIDER
                         ====================================== */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <Divider />
 
@@ -476,7 +476,7 @@ const SupplierDetails = () => {
                             ADDRESS
                         ====================================== */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <Typography
                                 variant="caption"

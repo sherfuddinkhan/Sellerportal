@@ -450,42 +450,42 @@ const SalesInvoiceDetails = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Sales Invoice ID"
                                 value={invoiceId}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Sales Order ID"
                                 value={salesOrderId}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Invoice Number"
                                 value={invoiceNumber}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Invoice Date"
                                 value={formatDate(invoiceDate)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Seller ID"
                                 value={sellerId}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Customer ID"
                                 value={customerId}
@@ -512,63 +512,63 @@ const SalesInvoiceDetails = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Invoice Scenario"
                                 value={invoiceScenario}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Category"
                                 value={category}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Transaction Type"
                                 value={transactionType}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Document Type"
                                 value={documentType}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Supply Type"
                                 value={supplyType}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Place of Supply"
                                 value={placeOfSupply}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Financial Year"
                                 value={financialYear}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="User GSTIN"
                                 value={userGSTIN}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
 
                             <DetailItem
                                 label="Reverse Charge"
@@ -603,14 +603,14 @@ const SalesInvoiceDetails = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <DetailItem
                                 label="Reference ID"
                                 value={referenceId}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <DetailItem
                                 label="Ref ID"
                                 value={refId}
@@ -637,42 +637,42 @@ const SalesInvoiceDetails = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Sub Total"
                                 value={formatCurrency(subTotal)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Discount Amount"
                                 value={formatCurrency(discountAmount)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Tax Amount"
                                 value={formatCurrency(taxAmount)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Total Amount"
                                 value={formatCurrency(totalAmount)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Paid Amount"
                                 value={formatCurrency(paidAmount)}
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <DetailItem
                                 label="Balance Amount"
                                 value={formatCurrency(balanceAmount)}
@@ -699,7 +699,7 @@ const SalesInvoiceDetails = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <Typography
                                 variant="caption"
@@ -720,7 +720,7 @@ const SalesInvoiceDetails = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <Typography
                                 variant="caption"
@@ -779,7 +779,7 @@ const SalesInvoiceDetails = () => {
                                 spacing={3}
                             >
 
-                                <Grid item xs={12} md={6}>
+                                <Grid xs={12} md={6}>
                                     <DetailItem
                                         label="Created Date"
                                         value={formatDate(createdDate)}
@@ -787,7 +787,7 @@ const SalesInvoiceDetails = () => {
                                 </Grid>
 
 
-                                <Grid item xs={12} md={6}>
+                                <Grid xs={12} md={6}>
                                     <DetailItem
                                         label="Updated Date"
                                         value={formatDate(updatedDate)}

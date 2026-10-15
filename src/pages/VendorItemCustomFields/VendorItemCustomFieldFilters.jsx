@@ -215,7 +215,7 @@ const VendorItemCustomFieldFilters = ({
                         {/* VENDOR FILTER */}
 
                         {showVendorFilter && (
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid xs={12} sm={6} md={4}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="filter-vendor-label">
                                         Vendor
@@ -283,7 +283,7 @@ const VendorItemCustomFieldFilters = ({
                         {/* ITEM FILTER */}
 
                         {showItemFilter && (
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid xs={12} sm={6} md={4}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="filter-item-label">
                                         Item
@@ -341,7 +341,7 @@ const VendorItemCustomFieldFilters = ({
                         {/* FIELD TYPE FILTER */}
 
                         {showTypeFilter && (
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid xs={12} sm={6} md={4}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="filter-type-label">
                                         Field Type
@@ -379,7 +379,7 @@ const VendorItemCustomFieldFilters = ({
                         {/* STATUS FILTER */}
 
                         {showStatusFilter && (
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid xs={12} sm={6} md={4}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="filter-status-label">
                                         Status
@@ -416,7 +416,7 @@ const VendorItemCustomFieldFilters = ({
                         {/* REQUIRED FILTER */}
 
                         {showRequiredFilter && (
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid xs={12} sm={6} md={4}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="filter-required-label">
                                         Required Field

@@ -454,7 +454,7 @@ const VendorItemCustomFieldForm = ({
                 <Grid container spacing={2.5}>
                     {/* VENDOR */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <FormControl
                             fullWidth
                             required
@@ -517,7 +517,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* ITEM */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <FormControl
                             fullWidth
                             required
@@ -578,7 +578,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* FIELD NAME */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             required
@@ -595,7 +595,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* FIELD LABEL */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             required
@@ -612,7 +612,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* FIELD KEY */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             required
@@ -632,7 +632,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* FIELD TYPE */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <FormControl
                             fullWidth
                             required
@@ -677,7 +677,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* FIELD VALUE */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             name="fieldValue"
@@ -690,7 +690,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* DEFAULT VALUE */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             name="defaultValue"
@@ -704,7 +704,7 @@ const VendorItemCustomFieldForm = ({
                     {/* OPTIONS */}
 
                     {["Dropdown", "Select"].includes(formData.fieldType) && (
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 name="options"
@@ -720,7 +720,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* DISPLAY ORDER */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <TextField
                             fullWidth
                             required
@@ -738,7 +738,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* DESCRIPTION */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <TextField
                             fullWidth
                             multiline
@@ -754,7 +754,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* REQUIRED */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -770,7 +770,7 @@ const VendorItemCustomFieldForm = ({
 
                     {/* ACTIVE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <FormControlLabel
                             control={
                                 <Checkbox

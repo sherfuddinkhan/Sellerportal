@@ -142,19 +142,19 @@ const ReversePickupEdit = () => {
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             {/* SELLER & CUSTOMER READ-ONLY */}
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Seller ID" value={original.sellerId} disabled /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Customer ID" value={original.customerId} disabled /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Seller ID" value={original.sellerId} disabled /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Customer ID" value={original.customerId} disabled /></Grid>
 
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Pickup No" name="reversePickupNo" value={form.reversePickupNo} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth required label="Sale Order Code" name="saleOrderCode" value={form.saleOrderCode} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Sale Order Item Code" name="saleOrderItemCode" value={form.saleOrderItemCode} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth required label="Item SKU" name="itemSkuCode" value={form.itemSkuCode} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Tracking No" name="trackingNo" value={form.trackingNo} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Courier Provider" name="courierProviderName" value={form.courierProviderName} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Facility Code" name="facilityCode" value={form.facilityCode} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Channel Name" name="channelName" value={form.channelName} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Putaway Code" name="putawayCode" value={form.putawayCode} onChange={handleChange} /></Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Pickup No" name="reversePickupNo" value={form.reversePickupNo} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth required label="Sale Order Code" name="saleOrderCode" value={form.saleOrderCode} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Sale Order Item Code" name="saleOrderItemCode" value={form.saleOrderItemCode} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth required label="Item SKU" name="itemSkuCode" value={form.itemSkuCode} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Tracking No" name="trackingNo" value={form.trackingNo} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Courier Provider" name="courierProviderName" value={form.courierProviderName} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Facility Code" name="facilityCode" value={form.facilityCode} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Channel Name" name="channelName" value={form.channelName} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}><TextField fullWidth label="Putaway Code" name="putawayCode" value={form.putawayCode} onChange={handleChange} /></Grid>
+            <Grid xs={12} sm={6}>
               <TextField fullWidth select required label="Status" name="reversePickupStatus" value={form.reversePickupStatus} onChange={handleChange}>
                 <MenuItem value="Pending">Pending</MenuItem>
                 <MenuItem value="Initiated">Initiated</MenuItem>
@@ -164,8 +164,8 @@ const ReversePickupEdit = () => {
                 <MenuItem value="Cancelled">Cancelled</MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={12}><TextField fullWidth multiline minRows={2} label="Return Reason" name="returnReason" value={form.returnReason} onChange={handleChange} /></Grid>
-            <Grid item xs={12}><TextField fullWidth multiline minRows={3} label="QC Comment" name="qcComment" value={form.qcComment} onChange={handleChange} /></Grid>
+            <Grid xs={12}><TextField fullWidth multiline minRows={2} label="Return Reason" name="returnReason" value={form.returnReason} onChange={handleChange} /></Grid>
+            <Grid xs={12}><TextField fullWidth multiline minRows={3} label="QC Comment" name="qcComment" value={form.qcComment} onChange={handleChange} /></Grid>
           </Grid>
 
           <Divider sx={{ my: 3 }} />

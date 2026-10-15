@@ -46,7 +46,7 @@ const formatDate = (value) => {
 };
 
 const AddressField = ({ label, value }) => (
-    <Grid item xs={12} sm={6}>
+    <Grid xs={12} sm={6}>
         <Typography variant="caption" color="text.secondary">{label}</Typography>
         <Typography variant="body1" fontWeight={500} sx={{ overflowWrap: "anywhere", mt: 0.5 }}>
             {getSafeValue(value)}

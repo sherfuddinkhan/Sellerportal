@@ -381,7 +381,7 @@ const getErrorMessage = (error) => {
                     <Grid container spacing={2.5}>
                         {/* REVERSE PICKUP INFORMATION */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="subtitle1"
                                 fontWeight={700}
@@ -390,7 +390,7 @@ const getErrorMessage = (error) => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -405,7 +405,7 @@ const getErrorMessage = (error) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Reverse Pickup Number"
@@ -416,7 +416,7 @@ const getErrorMessage = (error) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -429,7 +429,7 @@ const getErrorMessage = (error) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Order Number"
@@ -442,7 +442,7 @@ const getErrorMessage = (error) => {
 
                         {/* ITEM INFORMATION */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Typography
@@ -453,7 +453,7 @@ const getErrorMessage = (error) => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 required
@@ -469,7 +469,7 @@ const getErrorMessage = (error) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Item Name"
@@ -480,7 +480,7 @@ const getErrorMessage = (error) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -495,7 +495,7 @@ const getErrorMessage = (error) => {
 
                         {/* PICKUP INFORMATION */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Typography
@@ -506,7 +506,7 @@ const getErrorMessage = (error) => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 select
@@ -538,7 +538,7 @@ const getErrorMessage = (error) => {
 
                         {/* PRICE INFORMATION */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Typography
@@ -549,7 +549,7 @@ const getErrorMessage = (error) => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -567,7 +567,7 @@ const getErrorMessage = (error) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -585,7 +585,7 @@ const getErrorMessage = (error) => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -605,7 +605,7 @@ const getErrorMessage = (error) => {
 
                         {/* ACTION BUTTONS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Stack

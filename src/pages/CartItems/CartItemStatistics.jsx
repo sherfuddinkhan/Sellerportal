@@ -38,7 +38,7 @@ const CartItemStatistics = ({
       container
       spacing={2}
     >
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid xs={12} sm={6} md={3}>
         <StatisticCard
           title="Total Cart Items"
           value={
@@ -47,7 +47,7 @@ const CartItemStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid xs={12} sm={6} md={3}>
         <StatisticCard
           title="Total Quantity"
           value={
@@ -56,7 +56,7 @@ const CartItemStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid xs={12} sm={6} md={3}>
         <StatisticCard
           title="Total Cart Value"
           value={`₹${Number(
@@ -65,7 +65,7 @@ const CartItemStatistics = ({
         />
       </Grid>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid xs={12} sm={6} md={3}>
         <StatisticCard
           title="Unique Products"
           value={

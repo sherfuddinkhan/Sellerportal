@@ -358,7 +358,7 @@ const GatepassCreate = ({
                         <Grid container spacing={2.5}>
                             {/* GATEPASS CODE */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Gatepass Code"
@@ -373,7 +373,7 @@ const GatepassCreate = ({
 
                             {/* DATE */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -393,7 +393,7 @@ const GatepassCreate = ({
 
                             {/* VEHICLE NUMBER */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -411,7 +411,7 @@ const GatepassCreate = ({
 
                             {/* DRIVER NAME */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -429,7 +429,7 @@ const GatepassCreate = ({
 
                             {/* DRIVER PHONE */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Driver Phone"
@@ -446,7 +446,7 @@ const GatepassCreate = ({
 
                             {/* STATUS */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     select
@@ -480,7 +480,7 @@ const GatepassCreate = ({
 
                             {/* PURPOSE */}
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     label="Purpose"
@@ -496,7 +496,7 @@ const GatepassCreate = ({
 
                             {/* REMARKS */}
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     label="Remarks"

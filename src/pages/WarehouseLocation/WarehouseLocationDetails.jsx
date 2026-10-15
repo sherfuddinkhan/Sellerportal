@@ -234,7 +234,7 @@ const WarehouseLocationDetails = () => {
                     spacing={3}
                 >
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -252,7 +252,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -270,7 +270,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -288,7 +288,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid xs={12} sm={6} md={3}>
 
                         <Typography
                             variant="caption"
@@ -317,7 +317,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -336,7 +336,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -355,7 +355,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -374,7 +374,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -393,7 +393,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -412,7 +412,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -431,7 +431,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Typography
                             variant="caption"
@@ -450,7 +450,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"
@@ -469,7 +469,7 @@ const WarehouseLocationDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
 
                         <Typography
                             variant="caption"

@@ -230,7 +230,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* PRODUCT PRICE ID */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -247,7 +247,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* PRODUCT ID */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -266,7 +266,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {productName && (
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <Typography
                                 variant="caption"
@@ -287,7 +287,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* SELLER ID */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -304,7 +304,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* PRICE TYPE */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -321,7 +321,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* PRICE */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -342,7 +342,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* CURRENCY */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -359,7 +359,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* EFFECTIVE FROM */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -376,7 +376,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* EFFECTIVE TO */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -393,7 +393,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* CREATED DATE */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"
@@ -410,7 +410,7 @@ const ProductPriceCard = ({ productPrice }) => {
 
                     {/* UPDATED DATE */}
 
-                    <Grid item xs={6}>
+                    <Grid xs={6}>
 
                         <Typography
                             variant="caption"

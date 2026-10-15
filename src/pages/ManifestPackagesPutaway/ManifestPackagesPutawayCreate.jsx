@@ -293,7 +293,7 @@ const ManifestPackagesPutawayCreate = ({
 
                     {/* MANIFEST ID */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -315,7 +315,7 @@ const ManifestPackagesPutawayCreate = ({
 
                     {/* PACKAGE ID */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -337,7 +337,7 @@ const ManifestPackagesPutawayCreate = ({
 
                     {/* PUTAWAY LOCATION */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -358,7 +358,7 @@ const ManifestPackagesPutawayCreate = ({
 
                     {/* QUANTITY */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -383,7 +383,7 @@ const ManifestPackagesPutawayCreate = ({
 
                     {/* STATUS */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <TextField
                             select
                             fullWidth

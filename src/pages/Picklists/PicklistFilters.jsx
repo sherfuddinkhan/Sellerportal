@@ -291,7 +291,7 @@ const PicklistFilters = ({
                 <Grid container spacing={2}>
                     {/* STATUS */}
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             select
                             fullWidth
@@ -327,7 +327,7 @@ const PicklistFilters = ({
 
                     {/* WAREHOUSE */}
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             select
                             fullWidth
@@ -364,7 +364,7 @@ const PicklistFilters = ({
 
                     {/* ORDER NUMBER */}
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -379,7 +379,7 @@ const PicklistFilters = ({
 
                     {/* DATE FROM */}
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"
@@ -400,7 +400,7 @@ const PicklistFilters = ({
 
                     {/* DATE TO */}
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             size="small"

@@ -93,7 +93,7 @@ const UserProfile = () => {
                     }
                     <Divider sx={{ mb: 3 }} />
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <Stack spacing={2}>
                                 <Box display="flex" gap={2}>
                                     <Person color="primary" />
@@ -136,7 +136,7 @@ const UserProfile = () => {
                                 </Box>
                             </Stack>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <Stack spacing={2}>
                                 <Box display="flex" gap={2}>
                                     <Badge color="primary" />

@@ -581,7 +581,7 @@ const ReversePickupItemModal = ({
                     <Grid container spacing={2.5}>
                         {/* REVERSE PICKUP DETAILS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="subtitle1"
                                 fontWeight={700}
@@ -590,7 +590,7 @@ const ReversePickupItemModal = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Reverse Pickup ID"
@@ -612,7 +612,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Reverse Pickup Number"
@@ -633,7 +633,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Order ID"
@@ -648,7 +648,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Order Number"
@@ -663,13 +663,13 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider />
                         </Grid>
 
                         {/* ITEM DETAILS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="subtitle1"
                                 fontWeight={700}
@@ -678,7 +678,7 @@ const ReversePickupItemModal = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Item ID"
@@ -690,7 +690,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -705,7 +705,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -720,7 +720,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -740,13 +740,13 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider />
                         </Grid>
 
                         {/* PICKUP STATUS AND COST */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="subtitle1"
                                 fontWeight={700}
@@ -755,7 +755,7 @@ const ReversePickupItemModal = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -815,7 +815,7 @@ const ReversePickupItemModal = ({
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -841,7 +841,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Tracking Number"
@@ -853,13 +853,13 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider />
                         </Grid>
 
                         {/* REASON AND NOTES */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="subtitle1"
                                 fontWeight={700}
@@ -868,7 +868,7 @@ const ReversePickupItemModal = ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Return / Pickup Reason"
@@ -883,7 +883,7 @@ const ReversePickupItemModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Notes"

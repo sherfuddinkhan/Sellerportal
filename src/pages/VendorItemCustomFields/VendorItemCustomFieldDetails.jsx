@@ -89,7 +89,7 @@ const displayValue = (value) => {
 ========================================================= */
 
 const DetailItem = ({ label, value }) => (
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid xs={12} sm={6} md={4}>
         <Box sx={{ minWidth: 0 }}>
             <Typography
                 variant="caption"

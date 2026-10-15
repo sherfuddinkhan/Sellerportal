@@ -20,7 +20,7 @@ const BrandView = ({ brand }) => {
             </Typography>
             <Divider sx={{ mb: 3 }} />
             <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Typography
                         variant="subtitle2"
                         color="text.secondary"
@@ -31,7 +31,7 @@ const BrandView = ({ brand }) => {
                         {brand.brandName}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Typography
                         variant="subtitle2"
                         color="text.secondary"
@@ -43,7 +43,7 @@ const BrandView = ({ brand }) => {
                         color={ brand.isActive ? "success" : "error"}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Typography
                         variant="subtitle2"
                         color="text.secondary"
@@ -54,7 +54,7 @@ const BrandView = ({ brand }) => {
                         {brand.description || "-"}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Typography
                         variant="subtitle2"
                         color="text.secondary"
@@ -65,7 +65,7 @@ const BrandView = ({ brand }) => {
                         { brand.createdDate ? new Date( brand.createdDate).toLocaleString() : "-"}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Typography
                         variant="subtitle2"
                         color="text.secondary"

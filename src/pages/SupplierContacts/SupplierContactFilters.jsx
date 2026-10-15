@@ -178,7 +178,7 @@ const SupplierContactFilters = ({
 
             <Grid container spacing={2}>
                 {/* SEARCH */}
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <TextField
                         fullWidth
                         size="small"
@@ -212,7 +212,7 @@ const SupplierContactFilters = ({
                 </Grid>
 
                 {/* SUPPLIER */}
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <FormControl
                         fullWidth
                         size="small"
@@ -255,7 +255,7 @@ const SupplierContactFilters = ({
                 </Grid>
 
                 {/* STATUS */}
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <FormControl
                         fullWidth
                         size="small"
@@ -289,7 +289,7 @@ const SupplierContactFilters = ({
                 </Grid>
 
                 {/* PRIMARY CONTACT */}
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <FormControl
                         fullWidth
                         size="small"
@@ -323,7 +323,7 @@ const SupplierContactFilters = ({
                 </Grid>
 
                 {/* DEPARTMENT */}
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <FormControl
                         fullWidth
                         size="small"
@@ -358,7 +358,7 @@ const SupplierContactFilters = ({
                 </Grid>
 
                 {/* ACTION BUTTONS */}
-                <Grid item xs={12} sm={6} md={6}>
+                <Grid xs={12} sm={6} md={6}>
                     <Box
                         sx={{
                             display: "flex",

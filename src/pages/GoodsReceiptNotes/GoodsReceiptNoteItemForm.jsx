@@ -847,7 +847,7 @@ const GoodsReceiptNoteItemForm = ({
                        GRN DROPDOWN
                     ================================================= */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -933,7 +933,7 @@ const GoodsReceiptNoteItemForm = ({
                        PRODUCT DROPDOWN
                     ================================================= */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -1040,7 +1040,7 @@ const GoodsReceiptNoteItemForm = ({
                     sx={{ mb: 4 }}
                 >
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <TextField
                             fullWidth
@@ -1073,7 +1073,7 @@ const GoodsReceiptNoteItemForm = ({
                     </Grid>
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <TextField
                             fullWidth
@@ -1106,7 +1106,7 @@ const GoodsReceiptNoteItemForm = ({
                     </Grid>
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <TextField
                             fullWidth
@@ -1160,7 +1160,7 @@ const GoodsReceiptNoteItemForm = ({
                     sx={{ mb: 4 }}
                 >
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <TextField
                             fullWidth
@@ -1193,7 +1193,7 @@ const GoodsReceiptNoteItemForm = ({
                     </Grid>
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <TextField
                             fullWidth
@@ -1226,7 +1226,7 @@ const GoodsReceiptNoteItemForm = ({
                     </Grid>
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <TextField
                             fullWidth

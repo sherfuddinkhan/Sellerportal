@@ -153,7 +153,7 @@ const DeliveryChallanModal = ({
                     sx={{ mt: 1 }}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -165,7 +165,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -177,7 +177,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -193,7 +193,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -205,7 +205,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -217,7 +217,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -229,7 +229,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             fullWidth
@@ -241,7 +241,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <TextField
                             select
@@ -267,7 +267,7 @@ const DeliveryChallanModal = ({
 
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <TextField
                             fullWidth

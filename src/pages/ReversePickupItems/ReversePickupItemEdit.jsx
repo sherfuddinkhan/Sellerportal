@@ -556,7 +556,7 @@ const normalizeItem = (item = {}) => ({
                     <Grid container spacing={2.5}>
                         {/* REVERSE PICKUP DETAILS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="subtitle1"
                                 fontWeight={700}
@@ -565,7 +565,7 @@ const normalizeItem = (item = {}) => ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Reverse Pickup ID"
@@ -575,7 +575,7 @@ const normalizeItem = (item = {}) => ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Sale Order Item Code"
@@ -590,7 +590,7 @@ const normalizeItem = (item = {}) => ({
 
                         {/* ITEM DETAILS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Typography
@@ -601,7 +601,7 @@ const normalizeItem = (item = {}) => ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Item SKU"
@@ -614,7 +614,7 @@ const normalizeItem = (item = {}) => ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Reason"
@@ -626,7 +626,7 @@ const normalizeItem = (item = {}) => ({
 
                         {/* PRICING */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Typography
@@ -637,7 +637,7 @@ const normalizeItem = (item = {}) => ({
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -651,7 +651,7 @@ const normalizeItem = (item = {}) => ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -665,7 +665,7 @@ const normalizeItem = (item = {}) => ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -681,7 +681,7 @@ const normalizeItem = (item = {}) => ({
 
                         {/* ACTIONS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Box

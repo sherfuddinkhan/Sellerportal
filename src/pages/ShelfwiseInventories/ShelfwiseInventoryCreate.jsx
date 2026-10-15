@@ -198,7 +198,7 @@ const ShelfwiseInventoryCreatePage = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               required
@@ -209,7 +209,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               required
@@ -220,7 +220,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               label="Item ID"
@@ -231,7 +231,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               label="Category"
@@ -249,7 +249,7 @@ const ShelfwiseInventoryCreatePage = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               required
@@ -260,7 +260,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               label="Warehouse ID"
@@ -271,7 +271,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               required
@@ -282,7 +282,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               label="Shelf Code"
@@ -292,7 +292,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               label="Shelf ID"
@@ -311,7 +311,7 @@ const ShelfwiseInventoryCreatePage = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <TextField
               fullWidth
               label="Quantity"
@@ -323,7 +323,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <TextField
               fullWidth
               label="Available Quantity"
@@ -335,7 +335,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <TextField
               fullWidth
               label="Minimum Stock"
@@ -347,7 +347,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <TextField
               fullWidth
               label="Maximum Stock"
@@ -359,7 +359,7 @@ const ShelfwiseInventoryCreatePage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <TextField
               fullWidth
               label="Unit"

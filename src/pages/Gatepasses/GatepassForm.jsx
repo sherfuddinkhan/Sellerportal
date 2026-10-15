@@ -463,7 +463,7 @@ const GatepassForm = ({
                         </Typography>
 
                         <Grid container spacing={2} sx={{ mt: 0.5, mb: 3 }}>
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Seller ID"
@@ -472,7 +472,7 @@ const GatepassForm = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Customer ID"
@@ -490,7 +490,7 @@ const GatepassForm = ({
                         </Typography>
 
                         <Grid container spacing={2} sx={{ mt: 0.5 }}>
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     name="gatepassCode"
@@ -501,7 +501,7 @@ const GatepassForm = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -513,7 +513,7 @@ const GatepassForm = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -525,7 +525,7 @@ const GatepassForm = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     name="driverPhone"
@@ -536,7 +536,7 @@ const GatepassForm = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     name="gatepassDate"
@@ -548,7 +548,7 @@ const GatepassForm = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     select
@@ -575,7 +575,7 @@ const GatepassForm = ({
                                 </TextField>
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     name="purpose"
@@ -586,7 +586,7 @@ const GatepassForm = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     multiline

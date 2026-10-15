@@ -345,7 +345,7 @@ const PicklistCreate = ({
                         <Grid container spacing={3}>
                             {/* PICKLIST CODE */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -369,7 +369,7 @@ const PicklistCreate = ({
 
                             {/* DESTINATION */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -393,7 +393,7 @@ const PicklistCreate = ({
 
                             {/* SELLER ID */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -417,7 +417,7 @@ const PicklistCreate = ({
 
                             {/* CUSTOMER ID */}
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -441,7 +441,7 @@ const PicklistCreate = ({
 
                             {/* SHIPPING PACKAGE CODES */}
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     required

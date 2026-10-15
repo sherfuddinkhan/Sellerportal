@@ -327,7 +327,7 @@ const OrderEdit = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Order ID"
@@ -337,7 +337,7 @@ const OrderEdit = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Seller ID"
@@ -349,7 +349,7 @@ const OrderEdit = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Customer ID"
@@ -361,7 +361,7 @@ const OrderEdit = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -373,7 +373,7 @@ const OrderEdit = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -389,7 +389,7 @@ const OrderEdit = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 select
@@ -433,7 +433,7 @@ const OrderEdit = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Total Amount"

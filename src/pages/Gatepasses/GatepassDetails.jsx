@@ -137,7 +137,7 @@ const GatepassDetails = () => {
             <Card>
                 <CardContent>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Gatepass ID
                             </Typography>
@@ -146,7 +146,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Gatepass Code
                             </Typography>
@@ -155,7 +155,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Facility Code
                             </Typography>
@@ -164,7 +164,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Item SKU Code
                             </Typography>
@@ -173,7 +173,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Quantity
                             </Typography>
@@ -182,7 +182,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Status
                             </Typography>
@@ -191,7 +191,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Seller ID
                             </Typography>
@@ -200,7 +200,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Customer ID
                             </Typography>
@@ -209,7 +209,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <Typography color="text.secondary">
                                 Created By
                             </Typography>
@@ -218,11 +218,11 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography color="text.secondary">
                                 Reason
                             </Typography>
@@ -231,7 +231,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <Typography color="text.secondary">
                                 Created Date
                             </Typography>
@@ -244,7 +244,7 @@ const GatepassDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <Typography color="text.secondary">
                                 Updated Date
                             </Typography>

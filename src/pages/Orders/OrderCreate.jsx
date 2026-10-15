@@ -146,7 +146,7 @@ const OrderCreate = () => {
                         spacing={3}
                     >
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -158,7 +158,7 @@ const OrderCreate = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -170,7 +170,7 @@ const OrderCreate = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -181,7 +181,7 @@ const OrderCreate = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -196,7 +196,7 @@ const OrderCreate = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 select
@@ -239,7 +239,7 @@ const OrderCreate = () => {
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Total Amount"

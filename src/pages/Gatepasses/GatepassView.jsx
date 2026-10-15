@@ -602,7 +602,7 @@ const GatepassView = ({
                 <Divider sx={{ mb: 3 }} />
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Gatepass ID"
                             value={getField(
@@ -617,49 +617,49 @@ const GatepassView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Gatepass Code"
                             value={code}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Gatepass Date"
                             value={formatDate(gatepassDate)}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Vehicle Number"
                             value={vehicleNumber}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Driver Name"
                             value={driverName}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid xs={12} sm={6} md={4}>
                         <DetailField
                             label="Driver Phone"
                             value={driverPhone}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={6}>
+                    <Grid xs={12} sm={6} md={6}>
                         <DetailField
                             label="Purpose"
                             value={purpose}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={6}>
+                    <Grid xs={12} sm={6} md={6}>
                         <DetailField
                             label="Remarks"
                             value={remarks}
@@ -683,7 +683,7 @@ const GatepassView = ({
 
                         <Grid container spacing={3}>
                             {createdAt && (
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <DetailField
                                         label="Created At"
                                         value={formatDateTime(createdAt)}
@@ -692,7 +692,7 @@ const GatepassView = ({
                             )}
 
                             {updatedAt && (
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <DetailField
                                         label="Updated At"
                                         value={formatDateTime(updatedAt)}

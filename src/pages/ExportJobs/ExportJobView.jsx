@@ -491,35 +491,35 @@ const ExportJobView = ({
           <Divider sx={{ mb: 3 }} />
 
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem label="Job Code" value={jobCode} />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem label="Export Type" value={exportType} />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem label="Report Name" value={reportName} />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem label="Status" value={status} />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem label="Frequency" value={frequency} />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem label="Seller ID" value={sellerId} />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem label="Customer ID" value={customerId} />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <DetailItem
                 label="Notification Email"
                 value={notificationEmail}
@@ -548,14 +548,14 @@ const ExportJobView = ({
           <Divider sx={{ mb: 3 }} />
 
           <Grid container spacing={3}>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <DetailItem
                 label="Export Columns"
                 value={exportColumns}
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <DetailItem
                 label="Export Filters"
                 value={exportFilters}
@@ -584,7 +584,7 @@ const ExportJobView = ({
           <Divider sx={{ mb: 3 }} />
 
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <DetailItem
                 label="Schedule Time"
                 value={scheduleTime}
@@ -592,7 +592,7 @@ const ExportJobView = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <DetailItem
                 label="Frequency"
                 value={frequency}

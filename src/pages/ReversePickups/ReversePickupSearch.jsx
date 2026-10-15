@@ -105,7 +105,7 @@ const ReversePickupSearch = ({
             <Grid container spacing={2} alignItems="center">
                 {/* SEARCH INPUT */}
 
-                <Grid item xs={12} md={compact ? 6 : 5}>
+                <Grid xs={12} md={compact ? 6 : 5}>
                     <TextField
                         fullWidth
                         size="small"
@@ -146,7 +146,7 @@ const ReversePickupSearch = ({
                 {/* SEARCH FIELD */}
 
                 {showFilters && (
-                    <Grid item xs={12} sm={6} md={compact ? 3 : 3}>
+                    <Grid xs={12} sm={6} md={compact ? 3 : 3}>
                         <TextField
                             fullWidth
                             select
@@ -190,7 +190,7 @@ const ReversePickupSearch = ({
                 {/* STATUS FILTER */}
 
                 {showFilters && (
-                    <Grid item xs={12} sm={6} md={compact ? 3 : 2}>
+                    <Grid xs={12} sm={6} md={compact ? 3 : 2}>
                         <TextField
                             fullWidth
                             select
@@ -229,7 +229,7 @@ const ReversePickupSearch = ({
 
                 {/* ACTION BUTTONS */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Stack
                         direction={{ xs: "column", sm: "row" }}
                         alignItems={{ xs: "stretch", sm: "center" }}

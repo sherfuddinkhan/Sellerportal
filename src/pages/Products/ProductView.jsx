@@ -406,7 +406,7 @@ const ProductView = () => {
 
                     {/* PRODUCT ID */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="caption"
@@ -423,7 +423,7 @@ const ProductView = () => {
 
                     {/* SELLER ID */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="caption"
@@ -440,7 +440,7 @@ const ProductView = () => {
 
                     {/* CUSTOMER ID */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="caption"
@@ -457,7 +457,7 @@ const ProductView = () => {
 
                     {/* SKU */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="caption"
@@ -474,7 +474,7 @@ const ProductView = () => {
 
                     {/* PRODUCT NAME */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="caption"
@@ -491,7 +491,7 @@ const ProductView = () => {
 
                     {/* BRAND */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="caption"
@@ -508,7 +508,7 @@ const ProductView = () => {
 
                     {/* CATEGORY */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="caption"
@@ -525,7 +525,7 @@ const ProductView = () => {
 
                     {/* PRODUCT TYPE */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="caption"
@@ -542,7 +542,7 @@ const ProductView = () => {
 
                     {/* STATUS */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="caption"
@@ -568,7 +568,7 @@ const ProductView = () => {
 
                     {/* DESCRIPTION */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Typography
                             variant="caption"

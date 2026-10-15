@@ -472,7 +472,7 @@ const ReversePickupCreate = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "reversePickupNumber",
                                 "Reverse Pickup Number",
@@ -483,7 +483,7 @@ const ReversePickupCreate = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "orderNumber",
                                 "Sales Order Code",
@@ -491,7 +491,7 @@ const ReversePickupCreate = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "pickupDate",
                                 "Pickup Date",
@@ -502,7 +502,7 @@ const ReversePickupCreate = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "status",
                                 "Pickup Status",
@@ -514,7 +514,7 @@ const ReversePickupCreate = ({
                             <Box />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             {renderTextField(
                                 "pickupAddress",
                                 "Pickup Address",
@@ -540,7 +540,7 @@ const ReversePickupCreate = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "customerName",
                                 "Customer Name",
@@ -548,7 +548,7 @@ const ReversePickupCreate = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "customerEmail",
                                 "Customer Email",
@@ -573,7 +573,7 @@ const ReversePickupCreate = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "itemName",
                                 "Item Name",
@@ -581,7 +581,7 @@ const ReversePickupCreate = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "sku",
                                 "Item SKU",
@@ -589,7 +589,7 @@ const ReversePickupCreate = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "quantity",
                                 "Quantity",
@@ -614,21 +614,21 @@ const ReversePickupCreate = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "carrierName",
                                 "Courier Provider"
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "trackingNumber",
                                 "Tracking Number"
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {renderTextField(
                                 "pickupCost",
                                 "Pickup Cost (₹)",
@@ -636,7 +636,7 @@ const ReversePickupCreate = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             {renderTextField(
                                 "notes",
                                 "Return Reason / Notes",

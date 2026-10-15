@@ -671,7 +671,7 @@ const SalesInvoiceEdit = () => {
                             spacing={2}
                         >
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Sales Invoice ID"
@@ -683,7 +683,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Sales Order ID"
@@ -697,7 +697,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -711,7 +711,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -729,7 +729,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Seller ID"
@@ -741,7 +741,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Customer ID"
@@ -771,7 +771,7 @@ const SalesInvoiceEdit = () => {
                             spacing={2}
                         >
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     select
                                     fullWidth
@@ -798,7 +798,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     select
                                     fullWidth
@@ -820,7 +820,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     select
                                     fullWidth
@@ -844,7 +844,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     select
                                     fullWidth
@@ -868,7 +868,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     select
                                     fullWidth
@@ -898,7 +898,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     select
                                     fullWidth
@@ -927,7 +927,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="User GSTIN"
@@ -940,7 +940,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Place of Supply"
@@ -953,7 +953,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Financial Year"
@@ -984,7 +984,7 @@ const SalesInvoiceEdit = () => {
                             spacing={2}
                         >
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Reference ID"
@@ -995,7 +995,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Ref ID"
@@ -1024,7 +1024,7 @@ const SalesInvoiceEdit = () => {
                             spacing={2}
                         >
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="Sub Total"
@@ -1040,7 +1040,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="Discount Amount"
@@ -1058,7 +1058,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="Tax Amount"
@@ -1074,7 +1074,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     required
@@ -1093,7 +1093,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="Paid Amount"
@@ -1111,7 +1111,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={4}>
+                            <Grid xs={12} md={4}>
                                 <TextField
                                     fullWidth
                                     label="Balance Amount"
@@ -1143,7 +1143,7 @@ const SalesInvoiceEdit = () => {
                             spacing={2}
                         >
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     select
                                     fullWidth
@@ -1167,7 +1167,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     select
                                     fullWidth
@@ -1192,7 +1192,7 @@ const SalesInvoiceEdit = () => {
                             </Grid>
 
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     multiline

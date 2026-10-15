@@ -338,7 +338,7 @@ const ReversePickupDetails = ({
                             spacing={2}
                             alignItems="center"
                         >
-                            <Grid item xs={12} sm={8}>
+                            <Grid xs={12} sm={8}>
                                 <Box
                                     sx={{
                                         display: "flex",

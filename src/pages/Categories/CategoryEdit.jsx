@@ -722,7 +722,7 @@ const CategoryForm = ({
 
           <Section title="BASIC INFORMATION">
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 required
@@ -736,7 +736,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -751,7 +751,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -764,7 +764,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -777,7 +777,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -791,7 +791,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -805,7 +805,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 multiline
@@ -828,7 +828,7 @@ const CategoryForm = ({
 
           <Section title="SELLER / CUSTOMER / CHANNEL">
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -840,7 +840,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -854,7 +854,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -867,7 +867,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -878,7 +878,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -889,7 +889,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -910,7 +910,7 @@ const CategoryForm = ({
 
           <Section title="IMAGES & SEO">
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -921,7 +921,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -932,7 +932,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -943,7 +943,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -954,7 +954,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 multiline
@@ -977,7 +977,7 @@ const CategoryForm = ({
 
           <Section title="TAX INFORMATION">
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -988,7 +988,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -1015,7 +1015,7 @@ const CategoryForm = ({
 
           <Section title="CATEGORY STATUS & STATISTICS">
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -1029,7 +1029,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -1051,7 +1051,7 @@ const CategoryForm = ({
 
           <Section title="SUB CATEGORIES">
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
 
               {formData.subCategories
                 .length === 0 && (
@@ -1398,7 +1398,7 @@ const CategoryForm = ({
 
           <Section title="AUDIT INFORMATION">
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -1429,7 +1429,7 @@ const CategoryForm = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
                 size="small"

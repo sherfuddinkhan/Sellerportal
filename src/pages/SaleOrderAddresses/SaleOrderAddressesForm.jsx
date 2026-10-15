@@ -487,7 +487,7 @@ function SaleOrderAddressesForm() {
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 3 }}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -504,7 +504,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -524,7 +524,7 @@ function SaleOrderAddressesForm() {
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 3 }}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -536,7 +536,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -548,7 +548,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Address Line 2"
@@ -559,7 +559,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="City"
@@ -570,7 +570,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="State"
@@ -581,7 +581,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="State Code"
@@ -592,7 +592,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Country Code"
@@ -603,7 +603,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Pincode"
@@ -620,7 +620,7 @@ function SaleOrderAddressesForm() {
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 3 }}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Phone"
@@ -631,7 +631,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="email"
@@ -649,7 +649,7 @@ function SaleOrderAddressesForm() {
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 4 }}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Latitude"
@@ -660,7 +660,7 @@ function SaleOrderAddressesForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Longitude"

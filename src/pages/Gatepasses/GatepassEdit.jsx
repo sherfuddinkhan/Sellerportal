@@ -221,7 +221,7 @@ const GatepassEdit = () => {
                 <CardContent>
                     <Box component="form" onSubmit={handleSubmit}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Gatepass Code"
@@ -232,7 +232,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Facility Code"
@@ -243,7 +243,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Item SKU Code"
@@ -254,7 +254,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -267,7 +267,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     select
@@ -286,7 +286,7 @@ const GatepassEdit = () => {
                                 </TextField>
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Created By"
@@ -296,7 +296,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     multiline
@@ -308,7 +308,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Seller ID"
@@ -317,7 +317,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Customer ID"
@@ -326,7 +326,7 @@ const GatepassEdit = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid xs={12}>
                                 <Box display="flex" justifyContent="flex-end" gap={2}>
                                     <Button
                                         variant="outlined"

@@ -111,7 +111,7 @@ const VendorItemMasterFilters = ({
 
                 {/* SEARCH */}
 
-                <Grid item xs={12} md={5}>
+                <Grid xs={12} md={5}>
                     <TextField
                         fullWidth
                         size="small"
@@ -133,7 +133,7 @@ const VendorItemMasterFilters = ({
 
                 {/* VENDOR ID */}
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <TextField
                         fullWidth
                         size="small"
@@ -153,7 +153,7 @@ const VendorItemMasterFilters = ({
 
                 {/* STATUS */}
 
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField
                         fullWidth
                         select
@@ -180,7 +180,7 @@ const VendorItemMasterFilters = ({
 
                 {/* RESET */}
 
-                <Grid item xs={12} md={2}>
+                <Grid xs={12} md={2}>
                     <Button
                         fullWidth
                         variant="outlined"

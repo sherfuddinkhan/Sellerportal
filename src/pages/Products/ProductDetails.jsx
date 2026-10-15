@@ -469,7 +469,7 @@ const ProductDetails = () => {
                     mb={3}
                 >
 
-                    <Grid item>
+                    <Grid>
 
                         <Typography
                             variant="h5"
@@ -489,7 +489,7 @@ const ProductDetails = () => {
 
                     </Grid>
 
-                    <Grid item>
+                    <Grid>
 
                         <Box
                             sx={{

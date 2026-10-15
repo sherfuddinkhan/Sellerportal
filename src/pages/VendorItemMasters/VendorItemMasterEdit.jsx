@@ -552,13 +552,13 @@ const VendorItemMasterEdit = () => {
                     <Grid container spacing={2.5}>
                         {/* IDENTIFIERS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography variant="h6" fontWeight={700}>
                                 Identification
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Vendor ID"
@@ -572,7 +572,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Seller ID"
@@ -586,7 +586,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Customer ID"
@@ -600,7 +600,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Product ID"
@@ -613,7 +613,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Vendor SKU Code"
@@ -627,7 +627,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Item SKU Code"
@@ -641,7 +641,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Item Code"
@@ -652,7 +652,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Item SKU"
@@ -663,7 +663,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="SKU"
@@ -674,7 +674,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Vendor Code"
@@ -685,7 +685,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Vendor Item Code"
@@ -698,14 +698,14 @@ const VendorItemMasterEdit = () => {
 
                         {/* PRICING */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="h6" fontWeight={700}>
                                 Pricing
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 required
@@ -720,7 +720,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 label="Unit Price"
@@ -734,7 +734,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 label="MRP"
@@ -748,7 +748,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <TextField
                                 fullWidth
                                 label="Selling Price"
@@ -764,14 +764,14 @@ const VendorItemMasterEdit = () => {
 
                         {/* INVENTORY */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="h6" fontWeight={700}>
                                 Inventory and Settings
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Inventory"
@@ -785,7 +785,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Lead Time (Days)"
@@ -799,7 +799,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4}>
+                        <Grid xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Priority"
@@ -813,7 +813,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -826,7 +826,7 @@ const VendorItemMasterEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -841,7 +841,7 @@ const VendorItemMasterEdit = () => {
 
                         {/* ACTIONS */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
 
                             <Box

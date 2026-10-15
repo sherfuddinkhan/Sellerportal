@@ -237,7 +237,7 @@ const GatepassCard = ({
                 <Grid container spacing={2}>
                     {/* DATE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -267,7 +267,7 @@ const GatepassCard = ({
 
                     {/* VEHICLE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -301,7 +301,7 @@ const GatepassCard = ({
 
                     {/* DRIVER */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -343,7 +343,7 @@ const GatepassCard = ({
 
                     {/* PURPOSE */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -379,7 +379,7 @@ const GatepassCard = ({
                     {/* REMARKS */}
 
                     {remarks && (
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Typography
                                 variant="caption"
                                 color="text.secondary"

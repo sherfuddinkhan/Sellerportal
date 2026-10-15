@@ -382,7 +382,7 @@ const ManifestPackagesPutawayForm = ({
                 <Grid container spacing={2.5}>
                     {/* MANIFEST ID */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -400,7 +400,7 @@ const ManifestPackagesPutawayForm = ({
 
                     {/* PACKAGE ID */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -418,7 +418,7 @@ const ManifestPackagesPutawayForm = ({
 
                     {/* PUTAWAY LOCATION */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -440,7 +440,7 @@ const ManifestPackagesPutawayForm = ({
 
                     {/* QUANTITY */}
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -461,7 +461,7 @@ const ManifestPackagesPutawayForm = ({
 
                     {/* STATUS */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <TextField
                             fullWidth
                             required

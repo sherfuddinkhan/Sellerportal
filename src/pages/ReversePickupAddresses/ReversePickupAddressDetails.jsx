@@ -866,7 +866,7 @@ const ReversePickupAddressDetails = ({
             <Grid container spacing={3}>
                 {/* CONTACT INFORMATION */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Card variant="outlined" sx={{ height: "100%", borderRadius: 3 }}>
                         <CardContent sx={{ p: 3 }}>
                             <SectionHeader icon={<Person />} title="Contact Information" />
@@ -885,7 +885,7 @@ const ReversePickupAddressDetails = ({
 
                 {/* ADDRESS INFORMATION */}
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                     <Card variant="outlined" sx={{ height: "100%", borderRadius: 3 }}>
                         <CardContent sx={{ p: 3 }}>
                             <SectionHeader icon={<Home />} title="Address Information" />
@@ -906,34 +906,34 @@ const ReversePickupAddressDetails = ({
 
                 {/* RELATED RECORDS */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Card variant="outlined" sx={{ borderRadius: 3 }}>
                         <CardContent sx={{ p: 3 }}>
                             <SectionHeader icon={<LocalShipping />} title="Related Records" />
                             <Divider sx={{ mb: 3 }} />
 
                             <Grid container spacing={3}>
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid xs={12} sm={6} md={3}>
                                     <DetailItem icon={<Badge />} label="Address ID" value={addressId} />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid xs={12} sm={6} md={3}>
                                     <DetailItem icon={<Badge />} label="Seller ID" value={sellerId} />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid xs={12} sm={6} md={3}>
                                     <DetailItem icon={<Person />} label="Customer ID" value={customerId} />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid xs={12} sm={6} md={3}>
                                     <DetailItem icon={<LocalShipping />} label="Reverse Pickup ID" value={reversePickupId} />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <DetailItem icon={<LocalShipping />} label="Reverse Pickup Number" value={reversePickupNumber} />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid xs={12} sm={6}>
                                     <DetailItem icon={<Home />} label="Address Type" value={addressType} />
                                 </Grid>
                             </Grid>
@@ -943,14 +943,14 @@ const ReversePickupAddressDetails = ({
 
                 {/* ADDRESS STATUS */}
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     <Card variant="outlined" sx={{ borderRadius: 3 }}>
                         <CardContent sx={{ p: 3 }}>
                             <SectionHeader icon={<CheckCircle />} title="Address Status" />
                             <Divider sx={{ mb: 3 }} />
 
                             <Grid container spacing={3}>
-                                <Grid item xs={12} sm={4}>
+                                <Grid xs={12} sm={4}>
                                     <DetailItem
                                         icon={<Home />}
                                         label="Default Address"
@@ -958,7 +958,7 @@ const ReversePickupAddressDetails = ({
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={4}>
+                                <Grid xs={12} sm={4}>
                                     <DetailItem
                                         icon={
                                             isActive === undefined
@@ -980,7 +980,7 @@ const ReversePickupAddressDetails = ({
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={4}>
+                                <Grid xs={12} sm={4}>
                                     <DetailItem
                                         icon={<Home />}
                                         label="Address Type"
@@ -995,7 +995,7 @@ const ReversePickupAddressDetails = ({
                 {/* NOTES */}
 
                 {notes !== undefined && (
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Card variant="outlined" sx={{ borderRadius: 3 }}>
                             <CardContent sx={{ p: 3 }}>
                                 <SectionHeader icon={<Home />} title="Notes / Instructions" />
@@ -1024,14 +1024,14 @@ const ReversePickupAddressDetails = ({
                 {/* RECORD INFORMATION */}
 
                 {(createdAt || updatedAt) && (
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Card variant="outlined" sx={{ borderRadius: 3 }}>
                             <CardContent sx={{ p: 3 }}>
                                 <SectionHeader icon={<Public />} title="Record Information" />
                                 <Divider sx={{ mb: 3 }} />
 
                                 <Grid container spacing={3}>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid xs={12} sm={6}>
                                         <DetailItem
                                             icon={<Public />}
                                             label="Created At"
@@ -1043,7 +1043,7 @@ const ReversePickupAddressDetails = ({
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid xs={12} sm={6}>
                                         <DetailItem
                                             icon={<Public />}
                                             label="Last Updated"

@@ -46,17 +46,17 @@ const SupplierAddressFilters = ({
                 <Button variant="outlined" color="inherit" size="small" startIcon={<Clear />} onClick={handleClear} disabled={loading ||!hasActiveFilters}>Clear Filters</Button>
             </Box>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <TextField fullWidth size="small" label="Search" placeholder="Address, city, pincode, phone..." value={searchTerm} onChange={(e)=>onSearchChange?.(e.target.value)} disabled={loading}
                         InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }} />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={3}>
                     <TextField select fullWidth size="small" label="Supplier" value={supplierFilter} onChange={(e)=>onSupplierChange?.(e.target.value)} disabled={loading}>
                         <MenuItem value="all">All Suppliers</MenuItem>
                         {supplierOptions.map((s,i)=> <MenuItem key={s.supplierId??i} value={String(s.supplierId)}>{s.supplierName}</MenuItem>)}
                     </TextField>
                 </Grid>
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField select fullWidth size="small" label="Address Type" value={addressTypeFilter} onChange={(e)=>onAddressTypeChange?.(e.target.value)} disabled={loading}>
                         <MenuItem value="all">All Types</MenuItem>
                         <MenuItem value="Billing">Billing</MenuItem>
@@ -65,25 +65,25 @@ const SupplierAddressFilters = ({
                         <MenuItem value="Warehouse">Warehouse</MenuItem>
                     </TextField>
                 </Grid>
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField select fullWidth size="small" label="City" value={cityFilter} onChange={(e)=>onCityChange?.(e.target.value)} disabled={loading}>
                         <MenuItem value="">All Cities</MenuItem>
                         {getUniqueValues("city","City").map(c=> <MenuItem key={c} value={c}>{c}</MenuItem>)}
                     </TextField>
                 </Grid>
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField select fullWidth size="small" label="State Code" value={stateFilter} onChange={(e)=>onStateChange?.(e.target.value)} disabled={loading}>
                         <MenuItem value="">All State Codes</MenuItem>
                         {getUniqueValues("stateCode","StateCode","state","State").map(s=> <MenuItem key={s} value={s}>{s}</MenuItem>)}
                     </TextField>
                 </Grid>
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField select fullWidth size="small" label="Country Code" value={countryFilter} onChange={(e)=>onCountryChange?.(e.target.value)} disabled={loading}>
                         <MenuItem value="">All Country Codes</MenuItem>
                         {getUniqueValues("countryCode","CountryCode","country","Country").map(c=> <MenuItem key={c} value={c}>{c}</MenuItem>)}
                     </TextField>
                 </Grid>
-                <Grid item xs={12} sm={6} md={2}>
+                <Grid xs={12} sm={6} md={2}>
                     <TextField select fullWidth size="small" label="Pincode" value={pincodeFilter} onChange={(e)=>onPincodeChange?.(e.target.value)} disabled={loading}>
                         <MenuItem value="">All Pincodes</MenuItem>
                         {getUniqueValues("pincode","Pincode","postalCode","PostalCode").map(p=> <MenuItem key={p} value={p}>{p}</MenuItem>)}

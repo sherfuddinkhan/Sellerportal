@@ -257,7 +257,7 @@ const CreateOrderStatusHistory = ({
 
                     <Grid container spacing={3}>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Seller ID"
@@ -269,7 +269,7 @@ const CreateOrderStatusHistory = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Customer ID"
@@ -281,7 +281,7 @@ const CreateOrderStatusHistory = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 label="Order ID"
@@ -294,7 +294,7 @@ const CreateOrderStatusHistory = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 select
@@ -315,7 +315,7 @@ const CreateOrderStatusHistory = ({
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 multiline
@@ -328,7 +328,7 @@ const CreateOrderStatusHistory = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 type="datetime-local"

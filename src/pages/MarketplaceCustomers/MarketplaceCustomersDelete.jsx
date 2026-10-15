@@ -216,7 +216,7 @@ function MarketplaceCustomersDelete() {
                                     ["State Code", "stateCode"],
                                     ["Pincode", "pincode"]
                                 ].map(([label, field]) => (
-                                    <Grid item xs={12} sm={6} key={field}>
+                                    <Grid xs={12} sm={6} key={field}>
                                         <Typography
                                             variant="body2"
                                             color="text.secondary"

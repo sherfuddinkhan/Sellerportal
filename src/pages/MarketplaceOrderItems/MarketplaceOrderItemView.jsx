@@ -120,7 +120,7 @@ const MarketplaceOrderItemView = ({
                         BASIC INFORMATION
                     ================================================= */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Divider sx={{ mb: 2 }}>
 
@@ -140,7 +140,7 @@ const MarketplaceOrderItemView = ({
                         ORDER ITEM ID
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="subtitle2"
@@ -162,7 +162,7 @@ const MarketplaceOrderItemView = ({
                         ORDER ID
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="subtitle2"
@@ -184,7 +184,7 @@ const MarketplaceOrderItemView = ({
                         LISTING ID
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="subtitle2"
@@ -206,7 +206,7 @@ const MarketplaceOrderItemView = ({
                         PRODUCT ID
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="subtitle2"
@@ -228,7 +228,7 @@ const MarketplaceOrderItemView = ({
                         ORDER ITEM NUMBER
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="subtitle2"
@@ -250,7 +250,7 @@ const MarketplaceOrderItemView = ({
                         EXTERNAL ORDER ITEM ID
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="subtitle2"
@@ -272,7 +272,7 @@ const MarketplaceOrderItemView = ({
                         PRODUCT INFORMATION
                     ================================================= */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Divider sx={{ my: 2 }}>
 
@@ -292,7 +292,7 @@ const MarketplaceOrderItemView = ({
                         PRODUCT TITLE
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={8}>
+                    <Grid xs={12} md={8}>
 
                         <Typography
                             variant="subtitle2"
@@ -318,7 +318,7 @@ const MarketplaceOrderItemView = ({
                         SKU
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="subtitle2"
@@ -340,7 +340,7 @@ const MarketplaceOrderItemView = ({
                         PRICING DETAILS
                     ================================================= */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Divider sx={{ my: 2 }}>
 
@@ -360,7 +360,7 @@ const MarketplaceOrderItemView = ({
                         QUANTITY
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="subtitle2"
@@ -380,7 +380,7 @@ const MarketplaceOrderItemView = ({
                         UNIT PRICE
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="subtitle2"
@@ -402,7 +402,7 @@ const MarketplaceOrderItemView = ({
                         TAX
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="subtitle2"
@@ -424,7 +424,7 @@ const MarketplaceOrderItemView = ({
                         SHIPPING
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="subtitle2"
@@ -446,7 +446,7 @@ const MarketplaceOrderItemView = ({
                         DISCOUNT
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="subtitle2"
@@ -468,7 +468,7 @@ const MarketplaceOrderItemView = ({
                         TOTAL
                     --------------------------------------------- */}
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
                         <Typography
                             variant="subtitle2"
@@ -494,14 +494,14 @@ const MarketplaceOrderItemView = ({
                         DATES
                     ================================================= */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Divider sx={{ my: 2 }} />
 
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             variant="subtitle2"

@@ -37,37 +37,37 @@ const Dashboard = () => {
 
       <Grid container spacing={3} mt={1}>
 
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <RevenueChart
             data={dashboardData.revenue}
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <SalesChart
             data={dashboardData.sales}
           />
         </Grid>
 
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <LatestOrders
             orders={dashboardData.latestOrders}
           />
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <RecentCustomers
             customers={dashboardData.recentCustomers}
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <TopSellingProducts
             products={dashboardData.topProducts}
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <LowStockProducts
             products={dashboardData.lowStockProducts}
           />

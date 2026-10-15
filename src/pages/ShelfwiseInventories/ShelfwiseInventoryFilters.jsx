@@ -219,7 +219,7 @@ const ShelfwiseInventoryFilters = ({
             <Grid container spacing={2}>
                 {/* WAREHOUSE */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <TextField
                         fullWidth
                         select
@@ -267,7 +267,7 @@ const ShelfwiseInventoryFilters = ({
 
                 {/* SHELF */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <TextField
                         fullWidth
                         select
@@ -317,7 +317,7 @@ const ShelfwiseInventoryFilters = ({
 
                 {/* CATEGORY */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <TextField
                         fullWidth
                         select
@@ -365,7 +365,7 @@ const ShelfwiseInventoryFilters = ({
 
                 {/* STATUS */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <TextField
                         fullWidth
                         select
@@ -404,7 +404,7 @@ const ShelfwiseInventoryFilters = ({
 
                 {/* STOCK LEVEL */}
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid xs={12} sm={6} md={4}>
                     <TextField
                         fullWidth
                         select

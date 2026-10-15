@@ -278,7 +278,7 @@ const CategoryDetails = () => {
 
                     {/* Category ID */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             color="text.secondary"
@@ -294,7 +294,7 @@ const CategoryDetails = () => {
 
                     {/* Category Name */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             color="text.secondary"
@@ -310,7 +310,7 @@ const CategoryDetails = () => {
 
                     {/* Parent Category */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             color="text.secondary"
@@ -326,7 +326,7 @@ const CategoryDetails = () => {
 
                     {/* Status */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             color="text.secondary"
@@ -352,7 +352,7 @@ const CategoryDetails = () => {
 
                     {/* Description */}
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
 
                         <Typography
                             color="text.secondary"
@@ -369,7 +369,7 @@ const CategoryDetails = () => {
 
                     {/* Created Date */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             color="text.secondary"
@@ -391,7 +391,7 @@ const CategoryDetails = () => {
 
                     {/* Updated Date */}
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
                         <Typography
                             color="text.secondary"

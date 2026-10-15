@@ -336,7 +336,7 @@ const InventoryReport = ({
         sx={{ mb: 3 }}
       >
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Typography
@@ -360,7 +360,7 @@ const InventoryReport = ({
         </Grid>
 
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Typography
@@ -384,7 +384,7 @@ const InventoryReport = ({
         </Grid>
 
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Typography
@@ -407,7 +407,7 @@ const InventoryReport = ({
         </Grid>
 
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Typography
@@ -451,7 +451,7 @@ const InventoryReport = ({
 
           {/* Search */}
 
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <TextField
               fullWidth
               label="Search Reports"
@@ -466,7 +466,7 @@ const InventoryReport = ({
 
           {/* Status */}
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid xs={12} sm={6} md={2}>
             <TextField
               select
               fullWidth
@@ -505,7 +505,7 @@ const InventoryReport = ({
 
           {/* Report Type */}
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               label="Report Type"
@@ -520,7 +520,7 @@ const InventoryReport = ({
 
           {/* Date From */}
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               type="date"
@@ -538,7 +538,7 @@ const InventoryReport = ({
 
           {/* Date To */}
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               type="date"
@@ -556,7 +556,7 @@ const InventoryReport = ({
 
           {/* Clear */}
 
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <Button
               variant="outlined"
               onClick={

@@ -373,7 +373,7 @@ function FacilityChannelView({ id: suppliedId }) {
                     <Divider sx={{ mb: 2 }} />
 
                     <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <Typography variant="body2" color="text.secondary">
                                 Seller ID
                             </Typography>
@@ -382,7 +382,7 @@ function FacilityChannelView({ id: suppliedId }) {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <Typography variant="body2" color="text.secondary">
                                 Customer ID
                             </Typography>
@@ -391,7 +391,7 @@ function FacilityChannelView({ id: suppliedId }) {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <Typography variant="body2" color="text.secondary">
                                 Product ID
                             </Typography>
@@ -400,7 +400,7 @@ function FacilityChannelView({ id: suppliedId }) {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
                             <Typography variant="body2" color="text.secondary">
                                 Sellable Quantity
                             </Typography>

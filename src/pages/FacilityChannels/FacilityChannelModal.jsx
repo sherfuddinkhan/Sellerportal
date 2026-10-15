@@ -374,7 +374,7 @@ const FacilityChannelModal = ({
                             FACILITY NAME
                         ===================================== */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -398,7 +398,7 @@ const FacilityChannelModal = ({
                             CHANNEL NAME
                         ===================================== */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -422,7 +422,7 @@ const FacilityChannelModal = ({
                             CHANNEL CODE
                         ===================================== */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 fullWidth
@@ -449,7 +449,7 @@ const FacilityChannelModal = ({
                             STATUS
                         ===================================== */}
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
 
                             <TextField
                                 select
@@ -482,7 +482,7 @@ const FacilityChannelModal = ({
                             DESCRIPTION
                         ===================================== */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <TextField
                                 fullWidth

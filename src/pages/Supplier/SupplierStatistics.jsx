@@ -35,7 +35,7 @@ const SupplierStatistics = ({
             mb={2}
         >
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
 
                 <Card>
 
@@ -59,7 +59,7 @@ const SupplierStatistics = ({
 
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
 
                 <Card>
 
@@ -83,7 +83,7 @@ const SupplierStatistics = ({
 
             </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid xs={12} sm={6} md={4}>
 
                 <Card>
 

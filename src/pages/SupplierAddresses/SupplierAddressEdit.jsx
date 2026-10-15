@@ -313,7 +313,7 @@ return (
 
                 <Box component="form" onSubmit={handleSubmit} noValidate>
                     <Grid container spacing={2.5}>
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -347,7 +347,7 @@ return (
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                             <TextField
                                 select
                                 fullWidth
@@ -364,7 +364,7 @@ return (
                             </TextField>
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 required
@@ -377,7 +377,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <TextField
                                 fullWidth
                                 label="Address Line 2"
@@ -387,7 +387,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -400,7 +400,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -413,7 +413,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid xs={12} sm={4}>
                             <TextField
                                 fullWidth
                                 required
@@ -426,7 +426,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -439,7 +439,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -452,14 +452,14 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="subtitle1" fontWeight={600}>
                                 Location & Mapping
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -474,7 +474,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -489,7 +489,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -500,7 +500,7 @@ return (
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"

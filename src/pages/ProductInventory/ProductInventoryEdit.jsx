@@ -308,7 +308,7 @@ const ProductInventoryEdit = ({
 
                         {/* PRODUCT ID */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -325,7 +325,7 @@ const ProductInventoryEdit = ({
 
                         {/* SELLER ID */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -342,7 +342,7 @@ const ProductInventoryEdit = ({
 
                         {/* CUSTOMER ID */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -358,7 +358,7 @@ const ProductInventoryEdit = ({
 
                         {/* WAREHOUSE ID */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -374,7 +374,7 @@ const ProductInventoryEdit = ({
 
                         {/* QUANTITY */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -394,7 +394,7 @@ const ProductInventoryEdit = ({
 
                         {/* AVAILABLE QUANTITY */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -416,7 +416,7 @@ const ProductInventoryEdit = ({
 
                         {/* RESERVED QUANTITY */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -438,7 +438,7 @@ const ProductInventoryEdit = ({
 
                         {/* REORDER LEVEL */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -459,7 +459,7 @@ const ProductInventoryEdit = ({
 
                         {/* MIN STOCK */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -480,7 +480,7 @@ const ProductInventoryEdit = ({
 
                         {/* MAX STOCK */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 fullWidth
@@ -501,7 +501,7 @@ const ProductInventoryEdit = ({
 
                         {/* STOCK STATUS */}
 
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
 
                             <TextField
                                 select
@@ -537,7 +537,7 @@ const ProductInventoryEdit = ({
 
                         {/* ACTIVE */}
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <TextField
                                 select

@@ -22,7 +22,7 @@ const MarketplaceStatistics = ({
 
     return (
         <Grid container spacing={2} mb={3}>
-            <Grid item xs={12} md={4}>
+            <Grid xs={12} md={4}>
                 <Card>
                     <CardContent>
                         <Typography
@@ -41,7 +41,7 @@ const MarketplaceStatistics = ({
                 </Card>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid xs={12} md={4}>
                 <Card>
                     <CardContent>
                         <Typography
@@ -61,7 +61,7 @@ const MarketplaceStatistics = ({
                 </Card>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid xs={12} md={4}>
                 <Card>
                     <CardContent>
                         <Typography

@@ -82,7 +82,7 @@ const ReversePickupToolbar = ({
         icon,
         color = "primary"
     }) => (
-        <Grid item xs={12} sm={6} md={2.4}>
+        <Grid xs={12} sm={6} md={2.4}>
             <Card
                 variant="outlined"
                 sx={{

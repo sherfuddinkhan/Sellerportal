@@ -169,7 +169,7 @@ const InvoiceProjectSection = ({
                     {(projectXID !== undefined &&
                         projectXID !== null) && (
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
 
                             <Typography
                                 sx={{
@@ -197,7 +197,7 @@ const InvoiceProjectSection = ({
 
                     {projectCode && (
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
 
                             <Typography
                                 sx={{
@@ -225,7 +225,7 @@ const InvoiceProjectSection = ({
 
                     {projectName && (
 
-                        <Grid item xs={12} sm={6} md={6}>
+                        <Grid xs={12} sm={6} md={6}>
 
                             <Typography
                                 sx={{
@@ -254,7 +254,7 @@ const InvoiceProjectSection = ({
                     {(projectAssetXID !== undefined &&
                         projectAssetXID !== null) && (
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
 
                             <Typography
                                 sx={{
@@ -282,7 +282,7 @@ const InvoiceProjectSection = ({
 
                     {projectAssetCode && (
 
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid xs={12} sm={6} md={3}>
 
                             <Typography
                                 sx={{
@@ -310,7 +310,7 @@ const InvoiceProjectSection = ({
 
                     {projectAssetName && (
 
-                        <Grid item xs={12} sm={6} md={6}>
+                        <Grid xs={12} sm={6} md={6}>
 
                             <Typography
                                 sx={{
@@ -338,7 +338,7 @@ const InvoiceProjectSection = ({
 
                     {projectDescription && (
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
 
                             <Divider sx={{ my: 0.5 }} />
 

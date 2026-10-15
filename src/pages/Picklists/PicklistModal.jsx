@@ -514,7 +514,7 @@ const PicklistModal = ({
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Picklist Number"
@@ -531,7 +531,7 @@ const PicklistModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -545,7 +545,7 @@ const PicklistModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {Array.isArray(warehouses) &&
                             warehouses.length > 0 ? (
                                 <TextField
@@ -617,7 +617,7 @@ const PicklistModal = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -637,7 +637,7 @@ const PicklistModal = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             {isReadOnly ? (
                                 <Box>
                                     <Typography
@@ -681,7 +681,7 @@ const PicklistModal = ({
                             )}
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -699,7 +699,7 @@ const PicklistModal = ({
                         </Grid>
 
                         {isViewMode && (
-                            <Grid item xs={12} sm={6}>
+                            <Grid xs={12} sm={6}>
                                 <TextField
                                     fullWidth
                                     label="Picklist ID"

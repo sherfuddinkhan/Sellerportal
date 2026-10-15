@@ -61,7 +61,7 @@ const CartItemModal = ({
           container
           spacing={2}
         >
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -76,7 +76,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -89,7 +89,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -104,7 +104,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -117,7 +117,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -132,7 +132,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -145,7 +145,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -161,7 +161,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography
               variant="caption"
               color="text.secondary"
@@ -179,7 +179,7 @@ const CartItemModal = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <Box>
               <Typography
                 variant="caption"

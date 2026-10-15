@@ -371,7 +371,7 @@ return (
                 )}
 
                 <Grid container spacing={2.5}>
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <FormControl
                             fullWidth
                             required
@@ -421,7 +421,7 @@ return (
                         </FormControl>
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -436,7 +436,7 @@ return (
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             name="designation"
@@ -448,7 +448,7 @@ return (
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             name="department"
@@ -460,7 +460,7 @@ return (
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -476,7 +476,7 @@ return (
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             required
@@ -491,7 +491,7 @@ return (
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <TextField
                             fullWidth
                             name="alternatePhone"
@@ -505,7 +505,7 @@ return (
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <TextField
                             fullWidth
                             multiline
@@ -519,7 +519,7 @@ return (
                         />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Divider sx={{ mb: 2 }} />
 
                         <Typography

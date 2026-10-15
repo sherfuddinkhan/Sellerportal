@@ -486,7 +486,7 @@ const SupplierContactView = ({
                 </Typography>
 
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Badge />}
                             label="Contact ID"
@@ -494,7 +494,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Person />}
                             label="Name"
@@ -502,7 +502,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Person />}
                             label="Contact Name"
@@ -510,7 +510,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Business />}
                             label="Contact Type"
@@ -518,7 +518,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Email />}
                             label="Email Address"
@@ -526,7 +526,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Phone />}
                             label="Phone Number"
@@ -548,7 +548,7 @@ const SupplierContactView = ({
                 </Typography>
 
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Business />}
                             label="Supplier ID"
@@ -556,7 +556,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Store />}
                             label="Seller ID"
@@ -564,7 +564,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<Person />}
                             label="Customer ID"
@@ -572,7 +572,7 @@ const SupplierContactView = ({
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         <DetailItem
                             icon={<CalendarMonth />}
                             label="Created Date"

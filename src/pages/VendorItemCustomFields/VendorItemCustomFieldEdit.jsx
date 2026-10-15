@@ -439,7 +439,7 @@ const VendorItemCustomFieldEdit = () => {
 
                 <Box component="form" onSubmit={handleSubmit} noValidate>
                     <Grid container spacing={2.5}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -454,7 +454,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 required
@@ -468,7 +468,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 name="value"
@@ -481,7 +481,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 name="fieldName"
@@ -493,7 +493,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 name="fieldValue"
@@ -505,7 +505,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -520,7 +520,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -535,7 +535,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 type="number"
@@ -550,7 +550,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid xs={12} sm={6}>
                             <TextField
                                 fullWidth
                                 label="Created Date"
@@ -559,7 +559,7 @@ const VendorItemCustomFieldEdit = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid xs={12}>
                             <FormControlLabel
                                 control={
                                     <Checkbox

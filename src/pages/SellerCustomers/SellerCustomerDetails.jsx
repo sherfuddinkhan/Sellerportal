@@ -545,7 +545,7 @@ const SellerCustomerDetails = () => {
                         spacing={2}
                     >
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 Customer Code
                             </Typography>
@@ -555,7 +555,7 @@ const SellerCustomerDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 Customer Name
                             </Typography>
@@ -565,7 +565,7 @@ const SellerCustomerDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 Status
                             </Typography>
@@ -575,7 +575,7 @@ const SellerCustomerDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 Contact Person
                             </Typography>
@@ -585,7 +585,7 @@ const SellerCustomerDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 Email
                             </Typography>
@@ -595,7 +595,7 @@ const SellerCustomerDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 Phone
                             </Typography>
@@ -605,7 +605,7 @@ const SellerCustomerDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 GSTIN
                             </Typography>
@@ -615,7 +615,7 @@ const SellerCustomerDetails = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid xs={12} md={4}>
                             <Typography variant="caption">
                                 Credit Limit
                             </Typography>

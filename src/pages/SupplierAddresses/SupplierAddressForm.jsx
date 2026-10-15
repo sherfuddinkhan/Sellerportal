@@ -133,7 +133,7 @@ const SupplierAddressForm = ({ initialData = null, suppliers = [], loading = fal
     };
 
     const renderField = ({ name, label, required = false, type = "text", placeholder = "" }) => (
-        <Grid item xs={12} sm={6} key={name}>
+        <Grid xs={12} sm={6} key={name}>
             <TextField fullWidth size="small" name={name} label={label} type={type} placeholder={placeholder} value={formData[name]?? ""} onChange={handleChange} required={required} error={Boolean(errors[name])} helperText={errors[name] || ""} disabled={loading} />
         </Grid>
     );
@@ -150,8 +150,8 @@ const SupplierAddressForm = ({ initialData = null, suppliers = [], loading = fal
             <Divider sx={{ mb: 3 }} />
 
             <Grid container spacing={2.5}>
-                <Grid item xs={12}><Typography variant="subtitle1" fontWeight={700}>Supplier Information</Typography></Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12}><Typography variant="subtitle1" fontWeight={700}>Supplier Information</Typography></Grid>
+                <Grid xs={12} sm={6}>
                     <TextField select fullWidth size="small" name="supplierId" label="Supplier" value={formData.supplierId?? ""} onChange={handleSupplierChange} required error={Boolean(errors.supplierId)} helperText={errors.supplierId || ""} disabled={loading}>
                         {suppliers.map((supplier, index) => {
                             const id = supplier.supplierId?? supplier.SupplierId?? supplier.id?? supplier.Id;
@@ -160,7 +160,7 @@ const SupplierAddressForm = ({ initialData = null, suppliers = [], loading = fal
                         })}
                     </TextField>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     <TextField select fullWidth size="small" name="addressType" label="Address Type" value={formData.addressType} onChange={handleChange} disabled={loading}>
                         <MenuItem value="Billing">Billing</MenuItem>
                         <MenuItem value="Shipping">Shipping</MenuItem>
@@ -169,7 +169,7 @@ const SupplierAddressForm = ({ initialData = null, suppliers = [], loading = fal
                     </TextField>
                 </Grid>
 
-                <Grid item xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Address Details</Typography></Grid>
+                <Grid xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Address Details</Typography></Grid>
                 {renderField({ name: "addressLine1", label: "Address Line 1", required: true })}
                 {renderField({ name: "addressLine2", label: "Address Line 2" })}
                 {renderField({ name: "countryCode", label: "Country Code", required: true, placeholder: "IN" })}
@@ -178,11 +178,11 @@ const SupplierAddressForm = ({ initialData = null, suppliers = [], loading = fal
                 {renderField({ name: "pincode", label: "Pincode", required: true })}
                 {renderField({ name: "phone", label: "Phone", required: true, type: "tel" })}
 
-                <Grid item xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Location Coordinates</Typography></Grid>
+                <Grid xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Location Coordinates</Typography></Grid>
                 {renderField({ name: "latitude", label: "Latitude", placeholder: "17.4485" })}
                 {renderField({ name: "longitude", label: "Longitude", placeholder: "78.3908" })}
 
-                <Grid item xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Seller / Customer Mapping</Typography></Grid>
+                <Grid xs={12}><Divider sx={{ my: 1 }} /><Typography variant="subtitle1" fontWeight={700}>Seller / Customer Mapping</Typography></Grid>
                 {renderField({ name: "sellerId", label: "Seller ID", type: "number" })}
                 {renderField({ name: "customerId", label: "Customer ID", type: "number" })}
             </Grid>

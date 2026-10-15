@@ -173,7 +173,7 @@ const OrderDetails = () => {
                     spacing={3}
                 >
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -190,7 +190,7 @@ const OrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -207,7 +207,7 @@ const OrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -224,7 +224,7 @@ const OrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -241,7 +241,7 @@ const OrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -266,7 +266,7 @@ const OrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -283,7 +283,7 @@ const OrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"
@@ -307,7 +307,7 @@ const OrderDetails = () => {
                     </Grid>
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
                         <Typography
                             variant="caption"
                             color="text.secondary"

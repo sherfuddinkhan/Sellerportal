@@ -588,7 +588,7 @@ const SupplierContactEdit = ({
                     >
                         <Grid container spacing={2.5}>
                             {/* SUPPLIER */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <FormControl
                                     fullWidth
                                     required
@@ -642,7 +642,7 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* CONTACT TYPE */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <FormControl
                                     fullWidth
                                     required
@@ -676,7 +676,7 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* NAME */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -692,7 +692,7 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* CONTACT NAME */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -708,7 +708,7 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* EMAIL */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -725,7 +725,7 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* PHONE */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -741,7 +741,7 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* SELLER ID */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required
@@ -758,7 +758,7 @@ const SupplierContactEdit = ({
                             </Grid>
 
                             {/* CUSTOMER ID */}
-                            <Grid item xs={12} md={6}>
+                            <Grid xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     required

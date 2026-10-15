@@ -549,7 +549,7 @@ const ReversePickupForm = ({
 
             <Grid container spacing={2}>
                 {showPickupNumber && (
-                    <Grid item xs={12} sm={6}>
+                    <Grid xs={12} sm={6}>
                         {renderTextField({
                             name: "reversePickupNumber",
                             label: "Reverse Pickup Number",
@@ -559,7 +559,7 @@ const ReversePickupForm = ({
                     </Grid>
                 )}
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "orderNumber",
                         label: "Order Number",
@@ -567,7 +567,7 @@ const ReversePickupForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "pickupDate",
                         label: "Pickup Date",
@@ -576,7 +576,7 @@ const ReversePickupForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "status",
                         label: "Status",
@@ -592,7 +592,7 @@ const ReversePickupForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                     {renderTextField({
                         name: "pickupAddress",
                         label: "Pickup Address",
@@ -616,7 +616,7 @@ const ReversePickupForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "customerName",
                         label: "Customer Name",
@@ -624,7 +624,7 @@ const ReversePickupForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "customerEmail",
                         label: "Customer Email",
@@ -646,7 +646,7 @@ const ReversePickupForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "itemName",
                         label: "Item Name",
@@ -654,14 +654,14 @@ const ReversePickupForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "sku",
                         label: "SKU"
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "quantity",
                         label: "Quantity",
@@ -674,7 +674,7 @@ const ReversePickupForm = ({
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "pickupCost",
                         label: "Pickup Cost (₹)",
@@ -701,14 +701,14 @@ const ReversePickupForm = ({
             </Typography>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "carrierName",
                         label: "Carrier Name"
                     })}
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                     {renderTextField({
                         name: "trackingNumber",
                         label: "Tracking Number"

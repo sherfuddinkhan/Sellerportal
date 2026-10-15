@@ -119,7 +119,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -142,7 +142,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -165,7 +165,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -188,7 +188,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -213,7 +213,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -238,7 +238,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <TextField
@@ -263,7 +263,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -288,7 +288,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -313,7 +313,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
 
 
                         <TextField
@@ -338,7 +338,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <FormControl fullWidth>
@@ -397,7 +397,7 @@ const ProductInventoryModal = ({
 
 
 
-                    <Grid item xs={12} md={6}>
+                    <Grid xs={12} md={6}>
 
 
                         <FormControlLabel

@@ -837,7 +837,7 @@ const VendorItemCustomFieldsList = ({
                     alignItems="center"
                     justifyContent="space-between"
                 >
-                    <Grid item xs={12} sm={4}>
+                    <Grid xs={12} sm={4}>
                         <Box display="flex" alignItems="center" gap={1}>
                             <Typography variant="body2" color="text.secondary">
                                 Rows per page:
@@ -866,7 +866,7 @@ const VendorItemCustomFieldsList = ({
                         </Box>
                     </Grid>
 
-                    <Grid item xs={12} sm={8}>
+                    <Grid xs={12} sm={8}>
                         <Box
                             display="flex"
                             justifyContent={{ xs: "flex-start", sm: "flex-end" }}

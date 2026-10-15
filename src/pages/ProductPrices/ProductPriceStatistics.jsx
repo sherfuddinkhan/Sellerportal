@@ -528,7 +528,7 @@ const ProductPriceStatistics = () => {
                                         TEXT
                                     ================================= */}
 
-                                    <Grid item>
+                                    <Grid>
 
                                         <Typography
                                             color="text.secondary"

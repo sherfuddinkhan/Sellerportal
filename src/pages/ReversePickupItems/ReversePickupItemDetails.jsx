@@ -173,7 +173,7 @@ const API_URL = "http://localhost:5000/api/reverse-pickup-items";
     };
 
     const DetailField = ({ label, value, currency = false }) => (
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid xs={12} sm={6} md={4}>
             <Box sx={{ p: 1 }}>
                 <Typography
                     variant="caption"
@@ -307,7 +307,7 @@ const API_URL = "http://localhost:5000/api/reverse-pickup-items";
 
             {itemDetails && (
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Card variant="outlined">
                             <CardContent>
                                 <Stack
@@ -418,7 +418,7 @@ const API_URL = "http://localhost:5000/api/reverse-pickup-items";
                         </Card>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Card variant="outlined">
                             <CardContent>
                                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
@@ -462,7 +462,7 @@ const API_URL = "http://localhost:5000/api/reverse-pickup-items";
                         </Card>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                         <Paper
                             variant="outlined"
                             sx={{ p: 2, bgcolor: "background.default" }}
