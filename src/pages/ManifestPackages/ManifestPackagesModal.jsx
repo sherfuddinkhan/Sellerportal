@@ -103,7 +103,7 @@ const mapRecordToForm = (record) => {
    MANIFEST PACKAGES PUTAWAY MODAL
 ========================================================= */
 
-const ManifestPackagesPutawayModal = ({
+const ManifestPackagesModal = ({
     open = false,
     onClose,
     onSubmit,
@@ -563,5 +563,5 @@ const ManifestPackagesPutawayModal = ({
     );
 };
 
-export default ManifestPackagesPutawayModal;
+export default ManifestPackagesModal;
 

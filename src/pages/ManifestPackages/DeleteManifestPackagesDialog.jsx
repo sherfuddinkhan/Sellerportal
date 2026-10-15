@@ -122,7 +122,7 @@ const getStatusColor = (status) => {
    DELETE MANIFEST PACKAGES PUTAWAY DIALOG
 ========================================================= */
 
-const DeleteManifestPackagesPutawayDialog = ({
+const DeleteManifestPackagesDialog = ({
     open = false,
     record = null,
     onClose,
@@ -554,5 +554,5 @@ const DeleteManifestPackagesPutawayDialog = ({
     );
 };
 
-export default DeleteManifestPackagesPutawayDialog;
+export default DeleteManifestPackagesDialog;
 

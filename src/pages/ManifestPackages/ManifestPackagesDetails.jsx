@@ -198,7 +198,7 @@ const DetailItem = ({
    MANIFEST PACKAGES PUTAWAY DETAILS
 ========================================================= */
 
-const ManifestPackagesPutawayDetails = ({
+const ManifestPackagesDetails = ({
     record = null,
     loading = false,
     error = "",
@@ -661,5 +661,5 @@ const ManifestPackagesPutawayDetails = ({
     );
 };
 
-export default ManifestPackagesPutawayDetails;
+export default ManifestPackagesDetails;
 

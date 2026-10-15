@@ -23,7 +23,7 @@ import {
    MANIFEST PACKAGES PUTAWAY SEARCH
 ========================================================= */
 
-const ManifestPackagesPutawaySearch = ({
+const ManifestPackagesSearch = ({
     searchTerm = "",
     onSearchChange,
 
@@ -223,5 +223,5 @@ const ManifestPackagesPutawaySearch = ({
     );
 };
 
-export default ManifestPackagesPutawaySearch;
+export default ManifestPackagesSearch;
 

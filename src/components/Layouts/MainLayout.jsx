@@ -93,7 +93,7 @@ const MainLayout = () => {
                 { label: "Shipments", path: "/shipments", icon: "🚚" },
                 { label: "Shipping Manifests", path: "/shipping-manifests", icon: "📦" },
                 { label: "Manifest Packages", path: "/manifest-packages", icon: "📦" },
-                { label: "Gatepass", path: "/gatepass", icon: "🚪" },
+                { label: "Gatepass", path: "/gatepasses", icon: "🚪" },
                 { label: "Warehouses", path: "/warehouses", icon: "🏭" },
                 { label: "Warehouse Locations", path: "/warehouse-locations", icon: "📍" },
                 { label: "Stock Ledger", path: "/stock-ledger", icon: "📒" },

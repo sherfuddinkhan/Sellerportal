@@ -111,7 +111,7 @@ const normalizeRecord = (record) => ({
    MANIFEST PACKAGES PUTAWAY EDIT
 ========================================================= */
 
-const ManifestPackagesPutawayEdit = ({
+const ManifestPackagesEdit = ({
     record = null,
     onSubmit,
     onCancel,
@@ -509,5 +509,5 @@ const ManifestPackagesPutawayEdit = ({
     );
 };
 
-export default ManifestPackagesPutawayEdit;
+export default ManifestPackagesEdit;
 

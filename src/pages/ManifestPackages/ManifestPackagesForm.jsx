@@ -100,7 +100,7 @@ const mapRecordToForm = (record) => {
    MANIFEST PACKAGES PUTAWAY FORM
 ========================================================= */
 
-const ManifestPackagesPutawayForm = ({
+const ManifestPackagesForm = ({
     record = null,
     mode = "create",
 
@@ -547,5 +547,5 @@ const ManifestPackagesPutawayForm = ({
     );
 };
 
-export default ManifestPackagesPutawayForm;
+export default ManifestPackagesForm;
 

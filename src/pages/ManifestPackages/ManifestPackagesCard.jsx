@@ -145,7 +145,7 @@ const getStatusColor = (status) => {
    MANIFEST PACKAGES PUTAWAY CARD
 ========================================================= */
 
-const ManifestPackagesPutawayCard = ({
+const ManifestPackagesCard = ({
     record = null,
     loading = false,
     onView,
@@ -543,5 +543,5 @@ const ManifestPackagesPutawayCard = ({
     );
 };
 
-export default ManifestPackagesPutawayCard;
+export default ManifestPackagesCard;
 

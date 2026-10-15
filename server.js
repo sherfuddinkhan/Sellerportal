@@ -35822,28 +35822,42 @@ app.delete("/api/Picklist/:id", async (req, res) => {
 // =====================================================
 // MANIFEST PACKAGES PUTAWAY
 // =====================================================
+/* =========================================================
+   MANIFEST PACKAGES - GET ALL
+========================================================= */
 
-// GET ALL
-app.get("/api/manifest-packages-putaway", async (req, res) => {
+app.get("/api/manifest-packages/all", async (req, res) => {
     try {
         const response = await axios.get(
-            `${API_BASE_URL}/ManifestPackagesPutaway`,
-            { params: req.query }
+            `${API_BASE_URL}/manifest-packages/all`,
+            {
+                params: req.query,
+                httpsAgent
+            }
         );
 
         res.status(response.status).json(response.data);
     } catch (error) {
+        console.error(
+            "GET MANIFEST PACKAGES ERROR:",
+            error.response?.data || error.message
+        );
+
         res.status(error.response?.status || 500).json(
-            error.response?.data || { message: error.message }
+            error.response?.data || {
+                message: "Failed to fetch manifest packages",
+                error: error.message
+            }
         );
     }
 });
 
+
 // GET BY ID
-app.get("/api/manifest-packages-putaway/:id", async (req, res) => {
+app.get("/api/manifest-packages/:id", async (req, res) => {
     try {
         const response = await axios.get(
-            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`
+            `${API_BASE_URL}/ManifestPackages/${req.params.id}`
         );
 
         res.status(response.status).json(response.data);
@@ -35855,10 +35869,10 @@ app.get("/api/manifest-packages-putaway/:id", async (req, res) => {
 });
 
 // CREATE
-app.post("/api/manifest-packages-putaway", async (req, res) => {
+app.post("/api/manifest-packages", async (req, res) => {
     try {
         const response = await axios.post(
-            `${API_BASE_URL}/ManifestPackagesPutaway`,
+            `${API_BASE_URL}/ManifestPackages`,
             req.body
         );
 
@@ -35871,10 +35885,10 @@ app.post("/api/manifest-packages-putaway", async (req, res) => {
 });
 
 // UPDATE
-app.put("/api/manifest-packages-putaway/:id", async (req, res) => {
+app.put("/api/manifest-packages/:id", async (req, res) => {
     try {
         const response = await axios.put(
-            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`,
+            `${API_BASE_URL}/ManifestPackages/${req.params.id}`,
             req.body
         );
 
@@ -35887,10 +35901,10 @@ app.put("/api/manifest-packages-putaway/:id", async (req, res) => {
 });
 
 // PARTIAL UPDATE
-app.patch("/api/manifest-packages-putaway/:id", async (req, res) => {
+app.patch("/api/manifest-packages/:id", async (req, res) => {
     try {
         const response = await axios.patch(
-            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`,
+            `${API_BASE_URL}/ManifestPackages/${req.params.id}`,
             req.body
         );
 
@@ -35903,10 +35917,10 @@ app.patch("/api/manifest-packages-putaway/:id", async (req, res) => {
 });
 
 // DELETE
-app.delete("/api/manifest-packages-putaway/:id", async (req, res) => {
+app.delete("/api/manifest-packages/:id", async (req, res) => {
     try {
         const response = await axios.delete(
-            `${API_BASE_URL}/ManifestPackagesPutaway/${req.params.id}`
+            `${API_BASE_URL}/ManifestPackages/${req.params.id}`
         );
 
         res.status(response.status).json(

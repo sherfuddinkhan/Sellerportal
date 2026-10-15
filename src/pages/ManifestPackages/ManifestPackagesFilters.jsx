@@ -36,7 +36,7 @@ const initialFilters = {
    MANIFEST PACKAGES PUTAWAY FILTERS
 ========================================================= */
 
-const ManifestPackagesPutawayFilters = ({
+const ManifestPackagesFilters = ({
     filters = initialFilters,
 
     onApply,
@@ -347,5 +347,5 @@ const ManifestPackagesPutawayFilters = ({
     );
 };
 
-export default ManifestPackagesPutawayFilters;
+export default ManifestPackagesFilters;
 

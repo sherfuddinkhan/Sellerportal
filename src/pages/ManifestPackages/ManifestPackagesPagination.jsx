@@ -11,7 +11,7 @@ import {
    MANIFEST PACKAGES PUTAWAY PAGINATION
 ========================================================= */
 
-const ManifestPackagesPutawayPagination = ({
+const ManifestPackagesPagination = ({
     page = 0,
     rowsPerPage = 10,
     totalRecords = 0,
@@ -194,5 +194,5 @@ const ManifestPackagesPutawayPagination = ({
     );
 };
 
-export default ManifestPackagesPutawayPagination;
+export default ManifestPackagesPagination;
 

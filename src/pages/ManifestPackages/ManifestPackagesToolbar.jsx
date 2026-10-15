@@ -26,7 +26,7 @@ import {
    MANIFEST PACKAGES PUTAWAY TOOLBAR
 ========================================================= */
 
-const ManifestPackagesPutawayToolbar = ({
+const ManifestPackagesToolbar = ({
     searchTerm = "",
     onSearchChange,
     statusFilter = "all",
@@ -323,5 +323,5 @@ const ManifestPackagesPutawayToolbar = ({
     );
 };
 
-export default ManifestPackagesPutawayToolbar;
+export default ManifestPackagesToolbar;
 

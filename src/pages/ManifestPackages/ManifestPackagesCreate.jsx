@@ -50,7 +50,7 @@ const DEFAULT_STATUS_OPTIONS = [
    MANIFEST PACKAGES PUTAWAY CREATE
 ========================================================= */
 
-const ManifestPackagesPutawayCreate = ({
+const ManifestPackagesCreate = ({
     onSubmit,
     onCancel,
     loading = false,
@@ -466,5 +466,5 @@ const ManifestPackagesPutawayCreate = ({
     );
 };
 
-export default ManifestPackagesPutawayCreate;
+export default ManifestPackagesCreate;
 

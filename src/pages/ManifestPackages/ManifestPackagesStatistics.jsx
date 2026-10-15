@@ -180,7 +180,7 @@ const StatisticsCard = ({
    MANIFEST PACKAGES PUTAWAY STATISTICS
 ========================================================= */
 
-const ManifestPackagesPutawayStatistics = ({
+const ManifestPackagesStatistics = ({
     records = [],
     loading = false,
 
@@ -339,5 +339,5 @@ const ManifestPackagesPutawayStatistics = ({
     );
 };
 
-export default ManifestPackagesPutawayStatistics;
+export default ManifestPackagesStatistics;
 
