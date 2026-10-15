@@ -1,35 +1,26 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
     Alert,
+    Box,
     Button,
     CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     Divider,
+    Paper,
     Stack,
     Typography
 } from "@mui/material";
-
-import {
-    WarningAmber
-} from "@mui/icons-material";
 
 /* =========================================================
    API CONFIGURATION
 ========================================================= */
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
-const PICKLIST_API = `${API_BASE_URL}/api/Picklist`;
+const API_URL = "http://localhost:5000/api/Picklist";
 
 /* =========================================================
-   GET VALUE FROM MULTIPLE POSSIBLE FIELD NAMES
+   GET VALUE
 ========================================================= */
 
 const getValue = (object, fields, fallback = "") => {
@@ -53,423 +44,540 @@ const getValue = (object, fields, fallback = "") => {
 };
 
 /* =========================================================
-   DELETE PICKLIST DIALOG
+   PICKLIST DELETE PAGE
 ========================================================= */
 
-const DeletePicklistDialog = ({
-    open = false,
-    picklist = null,
-    picklistId: suppliedPicklistId,
-    apiUrl = PICKLIST_API,
-    onClose,
-    onDeleted,
-    onError,
-    deleteOnConfirm = true
-}) => {
-    const [loading, setLoading] = useState(false);
+const PicklistDelete = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
+    const [picklist, setPicklist] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     /* =====================================================
-       PICKLIST IDENTIFICATION
-    ===================================================== */
-
-    const picklistId =
-        suppliedPicklistId ??
-        getValue(
-            picklist,
-            [
-                "picklistId",
-                "PicklistId",
-                "pickListId",
-                "PickListId",
-                "id",
-                "Id"
-            ],
-            ""
-        );
-
-    const picklistNumber = getValue(
-        picklist,
-        [
-            "picklistNumber",
-            "PicklistNumber",
-            "pickListNumber",
-            "PickListNumber",
-            "picklistNo",
-            "PicklistNo",
-            "number",
-            "Number"
-        ],
-        picklistId !== ""
-            ? `Picklist #${picklistId}`
-            : "Selected picklist"
-    );
-
-    const orderNumber = getValue(
-        picklist,
-        [
-            "orderNumber",
-            "OrderNumber",
-            "salesOrderNumber",
-            "SalesOrderNumber",
-            "orderNo",
-            "OrderNo"
-        ],
-        ""
-    );
-
-    const status = getValue(
-        picklist,
-        [
-            "status",
-            "Status",
-            "picklistStatus",
-            "PicklistStatus"
-        ],
-        "Unknown"
-    );
-
-    /* =====================================================
-       RESET ERROR WHEN OPENING
+       LOAD PICKLIST
     ===================================================== */
 
     useEffect(() => {
-        if (open) {
-            setError("");
-        }
-    }, [open, picklistId]);
+        const loadPicklist = async () => {
+            if (!id) {
+                setError("Picklist ID is missing.");
+                setLoading(false);
+                return;
+            }
 
-    /* =====================================================
-       CLOSE DIALOG
-    ===================================================== */
+            try {
+                setLoading(true);
+                setError("");
 
-    const handleClose = () => {
-        if (loading) {
-            return;
-        }
+                const encodedId = encodeURIComponent(id);
 
-        setError("");
+                console.log(
+                    "GET PICKLIST:",
+                    `${API_URL}/${encodedId}`
+                );
 
-        if (typeof onClose === "function") {
-            onClose();
-        }
-    };
+                const response = await axios.get(
+                    `${API_URL}/${encodedId}`
+                );
+
+                console.log(
+                    "PICKLIST RESPONSE:",
+                    response.data
+                );
+
+                setPicklist(response.data);
+            } catch (err) {
+                console.error(
+                    "GET PICKLIST ERROR:",
+                    err
+                );
+
+                /* =========================================
+                   FALLBACK TO /all
+                ========================================= */
+
+                try {
+                    console.log(
+                        "GET PICKLIST FALLBACK:",
+                        `${API_URL}/all`
+                    );
+
+                    const allResponse = await axios.get(
+                        `${API_URL}/all`
+                    );
+
+                    const records = Array.isArray(
+                        allResponse.data
+                    )
+                        ? allResponse.data
+                        : [];
+
+                    const found = records.find((item) => {
+                        const itemId = getValue(
+                            item,
+                            [
+                                "picklistId",
+                                "PicklistId",
+                                "pickListId",
+                                "PickListId",
+                                "id",
+                                "Id",
+                                "picklistNumber",
+                                "PicklistNumber",
+                                "pickListNumber",
+                                "PickListNumber"
+                            ],
+                            ""
+                        );
+
+                        return String(itemId) === String(id);
+                    });
+
+                    if (found) {
+                        setPicklist(found);
+                        setError("");
+                    } else {
+                        setError(
+                            `No picklist was found for ID "${id}".`
+                        );
+                    }
+                } catch (fallbackError) {
+                    console.error(
+                        "GET PICKLIST FALLBACK ERROR:",
+                        fallbackError
+                    );
+
+                    const message =
+                        fallbackError.response?.data?.message ||
+                        fallbackError.response?.data?.title ||
+                        fallbackError.message ||
+                        "Failed to load picklist.";
+
+                    setError(message);
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadPicklist();
+    }, [id]);
 
     /* =====================================================
        DELETE PICKLIST
     ===================================================== */
 
     const handleDelete = async () => {
-        if (loading) {
+        if (!id) {
+            setError("Picklist ID is missing.");
             return;
         }
-
-        if (
-            picklistId === undefined ||
-            picklistId === null ||
-            String(picklistId).trim() === ""
-        ) {
-            const message = "A valid picklist ID is required.";
-
-            setError(message);
-
-            if (typeof onError === "function") {
-                onError(new Error(message));
-            }
-
-            return;
-        }
-
-        setError("");
-
-        /*
-         * Set deleteOnConfirm={false} when the parent component
-         * performs the deletion through onDeleted.
-         */
-        if (!deleteOnConfirm) {
-            if (typeof onDeleted === "function") {
-                try {
-                    setLoading(true);
-                    await onDeleted(picklist);
-                    handleSuccessClose();
-                } catch (err) {
-                    handleRequestError(err);
-                } finally {
-                    setLoading(false);
-                }
-            } else {
-                setError(
-                    "No deletion handler was provided. Configure onDeleted or enable deleteOnConfirm."
-                );
-            }
-
-            return;
-        }
-
-        setLoading(true);
 
         try {
-            await axios.delete(
-                `${apiUrl}/${encodeURIComponent(String(picklistId))}`
+            setDeleting(true);
+            setError("");
+            setSuccess("");
+
+            const encodedId = encodeURIComponent(id);
+
+            const deleteUrl = `${API_URL}/${encodedId}`;
+
+            console.log(
+                "DELETE PICKLIST:",
+                deleteUrl
             );
 
-            handleSuccessClose();
+            await axios.delete(deleteUrl);
+
+            setSuccess(
+                `Picklist "${id}" was deleted successfully.`
+            );
+
+            setTimeout(() => {
+                navigate("/picklists");
+            }, 1000);
         } catch (err) {
-            handleRequestError(err);
+            console.error(
+                "DELETE PICKLIST ERROR:",
+                err
+            );
+
+            const responseMessage =
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.response?.data?.error;
+
+            if (err.response?.status === 400) {
+                setError(
+                    responseMessage ||
+                    "The server could not process the deletion request."
+                );
+            } else if (err.response?.status === 401) {
+                setError(
+                    "You are not authorized to delete this picklist."
+                );
+            } else if (err.response?.status === 403) {
+                setError(
+                    "You do not have permission to delete this picklist."
+                );
+            } else if (err.response?.status === 404) {
+                setError(
+                    `Picklist "${id}" was not found or has already been deleted.`
+                );
+            } else if (err.response?.status === 409) {
+                setError(
+                    responseMessage ||
+                    "This picklist cannot be deleted because it is being used by other records."
+                );
+            } else {
+                setError(
+                    responseMessage ||
+                    err.message ||
+                    "Failed to delete the picklist."
+                );
+            }
         } finally {
-            setLoading(false);
+            setDeleting(false);
         }
     };
 
     /* =====================================================
-       SUCCESS HANDLER
+       CANCEL
     ===================================================== */
 
-    const handleSuccessClose = () => {
-        setError("");
-
-        if (typeof onDeleted === "function" && deleteOnConfirm) {
-            onDeleted(picklist);
-        }
-
-        if (typeof onClose === "function") {
-            onClose();
+    const handleCancel = () => {
+        if (!deleting) {
+            navigate("/picklists");
         }
     };
 
     /* =====================================================
-       ERROR HANDLER
+       LOADING
     ===================================================== */
 
-    const handleRequestError = (err) => {
-        const responseMessage =
-            err.response?.data?.message ||
-            err.response?.data?.title ||
-            err.response?.data?.error;
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    p: 4,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: 300
+                }}
+            >
+                <Stack
+                    spacing={2}
+                    alignItems="center"
+                >
+                    <CircularProgress />
 
-        let message;
-
-        if (err.response?.status === 400) {
-            message =
-                responseMessage ||
-                "The server could not process this deletion request.";
-        } else if (err.response?.status === 401) {
-            message = "You are not authorized to delete this picklist.";
-        } else if (err.response?.status === 403) {
-            message = "You do not have permission to delete this picklist.";
-        } else if (err.response?.status === 404) {
-            message = "This picklist was not found or has already been deleted.";
-        } else if (err.response?.status === 409) {
-            message =
-                responseMessage ||
-                "This picklist cannot be deleted because it conflicts with existing records.";
-        } else {
-            message =
-                responseMessage ||
-                err.message ||
-                "Failed to delete the picklist. Please try again.";
-        }
-
-        setError(message);
-
-        if (typeof onError === "function") {
-            onError(err);
-        }
-    };
+                    <Typography>
+                        Loading picklist...
+                    </Typography>
+                </Stack>
+            </Box>
+        );
+    }
 
     /* =====================================================
-       RENDER DIALOG
+       RENDER
     ===================================================== */
 
     return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            fullWidth
-            maxWidth="xs"
-            aria-labelledby="delete-picklist-dialog-title"
-            aria-describedby="delete-picklist-dialog-description"
-        >
-            {/* TITLE */}
+        <Box sx={{ p: 3 }}>
+            <Paper
+                elevation={3}
+                sx={{
+                    maxWidth: 650,
+                    mx: "auto",
+                    borderRadius: 2
+                }}
+            >
+                {/* =================================================
+                    HEADER
+                ================================================= */}
 
-            <DialogTitle id="delete-picklist-dialog-title">
-                <Stack
-                    direction="row"
-                    spacing={1.5}
-                    alignItems="center"
-                >
-                    <WarningAmber color="error" />
-
-                    <Typography
-                        component="span"
-                        variant="h6"
-                        fontWeight={700}
-                    >
-                        Delete Picklist
-                    </Typography>
-                </Stack>
-            </DialogTitle>
-
-            <Divider />
-
-            {/* CONTENT */}
-
-            <DialogContent sx={{ pt: 3 }}>
-                {error && (
-                    <Alert
-                        severity="error"
-                        sx={{ mb: 2 }}
-                        onClose={() => setError("")}
-                    >
-                        {error}
-                    </Alert>
-                )}
-
-                <DialogContentText
-                    id="delete-picklist-dialog-description"
-                    sx={{ mb: 2 }}
-                >
-                    Are you sure you want to delete this picklist? This
-                    action may not be reversible.
-                </DialogContentText>
-
-                <Stack
-                    spacing={1.5}
-                    sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: "action.hover"
-                    }}
-                >
+                <Box sx={{ p: 3 }}>
                     <Stack
                         direction="row"
-                        justifyContent="space-between"
-                        spacing={2}
+                        spacing={1.5}
+                        alignItems="center"
                     >
                         <Typography
-                            variant="body2"
-                            color="text.secondary"
+                            component="span"
+                            sx={{
+                                fontSize: 32,
+                                lineHeight: 1
+                            }}
                         >
-                            Picklist
+                            ⚠
                         </Typography>
 
                         <Typography
-                            variant="body2"
+                            variant="h5"
                             fontWeight={700}
-                            textAlign="right"
-                            sx={{ overflowWrap: "anywhere" }}
                         >
-                            {String(picklistNumber)}
+                            Delete Picklist
                         </Typography>
                     </Stack>
+                </Box>
 
-                    <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        spacing={2}
-                    >
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
+                <Divider />
+
+                {/* =================================================
+                    CONTENT
+                ================================================= */}
+
+                <Box sx={{ p: 3 }}>
+                    {error && (
+                        <Alert
+                            severity="error"
+                            sx={{ mb: 2 }}
                         >
-                            ID
-                        </Typography>
-
-                        <Typography
-                            variant="body2"
-                            fontWeight={600}
-                        >
-                            {picklistId !== ""
-                                ? String(picklistId)
-                                : "—"}
-                        </Typography>
-                    </Stack>
-
-                    {orderNumber !== "" && (
-                        <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            spacing={2}
-                        >
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                            >
-                                Order Number
-                            </Typography>
-
-                            <Typography
-                                variant="body2"
-                                fontWeight={600}
-                                textAlign="right"
-                            >
-                                {String(orderNumber)}
-                            </Typography>
-                        </Stack>
+                            {error}
+                        </Alert>
                     )}
 
-                    <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        spacing={2}
+                    {success && (
+                        <Alert
+                            severity="success"
+                            sx={{ mb: 2 }}
+                        >
+                            {success}
+                        </Alert>
+                    )}
+
+                    {!error && !success && (
+                        <>
+                            <Typography
+                                variant="body1"
+                                sx={{ mb: 3 }}
+                            >
+                                Are you sure you want to delete
+                                this picklist? This action may not
+                                be reversible.
+                            </Typography>
+
+                            <Stack
+                                spacing={2}
+                                sx={{
+                                    p: 2,
+                                    bgcolor: "action.hover",
+                                    borderRadius: 2,
+                                    mb: 3
+                                }}
+                            >
+                                {/* Picklist ID */}
+
+                                <Stack
+                                    direction="row"
+                                    justifyContent="space-between"
+                                    spacing={2}
+                                >
+                                    <Typography
+                                        color="text.secondary"
+                                    >
+                                        Picklist ID
+                                    </Typography>
+
+                                    <Typography
+                                        fontWeight={700}
+                                        sx={{
+                                            overflowWrap:
+                                                "anywhere"
+                                        }}
+                                    >
+                                        {id}
+                                    </Typography>
+                                </Stack>
+
+                                {/* Picklist Number */}
+
+                                {picklist && (
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        spacing={2}
+                                    >
+                                        <Typography
+                                            color="text.secondary"
+                                        >
+                                            Picklist Number
+                                        </Typography>
+
+                                        <Typography
+                                            fontWeight={600}
+                                            textAlign="right"
+                                        >
+                                            {String(
+                                                getValue(
+                                                    picklist,
+                                                    [
+                                                        "picklistNumber",
+                                                        "PicklistNumber",
+                                                        "pickListNumber",
+                                                        "PickListNumber",
+                                                        "picklistNo",
+                                                        "PicklistNo"
+                                                    ],
+                                                    id
+                                                )
+                                            )}
+                                        </Typography>
+                                    </Stack>
+                                )}
+
+                                {/* Order Number */}
+
+                                {picklist &&
+                                    getValue(
+                                        picklist,
+                                        [
+                                            "orderNumber",
+                                            "OrderNumber",
+                                            "salesOrderNumber",
+                                            "SalesOrderNumber",
+                                            "orderNo",
+                                            "OrderNo"
+                                        ],
+                                        ""
+                                    ) !== "" && (
+                                        <Stack
+                                            direction="row"
+                                            justifyContent="space-between"
+                                            spacing={2}
+                                        >
+                                            <Typography
+                                                color="text.secondary"
+                                            >
+                                                Order Number
+                                            </Typography>
+
+                                            <Typography
+                                                fontWeight={600}
+                                            >
+                                                {String(
+                                                    getValue(
+                                                        picklist,
+                                                        [
+                                                            "orderNumber",
+                                                            "OrderNumber",
+                                                            "salesOrderNumber",
+                                                            "SalesOrderNumber",
+                                                            "orderNo",
+                                                            "OrderNo"
+                                                        ],
+                                                        ""
+                                                    )
+                                                )}
+                                            </Typography>
+                                        </Stack>
+                                    )}
+
+                                {/* Status */}
+
+                                {picklist && (
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        spacing={2}
+                                    >
+                                        <Typography
+                                            color="text.secondary"
+                                        >
+                                            Status
+                                        </Typography>
+
+                                        <Typography
+                                            fontWeight={600}
+                                        >
+                                            {String(
+                                                getValue(
+                                                    picklist,
+                                                    [
+                                                        "status",
+                                                        "Status",
+                                                        "picklistStatus",
+                                                        "PicklistStatus"
+                                                    ],
+                                                    "Unknown"
+                                                )
+                                            )}
+                                        </Typography>
+                                    </Stack>
+                                )}
+                            </Stack>
+
+                            <Alert severity="warning">
+                                Confirm that this picklist is no
+                                longer needed before proceeding.
+                            </Alert>
+                        </>
+                    )}
+                </Box>
+
+                <Divider />
+
+                {/* =================================================
+                    ACTIONS
+                ================================================= */}
+
+                <Stack
+                    direction="row"
+                    justifyContent="flex-end"
+                    spacing={2}
+                    sx={{ p: 2 }}
+                >
+                    <Button
+                        variant="outlined"
+                        onClick={handleCancel}
+                        disabled={deleting}
                     >
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            Status
-                        </Typography>
+                        Cancel
+                    </Button>
 
-                        <Typography
-                            variant="body2"
-                            fontWeight={600}
+                    {!success && (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={handleDelete}
+                            disabled={
+                                deleting ||
+                                Boolean(error && !picklist)
+                            }
+                            startIcon={
+                                deleting ? (
+                                    <CircularProgress
+                                        size={18}
+                                        color="inherit"
+                                    />
+                                ) : (
+                                    <Typography
+                                        component="span"
+                                        sx={{
+                                            fontSize: 18,
+                                            lineHeight: 1
+                                        }}
+                                    >
+                                        🗑
+                                    </Typography>
+                                )
+                            }
                         >
-                            {String(status)}
-                        </Typography>
-                    </Stack>
+                            {deleting
+                                ? "Deleting..."
+                                : "Delete Picklist"}
+                        </Button>
+                    )}
                 </Stack>
-
-                <Alert severity="warning" sx={{ mt: 2 }}>
-                    Confirm that this picklist is no longer needed before
-                    proceeding.
-                </Alert>
-            </DialogContent>
-
-            <Divider />
-
-            {/* ACTIONS */}
-
-            <DialogActions sx={{ p: 2 }}>
-                <Button
-                    onClick={handleClose}
-                    disabled={loading}
-                    variant="outlined"
-                >
-                    Cancel
-                </Button>
-
-                <Button
-                    onClick={handleDelete}
-                    color="error"
-                    variant="contained"
-                    disabled={loading || picklistId === ""}
-                    startIcon={
-                        loading ? (
-                            <CircularProgress
-                                size={18}
-                                color="inherit"
-                            />
-                        ) : (
-                            <DeleteOutline />
-                        )
-                    }
-                >
-                    {loading ? "Deleting..." : "Delete Picklist"}
-                </Button>
-            </DialogActions>
-        </Dialog>
+            </Paper>
+        </Box>
     );
 };
 
-export default DeletePicklistDialog;
-
+export default PicklistDelete;

@@ -1474,8 +1474,7 @@ PICKLIST ROUTES
 <Route path="/picklists/edit/:picklistCode" element={<PicklistEdit />} />
 <Route path="/picklists/view/:picklistCode" element={<PicklistView />} />
 <Route path="/picklists/details/:picklistCode" element={<PicklistDetails />} />
-
-
+<Route path="/picklists/delete/:id" element={<DeletePicklistDialog />} />
                 {/* =================================================
                     WAREHOUSES
                 ================================================= */}
