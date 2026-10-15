@@ -1,3 +1,4 @@
+
 import React from "react";
 
 import {
@@ -19,81 +20,54 @@ import {
     Delete
 } from "@mui/icons-material";
 
+const getVal = (item, ...keys) => {
+    for (const key of keys) {
+        if (
+            item?.[key] !== undefined &&
+            item?.[key] !== null &&
+            item?.[key] !== ""
+        ) {
+            return item[key];
+        }
+    }
 
-// =========================================================
-// FORMAT DATE
-// =========================================================
+    return "";
+};
 
 const formatDate = (date) => {
-
-    if (!date) {
-        return "-";
-    }
+    if (!date) return "-";
 
     const parsedDate = new Date(date);
 
-    if (isNaN(parsedDate.getTime())) {
-        return "-";
-    }
-
-    return parsedDate.toLocaleDateString();
+    return Number.isNaN(parsedDate.getTime())
+        ? "-"
+        : parsedDate.toLocaleDateString();
 };
-
-
-// =========================================================
-// FORMAT NUMBER
-// =========================================================
 
 const formatNumber = (value) => {
-
     const number = Number(value ?? 0);
 
-    if (isNaN(number)) {
-        return "0.00";
-    }
-
-    return number.toFixed(2);
+    return Number.isFinite(number)
+        ? number.toFixed(2)
+        : "0.00";
 };
 
-
-// =========================================================
-// TRANSACTION TYPE COLOR
-// =========================================================
-
-const getTransactionColor = (transactionType) => {
-
-    const type =
-        transactionType
-            ?.toString()
-            .trim()
-            .toUpperCase();
-
-    switch (type) {
-
+const getTransactionColor = (type) => {
+    switch (String(type || "").toUpperCase()) {
         case "PURCHASE":
             return "success";
-
         case "SALE":
             return "error";
-
         case "RETURN":
             return "info";
-
         case "ADJUSTMENT":
             return "warning";
-
         case "TRANSFER":
             return "secondary";
-
         default:
             return "default";
     }
 };
-
-
-// =========================================================
-// STOCK LEDGER TABLE
-// =========================================================
 
 const StockLedgerTable = ({
     items = [],
@@ -101,339 +75,194 @@ const StockLedgerTable = ({
     onEdit,
     onDelete
 }) => {
+    const handleAction = (callback, item, action) => {
+        console.log(`${action} STOCK LEDGER BUTTON CLICKED`, item);
+
+        if (typeof callback !== "function") {
+            console.error(`${action} callback was not provided.`);
+            return;
+        }
+
+        callback(item);
+    };
 
     return (
-
         <TableContainer
             component={Paper}
+            elevation={2}
             className="stock-ledger-table"
-            elevation={3}
         >
-
             <Table>
-
-                {/* =====================================================
-                    TABLE HEADER
-                ===================================================== */}
-
                 <TableHead>
-
                     <TableRow>
-
-                        <TableCell>
-                            ID
-                        </TableCell>
-
-                        <TableCell>
-                            Seller ID
-                        </TableCell>
-
-                        <TableCell>
-                            Product ID
-                        </TableCell>
-
-                        <TableCell>
-                            Warehouse ID
-                        </TableCell>
-
-                        <TableCell>
-                            Transaction Type
-                        </TableCell>
-
-                        <TableCell>
-                            Reference Number
-                        </TableCell>
-
-                        <TableCell align="right">
-                            Quantity
-                        </TableCell>
-
-                        <TableCell align="right">
-                            Balance Quantity
-                        </TableCell>
-
-                        <TableCell>
-                            Transaction Date
-                        </TableCell>
-
-                        <TableCell>
-                            Remarks
-                        </TableCell>
-
-                        <TableCell align="center">
-                            Actions
-                        </TableCell>
-
+                        <TableCell>ID</TableCell>
+                        <TableCell>Seller ID</TableCell>
+                        <TableCell>Customer ID</TableCell>
+                        <TableCell>Product ID</TableCell>
+                        <TableCell>Warehouse ID</TableCell>
+                        <TableCell>Transaction Type</TableCell>
+                        <TableCell>Reference Number</TableCell>
+                        <TableCell align="right">Quantity</TableCell>
+                        <TableCell align="right">Balance Quantity</TableCell>
+                        <TableCell>Transaction Date</TableCell>
+                        <TableCell>Remarks</TableCell>
+                        <TableCell align="center">Actions</TableCell>
                     </TableRow>
-
                 </TableHead>
 
-
-                {/* =====================================================
-                    TABLE BODY
-                ===================================================== */}
-
                 <TableBody>
-
                     {items.length === 0 ? (
-
                         <TableRow>
-
-                            <TableCell
-                                colSpan={11}
-                                align="center"
-                            >
+                            <TableCell colSpan={12} align="center">
                                 No Stock Ledger Records Found
                             </TableCell>
-
                         </TableRow>
-
                     ) : (
+                        items.map((item, index) => {
+                            const id = getVal(
+                                item,
+                                "stockLedgerId",
+                                "StockLedgerId"
+                            );
 
-                        items.map((item) => {
-
-                            const stockLedgerId =
-                                item.stockLedgerId ??
-                                item.StockLedgerId;
-
-                            const sellerId =
-                                item.sellerId ??
-                                item.SellerId;
-
-                            const productId =
-                                item.productId ??
-                                item.ProductId;
-
-                            const warehouseId =
-                                item.warehouseId ??
-                                item.WarehouseId;
-
-                            const transactionType =
-                                item.transactionType ??
-                                item.TransactionType;
-
-                            const referenceNumber =
-                                item.referenceNumber ??
-                                item.ReferenceNumber;
-
-                            const quantity =
-                                item.quantity ??
-                                item.Quantity;
-
-                            const balanceQuantity =
-                                item.balanceQuantity ??
-                                item.BalanceQuantity;
-
-                            const transactionDate =
-                                item.transactionDate ??
-                                item.TransactionDate;
-
-                            const remarks =
-                                item.remarks ??
-                                item.Remarks;
-
+                            const type = getVal(
+                                item,
+                                "transactionType",
+                                "TransactionType"
+                            );
 
                             return (
-
                                 <TableRow
-                                    key={stockLedgerId}
+                                    key={id || index}
                                     hover
                                 >
-
-                                    {/* =================================================
-                                        ID
-                                    ================================================= */}
+                                    <TableCell>{id || "-"}</TableCell>
 
                                     <TableCell>
-                                        {stockLedgerId}
+                                        {getVal(item, "sellerId", "SellerId") || "-"}
                                     </TableCell>
 
-
-                                    {/* =================================================
-                                        SELLER ID
-                                    ================================================= */}
-
                                     <TableCell>
-                                        {sellerId ?? "-"}
+                                        {getVal(item, "customerId", "CustomerId") || "-"}
                                     </TableCell>
 
-
-                                    {/* =================================================
-                                        PRODUCT ID
-                                    ================================================= */}
-
                                     <TableCell>
-                                        {productId ?? "-"}
+                                        {getVal(item, "productId", "ProductId") || "-"}
                                     </TableCell>
 
-
-                                    {/* =================================================
-                                        WAREHOUSE ID
-                                    ================================================= */}
-
                                     <TableCell>
-                                        {warehouseId ?? "-"}
+                                        {getVal(item, "warehouseId", "WarehouseId") || "-"}
                                     </TableCell>
 
-
-                                    {/* =================================================
-                                        TRANSACTION TYPE
-                                    ================================================= */}
-
                                     <TableCell>
-
                                         <Chip
-                                            label={
-                                                transactionType ||
-                                                "-"
-                                            }
-
-                                            color={
-                                                getTransactionColor(
-                                                    transactionType
-                                                )
-                                            }
-
                                             size="small"
+                                            label={type || "-"}
+                                            color={getTransactionColor(type)}
                                         />
-
                                     </TableCell>
-
-
-                                    {/* =================================================
-                                        REFERENCE NUMBER
-                                    ================================================= */}
 
                                     <TableCell>
-                                        {referenceNumber || "-"}
+                                        {getVal(
+                                            item,
+                                            "referenceNumber",
+                                            "ReferenceNumber"
+                                        ) || "-"}
                                     </TableCell>
-
-
-                                    {/* =================================================
-                                        QUANTITY
-                                    ================================================= */}
 
                                     <TableCell align="right">
-
                                         {formatNumber(
-                                            quantity
+                                            getVal(item, "quantity", "Quantity")
                                         )}
-
                                     </TableCell>
-
-
-                                    {/* =================================================
-                                        BALANCE QUANTITY
-                                    ================================================= */}
 
                                     <TableCell align="right">
-
                                         {formatNumber(
-                                            balanceQuantity
+                                            getVal(
+                                                item,
+                                                "balanceQuantity",
+                                                "BalanceQuantity"
+                                            )
                                         )}
-
                                     </TableCell>
-
-
-                                    {/* =================================================
-                                        TRANSACTION DATE
-                                    ================================================= */}
 
                                     <TableCell>
-
                                         {formatDate(
-                                            transactionDate
+                                            getVal(
+                                                item,
+                                                "transactionDate",
+                                                "TransactionDate"
+                                            )
                                         )}
-
                                     </TableCell>
-
-
-                                    {/* =================================================
-                                        REMARKS
-                                    ================================================= */}
 
                                     <TableCell>
-
-                                        {remarks || "-"}
-
+                                        {getVal(item, "remarks", "Remarks") || "-"}
                                     </TableCell>
-
-
-                                    {/* =================================================
-                                        ACTIONS
-                                    ================================================= */}
 
                                     <TableCell align="center">
-
-                                        {/* VIEW */}
-
                                         <Tooltip title="View">
-
-                                            <IconButton
-                                                color="primary"
-                                                onClick={() =>
-                                                    onView?.(item)
-                                                }
-                                            >
-
-                                                <Visibility />
-
-                                            </IconButton>
-
+                                            <span>
+                                                <IconButton
+                                                    color="primary"
+                                                    disabled={id === ""}
+                                                    onClick={() =>
+                                                        handleAction(
+                                                            onView,
+                                                            item,
+                                                            "VIEW"
+                                                        )
+                                                    }
+                                                >
+                                                    <Visibility />
+                                                </IconButton>
+                                            </span>
                                         </Tooltip>
-
-
-                                        {/* EDIT */}
 
                                         <Tooltip title="Edit">
-
-                                            <IconButton
-                                                color="warning"
-                                                onClick={() =>
-                                                    onEdit?.(item)
-                                                }
-                                            >
-
-                                                <Edit />
-
-                                            </IconButton>
-
+                                            <span>
+                                                <IconButton
+                                                    color="warning"
+                                                    disabled={id === ""}
+                                                    onClick={() =>
+                                                        handleAction(
+                                                            onEdit,
+                                                            item,
+                                                            "EDIT"
+                                                        )
+                                                    }
+                                                >
+                                                    <Edit />
+                                                </IconButton>
+                                            </span>
                                         </Tooltip>
-
-
-                                        {/* DELETE */}
 
                                         <Tooltip title="Delete">
-
-                                            <IconButton
-                                                color="error"
-                                                onClick={() =>
-                                                    onDelete?.(item)
-                                                }
-                                            >
-
-                                                <Delete />
-
-                                            </IconButton>
-
+                                            <span>
+                                                <IconButton
+                                                    color="error"
+                                                    disabled={id === ""}
+                                                    onClick={() =>
+                                                        handleAction(
+                                                            onDelete,
+                                                            item,
+                                                            "DELETE"
+                                                        )
+                                                    }
+                                                >
+                                                    <Delete />
+                                                </IconButton>
+                                            </span>
                                         </Tooltip>
-
                                     </TableCell>
-
                                 </TableRow>
-
                             );
                         })
-
                     )}
-
                 </TableBody>
-
             </Table>
-
         </TableContainer>
     );
 };
-
 
 export default StockLedgerTable;
