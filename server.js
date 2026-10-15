@@ -9313,45 +9313,41 @@ app.delete(
 // GET /api/stock-ledgers
 // ---------------------------------------------------------
 
-app.get(
-    "/api/stock-ledgers",
-    async (req, res) => {
 
-        try {
+ // =========================================================
+ // GET ALL STOCK LEDGERS
+ // GET /api/stock-ledgers/all
+ // =========================================================
 
-            console.log(
-                "GET /api/stock-ledgers",
-                req.query
-            );
+app.get("/api/stock-ledgers/all", async (req, res) => {
+    try {
+        console.log("GET /api/stock-ledgers/all");
 
-            const response =
-                await axios.get(
-                    `${DOTNET_API}/stock-ledgers`,
-                    {
-                        httpsAgent,
-                        params: req.query
-                    }
-                );
+        const response = await axios.get(
+            `${DOTNET_API}/stock-ledgers/all`,
+            { httpsAgent }
+        );
 
-            return res
-                .status(response.status)
-                .json(response.data);
+        return res
+            .status(response.status)
+            .json(response.data);
 
-        } catch (error) {
+    } catch (error) {
+        console.error(
+            "GET ALL STOCK LEDGERS ERROR:",
+            error.response?.status,
+            error.response?.data,
+            error.message
+        );
 
-            console.error(
-                "Stock Ledger GET Error:",
-                error.message
-            );
-
-            return handleProxyError(
-                res,
-                error,
-                "Failed to load Stock Ledger records."
-            );
-        }
+        return handleProxyError(
+            res,
+            error,
+            "Failed to load all Stock Ledger records."
+        );
     }
-);
+});
+
 
 
 // ---------------------------------------------------------
